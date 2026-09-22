@@ -4,10 +4,13 @@ No test framework, no dependencies: plain `node --test`. Everything in `npm test
 offline** - Gemini and Google are faked, timers are virtualised, no TTS server needed.
 
 ```bash
-npm test          # 312 tests, ~14s. Baseline: 311 pass, 0 fail, 1 skip
+npm test          # ~14s. The bar is 0 fail; 1 skip is normal
+                  # 316 tests / 315 pass as of 2026-09-23, and the count keeps growing
 ```
 
 The one skip is intentional (see `reload-fight.test.js` below). **A fail is a regression, not noise.**
+The per-file counts below were taken on 2026-09-23 and drift as tests are added; treat them as a
+sense of weight, not an assertion.
 
 ## The 9 files in `npm test`
 

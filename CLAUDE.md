@@ -88,7 +88,8 @@ outside your lane, say so in the commit message. `build-info.js` is generated; n
 ## Commands
 
 ```bash
-npm test                       # 312 tests, fully offline, ~14s. Baseline: 311 pass, 0 fail, 1 skip
+npm test                       # fully offline, ~14s. The bar is 0 fail. 1 skip is normal
+                               # (316 tests / 315 pass on 2026-09-23; the count grows as tests are added)
 npm run compare                # old vs new segmenter over the fixtures
 node tools/bump-version.js     # run at the end of every code change
 node tests/vieneu.live.js      # needs the local TTS server running
@@ -100,7 +101,9 @@ The one skipped test needs `OLD_YT=<path-to-an-older-youtube.js>`; skipping it i
 
 ## Definition of done
 
-1. `npm test` green: 311 pass, 0 fail. A new failure is yours, fix it before finishing.
+1. `npm test` shows **0 fail**. A new failure is yours; fix it before finishing. Do not compare
+   pass counts against a number written in a doc, they go stale: compare against `git stash` if
+   you need to know whether a failure predates you.
 2. `node tools/bump-version.js`.
 3. Anything you learned that the next session would waste tokens rediscovering goes into the right
    `docs/` file, or into `docs/BACKLOG.md`. Keep it to a few lines.
