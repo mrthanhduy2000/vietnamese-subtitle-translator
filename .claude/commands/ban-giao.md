@@ -19,7 +19,8 @@ for permission between them, and do not skip one because it looks unnecessary.
    - No: skip it and say in one line why.
 
 4. Rewrite `docs/HANDOFF.md` completely. Keep its headings and their order, replace the content,
-   stay under 40 lines. Write it for a session that knows nothing: name the files, name the
+   keep it to roughly 40 lines (45 hard cap). Write it for a session that knows nothing: name
+   the files, name the
    version, say what is unfinished, and record any trap that cost you time. Do not narrate the
    diff, git already has it.
 

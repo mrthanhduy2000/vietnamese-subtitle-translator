@@ -2,7 +2,8 @@
 
 The last session that changed a file overwrites this whole file. Read it right after `git log`: it
 says what the state is **now**, not what happened over time (git holds that). Keep the headings and
-their order, replace rather than append, stay under 40 lines, write `none` in an empty section.
+their order, replace rather than append, keep it to roughly 40 lines (45 hard cap), and write
+`none` in an empty section.
 
 ## Last touched
 

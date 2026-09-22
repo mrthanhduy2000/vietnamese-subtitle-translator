@@ -117,7 +117,7 @@ By hand, `/ban-giao` is:
 2. `node tools/bump-version.js`, but **only if a runtime file changed**: `manifest.json`, or a
    `.js` / `.html` / `.css` in the repo root. Docs, `tools/` and `tests/` do not earn a bump.
 3. Rewrite `docs/HANDOFF.md`: current state, what is unfinished, traps that cost you time. Replace
-   it, do not append. Under 40 lines.
+   it, do not append. Roughly 40 lines, 45 hard cap.
 4. Anything structural the next session would waste tokens rediscovering goes in the matching
    `docs/` file, or in `docs/BACKLOG.md` if it is a defect you are not fixing.
 5. `git add -A && git commit`, version number in the subject if step 2 bumped it. **If another
