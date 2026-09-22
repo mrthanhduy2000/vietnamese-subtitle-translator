@@ -6,33 +6,36 @@ their order, replace rather than append, stay under 40 lines, write `none` in an
 
 ## Last touched
 
-2026-09-23 · version 1.4.0 · lane: docs + infra
+2026-09-23 · lane: docs + infra · **version is contested**: the working tree says `1.4.3`, the
+commits on this branch contain `1.4.2`. A second Claude session was bumping it in this same folder
+while these commits were made. Trust `manifest.json`, not a commit message.
 
 ## What changed
 
-- The handoff system itself: `tools/handoff-check.sh` (Stop hook), `.claude/settings.json`,
+- The handoff system: `tools/handoff-check.sh` (Stop hook), `.claude/settings.json`,
   `.claude/commands/ban-giao.md`, this file, and the handoff rule in `CLAUDE.md`.
-- Earlier the same day: `CLAUDE.md` and the six `docs/` files, `git init` plus the first commit.
+- Earlier the same day: `CLAUDE.md` and the six other `docs/` files, `git init`, first commit.
 
 ## State
 
-- `npm test`: 0 fail · version bumped: no (nothing Chrome loads was touched) · committed: yes
-- user must click Reload at `chrome://extensions`: no
+- `npm test`: 0 fail · committed: yes, by path · Reload needed at `chrome://extensions`: no
+- Uncommitted and **not mine**: `version-history.js` plus `options.*`, `popup.html`,
+  `manifest.json`, `package.json`, `build-info.js`, `tools/bump-version.js`, `tests/ui.test.js` -
+  the other session's version-history feature, mid-flight. Leave it alone.
 
 ## Unfinished / in progress
 
-none
+none of mine
 
 ## Traps hit this session
 
-- Another session edited this folder at the same time: `theme.js` and
-  `tools/vieneu-autostart.command` appeared mid-session and the test count went 312 to 316. When a
-  doc disagrees with the code, check `git log` and file mtimes before assuming the doc is wrong.
-- The sandbox blocks writes to `~/Downloads`, creating `.git`, and creating `.claude/`
-  subdirectories. Those commands have to run outside it.
+- **Do not trust the first two commit messages.** `0653fa3` says "Snapshot v1.4.0" but its tree
+  holds `1.4.2`, because it used `git add -A` while the parallel session had already bumped twice,
+  so it also carries some of that session's edits. This is exactly why `CLAUDE.md` now says to
+  commit by path when the folder is shared.
+- The sandbox blocks writes to `~/Downloads`, `.git` creation, and `.claude/` subdirectories.
 
 ## Suggested next step
 
-- `docs/BACKLOG.md` has 9 audited defects, none fixed. Cheapest two: item 2 (`popup.js` sends a
-  `setOptions` message nobody handles) and item 1 (`dubCondense` has four contradictory sources and
-  no UI control). One change and one version bump each.
+- `docs/BACKLOG.md` has 9 audited defects, none fixed. Cheapest: item 2 (`popup.js` sends a
+  `setOptions` message nobody handles).
