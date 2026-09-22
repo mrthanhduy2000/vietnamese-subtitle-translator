@@ -44,6 +44,7 @@ dub-engine.js -> dubbing.js -> content.js -> youtube.js
 | `popup.html` | 166 | Popup markup | n/a |
 | `vi-quality.js` | 165 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
 | `lang-detect.js` | 93 | Source-language decision without an API call | `CST_LANG` |
+| `version-history.js` | 355 | Release history data (35 entries, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
 | `version-check.js` | 55 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
 | `theme.js` | 42 | Light/Dark theme for the popup and settings page. Applies instantly from `localStorage` to avoid a flash, then syncs from `storage.sync`. Loaded by `popup.html` and `options.html` only, not a content script | `window.CST_THEME` |
 | `build-info.js` | 6 | **Generated** by `tools/bump-version.js`. Never edit | `CST_BUILD` |
@@ -69,7 +70,7 @@ See `TESTING.md`. Short version: 9 files in `npm test`, all offline; 3 manual sc
 
 `tools/vieneu-autostart.command` (63 lines, zsh, executable) installs a macOS LaunchAgent
 `com.damduy.vieneu` that starts the VieNeu TTS server at login and restarts it if it dies.
-Double-click installs; `--go` or `--uninstall` removes. It is a user-machine utility, not part of
+Double-click installs; `--uninstall` removes. It is a user-machine utility, not part of
 the extension.
 
 ## Not source

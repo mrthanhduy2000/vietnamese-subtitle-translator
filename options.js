@@ -857,6 +857,86 @@ document.addEventListener("DOMContentLoaded", async () => {
     [autoDubBox, providerSel, localVoiceSel, gVoiceSel, voiceSel].forEach(el => el && el.addEventListener("change", veNhanLongTieng));
     veNhanLongTieng();
 
+    // ---- Lịch sử phiên bản (dữ liệu ở version-history.js) ----
+    function veLichSu(loc) {
+        const box = document.getElementById("historyList");
+        if (!box || !window.CST_HISTORY) return;
+        const tu = (loc || "").trim().toLowerCase();
+        const khop = m => !tu || (m.v + " " + m.ten + " " + m.y.join(" ") + " " + (m.bang ? JSON.stringify(m.bang) : "")).toLowerCase().includes(tu);
+        const ds = window.CST_HISTORY.HISTORY.filter(khop);
+        box.textContent = "";
+        if (!ds.length) {
+            const p = document.createElement("p");
+            p.className = "ver-empty";
+            p.textContent = "Không có bản nào khớp với từ khóa này.";
+            box.appendChild(p);
+            return;
+        }
+        for (const m of ds) {
+            const item = document.createElement("div");
+            item.className = "ver-item";
+            const head = document.createElement("div");
+            head.className = "ver-head";
+            const num = document.createElement("span");
+            num.className = "ver-num";
+            num.textContent = "v" + m.v;
+            const ten = document.createElement("span");
+            ten.className = "ver-name";
+            ten.textContent = m.ten;
+            head.appendChild(num);
+            head.appendChild(ten);
+            if (m.luc) {
+                const t = document.createElement("span");
+                t.className = "ver-time";
+                t.textContent = m.luc;
+                head.appendChild(t);
+            }
+            item.appendChild(head);
+            const ul = document.createElement("ul");
+            ul.className = "ver-list";
+            for (const d of m.y) {
+                const li = document.createElement("li");
+                li.textContent = d;
+                ul.appendChild(li);
+            }
+            item.appendChild(ul);
+            if (m.bang) {
+                const tb = document.createElement("table");
+                tb.className = "ver-table";
+                const thead = document.createElement("thead");
+                const trh = document.createElement("tr");
+                for (const c of m.bang.cot) {
+                    const th = document.createElement("th");
+                    th.textContent = c;
+                    trh.appendChild(th);
+                }
+                thead.appendChild(trh);
+                tb.appendChild(thead);
+                const tbody = document.createElement("tbody");
+                for (const h of m.bang.hang) {
+                    const tr = document.createElement("tr");
+                    for (const o of h) {
+                        const td = document.createElement("td");
+                        td.textContent = o;
+                        tr.appendChild(td);
+                    }
+                    tbody.appendChild(tr);
+                }
+                tb.appendChild(tbody);
+                item.appendChild(tb);
+            }
+            box.appendChild(item);
+        }
+    }
+    const historyFilter = document.getElementById("historyFilter");
+    if (historyFilter) historyFilter.addEventListener("input", () => veLichSu(historyFilter.value));
+    veLichSu("");
+    const historySummary = document.getElementById("historySummary");
+    if (historySummary && window.CST_HISTORY) {
+        const ds = window.CST_HISTORY.HISTORY;
+        historySummary.textContent = `${ds.length} mục, từ bản gốc tới v${ds[0].v}. Mỗi bản ghi rõ đã sửa gì; bản nào có số đo thật thì kèm bảng so sánh trước và sau.`;
+    }
+
     // ---- Giao diện Sáng / Tối / Theo máy ----
     const themeBtns = [...document.querySelectorAll(".theme-btn")];
     function veTheme() {

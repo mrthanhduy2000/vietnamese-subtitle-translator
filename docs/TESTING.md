@@ -24,7 +24,7 @@ sense of weight, not an assertion.
 | `hardening.test.js` | 76 | Per-API-key model access, options opening, language auto-detect, no-clipping dubbing, budget caps, the version-scheme rule |
 | `bridge.test.js` | 4 | `yt-bridge.js` recovering empty captions that are missing the `pot` token, and restoring the viewer's original caption track |
 | `reload-fight.test.js` | 2 | Old and new content scripts coexisting after a reload must not loop forever recreating buttons. **The second case needs `OLD_YT=<path>` and skips without it** |
-| `ui.test.js` | 7 | Alt+S / Alt+D shortcuts, no blocking `alert`/`confirm` on the user's page, focus rings and reduced-motion, YouTube control-bar toggle and menu, `role=status` toasts |
+| `ui.test.js` | 13 | Shortcuts (Alt+S / Alt+D / Alt+Shift+V), no blocking `alert`/`confirm` on the user's page, focus rings and reduced-motion, `role=status` toasts, the YouTube quick menu built on a mini-DOM, light/dark theme wiring, the VieNeu autostart script, auto-switch back to VieNeu when the server appears, and the release-history data |
 
 ## The two harnesses that make offline testing possible
 
@@ -71,3 +71,12 @@ between 0.2 and 3.0s · `overlay.html` subtitle layer rendering.
 Put it in the file that already owns that area, and add nothing to `package.json` unless you create a
 new file (then add it to the `test` script). Prefer `bg-env.js` or `dub-sim.js` over a new fake.
 Test names are Vietnamese, matching the rest of the suite.
+
+Two traps in `ui.test.js` that cost a session real time:
+
+- Loading `youtube.js` in a `vm` runs its bootstrap, whose `setInterval`s keep the Node test runner
+  alive forever. Give the sandbox a `location.hostname` that is **not** `youtube.com` so
+  `ytKhoiDong()` returns early, and hand back a `donTimers()` that clears everything the sandbox
+  created.
+- `const` declarations inside a `vm` script (`yt`, `state`, ...) never become properties of the
+  sandbox object. Reach them with `vm.runInContext("yt.active = true", sb)`, not `sb.yt`.

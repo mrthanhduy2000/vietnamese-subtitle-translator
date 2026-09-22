@@ -306,3 +306,40 @@ function dubbingEnvLocal(msgs, onMsg) {
     for (const f of ["cst-cache.js", "cost-policy.js", "vi-segmenter.js", "dub-planner.js", "dub-audio.js", "dub-engine.js", "dubbing.js"]) vm.runInContext(read(f), sb);
     return sb;
 }
+
+// Lịch sử phiên bản (1.4.3): dữ liệu ở version-history.js, hiện trong Cài đặt.
+// Bài kiểm tra giữ cho lịch sử không lệch với phiên bản thật của tiện ích.
+test("lịch sử phiên bản: bản mới nhất khớp manifest, đủ từ bản gốc, số thứ tự giảm dần, không trùng", () => {
+    const { HISTORY } = require("../version-history.js");
+    const m = JSON.parse(R("manifest.json"));
+    assert.equal(HISTORY[0].v, m.version, "mục đầu phải là phiên bản đang dùng (chạy tools/bump-version.js rồi nhớ thêm mục)");
+    assert.match(HISTORY[HISTORY.length - 1].v, /^1\.0\.0/, "mục cuối phải là bản gốc 1.0.0");
+    const so = v => v.split(/[^\d]+/).filter(Boolean).slice(0, 3).map(Number);
+    const ma = v => so(v)[0] * 10000 + so(v)[1] * 100 + so(v)[2];
+    const nums = HISTORY.map(x => ma(x.v));
+    assert.equal(new Set(HISTORY.map(x => x.v)).size, HISTORY.length, "có mục trùng số phiên bản");
+    for (let i = 1; i < nums.length; i++) assert.ok(nums[i] < nums[i - 1], `sai thứ tự tại ${HISTORY[i].v}`);
+    for (const x of HISTORY) {
+        assert.ok(x.ten && x.ten.length > 5, `mục ${x.v} thiếu tên`);
+        assert.ok(Array.isArray(x.y) && x.y.length, `mục ${x.v} chưa ghi đã sửa gì`);
+        if (!x.bang) continue;
+        assert.ok(x.bang.cot.length >= 2 && x.bang.hang.length, `bảng của ${x.v} rỗng`);
+        for (const h of x.bang.hang) assert.equal(h.length, x.bang.cot.length, `bảng của ${x.v} lệch số cột`);
+    }
+    // Các mốc lớn phải có mặt
+    for (const v of ["1.4.2", "1.4.0", "1.3.1", "1.2.0", "1.1.2", "1.1.0"]) {
+        assert.ok(HISTORY.some(x => x.v === v), `thiếu mục ${v}`);
+    }
+    assert.ok(HISTORY.filter(x => x.bang).length >= 10, "quá ít bảng so sánh trước / sau");
+});
+
+test("lịch sử phiên bản: có mục riêng trong Cài đặt, có ô tìm kiếm, nạp đúng dữ liệu", () => {
+    const html = R("options.html");
+    assert.match(html, /data-tab="tab-history"/, "thiếu thẻ điều hướng Lịch sử phiên bản");
+    assert.match(html, /<div id="tab-history"/, "thiếu khung nội dung");
+    assert.match(html, /id="historyFilter"/, "thiếu ô tìm trong lịch sử");
+    assert.match(html, /<script src="version-history\.js">/, "trang Cài đặt chưa nạp dữ liệu lịch sử");
+    // Dựng bằng DOM, không ghép chuỗi HTML (tránh lỗi hiển thị khi nội dung có dấu ngoặc)
+    assert.match(R("options.js"), /function veLichSu/);
+    assert.doesNotMatch(R("options.js"), /historyList[^\n]*innerHTML\s*=/);
+});

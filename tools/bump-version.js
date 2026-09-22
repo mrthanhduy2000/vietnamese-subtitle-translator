@@ -51,6 +51,11 @@ function main() {
 })(typeof globalThis !== "undefined" ? globalThis : this);
 `);
     console.log(`Phiên bản ${manifest.version} -> ${target}, cập nhật ${t.label}`);
+    // Nhắc ghi lịch sử: mục "Lịch sử phiên bản" trong Cài đặt đọc từ version-history.js
+    try {
+        const lichSu = require(file("version-history.js")).HISTORY;
+        if (!lichSu.some(x => x.v === target)) console.log(`Nhớ thêm mục cho v${target} vào version-history.js (Cài đặt > Lịch sử phiên bản).`);
+    } catch (e) { /* bỏ qua */ }
 }
 
 if (require.main === module) main();

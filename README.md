@@ -207,6 +207,14 @@ Nguồn giọng mới, **miễn phí**, dùng [VieNeu-TTS](https://github.com/pn
 - Audio VieNeu vào cùng kho audio (khóa riêng theo giọng), cùng cơ chế chống tạo trùng; thống kê hiện số phút VieNeu (0 USD).
 - Kiểm tra thật với máy chủ đang chạy: `node tests/vieneu.live.js`.
 
+## 🕘 v1.4.3: Mục Lịch sử phiên bản trong Cài đặt
+
+Cài đặt có thêm mục **Lịch sử phiên bản**: 35 mục từ bản gốc (1.0.0 đến 1.0.4) tới bản đang dùng, mỗi bản ghi rõ đã sửa gì, bản nào có số đo thật thì kèm bảng so sánh trước và sau. Có ô tìm kiếm trong lịch sử.
+
+Dữ liệu nằm ở `version-history.js` (một nguồn duy nhất). `tools/bump-version.js` nhắc khi bản mới chưa có mục, và bài kiểm tra giữ cho mục đầu tiên luôn khớp phiên bản thật trong manifest.
+
+Ghi chú trung thực: các bản 1.0.1 đến 1.0.4 của tiện ích gốc không có nhật ký thay đổi, nên phần đó dựng lại từ danh sách tính năng trong README chứ không phải từ lịch sử thật; giờ cập nhật chỉ chính xác từ bản 1.3.1 trở đi (trước đó chỉ có ngày).
+
 ## 🟢 v1.4.2: VieNeu luôn sẵn sàng; giao diện Sáng / Tối
 
 **Máy chủ giọng VieNeu tự chạy** (cài MỘT LẦN): nhấp đúp `tools/vieneu-autostart.command`. Tệp này tạo một dịch vụ macOS (`com.damduy.vieneu`) chạy khi đăng nhập, tự bật lại nếu bị tắt, ghi nhật ký vào `~/VieNeu-TTS/server.log`. Gỡ: `zsh tools/vieneu-autostart.command --uninstall`.
