@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PROJECT_DIR:-.}/tools/handoff-check.sh\"",
+            "timeout": 15,
+            "statusMessage": "Kiểm tra bàn giao"
+          }
+        ]
+      }
+    ]
+  }
+}

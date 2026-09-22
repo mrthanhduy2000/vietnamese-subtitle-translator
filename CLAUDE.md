@@ -10,8 +10,10 @@ comments, UI strings and test names are Vietnamese.
 
 1. `git log --oneline -5 && git status --short` -> what the last session did. Far cheaper than
    re-reading files to guess.
-2. Find your task in the routing table, open **only** what it lists.
-3. Obey the read protocol below. Nothing here is worth reading whole.
+2. `docs/HANDOFF.md` -> the last session's own handover: current state, what is unfinished, traps
+   it hit. Under 40 lines, always worth reading.
+3. Find your task in the routing table, open **only** what it lists.
+4. Obey the read protocol below. Nothing here is worth reading whole.
 
 ## Non-negotiable rules
 
@@ -66,6 +68,7 @@ Reading all source is ~500KB, roughly 145k tokens. Don't. A normal task should l
 
 ## docs/
 
+`HANDOFF.md` the last session's handover, rewritten every time a file changes ·
 `MAP.md` every file, its role, size, global export, consumers, and the manifest load order ·
 `SUBTITLE.md` both subtitle pipelines, the message contracts, every storage key ·
 `DUBBING.md` planner -> engine -> audio data contract, the `SYNC` tuning block, the 3 TTS providers,
@@ -99,13 +102,26 @@ open ~/VieNeu-TTS/cst-start.command   # start it (lives outside this repo)
 
 The one skipped test needs `OLD_YT=<path-to-an-older-youtube.js>`; skipping it is normal.
 
-## Definition of done
+## Definition of done: hand over, every time
+
+**A turn that changed any file is not finished until you have handed over.** Run `/ban-giao`; it is
+this whole checklist. A `Stop` hook (`tools/handoff-check.sh`, wired in `.claude/settings.json`)
+looks for uncommitted changes and tells you to do it if you forget. It fires at most once per turn,
+so it cannot loop. A turn that only answered a question and changed nothing needs no handover.
+
+By hand, `/ban-giao` is:
 
 1. `npm test` shows **0 fail**. A new failure is yours; fix it before finishing. Do not compare
-   pass counts against a number written in a doc, they go stale: compare against `git stash` if
-   you need to know whether a failure predates you.
-2. `node tools/bump-version.js`.
-3. Anything you learned that the next session would waste tokens rediscovering goes into the right
-   `docs/` file, or into `docs/BACKLOG.md`. Keep it to a few lines.
-4. `git add -A && git commit` with the new version number in the subject line.
-5. Report to the user in Vietnamese: what changed, and to click Reload at `chrome://extensions`.
+   pass counts against a number in a doc, they go stale: use `git stash` if you need to know
+   whether a failure predates you.
+2. `node tools/bump-version.js`, but **only if a runtime file changed**: `manifest.json`, or a
+   `.js` / `.html` / `.css` in the repo root. Docs, `tools/` and `tests/` do not earn a bump.
+3. Rewrite `docs/HANDOFF.md`: current state, what is unfinished, traps that cost you time. Replace
+   it, do not append. Under 40 lines.
+4. Anything structural the next session would waste tokens rediscovering goes in the matching
+   `docs/` file, or in `docs/BACKLOG.md` if it is a defect you are not fixing.
+5. `git add -A && git commit`, version number in the subject if step 2 bumped it. **If another
+   session is working in this folder at the same time, commit your own paths, not `-A`** - it has
+   happened here, and you would be committing someone's half-finished feature.
+6. Report to the user in Vietnamese: what changed, whether the version moved, whether they need to
+   click Reload at `chrome://extensions`, and anything you left unfinished.

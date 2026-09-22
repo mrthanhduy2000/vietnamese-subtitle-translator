@@ -1,0 +1,27 @@
+#!/bin/zsh
+# Stop hook: reminds Claude to hand over when the working tree has uncommitted changes.
+# Wired in .claude/settings.json. Exits silently (0) when there is nothing to hand over,
+# so quiet turns cost nothing.
+#
+# Loop guard: Claude Code sets stop_hook_active=true on the stdin JSON when it is already
+# continuing BECAUSE of this hook. We bail out then, so we can never block twice in a row
+# and can never spin, even if the commit itself is refused.
+
+input=$(cat)
+
+case "$input" in
+    *'"stop_hook_active"'*'true'*) exit 0 ;;
+esac
+
+dir="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
+cd "$dir" 2>/dev/null || exit 0
+git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
+
+changed=$(git status --porcelain 2>/dev/null)
+[ -z "$changed" ] && exit 0
+
+count=$(printf '%s\n' "$changed" | grep -c . | tr -d ' ')
+# Strip quotes and backslashes so a exotic filename cannot break the JSON below.
+files=$(printf '%s\n' "$changed" | awk '{print $NF}' | head -8 | tr -d '"\\' | tr '\n' ' ')
+
+printf '{"decision":"block","reason":"BAN GIAO / HANDOFF REQUIRED: %s uncommitted file(s) (%s). CLAUDE.md requires a handoff before you finish a turn that changed files. Run the /ban-giao command, which does it all: npm test (bar is 0 fail), node tools/bump-version.js if any runtime file changed, rewrite docs/HANDOFF.md, then git add -A and git commit. If the user explicitly told you not to commit, say that in one line and stop."}\n' "$count" "$files"
