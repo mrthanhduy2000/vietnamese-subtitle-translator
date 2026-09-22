@@ -1,0 +1,1256 @@
+// ============================================================
+// TIẾN TRÌNH NỀN (service worker)
+//
+// Thứ tự ưu tiên chi phí:  LOCAL -> CACHE -> MODEL RẺ -> MODEL MẠNH (khi cần) -> TTS (khi cần)
+//
+// - Dịch theo đoạn có ngữ cảnh (translateUnit), kho bản dịch bền vững (IndexedDB)
+// - Gemini TTS: kho audio bền vững, lưu NGAY khi nhận audio (trước khi trả lời),
+//   yêu cầu trùng chỉ tạo audio một lần
+// - Gọi Gemini: API Key gửi qua header (không nằm trong URL), phân loại lỗi theo
+//   tài liệu lỗi của Gemini API, thử lại có giới hạn + chờ tăng dần
+// - Dự phòng: Google Translate (không ngữ cảnh) khi Gemini không dùng được
+// ============================================================
+
+// Bộ nhớ đệm bền vững (IndexedDB) + chính sách chi phí + xử lý audio dùng chung
+try { importScripts("cst-cache.js", "cost-policy.js", "dub-audio.js"); } catch (e) { /* chạy ngoài service worker (kiểm thử) */ }
+
+const COST = CST_COST;
+const AUDIO = typeof CST_DUB_AUDIO !== "undefined" ? CST_DUB_AUDIO : null;
+
+// ============================================================
+// DỰ PHÒNG: GOOGLE TRANSLATE (miễn phí, không ngữ cảnh)
+// ============================================================
+const ENDPOINTS = [
+    (text, sl, tl) => `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(text)}`,
+    (text, sl, tl) => `https://translate.google.com/translate_a/single?client=at&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(text)}`,
+    (text, sl, tl) => `https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=${sl}&tl=${tl}&q=${encodeURIComponent(text)}`
+];
+const MAX_RETRY = 2;
+const FAST_TIMEOUT_MS = 3200;
+
+async function fetchSingleEndpoint(url, timeoutMs = FAST_TIMEOUT_MS) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const res = await fetch(url, { method: "GET", signal: controller.signal });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (Array.isArray(data)) {
+            const segments = Array.isArray(data[0]) ? data[0] : [data];
+            let translated = "";
+            for (const seg of segments) {
+                if (seg && typeof seg[0] === "string") translated += seg[0];
+                else if (typeof seg === "string") translated += seg;
+            }
+            if (translated.trim()) return { text: translated, detectedLang: data[2] || "en" };
+        } else if (typeof data === "string") {
+            return { text: data, detectedLang: "en" };
+        }
+        throw new Error("Phản hồi không hợp lệ");
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
+async function callTranslateApi(text, sourceLang, targetLang) {
+    const sl = sourceLang || "auto";
+    const tl = targetLang || "vi";
+    // 1. Thử endpoint nhanh nhất trước
+    try {
+        return await fetchSingleEndpoint(ENDPOINTS[0](text, sl, tl), 2500);
+    } catch (e) { /* thử các endpoint còn lại */ }
+    // 2. Chạy đua các endpoint dự phòng, lấy kết quả về sớm nhất
+    try {
+        return await Promise.any(ENDPOINTS.slice(1).map(b => fetchSingleEndpoint(b(text, sl, tl), FAST_TIMEOUT_MS)));
+    } catch (err) {
+        throw new Error("Không thể kết nối máy chủ dịch nhanh");
+    }
+}
+
+async function callMyMemoryTranslate(text, sourceLang = "en", targetLang = "vi") {
+    const sl = sourceLang === "auto" ? "en" : sourceLang;
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sl}|${targetLang}`;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
+    try {
+        const res = await fetch(url, { signal: controller.signal });
+        if (!res.ok) throw new Error(`MyMemory HTTP ${res.status}`);
+        const data = await res.json();
+        if (data && data.responseData && data.responseData.translatedText) {
+            return { text: data.responseData.translatedText, detectedLang: sl, engine: "mymemory" };
+        }
+        throw new Error("Invalid MyMemory data");
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
+async function translateWithRetry(text, sourceLang, targetLang) {
+    let lastError;
+    for (let attempt = 1; attempt <= MAX_RETRY; attempt++) {
+        try {
+            return await callTranslateApi(text, sourceLang, targetLang);
+        } catch (err) {
+            lastError = err;
+            if (attempt < MAX_RETRY) await new Promise(r => setTimeout(r, 150 * attempt));
+        }
+    }
+    try {
+        return await callMyMemoryTranslate(text, sourceLang, targetLang);
+    } catch (memErr) { /* bỏ qua */ }
+    throw lastError || new Error("Không thể dịch được câu này");
+}
+
+// ============================================================
+// GỌI GEMINI API: phân loại lỗi, thử lại có giới hạn, ngắt mạch theo từng model
+//
+// Theo tài liệu lỗi của Gemini API:
+//   400/416 yêu cầu sai, 401/403 khóa sai / thiếu quyền, 402 hết tiền trả trước,
+//   404 model không có -> KHÔNG thử lại
+//   429 vượt giới hạn tốc độ (theo phút) / hết hạn mức ngày -> chờ, không dồn yêu cầu
+//   500/503/504, lỗi mạng -> thử lại có giới hạn, chờ tăng dần (exponential backoff)
+// ============================================================
+const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models/";
+
+class GeminiError extends Error {
+    constructor(type, message, extra = {}) {
+        super(message);
+        this.type = type;
+        Object.assign(this, extra);
+    }
+}
+
+// Hạn mức tính theo từng model: model này bị giới hạn không chặn model khác
+const modelCooldown = new Map();    // model -> { until, type, reason }
+const missingModels = new Set();    // model không tồn tại / không làm được việc này (trong phiên)
+const noThinkingCfg = new Set();    // model không nhận cấu hình mức suy nghĩ
+let keyBlock = null;                // { key, until, type, reason }: khóa sai / thiếu quyền / hết tiền
+
+const sleep = (ms, signal) => new Promise((resolve, reject) => {
+    if (signal && signal.aborted) return reject(new GeminiError("aborted", "Đã hủy"));
+    const t = setTimeout(resolve, ms);
+    if (signal) signal.addEventListener("abort", () => { clearTimeout(t); reject(new GeminiError("aborted", "Đã hủy")); }, { once: true });
+});
+
+function retryDelayMs(body) {
+    const info = (body?.error?.details || []).find(d => /RetryInfo/.test(d["@type"] || ""));
+    const m = info && String(info.retryDelay || "").match(/^([\d.]+)s$/);
+    return m ? Math.round(parseFloat(m[1]) * 1000) : null;
+}
+
+function classifyHttp(status, body) {
+    const msg = String(body?.error?.message || "");
+    const st = String(body?.error?.status || "");
+    if (status === 429 || st === "RESOURCE_EXHAUSTED") {
+        return /PerDay|per day|daily/i.test(JSON.stringify(body?.error?.details || []) + msg) ? "quota" : "rate_limit";
+    }
+    if (status === 401 || status === 403 || st === "UNAUTHENTICATED" || st === "PERMISSION_DENIED" || /api key not valid|api_key_invalid/i.test(msg)) return "auth";
+    if (status === 402) return "payment";
+    // Model VẪN hoạt động nhưng Google không cấp cho API key / dự án mới (ví dụ 2.5 Flash-Lite
+    // từ 07/2026): không phải model đã tắt, không phải lỗi chung -> ghi nhớ theo từng key
+    if (/no longer available to new users|not available to new users|not available for new (?:users|projects)/i.test(msg)) return "unavailable_for_key";
+    // Tính năng không hỗ trợ (JSON schema, mức suy nghĩ): lỗi yêu cầu, model vẫn dùng được
+    if ((status === 400) && /response_?schema|response_?mime|json schema|thinking/i.test(msg)) return "invalid";
+    if (status === 404 || st === "NOT_FOUND" || /is not found|not supported for generatecontent|unknown model|response modalit/i.test(msg)) return "not_found";
+    if (st === "FAILED_PRECONDITION") return "precondition";
+    if (status === 400 || status === 416 || st === "INVALID_ARGUMENT") return "invalid";
+    if (status === 408 || status === 500 || status === 502 || status === 503 || status === 504) return "unavailable";
+    return "unknown";
+}
+
+const ERROR_TEXT = {
+    rate_limit: "vượt giới hạn tốc độ (429)",
+    quota: "hết hạn mức trong ngày (429)",
+    auth: "API Key sai, hết hạn hoặc không đủ quyền",
+    payment: "tài khoản hết tiền trả trước (402)",
+    precondition: "dự án chưa đủ điều kiện (thanh toán / khu vực)",
+    not_found: "model không tồn tại hoặc không hỗ trợ việc này",
+    unavailable_for_key: "model không khả dụng với API key hiện tại (Google không cấp cho key/dự án mới)",
+    invalid: "yêu cầu không hợp lệ (400)",
+    unavailable: "máy chủ Gemini quá tải / lỗi tạm thời",
+    timeout: "quá thời gian chờ",
+    network: "lỗi mạng"
+};
+
+// ---- Quyền truy cập model THEO TỪNG API KEY (nguồn sự thật = kết quả gọi generateContent thật) ----
+// models.get / models.list có thể vẫn thấy model mà generateContent vẫn 404 với key mới,
+// nên chỉ kết quả gọi thật mới được ghi. Lưu bền vững (chrome.storage.local) theo mã băm
+// SHA-256 của key (không lưu key), có thời hạn: tải lại tiện ích vẫn nhớ, không thử lại mỗi phụ đề.
+const ACCESS_TTL_MS = 3 * 24 * 3600 * 1000;
+let accessMap = {};                 // { [keyHash]: { [model]: { s: "ok"|"unavailable", until, suggested, t } } }
+const accessReady = new Promise(resolve => {
+    try { chrome.storage.local.get({ modelAccess: {} }, d => { accessMap = (d && d.modelAccess) || {}; resolve(); }); }
+    catch (e) { resolve(); }
+});
+const keyHashMemo = new Map();
+async function keyHash(apiKey) {
+    if (!keyHashMemo.has(apiKey)) keyHashMemo.set(apiKey, (await CST_CACHE.hashKey(["gemini-key", apiKey])).slice(0, 16));
+    return keyHashMemo.get(apiKey);
+}
+function accessOf(kh, model) {
+    const e = accessMap[kh] && accessMap[kh][model];
+    return e && e.until > Date.now() ? e : null;
+}
+function setAccess(kh, model, s, extra = {}) {
+    const cur = accessOf(kh, model);
+    if (cur && cur.s === s && cur.until - Date.now() > ACCESS_TTL_MS / 2) return;   // không ghi thừa
+    const now = Date.now();
+    accessMap[kh] = { ...(accessMap[kh] || {}), [model]: { s, t: now, until: now + ACCESS_TTL_MS, ...extra } };
+    for (const k of Object.keys(accessMap)) {                                         // dọn mục hết hạn
+        for (const m of Object.keys(accessMap[k])) if (accessMap[k][m].until <= now) delete accessMap[k][m];
+        if (!Object.keys(accessMap[k]).length) delete accessMap[k];
+    }
+    try { chrome.storage.local.set({ modelAccess: accessMap }); } catch (e) { /* bỏ qua */ }
+}
+async function isUnavailableFn(apiKey) {
+    await accessReady;
+    const kh = apiKey ? await keyHash(apiKey) : "";
+    return model => missingModels.has(model) || !!(kh && (accessOf(kh, model) || {}).s === "unavailable");
+}
+
+// policy: { timeoutMs, retries, backoffMs, signal, timeoutCooldownMs }
+// Trả về JSON phản hồi (HTTP 200). Lỗi: ném GeminiError có .type
+async function geminiCall(model, apiKey, body, policy = {}) {
+    if (keyBlock && keyBlock.key === apiKey && keyBlock.until > Date.now()) throw new GeminiError(keyBlock.type, `Gemini: ${keyBlock.reason}`, { blocked: true });
+    if (missingModels.has(model)) throw new GeminiError("not_found", `${model}: ${ERROR_TEXT.not_found}`, { blocked: true });
+    await accessReady;
+    const kh = await keyHash(apiKey);
+    if ((accessOf(kh, model) || {}).s === "unavailable") throw new GeminiError("unavailable_for_key", `${model}: ${ERROR_TEXT.unavailable_for_key}`, { blocked: true });
+    const cd = modelCooldown.get(model);
+    if (cd && cd.until > Date.now()) throw new GeminiError(cd.type, `${model} tạm ngưng ${Math.ceil((cd.until - Date.now()) / 1000)} giây: ${cd.reason}`, { blocked: true });
+
+    const retries = policy.retries == null ? 2 : policy.retries;
+    const timeoutMs = policy.timeoutMs || 15000;
+    for (let attempt = 0; ; attempt++) {
+        if (policy.signal && policy.signal.aborted) throw new GeminiError("aborted", "Đã hủy");
+        const controller = new AbortController();
+        let timedOut = false;
+        const timer = setTimeout(() => { timedOut = true; controller.abort(); }, timeoutMs);
+        const onOuterAbort = () => controller.abort();
+        if (policy.signal) policy.signal.addEventListener("abort", onOuterAbort, { once: true });
+        let err;
+        try {
+            const res = await fetch(GEMINI_BASE + encodeURIComponent(model) + ":generateContent", {
+                method: "POST",
+                // Khóa gửi qua header (khuyến nghị của tài liệu): không lộ trong URL, lịch sử, nhật ký mạng
+                headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+                body: JSON.stringify(body),
+                signal: controller.signal
+            });
+            const data = await res.json().catch(() => null);
+            if (res.ok) { setAccess(kh, model, "ok"); return data || {}; }
+            const type = classifyHttp(res.status, data);
+            const detail = String(data?.error?.message || res.statusText || "").slice(0, 200);
+            err = new GeminiError(type, `Gemini ${model} HTTP ${res.status}: ${detail || ERROR_TEXT[type] || ""}`, { status: res.status, retryAfterMs: retryDelayMs(data) });
+            if (type === "unavailable_for_key") err.suggested = (detail.match(/use models\/([\w.-]+)/) || [])[1] || "";
+        } catch (e) {
+            if (timedOut) err = new GeminiError("timeout", `${model}: ${ERROR_TEXT.timeout} (${Math.round(timeoutMs / 1000)} giây)`);
+            else if (e && e.name === "AbortError") err = new GeminiError("aborted", "Đã hủy");
+            else err = new GeminiError("network", `${model}: ${ERROR_TEXT.network}`);
+        } finally {
+            clearTimeout(timer);
+            if (policy.signal) policy.signal.removeEventListener("abort", onOuterAbort);
+        }
+
+        // Chỉ lỗi TẠM THỜI mới thử lại, có giới hạn, chờ tăng dần + ngẫu nhiên nhẹ
+        const transient = err.type === "unavailable" || err.type === "network";
+        if (transient && attempt < retries) {
+            const base = (policy.backoffMs || 500) * Math.pow(2, attempt);
+            await sleep(Math.min(8000, err.retryAfterMs || base * (0.8 + Math.random() * 0.4)), policy.signal);
+            continue;
+        }
+
+        // Ngắt mạch để không dồn thêm yêu cầu chắc chắn lỗi
+        if (err.type === "rate_limit") modelCooldown.set(model, { until: Date.now() + (err.retryAfterMs || 30000), type: err.type, reason: ERROR_TEXT.rate_limit });
+        else if (err.type === "quota") modelCooldown.set(model, { until: Date.now() + Math.max(err.retryAfterMs || 0, 15 * 60000), type: err.type, reason: ERROR_TEXT.quota });
+        else if (err.type === "auth" || err.type === "payment" || err.type === "precondition") keyBlock = { key: apiKey, until: Date.now() + 10 * 60000, type: err.type, reason: ERROR_TEXT[err.type] };
+        else if (err.type === "not_found") missingModels.add(model);
+        else if (err.type === "unavailable_for_key") setAccess(kh, model, "unavailable", { suggested: err.suggested || "" });
+        else if (err.type === "timeout" && policy.timeoutCooldownMs) modelCooldown.set(model, { until: Date.now() + policy.timeoutCooldownMs, type: err.type, reason: "phản hồi quá chậm" });
+        throw err;
+    }
+}
+
+// Đổi API Key / model trong Cài đặt: gỡ các lệnh chặn cũ
+try {
+    chrome.storage.onChanged.addListener((changes, area) => {
+        if (area !== "sync") return;
+        if (changes.geminiApiKey) { keyBlock = null; modelCooldown.clear(); }
+        if (changes.geminiApiKey || changes.geminiModel || changes.geminiStrongModel || changes.dubTtsModel) missingModels.clear();
+    });
+} catch (e) { /* chạy ngoài extension */ }
+
+function responseText(data) {
+    const parts = data?.candidates?.[0]?.content?.parts || [];
+    return parts.filter(p => typeof p.text === "string" && !p.thought).map(p => p.text).join("");
+}
+
+// Mức "suy nghĩ" theo danh mục model (cost-policy.js): token suy nghĩ tính tiền như
+// token đầu ra. Flash-Lite để mặc định (tắt / tối thiểu), Flash thế hệ 3 hạ xuống thấp.
+function thinkingConfigFor(model) {
+    const level = noThinkingCfg.has(model) ? null : COST.thinkingLevelFor(model);
+    return level ? { thinkingLevel: level } : null;
+}
+
+// ============================================================
+// DỊCH THEO ĐOẠN CÓ NGỮ CẢNH (translateUnit)
+//
+// - Kết quả lưu BỀN VỮNG (IndexedDB, cst-cache.js): mở lại video, tải lại
+//   extension, service worker bị tắt... đều không phải gọi Gemini lại.
+// - Đầu ra tối giản: chỉ các bản dịch. Thuật ngữ chỉ yêu cầu khi content script
+//   cần (wantTerms). Ngắt dòng, ngắt nghỉ, gom cụm do engine tiếng Việt cục bộ làm.
+// - Model: tier "cheap" (mặc định) hoặc "strong" (câu khó / dịch lại) do content
+//   script quyết định bằng bộ định tuyến tất định.
+// ============================================================
+// Tăng khi đổi prompt / cấu trúc đầu ra / chiến lược ngữ cảnh -> bản dịch cũ tự hết hiệu lực
+const TR_PROMPT_VERSION = 4;
+const AUDIO_CACHE_VERSION = 1;
+const PLACEHOLDER_RE = /\[\[\s*(?:\\?_){2}\s*T\s*(\d+)\s*(?:\\?_){2}\s*\]\]/gi;
+
+const caches = (typeof CST_CACHE !== "undefined")
+    ? CST_CACHE.createCaches({ trVersion: TR_PROMPT_VERSION, audioVersion: AUDIO_CACHE_VERSION })
+    : null;
+
+// Làm sạch đầu ra của mô hình nhưng GIỮ các mã giữ chỗ có thật trong đầu vào
+// (content script sẽ khôi phục chúng thành thuật ngữ). Mã "bịa" thì xóa.
+function sanitizeModelOutput(out, inputTokens) {
+    const allowed = new Set((inputTokens || []).map(t => (t.match(/\d+/) || [""])[0]));
+    let t = String(out || "").replace(/\r/g, "");
+    t = t.replace(PLACEHOLDER_RE, (m, id) => (allowed.has(id) ? `[[__T${id}__]]` : " "));
+    t = t.replace(/^\s*(?:bản dịch(?: tiếng việt)?|translation)\s*:\s*/i, "");
+    t = t.replace(/\*\*(.+?)\*\*/g, "$1");
+    t = t.replace(/\s*\n\s*/g, " ").replace(/[ \t]{2,}/g, " ").trim();
+    const m = t.match(/^["“](.*)["”]$/s);
+    if (m && !/["“”]/.test(m[1])) t = m[1].trim();
+    return t;
+}
+
+const UNIT_SYSTEM_PROMPT = [
+    "Bạn là biên dịch viên phụ đề Anh sang Việt cho bài giảng và video (Coursera, YouTube).",
+    "Làm trong đầu, KHÔNG viết ra: hiểu cả đoạn và quan hệ với câu trước/sau; xác định chủ thể, hành động, đối tượng và mỗi đại từ chỉ vào đâu; chọn nghĩa từ đa nghĩa theo lĩnh vực và câu cụ thể; nhận diện thuật ngữ. Sau đó mới viết câu tiếng Việt tự nhiên như giảng viên người Việt nói.",
+    "Quy tắc: dịch theo ý, không dịch từng chữ, không giữ trật tự câu tiếng Anh khi tiếng Việt không nói vậy (tránh 'nó là quan trọng để', 'trong thứ tự để', 'tất cả của các', 'hãy để chúng ta', 'đang đi để', lặp 'một cách', lặp 'của nó'). Cụm động từ, thành ngữ dịch theo nghĩa. Đại từ mơ hồ thì nêu rõ đối tượng, rõ rồi thì lược; không mở câu bằng 'Nó' máy móc. Không thêm, không bớt nội dung. Tên riêng, sản phẩm, viết tắt, mã lệnh giữ nguyên. Dùng đúng thuật ngữ đã thống nhất nếu có.",
+    "Các mục trong [CẦN DỊCH] là phụ đề LIÊN TIẾP, có thể là mảnh của cùng một câu: hiểu trọn ý rồi trả mỗi mục một bản dịch, đúng số mục, đúng thứ tự, nối lại thành đoạn liền mạch; được chuyển vài chữ giữa hai mục kề nhau nhưng không mục nào rỗng. Ngữ cảnh trước/sau chỉ để hiểu, không dịch lại."
+].join("\n");
+
+function unitSchema(wantTerms) {
+    const props = { t: { type: "ARRAY", items: { type: "STRING" } } };
+    if (wantTerms) {
+        props.terms = { type: "ARRAY", items: { type: "OBJECT", properties: { en: { type: "STRING" }, vi: { type: "STRING" } }, required: ["en", "vi"] } };
+    }
+    return { type: "OBJECT", properties: props, required: ["t"] };
+}
+
+function buildUnitPrompt(req) {
+    const ctx = req.context || {};
+    const sys = [UNIT_SYSTEM_PROMPT];
+    const placeholders = req.placeholders || [];
+    if (placeholders.length) {
+        sys.push(`Mã giữ chỗ thuật ngữ phải giữ nguyên, mỗi mã đúng một lần, đặt đúng vị trí ngữ pháp, không tạo mã khác. Nghĩa (để hiểu, không viết ra): ${placeholders.map(p => `[[__T${p.id}__]] = ${p.term}`).join("; ")}.`);
+    }
+    sys.push(req.wantTerms
+        ? `Trả về DUY NHẤT JSON: {"t": [${req.sentences.length} bản dịch theo thứ tự], "terms": [tối đa 5 thuật ngữ chuyên ngành MỚI trong đoạn, {"en": "...", "vi": "cách đã dịch"}]}.`
+        : `Trả về DUY NHẤT JSON: {"t": [${req.sentences.length} bản dịch theo thứ tự]}.`);
+
+    const parts = [];
+    if (ctx.topic) parts.push(`[CHỦ ĐỀ] ${ctx.topic}`);
+    if (ctx.domain) parts.push(`[LĨNH VỰC] ${ctx.domain}`);
+    if (ctx.terms && ctx.terms.length) parts.push(`[THUẬT NGỮ ĐÃ THỐNG NHẤT] ${ctx.terms.map(t => `${t.en} = ${t.vi}`).join("; ")}`);
+    if (ctx.senseHints && ctx.senseHints.length) parts.push(`[GỢI Ý NGHĨA] ${ctx.senseHints.join("; ")}`);
+    if (ctx.phraseHints && ctx.phraseHints.length) parts.push(`[CỤM TỪ, THÀNH NGỮ] ${ctx.phraseHints.join("; ")}`);
+    if (ctx.prevSource) parts.push(`[NGỮ CẢNH TRƯỚC] ${ctx.prevSource}`);
+    if (ctx.prevTranslation) parts.push(`[BẢN DỊCH ĐOẠN TRƯỚC] ${ctx.prevTranslation}`);
+    parts.push(`[CẦN DỊCH]\n${req.sentences.map((s, i) => `${i + 1}. ${s}`).join("\n")}`);
+    if (ctx.nextSource) parts.push(`[NGỮ CẢNH SAU] ${ctx.nextSource}`);
+    if (req.refine && req.refine.draft) {
+        parts.push(`[BẢN NHÁP CẦN SỬA]\n${req.refine.draft.map((s, i) => `${i + 1}. ${s}`).join("\n")}`);
+        parts.push(`[VẤN ĐỀ PHÁT HIỆN] ${req.refine.issues.join("; ")}`);
+        parts.push("Viết lại bản dịch: sửa các vấn đề trên, tự nhiên như người Việt nói, đúng ngữ cảnh, giữ nguyên nội dung.");
+    }
+    return { sys: sys.join("\n"), user: parts.join("\n") };
+}
+
+function parseUnitJson(raw) {
+    let t = String(raw || "").trim();
+    t = t.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+    const a = t.indexOf("{");
+    const b = t.lastIndexOf("}");
+    if (a < 0 || b < a) throw new Error("Mô hình không trả JSON");
+    return JSON.parse(t.slice(a, b + 1));
+}
+
+let unitSchemaUnsupported = false;
+
+async function callGeminiUnit(req, apiKey, model) {
+    const { sys, user } = buildUnitPrompt(req);
+    const srcChars = req.sentences.join(" ").length;
+    const timeoutMs = Math.min(15000, 4500 + srcChars * 6 + (req.refine ? 2000 : 0));
+    // Trần đầu ra vừa đủ cho bản dịch (tiếng Việt ~1,3 lần ký tự tiếng Anh) + JSON
+    let maxTokens = Math.min(8192, Math.max(512, Math.ceil(srcChars * 1.2) + (req.wantTerms ? 250 : 80)));
+    const allowed = (req.placeholders || []).map(p => `[[__T${p.id}__]]`);
+    const t0 = Date.now();
+
+    // Tối đa 3 lượt gửi: model không nhận JSON schema / cấu hình suy nghĩ (bỏ tính năng đó),
+    // hoặc bản dịch bị cắt cụt vì chạm trần token (gửi lại một lần với trần gấp đôi).
+    for (let pass = 0; pass < 3; pass++) {
+        const generationConfig = { temperature: req.refine ? 0.35 : 0.2, maxOutputTokens: maxTokens };
+        if (!unitSchemaUnsupported) {
+            generationConfig.responseMimeType = "application/json";
+            generationConfig.responseSchema = unitSchema(!!req.wantTerms);
+        }
+        const thinking = thinkingConfigFor(model);
+        if (thinking) generationConfig.thinkingConfig = thinking;
+        let data;
+        try {
+            data = await geminiCall(model, apiKey, {
+                system_instruction: { parts: [{ text: sys }] },
+                contents: [{ parts: [{ text: user }] }],
+                generationConfig
+            }, { timeoutMs, retries: 2, backoffMs: 500, timeoutCooldownMs: 15000 });
+        } catch (e) {
+            if (e.type === "invalid" && /thinking/i.test(e.message) && thinking) { noThinkingCfg.add(model); continue; }
+            if (e.type === "invalid" && /schema|mime/i.test(e.message) && !unitSchemaUnsupported) { unitSchemaUnsupported = true; continue; }
+            throw e;
+        }
+        const cand = data.candidates?.[0] || {};
+        const raw = responseText(data);
+        let obj;
+        try {
+            obj = parseUnitJson(raw);
+        } catch (e) {
+            if (cand.finishReason === "MAX_TOKENS" && maxTokens < 8192) { maxTokens = Math.min(8192, maxTokens * 2); continue; }
+            if (cand.finishReason && cand.finishReason !== "STOP") throw new GeminiError("blocked", `Gemini dừng sớm (${cand.finishReason})`);
+            throw new GeminiError("bad_output", e.message);
+        }
+        const arr = Array.isArray(obj.t) ? obj.t : (Array.isArray(obj.translations) ? obj.translations : []);
+        let translations = arr.map(x => sanitizeModelOutput(x, allowed));
+        if (translations.length !== req.sentences.length) {
+            if (req.sentences.length === 1 && translations.length > 1) translations = [translations.join(" ")];
+            else throw new GeminiError("bad_output", `Số mục không khớp (gửi ${req.sentences.length}, nhận ${translations.length})`);
+        }
+        if (translations.some(t => !t)) throw new GeminiError("bad_output", "Có mục dịch rỗng");
+        // Số token thật từ máy chủ; thiếu thì ước tính theo độ dài (~4 ký tự / token)
+        const usage = data.usageMetadata || {};
+        if (!usage.promptTokenCount) {
+            usage.promptTokenCount = Math.ceil((sys.length + user.length) / 4);
+            usage.candidatesTokenCount = Math.ceil(raw.length / 3);
+        }
+        return {
+            translations,
+            terms: Array.isArray(obj.terms) ? obj.terms.filter(t => t && t.en && t.vi).slice(0, 5) : [],
+            engine: "gemini",
+            model,
+            latency: Date.now() - t0,
+            usage: { in: usage.promptTokenCount || 0, out: usage.candidatesTokenCount || 0, thoughts: usage.thoughtsTokenCount || 0 }
+        };
+    }
+    throw new GeminiError("bad_output", "Gemini không trả bản dịch hợp lệ");
+}
+
+function getSyncCfg(defaults) {
+    return new Promise(resolve => chrome.storage.sync.get(defaults, resolve));
+}
+
+// Cài đặt (chrome.storage.sync) -> lựa chọn model. "auto" được giải thành model cụ thể
+// trong COST.modelChain theo quyền truy cập thật của API key.
+async function modelsFromCfg() {
+    const cfg = await getSyncCfg({ useAi: true, geminiApiKey: "", geminiModel: COST.DEFAULT_MODELS.cheap, geminiStrongModel: COST.DEFAULT_MODELS.strong, costMode: "balanced" });
+    const pick = (v, d) => { const id = String(v || "").trim() || d; return COST.RETIRED_MODELS[id] || id; };
+    return { ...cfg, cheap: pick(cfg.geminiModel, COST.DEFAULT_MODELS.cheap), strong: pick(cfg.geminiStrongModel, COST.DEFAULT_MODELS.strong) };
+}
+
+// ============================================================
+// CHI PHÍ ƯỚC TÍNH + NGÂN SÁCH (chỉ lưu trên máy, không gửi ra ngoài)
+// Không phải hóa đơn chính xác: là hàng rào để API không chạy ngoài ý muốn.
+// ============================================================
+function localDay() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+const emptyStats = () => ({ trUsd: 0, ttsUsd: 0, trCalls: 0, ttsCalls: 0, audioSec: 0, localSec: 0, hitsTr: 0, hitsAudio: 0, avoided: 0 });
+let ledger = { day: localDay(), ...emptyStats(), videos: {} };
+let sessionStats = emptyStats();
+const sessionArea = (typeof chrome !== "undefined" && chrome.storage && chrome.storage.session) || null;
+const ledgerReady = new Promise(resolve => {
+    try {
+        chrome.storage.local.get({ costLedger: null }, d => {
+            if (d && d.costLedger && d.costLedger.day === localDay()) ledger = { ...emptyStats(), videos: {}, ...d.costLedger };
+            if (!sessionArea) return resolve();
+            sessionArea.get({ costSession: null }, x => { if (x && x.costSession) sessionStats = { ...emptyStats(), ...x.costSession }; resolve(); });
+        });
+    } catch (e) { resolve(); }
+});
+let ledgerTimer = null;
+function saveLedgerSoon() {
+    if (ledgerTimer) return;
+    ledgerTimer = setTimeout(() => {
+        ledgerTimer = null;
+        try { chrome.storage.local.set({ costLedger: ledger }); if (sessionArea) sessionArea.set({ costSession: sessionStats }); } catch (e) { /* bỏ qua */ }
+    }, 1500);
+}
+function rollDay() { if (ledger.day !== localDay()) ledger = { day: localDay(), ...emptyStats(), videos: {} }; }
+// meta: { videoKey, videoSec, title }
+function track(meta, patch) {
+    rollDay();
+    for (const [k, v] of Object.entries(patch)) { ledger[k] = (ledger[k] || 0) + v; sessionStats[k] = (sessionStats[k] || 0) + v; }
+    const vk = meta && meta.videoKey;
+    if (vk) {
+        const v = ledger.videos[vk] || (ledger.videos[vk] = { usd: 0, audioSec: 0, videoSec: 0, title: "" });
+        v.usd += (patch.trUsd || 0) + (patch.ttsUsd || 0);
+        v.audioSec += patch.audioSec || 0;
+        if (meta.videoSec) v.videoSec = meta.videoSec;
+        if (meta.title) v.title = String(meta.title).slice(0, 80);
+        v.t = Date.now();
+        const keys = Object.keys(ledger.videos);
+        if (keys.length > 40) keys.sort((a, b) => ledger.videos[a].t - ledger.videos[b].t).slice(0, keys.length - 40).forEach(k => delete ledger.videos[k]);
+    }
+    saveLedgerSoon();
+}
+async function budgetState(meta, estUsd = 0) {
+    await ledgerReady;
+    rollDay();
+    const B = COST.BUDGET_DEFAULTS;
+    const cfg = await getSyncCfg({ budgetDailyUsd: B.daily, budgetVideoUsd: B.video });
+    const D = Math.max(0, Number(cfg.budgetDailyUsd) || 0), V = Math.max(0, Number(cfg.budgetVideoUsd) || 0);
+    const day = ledger.trUsd + ledger.ttsUsd;
+    const vid = meta && meta.videoKey && ledger.videos[meta.videoKey] ? ledger.videos[meta.videoKey].usd : 0;
+    const ratio = Math.max(D ? (day + estUsd) / D : 0, V ? (vid + estUsd) / V : 0);
+    const over = ratio > 1;
+    return { allowed: !over, level: over ? "over" : ratio >= B.warnAt ? "warn" : "ok", ratio, spentDay: day, spentVideo: vid, dailyBudget: D, videoBudget: V, runaway: D > 0 && day >= D * 2 };
+}
+const metaOf = req => ({ videoKey: req.videoKey || "", videoSec: Number(req.videoSec) || 0, title: req.videoTitle || "" });
+
+// Khóa bản dịch: mọi thứ quyết định kết quả, gồm ĐÚNG model tạo ra bản dịch
+// (bản của 2.5 và 3.1 không bao giờ dùng lẫn). Không gồm bản dịch câu trước hay
+// danh sách thuật ngữ đang học (thay đổi theo phiên) để mở lại video vẫn trúng.
+async function unitCacheKey(req, model) {
+    const c = req.context || {};
+    const N = CST_CACHE.normalizeText;
+    return CST_CACHE.hashKey([
+        "tr", TR_PROMPT_VERSION, "en", "vi", model,
+        (req.sentences || []).map(N),
+        (req.placeholders || []).map(p => p.term),
+        N(c.domain), N(c.topic).slice(0, 120), N(c.prevSource).slice(-200), N(c.nextSource).slice(0, 120)
+    ]);
+}
+
+// Hai yêu cầu dịch giống hệt nhau cùng lúc (luồng dịch trước + luồng thời gian thực,
+// hai tab cùng video) chỉ gọi Gemini MỘT lần.
+const unitInFlight = new Map();
+
+async function handleTranslateUnit(request) {
+    const sentences = (request.sentences || []).map(s => String(s || "").trim());
+    if (!sentences.length || sentences.every(s => !s)) return { ok: true, translations: sentences.map(() => ""), engine: "none" };
+
+    const cfg = await modelsFromCfg();
+    const meta = metaOf(request);
+    const budget = await budgetState(meta);
+    // Vượt ngân sách: không nâng cấp lên model mạnh (vẫn dịch bằng model rẻ)
+    const tier = request.tier === "strong" && budget.allowed ? "strong" : "cheap";
+    const unavailable = await isUnavailableFn(cfg.geminiApiKey);
+    const chain = COST.modelChain(tier, cfg, cfg.costMode, unavailable);
+    const req = { ...request, sentences };
+    // 1-2. CACHE (RAM -> IndexedDB) theo ĐÚNG model sẽ được gọi (model đầu chuỗi, đã bỏ
+    // các model key không gọi được). Lượt dịch lại (refine) thì bỏ qua cache.
+    if (caches && !request.refine && chain.length) {
+        let key = null;
+        try { key = await unitCacheKey(req, chain[0]); } catch (e) { key = null; }
+        if (key) {
+            const hit = await caches.tr.get(key);
+            if (hit) { track(meta, { hitsTr: 1, avoided: 1 }); return { ok: true, ...hit, fromCache: true, latency: 0, cacheKey: key }; }
+            const flightKey = `${key}|${tier}|${!!request.wantTerms}`;
+            if (unitInFlight.has(flightKey)) { track(meta, { avoided: 1 }); return unitInFlight.get(flightKey); }
+            const p = translateUnitMiss(req, sentences, cfg, tier, meta, budget).finally(() => unitInFlight.delete(flightKey));
+            unitInFlight.set(flightKey, p);
+            return p;
+        }
+    }
+    return translateUnitMiss(req, sentences, cfg, tier, meta, budget);
+}
+
+async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
+    // 3-4. MODEL CHÍNH hoặc MODEL NÂNG CẤP (content script định tuyến).
+    // Model không gọi được (404 model không tồn tại / không cấp cho key này) -> ghi nhớ,
+    // TÍNH LẠI chuỗi và dùng ngay model Gemini kế tiếp; chỉ khi không còn model Gemini
+    // nào gọi được (hoặc lỗi khác) mới dùng Google dự phòng.
+    let aiFailedReason = null;
+    let firstTried = null;
+    if (budget.runaway) {
+        aiFailedReason = "Đã vượt gấp đôi ngân sách ngày, tạm dùng bản dịch miễn phí";
+    } else if (cfg.useAi && cfg.geminiApiKey) {
+        const tried = new Set();
+        for (let guard = 0; guard < 6; guard++) {
+            const unavailable = await isUnavailableFn(cfg.geminiApiKey);
+            const model = COST.modelChain(tier, cfg, cfg.costMode, unavailable).find(m => !tried.has(m));
+            if (!model) break;
+            tried.add(model);
+            if (!firstTried) firstTried = model;
+            try {
+                const r = await callGeminiUnit({ ...request, sentences }, cfg.geminiApiKey, model);
+                r.tier = tier;
+                if (model !== firstTried) r.fallbackFrom = firstTried;
+                track(meta, { trUsd: COST.estimateTextCost(model, r.usage.in, r.usage.out + r.usage.thoughts), trCalls: 1 });
+                // Lưu theo ĐÚNG model đã tạo bản dịch; chỉ lưu kết quả đã kiểm tra hợp lệ.
+                // Không chờ ghi xong (RAM có ngay) -> IndexedDB chậm không làm trễ phụ đề.
+                let key = null;
+                if (caches) {
+                    try { key = await unitCacheKey({ ...request, sentences }, model); } catch (e) { key = null; }
+                    if (key) caches.tr.set(key, { translations: r.translations, terms: r.terms, engine: r.engine, model: r.model, tier: r.tier });
+                }
+                return { ok: true, ...r, cacheKey: key, budget: budget.level };
+            } catch (e) {
+                aiFailedReason = e.message;
+                if (e.type !== "not_found" && e.type !== "unavailable_for_key") break;
+            }
+        }
+    } else {
+        aiFailedReason = !cfg.useAi ? "Đã tắt dịch bằng Gemini trong cài đặt" : "Chưa cài đặt API Key Gemini";
+    }
+    if (request.refine) return { ok: false, error: aiFailedReason || "Không dịch lại được" };
+
+    // Dự phòng: Google Translate (không ngữ cảnh). Không lưu bền vững để lần sau còn thử lại Gemini.
+    const tStart = Date.now();
+    const translations = [];
+    for (const s of sentences) {
+        if (!s) { translations.push(""); continue; }
+        const r = await translateWithRetry(s, "auto", "vi");
+        translations.push(r.text);
+    }
+    return {
+        ok: true, translations, terms: [],
+        engine: aiFailedReason ? "google_fallback" : "google",
+        fallbackReason: aiFailedReason,
+        latency: Date.now() - tStart
+    };
+}
+
+// Content script đã dịch lại / đưa lên model mạnh: ghi đè bản cuối cùng vào cache
+async function handleTranslateUnitStore(req) {
+    if (!caches || !req.cacheKey || !Array.isArray(req.translations)) return { ok: false };
+    // Bản content gửi về đã khôi phục thuật ngữ -> đánh dấu "restored" để không khôi phục lần nữa
+    await caches.tr.set(req.cacheKey, { translations: req.translations, terms: req.terms || [], engine: "gemini", model: req.model || "", tier: req.tier || "cheap", refined: true, restored: true });
+    return { ok: true };
+}
+
+// ============================================================
+// LỒNG TIẾNG: GEMINI TTS (+ kho audio bền vững) + RÚT GỌN LỜI NÓI (có cache)
+// ============================================================
+// Danh mục TTS (cost-policy.js), rẻ nhất trước; model sau chỉ dùng khi model trước
+// không còn (404). Model Pro TTS không có trong danh mục nên không bao giờ tự động dùng.
+const TTS_MODELS = COST.TTS_MODELS.map(m => m.id);
+// Một lượt TTS có thể được nhiều yêu cầu giống hệt nhau cùng chờ (hai tab, gửi lại
+// sau lỗi): chỉ gọi Gemini MỘT lần. Chỉ hủy thật khi không còn ai chờ.
+const ttsInFlight = new Map();      // khóa yêu cầu -> { promise, controller, jobs:Set }
+const ttsJobs = new Map();          // jobId -> khóa yêu cầu
+let ttsJobSeq = 0;
+
+function bytesToBase64(bytes) {
+    let s = "";
+    for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(s);
+}
+function base64ToBytesBg(b64) {
+    const bin = atob(b64);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+}
+
+// Đọc từ kho: đủ MỌI đoạn thì trả luôn (không gọi TTS), thiếu thì null
+async function cachedParts(parts) {
+    const out = [];
+    for (const p of parts) {
+        const rec = await caches.audio.get(p.key);
+        if (!rec || !rec.wav) return null;
+        out.push({ key: p.key, wav: rec.wav, duration: rec.duration, sampleRate: rec.sampleRate });
+    }
+    return out;
+}
+
+// Audio nhiều đoạn gộp trong một lượt TTS -> cắt lại theo khoảng lặng, làm sạch từng đoạn
+// opts.maxPause: rút ngắn khoảng lặng dài bên trong từng đoạn (giọng VieNeu)
+function splitTtsAudio(b64OrBytes, mime, sr, parts, opts = {}) {
+    const bytes = typeof b64OrBytes === "string" ? base64ToBytesBg(b64OrBytes) : b64OrBytes;
+    const samples = /wav/i.test(mime || "") ? AUDIO.decodeWav(bytes).samples : AUDIO.pcm16leToFloat(bytes);
+    const split = AUDIO.splitBySilence(samples, sr, parts.map(p => p.weight || 1));
+    if (parts.length > 1 && split.confidence < 0.5) return null;
+    return parts.map((p, k) => {
+        let piece = AUDIO.slice(samples, sr, split.parts[k].start, split.parts[k].end);
+        if (opts.maxPause) piece = AUDIO.compressPauses(piece, sr, { maxPause: opts.maxPause });
+        const clean = AUDIO.prepareSpeech(piece, sr);
+        return { key: p.key, wav: AUDIO.encodeWav(clean, sr), duration: clean.length / sr, sampleRate: sr };
+    });
+}
+
+function partsReply(parts, extra) {
+    return { ok: true, ...extra, parts: parts.map(p => ({ key: p.key, wav: bytesToBase64(p.wav), duration: p.duration, sampleRate: p.sampleRate })) };
+}
+
+// req: { text, voice, model, jobId, parts:[{ key, weight }] }
+//   parts có mặt (lồng tiếng): kiểm tra kho trước, lưu kho TRƯỚC khi trả lời
+//   không có parts (nghe thử trong Cài đặt): trả audio thô, không lưu
+async function handleSynthesizeSpeech(req) {
+    const text = String(req.text || "").slice(0, 6000);
+    if (!text.trim()) return { ok: false, errorType: "invalid", error: "Không có lời thoại" };
+    const parts = caches && AUDIO && Array.isArray(req.parts) && req.parts.length ? req.parts : null;
+    const engine = req.engine === LOCAL.id ? LOCAL.id : "gemini";
+    const reqKey = await CST_CACHE.hashKey(["ttsreq", AUDIO_CACHE_VERSION, engine, req.model || "", req.voice || "", text, parts ? parts.map(p => p.key) : null]);
+    const jobId = req.jobId || `_bg${++ttsJobSeq}`;
+    // Đăng ký lượt NGAY (trước mọi bước chờ) -> yêu cầu giống hệt đến sau luôn nhập chung
+    let flight = ttsInFlight.get(reqKey);
+    if (!flight) {
+        const controller = new AbortController();
+        flight = { controller, jobs: new Set() };
+        const run = async () => {
+            // Kho audio: đủ mọi đoạn thì trả luôn, không gọi TTS
+            if (parts) {
+                const hit = await cachedParts(parts);
+                if (hit) { track(metaOf(req), { hitsAudio: parts.length, avoided: 1 }); return partsReply(hit, { fromCache: true }); }
+            }
+            return engine === LOCAL.id ? synthesizeLocal(req, text, parts, controller.signal) : synthesize(req, text, parts, controller.signal);
+        };
+        const f = flight;
+        f.promise = run().finally(() => {
+            ttsInFlight.delete(reqKey);
+            for (const j of f.jobs) ttsJobs.delete(j);
+        });
+        ttsInFlight.set(reqKey, flight);
+    }
+    flight.jobs.add(jobId);
+    ttsJobs.set(jobId, reqKey);
+    return flight.promise;
+}
+
+function handleTtsAbort(req) {
+    const reqKey = ttsJobs.get(req.jobId);
+    const flight = reqKey && ttsInFlight.get(reqKey);
+    ttsJobs.delete(req.jobId);
+    if (!flight) return { ok: true, aborted: false };
+    flight.jobs.delete(req.jobId);
+    if (!flight.jobs.size) flight.controller.abort();
+    return { ok: true, aborted: !flight.jobs.size };
+}
+
+// Chuỗi model TTS cho key này: model chỉ định (nếu có) rồi danh mục rẻ trước; bỏ các model
+// đã xác nhận không gọi được với key này (không thử lại 404 cho từng lượt).
+async function ttsModelsFor(apiKey, preferred) {
+    const unavailable = await isUnavailableFn(apiKey);
+    return [...new Set([...preferred, ...TTS_MODELS].filter(Boolean))].filter(m => !unavailable(m));
+}
+
+// Thời lượng audio ước tính trước khi tạo (để kiểm tra ngân sách)
+function estimateAudioSec(text, parts) {
+    if (parts) return parts.reduce((a, p) => a + (Number(p.weight) || 0), 0) / 4.6 + 0.4 * (parts.length - 1);
+    return String(text).length / 14;
+}
+
+async function synthesize(req, text, parts, signal) {
+    const cfg = await getSyncCfg({ geminiApiKey: "", dubTtsModel: "" });
+    if (!cfg.geminiApiKey) return { ok: false, errorType: "auth", error: "Chưa cài đặt API Key Gemini" };
+    const models = await ttsModelsFor(cfg.geminiApiKey, [req.model, cfg.dubTtsModel]);
+    if (!models.length) return { ok: false, errorType: "unavailable_for_key", error: "Không có model Gemini TTS nào khả dụng với API key hiện tại" };
+    // Hàng rào ngân sách: không tạo audio AI nếu lượt này làm vượt ngân sách ngày / video
+    const meta = metaOf(req);
+    const budget = await budgetState(meta, COST.estimateTtsCost(models[0], text.length, estimateAudioSec(text, parts)));
+    if (!budget.allowed) return { ok: false, errorType: "budget", error: `Đã chạm ngân sách ước tính (${budget.spentDay.toFixed(3)} USD hôm nay); chuyển sang giọng hệ thống`, budget: budget.level };
+    const body = {
+        contents: [{ parts: [{ text }] }],
+        generationConfig: {
+            responseModalities: ["AUDIO"],
+            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: req.voice || "Kore" } } }
+        }
+    };
+    let last = null;
+    for (const model of models) {
+        // Tài liệu Gemini TTS: đôi khi model trả chữ thay vì audio -> thử lại MỘT lần
+        for (let pass = 0; pass < 2; pass++) {
+            let data;
+            try {
+                // Lỗi 500/503 thử lại 1 lần. Quá thời gian thì KHÔNG tự gửi lại (máy chủ có thể
+                // đã tạo và tính tiền audio): engine quyết định, và luôn tra kho trước khi gửi lại.
+                data = await geminiCall(model, cfg.geminiApiKey, body, { timeoutMs: 60000, retries: 1, backoffMs: 1000, signal });
+            } catch (e) {
+                last = e;
+                // Model không tồn tại / không cấp cho key này: thử model kế (đã ghi nhớ, không thử lại lần sau)
+                if (e.type === "not_found" || e.type === "unavailable_for_key") break;
+                return { ok: false, errorType: e.type, error: e.message, aborted: e.type === "aborted" };
+            }
+            const part = (data.candidates?.[0]?.content?.parts || []).find(p => p.inlineData && p.inlineData.data);
+            if (!part) { last = new GeminiError("no_audio", "Gemini TTS không trả audio"); continue; }
+            const mime = part.inlineData.mimeType || "audio/L16;rate=24000";
+            const rate = Number((mime.match(/rate=(\d+)/) || [])[1]) || 24000;
+            const audioSec = Math.round(part.inlineData.data.length * 0.75) / 2 / rate;
+            track(meta, { ttsUsd: COST.estimateTtsCost(model, text.length, audioSec), ttsCalls: 1, audioSec });
+            if (!parts) return { ok: true, audio: part.inlineData.data, mimeType: mime, sampleRate: rate, model };
+            const pieces = splitTtsAudio(part.inlineData.data, mime, rate, parts);
+            if (!pieces) return { ok: false, errorType: "split", error: "Không cắt được audio theo từng đoạn" };
+            // LƯU KHO NGAY: tab đóng, người dùng tua đi, tin nhắn trả lời bị mất...
+            // thì audio đã trả tiền vẫn còn, lần sau không phải tạo lại.
+            for (const p of pieces) await caches.audio.set(p.key, { wav: p.wav, duration: p.duration, sampleRate: p.sampleRate });
+            return partsReply(pieces, { model, budget: budget.level });
+        }
+        if (last && last.type === "no_audio") break;
+    }
+    return { ok: false, errorType: (last && last.type) || "not_found", error: (last && last.message) || "Không tìm được model Gemini TTS khả dụng" };
+}
+
+// ---- Giọng Việt trên máy: VieNeu-TTS (máy chủ cục bộ tương thích OpenAI, 127.0.0.1) ----
+// Không tốn tiền API; audio vẫn vào cùng kho audio và cơ chế chống tạo trùng như Gemini.
+const LOCAL = COST.LOCAL_TTS;
+
+async function handleLocalTtsStatus() {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 1500);
+    try {
+        const res = await fetch(LOCAL.url + "/health", { signal: controller.signal });
+        const data = await res.json().catch(() => ({}));
+        const running = res.ok && data.status === "ok";
+        let model = "";
+        if (running) {
+            try { const m = await (await fetch(LOCAL.url + "/v1/models", { signal: controller.signal })).json(); model = ((m.data || [])[0] || {}).id || ""; } catch (e) { model = ""; }
+        }
+        return { ok: true, running, backend: data.backend || "", model, busy: (data.active || 0) + (data.waiting || 0) };
+    } catch (e) {
+        return { ok: true, running: false, error: "Máy chủ VieNeu chưa chạy" };
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
+// Làm nóng giọng khi bật lồng tiếng: lượt đầu của mỗi giọng chậm hơn hẳn (nạp giọng mẫu),
+// nên tạo trước một câu rất ngắn để câu thoại đầu tiên có ngay. Không lưu, không tính thống kê.
+const localWarmed = new Set();   // giọng đã làm nóng trong phiên service worker này
+async function handleLocalTtsWarm(req) {
+    const voices = [...new Set((req.voices || []).filter(Boolean))].filter(v => !localWarmed.has(v)).slice(0, 2);
+    for (const voice of voices) {
+        // Cùng hàng đợi với câu thoại thật (không tranh luồng duy nhất của máy chủ); có hạn giờ
+        const r = await localSerial(async () => {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 8000);
+            try {
+                const res = await fetch(LOCAL.url + "/v1/audio/speech", {
+                    method: "POST", headers: { "Content-Type": "application/json" }, signal: controller.signal,
+                    body: JSON.stringify({ model: LOCAL.model, voice, input: "Xin chào.", response_format: "pcm", sample_rate: LOCAL.sampleRate, temperature: LOCAL.temperature })
+                });
+                await res.arrayBuffer();
+                return { ok: res.ok };
+            } catch (e) { return { ok: false }; } finally { clearTimeout(timer); }
+        }, null, 1);
+        if (!r.ok) return { ok: false };
+        localWarmed.add(voice);
+    }
+    return { ok: true };
+}
+
+// Máy chủ VieNeu trên CPU chỉ tạo MỘT luồng mỗi lúc: mọi yêu cầu (mọi tab, trang Cài đặt,
+// làm nóng giọng) xếp hàng TẠI ĐÂY, gửi lần lượt -> không tự gây lỗi 429 "máy chủ bận".
+// Câu thoại (ưu tiên 0) luôn được gửi trước việc làm nóng giọng (ưu tiên 1).
+const localQueue = [];
+let localBusy = false;
+function localSerial(fn, signal, priority = 0) {
+    return new Promise(resolve => {
+        localQueue.push({ fn, signal, priority, resolve });
+        localQueue.sort((a, b) => a.priority - b.priority);
+        localPump();
+    });
+}
+async function localPump() {
+    if (localBusy) return;
+    localBusy = true;
+    try {
+        while (localQueue.length) {
+            const job = localQueue.shift();
+            let r;
+            if (job.signal && job.signal.aborted) r = { ok: false, errorType: "aborted", aborted: true, error: "Đã hủy" };
+            else { try { r = await job.fn(); } catch (e) { r = { ok: false, errorType: "local_error", error: String(e && e.message || e) }; } }
+            job.resolve(r);
+        }
+    } finally {
+        localBusy = false;
+    }
+}
+
+// Thời gian chờ theo độ dài câu: bình thường tạo 1 giây lời mất ~0,25 giây (M3). Một lượt vượt
+// xa mức đó là mô hình bị kẹt (log thật: 6 giây audio mất 45 giây, chặn mọi câu khác) ->
+// hủy sớm và tạo lại, thay vì chờ 45 giây rồi bỏ câu.
+function localTimeoutMs(text) {
+    const syl = String(text || "").split(/\s+/).filter(Boolean).length;
+    const audioSec = syl / 3.2;
+    return Math.round(Math.min(45, Math.max(8, 4 + audioSec * 0.9)) * 1000);
+}
+
+async function synthesizeLocal(req, text, parts, signal) {
+    let last = null;
+    // Kẹt / audio bất thường: thử lại một lần (lấy mẫu ngẫu nhiên nên lần sau thường bình thường)
+    for (let attempt = 0; attempt < 2; attempt++) {
+        last = await localSerial(() => synthesizeLocalOnce(req, text, parts, signal), signal);
+        if (last.ok || !(last.errorType === "timeout" || last.errorType === "runaway")) return last;
+        if (signal && signal.aborted) break;
+        console.warn(`[VieNeu] ${last.error}; tạo lại lần ${attempt + 2}`);
+    }
+    if (last && last.errorType === "runaway") last.errorType = "local_error";
+    return last;
+}
+
+// Máy chủ đang bận việc khác (tab / ứng dụng khác ngoài hàng đợi này): chờ tới khi rảnh
+// (tối đa ~20 giây) rồi mới gửi và bắt đầu tính giờ, để thời gian xếp hàng trên máy chủ
+// không bị tính nhầm thành "kẹt". /health không trả lời thì gửi luôn như cũ.
+async function waitLocalIdle(signal, maxMs = 20000) {
+    const t0 = Date.now();
+    while (Date.now() - t0 < maxMs) {
+        if (signal && signal.aborted) return;
+        try {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 1500);
+            const r = await fetch(LOCAL.url + "/health", { signal: controller.signal }).finally(() => clearTimeout(timer));
+            const h = await r.json();
+            if (!h || typeof h.active !== "number" || h.active < (h.max_streams || 1)) return;
+        } catch (e) { return; }
+        await sleep(250, signal).catch(() => {});
+    }
+}
+
+async function synthesizeLocalOnce(req, text, parts, signal) {
+    const controller = new AbortController();
+    let timedOut = false;
+    const limit = localTimeoutMs(text);
+    let timer = null;
+    const onAbort = () => controller.abort();
+    if (signal) signal.addEventListener("abort", onAbort, { once: true });
+    try {
+        await waitLocalIdle(signal);
+        const body = JSON.stringify({ model: LOCAL.model, voice: req.voice || LOCAL.defaultVoice, input: text, response_format: "pcm", sample_rate: LOCAL.sampleRate, temperature: LOCAL.temperature });
+        let res;
+        // Máy chủ vẫn bận (tab khác ngoài hàng đợi này, máy chủ đang làm việc khác): chờ theo
+        // Retry-After rồi thử lại, tổng tối đa ~15 giây. Miễn phí nên thử lại không tốn gì.
+        const t0 = Date.now();
+        for (let attempt = 0; ; attempt++) {
+            clearTimeout(timer);
+            timer = setTimeout(() => { timedOut = true; controller.abort(); }, limit);
+            res = await fetch(LOCAL.url + "/v1/audio/speech", { method: "POST", headers: { "Content-Type": "application/json" }, body, signal: controller.signal });
+            if (res.status !== 429 || Date.now() - t0 > 15000) break;
+            clearTimeout(timer);
+            const wait = Math.min(3000, (Number(res.headers && res.headers.get && res.headers.get("Retry-After")) || 1) * 1000);
+            await sleep(wait, controller.signal);
+        }
+        if (!res.ok) {
+            const detail = (await res.text().catch(() => "")).slice(0, 200);
+            return { ok: false, errorType: res.status === 429 ? "rate_limit" : "local_error", error: `VieNeu HTTP ${res.status}: ${detail}` };
+        }
+        const bytes = new Uint8Array(await res.arrayBuffer());
+        if (bytes.length < 2000) return { ok: false, errorType: "no_audio", error: "VieNeu không trả audio" };
+        const sr = LOCAL.sampleRate;
+        const audioSec = bytes.length / 2 / sr;
+        // Audio dài bất thường so với lời thoại (mô hình lặp / kéo dài âm): không dùng
+        const syl = String(text || "").split(/\s+/).filter(Boolean).length;
+        if (syl >= 3 && audioSec > 2.5 + syl / 1.6) return { ok: false, errorType: "runaway", error: `audio dài bất thường (${audioSec.toFixed(1)} giây cho ${syl} âm tiết)` };
+        track(metaOf(req), { localSec: audioSec });
+        const mime = `audio/L16;rate=${sr}`;
+        if (!parts) {
+            // Nghe thử trong Cài đặt: cùng cách xử lý như khi lồng tiếng (rút khoảng lặng dài)
+            const one = splitTtsAudio(bytes, mime, sr, [{ key: "_", weight: 1 }], { maxPause: LOCAL.maxPause });
+            return { ok: true, audio: bytesToBase64(one[0].wav), mimeType: "audio/wav", sampleRate: sr, model: LOCAL.model };
+        }
+        // Câu dày chữ: engine xin khoảng nghỉ ngắn hơn (không bỏ chữ); giới hạn trong [0,1 ; mặc định]
+        const maxPause = req.maxPause ? Math.max(0.1, Math.min(LOCAL.maxPause, Number(req.maxPause) || LOCAL.maxPause)) : LOCAL.maxPause;
+        const pieces = splitTtsAudio(bytes, mime, sr, parts, { maxPause });
+        if (!pieces) return { ok: false, errorType: "split", error: "Không cắt được audio theo từng đoạn" };
+        for (const p of pieces) await caches.audio.set(p.key, { wav: p.wav, duration: p.duration, sampleRate: p.sampleRate });
+        return partsReply(pieces, { model: LOCAL.model });
+    } catch (e) {
+        if (timedOut) return { ok: false, errorType: "timeout", error: `VieNeu quá ${Math.round(limit / 1000)} giây chưa tạo xong` };
+        if (signal && signal.aborted) return { ok: false, errorType: "aborted", aborted: true, error: "Đã hủy" };
+        return { ok: false, errorType: "local_unavailable", error: `Máy chủ VieNeu chưa chạy (nhấp đúp ${LOCAL.startScript})` };
+    } finally {
+        clearTimeout(timer);
+        if (signal) signal.removeEventListener("abort", onAbort);
+    }
+}
+
+// Xóa audio đã lưu của MỘT video (trang gửi danh sách khóa audio của các đoạn trong video đó)
+async function handleAudioCacheDelete(req) {
+    if (!caches) return { ok: true, removed: 0 };
+    const keys = (req.keys || []).filter(k => typeof k === "string").slice(0, 5000);
+    return { ok: true, removed: await caches.audio.remove(keys) };
+}
+
+async function handleAudioCacheGet(req) {
+    if (!caches) return { ok: true, hits: {} };
+    const hits = {};
+    for (const k of (req.keys || []).slice(0, 12)) {
+        const rec = await caches.audio.get(k);
+        if (rec && rec.wav) hits[k] = { wav: bytesToBase64(rec.wav), duration: rec.duration, sampleRate: rec.sampleRate };
+    }
+    const n = Object.keys(hits).length;
+    if (n) track(metaOf(req), { hitsAudio: n, avoided: n });
+    return { ok: true, hits };
+}
+
+// Rút gọn NHẸ một câu nói quá dài so với thời lượng lời gốc (có cache bền vững).
+async function handleCondenseSpeech(req) {
+    const cfg = await modelsFromCfg();
+    if (!cfg.useAi || !cfg.geminiApiKey) return { ok: false, error: "Chưa bật Gemini" };
+    // Model rẻ nhất mà key này gọi được (việc phụ, không cần model mạnh)
+    const model = COST.modelChain("cheap", cfg, "economy", await isUnavailableFn(cfg.geminiApiKey))[0];
+    if (!model) return { ok: false, errorType: "unavailable_for_key", error: "Không có model khả dụng" };
+    const seconds = Math.round(Number(req.seconds || 0) * 2) / 2;
+    let key = null;
+    try { key = caches ? await CST_CACHE.hashKey(["cond", TR_PROMPT_VERSION, model, CST_CACHE.normalizeText(req.text), seconds]) : null; } catch (e) { key = null; }
+    if (key) {
+        const hit = await caches.tr.get(key);
+        if (hit && hit.text) return { ok: true, text: hit.text, fromCache: true };
+    }
+    const sys = [
+        "Bạn là biên tập viên lồng tiếng tiếng Việt. Rút gọn NHẸ câu thoại để đọc kịp trong thời lượng cho trước.",
+        "Giữ nguyên ý nghĩa, mọi số liệu, thuật ngữ, tên riêng. Không thêm ý mới, không bỏ ý chính. Chỉ lược từ thừa, lời dẫn, cách nói vòng; câu tự nhiên, dễ đọc thành tiếng.",
+        "Chỉ trả về câu đã rút gọn."
+    ].join("\n");
+    const user = `[LỜI GỐC TIẾNG ANH] ${req.srcText || ""}\n[CÂU CẦN RÚT GỌN] ${req.text}\n[THỜI LƯỢNG] khoảng ${seconds.toFixed(1)} giây, tối đa khoảng ${req.maxSyllables || 0} âm tiết`;
+    const generationConfig = { temperature: 0.2, maxOutputTokens: 256 };
+    const thinking = thinkingConfigFor(model);
+    if (thinking) generationConfig.thinkingConfig = thinking;
+    try {
+        const data = await geminiCall(model, cfg.geminiApiKey, {
+            system_instruction: { parts: [{ text: sys }] }, contents: [{ parts: [{ text: user }] }], generationConfig
+        }, { timeoutMs: 8000, retries: 1, backoffMs: 500 });
+        const text = sanitizeModelOutput(responseText(data), []);
+        const u = data.usageMetadata || {};
+        track(metaOf(req), { trUsd: COST.estimateTextCost(model, u.promptTokenCount || 0, (u.candidatesTokenCount || 0) + (u.thoughtsTokenCount || 0)), trCalls: 1 });
+        if (text && key) caches.tr.set(key, { text });
+        return text ? { ok: true, text } : { ok: false, error: "Phản hồi rỗng" };
+    } catch (e) {
+        return { ok: false, errorType: e.type, error: e.message };
+    }
+}
+
+// ---- Quản lý bộ nhớ đệm (trang Cài đặt) ----
+async function localCacheBytes() {
+    const all = await new Promise(r => chrome.storage.local.get(null, r));
+    let bytes = 0, count = 0;
+    for (const [k, v] of Object.entries(all)) {
+        if (!/^ytcache|^ctxterms_/.test(k)) continue;
+        bytes += JSON.stringify(v).length * 2;
+        count++;
+    }
+    return { bytes, count, keys: Object.keys(all).filter(k => /^ytcache|^ctxterms_/.test(k)) };
+}
+
+async function handleCacheStats() {
+    if (!caches) return { ok: false, error: "Không có IndexedDB" };
+    const [tr, audio, local] = await Promise.all([caches.tr.info(), caches.audio.info(), localCacheBytes()]);
+    return { ok: true, tr, audio, local: { bytes: local.bytes, count: local.count } };
+}
+
+async function handleCacheClear(req) {
+    const which = req.which || "all";
+    if (caches && (which === "tr" || which === "all")) await caches.tr.clear();
+    if (caches && (which === "audio" || which === "all")) await caches.audio.clear();
+    if (which === "tr" || which === "all") {
+        const local = await localCacheBytes();
+        if (local.keys.length) await new Promise(r => chrome.storage.local.remove(local.keys, r));
+    }
+    return handleCacheStats();
+}
+
+// ---- Chuyển đổi cài đặt model cũ (một lần, theo danh mục trong cost-policy.js) ----
+try {
+    chrome.storage.sync.get({ geminiModel: "", geminiStrongModel: "", costMigration113: false, modelsVersion: 0 }, cfg => {
+        const patch = COST.migrateModelSettings(cfg);
+        if (Object.keys(patch).length) chrome.storage.sync.set(patch);
+    });
+} catch (e) { /* chạy ngoài extension */ }
+
+// ---- Trạng thái model theo API key (trang Cài đặt, lồng tiếng) ----
+async function handleModelStatus(req) {
+    const cfg = await modelsFromCfg();
+    const apiKey = String(req.key || cfg.geminiApiKey || "").trim();
+    await accessReady;
+    const kh = apiKey ? await keyHash(apiKey) : "";
+    const unavailable = await isUnavailableFn(apiKey);
+    const models = {};
+    for (const m of [...COST.TRANSLATION_MODELS, ...COST.TTS_MODELS]) {
+        const a = kh ? accessOf(kh, m.id) : null;
+        models[m.id] = a ? { state: a.s, suggested: a.suggested || "", until: a.until } : { state: "unknown" };
+    }
+    const tts = (await ttsModelsFor(apiKey, [cfg.dubTtsModel]))[0] || "";
+    return {
+        ok: true, hasKey: !!apiKey, models,
+        effective: {
+            cheap: COST.modelChain("cheap", cfg, cfg.costMode, unavailable)[0] || "",
+            strong: COST.modelChain("strong", cfg, cfg.costMode, unavailable)[0] || "",
+            tts
+        }
+    };
+}
+
+// Kiểm tra khóa bằng một lượt generateContent THẬT (nguồn sự thật về quyền truy cập),
+// theo đúng chuỗi model sẽ dùng; ghi nhận model nào gọi được / không.
+async function handleTestKey(req) {
+    const apiKey = String(req.key || "").trim();
+    if (!apiKey) return { ok: false, error: "Chưa nhập API Key" };
+    const cfg = { ...(await modelsFromCfg()), cheap: req.model || COST.DEFAULT_MODELS.cheap };
+    const tried = [];
+    const t0 = Date.now();
+    for (let guard = 0; guard < 6; guard++) {
+        const unavailable = await isUnavailableFn(apiKey);
+        const model = COST.modelChain("cheap", cfg, "balanced", unavailable).find(m => !tried.includes(m));
+        if (!model) break;
+        tried.push(model);
+        try {
+            const data = await geminiCall(model, apiKey, {
+                contents: [{ parts: [{ text: "Dịch sang tiếng Việt, chỉ trả bản dịch: 'Artificial Intelligence'" }] }],
+                generationConfig: { maxOutputTokens: 40, temperature: 0.1 }
+            }, { timeoutMs: 15000, retries: 1 });
+            return { ok: true, model, sample: responseText(data).trim(), latency: Date.now() - t0, skipped: tried.slice(0, -1) };
+        } catch (e) {
+            if (e.type !== "not_found" && e.type !== "unavailable_for_key") return { ok: false, model, errorType: e.type, error: e.message, skipped: tried.slice(0, -1) };
+        }
+    }
+    return { ok: false, errorType: "unavailable_for_key", error: "Không model nào trong danh sách gọi được với API key này", skipped: tried };
+}
+
+// ---- Mở trang Cài đặt từ content script (trang YouTube/Coursera không được tự mở
+// chrome-extension://.../options.html: Chrome chặn với ERR_BLOCKED_BY_CLIENT) ----
+async function handleOpenOptions() {
+    try {
+        await chrome.runtime.openOptionsPage();
+        return { ok: true, via: "openOptionsPage" };
+    } catch (e) {
+        try {
+            await chrome.tabs.create({ url: chrome.runtime.getURL("options.html") });
+            return { ok: true, via: "tabs.create", note: e && e.message };
+        } catch (e2) {
+            return { ok: false, error: (e2 && e2.message) || String(e2) };
+        }
+    }
+}
+
+async function handleCostStats() {
+    await ledgerReady;
+    rollDay();
+    const budget = await budgetState({});
+    return { ok: true, day: ledger, session: sessionStats, budget };
+}
+
+async function handleCostReset() {
+    ledger = { day: localDay(), ...emptyStats(), videos: {} };
+    sessionStats = emptyStats();
+    saveLedgerSoon();
+    return handleCostStats();
+}
+
+// ---- Giọng VieNeu mặc định mới (1.1.11): Mỹ Duyên + Thái Sơn (miền Nam). Chỉ đổi khi
+// người dùng còn để đúng mặc định cũ (Thùy Dung + Minh Triết) hoặc chưa chọn; một lần.
+try {
+    chrome.storage.sync.get({ dubLocalVoice: "", dubLocalVoice2: "", localVoices1111: false }, cfg => {
+        if (cfg.localVoices1111) return;
+        const patch = { localVoices1111: true };
+        if (!cfg.dubLocalVoice || cfg.dubLocalVoice === "Thùy Dung") patch.dubLocalVoice = COST.LOCAL_TTS.defaultVoice;
+        if (!cfg.dubLocalVoice2 || cfg.dubLocalVoice2 === "Minh Triết") patch.dubLocalVoice2 = COST.LOCAL_TTS.defaultVoice2;
+        chrome.storage.sync.set(patch);
+    });
+} catch (e) { /* chạy ngoài extension */ }
+
+// ---- Tải lại / cập nhật tiện ích: nạp lại mã vào các tab YouTube / Coursera ĐANG MỞ ----
+// Chrome không tự làm việc này: tab mở từ trước giữ mã cũ đã mất kết nối (không dịch, không lồng
+// tiếng, phụ đề biến mất) cho tới khi người dùng F5. Mã cũ tự tắt (xem ytTuTatKhiMatKetNoi), mã
+// mới được nạp đúng thứ tự như trong manifest.
+function pageKind(url) {
+    try {
+        const h = new URL(url).hostname;
+        if (/(^|\.)youtube\.com$/.test(h)) return "youtube";
+        if (/(^|\.)coursera\.org$/.test(h)) return "coursera";
+    } catch (e) { /* bỏ qua */ }
+    return "";
+}
+// Phím tắt (Alt+S phụ đề, Alt+D lồng tiếng; đổi được ở chrome://extensions/shortcuts).
+// Chỉ chuyển tiếp cho tab đang xem; không cần thêm quyền nào.
+if (chrome.commands && chrome.commands.onCommand) {
+    chrome.commands.onCommand.addListener(async (command, tab) => {
+        try {
+            const t = tab || (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
+            if (t && t.id != null) await chrome.tabs.sendMessage(t.id, { method: "phimTat", command });
+        } catch (e) { /* tab không có content script: bỏ qua */ }
+    });
+}
+
+async function reinjectOpenTabs() {
+    if (!chrome.scripting || !chrome.tabs || !chrome.tabs.query) return 0;
+    const groups = (chrome.runtime.getManifest().content_scripts || []);
+    const tabs = await chrome.tabs.query({ url: ["*://*.youtube.com/*", "*://*.coursera.org/*"] });
+    let n = 0;
+    for (const tab of tabs) {
+        const kind = pageKind(tab.url || "");
+        if (!kind || tab.discarded) continue;
+        for (const g of groups) {
+            if (!(g.matches || []).some(m => m.includes(kind === "youtube" ? "youtube.com" : "coursera.org"))) continue;
+            try {
+                await chrome.scripting.executeScript({ target: { tabId: tab.id }, world: g.world === "MAIN" ? "MAIN" : "ISOLATED", files: g.js });
+            } catch (e) { /* tab không cho chèn (trang lỗi, đang tải): bỏ qua */ }
+        }
+        n++;
+    }
+    return n;
+}
+try {
+    chrome.runtime.onInstalled.addListener(details => {
+        if (details && (details.reason === "update" || details.reason === "install")) reinjectOpenTabs().catch(() => {});
+    });
+} catch (e) { /* chạy ngoài extension */ }
+
+// ---- Nguồn giọng mặc định mới (1.1.13): Giọng Việt trên máy (VieNeu). Chỉ đổi khi người
+// dùng còn để "Tự động" (mặc định cũ) hoặc chưa chọn; một lần.
+try {
+    chrome.storage.sync.get({ dubProvider: "", dubProvider1113: false }, cfg => {
+        if (cfg.dubProvider1113) return;
+        const patch = { dubProvider1113: true };
+        if (!cfg.dubProvider || cfg.dubProvider === "auto") patch.dubProvider = "vieneu";
+        chrome.storage.sync.set(patch);
+    });
+} catch (e) { /* chạy ngoài extension */ }
+
+// ---- Kiểu phụ đề mặc định mới (1.1.8): cỡ 90%, độ đậm 400, viền quầng mờ, lề 1% ----
+// Chỉ đổi những mục NGƯỜI DÙNG CHƯA TỰ CHỈNH (còn đúng giá trị mặc định cũ); một lần.
+try {
+    chrome.storage.sync.get({ subStyle: null, styleDefaults118: false }, cfg => {
+        if (cfg.styleDefaults118) return;
+        const s = cfg.subStyle;
+        const patch = { styleDefaults118: true };
+        if (s && typeof s === "object") {
+            const old = { fontSize: 130, fontWeight: "500", strokeStyle: "shadow", offset: 3 };
+            const next = { fontSize: 90, fontWeight: "400", strokeStyle: "glow", offset: 1 };
+            const ns = { ...s };
+            for (const k of Object.keys(old)) if (String(s[k]) === String(old[k])) ns[k] = next[k];
+            patch.subStyle = ns;
+        }
+        chrome.storage.sync.set(patch);
+    });
+} catch (e) { /* chạy ngoài extension */ }
+
+const ROUTES = {
+    translateUnit: handleTranslateUnit,
+    translateUnitStore: handleTranslateUnitStore,
+    synthesizeSpeech: handleSynthesizeSpeech,
+    condenseSpeech: handleCondenseSpeech,
+    audioCacheGet: handleAudioCacheGet,
+    audioCacheDelete: handleAudioCacheDelete,
+    cacheStats: handleCacheStats,
+    cacheClear: handleCacheClear,
+    modelStatus: handleModelStatus,
+    testKey: handleTestKey,
+    openOptions: handleOpenOptions,
+    costStats: handleCostStats,
+    localTtsStatus: handleLocalTtsStatus,
+    localTtsWarm: handleLocalTtsWarm,
+    costReset: handleCostReset
+};
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "ttsAbort") {
+        sendResponse(handleTtsAbort(request));
+        return false;
+    }
+    const route = ROUTES[request.action];
+    if (!route) return false;
+    route(request).then(sendResponse).catch(err => sendResponse({ ok: false, errorType: err.type || "unknown", error: err.message }));
+    return true;
+});

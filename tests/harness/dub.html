@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Kiểm tra lồng tiếng</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #111; color: #eee; padding: 16px; }
+  #player { position: relative; width: 640px; height: 120px; background: #222; border-radius: 8px; }
+  video { width: 640px; height: 60px; }
+  button { margin: 6px 6px 0 0; padding: 8px 14px; }
+  pre { background: #000; padding: 8px; max-height: 360px; overflow: auto; font-size: 12px; }
+</style>
+</head>
+<body>
+<p>Bộ kiểm tra lồng tiếng trên trình duyệt thật: dùng CHÍNH dub-planner / dub-audio / dub-engine của tiện ích.</p>
+<div id="player"><video id="v" src="../audio/linh-chunk.wav" controls preload="auto"></video></div>
+<button id="startLive">Bắt đầu (giọng hệ thống)</button>
+<button id="startBuffer">Bắt đầu (audio có sẵn, như Gemini)</button>
+<pre id="log"></pre>
+<script src="../../vi-segmenter.js"></script>
+<script src="../../cost-policy.js"></script>
+<script src="../../dub-planner.js"></script>
+<script src="../../dub-audio.js"></script>
+<script src="../../dub-engine.js"></script>
+<script>
+  const S = window.CST_VI_SEG, E = window.CST_DUB_ENGINE, A = window.CST_DUB_AUDIO, P = window.CST_DUB_PLAN;
+  const out = document.getElementById("log");
+  const log = (...a) => { out.textContent += a.join(" ") + "\n"; };
+  // "Lời gốc" = file audio 14 giây gồm 4 câu (thời gian đo từ chính file)
+  const srcGroups = [
+    [0.0, 4.9, "Now, what we need to understand is how the model processes data.", "Bây giờ, điều chúng ta cần hiểu là cách mô hình xử lý dữ liệu."],
+    [5.4, 6.1, "Really?", "Thật sao?"],
+    [6.9, 11.3, "This is an extremely important concept, remember it.", "Đây là một khái niệm cực kỳ quan trọng, các bạn hãy ghi nhớ nó."],
+    [12.2, 14.1, "It turns out the model overfits.", "Hóa ra mô hình bị quá khớp."]
+  ];
+  const groups = srcGroups.map(([s, e, en, vi]) => {
+    const src = [{ start: s, end: e, text: en }];
+    return { start: s, end: e, srcCues: src, viText: vi, viCues: S.segmentGroupSafe(vi, src) };
+  });
+  window.H = { events: [], engine: null };
+
+  function deps(video, primary) {
+    return {
+      video, getGroups: () => groups, providers: { primary },
+      now: () => performance.now(), setInterval: (f, ms) => setInterval(f, ms), clearInterval: id => clearInterval(id),
+      createObjectURL: b => URL.createObjectURL(new Blob([b], { type: "audio/wav" })), revokeObjectURL: u => URL.revokeObjectURL(u),
+      createAudio: url => { const a = new Audio(url); a.preload = "auto"; H.audios = (H.audios || []); H.audios.push(a); return a; },
+      onStatus: st => { H.status = st; }, log: (...a) => log("LỖI", ...a)
+    };
+  }
+
+  document.getElementById("startLive").onclick = async () => {
+    const video = document.getElementById("v");
+    const prov = E.createWebSpeechProvider({ speechSynthesis, SpeechSynthesisUtterance });
+    const ok = await prov.init("");
+    log("Giọng hệ thống tiếng Việt:", ok ? prov.voiceLabel : "KHÔNG CÓ");
+    const speak = prov.speak.bind(prov);
+    prov.speak = (text, opts, cb) => {
+      const rec = { text, rate: +opts.rate.toFixed(2), pitch: +opts.pitch.toFixed(2), media: +video.currentTime.toFixed(2) };
+      H.events.push(rec);
+      return speak(text, opts, {
+        onstart: () => { rec.startMedia = +video.currentTime.toFixed(2); cb.onstart && cb.onstart(); },
+        onend: () => { rec.endMedia = +video.currentTime.toFixed(2); cb.onend && cb.onend(); },
+        onerror: e => { rec.error = e && e.error; cb.onerror && cb.onerror(e); }
+      });
+    };
+    H.engine = new E.DubEngine(deps(video, prov), { duck: 0.2 });
+    H.engine.start();
+    await video.play();
+    log("Đã phát, số đoạn nói:", H.engine.plans.length);
+  };
+
+  // "Như Gemini": audio thật (giọng Linh) được render, cắt theo khoảng lặng rồi phát bằng HTMLAudioElement
+  document.getElementById("startBuffer").onclick = async () => {
+    const video = document.getElementById("v");
+    const buf = new Uint8Array(await (await fetch("../audio/linh-chunk.wav")).arrayBuffer());
+    const wav = A.decodeWav(buf);
+    const prov = {
+      id: "gemini", label: "Audio có sẵn (giọng Linh thật)", caps: { prerender: true, live: false }, voiceLabel: "Linh",
+      voiceModel: { ...P.DEFAULT_VOICE_MODEL },
+      async render(plans) {
+        H.renderCalls = (H.renderCalls || 0) + 1;
+        const all = H.engine.plans;
+        const split = A.splitBySilence(wav.samples, wav.sampleRate, all.map(p => p.phrases.reduce((a, x) => a + x.syl, 0)));
+        return plans.map(p => {
+          const k = all.indexOf(p);
+          const clean = A.prepareSpeech(A.slice(wav.samples, wav.sampleRate, split.parts[k].start, split.parts[k].end), wav.sampleRate);
+          return { planId: p.id, wav: A.encodeWav(clean, wav.sampleRate), duration: clean.length / wav.sampleRate };
+        });
+      }
+    };
+    H.engine = new E.DubEngine(deps(video, prov), { duck: 0.2 });
+    H.engine.start();
+    await new Promise(r => setTimeout(r, 400));
+    await video.play();
+    log("Đã phát (audio có sẵn), đã tạo:", H.engine.rendered.size, "/", H.engine.plans.length);
+  };
+
+  // KIỂM TRA KHÔNG CẮT LỜI (trình duyệt thật, HTMLAudioElement thật):
+  // câu 1: phụ đề 0,2-3,0 s nhưng audio THẬT dài 4,4 s; câu 2 tới giờ lúc 3,2 s.
+  // Đúng: câu 1 phát hết 4,4 s (qua cả mốc 3,2), câu 2 chỉ bắt đầu sau khi câu 1 dứt.
+  window.runClipCheck = async () => {
+    const video = document.getElementById("v");
+    video.muted = true;
+    video.currentTime = 0;
+    const buf = new Uint8Array(await (await fetch("../audio/linh-chunk.wav")).arrayBuffer());
+    const wav = A.decodeWav(buf);
+    const piece = (a, b) => A.slice(wav.samples, wav.sampleRate, a, b);
+    const mk = (s, e, en, vi) => { const src = [{ start: s, end: e, text: en }]; return { start: s, end: e, srcCues: src, viText: vi, viCues: S.segmentGroupSafe(vi, src) }; };
+    const g = [
+      mk(0.2, 3.0, "Now, what we need to understand is how the model processes data.", "Bây giờ, điều chúng ta cần hiểu là cách mô hình xử lý dữ liệu."),
+      mk(3.2, 6.0, "It overfits.", "Hóa ra mô hình bị quá khớp.")
+    ];
+    const clips = [piece(0.0, 4.4), piece(6.9, 8.5)];
+    const events = [];
+    const prov = {
+      id: "gemini", label: "Audio thật", caps: { prerender: true, live: false }, voiceLabel: "Linh",
+      voiceModel: { ...P.DEFAULT_VOICE_MODEL },
+      async render(plans) {
+        return plans.map(p => ({ planId: p.id, wav: A.encodeWav(clips[p.index], wav.sampleRate), duration: clips[p.index].length / wav.sampleRate }));
+      }
+    };
+    const d = deps(video, prov);
+    d.getGroups = () => g;
+    H.audios = [];
+    d.createAudio = url => {
+      const a = new Audio(url);
+      const k = H.audios.length;
+      H.audios.push(a);
+      a.addEventListener("playing", () => events.push({ k, ev: "play", media: video.currentTime, pos: a.currentTime }));
+      a.addEventListener("pause", () => events.push({ k, ev: "pause", media: video.currentTime, pos: a.currentTime, dur: a.duration }));
+      a.addEventListener("ended", () => events.push({ k, ev: "ended", media: video.currentTime, pos: a.currentTime, dur: a.duration }));
+      return a;
+    };
+    if (H.engine) H.engine.stop();
+    H.engine = new E.DubEngine(d, { duck: 0.2 });
+    H.engine.start();
+    await new Promise(r => setTimeout(r, 600));
+    await video.play();
+    await new Promise(r => setTimeout(r, 8500));
+    video.pause();
+    H.engine.stop();
+    const first = events.filter(e => e.k === 0), second = events.filter(e => e.k === 1);
+    const end1 = first.find(e => e.ev === "ended") || first[first.length - 1];
+    const start2 = second.find(e => e.ev === "play");
+    return {
+      audio1: { duration: H.audios[0] && H.audios[0].duration, endedAtPos: end1 && end1.pos, endedAtMedia: end1 && end1.media, fullyPlayed: !!first.find(e => e.ev === "ended") },
+      audio2: { startMedia: start2 && start2.media, fullyPlayed: !!second.find(e => e.ev === "ended") },
+      noOverlap: !!(end1 && start2 && start2.media >= end1.media - 0.08),
+      started: H.engine.stats.started.map(x => ({ id: x.id, due: x.due, t: +x.t.toFixed(2), speechEnd: +(x.speechEnd || 0).toFixed(2), cueEnd: x.cueEnd })),
+      events
+    };
+  };
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head><meta charset="utf-8"><title>Kiểm tra kho đệm IndexedDB</title></head>
+<body style="font-family: system-ui; background:#111; color:#eee; padding:16px">
+<p>Kiểm tra cst-cache.js với IndexedDB THẬT của trình duyệt (dùng CHÍNH mã của tiện ích).</p>
+<pre id="out"></pre>
+<script src="../../cst-cache.js"></script>
+<script>
+  const C = window.CST_CACHE;
+  window.runPhase1 = async () => {
+    const b = C.idbBackend(["tr", "audio"]);
+    const tr = new C.TieredCache(b, "tr", { version: 7 });
+    const au = new C.TieredCache(b, "audio", { version: 1, maxBytes: 60000, memEntries: 2 });
+    await tr.clear(); await au.clear();
+    const key = await C.hashKey(["tr", 7, ["The model receives the image."]]);
+    await tr.set(key, { translations: ["Mô hình nhận bức ảnh."] });
+    for (let i = 0; i < 6; i++) await au.set("a" + i, { wav: new Uint8Array(15000).fill(i), duration: 1 + i });
+    const info = await au.info();
+    return { key, audioCount: info.count, audioBytes: info.bytes, evicted: info.evicted, newestKept: !!(await au.get("a5")) };
+  };
+  window.runPhase2 = async key => {
+    // Sau khi tải lại trang: RAM trống, phải đọc từ IndexedDB
+    const b = C.idbBackend(["tr", "audio"]);
+    const tr = new C.TieredCache(b, "tr", { version: 7 });
+    const got = await tr.get(key);
+    const l2 = tr.stats.l2;
+    const au = new C.TieredCache(b, "audio", { version: 1, maxBytes: 60000 });
+    const a5 = await au.get("a5");
+    const oldest = await au.get("a0");
+    const v8 = new C.TieredCache(b, "tr", { version: 8 });
+    const afterBump = await v8.get(key);
+    return { got, l2, a5bytes: a5 && a5.wav.length, a5first: a5 && a5.wav[0], oldestEvicted: oldest === null, afterVersionBump: afterBump };
+  };
+</script>
+</body>
+</html>

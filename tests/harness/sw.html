@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head><meta charset="utf-8"><title>Kiểm tra service worker</title></head>
+<body style="font-family: system-ui; background:#111; color:#eee; padding:16px">
+<p>Chạy background.js trong Web Worker thật của trình duyệt (IndexedDB, importScripts, crypto thật), máy chủ Gemini giả lập.</p>
+<pre id="out"></pre>
+<script>
+  // Mỗi lần gọi startWorker() là một "service worker mới" (RAM trống, IndexedDB giữ nguyên)
+  window.startWorker = () => new Promise(resolve => {
+    const w = new Worker("sw-worker.js");
+    let seq = 0;
+    const waiting = new Map();
+    w.onmessage = e => {
+      if (e.data.ready) return resolve(api);
+      const cb = waiting.get(e.data.id);
+      waiting.delete(e.data.id);
+      if (cb) cb(e.data.error ? { error: e.data.error } : e.data.result);
+    };
+    w.onerror = e => { document.getElementById("out").textContent += "LỖI WORKER: " + e.message + "\n"; };
+    const call = data => new Promise(r => { const id = ++seq; waiting.set(id, r); w.postMessage({ id, ...data }); });
+    const api = { send: msg => call({ msg }), log: () => call({ cmd: "log" }), mode: m => call({ cmd: "mode", mode: m }), sync: settings => call({ cmd: "sync", settings }), stop: () => w.terminate() };
+  });
+</script>
+</body>
+</html>

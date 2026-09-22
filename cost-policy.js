@@ -1,0 +1,278 @@
+// ============================================================
+// CHÍNH SÁCH CHI PHÍ: CHẾ ĐỘ SỬ DỤNG + ĐỊNH TUYẾN MODEL DỊCH
+//
+// Thứ tự ưu tiên:  LOCAL -> CACHE -> MODEL RẺ -> MODEL MẠNH (khi cần) -> TTS (khi cần)
+//
+// DANH MỤC MODEL DUY NHẤT của tiện ích: trang Cài đặt, service worker, lồng tiếng,
+// bước chuyển đổi cài đặt cũ và kiểm thử đều đọc từ đây (không ghi tên model ở nơi khác).
+// Kiểm tra theo tài liệu chính thức Gemini API (trang Models, Pricing, Deprecations
+// cập nhật 16 đến 17/09/2026). Không lưu số tiền trong code (giá có thể đổi): chỉ lưu
+// THỨ TỰ giá (costRank, 1 = rẻ nhất) để chính sách lùi model không bao giờ lén lên model đắt hơn.
+// ============================================================
+(function (root) {
+    "use strict";
+
+    // access "restricted": model còn hoạt động nhưng Google không cấp cho API key / dự án MỚI
+    //   (API trả 404 "no longer available to new users"). Chỉ dùng khi key này gọi được thật.
+    // shutdown / replacement: lịch ngừng hỗ trợ theo trang Deprecations.
+    // estPrice: USD / 1 triệu token (trang Pricing 16/09/2026), CHỈ để ước tính chi phí
+    //   trong Cài đặt và giới hạn ngân sách, không dùng cho quyết định nào khác.
+    const TRANSLATION_MODELS = [
+        { id: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash-Lite", hint: "rẻ nhất", costRank: 1, access: "restricted", estPrice: { in: 0.10, out: 0.40 } },
+        { id: "gemini-3.1-flash-lite", label: "Gemini 3.1 Flash-Lite", hint: "rẻ, mọi API key đều dùng được", costRank: 2, shutdown: "2027-05-07", replacement: "gemini-3.5-flash-lite", estPrice: { in: 0.25, out: 1.50 } },
+        { id: "gemini-3.5-flash-lite", label: "Gemini 3.5 Flash-Lite", hint: "hiểu ngữ cảnh tốt hơn, đắt hơn", costRank: 3, estPrice: { in: 0.30, out: 2.50 } },
+        // Flash thế hệ 3 mặc định "suy nghĩ" mức trung bình (token suy nghĩ tính như đầu ra) -> hạ xuống thấp
+        { id: "gemini-3.8-flash", label: "Gemini 3.8 Flash", hint: "hiểu sâu nhất, đắt nhất", costRank: 4, thinkingLevel: "low", estPrice: { in: 0.50, out: 3.00 } }
+    ];
+    const TTS_MODELS = [
+        { id: "gemini-2.5-flash-preview-tts", label: "Gemini 2.5 Flash TTS", costRank: 1, access: "restricted", estPrice: { in: 0.50, out: 10.00 } },
+        { id: "gemini-3.1-flash-tts-preview", label: "Gemini 3.1 Flash TTS", costRank: 2, estPrice: { in: 1.00, out: 20.00 } }
+        // Không có Pro TTS: đắt gấp đôi và không bao giờ được tự động dùng
+    ];
+    const AUDIO_TOKENS_PER_SEC = 25;      // tài liệu Gemini: 25 token cho mỗi giây audio
+
+    // Giọng Việt CHẠY TRÊN MÁY: VieNeu-TTS v3 Turbo (Apache 2.0, github.com/pnnbao97/VieNeu-TTS).
+    // Máy chủ cục bộ tương thích OpenAI, chỉ mở trên 127.0.0.1; không tốn tiền API.
+    // Đo trên MacBook Air M3 (CPU, ONNX fp32): tạo 5 giây lời nói mất khoảng 1,1 giây.
+    const LOCAL_TTS = {
+        id: "vieneu",
+        label: "Giọng Việt trên máy (VieNeu)",
+        model: "vieneu-v3-turbo",
+        url: "http://127.0.0.1:8000",
+        modelLabel: "VieNeu-TTS v3 Turbo",
+        sampleRate: 24000,                 // yêu cầu 24 kHz (máy chủ tự đổi từ 48 kHz), nhẹ bằng nửa
+        // Nhiệt độ lấy mẫu: đo 4 lần/câu trên máy Đàm, độ dài dao động 8 đến 12% ở 0,8 (mặc định
+        // của VieNeu) còn 4 đến 6% ở 0,6 -> nhịp nói đều hơn giữa các câu, giọng vẫn tự nhiên
+        temperature: 0.6,
+        maxPause: 0.4, 
+        tightPause: 0.15,                  // câu dày chữ (người nói nhanh): khoảng nghỉ trong câu tối đa 0,15 giây
+                    // khoảng lặng trong câu dài hơn mức này thì rút ngắn lại
+        // Nhịp nói MỤC TIÊU (âm tiết/giây, sau khi rút khoảng lặng) cho lồng tiếng: giọng chậm hơn
+        // được tăng tốc ĐỀU cho cả video (giữ cao độ), tối đa maxTempo; giọng nhanh hơn giữ nguyên
+        targetSps: 4.8,
+        // Đo thật trên bài giảng: Mỹ Duyên chỉ ~3,6 âm tiết/giây sau khi rút khoảng lặng -> cần
+        // tăng tốc nhiều hơn 1,15; 1,22 vẫn trong vùng co giãn giữ cao độ nghe tự nhiên
+        maxTempo: 1.22,
+        // Tốc độ nghe TỐI THIỂU khi lồng tiếng (âm tiết/giây): câu thưa được đọc chậm lại cho
+        // khớp phụ đề nhưng không dưới mức này (Đàm: "lúc nói quá chậm"); sàn tối đa 1,15x
+        minSps: 4.0,
+        maxFloor: 1.15,
+        startScript: "~/VieNeu-TTS/cst-start.command",
+        defaultVoice: "Mỹ Duyên",
+        defaultVoice2: "Thái Sơn",
+        // sps: tốc độ nói đo trên máy Đàm (âm tiết/giây, không tính khoảng lặng); giọng chưa đo
+        // dùng ước lượng rồi tự hiệu chỉnh theo audio thật
+        voices: [
+            { id: "Thùy Dung", sps: 5.4, gender: "Nữ", region: "Nam", style: "tin tức" },
+            { id: "Mỹ Duyên", sps: 4.2, gender: "Nữ", region: "Nam", style: "đọc truyện" },
+            { id: "Thục Đoan", gender: "Nữ", region: "Nam", style: "kể chuyện" },
+            { id: "Kim Thanh", gender: "Nữ", region: "Nam", style: "đọc truyện" },
+            { id: "Minh Triết", sps: 5.2, gender: "Nam", region: "Nam", style: "tin tức" },
+            { id: "Đức Trí", gender: "Nam", region: "Nam", style: "đọc truyện" },
+            { id: "Thái Sơn", sps: 4.6, gender: "Nam", region: "Nam", style: "kể chuyện" },
+            { id: "Adam", gender: "Nam", region: "Nam", style: "tự nhiên" },
+            { id: "Minh Quân Pro", gender: "Nam", region: "Bắc", style: "tự nhiên" },
+            { id: "Trúc Ly", gender: "Nữ", region: "Bắc", style: "tự nhiên" },
+            { id: "Mai Anh", gender: "Nữ", region: "Bắc", style: "tin tức" },
+            { id: "Ngọc Huyền", gender: "Nữ", region: "Bắc", style: "tự nhiên" },
+            { id: "Anh Khôi", gender: "Nam", region: "Bắc", style: "kể chuyện" },
+            { id: "Adam bựa", gender: "Nam", region: "Bắc", style: "tự nhiên" },
+            { id: "Thiền Tâm Đức", gender: "Nam", region: "Bắc", style: "kể chuyện" },
+            { id: "Minh Đức", gender: "Nam", region: "Bắc", style: "tin tức" },
+            { id: "Phạm Tuyên", gender: "Nam", region: "Bắc", style: "tự nhiên" },
+            { id: "Xuân Vĩnh", gender: "Nam", region: "Bắc", style: "tự nhiên" },
+            { id: "Thanh Bình", gender: "Nam", region: "Bắc", style: "kể chuyện" },
+            { id: "Ngọc Linh", gender: "Nữ", region: "Bắc", style: "kể chuyện" },
+            { id: "Đoan Trang", gender: "Nữ", region: "Bắc", style: "tự nhiên" },
+            { id: "Quỳnh Anh", gender: "Nữ", region: "Bắc", style: "đọc truyện" },
+            { id: "Mạnh Dũng", gender: "Nam", region: "Bắc", style: "tự nhiên" },
+            { id: "Quang Sơn", gender: "Nam", region: "Trung", style: "tự nhiên" },
+            { id: "Ngọc Trân", gender: "Nữ", region: "Trung", style: "tự nhiên" }
+        ]
+    };
+
+    // "auto" = model Flash-Lite RẺ NHẤT mà API key hiện tại gọi được thật:
+    // key có quyền 2.5 -> 2.5; key mới (2.5 trả 404 cho key mới) -> 3.1.
+    const AUTO = "auto";
+    const AUTO_CANDIDATES = ["gemini-2.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.5-flash-lite"];
+    const DEFAULT_MODELS = {
+        cheap: AUTO,                         // model chính: mọi phụ đề
+        strong: "gemini-3.5-flash-lite",     // model nâng cấp: chỉ câu khó / dịch lại ở chế độ Cao cấp
+        tts: "gemini-2.5-flash-preview-tts", // giọng AI: key không có quyền 2.5 thì dùng 3.1 TTS
+        universal: "gemini-3.1-flash-lite"   // model rẻ nhất mọi key đều gọi được (dùng cho việc phụ, ví dụ rút gọn lời nói)
+    };
+
+    // Model đã bị Google tắt / tên cũ không còn hợp lệ -> model thay thế
+    const RETIRED_MODELS = {
+        "gemini-3.1-flash-lite-preview": AUTO,
+        "gemini-2.0-flash": AUTO,
+        "gemini-2.0-flash-lite": AUTO
+    };
+
+    const findModel = id => TRANSLATION_MODELS.find(m => m.id === id) || TTS_MODELS.find(m => m.id === id) || null;
+    const costRank = id => (findModel(id) || { costRank: Infinity }).costRank;
+    const modelLabel = id => (id === AUTO ? "Tự động" : (findModel(id) || { label: id }).label);
+
+    // Đã qua ngày ngừng hỗ trợ: dùng model thay thế luôn, không chờ API báo lỗi
+    function afterShutdown(id, today) {
+        const m = findModel(id);
+        return !!(m && m.shutdown && (today || new Date().toISOString().slice(0, 10)) >= m.shutdown);
+    }
+    function liveModel(id, today) {
+        let cur = id;
+        for (let i = 0; i < 4 && afterShutdown(cur, today); i++) cur = findModel(cur).replacement || AUTO_CANDIDATES[AUTO_CANDIDATES.length - 1];
+        return cur;
+    }
+
+    function thinkingLevelFor(id) {
+        const m = findModel(id);
+        if (m) return m.thinkingLevel || null;
+        // Model nhập tay: Flash thế hệ 3 (không Lite) cũng hạ mức suy nghĩ
+        return /^gemini-3.*flash/i.test(id) && !/lite/i.test(id) ? "low" : null;
+    }
+
+    // Chuỗi model sẽ thử cho một yêu cầu dịch.
+    //   isUnavailable(model): model đã được xác nhận KHÔNG gọi được với key này
+    //   (404 cho key mới / model không tồn tại) -> bỏ qua luôn, không thử lại mỗi phụ đề.
+    //   - model chính: người dùng chọn, hoặc "auto" = rẻ nhất gọi được
+    //   - strong: model nâng cấp, không dùng được thì về model chính
+    //   - lùi thêm theo giá tăng dần, có trần: Tiết kiệm = giá model RẺ NHẤT key gọi được
+    //     (không bao giờ đắt hơn cần thiết); chế độ khác = giá model nâng cấp đã chấp nhận
+    function modelChain(tier, cfg, modeId, isUnavailable = () => false, today) {
+        const ok = id => id && !isUnavailable(id) && !afterShutdown(id, today);
+        const auto = cfg.cheap === AUTO || !cfg.cheap;
+        const chosen = auto ? null : liveModel(cfg.cheap, today);
+        const strong = tier === "strong" ? liveModel(cfg.strong || DEFAULT_MODELS.strong, today) : null;
+        const firstUsable = [chosen, ...AUTO_CANDIDATES].find(ok);
+        const economy = modeId === "economy" || modeId === "subtitles";
+        const rankUsable = firstUsable ? costRank(firstUsable) : 0;
+        const ceiling = economy
+            ? Math.max(chosen ? costRank(chosen) : 0, rankUsable)
+            : Math.max(rankUsable, costRank(cfg.strong || DEFAULT_MODELS.strong));
+        const byPrice = [...TRANSLATION_MODELS].sort((a, b) => a.costRank - b.costRank).map(m => m.id);
+        const chain = [strong, chosen, ...(auto ? AUTO_CANDIDATES : []), ...byPrice]
+            .filter(id => ok(id) && (id === strong || id === chosen || costRank(id) <= ceiling));
+        return [...new Set(chain)];
+    }
+
+    // Chuyển đổi cài đặt model cũ (một lần cho mỗi phiên bản danh mục)
+    //   <=1.1.3: 3.5 Flash-Lite / 3.1 Flash-Lite do tiện ích tự đặt làm mặc định -> "auto"
+    //   1.1.5  : 2.5 Flash-Lite do bản 1.1.5 tự đặt cho MỌI key (sai với key mới) -> "auto"
+    //            ("auto" vẫn dùng 2.5 nếu key có quyền, nên người đang dùng được 2.5 không mất gì)
+    //   Tên model đã bị Google tắt -> "auto". Lựa chọn khác của người dùng giữ nguyên.
+    const MODELS_VERSION = 116;
+    function migrateModelSettings(cfg) {
+        const patch = {};
+        const ver = cfg.modelsVersion || 0;
+        if (ver >= MODELS_VERSION) return patch;
+        const cur = cfg.geminiModel || "";
+        if (!cur || RETIRED_MODELS[cur]) patch.geminiModel = AUTO;
+        else if (ver < 114 && !cfg.costMigration113 && cur === "gemini-3.5-flash-lite") { patch.geminiModel = AUTO; patch.geminiStrongModel = DEFAULT_MODELS.strong; }
+        else if (ver < 114 && cur === "gemini-3.1-flash-lite") patch.geminiModel = AUTO;
+        else if (ver === 114 && cur === "gemini-2.5-flash-lite") patch.geminiModel = AUTO;
+        if (RETIRED_MODELS[cfg.geminiStrongModel]) patch.geminiStrongModel = DEFAULT_MODELS.strong;
+        patch.modelsVersion = MODELS_VERSION;
+        return patch;
+    }
+
+    // Ngân sách mặc định (USD ước tính). 0 = không giới hạn. Người dùng chỉnh trong Cài đặt.
+    const BUDGET_DEFAULTS = { daily: 1.0, video: 0.5, warnAt: 0.8 };
+
+    // ---------------- Ước tính chi phí (chỉ để hiển thị và giới hạn ngân sách) ----------------
+    function estimateTextCost(model, inTok, outTok) {
+        const p = (findModel(model) || {}).estPrice || { in: 0.5, out: 3 };
+        return (inTok * p.in + outTok * p.out) / 1e6;
+    }
+    function estimateTtsCost(model, textChars, audioSec) {
+        const p = (findModel(model) || {}).estPrice || { in: 1, out: 20 };
+        return (Math.ceil(textChars / 4) * p.in + audioSec * AUDIO_TOKENS_PER_SEC * p.out) / 1e6;
+    }
+
+    // Chế độ sử dụng (tên dễ hiểu cho người dùng)
+    //   escalate : cho phép đưa câu khó lên model mạnh
+    //   refine   : "strong" dịch lại bằng model mạnh | "cheap" chỉ khi lỗi nặng | "none"
+    //   tts      : "gemini" | "system" | "none"
+    //   prefetch : số giây tạo audio trước tối đa (thích ứng theo độ trễ)
+    //   condense : cho phép rút gọn câu quá dài TRƯỚC khi tạo audio
+    //   translateAhead: YouTube chỉ dịch trước bấy nhiêu giây quanh vị trí xem
+    const MODES = {
+        premium: {
+            label: "Cao cấp: dịch kỹ + giọng AI",
+            desc: "Câu khó được dịch lại bằng model mạnh hơn, lồng tiếng bằng giọng Gemini AI, tạo audio trước tối đa 30 giây.",
+            escalate: true, refine: "strong", tts: "gemini", prefetch: 30, condense: true, translateAhead: 180
+        },
+        balanced: {
+            label: "Cân bằng (khuyên dùng)",
+            desc: "Model rẻ cho mọi câu, chỉ dịch lại khi lỗi nặng; giọng Gemini AI; tạo audio trước ít hơn.",
+            escalate: false, refine: "cheap", tts: "gemini", prefetch: 18, condense: true, translateAhead: 120
+        },
+        economy: {
+            label: "Tiết kiệm: giọng miễn phí trên máy",
+            desc: "Model rẻ, không dịch lại; lồng tiếng bằng giọng Việt chạy trên máy (VieNeu nếu đang bật, không thì giọng hệ thống), không tốn phí TTS.",
+            escalate: false, refine: "none", tts: "local", prefetch: 18, condense: false, translateAhead: 90
+        },
+        subtitles: {
+            label: "Chỉ phụ đề",
+            desc: "Chỉ dịch phụ đề bằng model rẻ, tắt lồng tiếng.",
+            escalate: false, refine: "none", tts: "none", prefetch: 0, condense: false, translateAhead: 90
+        }
+    };
+
+    function getMode(name) {
+        return MODES[name] ? { id: name, ...MODES[name] } : { id: "balanced", ...MODES.balanced };
+    }
+
+    // ---------------- Định tuyến độ khó (tất định, rẻ) ----------------
+    const PRONOUN_RE = /\b(?:it|its|this|that|these|those|they|them|their|he|she|one)\b/gi;
+    const START_REF_RE = /^\s*(?:it|this|that|these|those|they|he|she|which|so|and|but|because|or)\b/i;
+    const SUBORD_RE = /\b(?:which|whereas|although|though|unless|whereby|provided that|given that|in which|such that|so that|even if|whether)\b/gi;
+    const IDIOM_RE = /\b(?:piece of cake|bottom line|rule of thumb|under the hood|low[- ]hanging fruit|on the fly|out of the box|at the end of the day|in a nutshell|boils? down to|come into play|ballpark|sanity check|big picture|get rid of|figure (?:it )?out|come up with|end up|turn(?:s|ed)? out|kind of|sort of|go ahead and|wrap up|build on|run into|look into|point out|carry out|break down|set up|go over|go through|walk (?:you )?through|pay off|kick off|roll out|keep track of|bear in mind|that said|that being said|as a matter of fact)\b/gi;
+
+    // req: { sentences:[...], context:{senseHints, phraseHints, ...}, placeholders:[...] }
+    // Trả về { score, reasons, tier: "cheap" | "strong" }
+    function routeDifficulty(req, opts = {}) {
+        const text = (req.sentences || []).join(" ");
+        const reasons = [];
+        let score = 0;
+        const add = (n, why) => { score += n; reasons.push(why); };
+
+        const longest = Math.max(0, ...(req.sentences || []).map(s => s.length));
+        if (text.length > 320) add(1, "đoạn dài");
+        if (longest > 180) add(1, "câu rất dài");
+
+        const pronouns = (text.match(PRONOUN_RE) || []).length;
+        const words = (text.match(/[A-Za-z']+/g) || []).length || 1;
+        if (pronouns >= 3 && pronouns / words > 0.08) add(1, "nhiều đại từ");
+        // Câu ngắn phụ thuộc ngữ cảnh: "It does.", "That's why." , mảnh câu
+        for (const s of req.sentences || []) {
+            const w = (s.match(/[A-Za-z']+/g) || []).length;
+            if (w > 0 && w <= 5 && START_REF_RE.test(s)) { add(1, "câu ngắn phụ thuộc ngữ cảnh"); break; }
+        }
+
+        const idioms = (text.match(IDIOM_RE) || []).length;
+        if (idioms >= 1) add(Math.min(2, idioms), "thành ngữ / cụm động từ");
+
+        const subord = (text.match(SUBORD_RE) || []).length;
+        const commas = (text.match(/,/g) || []).length;
+        if (subord >= 2 || (subord >= 1 && commas >= 3)) add(1, "câu nhiều mệnh đề");
+
+        const senses = (req.context && req.context.senseHints) ? req.context.senseHints.length : 0;
+        if (senses >= 3) add(1, "nhiều từ đa nghĩa");
+        if ((req.placeholders || []).length >= 3) add(1, "dày thuật ngữ");
+
+        // Phụ đề tự động không dấu câu, dài: khó hiểu cấu trúc
+        if (text.length > 150 && !/[.!?]/.test(text) && text === text.toLowerCase()) add(1, "phụ đề tự động không dấu câu");
+
+        const threshold = opts.threshold || 3;
+        return { score, reasons, tier: score >= threshold ? "strong" : "cheap" };
+    }
+
+    const api = {
+        TRANSLATION_MODELS, TTS_MODELS, LOCAL_TTS, DEFAULT_MODELS, RETIRED_MODELS, MODELS_VERSION, AUTO, AUTO_CANDIDATES, AUDIO_TOKENS_PER_SEC,
+        findModel, modelLabel, costRank, thinkingLevelFor, modelChain, migrateModelSettings, afterShutdown, liveModel,
+        estimateTextCost, estimateTtsCost, BUDGET_DEFAULTS,
+        MODES, getMode, routeDifficulty
+    };
+    if (typeof module === "object" && module.exports) module.exports = api;
+    if (root) root.CST_COST = api;
+})(typeof globalThis !== "undefined" ? globalThis : this);

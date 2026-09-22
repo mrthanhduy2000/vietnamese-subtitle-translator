@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Kiểm tra lớp phụ đề</title>
+<style>
+  body { margin: 0; background: #111; color: #eee; font-family: system-ui, sans-serif; }
+  .row { display: flex; gap: 16px; padding: 16px; flex-wrap: wrap; }
+  #movie_player { position: relative; width: 854px; height: 480px; overflow: hidden;
+    background: url('../../images/youtube-cinematic-bg.jpg') center/cover; }
+  #small_player { position: relative; width: 420px; height: 236px; overflow: hidden;
+    background: url('../../images/youtube-cinematic-bg.jpg') center/cover; }
+  .cap { font-size: 12px; opacity: .7; padding: 0 16px; }
+</style>
+</head>
+<body>
+<p class="cap">Bộ kiểm tra hiển thị: dùng CHÍNH hàm ytVePhuDe / ytApDungKieuPhuDe của youtube.js.</p>
+<div class="row">
+  <div id="movie_player" class="html5-video-player"><video></video></div>
+  <div id="small_player"></div>
+</div>
+<script src="../../chrome-shim.js"></script>
+<script src="../../glossary.js"></script>
+<script src="../../vi-segmenter.js"></script>
+<script src="../../subtitle-style.js"></script>
+<script src="../../dubbing.js"></script>
+<script src="../../content.js"></script>
+<script src="../../youtube.js"></script>
+<script>
+  // Mô phỏng: một nhóm câu đã dịch được phân đoạn, rồi vẽ cue đầu tiên
+  window.CST_HARNESS = function (viText, srcCues, styleOverride, playerSel, dual) {
+    const player = document.querySelector(playerSel || "#movie_player");
+    player.querySelectorAll(".cst-yt-overlay").forEach(o => o.remove());
+    ytSubStyle = ytChuanHoaKieu({ ...ytSubStyle, ...(styleOverride || {}), mode: dual ? "dual" : "single" });
+    state.dualMode = !!dual;
+    const overlay = document.createElement("div");
+    overlay.className = "cst-yt-overlay";
+    overlay.style.cssText = "position:absolute;left:50%;transform:translateX(-50%);max-width:92%;width:max-content;box-sizing:border-box;text-align:center;white-space:pre;bottom:40px;";
+    player.appendChild(overlay);
+    ytApDungKieuPhuDe(overlay);
+    ytCapNhatKichThuoc(player, overlay);
+    const segs = CST_VI_SEG.segmentGroupSafe(viText, srcCues);
+    ytVePhuDe(overlay, segs[0], dual ? srcCues[0].text : "");
+    return segs;
+  };
+</script>
+</body>
+</html>

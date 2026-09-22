@@ -1,0 +1,20 @@
+Xin chào các bạn.
+Bây giờ, điều chúng ta cần hiểu là cách mô hình xử lý dữ liệu đầu vào.
+Nếu tốc độ học quá lớn, thuật toán gradient descent có thể vượt quá điểm cực tiểu và không hội tụ được.
+Trong video này, bạn sẽ học cách triển khai hồi quy logistic từ đầu bằng Python.
+Thật sao?
+Đây là một khái niệm cực kỳ quan trọng, các bạn hãy ghi nhớ nó.
+Mô hình có 175 tỷ tham số và được huấn luyện trên 300 tỷ token.
+Vậy điều gì sẽ xảy ra khi chúng ta tăng kích thước lô?
+Tuyệt vời!
+Cẩn thận, đừng bao giờ đưa dữ liệu kiểm tra vào quá trình huấn luyện.
+Tóm lại, chính quy hóa giúp mô hình khái quát hóa tốt hơn trên dữ liệu mới.
+Chúng ta gọi phương thức fit trên dữ liệu huấn luyện rồi đánh giá trên tập kiểm tra.
+Được rồi, giờ ta sang phần tiếp theo nhé.
+Độ chính xác đạt 97 phẩy 5 phần trăm trên tập kiểm tra.
+Mạng nơ-ron tích chập gồm nhiều lớp, mỗi lớp trích xuất các đặc trưng ở mức độ khác nhau.
+Hóa ra mô hình bị quá khớp.
+Doanh thu quý này tăng mười hai phần trăm nhờ chiến dịch quảng cáo mới.
+Các bạn thấy đấy, cách này đơn giản hơn nhiều.
+Trước khi chuyển sang phần tiếp theo, hãy cùng tóm tắt những gì chúng ta đã học về cơ chế chú ý.
+Ừm, thực ra thì câu trả lời phụ thuộc vào dữ liệu của bạn.

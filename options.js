@@ -1,0 +1,900 @@
+document.addEventListener("DOMContentLoaded", async () => {
+    // Chrome chưa nạp lại tiện ích sau khi cập nhật file: báo rõ + nút nạp lại
+    if (window.CST_VERSION_CHECK) window.CST_VERSION_CHECK.check(document, chrome, ".header-badge", ".content-area");
+
+    // ========================================================
+    // 1. CHUYỂN TAB ĐIỀU HƯỚNG
+    // ========================================================
+    const navTabs = document.querySelectorAll(".nav-tab");
+    const tabPanels = document.querySelectorAll(".tab-panel");
+
+    navTabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            const targetId = tab.dataset.tab;
+            navTabs.forEach(t => t.classList.remove("active"));
+            tabPanels.forEach(p => p.classList.remove("active"));
+
+            tab.classList.add("active");
+            const targetPanel = document.getElementById(targetId);
+            if (targetPanel) targetPanel.classList.add("active");
+        });
+    });
+
+    // ========================================================
+    // 2. KIỂU PHỤ ĐỀ (dùng chung subtitle-style.js với trang video)
+    // ========================================================
+    const S = window.CST_STYLE;
+    const SEG = window.CST_VI_SEG;
+    const defaultSubStyle = { ...S.DEFAULT_STYLE };
+
+    const $ = id => document.getElementById(id);
+    const subModeSingle = $("subModeSingle");
+    const subModeDual = $("subModeDual");
+    const previewBox = $("previewBox");
+    const previewOrigLine = $("previewOrigLine");
+    const previewViLine = $("previewViLine");
+
+    const subPosition = $("subPosition");
+    const subOffset = $("subOffset");
+    const subOffsetVal = $("subOffsetVal");
+    const subPinBottom = $("subPinBottom");
+
+    const subFontFamily = $("subFontFamily");
+    const fontStatus = $("fontStatus");
+    const subFontSize = $("subFontSize");
+    const subFontWeight = $("subFontWeight");
+    const subLineHeight = $("subLineHeight");
+    const subStrokeStyle = $("subStrokeStyle");
+    const subStrokeColor = $("subStrokeColor");
+    const subFontColorPicker = $("subFontColorPicker");
+    const fontColorPalette = $("fontColorPalette");
+    const fontColorCustom = $("fontColorCustom");
+    const subOrigScale = $("subOrigScale");
+    const subOrigColor = $("subOrigColor");
+
+    const subBgColor = $("subBgColor");
+    const subBgOpacity = $("subBgOpacity");
+    const subBgOpacityVal = $("subBgOpacityVal");
+    const subBorderRadius = $("subBorderRadius");
+
+    const resetDefaultBtn = $("resetDefaultBtn");
+
+    // Dựng danh sách phông & kiểu viền từ nguồn dùng chung
+    if (subFontFamily) {
+        const groupsDef = [
+            ["Phông web tối ưu tiếng Việt (tự tải)", f => !!f.web && f.kind === "sans"],
+            ["Phông có sẵn trên máy", f => !f.web],
+            ["Có chân / đơn cách (tự tải)", f => !!f.web && f.kind !== "sans"]
+        ];
+        for (const [label, test] of groupsDef) {
+            const og = document.createElement("optgroup");
+            og.label = label;
+            for (const f of S.FONTS.filter(test)) {
+                const o = document.createElement("option");
+                o.value = f.id;
+                o.textContent = f.label;
+                if (f.local && !S.isLocalFontAvailable(document, f.family)) {
+                    o.textContent += " (máy này không có)";
+                }
+                og.appendChild(o);
+            }
+            if (og.children.length) subFontFamily.appendChild(og);
+        }
+    }
+    if (subStrokeStyle) {
+        for (const k of S.STROKES) {
+            const o = document.createElement("option");
+            o.value = k.id;
+            o.textContent = k.label;
+            subStrokeStyle.appendChild(o);
+        }
+    }
+
+    // Load saved styles (tự chuyển giá trị cũ như "Helvetica Neue" sang mã phông mới)
+    let currentStyle = { ...defaultSubStyle };
+    try {
+        const res = await chrome.storage.sync.get(["subStyle", "dualMode"]);
+        currentStyle = S.normalizeStyle(res.subStyle);
+        if (res.dualMode !== undefined) {
+            currentStyle.mode = res.dualMode ? "dual" : "single";
+        }
+    } catch (e) {
+        console.warn("Chưa đọc được cài đặt kiểu phụ đề:", e);
+    }
+
+    const PREVIEW_VI = "Nhưng với cá nhân tôi, điều quan trọng nhất là sự nhất quán.";
+
+    function setLines(el, lines) {
+        el.replaceChildren();
+        lines.forEach((l, i) => {
+            if (i) el.appendChild(document.createElement("br"));
+            el.appendChild(document.createTextNode(l));
+        });
+    }
+
+    // Kiểm tra phông thật sự hiển thị được, báo rõ cho người dùng
+    let fontCheckSeq = 0;
+    function refreshFontStatus() {
+        if (!fontStatus) return;
+        const f = S.getFont(currentStyle.fontFamily);
+        const seq = ++fontCheckSeq;
+        if (f.stack) {
+            fontStatus.className = "field-hint ok";
+            fontStatus.textContent = "✓ Dùng phông giao diện của hệ điều hành (San Francisco trên macOS, Segoe UI trên Windows).";
+            return;
+        }
+        fontStatus.className = "field-hint";
+        fontStatus.textContent = f.web ? "⏳ Đang tải phông kèm bộ dấu tiếng Việt..." : "Đang kiểm tra phông trên máy...";
+        S.ensureFont(document, f.id, currentStyle.fontWeight).then(ok => {
+            if (seq !== fontCheckSeq) return;
+            if (ok) {
+                fontStatus.className = "field-hint ok";
+                fontStatus.textContent = f.web
+                    ? `✓ Đã tải "${f.family}". Phông cũng được tải trên YouTube và Coursera khi phát phụ đề.`
+                    : `✓ Máy này có sẵn "${f.family}".`;
+            } else {
+                fontStatus.className = "field-hint warn";
+                fontStatus.textContent = f.web
+                    ? `⚠ Không tải được "${f.family}" (mạng hoặc trang chặn). Phụ đề vẫn hiển thị bằng phông dự phòng đủ dấu tiếng Việt.`
+                    : `⚠ Máy này không có "${f.family}", phụ đề sẽ dùng phông dự phòng. Nên chọn một phông web ở nhóm trên.`;
+            }
+            updatePreview();
+        });
+    }
+
+    // Update Live Interactive Preview
+    function updatePreview() {
+        if (!previewBox) return;
+        const s = S.normalizeStyle(currentStyle);
+
+        // 1. Mode (Single vs Dual)
+        const dual = s.mode === "dual";
+        subModeDual.classList.toggle("active", dual);
+        subModeSingle.classList.toggle("active", !dual);
+        previewOrigLine.style.display = dual ? "block" : "none";
+
+        // 2. Position & Offset
+        subOffsetVal.textContent = `${s.offset}%`;
+        if (s.position === "top") {
+            previewBox.style.top = `calc(${s.offset}% + 38px)`;
+            previewBox.style.bottom = "auto";
+        } else {
+            previewBox.style.bottom = `calc(${s.offset}% + 36px)`;
+            previewBox.style.top = "auto";
+        }
+
+        // 3. Typography: dùng đúng hàm như trên trang video
+        previewBox.style.fontFamily = S.fontStack(s.fontFamily);
+        previewBox.style.fontWeight = s.fontWeight;
+        previewBox.style.fontSize = `${(15.5 * (s.fontSize / 100)).toFixed(1)}px`;
+        previewBox.style.lineHeight = String(s.lineHeight);
+        previewBox.style.textShadow = S.textShadow(s);
+        previewViLine.style.color = s.fontColor;
+        previewViLine.style.lineHeight = String(s.lineHeight);
+        previewOrigLine.style.color = s.origColor;
+        previewOrigLine.style.fontSize = `${(s.origScale / 100).toFixed(2)}em`;
+        previewOrigLine.style.order = s.originalFirst ? "0" : "2";
+
+        // Ngắt dòng bằng chính thuật toán tiếng Việt của tiện ích; nếu khung xem
+        // trước hẹp hơn dòng thì ngắt lại theo cú pháp (như trên YouTube), không
+        // để trình duyệt tự xuống dòng tạo từ mồ côi.
+        let lines = SEG ? SEG.breakLines(PREVIEW_VI) : [PREVIEW_VI];
+        const container = previewBox.parentElement;
+        if (SEG && container) {
+            const fontPx = 15.5 * (s.fontSize / 100);
+            const avail = container.clientWidth * 0.86 - fontPx * 1.6;
+            const ctx = (updatePreview._ctx = updatePreview._ctx || document.createElement("canvas").getContext("2d"));
+            ctx.font = `${s.fontWeight} ${fontPx}px ${S.fontStack(s.fontFamily)}`;
+            let widest = 0, widestLen = 1;
+            for (const l of lines) {
+                const w = ctx.measureText(l).width;
+                if (w > widest) { widest = w; widestLen = l.length; }
+            }
+            if (widest > avail) {
+                const maxChars = Math.max(12, Math.floor(avail / (widest / widestLen)) - 1);
+                lines = SEG.breakLines(PREVIEW_VI, { maxLineChars: maxChars, maxLines: 4 });
+            }
+        }
+        previewViLine.style.whiteSpace = "nowrap";
+        setLines(previewViLine, lines);
+
+        // 4. Background & Border
+        previewBox.style.backgroundColor = S.backgroundColor(s);
+        previewBox.style.borderRadius = `${s.borderRadius}px`;
+        subBgOpacityVal.textContent = `${s.bgOpacity}%`;
+        if (fontColorCustom) fontColorCustom.style.background = s.fontColor;
+    }
+
+    // Populate inputs from currentStyle
+    function populateStyleInputs() {
+        const s = currentStyle;
+        if (subPosition) subPosition.value = s.position;
+        if (subOffset) subOffset.value = s.offset;
+        if (subPinBottom) subPinBottom.checked = !!s.pinBottom;
+        if (subFontFamily) subFontFamily.value = s.fontFamily;
+        if (subFontSize) {
+            if (![...subFontSize.options].some(o => Number(o.value) === Number(s.fontSize))) {
+                const o = document.createElement("option");
+                o.value = s.fontSize;
+                o.textContent = `${s.fontSize}%`;
+                subFontSize.appendChild(o);
+            }
+            subFontSize.value = String(s.fontSize);
+        }
+        if (subFontWeight) subFontWeight.value = s.fontWeight;
+        if (subLineHeight) subLineHeight.value = String(s.lineHeight);
+        if (subStrokeStyle) subStrokeStyle.value = s.strokeStyle;
+        if (subStrokeColor) subStrokeColor.value = s.strokeColor;
+        if (subFontColorPicker) subFontColorPicker.value = s.fontColor;
+        if (subOrigScale) subOrigScale.value = String(s.origScale);
+        if (subOrigColor) subOrigColor.value = s.origColor;
+
+        if (subBgColor) subBgColor.value = s.bgColor;
+        if (subBgOpacity) subBgOpacity.value = s.bgOpacity;
+        if (subBorderRadius) subBorderRadius.value = s.borderRadius;
+
+        // Highlight active palette dot if matches
+        if (fontColorPalette) {
+            fontColorPalette.querySelectorAll(".color-dot").forEach(d => {
+                d.classList.toggle("active", d.dataset.color.toLowerCase() === String(s.fontColor).toLowerCase());
+            });
+        }
+
+        refreshFontStatus();
+        updatePreview();
+    }
+
+    // Setup events for Subtitle Style Controls
+    const bind = (el, evt, key, parse = v => v, after) => {
+        if (!el) return;
+        el.addEventListener(evt, () => {
+            currentStyle[key] = parse(el.value);
+            if (after) after();
+            updatePreview();
+        });
+    };
+
+    if (subModeSingle && subModeDual) {
+        subModeSingle.addEventListener("click", () => { currentStyle.mode = "single"; updatePreview(); });
+        subModeDual.addEventListener("click", () => { currentStyle.mode = "dual"; updatePreview(); });
+    }
+
+    bind(subPosition, "change", "position");
+    bind(subOffset, "input", "offset", v => parseInt(v, 10));
+    if (subPinBottom) subPinBottom.addEventListener("change", () => { currentStyle.pinBottom = subPinBottom.checked; updatePreview(); });
+    bind(subFontFamily, "change", "fontFamily", v => v, refreshFontStatus);
+    bind(subFontSize, "change", "fontSize", v => parseInt(v, 10));
+    bind(subFontWeight, "change", "fontWeight", v => v, refreshFontStatus);
+    bind(subLineHeight, "change", "lineHeight", v => parseFloat(v));
+    bind(subStrokeStyle, "change", "strokeStyle");
+    bind(subStrokeColor, "input", "strokeColor");
+    bind(subOrigScale, "change", "origScale", v => parseInt(v, 10));
+    bind(subOrigColor, "input", "origColor");
+    bind(subBgColor, "change", "bgColor");
+    bind(subBgOpacity, "input", "bgOpacity", v => parseInt(v, 10));
+    bind(subBorderRadius, "change", "borderRadius", v => parseInt(v, 10));
+
+    if (subFontColorPicker) {
+        subFontColorPicker.addEventListener("input", () => {
+            currentStyle.fontColor = subFontColorPicker.value;
+            if (fontColorPalette) {
+                fontColorPalette.querySelectorAll(".color-dot").forEach(d => d.classList.remove("active"));
+            }
+            updatePreview();
+        });
+    }
+
+    if (fontColorPalette) {
+        fontColorPalette.querySelectorAll(".color-dot").forEach(dot => {
+            dot.addEventListener("click", () => {
+                fontColorPalette.querySelectorAll(".color-dot").forEach(d => d.classList.remove("active"));
+                dot.classList.add("active");
+                currentStyle.fontColor = dot.dataset.color;
+                if (subFontColorPicker) subFontColorPicker.value = dot.dataset.color;
+                updatePreview();
+            });
+        });
+    }
+
+    if (resetDefaultBtn) {
+        resetDefaultBtn.addEventListener("click", () => {
+            if (confirm("Khôi phục kiểu phụ đề về cấu hình mặc định?")) {
+                currentStyle = { ...defaultSubStyle };
+                populateStyleInputs();
+                flashStatus("✓ Đã khôi phục kiểu phụ đề mặc định!");
+            }
+        });
+    }
+
+    populateStyleInputs();
+    window.addEventListener("resize", () => updatePreview());
+
+    // ========================================================
+    // 3. GEMINI AI & MODEL SETTINGS
+    // ========================================================
+    const optUseAiBox = document.getElementById("optUseAi");
+    const geminiKeyInput = document.getElementById("geminiApiKeyInput");
+    const geminiModelSelect = document.getElementById("geminiModelSelect");
+    const customModelRow = document.getElementById("customModelRow");
+    const customModelInput = document.getElementById("customModelInput");
+    const testAiKeyBtn = document.getElementById("testAiKeyBtn");
+    const aiKeyStatus = document.getElementById("aiKeyStatus");
+
+    const COST = window.CST_COST;
+    const savedAi = await chrome.storage.sync.get({
+        useAi: true,
+        geminiApiKey: "",
+        geminiModel: COST.DEFAULT_MODELS.cheap,
+        geminiStrongModel: COST.DEFAULT_MODELS.strong,
+        costMode: "balanced",
+        autoTranslate: true,
+        dubEnabled: true,
+        perCueMode: false,
+        budgetDailyUsd: COST.BUDGET_DEFAULTS.daily,
+        budgetVideoUsd: COST.BUDGET_DEFAULTS.video
+    });
+    const autoTranslateBox = document.getElementById("autoTranslate");
+    if (autoTranslateBox) autoTranslateBox.checked = savedAi.autoTranslate !== false;
+    const autoDubBox = document.getElementById("autoDub");
+    if (autoDubBox) autoDubBox.checked = savedAi.dubEnabled !== false;
+    const perCueBox = document.getElementById("perCueMode");
+    if (perCueBox) perCueBox.checked = !!savedAi.perCueMode;
+    const budgetDailyInput = document.getElementById("budgetDailyUsd");
+    const budgetVideoInput = document.getElementById("budgetVideoUsd");
+    if (budgetDailyInput) budgetDailyInput.value = savedAi.budgetDailyUsd;
+    if (budgetVideoInput) budgetVideoInput.value = savedAi.budgetVideoUsd;
+    const bgSend = msg => new Promise(resolve => {
+        try { chrome.runtime.sendMessage(msg, r => resolve(chrome.runtime.lastError ? null : r)); } catch (e) { resolve(null); }
+    });
+
+    // ---- Chế độ sử dụng ----
+    const costModeSel = document.getElementById("costMode");
+    const costModeDesc = document.getElementById("costModeDesc");
+    const strongSel = document.getElementById("geminiStrongModel");
+    const showModeDesc = () => { if (costModeDesc) costModeDesc.textContent = COST.getMode(costModeSel.value).desc; };
+    if (costModeSel) {
+        costModeSel.value = COST.MODES[savedAi.costMode] ? savedAi.costMode : "balanced";
+        showModeDesc();
+        costModeSel.addEventListener("change", showModeDesc);
+    }
+    // ---- Danh sách model: dựng từ danh mục duy nhất (cost-policy.js) ----
+    // Nhãn phản ánh quyền truy cập THẬT của API key hiện tại (theo kết quả gọi API đã ghi nhận).
+    const fmtDate = d => d.split("-").reverse().join("/");
+    function modelText(m, role, st) {
+        const state = st && st.models && st.models[m.id] ? st.models[m.id].state : "unknown";
+        const isDefault = m.id === COST.DEFAULT_MODELS[role];
+        let note;
+        if (state === "unavailable") note = "Không khả dụng với API key hiện tại";
+        else if (m.shutdown) note = `Google ngừng hỗ trợ ${fmtDate(m.shutdown)}, nên chuyển sang ${COST.modelLabel(m.replacement)}`;
+        else if (m.access === "restricted" && state !== "ok") note = "Chỉ dành cho API key có quyền truy cập";
+        else note = m.hint + (state === "ok" ? ", dùng được với key này" : "");
+        return `${m.label} (${isDefault ? "Mặc định: " : ""}${note})`;
+    }
+    function fillModelOptions(st) {
+        if (geminiModelSelect) {
+            const keep = geminiModelSelect.value;
+            geminiModelSelect.querySelectorAll("option:not([value=custom])").forEach(o => o.remove());
+            const customOp = geminiModelSelect.querySelector('option[value="custom"]');
+            const autoOp = document.createElement("option");
+            autoOp.value = COST.AUTO;
+            autoOp.textContent = "Tự động: model rẻ nhất mà API key gọi được (khuyên dùng)";
+            geminiModelSelect.insertBefore(autoOp, customOp);
+            COST.TRANSLATION_MODELS.forEach(m => {
+                const op = document.createElement("option");
+                op.value = m.id;
+                op.textContent = modelText(m, "cheap", st);
+                geminiModelSelect.insertBefore(op, customOp);
+            });
+            if (keep) geminiModelSelect.value = keep;
+        }
+        if (strongSel) {
+            const keep = strongSel.value || savedAi.geminiStrongModel;
+            strongSel.innerHTML = "";
+            COST.TRANSLATION_MODELS.forEach(m => {
+                const op = document.createElement("option");
+                op.value = m.id;
+                op.textContent = modelText(m, "strong", st);
+                strongSel.appendChild(op);
+            });
+            if (![...strongSel.options].some(op => op.value === keep)) {
+                const op = document.createElement("option");
+                op.value = keep;
+                op.textContent = keep;
+                strongSel.appendChild(op);
+            }
+            strongSel.value = keep;
+        }
+        const eff = document.getElementById("modelEffective");
+        if (eff && st && st.ok && st.hasKey && st.effective) {
+            eff.textContent = `Đang dùng thực tế với key này: ${COST.modelLabel(st.effective.cheap) || "chưa có model khả dụng"}` +
+                ` · câu khó: ${COST.modelLabel(st.effective.strong) || "không có"}` +
+                ` · giọng AI: ${COST.modelLabel(st.effective.tts) || "không có"}`;
+        } else if (eff) eff.textContent = "";
+    }
+    async function refreshModelStatus(key) {
+        const st = await bgSend({ action: "modelStatus", key });
+        fillModelOptions(st);
+        return st;
+    }
+    fillModelOptions(null);
+    refreshModelStatus();
+
+    // ---- Bộ nhớ đệm ----
+    const fmtMB = b => (b / 1048576 < 0.1 ? `${Math.round(b / 1024)} KB` : `${(b / 1048576).toFixed(1)} MB`);
+    async function showCacheStats(res) {
+        const r = res || await new Promise(rs => chrome.runtime.sendMessage({ action: "cacheStats" }, rs));
+        const trEl = document.getElementById("cacheTr"), auEl = document.getElementById("cacheAudio");
+        if (!r || !r.ok || !r.tr || !r.audio) { if (trEl) trEl.textContent = "Chưa đọc được (mở trang này từ trong tiện ích)."; if (auEl) auEl.textContent = ""; return; }
+        if (trEl) trEl.textContent = `${fmtMB(r.tr.bytes + (r.local ? r.local.bytes : 0))} · ${r.tr.count} đoạn (tối đa ${fmtMB(r.tr.maxBytes)})`;
+        if (auEl) auEl.textContent = `${fmtMB(r.audio.bytes)} · ${r.audio.count} đoạn audio (tối đa ${fmtMB(r.audio.maxBytes)})`;
+    }
+    const clearCache = which => async () => {
+        const label = { tr: "bản dịch", audio: "audio", all: "toàn bộ bộ nhớ đệm" }[which];
+        if (!confirm(`Xóa ${label} đã lưu? Lần xem sau sẽ phải gọi Gemini lại cho những nội dung này.`)) return;
+        const r = await new Promise(rs => chrome.runtime.sendMessage({ action: "cacheClear", which }, rs));
+        showCacheStats(r);
+        flashStatus(`✓ Đã xóa ${label}.`);
+    };
+    document.getElementById("clearTrCache")?.addEventListener("click", clearCache("tr"));
+    document.getElementById("clearAudioCache")?.addEventListener("click", clearCache("audio"));
+    document.getElementById("clearAllCache")?.addEventListener("click", clearCache("all"));
+    try { showCacheStats(); } catch (e) { /* ngoài extension */ }
+
+    if (optUseAiBox) optUseAiBox.checked = savedAi.useAi !== false;
+    if (geminiKeyInput) geminiKeyInput.value = savedAi.geminiApiKey || "";
+
+    if (geminiModelSelect) {
+        if (savedAi.geminiModel === COST.AUTO || COST.findModel(savedAi.geminiModel)) {
+            geminiModelSelect.value = savedAi.geminiModel;
+            if (customModelRow) customModelRow.style.display = "none";
+        } else if (savedAi.geminiModel) {
+            geminiModelSelect.value = "custom";
+            if (customModelRow) customModelRow.style.display = "flex";
+            if (customModelInput) customModelInput.value = savedAi.geminiModel;
+        }
+
+        geminiModelSelect.addEventListener("change", () => {
+            if (geminiModelSelect.value === "custom") {
+                if (customModelRow) customModelRow.style.display = "flex";
+            } else {
+                if (customModelRow) customModelRow.style.display = "none";
+            }
+        });
+    }
+
+    function getEffectiveModel() {
+        if (!geminiModelSelect) return COST.DEFAULT_MODELS.cheap;
+        if (geminiModelSelect.value === "custom") {
+            return (customModelInput?.value || "").trim() || COST.DEFAULT_MODELS.cheap;
+        }
+        return geminiModelSelect.value;
+    }
+
+    if (testAiKeyBtn) {
+        testAiKeyBtn.addEventListener("click", async () => {
+            const key = (geminiKeyInput?.value || "").trim();
+            const model = getEffectiveModel();
+            if (!key) {
+                aiKeyStatus.style.color = "";
+                aiKeyStatus.innerHTML = "<strong>✕ Chưa nhập API Key:</strong> Vui lòng dán Google Gemini API Key trước khi kiểm tra.";
+                return;
+            }
+
+            aiKeyStatus.style.color = "var(--text-sub)";
+            aiKeyStatus.innerHTML = `<em>⏳ Đang gửi yêu cầu dịch thử thật tới Gemini API (${COST.modelLabel(model)})...</em>`;
+            // Kiểm tra qua service worker: dùng đúng chuỗi model sẽ dùng khi dịch và ghi nhận
+            // model nào key này gọi được (nguồn sự thật là kết quả gọi generateContent thật)
+            const r = await bgSend({ action: "testKey", key, model });
+            const skipped = r && r.skipped && r.skipped.length
+                ? `<br>• Không khả dụng với key này nên đã bỏ qua: <b>${r.skipped.map(COST.modelLabel).join(", ")}</b>` : "";
+            if (r && r.ok) {
+                aiKeyStatus.style.color = "";
+                aiKeyStatus.innerHTML = `
+                    <div class="cst-note ok">
+                        <div class="cst-note-title">✓ API Key hoạt động</div>
+                        <div class="cst-note-body">
+                            • Model trả lời: <b>${COST.modelLabel(r.model)}</b> (${r.model})<br>
+                            • Tốc độ phản hồi: <b>${r.latency} ms</b>${skipped}<br>
+                            • Kết quả dịch mẫu: <i>"${String(r.sample || "").replace(/</g, "&lt;")}"</i>
+                        </div>
+                    </div>`;
+            } else {
+                aiKeyStatus.style.color = "";
+                aiKeyStatus.innerHTML = `
+                    <div class="cst-note err">
+                        <div class="cst-note-title">✕ Chưa gọi được Gemini API</div>
+                        <div class="cst-note-body">
+                            ${String((r && r.error) || "Không liên lạc được với tiện ích (hãy mở trang này từ biểu tượng tiện ích)").replace(/</g, "&lt;")}${skipped}
+                        </div>
+                    </div>`;
+            }
+            refreshModelStatus(key);
+        });
+    }
+
+    // ---- Chi phí ước tính & ngân sách ----
+    const usd = x => `${(x || 0).toFixed(x >= 1 ? 2 : 4)} USD`;
+    const mins = sec => `${((sec || 0) / 60).toFixed(1)} phút`;
+    async function showCostStats(res) {
+        const r = res || await bgSend({ action: "costStats" });
+        const sumEl = document.getElementById("costSummary"), vidEl = document.getElementById("costVideos");
+        if (!sumEl) return;
+        if (!r || !r.ok || !r.day || !r.budget) { sumEl.textContent = "Chưa đọc được (mở trang này từ trong tiện ích)."; return; }
+        const line = (label, x) => `${label}: dịch ${usd(x.trUsd)} (${x.trCalls} lượt), giọng AI ${usd(x.ttsUsd)} (${x.ttsCalls} lượt, ${mins(x.audioSec)} audio), giọng VieNeu trên máy ${mins(x.localSec)} (miễn phí), trúng bộ nhớ đệm ${x.hitsTr + x.hitsAudio} lần, tránh được ${x.avoided} lượt gọi Gemini`;
+        const b = r.budget;
+        sumEl.innerHTML = [
+            line(`Hôm nay (${r.day.day})`, r.day),
+            line("Phiên này", r.session),
+            b.dailyBudget ? `Đã dùng ${Math.round(b.spentDay / b.dailyBudget * 100)}% ngân sách ngày${b.level === "over" ? " (đã chạm, giọng AI đang tạm dừng)" : b.level === "warn" ? " (sắp chạm)" : ""}` : "Không giới hạn ngân sách ngày"
+        ].map(x => `<div>${x}</div>`).join("");
+        const vids = Object.entries(r.day.videos || {}).sort((a, c) => c[1].usd - a[1].usd).slice(0, 5);
+        vidEl.innerHTML = vids.length ? "<div><b>Video tốn nhiều nhất hôm nay:</b></div>" + vids.map(([k, v]) => {
+            const odd = v.videoSec && v.audioSec > v.videoSec * 1.2;
+            return `<div>${String(v.title || k).replace(/</g, "&lt;")}: ${usd(v.usd)}, ${mins(v.audioSec)} audio${v.videoSec ? ` / video ${mins(v.videoSec)}` : ""}${odd ? " ⚠ tạo audio nhiều bất thường so với độ dài video" : ""}</div>`;
+        }).join("") : "";
+    }
+    document.getElementById("costRefresh")?.addEventListener("click", () => showCostStats());
+    document.getElementById("costReset")?.addEventListener("click", async () => {
+        if (!confirm("Xóa thống kê chi phí ước tính của hôm nay và phiên này?")) return;
+        showCostStats(await bgSend({ action: "costReset" }));
+    });
+    showCostStats();
+
+    // ========================================================
+    // 4. TỪ ĐIỂN THUẬT NGỮ
+    // ========================================================
+    const keepBox = document.getElementById("userKeep");
+    const normBox = document.getElementById("userNormalize");
+    const enabledBox = document.getElementById("glossaryEnabled");
+    const listEl = document.getElementById("groupList");
+
+    const groups = window.CST_GLOSSARY_GROUPS || {};
+    const allKeys = Object.keys(groups);
+
+    const savedGlossary = await chrome.storage.sync.get({
+        userKeep: "", userNormalize: "", glossaryEnabled: true,
+        enabledGroups: allKeys
+    });
+
+    if (keepBox) keepBox.value = savedGlossary.userKeep;
+    if (normBox) normBox.value = savedGlossary.userNormalize;
+    if (enabledBox) enabledBox.checked = savedGlossary.glossaryEnabled;
+
+    if (listEl) {
+        listEl.innerHTML = "";
+        for (const key of allKeys) {
+            const row = document.createElement("label");
+            row.className = "group-row";
+            const box = document.createElement("input");
+            box.type = "checkbox";
+            box.dataset.group = key;
+            box.checked = savedGlossary.enabledGroups.includes(key);
+            const name = document.createElement("span");
+            name.textContent = groups[key].label;
+            const count = document.createElement("span");
+            count.className = "group-count";
+            count.textContent = `${groups[key].terms.length} từ`;
+            row.append(box, name, count);
+            listEl.appendChild(row);
+        }
+    }
+
+    // ========================================================
+    // 5. CÀI ĐẶT LỒNG TIẾNG
+    // ========================================================
+    const voiceSel = document.getElementById("dubVoice");
+    const duckSlider = document.getElementById("dubDuck");
+    const duckValue = document.getElementById("dubDuckValue");
+    const volSlider = document.getElementById("dubVolume");
+    const volValue = document.getElementById("dubVolumeValue");
+    const providerSel = document.getElementById("dubProvider");
+    const localVoiceSel = document.getElementById("dubLocalVoice");
+    const localVoice2Sel = document.getElementById("dubLocalVoice2");
+    const localStatusEl = document.getElementById("localTtsStatus");
+    const gVoiceSel = document.getElementById("dubGeminiVoice");
+    const gVoice2Sel = document.getElementById("dubGeminiVoice2");
+    const condenseBox = document.getElementById("dubCondense");
+    const ttsModelInput = document.getElementById("dubTtsModel");
+    const testBtn = document.getElementById("testVoice");
+    const testStatus = document.getElementById("testVoiceStatus");
+
+    const dubSaved = await chrome.storage.sync.get({
+        dubVoiceName: "", dubDuck: 0.2, dubVolume: 1, dubProvider: "vieneu", dubPrepareWait: true,
+        dubGeminiVoice: "Kore", dubGeminiVoice2: "Charon", dubCondense: true, dubTtsModel: "",
+        dubLocalVoice: "", dubLocalVoice2: ""
+    });
+
+    // ---- Giọng Việt trên máy (VieNeu): danh sách giọng theo vùng + trạng thái máy chủ ----
+    const LOCAL = COST.LOCAL_TTS;
+    function fillLocalVoices(sel, current, fallback) {
+        if (!sel) return;
+        sel.innerHTML = "";
+        for (const region of ["Nam", "Bắc", "Trung"]) {
+            const group = document.createElement("optgroup");
+            group.label = `Giọng miền ${region}`;
+            for (const v of LOCAL.voices.filter(x => x.region === region)) {
+                const op = document.createElement("option");
+                op.value = v.id;
+                op.textContent = `${v.id} (${v.gender.toLowerCase()}, ${v.style})`;
+                group.appendChild(op);
+            }
+            sel.appendChild(group);
+        }
+        sel.value = current || fallback;
+    }
+    fillLocalVoices(localVoiceSel, dubSaved.dubLocalVoice, LOCAL.defaultVoice);
+    fillLocalVoices(localVoice2Sel, dubSaved.dubLocalVoice2, LOCAL.defaultVoice2);
+    async function refreshLocalStatus() {
+        if (!localStatusEl) return false;
+        const r = await bgSend({ action: "localTtsStatus" });
+        const running = !!(r && r.running);
+        localStatusEl.className = "cst-note " + (running ? "ok" : "err");
+        localStatusEl.innerHTML = running
+            ? `<div class="cst-note-title">✓ Máy chủ VieNeu đang chạy trên máy này (${r.model === LOCAL.model ? LOCAL.modelLabel : (r.model || "không rõ model")})</div><div class="cst-note-body">Lồng tiếng dùng giọng Việt miễn phí, không gửi lời thoại ra ngoài. Nhịp nói tự đều theo từng giọng (giọng chậm được tăng tốc nhẹ, giữ cao độ).</div>`
+            : `<div class="cst-note-title">Máy chủ VieNeu chưa sẵn sàng</div><div class="cst-note-body">Cài MỘT LẦN để nó tự chạy mỗi khi bật máy: nhấp đúp tệp <b>tools/vieneu-autostart.command</b> trong thư mục tiện ích. Sau đó máy chủ tự bật khi đăng nhập và tự bật lại nếu bị tắt, không phải làm gì nữa. Trang này và trình phát tự nhận ra khi máy chủ sẵn sàng.</div>`;
+        return running;
+    }
+    refreshLocalStatus();
+    // Tự cập nhật trạng thái: vừa cài tự khởi động hoặc máy chủ vừa lên là thấy ngay, không phải tải lại trang
+    setInterval(() => { if (!document.hidden) refreshLocalStatus(); }, 5000);
+
+    function fillVoices() {
+        if (!voiceSel) return;
+        const voices = speechSynthesis.getVoices();
+        const vi = voices.filter(v => (v.lang || "").toLowerCase().startsWith("vi"));
+        voiceSel.innerHTML = "";
+        if (vi.length === 0) {
+            const opt = document.createElement("option");
+            opt.textContent = "Máy chưa có giọng tiếng Việt";
+            opt.value = "";
+            voiceSel.appendChild(opt);
+            return;
+        }
+        for (const v of vi) {
+            const opt = document.createElement("option");
+            opt.value = v.name;
+            opt.textContent = `${v.name} (${v.lang})`;
+            if (v.name === dubSaved.dubVoiceName) opt.selected = true;
+            voiceSel.appendChild(opt);
+        }
+    }
+    fillVoices();
+    speechSynthesis.addEventListener("voiceschanged", fillVoices);
+
+    if (providerSel) providerSel.value = dubSaved.dubProvider;
+    const prepareWaitBox = document.getElementById("dubPrepareWait");
+    if (prepareWaitBox) prepareWaitBox.checked = dubSaved.dubPrepareWait !== false;
+    if (gVoiceSel) gVoiceSel.value = dubSaved.dubGeminiVoice;
+    if (gVoice2Sel) gVoice2Sel.value = dubSaved.dubGeminiVoice2;
+    if (condenseBox) condenseBox.checked = dubSaved.dubCondense !== false;
+    if (ttsModelInput) {
+        ttsModelInput.value = dubSaved.dubTtsModel || "";
+        ttsModelInput.placeholder = COST.DEFAULT_MODELS.tts;
+    }
+    const bindPct = (slider, label, val) => {
+        if (!slider || !label) return;
+        slider.value = Math.round(val * 100);
+        label.textContent = `${slider.value}%`;
+        slider.addEventListener("input", () => { label.textContent = `${slider.value}%`; });
+    };
+    bindPct(duckSlider, duckValue, dubSaved.dubDuck);
+    bindPct(volSlider, volValue, dubSaved.dubVolume);
+
+    // Nghe thử: chạy qua đúng pipeline (kế hoạch ngữ điệu -> giọng), không đọc thô
+    if (testBtn) {
+        testBtn.addEventListener("click", async () => {
+            const P = window.CST_DUB_PLAN, E = window.CST_DUB_ENGINE, A = window.CST_DUB_AUDIO;
+            const sample = [
+                { en: "Now... what we need to understand is how the model processes its input.", vi: "Bây giờ, ¦ điều chúng ta cần hiểu là ¦ cách mô hình xử lý dữ liệu đầu vào.", start: 0, end: 3.6, pauses: [{ frac: 0.06, dur: 0.35, opener: true }] },
+                { en: "Really?", vi: "Thật sao?", start: 4.2, end: 5, pauses: [] },
+                { en: "This is a very important concept, so remember it.", vi: "Đây là một khái niệm rất quan trọng, ¦ các bạn hãy ghi nhớ nhé.", start: 5.6, end: 8.8, pauses: [] }
+            ];
+            const plans = sample.map((s, i) => P.planSegment({ id: "t" + i, index: i, start: s.start, end: s.end, slotEnd: s.end + 0.4, speaker: "S1", subtitleText: s.vi, speechSource: s.vi, srcText: s.en, sourcePauses: s.pauses, continuesNext: false }));
+            const provider = providerSel ? providerSel.value : "vieneu";
+            const key = (geminiKeyInput?.value || "").trim();
+            const useGemini = provider === "gemini" || (provider === "auto" && key && (optUseAiBox ? optUseAiBox.checked : true));
+            speechSynthesis.cancel();
+            // VieNeu (giọng Việt trên máy): chọn VieNeu, hoặc Tự động khi máy chủ đang chạy
+            if ((provider === "vieneu" || provider === "auto") && await refreshLocalStatus()) {
+                testStatus.textContent = "⏳ Đang tạo giọng VieNeu trên máy...";
+                const t0 = performance.now();
+                const text = plans.map(p => E.plainScript(p)).join(" ");
+                const res = await new Promise(r => chrome.runtime.sendMessage({ action: "synthesizeSpeech", engine: LOCAL.id, text, voice: localVoiceSel.value }, r));
+                if (!res || !res.ok) { testStatus.textContent = `✕ VieNeu lỗi: ${res ? res.error : "không phản hồi"}`; return; }
+                const bytes = A.base64ToBytes(res.audio);
+                const clean = A.prepareSpeech(/wav/i.test(res.mimeType || "") ? A.decodeWav(bytes).samples : A.pcm16leToFloat(bytes), res.sampleRate);
+                const audio = new Audio(URL.createObjectURL(new Blob([A.encodeWav(clean, res.sampleRate)], { type: "audio/wav" })));
+                audio.volume = Number(volSlider.value) / 100;
+                // Cùng tốc độ sàn như khi lồng tiếng thật (giọng chậm không dưới ~4 âm tiết/giây nghe
+                // được, giữ cao độ); khi lồng tiếng, câu dày chữ còn được nhanh thêm cho khớp phụ đề
+                const vmeta = LOCAL.voices.find(v => v.id === localVoiceSel.value);
+                const tempo = Math.max(0.95, Math.min(LOCAL.maxFloor || 1.15, (LOCAL.minSps || 4) / (((vmeta && vmeta.sps) || 4.8) * 0.86)));
+                audio.preservesPitch = true;
+                audio.playbackRate = tempo;
+                audio.play();
+                testStatus.textContent = `✓ Giọng ${localVoiceSel.value} (VieNeu trên máy, nhịp x${tempo.toFixed(2)}), dài ${(clean.length / res.sampleRate).toFixed(1)} giây, tạo trong ${((performance.now() - t0) / 1000).toFixed(1)} giây, miễn phí.`;
+                return;
+            }
+            if (provider === "vieneu") { testStatus.textContent = "✕ Máy chủ VieNeu chưa chạy (xem hướng dẫn ở trên)."; return; }
+            if (useGemini) {
+                testStatus.textContent = "⏳ Đang tạo giọng Gemini AI...";
+                await chrome.storage.sync.set({ geminiApiKey: key });
+                const res = await new Promise(r => chrome.runtime.sendMessage({ action: "synthesizeSpeech", text: E.geminiScript(plans), voice: gVoiceSel.value, model: ttsModelInput.value.trim() }, r));
+                if (!res || !res.ok) { testStatus.textContent = `✕ Gemini TTS lỗi: ${res ? res.error : "không phản hồi"}`; return; }
+                const bytes = A.base64ToBytes(res.audio);
+                const samples = /wav/i.test(res.mimeType || "") ? A.decodeWav(bytes).samples : A.pcm16leToFloat(bytes);
+                const clean = A.prepareSpeech(samples, res.sampleRate);
+                const audio = new Audio(URL.createObjectURL(new Blob([A.encodeWav(clean, res.sampleRate)], { type: "audio/wav" })));
+                audio.volume = Number(volSlider.value) / 100;
+                audio.play();
+                testStatus.textContent = `✓ Giọng ${gVoiceSel.value} (model ${res.model}), dài ${(clean.length / res.sampleRate).toFixed(1)} giây.`;
+                return;
+            }
+            // Giọng hệ thống: phát từng cụm đúng mốc, giữ khoảng ngừng và ngữ điệu đã lập
+            const voice = speechSynthesis.getVoices().find(v => v.name === voiceSel?.value);
+            testStatus.textContent = voice ? `▶ Giọng hệ thống ${voice.name}, theo kế hoạch ngữ điệu (nhịp mở đầu, câu hỏi lên giọng, nhấn mạnh).` : "✕ Máy chưa có giọng tiếng Việt.";
+            if (!voice) return;
+            const t0 = performance.now();
+            for (const p of plans) for (const ph of p.phrases) {
+                const at = (p.start + ph.offset) * 1000;
+                setTimeout(() => {
+                    const u = new SpeechSynthesisUtterance(ph.text);
+                    u.voice = voice; u.lang = "vi-VN";
+                    u.rate = p.rate * ph.rateMul; u.pitch = ph.pitchMul;
+                    u.volume = Number(volSlider.value) / 100;
+                    speechSynthesis.speak(u);
+                }, Math.max(0, at - (performance.now() - t0)));
+            }
+        });
+    }
+
+    // ========================================================
+    // 6. LƯU TẤT CẢ CÀI ĐẶT
+    // ========================================================
+    const statusEl = document.getElementById("saveStatus");
+
+    function flashStatus(msg) {
+        if (!statusEl) return;
+        statusEl.textContent = msg;
+        statusEl.classList.add("show");
+    }
+
+    // Thu thap toan bo cai dat hien tai tren trang
+    function collectSettings() {
+        const pickedGroups = listEl
+            ? [...listEl.querySelectorAll("input:checked")].map(b => b.dataset.group)
+            : allKeys;
+        return {
+            // Subtitle style
+            subStyle: S.normalizeStyle(currentStyle),
+            dualMode: currentStyle.mode === "dual",
+
+            // AI
+            useAi: optUseAiBox ? optUseAiBox.checked : true,
+            geminiApiKey: (geminiKeyInput?.value || "").trim(),
+            geminiModel: getEffectiveModel(),
+            geminiStrongModel: strongSel ? strongSel.value : COST.DEFAULT_MODELS.strong,
+            costMode: costModeSel ? costModeSel.value : "balanced",
+            autoTranslate: autoTranslateBox ? autoTranslateBox.checked : true,
+            dubEnabled: autoDubBox ? autoDubBox.checked : true,
+            perCueMode: perCueBox ? perCueBox.checked : false,
+            budgetDailyUsd: budgetDailyInput ? Math.max(0, Number(budgetDailyInput.value) || 0) : COST.BUDGET_DEFAULTS.daily,
+            budgetVideoUsd: budgetVideoInput ? Math.max(0, Number(budgetVideoInput.value) || 0) : COST.BUDGET_DEFAULTS.video,
+
+            // Glossary
+            glossaryEnabled: enabledBox ? enabledBox.checked : true,
+            userKeep: keepBox ? keepBox.value : "",
+            userNormalize: normBox ? normBox.value : "",
+            enabledGroups: pickedGroups,
+
+            // Lồng tiếng
+            dubVoiceName: voiceSel ? voiceSel.value : "",
+            dubDuck: duckSlider ? Number(duckSlider.value) / 100 : 0.2,
+            dubVolume: volSlider ? Number(volSlider.value) / 100 : 1,
+            dubProvider: providerSel ? providerSel.value : "vieneu",
+            dubPrepareWait: document.getElementById("dubPrepareWait") ? document.getElementById("dubPrepareWait").checked : true,
+            dubGeminiVoice: gVoiceSel ? gVoiceSel.value : "Kore",
+            dubGeminiVoice2: gVoice2Sel ? gVoice2Sel.value : "Charon",
+            dubCondense: false,   // Đàm: KHÔNG rút gọn lời thoại (mất nội dung người nói)
+            dubTtsModel: ttsModelInput ? ttsModelInput.value.trim() : "",
+            dubLocalVoice: localVoiceSel ? localVoiceSel.value : "",
+            dubLocalVoice2: localVoice2Sel ? localVoice2Sel.value : ""
+        };
+    }
+
+    // ---- TỰ ĐỘNG LƯU & ÁP DỤNG NGAY ----
+    // Mọi thay đổi được lưu sau ~0,35 giây (gộp các thao tác kéo thanh trượt,
+    // gõ phím) để không vượt hạn mức ghi của chrome.storage.sync. Trang video
+    // đang mở lắng nghe thay đổi và cập nhật phụ đề ngay, không cần tải lại.
+    let saveTimer = null;
+    let lastSaved = "";
+    async function saveNow() {
+        clearTimeout(saveTimer);
+        saveTimer = null;
+        const data = collectSettings();
+        const sig = JSON.stringify(data);
+        if (sig === lastSaved) return;
+        if (statusEl) {
+            statusEl.textContent = "Đang lưu...";
+            statusEl.classList.add("show");
+        }
+        try {
+            await chrome.storage.sync.set(data);
+            lastSaved = sig;
+            const now = new Date();
+            const hhmmss = [now.getHours(), now.getMinutes(), now.getSeconds()].map(x => String(x).padStart(2, "0")).join(":");
+            if (statusEl) statusEl.textContent = `✓ Đã tự lưu và áp dụng lúc ${hhmmss}`;
+        } catch (e) {
+            if (statusEl) statusEl.textContent = `⚠ Chưa lưu được: ${e.message}`;
+        }
+    }
+    function scheduleSave() {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(saveNow, 350);
+    }
+    const area = document.querySelector(".content-area") || document.body;
+    area.addEventListener("input", scheduleSave, true);
+    area.addEventListener("change", scheduleSave, true);
+    document.addEventListener("click", e => {
+        if (e.target.closest(".mode-btn, .color-dot, #resetDefaultBtn")) scheduleSave();
+    }, true);
+    // Đóng tab khi còn thay đổi chưa ghi: ghi ngay
+    window.addEventListener("pagehide", () => { if (saveTimer) saveNow(); });
+    document.addEventListener("visibilitychange", () => { if (document.hidden && saveTimer) saveNow(); });
+
+    // ---- Khung xem thử: hiện luôn nhãn lồng tiếng như ngoài đời ----
+    function veNhanLongTieng() {
+        const badge = document.getElementById("previewDubBadge");
+        if (!badge) return;
+        const on = autoDubBox ? autoDubBox.checked : true;
+        const prov = providerSel ? providerSel.value : "vieneu";
+        const giong = prov === "gemini" ? (gVoiceSel ? gVoiceSel.value : "Kore")
+            : prov === "system" ? ((voiceSel && voiceSel.value) || "giọng hệ thống")
+                : ((localVoiceSel && localVoiceSel.value) || COST.LOCAL_TTS.defaultVoice);
+        badge.textContent = `Lồng tiếng: ${giong}`;
+        badge.hidden = !on;
+    }
+    [autoDubBox, providerSel, localVoiceSel, gVoiceSel, voiceSel].forEach(el => el && el.addEventListener("change", veNhanLongTieng));
+    veNhanLongTieng();
+
+    // ---- Giao diện Sáng / Tối / Theo máy ----
+    const themeBtns = [...document.querySelectorAll(".theme-btn")];
+    function veTheme() {
+        const cur = window.CST_THEME ? window.CST_THEME.get() : "auto";
+        themeBtns.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.themeSet === cur)));
+    }
+    themeBtns.forEach(b => b.addEventListener("click", () => {
+        if (window.CST_THEME) window.CST_THEME.set(b.dataset.themeSet);
+        veTheme();
+    }));
+    veTheme();
+
+    // ---- TỐI GIẢN: chỉ hiện mục thuộc lựa chọn hiện tại ----
+    // Giọng VieNeu / Gemini / hệ thống: chỉ hiện ô chọn giọng của nguồn đang dùng; mục Gemini (key,
+    // model, ngân sách) chỉ hiện khi bật dịch Gemini hoặc chọn giọng Gemini; model mạnh chỉ ở chế độ Cao cấp
+    const groupOf = id => { const el = document.getElementById(id); return el ? (el.closest(".form-group") || el) : null; };
+    const showIf = (el, on) => { if (el) el.classList.toggle("is-off", !on); };
+    function capNhatHienThi() {
+        const prov = providerSel ? providerSel.value : "vieneu";
+        const useAi = optUseAiBox ? optUseAiBox.checked : true;
+        const local = prov === "vieneu" || prov === "auto";
+        const gem = prov === "gemini" || prov === "auto";
+        const sys = prov === "system" || prov === "auto";
+        ["localTtsStatus", "dubLocalVoice", "dubLocalVoice2"].forEach(id => showIf(groupOf(id), local));
+        ["dubGeminiVoice", "dubGeminiVoice2", "dubTtsModel"].forEach(id => showIf(groupOf(id), gem));
+        showIf(groupOf("dubVoice"), sys);
+        ["geminiApiKeyInput", "geminiModelSelect", "customModelInput"].forEach(id => showIf(groupOf(id), useAi || gem));
+        showIf(groupOf("geminiStrongModel"), useAi && (!costModeSel || costModeSel.value === "premium"));
+        const budgetCard = document.getElementById("budgetDailyUsd");
+        showIf(budgetCard && budgetCard.closest(".card"), useAi || gem);
+    }
+    [providerSel, optUseAiBox, costModeSel].forEach(el => el && el.addEventListener("change", capNhatHienThi));
+    capNhatHienThi();
+
+    // Giá trị ban đầu coi như đã lưu (tránh ghi thừa khi vừa mở trang)
+    lastSaved = JSON.stringify(collectSettings());
+    if (statusEl) {
+        statusEl.textContent = "Mọi thay đổi được tự lưu và áp dụng ngay";
+        statusEl.classList.add("show");
+    }
+});

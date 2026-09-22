@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head><meta charset="utf-8"><title>Kiểm tra chọn model</title></head>
+<body style="font-family: system-ui; background:#111; color:#eee; padding:16px">
+<p>Kiểm tra đầu cuối: trang Cài đặt THẬT (options.html) → lưu (chrome.storage.sync) → tải lại → service worker THẬT (background.js trong Web Worker) → yêu cầu gửi tới Gemini (giả lập).</p>
+<pre id="out"></pre>
+<iframe id="opt" style="width:100%;height:420px;border:1px solid #444;background:#fff"></iframe>
+<script src="../../cost-policy.js"></script>
+<script>
+  const STORE = "cst_extension_storage_v8";   // nơi chrome-shim.js giữ chrome.storage khi chạy ngoài extension
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const frame = document.getElementById("opt");
+
+  function loadOptions() {
+    return new Promise(resolve => {
+      frame.onload = async () => {
+        const doc = frame.contentDocument;
+        for (let i = 0; i < 100; i++) {           // chờ options.js dựng danh sách model
+          const sel = doc.getElementById("geminiModelSelect");
+          if (sel && sel.options.length > 1 && sel.value) return resolve(doc);
+          await sleep(50);
+        }
+        resolve(doc);
+      };
+      frame.src = "../../options.html?t=" + Date.now();
+    });
+  }
+
+  async function chooseModel(doc, id) {
+    const sel = doc.getElementById("geminiModelSelect");
+    sel.value = id;
+    sel.dispatchEvent(new Event("change", { bubbles: true }));
+    for (let i = 0; i < 40; i++) {                 // tự lưu sau ~0,35 giây
+      await sleep(50);
+      if ((JSON.parse(localStorage.getItem(STORE) || "{}")).geminiModel === id) return true;
+    }
+    return false;
+  }
+
+  function startWorker(local) {
+    return new Promise(resolve => {
+      const w = new Worker("sw-worker.js?local=" + encodeURIComponent(JSON.stringify(local || {})));
+      let seq = 0;
+      const waiting = new Map();
+      w.onmessage = e => {
+        if (e.data.ready) return resolve(api);
+        const cb = waiting.get(e.data.id); waiting.delete(e.data.id); cb && cb(e.data.error ? { error: e.data.error } : e.data.result);
+      };
+      const call = data => new Promise(r => { const id = ++seq; waiting.set(id, r); w.postMessage({ id, ...data }); });
+      const api = { send: msg => call({ msg }), log: () => call({ cmd: "log" }), mode: m => call({ cmd: "mode", mode: m }), sync: settings => call({ cmd: "sync", settings }), local: () => call({ cmd: "local" }), stop: () => w.terminate() };
+    });
+  }
+
+  window.runE2E = async () => {
+    localStorage.removeItem(STORE);
+    await new Promise(r => { const q = indexedDB.deleteDatabase("cst-cache"); q.onsuccess = q.onerror = q.onblocked = () => r(); });
+    const R = {};
+    // 1. Giao diện: Tự động là mặc định; 2.5 có trong danh sách
+    let doc = await loadOptions();
+    const sel = doc.getElementById("geminiModelSelect");
+    R.options = [...sel.options].map(o => o.value + " | " + o.textContent);
+    R.defaultSelected = sel.value;
+    R.autoTranslateDefault = doc.getElementById("autoTranslate").checked;
+    // 2. Chọn 2.5 -> lưu -> tải lại -> vẫn 2.5
+    R.saved25 = await chooseModel(doc, "gemini-2.5-flash-lite");
+    doc = await loadOptions();
+    R.after25Reload = doc.getElementById("geminiModelSelect").value;
+    // 3. Tắt "Tự động dịch" -> lưu -> tải lại -> vẫn tắt; bật lại
+    const box = doc.getElementById("autoTranslate");
+    box.checked = false; box.dispatchEvent(new Event("change", { bubbles: true }));
+    await sleep(700);
+    doc = await loadOptions();
+    R.autoTranslateAfterReload = doc.getElementById("autoTranslate").checked;
+    R.savedBudget = { daily: doc.getElementById("budgetDailyUsd").value, video: doc.getElementById("budgetVideoUsd").value };
+    // 4. Chọn lại Tự động
+    R.savedAuto = await chooseModel(doc, "auto");
+    const stored = JSON.parse(localStorage.getItem(STORE) || "{}");
+    R.storage = { geminiModel: stored.geminiModel, autoTranslate: stored.autoTranslate, costMode: stored.costMode };
+    // 5. Service worker THẬT với cài đặt đã lưu; máy chủ trả đúng lỗi Google cho key mới
+    let sw = await startWorker();
+    await sw.sync({ geminiModel: stored.geminiModel, geminiStrongModel: stored.geminiStrongModel, costMode: stored.costMode, modelsVersion: CST_COST.MODELS_VERSION });
+    await sw.mode("newuser:gemini-2.5-flash-lite");
+    const REQ = { action: "translateUnit", sentences: ["The model receives the image."], context: { domain: "AI" } };
+    const t1 = await sw.send(REQ);
+    const t2 = await sw.send({ ...REQ, sentences: ["Second subtitle."] });
+    const t3 = await sw.send({ ...REQ, sentences: ["Third subtitle."] });
+    R.newKey = { first: { engine: t1.engine, model: t1.model, fallbackFrom: t1.fallbackFrom }, second: t2.model, third: t3.model, apiCalls: (await sw.log()).urls.map(u => u.match(/models\/([^:]+)/)[1]) };
+    const st = await sw.send({ action: "modelStatus" });
+    R.status = { "2.5": st.models["gemini-2.5-flash-lite"].state, effective: st.effective };
+    const local = await sw.local();
+    sw.stop();
+    // 6. "Tải lại tiện ích": service worker mới, cùng storage -> không gọi lại 2.5
+    sw = await startWorker(local);
+    await sw.sync({ geminiModel: stored.geminiModel, costMode: stored.costMode, modelsVersion: CST_COST.MODELS_VERSION });
+    await sw.mode("newuser:gemini-2.5-flash-lite");
+    const t4 = await sw.send({ ...REQ, sentences: ["After reload."] });
+    R.afterReload = { model: t4.model, apiCalls: (await sw.log()).urls.map(u => u.match(/models\/([^:]+)/)[1]) };
+    sw.stop();
+    // 7. Key/dự án khác CÓ quyền 2.5 (máy chủ không chặn): Tự động dùng 2.5
+    sw = await startWorker(local);
+    await sw.sync({ geminiApiKey: "OTHER-KEY", geminiModel: "auto", modelsVersion: CST_COST.MODELS_VERSION });
+    const t5 = await sw.send({ ...REQ, sentences: ["Other key."] });
+    R.otherKey = { model: t5.model };
+    sw.stop();
+    localStorage.removeItem(STORE);
+    await new Promise(r => { const q = indexedDB.deleteDatabase("cst-cache"); q.onsuccess = q.onerror = q.onblocked = () => r(); });
+    document.getElementById("out").textContent = JSON.stringify(R, null, 2);
+    return R;
+  };
+</script>
+</body>
+</html>

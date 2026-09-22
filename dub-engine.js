@@ -1,0 +1,1269 @@
+// ============================================================
+// ENGINE LỒNG TIẾNG VIỆT: TTS PROVIDER + LẬP LỊCH + ĐỒNG BỘ VỚI VIDEO
+//
+// SOURCE TIMING ─▶ CONTEXT-AWARE TRANSLATION (nhóm câu đã dịch)
+//   ─▶ DUB SCRIPT (dub-planner) ─▶ SPEECH PLAN (ngữ điệu + thời lượng)
+//   ─▶ TTS PROVIDER (Gemini TTS: audio thật | Web Speech: giọng hệ thống)
+//   ─▶ AUDIO TIMING ALIGNMENT (co giãn giữ cao độ / tốc độ theo cụm)
+//   ─▶ SYNC ENGINE (bám currentTime của video: pause, seek, tốc độ phát,
+//      buffering, sửa lệch) ─▶ MIX (hạ nhỏ tiếng gốc mượt, không giật)
+//
+// Phần lõi không gọi trực tiếp API trình duyệt: video, đồng hồ, bộ hẹn giờ,
+// provider, phần tử audio đều được truyền vào -> kiểm thử được bằng mô phỏng.
+// ============================================================
+(function (root) {
+    "use strict";
+
+    const PLAN = (root && root.CST_DUB_PLAN) || (typeof require === "function" ? require("./dub-planner.js") : null);
+    const AUDIO = (root && root.CST_DUB_AUDIO) || (typeof require === "function" ? require("./dub-audio.js") : null);
+    const CACHE = (root && root.CST_CACHE) || (typeof require === "function" ? require("./cst-cache.js") : null);
+    const COST = (root && root.CST_COST) || (typeof require === "function" ? require("./cost-policy.js") : null);
+
+    // Tăng khi đổi cách dựng kịch bản đọc cho Gemini TTS (hướng dẫn giọng, dấu ngắt)
+    // -> audio cũ trong kho không bị phát nhầm với cấu hình mới.
+    const TTS_STYLE_VERSION = 1;
+    const DEFAULT_TTS_MODEL = COST.DEFAULT_MODELS.tts;
+
+    const SYNC = {
+        tickMs: 50,
+        startTolerance: 0.04,     // bắt đầu cụm sớm tối đa (giây media)
+        driftCorrect: 0.15,       // lệch audio vượt ngưỡng này thì tua lại
+        driftNudge: 0.035,        // lệch nhỏ hơn ngưỡng tua: chỉnh nhẹ tốc độ để khớp dần (không nghe ra)
+        nudgeMax: 0.05,           // chỉnh tốc độ tối đa ±5% (đã giữ cao độ)
+        maxLagBoost: 0.25,        // tăng tốc tối đa để đuổi kịp khi trễ
+        maxSpeechRate: 1.3,       // tốc độ phát audio tối đa (giữ cao độ) kể cả khi đuổi kịp
+        endGrace: 0.4,            // chờ audio tự kết thúc thêm tối đa bấy nhiêu giây sau mốc dự kiến
+        // NHỊP NÓI BÁM PHỤ ĐỀ NHƯNG ĐỀU: mỗi câu co giãn để nói xong đúng lúc phụ đề của nó
+        // hết (không chạy trước, không tụt lại), trong dải hẹp, và đổi từ từ giữa các câu
+        minSpeechRate: 0.95,      // chậm nhất 0,95x (giữ cao độ; chậm hơn nghe kéo lê)
+        fitSlack: 0.25,           // được nói quá mốc cuối phụ đề của câu tối đa bấy nhiêu giây
+        catchUpMax: 0.08,         // đang trễ so với phụ đề: nhanh thêm tối đa 8% để bắt kịp dần
+        rateStepUp: 0.1,          // câu sau được nhanh hơn câu trước tối đa 0,1 (câu tràn khung: đuổi kịp, không dồn trễ)
+        rateStepDown: 0.06,       // ... và chậm lại từ từ, tối đa 0,06 mỗi câu
+        sentenceGap: 0.18,        // câu trước kết thúc bằng dấu chấm: nghỉ tối thiểu trước câu sau (như người thật)
+        joinGap: 0,               // câu trước còn nối tiếp (chưa hết ý): nói liền, không nghỉ
+        chainLead: 0.8,           // câu CHƯA HẾT (đoạn trước không kết thúc bằng dấu chấm): đoạn sau được
+                                  // nói sớm tối đa bấy nhiêu giây ngay sau đoạn trước, không đứng im chờ phụ đề.
+                                  // Trước 1.3.2 là 2,0 giây: phụ đề người dịch (TED) ngắn hơn lời gốc, độ sớm
+                                  // CỘNG DỒN qua chuỗi đoạn -> đo thật giọng đi trước phụ đề tới 2,0 giây
+        rateMemory: 4,            // câu trước kết thúc cách đây quá bấy nhiêu giây thì không cần nối nhịp
+        maxQueueLag: 4.5,
+        keepBehind: 90,           // giữ audio các câu vừa qua trong 90 giây (tua lùi ngắn phát ngay)
+        keepAhead: 240,           // audio quá xa phía trước (sau khi tua lùi) cũng được giải phóng
+        releaseEvery: 5000,       // kiểm tra giải phóng mỗi 5 giây (ms)         // câu chờ trong hàng quá mức này (giây): bỏ nguyên câu, không cắt giữa
+        dropLag: 4.0,             // giọng hệ thống trễ quá mức này mới bỏ phần còn lại của đoạn cũ (bớt mất lời)
+        prefetchMax: 30,          // trần tạo trước audio (giây); chế độ sử dụng có thể hạ thấp hơn
+        prefetchMin: 12,
+        freeAheadMin: 20,         // giọng miễn phí trên máy: luôn có sẵn audio ít nhất 20 giây phía trước
+        freeAheadMax: 40,          // luôn tạo trước ít nhất bấy nhiêu giây để kịp phát
+        batchSpill: 6,            // một lượt gộp được nhận thêm đoạn liền kề ngay sau tầm nhìn (giảm số lượt gọi)
+        prefetchPaused: 10,       // khi video tạm dừng chỉ chuẩn bị đoạn sắp tới
+        maxBatchSyl: 110,         // một lượt TTS ~20-25 giây audio (Gemini TTS cho phép tới 32k token)
+        maxBatchPlans: 4,
+        maxJobs: 3,               // tối đa 3 lượt TTS cùng lúc (kể cả lượt cũ đang chạy nốt sau khi tua)
+        firstBatchSyl: 40,        // lượt ĐẦU sau khi bật / tua: chỉ một câu ngắn -> có tiếng sớm nhất
+        thinBuffer: 1.5,          // audio sẵn phía trước < (độ trễ TTS x hệ số này) -> cho chạy 2 lượt để bắt kịp
+        keepIfDone: 0.6,          // lượt cũ đã chạy >= 60% thời gian thường lệ: để chạy nốt (audio đã gần như chắc chắn bị tính tiền)
+        condenseMinOver: 0.6,     // rút gọn câu chữ chỉ khi vượt khung > 0,6 s VÀ > 20% (vượt nhẹ: co giãn cục bộ)
+        condenseMinRatio: 0.2,
+        condenseLeadTime: 2.5,
+        condenseMaxWait: 2500,
+        denseRatio: 1.15,         // câu phải đọc nhanh hơn 1,15x mới vừa khung: rút khoảng nghỉ trong câu (không bỏ chữ)
+        lagMaxSpeechRate: 1.4,    // đang trễ > lagBoostAt giây: được đọc nhanh tới 1,4x (Mỹ Duyên ~5 âm tiết/giây,
+        lagBoostAt: 1.0,          // ngang tốc độ đọc tin tức) để bắt kịp, KHÔNG bỏ chữ    // ms: quá mức này thì tạo audio với câu gốc, không chờ rút gọn nữa    // cần ít nhất bấy nhiêu giây trước khi đoạn phát mới kịp rút gọn
+        duckRampPerTick: 0.09,    // tốc độ hạ/nâng âm lượng video mỗi nhịp (mượt ~200 ms)
+        duckHold: 0.35            // giữ mức hạ thêm chút sau khi nói xong (tránh "bơm" âm lượng giữa các cụm)
+    };
+
+    // ============================================================
+    // PROVIDER: lớp trừu tượng để thay engine TTS mà không sửa phần còn lại
+    //   caps.prerender: trả về audio có sẵn (đo được thời lượng, co giãn được)
+    //   caps.live     : phát trực tiếp từng cụm (Web Speech)
+    //   caps.rate / pitch / style / ssml / timeStretch
+    // ============================================================
+
+    // ---- Web Speech (giọng hệ thống, miễn phí, chạy offline) ----
+    function createWebSpeechProvider(env) {
+        const synth = env.speechSynthesis;
+        const Utter = env.SpeechSynthesisUtterance;
+        let voices = [];
+        const model = { ...PLAN.DEFAULT_VOICE_MODEL };
+        const provider = {
+            id: "system",
+            label: "Giọng hệ thống",
+            caps: { live: true, prerender: false, rate: true, pitch: true, style: false, ssml: false, timeStretch: false },
+            voiceModel: model,
+            async init(prefName) {
+                voices = await loadVoices(synth);
+                const vi = voices.filter(v => /^vi/i.test(v.lang || ""));
+                const pref = voices.find(v => v.name === prefName);
+                // Giọng chất lượng cao (Enhanced/Premium/Natural) được ưu tiên
+                const sorted = vi.sort((a, b) => score(b) - score(a));
+                provider.voices = { S1: pref || sorted[0] || null, S2: sorted.find(v => v !== (pref || sorted[0])) || pref || sorted[0] || null };
+                provider.voiceLabel = provider.voices.S1 ? provider.voices.S1.name : "";
+                return !!provider.voices.S1;
+                function score(v) { return (/enhanced|premium|natural|neural|nâng cao|cao cấp|tự nhiên/i.test(v.name) ? 10 : 0) + (v.localService ? 1 : 0); }
+            },
+            // Phát một cụm; trả về handle có cancel()
+            speak(text, opts, cb) {
+                const u = new Utter(text);
+                const voice = (provider.voices && (provider.voices[opts.speaker] || provider.voices.S1)) || null;
+                if (voice) u.voice = voice;
+                u.lang = "vi-VN";
+                u.rate = Math.max(0.5, Math.min(2.6, opts.rate));
+                // Người nói thứ hai dùng cùng giọng thì hạ cao độ để phân biệt
+                const speakerPitch = opts.speaker === "S2" && provider.voices && provider.voices.S2 === provider.voices.S1 ? 0.88 : 1;
+                u.pitch = Math.max(0.5, Math.min(1.6, opts.pitch * speakerPitch));
+                u.volume = Math.max(0, Math.min(1, opts.volume == null ? 1 : opts.volume));
+                let done = false;
+                u.onstart = () => cb.onstart && cb.onstart();
+                u.onend = () => { if (!done) { done = true; cb.onend && cb.onend(); } };
+                u.onerror = e => { if (!done) { done = true; cb.onerror && cb.onerror(e); } };
+                synth.speak(u);
+                return { cancel() { if (!done) { done = true; } synth.cancel(); } };
+            },
+            stopAll() { try { synth.cancel(); } catch (e) { /* bỏ qua */ } }
+        };
+        return provider;
+    }
+
+    function loadVoices(synth) {
+        return new Promise(resolve => {
+            const v = synth.getVoices();
+            if (v && v.length) return resolve(v);
+            let settled = false;
+            const done = () => { if (!settled) { settled = true; resolve(synth.getVoices() || []); } };
+            try { synth.addEventListener("voiceschanged", done, { once: true }); } catch (e) { /* bỏ qua */ }
+            setTimeout(done, 1500);
+        });
+    }
+
+    // ---- Gemini TTS (giọng AI tự nhiên, trả audio PCM) ----
+    // Gọi qua service worker (background.js, action "synthesizeSpeech").
+    function createGeminiProvider(env, settings) {
+        const provider = {
+            id: "gemini",
+            label: "Giọng Gemini AI",
+            caps: { live: false, prerender: true, rate: false, pitch: false, style: true, ssml: false, timeStretch: true },
+            // Giọng AI tự nhiên nói nhanh hơn giọng hệ thống; thời lượng thật đo từ audio
+            voiceModel: { ...PLAN.DEFAULT_VOICE_MODEL, sylPerSec: 4.6, rateExp: 1, pauseFactor: 1.3 },
+            voices: { S1: settings.geminiVoice || "Kore", S2: settings.geminiVoice2 || "Charon" },
+            get voiceLabel() { return provider.voices.S1; },
+            async init() { return true; },
+            // Khóa kho audio: mọi thứ QUYẾT ĐỊNH âm thanh (không dùng mã video) ->
+            // cùng câu, cùng giọng, cùng kiểu đọc ở video khác vẫn dùng lại được.
+            audioKey(plan) {
+                const pace = plan.sps > 5.2 ? "fast" : plan.sps < 3.8 ? "slow" : "normal";
+                return CACHE.hashKey([
+                    "audio", TTS_STYLE_VERSION, settings.ttsModel || DEFAULT_TTS_MODEL,
+                    provider.voices[plan.speaker] || provider.voices.S1,
+                    CACHE.normalizeText(plan.text).toLowerCase(),
+                    plan.intent || "neutral", (plan.emphasisWords || []).map(w => w.toLowerCase()).sort(), pace
+                ]);
+            },
+            abort(jobId) { env.sendMessage({ action: "ttsAbort", jobId }); },
+            // Gộp nhiều đoạn liền nhau vào MỘT lượt TTS. Service worker cắt lại theo
+            // khoảng lặng và LƯU KHO từng đoạn (theo khóa gửi kèm) trước khi trả lời:
+            // tab đóng hay trả lời bị mất thì audio đã trả tiền vẫn còn.
+            async render(plans, ctx = {}) {
+                const speaker = plans[0].speaker;
+                const keys = await Promise.all(plans.map(p => p.audioKey || provider.audioKey(p)));
+                const res = await env.sendMessage({
+                    action: "synthesizeSpeech",
+                    text: geminiScript(plans, ctx),
+                    voice: provider.voices[speaker] || provider.voices.S1,
+                    model: settings.ttsModel || "",
+                    jobId: ctx.jobId,
+                    parts: plans.map((p, k) => ({ key: keys[k], weight: p.phrases.reduce((a, ph) => a + ph.syl, 0) }))
+                });
+                if (res && (res.aborted || res.errorType === "aborted")) { const err = new Error("Đã hủy"); err.aborted = true; throw err; }
+                if (res && res.errorType === "split") { const err = new Error(res.error); err.splitFailed = true; throw err; }
+                if (!res || !res.ok || !Array.isArray(res.parts)) {
+                    const err = new Error(res ? res.error : "Không có phản hồi TTS");
+                    err.type = res && res.errorType;
+                    throw err;
+                }
+                return res.parts.map((sp, k) => ({
+                    planId: plans[k].id, wav: AUDIO.base64ToBytes(sp.wav), duration: sp.duration, sampleRate: sp.sampleRate
+                }));
+            }
+        };
+        return provider;
+    }
+
+    // ---- Giọng Việt trên máy: VieNeu-TTS (máy chủ cục bộ qua service worker) ----
+    // Miễn phí, nhanh (M3: ~0,25 giây tạo cho 1 giây lời nói), giọng Việt bản ngữ theo vùng.
+    // Máy chủ trên CPU chỉ phục vụ MỘT luồng: mỗi lượt một câu, gửi lần lượt (caps.serial).
+    // Không nhận lời chỉ dẫn ngữ điệu: nhịp ngắt nghỉ thể hiện bằng dấu câu.
+    // 2: nhiệt độ 0,6 + rút khoảng lặng dài + dấu câu mới -> audio cũ không dùng lẫn
+    // 3: giữ khoảng ngừng tự nhiên (tới 0,4 giây) + dấu phẩy ở chỗ người nói gốc ngừng
+    const LOCAL_STYLE_VERSION = 3;
+    function createVieneuProvider(env, settings) {
+        const L = COST.LOCAL_TTS;
+        const provider = {
+            id: L.id,
+            label: L.label,
+            caps: { live: false, prerender: true, rate: false, pitch: false, style: false, ssml: false, timeStretch: true, serial: true, maxBatch: 1, free: true },
+            // Nhịp nền: giọng chậm (kể chuyện, đọc truyện) được tăng tốc đều tới nhịp mục tiêu
+            tempo: { targetSps: L.targetSps, maxTempo: L.maxTempo, minSps: L.minSps, maxFloor: L.maxFloor },
+            // Mô hình thời lượng cho bộ lập kế hoạch = thời lượng PHÁT (đã tính nhịp nền)
+            voiceModel: { ...PLAN.DEFAULT_VOICE_MODEL, sylPerSec: L.targetSps * 0.97, rateExp: 1, pauseFactor: 1.0 },
+            voices: { S1: settings.localVoice || L.defaultVoice, S2: settings.localVoice2 || L.defaultVoice2 },
+            // Tốc độ tự nhiên của giọng (đo trước trên máy; sau đó engine tự đo từ audio thật)
+            naturalSps(speaker) {
+                const v = L.voices.find(x => x.id === (provider.voices[speaker] || provider.voices.S1));
+                // Đo thật trên bài giảng: tốc độ khi lồng tiếng ~86% tốc độ đo bằng câu mẫu (số,
+                // từ tiếng Anh, khoảng lặng ngắn còn lại); engine tự đo lại từ audio thật
+                return (v && v.sps ? v.sps : 4.8) * 0.86;
+            },
+            get voiceLabel() { return provider.voices.S1; },
+            async init() {
+                const r = await env.sendMessage({ action: "localTtsStatus" });
+                // Không "làm nóng giọng" nữa: đo thật, 2 lượt làm nóng chen TRƯỚC câu đầu tiên
+                // (~0,6 giây) trong khi lợi ích chỉ ~0,2 giây ở lượt đầu của mỗi giọng
+                return !!(r && r.running);
+            },
+            audioKey(plan) {
+                const base = ["audio-local", LOCAL_STYLE_VERSION, L.model, L.sampleRate,
+                    provider.voices[plan.speaker] || provider.voices.S1, CACHE.normalizeText(plainScript(plan)).toLowerCase()];
+                // Câu dày chữ tạo với khoảng nghỉ ngắn hơn: khóa kho riêng (không dùng lẫn audio thường)
+                return CACHE.hashKey(plan.tightPauses ? [...base, "tight"] : base);
+            },
+            abort(jobId) { env.sendMessage({ action: "ttsAbort", jobId }); },
+            async render(plans, ctx = {}) {
+                const out = [];
+                for (const p of plans) {
+                    const key = p.audioKey || await provider.audioKey(p);
+                    const res = await env.sendMessage({
+                        action: "synthesizeSpeech", engine: L.id,
+                        text: plainScript(p), voice: provider.voices[p.speaker] || provider.voices.S1,
+                        jobId: ctx.jobId, parts: [{ key, weight: p.phrases.reduce((a, ph) => a + ph.syl, 0) }],
+                        maxPause: p.tightPauses ? L.tightPause : undefined
+                    });
+                    if (res && (res.aborted || res.errorType === "aborted")) { const err = new Error("Đã hủy"); err.aborted = true; throw err; }
+                    if (!res || !res.ok || !Array.isArray(res.parts)) {
+                        const err = new Error(res ? res.error : "Không có phản hồi từ VieNeu");
+                        err.type = res && res.errorType;
+                        throw err;
+                    }
+                    const sp = res.parts[0];
+                    out.push({ planId: p.id, wav: AUDIO.base64ToBytes(sp.wav), duration: sp.duration, sampleRate: sp.sampleRate });
+                }
+                return out;
+            }
+        };
+        return provider;
+    }
+
+    // Lời thoại thuần cho VieNeu (không nhận chỉ dẫn ngữ điệu, ngừng theo dấu câu):
+    //   - chỉ giữ dấu câu THẬT của câu dịch; không tự thêm dấu phẩy ở chỗ lấy hơi / gợi ý
+    //     (mỗi dấu phẩy VieNeu ngừng 0,3 đến 0,45 giây -> đọc chậm, rời rạc)
+    //   - thêm dấu phẩy chỉ sau cụm mở đầu ("Bây giờ, ...") vì đó là chỗ ngừng tự nhiên
+    //   - câu còn NỐI sang phụ đề sau: không ép ngữ điệu kết câu (không thêm dấu chấm)
+    //   - bỏ ký hiệu không đọc được: ¦, [nhạc], (cười), ♪, >>, dấu gạch đầu lời thoại
+    function plainScript(plan) {
+        const parts = plan.phrases.map((ph, k) => {
+            let t = ph.text.replace(/¦/g, "").replace(/\[[^\]]*\]|\([^)]*\)|[♪♫*_#]|>>/g, " ").replace(/^\s*[-–]\s+/, "").trim();
+            const last = k === plan.phrases.length - 1;
+            // Chỗ người nói gốc NGỪNG thật (đo từ phụ đề nguồn) cũng là chỗ ngừng tự nhiên trong
+            // câu Việt: thêm dấu phẩy để VieNeu ngắt hơi (phụ đề tự động không có dấu câu)
+            const natural = ph.breakKind === "opener" || (ph.breakKind === "source" && ph.pauseAfter >= 0.25 && ph.syl >= 4);
+            if (!last && natural && t && !/[.,;:!?…]$/.test(t)) t += ",";
+            return t;
+        }).filter(Boolean);
+        let s = parts.join(" ").replace(/\s+([,.;:!?…])/g, "$1").replace(/\s+/g, " ").trim();
+        if (s && !plan.continuesNext && !/[.!?…]$/.test(s)) s += ".";
+        return s;
+    }
+
+    // Kịch bản đọc cho Gemini TTS: hướng dẫn giọng (ngữ điệu, nhịp, nhấn) + lời thoại.
+    // Khoảng dừng thể hiện bằng dấu câu ("…" = ngừng dài, "," = ngừng ngắn).
+    function geminiScript(plans, ctx = {}) {
+        const persona = ctx.persona || "một người Việt đang nói tự nhiên trong video, giọng ấm, rõ ràng, như đang giảng giải cho người nghe";
+        const notes = [];
+        plans.forEach((p, i) => {
+            const bits = [];
+            if (p.intent && p.intent !== "neutral") bits.push(p.style);
+            if (p.emphasisWords && p.emphasisWords.length) bits.push(`nhấn vào "${p.emphasisWords.join('", "')}"`);
+            if (p.sps > 5.2) bits.push("nói nhanh, gọn");
+            else if (p.sps < 3.8) bits.push("nói thong thả");
+            if (bits.length) notes.push(`đoạn ${i + 1}: ${bits.join(", ")}`);
+        });
+        const lines = plans.map(p => p.phrases.map((ph, k) => {
+            const last = k === p.phrases.length - 1;
+            let t = ph.text.replace(/¦/g, "").trim();
+            // Chỉ yêu cầu ngừng lâu khi thật cần: khoảng lặng cũng được tạo (và tính tiền) như audio
+            if (!last && ph.pause >= 0.6 && !/[.,;:!?…]$/.test(t)) t += "…";
+            else if (!last && ph.pause >= 0.12 && !/[.,;:!?…]$/.test(t)) t += ",";
+            return t;
+        }).join(" "));
+        return `Đọc bằng tiếng Việt như ${persona}. Ngắt nghỉ theo dấu câu, dấu "…" là ngừng lâu hơn; nghỉ rõ giữa các đoạn. ` +
+            (notes.length ? `Ngữ điệu: ${notes.join("; ")}. ` : "") +
+            `Chỉ đọc phần lời thoại dưới đây, không đọc phần hướng dẫn này:\n\n${lines.join("\n\n")}`;
+    }
+
+    // ============================================================
+    // ENGINE
+    // ============================================================
+    class DubEngine {
+        // deps: { video, getGroups, providers:{primary, fallback}, now, setInterval, clearInterval,
+        //         createAudio(url), createObjectURL(bytes), revokeObjectURL, onStatus, condense(plan) }
+        constructor(deps, settings = {}) {
+            this.d = deps;
+            this.settings = { duck: 0.2, volume: 1, ...settings };
+            this.provider = deps.providers.primary;
+            this.fallback = deps.providers.fallback || null;
+            this.plans = [];
+            this.planById = new Map();
+            this.sourceSig = "";
+            this.rendered = new Map();      // planId -> { url, duration, stretch, el }
+            this.pending = new Set();
+            this.failed = new Map();        // planId -> số lần lỗi
+            this.condensed = new Set();
+            this.cacheChecked = new Set();  // planId đã tra kho audio (tránh tra lại)
+            this.jobs = new Map();          // jobId -> { planIds, t0, orphan }
+            this.jobSeq = 0;
+            this.renderLatency = null;      // EMA thời gian một lượt TTS (giây)
+            this.seekTimes = [];
+            this.live = null;               // { planId, k, handle, speaking, phraseStartMedia, wallStart, rate }
+            this.speech = null;             // lời đang phát (audio có sẵn): { id, mediaStart, offset, rate, end }
+            this.voiceSps = new Map();      // tốc độ nói thật của từng người nói (âm tiết/giây, đo từ audio)
+            this.lastRate = null;
+            this.warmup = true;             // lượt TTS đầu tiên nhỏ (có tiếng sớm nhất)
+            this.lastSpokenStart = null;    // mốc bắt đầu của câu vừa nói (hàng đợi lời nói)
+            this.lastT = null;
+            this.stats = { started: [], corrections: 0, dropped: 0, errors: 0, requests: 0, lagMax: 0, cacheHits: 0, ttsPlans: 0, aborted: 0, condenseCalls: 0 };
+            this.duckFactor = 1;
+            this.baseVolume = null;
+            this.lastSetVolume = null;
+            this.speakingUntilMedia = -1;
+            this.consecutiveErrors = 0;
+            this.running = false;
+        }
+
+        start() {
+            if (this.running) return;
+            this.running = true;
+            const v = this.d.video;
+            this.baseVolume = v.volume;
+            this.onVolume = () => {
+                // Người dùng tự chỉnh âm lượng khi đang lồng tiếng: tôn trọng mức mới
+                if (this.lastSetVolume !== null && Math.abs(v.volume - this.lastSetVolume) > 0.005) {
+                    this.baseVolume = Math.min(1, v.volume / Math.max(0.05, this.duckFactor));
+                }
+            };
+            this.onSeek = () => this.hardReset("seek");
+            this.onPauseLike = () => this.silence();
+            this.onWaiting = () => { this.waiting = true; this.silence(); };
+            this.onPlaying = () => { this.waiting = false; };
+            v.addEventListener("volumechange", this.onVolume);
+            v.addEventListener("seeking", this.onSeek);
+            v.addEventListener("pause", this.onPauseLike);
+            v.addEventListener("waiting", this.onWaiting);
+            v.addEventListener("playing", this.onPlaying);
+            v.addEventListener("seeked", this.onPlaying);
+            // Video phát tiếp (sự kiện của chính video, không bị giãn như bộ đếm giờ khi cửa sổ bị che)
+            this.onTimeUpdate = () => { if (this.running) this.tick(); };
+            v.addEventListener("timeupdate", this.onTimeUpdate);
+            this.timer = this.d.setInterval(() => this.tick(), SYNC.tickMs);
+            this.headAt = Math.round(v.currentTime || 0);   // đoạn đầu ngắn quanh chỗ bắt đầu xem
+            this.refresh();
+            this.status();
+        }
+
+        stop() {
+            if (!this.running) return;
+            this.running = false;
+            this.d.clearInterval(this.timer);
+            const v = this.d.video;
+            v.removeEventListener("volumechange", this.onVolume);
+            v.removeEventListener("seeking", this.onSeek);
+            v.removeEventListener("pause", this.onPauseLike);
+            v.removeEventListener("waiting", this.onWaiting);
+            v.removeEventListener("playing", this.onPlaying);
+            v.removeEventListener("seeked", this.onPlaying);
+            v.removeEventListener("timeupdate", this.onTimeUpdate);
+            this.silence();
+            for (const r of this.rendered.values()) {
+                if (r.el) { try { r.el.pause(); } catch (e) { /* bỏ qua */ } }
+                if (r.url && this.d.revokeObjectURL) this.d.revokeObjectURL(r.url);
+            }
+            this.rendered.clear();
+            this.setVideoVolume(this.baseVolume == null ? v.volume : this.baseVolume, true);
+        }
+
+        // ---------------- Dựng kịch bản & kế hoạch từ bản dịch có ngữ cảnh ----------------
+        refresh(force) {
+            const groups = (this.d.getGroups() || []).filter(g => g && g.viText && g.viCues && g.viCues.length);
+            const sig = groups.length + "|" + groups.map(g => g.viText.length).join(",") + "|" + (this.provider && this.provider.id) + "|" + (this.provider && this.provider.caps && this.provider.caps.free ? this.headAt : "");
+            if (!force && sig === this.sourceSig) return false;
+            this.sourceSig = sig;
+            // Chỉ giọng MIỄN PHÍ (VieNeu) mới cắt đoạn đầu ngắn: đổi điểm cắt sau khi tua có thể phải
+            // tạo lại vài đoạn; với Gemini TTS (tính tiền) giữ nguyên cách cắt để không tạo trùng
+            const free = !!(this.provider && this.provider.caps && this.provider.caps.free);
+            const script = PLAN.buildDubScript(groups, { headAt: free ? this.headAt : null });
+            const opts = { voiceModel: this.provider.voiceModel };
+            const plans = PLAN.planAll(script, opts);
+            // Giữ đoạn đã rút gọn / đã render (khóa theo id + nội dung)
+            this.plans = plans.map(p => {
+                const old = this.planById.get(p.id);
+                if (old && old.subtitleText === p.subtitleText && old.condensedText) {
+                    const again = PLAN.planSegment(script[p.index], { ...opts, overrideText: old.condensedText });
+                    if (again) { again.condensedText = old.condensedText; return again; }
+                }
+                return p;
+            });
+            this.planById = new Map(this.plans.map(p => [p.id, p]));
+            // Audio đã tạo cho lời thoại KHÁC (đoạn được cắt lại sau khi tua, bản dịch được sửa):
+            // bỏ để tạo lại cho đúng lời, trừ đoạn đang nói
+            for (const [id, r] of this.rendered) {
+                const p = this.planById.get(id);
+                if (p && r.text != null && r.text !== p.text && !(this.speech && this.speech.id === id)) {
+                    if (r.url && this.d.revokeObjectURL) this.d.revokeObjectURL(r.url);
+                    this.rendered.delete(id);
+                    this.cacheChecked.delete(id);
+                }
+            }
+            return true;
+        }
+
+        planAt(t) {
+            const ps = this.plans;
+            let lo = 0, hi = ps.length - 1, found = -1;
+            while (lo <= hi) {
+                const mid = (lo + hi) >> 1;
+                if (ps[mid].start <= t) { found = mid; lo = mid + 1; } else hi = mid - 1;
+            }
+            return found;
+        }
+
+        // ---------------- Vòng lặp chính ----------------
+        tick() {
+            if (!this.running) return;
+            const v = this.d.video;
+            const t = v.currentTime;
+            const now = this.d.now();
+            if (this.lastT !== null && (t < this.lastT - 0.3 || t > this.lastT + 2.5)) this.hardReset("jump");
+            // Video không tiến dù không tạm dừng (mạng chậm) quá 400 ms: coi như đang tải
+            if (this.lastT === null || t !== this.lastT) this.lastAdvance = now;
+            const stalled = !v.paused && now - (this.lastAdvance || now) > 400;
+            this.lastT = t;
+            // Chưa nói câu nào mà vị trí đã khác xa điểm bắt đầu (YouTube khôi phục vị trí xem sau
+            // khi bật): dời điểm cắt đoạn ngắn tới vị trí thật
+            if (this.lastSpokenStart == null && !this.speech && Math.abs(t - (this.headAt || 0)) > 10) this.headAt = Math.round(t);
+            this.refresh();
+
+            const playing = !v.paused && !v.ended && (v.readyState === undefined || v.readyState >= 3) && !this.waiting && !stalled;
+            // Chẩn đoán: video đang chạy mà engine coi là chưa phát được (lý do + thời điểm media)
+            if (!playing && !v.paused && !v.ended) {
+                const g = this.stats.gate || (this.stats.gate = { waiting: 0, ready: 0, stalled: 0, lastT: null });
+                if (this.waiting) g.waiting++; else if (v.readyState !== undefined && v.readyState < 3) g.ready++; else if (stalled) g.stalled++;
+                g.lastT = Math.round(t * 100) / 100;
+            }
+            if (playing) {
+                if (this.provider.caps.live) this.tickLive(t, v.playbackRate || 1);
+                else this.tickBuffer(t, v.playbackRate || 1);
+            } else {
+                this.silence();
+            }
+            // Lượt TTS không còn liên quan (tua, nhảy vị trí): hủy, kiểm tra thưa để rẻ
+            if (this.jobs.size && (!this.lastJobCheck || now - this.lastJobCheck > 500)) {
+                this.lastJobCheck = now;
+                this.cancelObsoleteJobs(t);
+            }
+            this.schedule(t);
+            this.updateDuck(t, playing);
+            if (!this.lastRelease || now - this.lastRelease > SYNC.releaseEvery) {
+                this.lastRelease = now;
+                this.releaseOld(t);
+            }
+        }
+
+        // ---- Phát trực tiếp theo cụm (Web Speech) ----
+        // Mỗi cụm được NEO vào mốc thời gian của nó trong video: nói xong sớm thì
+        // chờ (giữ khoảng ngừng tự nhiên), bị trễ thì tăng tốc nhẹ; trễ quá mức
+        // thì bỏ phần còn lại của đoạn cũ -> không bao giờ lệch tích lũy.
+        tickLive(t, videoRate) {
+            const L = this.live;
+            if (L && L.speaking) return;                 // không cắt ngang một cụm đang nói
+            let idx = this.planAt(t);
+            if (idx < 0) return;
+            let plan = this.plans[idx];
+            let k = 0;
+            if (L && L.planId === plan.id) {
+                k = L.k + 1;
+            } else if (L && L.planId && this.planById.has(L.planId) && !L.finished) {
+                // Còn cụm của đoạn trước chưa nói xong (do trễ): nói nốt nếu chưa trễ quá
+                const prev = this.planById.get(L.planId);
+                if (L.k + 1 < prev.phrases.length) {
+                    const due = prev.start + prev.phrases[L.k + 1].offset;
+                    if (t - due < SYNC.dropLag) { plan = prev; k = L.k + 1; }
+                    else this.stats.dropped++;
+                }
+            } else if (!L || t - plan.start > SYNC.dropLag) {
+                // Vào giữa đoạn (sau khi tua, hoặc trễ quá nhiều): bắt đầu ở cụm chưa trôi qua
+                while (k < plan.phrases.length && t - plan.start > plan.phrases[k].offset + plan.phrases[k].dur * 0.4) k++;
+            }
+            if (k >= plan.phrases.length) {
+                if (L && L.planId === plan.id) L.finished = true;
+                return;
+            }
+            const ph = plan.phrases[k];
+            const due = plan.start + ph.offset;
+            if (t < due - SYNC.startTolerance) return;   // chưa tới lúc: giữ khoảng ngừng
+            const lag = Math.max(0, t - due);
+            this.stats.lagMax = Math.max(this.stats.lagMax, lag);
+            const boost = lag > 0.2 ? 1 + Math.min(SYNC.maxLagBoost, lag * 0.3) : 1;
+            // Tốc độ giọng phải nhanh THỰC SỰ theo tốc độ phát video và mức đuổi kịp:
+            // giải ngược qua mô hình giọng (tăng hệ số 1,5 không làm giọng nhanh 1,5 lần)
+            const m = this.provider.voiceModel;
+            const baseSpeed = PLAN.speedMultiplier(plan.rate * ph.rateMul, m);
+            const rate = PLAN.rateForSpeedup(baseSpeed * boost * videoRate, m);
+            const state = { planId: plan.id, k, speaking: true, finished: false, rate, wallStart: null, predicted: ph.dur / boost, planCal: plan.calibration || 1 };
+            this.live = state;
+            this.speakingUntilMedia = due + ph.dur + SYNC.duckHold;
+            if (k === 0) this.stats.started.push({ id: plan.id, t, due: plan.start, lag });
+            try {
+                state.handle = this.provider.speak(ph.text, { rate, pitch: plan.pitch * ph.pitchMul, volume: this.settings.volume, speaker: plan.speaker }, {
+                    onstart: () => { state.wallStart = this.d.now(); },
+                    onend: () => {
+                        state.speaking = false;
+                        if (state.wallStart !== null && !state.cancelled) this.calibrate(state, videoRate);
+                        if (k === plan.phrases.length - 1) state.finished = true;
+                    },
+                    onerror: (e) => {
+                        state.speaking = false;
+                        // Bị hủy chủ động (tạm dừng, tua) không phải lỗi giọng
+                        if (state.cancelled || (e && /interrupted|canceled|cancelled/i.test(e.error || ""))) return;
+                        state.finished = true;
+                        this.onProviderError(new Error("Lỗi phát giọng: " + (e && e.error)));
+                    }
+                });
+            } catch (e) {
+                state.speaking = false;
+                this.onProviderError(e);
+            }
+        }
+
+        // Tự hiệu chỉnh mô hình thời lượng theo thời gian nói thật đo được
+        calibrate(state, videoRate) {
+            const wall = (this.d.now() - state.wallStart) / 1000;
+            if (wall < 0.25) return;
+            const actualMedia = wall * videoRate;
+            const ratio = actualMedia / Math.max(0.1, state.predicted);
+            if (ratio < 0.4 || ratio > 2.5) return;
+            const m = this.provider.voiceModel;
+            // Dự đoán của cụm được tính với hệ số hiệu chỉnh LÚC LẬP KẾ HOẠCH:
+            // giá trị đúng = hệ số đó x tỷ lệ đo được; tiến dần tới (EMA) để không dao động
+            const cur = m.calibration || 1;
+            const measured = state.planCal * ratio;
+            const next = Math.min(1.6, Math.max(0.6, cur + (measured - cur) * 0.3));
+            if (Math.abs(next - (m.calibration || 1)) / (m.calibration || 1) > 0.01) {
+                m.calibration = next;
+                this.calibrationDirty = (this.calibrationDirty || 0) + 1;
+                if (this.calibrationDirty >= 4) { this.calibrationDirty = 0; this.replanFuture(); }
+            }
+        }
+
+        replanFuture() {
+            const t = this.d.video.currentTime;
+            this.sourceSig = "";
+            const activeId = this.live && this.live.planId;
+            const keep = this.plans.filter(p => p.start <= t + 1 || p.id === activeId);
+            this.refresh(true);
+            const map = new Map(keep.map(p => [p.id, p]));
+            this.plans = this.plans.map(p => map.get(p.id) || p);
+            this.planById = new Map(this.plans.map(p => [p.id, p]));
+        }
+
+        // ---- Phát audio có sẵn (Gemini TTS): DÒNG THỜI GIAN LỜI NÓI tách khỏi phụ đề ----
+        // Mốc phụ đề (cue.start / cue.end) chỉ là THAM CHIẾU để bắt đầu. Lời nói có
+        // speech.start / speech.duration / speech.end riêng, lấy theo THỜI LƯỢNG AUDIO THẬT:
+        //   - một câu đang nói KHÔNG BAO GIỜ bị cắt vì phụ đề kết thúc hay câu sau tới giờ
+        //   - câu sau xếp hàng chờ câu trước nói xong (không chồng tiếng), rồi nói hơi nhanh
+        //     hơn một chút để bắt kịp; trễ quá nhiều thì bỏ NGUYÊN câu (không cắt giữa chừng)
+        //   - tạm dừng / tải chậm: giữ nguyên trạng thái, chạy tiếp đúng chỗ
+        //   - tua: bỏ lời đang nói, bắt đầu lại ở vị trí mới
+        tickBuffer(t, videoRate) {
+            let S = this.speech;
+            if (S) {
+                const r = this.rendered.get(S.id);
+                // Audio tự phát tới HẾT (sự kiện ended); chỉ ép dừng khi đã quá mốc dự kiến rõ rệt
+                // (audio lỗi / bị treo), để không bao giờ mất âm cuối vì lệch vài chục mili giây
+                const finished = !r || !r.el || r.el.ended || t >= S.end + SYNC.endGrace;
+                if (!finished) {
+                    this.driveSpeech(S, r, t, videoRate);
+                    this.speakingUntilMedia = S.end + SYNC.duckHold;
+                    this.prepareNext(S.id);
+                    return;
+                }
+                if (r && r.el && !r.el.paused) r.el.pause();
+                const done = this.planById.get(S.id);
+                this.lastSpeechEnd = t;
+                this.lastSpeechJoined = !!(done && done.continuesNext);
+                this.speech = S = null;
+            }
+            const next = this.nextSpeech(t);
+            if (!next) return;
+            const { p, r, offset, lag } = next;
+            const rate = this.chooseRate(p, r, t, offset, lag);
+            this.speech = S = { id: p.id, mediaStart: t, offset, rate, end: t + (r.duration - offset) / rate };
+            this.lastSpokenStart = p.start;
+            this.lastSpokenId = p.id;
+            this.stats.started.push({ id: p.id, t, due: p.start, lag, rate, speechEnd: S.end, cueEnd: p.end });
+            for (const [id, x] of this.rendered) if (x.el && id !== p.id && !x.el.paused) x.el.pause();
+            if (!r.el) r.el = this.makeAudio(r.url);
+            this.driveSpeech(S, r, t, videoRate, true);
+            this.speakingUntilMedia = S.end + SYNC.duckHold;
+        }
+
+        // Audio của một đoạn. Khi phát XONG thì chạy vòng xử lý ngay (không chờ nhịp 50 ms): đoạn kế
+        // tiếp bắt đầu liền mạch. Khi cửa sổ bị che, Chrome giãn bộ đếm giờ của trang tới ~1 giây
+        // (đo thật) -> trước đây giữa hai đoạn có thể hụt tới 1 giây
+        makeAudio(url) {
+            const el = this.d.createAudio(url);
+            try { if (el && el.addEventListener) el.addEventListener("ended", () => { if (this.running) this.tick(); }); } catch (e) { /* bỏ qua */ }
+            return el;
+        }
+
+        // Nhịp nền của giọng: giọng nói chậm hơn nhịp mục tiêu được tăng tốc ĐỀU cho cả video
+        // (giữ cao độ, có trần); tốc độ thật của giọng đo từ audio đã tạo (tự hiệu chỉnh)
+        baseTempo(p) {
+            const cfg = this.provider.tempo;
+            if (!cfg) return 1;
+            const sps = this.voiceSps.get(p.speaker) || (this.provider.naturalSps ? this.provider.naturalSps(p.speaker) : cfg.targetSps);
+            return Math.max(1, Math.min(cfg.maxTempo, cfg.targetSps / Math.max(1, sps)));
+        }
+
+        // Tốc độ phát của MỘT câu = thời lượng audio / khung của câu (từ lúc bắt đầu nói tới
+        // mốc cuối phụ đề của câu, không lấn sang câu sau). Nhờ vậy lời không chạy trước phụ
+        // đề ở câu thưa, không tụt lại ở câu dày. Giới hạn trong [0,95x ; 1,3x], nhanh thêm
+        // chút nếu đang trễ, rồi LÀM MƯỢT so với câu trước (đổi tối đa 0,06 mỗi câu).
+        // Tốc độ SÀN theo giọng: giọng chậm (kể chuyện) không bao giờ bị kéo xuống dưới ~4 âm
+        // tiết/giây nghe được (đo thật: Mỹ Duyên 3,5 -> sàn ~x1,13); giọng nhanh sàn 0,95x.
+        // Video đang phát nhanh (1,25x, 1,5x) thì audio vốn đã nhanh theo video: không nhân thêm.
+        floorRate(p) {
+            const cfg = this.provider.tempo;
+            let f = SYNC.minSpeechRate;
+            if (cfg && cfg.minSps) {
+                const sps = this.voiceSps.get(p.speaker) || (this.provider.naturalSps ? this.provider.naturalSps(p.speaker) : cfg.minSps);
+                f = Math.max(f, Math.min(cfg.maxFloor || 1.15, cfg.minSps / Math.max(1, sps)));
+            }
+            const vr = Math.max(1, (this.d.video && this.d.video.playbackRate) || 1);
+            return Math.max(SYNC.minSpeechRate, f / vr);
+        }
+
+        chooseRate(p, r, t, offset, lag) {
+            const i = this.plans.indexOf(p);
+            const next = i >= 0 ? this.plans[i + 1] : null;
+            // Câu CHƯA HẾT (đoạn nối tiếp sang đoạn sau): đọc lấp tới đoạn sau, được chậm xuống
+            // 0,95x như người nói gốc đang nói thưa, thay vì nói nhanh rồi im giữa câu chờ phụ đề
+            const joined = !!(p.continuesNext && next);
+            // ... nhưng chỉ chậm hơn tốc độ sàn của giọng tối đa 0,08 (giọng chậm như Mỹ Duyên: sàn
+            // 1,11 -> đoạn nối tiếp >= 1,03) để đoạn sau không phải nhảy tốc độ đột ngột
+            // Đang nói SỚM hơn phụ đề (nối liền đoạn trước) mà câu vẫn chưa hết: được chậm tới 0,95x
+            // để lấp khung, thay vì nói nhanh rồi phải nghỉ giữa câu hay chạy trước phụ đề
+            const early = p.start - t;
+            const floor = joined ? (early > 0.3 ? SYNC.minSpeechRate : Math.max(SYNC.minSpeechRate, this.floorRate(p) - 0.08)) : this.floorRate(p);
+            let endAt = joined ? next.start - SYNC.joinGap : p.start + (p.targetDuration || 0) + SYNC.fitSlack;
+            if (next && !joined) endAt = Math.min(endAt, next.start - 0.12);
+            const win = Math.max(0.5, endAt - t);
+            let want = (r.duration - offset) / win;
+            if (lag > 0.25) want *= 1 + Math.min(SYNC.catchUpMax, lag * 0.05);
+            want = Math.max(floor, want);
+            // Đang sớm giữa câu: được chậm lại nhanh hơn (0,1 mỗi đoạn, như lúc tăng tốc) để kịp lấp khung
+            const stepDown = joined && early > 0.3 ? SYNC.rateStepUp : SYNC.rateStepDown;
+            if (this.lastRate && t - this.lastRateEnd < SYNC.rateMemory) {
+                want = Math.max(this.lastRate - stepDown, Math.min(this.lastRate + SYNC.rateStepUp, want));
+            }
+            let ceiling = lag > SYNC.lagBoostAt ? SYNC.lagMaxSpeechRate : SYNC.maxSpeechRate;
+            // Vừa bắt kịp (trần trở về 1,3x): hạ tốc độ từ từ, không tụt 0,1 trong một câu
+            if (this.lastRate && t - this.lastRateEnd < SYNC.rateMemory) ceiling = Math.max(ceiling, Math.min(SYNC.lagMaxSpeechRate, this.lastRate - SYNC.rateStepDown));
+            if (lag > SYNC.lagBoostAt) want = Math.max(want, (r.duration - offset) / win * (1 + Math.min(0.12, lag * 0.06)));
+            let rate = Math.max(floor, Math.min(ceiling, want));
+            // Tốc độ sàn vừa được hiệu chỉnh lại (đo giọng thật) không được làm nhịp nhảy quá bước cho phép
+            if (this.lastRate && t - this.lastRateEnd < SYNC.rateMemory) rate = Math.min(rate, this.lastRate + SYNC.rateStepUp);
+            this.lastRate = rate;
+            this.lastRateEnd = t + (r.duration - offset) / rate;
+            return rate;
+        }
+
+        // Tạo sẵn (và cho trình duyệt giải mã) audio của câu kế tiếp trong lúc câu hiện tại
+        // đang nói -> câu sau bắt đầu ngay, không hụt vài chục mili giây giữa hai câu
+        prepareNext(currentId) {
+            const i = this.plans.findIndex(p => p.id === currentId);
+            const next = i >= 0 ? this.plans[i + 1] : null;
+            const r = next && this.rendered.get(next.id);
+            if (r && !r.el) r.el = this.makeAudio(r.url);
+        }
+
+        // Giải phóng audio của các câu đã qua xa (video dài không giữ hàng trăm MB trong trang).
+        // Tua lại thì audio được lấy lại từ kho (RAM / IndexedDB), không tạo lại.
+        releaseOld(t) {
+            // Chỉ giải phóng khi có kho audio để lấy lại (không bao giờ phải tạo lại, tốn tiền)
+            if (!this.d.audioCache || !this.provider.audioKey) return;
+            for (const [id, r] of this.rendered) {
+                const p = this.planById.get(id);
+                if (!p || (this.speech && this.speech.id === id)) continue;
+                if (p.start + (r.duration / (r.stretch || 1)) < t - SYNC.keepBehind || p.start > t + SYNC.keepAhead) {
+                    if (r.el) { try { r.el.pause(); r.el.removeAttribute && r.el.removeAttribute("src"); } catch (e) { /* bỏ qua */ } }
+                    if (r.url && this.d.revokeObjectURL) this.d.revokeObjectURL(r.url);
+                    this.rendered.delete(id);
+                    this.cacheChecked.delete(id);
+                    this.stats.released = (this.stats.released || 0) + 1;
+                }
+            }
+        }
+
+        // Câu tiếp theo trong hàng đợi lời nói
+        nextSpeech(t) {
+            const tol = SYNC.startTolerance;
+            if (this.lastSpokenStart == null) {
+                // Vừa bắt đầu / vừa tua: chỉ xét câu tại vị trí hiện tại; đã vào giữa câu thì
+                // phát từ đúng đoạn tương ứng, câu đã trôi qua thì chờ câu sau
+                const idx = this.planAt(t + tol);
+                if (idx < 0) return null;
+                const p = this.plans[idx];
+                const r = this.rendered.get(p.id);
+                if (!r) { const g = this.stats.gate || (this.stats.gate = { waiting: 0, ready: 0, stalled: 0, lastT: null }); g.noAudio = (g.noAudio || 0) + 1; g.noAudioT = Math.round(t * 100) / 100; return null; }
+                // Vào giữa đoạn: vị trí trong audio = phần khung đã trôi qua x (độ dài audio / khung).
+                // Trước đây nhân với nhịp nền 1,22 -> tưởng đoạn sắp xong, bỏ luôn, im ~6 giây
+                const into = Math.max(0, t - p.start);
+                const i = this.plans.indexOf(p);
+                const next = i >= 0 ? this.plans[i + 1] : null;
+                const span = Math.max(0.5, (next ? Math.min(next.start, p.end + 0.5) : p.end) - p.start);
+                const scale = Math.max(0.7, Math.min(1.3, r.duration / span));
+                const offset = into > 0.3 ? into * scale : 0;
+                // (chỉ khi đã VÀO GIỮA đoạn: đoạn rất ngắn < 0,8 giây từng luôn bị bỏ vì điều kiện này đúng cả khi offset = 0)
+                if (offset > 0 && offset >= r.duration - Math.min(0.8, r.duration * 0.5)) { this.lastSpokenStart = p.start; return null; }
+                return { p, r, offset, lag: 0 };
+            }
+            // Câu trước vừa nói xong (đang trễ, câu sau đã tới giờ): nghỉ một nhịp như người thật
+            if (this.lastSpeechEnd != null && t < this.lastSpeechEnd + (this.lastSpeechJoined ? SYNC.joinGap : SYNC.sentenceGap)) {
+                // Hẹn đúng lúc hết nhịp nghỉ (không chờ vòng đếm giờ kế, có thể tới 1 giây khi cửa sổ bị che)
+                const wait = this.lastSpeechEnd + (this.lastSpeechJoined ? SYNC.joinGap : SYNC.sentenceGap) - t;
+                if (this.d.setTimeout && !this.gapTimer) this.gapTimer = this.d.setTimeout(() => { this.gapTimer = null; if (this.running) this.tick(); }, Math.max(10, wait * 1000 / Math.max(0.25, this.d.video.playbackRate || 1)));
+                return null;
+            }
+            const prev = this.lastSpokenId ? this.planById.get(this.lastSpokenId) : null;
+            for (const p of this.plans) {
+                if (p.start <= this.lastSpokenStart + 1e-6) continue;
+                if (t < p.start - tol) {                              // chưa tới giờ
+                    // Câu đang dở (đoạn vừa nói còn nối tiếp sang đoạn này) và giọng đã nói xong:
+                    // nói tiếp luôn (sớm tối đa chainLead) thay vì im giữa câu chờ phụ đề
+                    const chainable = prev && prev.continuesNext && this.plans[this.plans.indexOf(prev) + 1] === p &&
+                        this.lastSpeechEnd != null && this.rendered.has(p.id);
+                    if (!chainable) return null;
+                    if (p.start - t > SYNC.chainLead) {
+                        // Giọng đã đi trước phụ đề nhiều: nghỉ lấy hơi ngắn, nói tiếp khi còn sớm đúng chainLead
+                        // (không để độ sớm cộng dồn qua cả chuỗi đoạn)
+                        const wait = p.start - SYNC.chainLead - t;
+                        if (this.d.setTimeout && !this.gapTimer) this.gapTimer = this.d.setTimeout(() => { this.gapTimer = null; if (this.running) this.tick(); }, Math.max(10, wait * 1000 / Math.max(0.25, this.d.video.playbackRate || 1)));
+                        return null;
+                    }
+                    this.stats.chained = (this.stats.chained || 0) + 1;
+                    return { p, r: this.rendered.get(p.id), offset: 0, lag: t - p.start };
+                }
+                const lag = t - p.start;
+                if (lag > SYNC.maxQueueLag) {                         // trễ quá xa: bỏ NGUYÊN câu
+                    this.lastSpokenStart = p.start;
+                    this.stats.dropped++;
+                    continue;
+                }
+                const r = this.rendered.get(p.id);
+                // Câu đã tạo lỗi hết lượt thử (không còn đang tạo): bỏ qua NGAY, đọc câu sau
+                // đúng giờ, không im chờ tới ngưỡng trễ
+                if (!r && (this.failed.get(p.id) || 0) >= 2 && !this.pending.has(p.id)) {
+                    this.lastSpokenStart = p.start;
+                    this.stats.dropped++;
+                    continue;
+                }
+                return r ? { p, r, offset: 0, lag } : null;           // chưa có audio: chờ
+            }
+            return null;
+        }
+
+        // Đã sẵn sàng đọc tại vị trí t chưa: phụ đề quanh đó đã dịch và đoạn đọc sắp tới đã có audio.
+        // Dùng cho "chờ chuẩn bị" (tạm dừng video tối đa vài giây khi mở video mới / tua tới đoạn mới).
+        isReadyAt(t, ahead = 4) {
+            const raw = (this.d.getGroups() || []).filter(g => g && g.end > t && g.start < t + ahead);
+            if (raw.some(g => !g.viText)) return false;                 // còn nhóm chưa dịch
+            this.refresh();
+            const p = this.plans.find(x => x.end > t + 0.2 && x.start < t + ahead);
+            if (!p) return raw.length === 0 || this.plans.length > 0;   // quãng không có lời: không cần chờ
+            if ((this.failed.get(p.id) || 0) >= 2) return true;        // đoạn lỗi: không chờ nữa
+            const r = this.rendered.get(p.id);
+            if (!r) return false;
+            // Cho trình duyệt nạp sẵn audio đoạn đầu ngay khi còn tạm dừng: video chạy là có tiếng liền
+            if (!r.el && r.url) r.el = this.makeAudio(r.url);
+            return true;
+        }
+
+        // Ảnh chụp trạng thái để chẩn đoán (chỉ khi bật cờ gỡ lỗi): đoạn quanh vị trí xem, đoạn đã nói
+        debugSnapshot() {
+            const t = this.d.video.currentTime;
+            const r2 = x => Math.round(x * 100) / 100;
+            return {
+                t: r2(t), provider: this.provider.id, gate: this.stats.gate || null, waiting: !!this.waiting, rs: this.d.video.readyState,
+                lastSpoken: this.lastSpokenStart, headAt: this.headAt, speech: this.speech ? { id: this.speech.id, end: r2(this.speech.end), rate: r2(this.speech.rate) } : null,
+                ahead: r2(this.prefetchAhead()), jobs: this.jobs.size, dropped: this.stats.dropped, errors: this.stats.errors, chained: this.stats.chained || 0,
+                plans: this.plans.filter(p => p.end > t - 15 && p.start < t + 30).map(p => ({
+                    id: p.id, s: r2(p.start), e: r2(p.end), cont: !!p.continuesNext, syl: p.phrases.reduce((a, ph) => a + ph.syl, 0),
+                    st: this.rendered.has(p.id) ? "ok" : this.pending.has(p.id) ? "tao" : (this.failed.get(p.id) || 0) >= 2 ? "loi" : "chua",
+                    dur: this.rendered.has(p.id) ? r2(this.rendered.get(p.id).duration) : null
+                })),
+                started: this.stats.started.slice(-25).map(x => ({ id: x.id, t: r2(x.t), due: r2(x.due), rate: r2(x.rate), end: r2(x.speechEnd), cueEnd: r2(x.cueEnd) }))
+            };
+        }
+
+        // Giữ audio khớp với dòng thời gian lời nói (không phải mốc phụ đề)
+        driveSpeech(S, r, t, videoRate, starting) {
+            const el = r.el || (r.el = this.makeAudio(r.url));
+            const expected = S.offset + (t - S.mediaStart) * S.rate;
+            const baseRate = S.rate * videoRate;
+            try { el.preservesPitch = true; } catch (e) { /* bỏ qua */ }
+            el.volume = this.settings.volume;
+            if (el.paused || starting) {
+                if (Math.abs(el.playbackRate - baseRate) > 0.001) el.playbackRate = baseRate;
+                el.currentTime = Math.max(0, expected);
+                if (el.paused) {
+                    const pr = el.play();
+                    if (pr && pr.catch) pr.catch(e => this.onProviderError(e));
+                }
+                return;
+            }
+            const drift = el.currentTime - expected;                  // dương: audio đi trước
+            if (Math.abs(drift) > SYNC.driftCorrect) {
+                el.currentTime = expected;                            // lệch lớn: đặt lại đúng chỗ
+                if (Math.abs(el.playbackRate - baseRate) > 0.001) el.playbackRate = baseRate;
+                this.stats.corrections++;
+            } else {
+                // lệch nhỏ: nhích tốc độ vài phần trăm để khớp dần, không có chỗ vấp
+                let rate = baseRate;
+                if (Math.abs(drift) > SYNC.driftNudge) rate = baseRate * (1 - Math.max(-SYNC.nudgeMax, Math.min(SYNC.nudgeMax, drift * 0.6)));
+                if (Math.abs(el.playbackRate - rate) > 0.002) el.playbackRate = rate;
+                if (rate !== baseRate) this.stats.nudges = (this.stats.nudges || 0) + 1;
+            }
+        }
+
+        // ---------------- Lập lịch tạo audio quanh vị trí đang phát ----------------
+        // Tầm nhìn tạo trước THÍCH ỨNG: đủ để kịp phát (theo độ trễ TTS đo được và
+        // tốc độ phát), nhưng không xa hơn trần của chế độ; người dùng hay tua thì thu hẹp.
+        prefetchAhead() {
+            const v = this.d.video;
+            const max = Math.min(SYNC.prefetchMax, this.settings.prefetchMax != null ? this.settings.prefetchMax : SYNC.prefetchMax);
+            const lat = this.renderLatency != null ? this.renderLatency : 4;
+            let ahead = (lat * 2.5 + 4) * Math.max(1, v.playbackRate || 1);
+            const now = this.d.now();
+            this.seekTimes = this.seekTimes.filter(x => now - x < 60000);
+            if (this.seekTimes.length >= 2) ahead *= 0.6;           // hay tua: audio xa dễ bị bỏ phí
+            if (v.paused) ahead = Math.min(ahead, SYNC.prefetchPaused);
+            // Giọng trên máy (miễn phí, tạo nhanh gấp ~4 lần thời gian thực): tạo trước xa hơn
+            // (tối thiểu 20 giây) để một lượt tạo chậm hay một câu bị kẹt không làm giọng im
+            if (this.provider.caps && this.provider.caps.free && !v.paused) {
+                return Math.max(SYNC.freeAheadMin, Math.min(SYNC.freeAheadMax, ahead));
+            }
+            return Math.max(Math.min(SYNC.prefetchMin, max), Math.min(max, ahead));
+        }
+
+        schedule(t) {
+            if (!this.provider.caps.prerender) return;
+            // Rút gọn câu (gọi Gemini) chỉ được giữ hàng tạo audio tối đa condenseMaxWait: Gemini
+            // chậm / bị giới hạn tốc độ từng chặn 8 đến 16 giây -> giọng im cả quãng
+            const condenseBlocking = this.busyCondense && this.d.now() - this.condenseT0 < SYNC.condenseMaxWait;
+            if (this.busyLookup || condenseBlocking || this.budgetBlocked) return;
+            // Bình thường chỉ MỘT lượt TTS cho vị trí đang xem. Khi audio sẵn phía trước sắp
+            // cạn (mạng chậm, vừa tua) cho chạy thêm lượt thứ hai để bắt kịp: KHÔNG tốn thêm
+            // (tiền tính theo độ dài audio, không theo số lượt). Lượt cũ chạy nốt không chặn
+            // vị trí mới; tổng số lượt cùng lúc có trần.
+            let active = 0;
+            for (const j of this.jobs.values()) if (!j.orphan) active++;
+            // API từng báo vượt giới hạn tốc độ (hay gặp với key miễn phí): chỉ 1 lượt mỗi lúc
+            const maxActive = !this.conservative && !this.provider.caps.serial && active && this.bufferedAhead(t) < (this.renderLatency != null ? this.renderLatency : 4) * SYNC.thinBuffer ? 2 : 1;
+            if (active >= maxActive || this.jobs.size >= SYNC.maxJobs) return;
+            const to = t + this.prefetchAhead();
+            // Vừa bật / vừa tua (chưa nói câu nào): đoạn đã hết phụ đề sẽ không bao giờ được đọc
+            // -> không tạo audio cho nó (từng làm tiếng đầu tiên chậm thêm một lượt tạo giọng)
+            const fresh = this.lastSpokenStart == null;
+            const inWindow = p => p.start + p.estDuration >= t - 1 && !(fresh && p.end < t + 0.3) && p.start <= to && !this.rendered.has(p.id) && !this.pending.has(p.id) && (this.failed.get(p.id) || 0) < 2;
+            let todo = this.plans.filter(inWindow).sort((a, b) => a.start - b.start);
+            if (!todo.length) return;
+
+            // Giọng MIỄN PHÍ (VieNeu) + người nói nhanh: câu (theo tốc độ ĐO THẬT của giọng) phải đọc
+            // nhanh hơn 1,15x mới vừa khung -> tạo giọng với khoảng nghỉ trong câu ngắn hơn (0,15 giây).
+            // KHÔNG rút gọn lời thoại (giữ đủ nội dung người nói truyền đạt).
+            if (this.provider.caps && this.provider.caps.free) {
+                for (const p of todo) if (p.tightPauses == null) p.tightPauses = this.denseRatio(p) > SYNC.denseRatio;
+            }
+
+            // 1. KHO AUDIO (RAM -> IndexedDB): đoạn đã từng tạo thì không gọi TTS nữa
+            const unchecked = todo.filter(p => !this.cacheChecked.has(p.id)).slice(0, 8);
+            if (unchecked.length && this.d.audioCache && this.provider.audioKey) {
+                this.lookupCache(unchecked);
+                return;
+            }
+
+            // 2. Câu vượt khung ĐÁNG KỂ: rút gọn câu chữ TRƯỚC khi tạo audio (chỉ một lần)
+            const first = todo[0];
+            if (!(this.provider.caps && this.provider.caps.free) && this.needsCondense(first) && first.start - t >= SYNC.condenseLeadTime) {
+                this.condenseBeforeTts(first);
+                return;
+            }
+
+            // 3. TTS: gộp các đoạn liền nhau cùng người nói, không vượt tầm nhìn. Lượt đầu
+            // sau khi bật / tua chỉ lấy một câu ngắn để có tiếng ngay (audio nhỏ về nhanh hơn).
+            const warmup = this.warmup && !this.conservative;
+            const maxSyl = warmup ? SYNC.firstBatchSyl : SYNC.maxBatchSyl;
+            const batch = [first];
+            let syl = first.phrases.reduce((a, ph) => a + ph.syl, 0);
+            const maxPlans = this.provider.caps.maxBatch || SYNC.maxBatchPlans;
+            for (let i = this.plans.indexOf(first) + 1; i < this.plans.length && batch.length < maxPlans; i++) {
+                const p = this.plans[i];
+                const s = p.phrases.reduce((a, ph) => a + ph.syl, 0);
+                const inSpill = p.start <= to + SYNC.batchSpill && !this.rendered.has(p.id) && !this.pending.has(p.id);
+                if (!(inWindow(p) || inSpill) || p.speaker !== first.speaker || syl + s > maxSyl || (this.failed.get(p.id) || 0) > 0) break;
+                if (p.start - batch[batch.length - 1].end > 3) break;
+                if (!(this.provider.caps && this.provider.caps.free) && this.needsCondense(p) && p.start - t >= SYNC.condenseLeadTime) break;   // để lượt sau rút gọn trước
+                batch.push(p);
+                syl += s;
+            }
+            this.warmup = false;
+            this.renderBatch(batch);
+        }
+
+        // Số giây audio ĐÃ CÓ liên tục phía trước vị trí đang xem
+        bufferedAhead(t) {
+            let end = t;
+            for (const p of this.plans) {
+                if (p.start + p.estDuration < t) continue;
+                if (p.start > end + 1.5) break;                       // có khoảng trống lời nói dài: coi như liền
+                const r = this.rendered.get(p.id);
+                if (!r) break;
+                end = Math.max(end, p.start + r.duration / r.stretch);
+            }
+            return end - t;
+        }
+
+        // Tỉ lệ (audio ước theo tốc độ ĐO THẬT của giọng) / khung của câu: > 1 là phải đọc nhanh hơn 1x.
+        // Đo thật (1.2.9): ước theo tốc độ mục tiêu thấy "vừa khung" trong khi audio thật dài gấp 1,3.
+        denseRatio(p) {
+            const syl = p.phrases.reduce((a, ph) => a + ph.syl, 0);
+            const sps = this.voiceSps.get(p.speaker) || (this.provider.naturalSps ? this.provider.naturalSps(p.speaker) : 4);
+            const i = this.plans.indexOf(p);
+            const next = i >= 0 ? this.plans[i + 1] : null;
+            const win = Math.max(0.8, next ? Math.min(next.start - p.start, (p.targetDuration || 0) + 1.5) : (p.targetDuration || 0) + 0.25);
+            return (syl / Math.max(1, sps)) / win;
+        }
+
+        needsCondense(p) {
+            if (!this.d.condense || this.condensed.has(p.id) || p.condensedText) return false;
+            const over = p.overflow || 0;
+            return over > SYNC.condenseMinOver && over > SYNC.condenseMinRatio * Math.max(0.5, p.targetDuration);
+        }
+
+        async lookupCache(plans) {
+            this.busyLookup = true;
+            try {
+                const keys = await Promise.all(plans.map(p => this.provider.audioKey(p)));
+                const hits = await this.d.audioCache.get(keys);
+                plans.forEach((p, i) => {
+                    this.cacheChecked.add(p.id);
+                    p.audioKey = keys[i];
+                    const h = hits && hits[keys[i]];
+                    if (h && h.wav && !this.rendered.has(p.id)) {
+                        this.stats.cacheHits++;
+                        this.addRendered(p, h.wav, h.duration);
+                    }
+                });
+            } catch (e) {
+                plans.forEach(p => this.cacheChecked.add(p.id));
+            } finally {
+                this.busyLookup = false;
+                this.status();
+            }
+        }
+
+        addRendered(p, wav, duration) {
+            // Khớp thời lượng CỤC BỘ theo THỜI LƯỢNG AUDIO THẬT: chỉ co giãn (giữ cao độ, có
+            // trần) khi audio dài hơn khoảng trống tới câu sau; phần vượt còn lại được phát
+            // trọn (câu sau xếp hàng chờ). Không rút gọn rồi tạo lại audio sau khi đã có audio.
+            const i = this.plans.indexOf(p);
+            const next = i >= 0 ? this.plans[i + 1] : null;
+            const room = next ? next.start - p.start - 0.1 : Infinity;
+            const slot = Math.max(0.3, p.targetDuration, room);
+            // stretch = nhịp nền của giọng (ước lượng thời lượng phát); tốc độ thật của từng câu
+            // được chọn lúc bắt đầu nói (chooseRate) để nhịp đều giữa các câu
+            const stretch = this.baseTempo(p);
+            const url = this.d.createObjectURL(wav);
+            this.rendered.set(p.id, { url, duration, stretch, fit: duration / slot, overflow: duration / stretch - slot, text: p.text });
+        }
+
+        async renderBatch(batch) {
+            const jobId = `tts${++this.jobSeq}_${Date.now()}`;
+            batch.forEach(p => this.pending.add(p.id));
+            const job = { planIds: batch.map(p => p.id), t0: this.d.now(), orphan: false };
+            this.jobs.set(jobId, job);
+            this.stats.requests++;
+            this.stats.ttsPlans += batch.length;
+            const provider = this.provider;
+            try {
+                const out = await provider.render(batch, { persona: this.settings.persona, jobId });
+                const secs = (this.d.now() - job.t0) / 1000;
+                if (!job.orphan) this.renderLatency = this.renderLatency == null ? secs : this.renderLatency * 0.7 + secs * 0.3;
+                for (const o of out) {
+                    const p = batch.find(x => x.id === o.planId);
+                    if (!p) continue;
+                    // Kho bền vững đã được service worker ghi TRƯỚC khi trả lời; ở đây chỉ
+                    // nhớ trong RAM của trang để bật lại lồng tiếng / tua lại là phát ngay.
+                    if (this.d.audioCache && this.provider.audioKey) {
+                        const key = p.audioKey || await this.provider.audioKey(p);
+                        this.d.audioCache.put(key, { wav: o.wav, duration: o.duration, sampleRate: o.sampleRate });
+                    }
+                    if (!this.running || this.provider !== provider) continue;
+                    this.measureVoice(p, o.duration);
+                    // Hiệu chỉnh mô hình thời lượng theo thời lượng PHÁT (đã tính nhịp nền)
+                    this.calibrateFromAudio(p, o.duration / this.baseTempo(p));
+                    // Kết quả về muộn nhưng lời thoại đã đổi (rút gọn / dựng lại): KHÔNG phát nhầm
+                    const cur = this.planById.get(o.planId);
+                    if (cur && cur.text === p.text && !this.rendered.has(cur.id)) this.addRendered(cur, o.wav, o.duration);
+                }
+                this.consecutiveErrors = 0;
+            } catch (e) {
+                if (e && e.aborted) {
+                    this.stats.aborted++;                       // hủy chủ động khi tua: không tính lỗi
+                } else if (e && e.splitFailed && batch.length > 1) {
+                    // Cắt không chắc chắn: tạo lại từng đoạn riêng cho đúng nội dung
+                    batch.forEach(p => this.failed.set(p.id, 1));
+                } else if (e && e.type === "timeout" && provider.caps.free) {
+                    // Giọng trên máy (miễn phí): hết giờ thì được tạo lại (tối đa 2 lần), không bỏ câu
+                    batch.forEach(p => this.failed.set(p.id, (this.failed.get(p.id) || 0) + 1));
+                    this.stats.timeouts = (this.stats.timeouts || 0) + 1;
+                    this.onProviderError(e);
+                } else if (e && e.type === "timeout") {
+                    // Quá thời gian chờ: máy chủ có thể ĐÃ tạo (và tính tiền) audio -> không gửi
+                    // lại cho các đoạn này (tránh tạo trùng); chúng được bỏ qua trong hàng đợi lời nói
+                    batch.forEach(p => this.failed.set(p.id, 2));
+                    this.stats.timeouts = (this.stats.timeouts || 0) + 1;
+                    this.onProviderError(e);
+                } else if (e && (e.type === "rate_limit" || e.type === "quota")) {
+                    // Vượt giới hạn tốc độ: từ giờ tạo audio dè dặt (1 lượt mỗi lúc, lượt lớn)
+                    this.conservative = true;
+                    batch.forEach(p => this.failed.set(p.id, (this.failed.get(p.id) || 0) + 1));
+                    this.onProviderError(e);
+                } else if (e && e.type === "budget") {
+                    // Chạm ngân sách: chuyển hẳn sang giọng hệ thống (nếu có), không tạo audio AI nữa
+                    this.stats.budgetStops = (this.stats.budgetStops || 0) + 1;
+                    this.switchToFallback("budget");
+                } else {
+                    batch.forEach(p => this.failed.set(p.id, (this.failed.get(p.id) || 0) + 1));
+                    this.onProviderError(e);
+                }
+            } finally {
+                batch.forEach(p => this.pending.delete(p.id));
+                this.jobs.delete(jobId);
+                this.status();
+            }
+        }
+
+        // Tốc độ nói thật của từng người nói (âm tiết/giây) từ audio đã tạo -> nhịp nền chính xác
+        measureVoice(p, duration) {
+            if (!this.provider.tempo || duration < 1.2) return;
+            const syl = p.phrases.reduce((a, ph) => a + ph.syl, 0);
+            const sps = syl / duration;
+            if (sps < 2 || sps > 9) return;
+            const cur = this.voiceSps.get(p.speaker);
+            this.voiceSps.set(p.speaker, cur ? cur + (sps - cur) * 0.25 : sps);
+        }
+
+        // Tốc độ nói thật của giọng AI đo từ audio đã nhận -> ước lượng thời lượng
+        // (và quyết định có cần rút gọn) chính xác hơn, tránh gọi rút gọn thừa.
+        calibrateFromAudio(p, duration) {
+            const m = this.provider.voiceModel;
+            if (!m || duration < 0.8) return;
+            const base = { ...m, calibration: 1 };
+            let natural = 0;
+            p.phrases.forEach((ph, k) => {
+                natural += PLAN.speechSeconds(ph.syl, 1, base);
+                if (k < p.phrases.length - 1) natural += PLAN.pauseSeconds(ph.pauseAfter, 1, base);
+            });
+            if (natural < 0.5) return;
+            const measured = duration / natural;
+            if (measured < 0.4 || measured > 2.5) return;
+            const cur = m.calibration || 1;
+            m.calibration = Math.min(1.8, Math.max(0.55, cur + (measured - cur) * 0.3));
+            this.audioSamples = (this.audioSamples || 0) + 1;
+            if (this.audioSamples % 3 === 0 && Math.abs(m.calibration - cur) / cur > 0.03) this.replanFuture();
+        }
+
+        // Người dùng tua / nhảy đi: lượt TTS không còn liên quan tới vị trí mới
+        //   - mới gửi: hủy (nhường chỗ ngay cho vị trí mới)
+        //   - đã chạy gần xong: để chạy nốt; audio vào kho, quay lại là có ngay,
+        //     vì hủy lúc này gần như chắc chắn vẫn bị tính tiền mà không nhận được gì
+        // Cả hai trường hợp đều không còn chặn việc tạo audio cho vị trí mới.
+        cancelObsoleteJobs(t) {
+            const to = t + this.prefetchAhead();
+            const now = this.d.now();
+            const usual = (this.renderLatency != null ? this.renderLatency : 4) * 1000;
+            for (const [jobId, job] of this.jobs) {
+                if (job.orphan) continue;
+                const relevant = job.planIds.some(id => {
+                    const p = this.planById.get(id);
+                    return p && p.start + p.estDuration >= t - 1 && p.start <= to;
+                });
+                if (relevant) continue;
+                job.orphan = true;
+                if (now - job.t0 >= usual * SYNC.keepIfDone || !this.provider.abort) {
+                    this.stats.detached = (this.stats.detached || 0) + 1;
+                } else {
+                    try { this.provider.abort(jobId); } catch (e) { /* bỏ qua */ }
+                }
+            }
+        }
+
+        async condenseBeforeTts(plan) {
+            this.busyCondense = true;
+            this.condenseT0 = this.d.now();
+            this.condensed.add(plan.id);
+            this.stats.condenseCalls++;
+            try {
+                const text = await this.d.condense(plan);
+                if (!text || !PLAN.condensedIsSafe(plan.text, text).ok) return;
+                const p = this.planById.get(plan.id);
+                // Về quá muộn: câu đã có audio (hoặc đang tạo) bằng lời gốc -> giữ nguyên
+                if (!p || this.rendered.has(p.id) || this.pending.has(p.id)) return;
+                p.condensedText = text;
+                this.sourceSig = "";
+                this.refresh(true);
+                const np = this.planById.get(plan.id);
+                if (np) this.cacheChecked.delete(np.id);   // lời nói mới -> khóa audio mới
+            } catch (e) { /* rút gọn thất bại: dùng câu gốc + co giãn cục bộ */ }
+            finally { this.busyCondense = false; }
+        }
+
+        onProviderError(e) {
+            this.stats.errors++;
+            this.consecutiveErrors++;
+            if (this.d.log) this.d.log("Lỗi lồng tiếng:", e && e.message);
+            // Giọng trên máy (VieNeu, miễn phí): lỗi tạm thời (máy bận, một câu bị kẹt) chỉ
+            // thử lại câu đó; CHỈ chuyển sang giọng hệ thống khi máy chủ thật sự không chạy
+            if (this.provider.caps && this.provider.caps.free && !(e && e.type === "local_unavailable")) return;
+            // Giọng AI lỗi liên tục (hết hạn mức, mất mạng): chuyển hẳn sang giọng
+            // hệ thống cho cả video -> giọng nhất quán, video không bị ảnh hưởng.
+            if (this.consecutiveErrors >= 3) this.switchToFallback("errors");
+        }
+
+        switchToFallback(reason) {
+            this.fallbackReason = reason;
+            if (this.fallback && this.provider !== this.fallback) {
+                this.silence();
+                this.speech = null;
+                this.provider = this.fallback;
+                this.sourceSig = "";
+                this.refresh(true);
+                this.status("fallback");
+            } else if (reason === "budget") {
+                this.budgetBlocked = true;          // không có giọng dự phòng: ngừng tạo audio AI
+                this.status("budget");
+            }
+        }
+
+        // ---------------- Dừng / đặt lại ----------------
+        silence() {
+            if (this.live && this.live.speaking) {
+                this.live.cancelled = true;
+                try { this.live.handle && this.live.handle.cancel(); } catch (e) { /* bỏ qua */ }
+                this.live.speaking = false;
+                // Tiếp tục lại đúng cụm đang nói dở khi video chạy tiếp
+                this.live.k = Math.max(-1, this.live.k - 1);
+                this.live.finished = false;
+            }
+            try { this.provider.stopAll && this.provider.stopAll(); } catch (e) { /* bỏ qua */ }
+            for (const r of this.rendered.values()) if (r.el && !r.el.paused) r.el.pause();
+            this.speakingUntilMedia = -1;
+        }
+
+        // Khóa kho audio của MỌI đoạn trong video này. Cách cắt đoạn đầu phụ thuộc chỗ bắt đầu xem
+        // (headAt) và câu dày chữ có khóa riêng: tính đủ các biến thể để xóa sạch
+        async audioKeysForVideo() {
+            if (!this.provider || !this.provider.audioKey) return [];
+            const groups = (this.d.getGroups() || []).filter(g => g && g.viText && g.viCues && g.viCues.length);
+            const plans = [...this.plans];
+            const heads = new Set([this.headAt, 0, null, Math.round((this.d.video && this.d.video.currentTime) || 0)]);
+            for (const h of heads) plans.push(...PLAN.planAll(PLAN.buildDubScript(groups, { headAt: h }), { voiceModel: this.provider.voiceModel }));
+            const keys = new Set();
+            for (const p of plans) {
+                if (p.audioKey) keys.add(p.audioKey);
+                for (const tight of [false, true]) keys.add(await this.provider.audioKey({ ...p, tightPauses: tight }));
+            }
+            return [...keys];
+        }
+
+        // Bỏ audio đang giữ trong trang (sau khi xóa kho): tạo lại từ vị trí đang xem
+        forgetRendered() {
+            for (const [, r] of this.rendered) {
+                if (r.el) { try { r.el.pause(); } catch (e) { /* bỏ qua */ } }
+                if (r.url && this.d.revokeObjectURL) this.d.revokeObjectURL(r.url);
+            }
+            this.rendered.clear();
+            this.cacheChecked.clear();
+            for (const p of this.plans) delete p.audioKey;
+            this.hardReset("forget-audio");
+        }
+
+        hardReset(reason) {
+            this.silence();
+            this.speech = null;                 // lời đang nói không còn đúng vị trí: bỏ
+            this.lastSpokenStart = null;
+            this.lastRate = null;               // vị trí mới: không nối nhịp với câu cũ
+            this.lastSpeechEnd = null;
+            this.lastSpokenId = null;
+            this.warmup = true;                 // lượt TTS kế tiếp nhỏ để có tiếng ngay ở vị trí mới
+            this.headAt = Math.round(this.d.video.currentTime || 0);   // cắt đoạn ngắn quanh vị trí mới
+            this.live = null;
+            this.lastT = null;
+            this.seekTimes.push(this.d.now());
+            this.cancelObsoleteJobs(this.d.video.currentTime);
+            if (this.d.onReset) { try { this.d.onReset(reason); } catch (e) { /* bỏ qua */ } }
+        }
+
+        // ---------------- Hạ nhỏ tiếng gốc (ducking) mượt ----------------
+        // Trình duyệt không tách được giọng khỏi nhạc nền của video YouTube/Coursera
+        // (luồng media khác nguồn), nên giữ nhạc nền bằng cách HẠ NHỎ tiếng gốc
+        // khi có lời Việt, tăng/giảm dần để không giật.
+        updateDuck(t, playing) {
+            const active = playing && t <= this.speakingUntilMedia;
+            const target = active ? this.settings.duck : 1;
+            const step = SYNC.duckRampPerTick;
+            if (Math.abs(this.duckFactor - target) < 1e-3) return;
+            this.duckFactor = this.duckFactor < target ? Math.min(target, this.duckFactor + step) : Math.max(target, this.duckFactor - step);
+            this.setVideoVolume((this.baseVolume == null ? 1 : this.baseVolume) * this.duckFactor);
+        }
+
+        setVideoVolume(vol, restore) {
+            const v = this.d.video;
+            const x = Math.max(0, Math.min(1, vol));
+            this.lastSetVolume = restore ? null : x;
+            try { v.volume = x; } catch (e) { /* bỏ qua */ }
+            if (!restore) this.lastSetVolume = v.volume;
+        }
+
+        status(kind) {
+            if (!this.d.onStatus) return;
+            const ready = this.provider.caps.prerender ? this.rendered.size : this.plans.length;
+            this.d.onStatus({
+                provider: this.provider.id,
+                label: this.provider.label,
+                voice: this.provider.voiceLabel || "",
+                segments: this.plans.length,
+                ready,
+                fallback: kind === "fallback" || (this.fallback && this.provider === this.fallback && this.d.providers.primary !== this.fallback),
+                reason: this.fallbackReason || "",
+                budgetBlocked: !!this.budgetBlocked
+            });
+        }
+    }
+
+    const api = { DubEngine, createWebSpeechProvider, createGeminiProvider, createVieneuProvider, geminiScript, plainScript, SYNC, TTS_STYLE_VERSION, DEFAULT_TTS_MODEL };
+    if (typeof module === "object" && module.exports) module.exports = api;
+    if (root) root.CST_DUB_ENGINE = api;
+})(typeof globalThis !== "undefined" ? globalThis : this);

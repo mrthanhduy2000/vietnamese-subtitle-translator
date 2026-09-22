@@ -1,0 +1,1931 @@
+// ============================================================
+// DICH PHU DE TREN YOUTUBE
+//
+// Khac voi Coursera, YouTube khong dung the <track> chuan cua trinh
+// duyet ma tu ve phu de bang ma rieng. Vi vay luong xu ly la:
+//   1. Hoi cau noi (yt-bridge.js) de lay duong dan ban chep loi
+//   2. Tai ban chep loi dang JSON tu may chu YouTube (kem thoi gian tung tu)
+//   3. Gom cue thanh cau, dich bang chinh co che da dung cho Coursera
+//   4. Bo phan doan tieng Viet (vi-segmenter.js) tu quyet dinh so cue,
+//      diem cat va ngat dong; cue tieng Anh chi con la moc thoi gian
+//   5. Tu ve phu de tieng Viet len video, dong bo theo thoi gian chay
+// ============================================================
+
+// Mỗi lần mã được nạp (kể cả nạp lại sau khi cập nhật tiện ích) có một mã thế hệ riêng. Nút và
+// lớp phụ đề mang mã này; phần tử của mã CŨ (tab mở từ trước khi Tải lại, đã mất kết nối với tiện
+// ích: bấm không phản hồi, không dịch được) bị dọn đi và thay bằng phần tử còn sống.
+const YT_GEN = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+// Thời điểm nạp mã này: phần tử của thế hệ CŨ HƠN thì ẩn, thế hệ mới hơn thì để yên (không hai bên ẩn nhau)
+const YT_BORN = Date.now() + Math.random();
+const YT_OVERLAY = `.cst-yt-overlay[data-cst-gen="${YT_GEN}"]`;
+const YT_BTN = `.cst-ytp-btn[data-cst-gen="${YT_GEN}"]`;
+
+const yt = {
+    cues: [],           // cue tieng Anh: [{ start, end, text, words? }]
+    groups: [],         // nhom dich: [{ text, cueIndexes, srcCues, start, end, translated, viCues }]
+    viCues: [],         // cue tieng Viet da phan doan, sap theo thoi gian: [{ start, end, text, lines }]
+    cueToGroupMap: new Map(),
+    inFlightGroups: new Set(),
+    active: false,
+    busy: false,
+    overlay: null,
+    rafId: null,
+    renderKey: "",
+    lastSpokenVi: null,
+    videoEl: null,
+    currentVideoId: "",
+    requestSeq: 0,
+    resizeObserver: null,
+    classObserver: null,
+    domCaptionObserver: null,
+    capTionDisplayCu: null,
+    daDichXong: false,
+    huyDich: false,
+    soNhomDaDich: 0,
+    tongSoNhom: 0,
+    vfcId: null,
+    daGanSuKien: false
+};
+
+// ============================================================
+// CẤU HÌNH & QUẢN LÝ KIỂU DÁNG PHỤ ĐỀ YOUTUBE
+// ============================================================
+// Kiểu mặc định lấy từ MỘT nơi duy nhất (subtitle-style.js, nạp trước file này)
+const defaultSubStyle = window.CST_STYLE.DEFAULT_STYLE;
+let ytSubStyle = { ...defaultSubStyle };
+
+function ytChuanHoaKieu(s) {
+    return window.CST_STYLE ? window.CST_STYLE.normalizeStyle(s) : { ...defaultSubStyle, ...(s || {}) };
+}
+
+const ytSettings = {
+    autoTranslate: true,        // Tự động dịch sang tiếng Việt khi phụ đề là ngôn ngữ khác
+    dubEnabled: true,           // Tự bật lồng tiếng sau khi dịch (mặc định BẬT; nhớ lần bật/tắt gần nhất)
+    prepareWait: true,          // Mở video mới: tạm dừng tối đa 5 giây chờ phụ đề + giọng Việt sẵn sàng
+    skipSameLang: true,         // Bỏ qua dịch khi cùng ngôn ngữ
+    smartSentenceBreak: true    // Luôn bật: phân đoạn & ngắt dòng theo cú pháp tiếng Việt
+};
+
+async function ytNapCaiDatKieu() {
+    try {
+        const res = await chrome.storage.sync.get(["subStyle", "dualMode", "skipSameLang", "autoTranslate", "dubEnabled", "dubPrepareWait"]);
+        ytSettings.prepareWait = res.dubPrepareWait !== false;
+        if (res.autoTranslate !== undefined) ytSettings.autoTranslate = !!res.autoTranslate;
+        // Chưa từng chọn (cài mới, kho cài đặt bị tạo lại) -> bật: người dùng muốn nghe giọng Việt ngay
+        ytSettings.dubEnabled = res.dubEnabled !== false;
+        ytSubStyle = ytChuanHoaKieu(res.subStyle);
+        if (res.dualMode !== undefined) ytSubStyle.mode = res.dualMode ? "dual" : "single";
+        if (res.skipSameLang !== undefined) ytSettings.skipSameLang = !!res.skipSameLang;
+        ytSettings.smartSentenceBreak = true;
+    } catch (e) {
+        console.warn("Chưa đọc được cài đặt kiểu phụ đề:", e);
+    }
+}
+
+function ytApDungKieuPhuDe(overlay) {
+    if (!overlay) return;
+    const S = window.CST_STYLE;
+    const s = ytChuanHoaKieu(ytSubStyle);
+
+    overlay.style.fontFamily = S ? S.fontStack(s.fontFamily) : "Roboto, Arial, sans-serif";
+    overlay.style.color = s.fontColor;
+    overlay.style.fontWeight = s.fontWeight;
+    overlay.style.lineHeight = String(s.lineHeight);
+    overlay.style.backgroundColor = S ? S.backgroundColor(s) : "rgba(8, 8, 8, 0.75)";
+    overlay.style.borderRadius = `${s.borderRadius}px`;
+    overlay.style.textShadow = S ? S.textShadow(s) : "0 1px 2px rgba(0,0,0,0.8)";
+    // Nền trong suốt thì bỏ luôn phần đệm để chữ không "lơ lửng" lệch tâm
+    overlay.style.padding = S && S.backgroundColor(s) === "transparent" ? "2px 6px" : "0.18em 0.6em 0.22em";
+
+    if (S) {
+        // Phông web nạp xong thì vẽ lại (độ rộng chữ đổi nên ngắt dòng có thể đổi)
+        S.ensureFont(document, s.fontFamily, s.fontWeight).then(ok => {
+            if (!ok) console.warn(`[CST] Không nạp được phông "${S.getFont(s.fontFamily).family}", dùng phông dự phòng có dấu tiếng Việt`);
+            yt.renderKey = "";
+        });
+    }
+    yt.renderKey = "";
+}
+
+// Bo nho dem: xem lai video cu thi khong phai dich lai tu dau.
+// Phien ban 2 luu cue tieng Viet da phan doan; du lieu phien ban cu (co the
+// chua ma "[[__T0__]]" bi lot) duoc xoa bo.
+const YT_CACHE_PREFIX = "ytcache4_";   // v4: kem nhom cau + ban dich co ngu canh cho long tieng (1.1.2)
+const YT_CACHE_CU = "ytcache";
+const YT_CACHE_TOI_DA = 15;
+
+async function ytDocCache(videoId) {
+    if (!videoId) return null;
+    try {
+        const key = YT_CACHE_PREFIX + videoId;
+        const kq = await chrome.storage.local.get(key);
+        const data = kq[key];
+        if (!data || !Array.isArray(data.vi) || !Array.isArray(data.cues)) return null;
+        return data;
+    } catch (e) {
+        return null;
+    }
+}
+
+async function ytGhiCache(videoId) {
+    if (!videoId || yt.viCues.length === 0) return;
+    try {
+        const r = x => Math.round(x * 1000) / 1000;
+        const key = YT_CACHE_PREFIX + videoId;
+        await chrome.storage.local.set({
+            [key]: {
+                luc: Date.now(),
+                cues: yt.cues.map(c => [r(c.start), r(c.end), c.text]),
+                vi: yt.viCues.map(c => [r(c.start), r(c.end), c.lines.join("\n")]),
+                // Nhóm câu + bản dịch có ngữ cảnh: lồng tiếng xem lại không phải dịch lại
+                g: yt.groups.filter(g => g.translated && g.viText).map(g => [
+                    r(g.start), r(g.end), g.viText,
+                    g.srcCues.map(c => [r(c.start), r(c.end), c.text]),
+                    g.viCues.map(c => [r(c.start), r(c.end), c.text])
+                ])
+            }
+        });
+        await ytDonCache();
+    } catch (e) {
+        console.warn("Khong ghi duoc bo nho dem:", e.message);
+    }
+}
+
+// Giu lai cac video gan day nhat, xoa bot cai cu va toan bo cache phien ban cu
+async function ytDonCache() {
+    try {
+        const tatCa = await chrome.storage.local.get(null);
+        const cu = Object.keys(tatCa).filter(k => k.startsWith(YT_CACHE_CU) && !k.startsWith(YT_CACHE_PREFIX));
+        // Thuat ngu da luu qua lau khong dung (tren 60 ngay) thi xoa
+        const ctxCu = Object.keys(tatCa).filter(k => k.startsWith("ctxterms_") && Date.now() - ((tatCa[k] || {}).luc || 0) > 60 * 864e5);
+        cu.push(...ctxCu);
+        if (cu.length) await chrome.storage.local.remove(cu);
+        const keys = Object.keys(tatCa).filter(k => k.startsWith(YT_CACHE_PREFIX));
+        if (keys.length <= YT_CACHE_TOI_DA) return;
+        keys.sort((a, b) => (tatCa[a].luc || 0) - (tatCa[b].luc || 0));
+        const xoa = keys.slice(0, keys.length - YT_CACHE_TOI_DA);
+        await chrome.storage.local.remove(xoa);
+    } catch (e) { /* bo qua */ }
+}
+
+// Đảm bảo mã cầu nối MAIN world luôn chạy trên trang YouTube
+function ytDamBaoBridge() {
+    if (document.getElementById("cst-yt-bridge-injected")) return;
+    try {
+        const s = document.createElement("script");
+        s.id = "cst-yt-bridge-injected";
+        s.textContent = `(${function () {
+            if (window.__cst_bridge_listener_ready) return;
+            window.__cst_bridge_listener_ready = true;
+
+            function layDanhSachPhuDe() {
+                let response = null;
+                try {
+                    const player = document.querySelector("#movie_player");
+                    if (player && typeof player.getPlayerResponse === "function") {
+                        response = player.getPlayerResponse();
+                    }
+                } catch (e) {}
+
+                if (!response && window.ytInitialPlayerResponse) {
+                    response = window.ytInitialPlayerResponse;
+                }
+
+                if (!response) {
+                    try {
+                        if (window.ytcfg && typeof window.ytcfg.get === "function") {
+                            const pdata = window.ytcfg.get("PLAYER_VARS");
+                            if (pdata && pdata.embedded_player_response) {
+                                response = typeof pdata.embedded_player_response === "string" 
+                                    ? JSON.parse(pdata.embedded_player_response)
+                                    : pdata.embedded_player_response;
+                            }
+                        }
+                    } catch (e) {}
+                }
+
+                if (!response) return { error: "Chưa đọc được dữ liệu trình phát YouTube" };
+
+                const list =
+                    response.captions &&
+                    response.captions.playerCaptionsTracklistRenderer &&
+                    response.captions.playerCaptionsTracklistRenderer.captionTracks;
+
+                if (!list || list.length === 0) {
+                    return { tracks: [], videoId: (response.videoDetails || {}).videoId || "" };
+                }
+
+                return {
+                    tracks: list.map(t => ({
+                        baseUrl: t.baseUrl,
+                        languageCode: t.languageCode || "",
+                        kind: t.kind || "",
+                        name: (t.name && (t.name.simpleText || (t.name.runs && t.name.runs[0] && t.name.runs[0].text))) || ""
+                    })),
+                    videoId: (response.videoDetails || {}).videoId || "",
+                    title: (response.videoDetails || {}).title || "",
+                    author: (response.videoDetails || {}).author || "",
+                    channelId: (response.videoDetails || {}).channelId || "",
+                    description: String((response.videoDetails || {}).shortDescription || "").slice(0, 400),
+                    keywords: ((response.videoDetails || {}).keywords || []).slice(0, 12)
+                };
+            }
+
+            window.addEventListener("message", event => {
+                if (event.source !== window) return;
+                const data = event.data;
+                if (!data || data.cstType !== "YEU_CAU_PHU_DE") return;
+                let ketQua;
+                try {
+                    ketQua = layDanhSachPhuDe();
+                } catch (err) {
+                    ketQua = { error: String(err && err.message ? err.message : err) };
+                }
+                window.postMessage({ cstType: "TRA_LOI_PHU_DE", requestId: data.requestId, ...ketQua }, "*");
+            });
+        }.toString()})();`;
+        (document.head || document.documentElement).appendChild(s);
+    } catch (e) {
+        console.warn("Chưa thể chèn bridge script:", e);
+    }
+}
+
+// ---------- Hoi cau noi de lay danh sach phu de ----------
+function ytHoiDanhSachPhuDe(timeoutMs = 4500) {
+    ytDamBaoBridge();
+    return new Promise((resolve, reject) => {
+        const requestId = `cst_${Date.now()}_${yt.requestSeq++}`;
+
+        const onMessage = event => {
+            if (event.source !== window) return;
+            const d = event.data;
+            if (!d || d.cstType !== "TRA_LOI_PHU_DE" || d.requestId !== requestId) return;
+            window.removeEventListener("message", onMessage);
+            clearTimeout(timer);
+            if (d.error) reject(new Error(d.error));
+            else resolve(d);
+        };
+
+        const timer = setTimeout(() => {
+            window.removeEventListener("message", onMessage);
+            reject(new Error("Trình phát YouTube chưa phản hồi. Hãy thử bấm lại hoặc phát video."));
+        }, timeoutMs);
+
+        window.addEventListener("message", onMessage);
+        window.postMessage({ cstType: "YEU_CAU_PHU_DE", requestId }, "*");
+    });
+}
+
+// ---------- Chon ban chep loi phu hop ----------
+function ytChonTrack(tracks, skipSameLang = true) {
+    if (!tracks || tracks.length === 0) return null;
+
+    // Neu video da co phu de tieng Viet
+    const viTrack = tracks.find(t => t.languageCode.startsWith("vi"));
+    const viThuCong = tracks.find(t => t.languageCode.startsWith("vi") && t.kind !== "asr");
+
+    if (viTrack && skipSameLang) {
+        return {
+            track: viThuCong || viTrack,
+            daCoTiengViet: true
+        };
+    }
+
+    // Uu tien: tieng Anh thu cong > tieng Anh tu dong > bat ky thu cong > bat ky
+    return {
+        track:
+            tracks.find(t => t.languageCode.startsWith("en") && t.kind !== "asr") ||
+            tracks.find(t => t.languageCode.startsWith("en")) ||
+            tracks.find(t => t.kind !== "asr") ||
+            tracks[0],
+        daCoTiengViet: false
+    };
+}
+
+// ---------- Tai va doc ban chep loi ----------
+// Nội dung phụ đề lấy qua cầu nối trong trang (yt-bridge.js): YouTube chỉ trả nội dung
+// khi yêu cầu mang mã "pot" của trình phát. Cầu nối chưa sẵn sàng thì tải thẳng như cũ.
+function ytHoiNoiDungPhuDe(baseUrl, timeoutMs = 12000) {
+    return new Promise((resolve, reject) => {
+        const requestId = `cstn_${Date.now()}_${yt.requestSeq++}`;
+        const onMessage = event => {
+            if (event.source !== window) return;
+            const d = event.data;
+            if (!d || d.cstType !== "TRA_LOI_NOI_DUNG_PHU_DE" || d.requestId !== requestId) return;
+            window.removeEventListener("message", onMessage);
+            clearTimeout(timer);
+            if (d.error) reject(new Error(d.error));
+            else resolve(d);
+        };
+        const timer = setTimeout(() => {
+            window.removeEventListener("message", onMessage);
+            reject(new Error("bridge-timeout"));
+        }, timeoutMs);
+        window.addEventListener("message", onMessage);
+        window.postMessage({ cstType: "YEU_CAU_NOI_DUNG_PHU_DE", requestId, baseUrl }, "*");
+    });
+}
+
+async function ytTaiBanChepLoi(baseUrl) {
+    let rawText = "";
+    try {
+        const r = await ytHoiNoiDungPhuDe(baseUrl);
+        rawText = r.text || "";
+        if (!rawText) console.warn(`[AI Subtitle] YouTube trả phụ đề rỗng (${r.reason || r.via}).`);
+    } catch (e) {
+        if (e.message !== "bridge-timeout") throw e;
+        // Them fmt=json3 de may chu tra ve dang JSON thay vi XML, de doc hon
+        const url = baseUrl.includes("fmt=") ? baseUrl : `${baseUrl}&fmt=json3`;
+        const res = await fetch(url, { credentials: "include" });
+        if (!res.ok) throw new Error(`Máy chủ phụ đề trả về mã ${res.status}`);
+        rawText = await res.text();
+    }
+    return ytDocNoiDungPhuDe(rawText);
+}
+
+function ytDocNoiDungPhuDe(rawText) {
+    const cues = [];
+    if (!rawText) return cues;
+
+    // Cách 1: Thử parse dạng JSON3
+    try {
+        const data = JSON.parse(rawText);
+        const events = data.events || [];
+        for (const ev of events) {
+            if (!ev.segs) continue;
+            const text = ev.segs
+                .map(s => s.utf8 || "")
+                .join("")
+                .replace(/\s+/g, " ")
+                .trim();
+            if (!text || text === "\n") continue;
+
+            const start = (ev.tStartMs || 0) / 1000;
+            const dur = (ev.dDurationMs || 0) / 1000;
+            // Phu de tu dong co thoi gian TUNG TU (tOffsetMs): bo phan doan dung
+            // de dat diem cat tieng Viet dung nhip noi thay vi noi suy tuyen tinh
+            const words = [];
+            for (const sg of ev.segs) {
+                const w = (sg.utf8 || "").trim();
+                if (!w) continue;
+                words.push({ text: w, t: start + (sg.tOffsetMs || 0) / 1000 });
+            }
+            cues.push({ start, end: start + dur, text, words: words.length > 1 ? words : undefined });
+        }
+    } catch (parseErr) {
+        // Cách 2: Parse XML dự phòng nếu YouTube trả về định dạng XML
+        try {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(rawText, "text/xml");
+            const nodes = xmlDoc.querySelectorAll("p, text");
+            for (const node of nodes) {
+                const start = parseFloat(node.getAttribute("t") || node.getAttribute("start") || "0") / (node.getAttribute("t") ? 1000 : 1);
+                const dur = parseFloat(node.getAttribute("d") || node.getAttribute("dur") || "0") / (node.getAttribute("d") ? 1000 : 1);
+                const text = (node.textContent || "").replace(/\s+/g, " ").trim();
+                if (text) {
+                    cues.push({ start, end: start + dur, text });
+                }
+            }
+        } catch (xmlErr) {
+            console.warn("Không đọc được định dạng phụ đề XML:", xmlErr);
+        }
+    }
+
+    // Phu de tu dong hay bi chong thoi gian, cat lai cho gon
+    for (let i = 0; i < cues.length - 1; i++) {
+        if (cues[i].end > cues[i + 1].start) cues[i].end = cues[i + 1].start;
+    }
+
+    return cues;
+}
+
+// ---------- Lop phu de tu ve ----------
+// Phần tử của mã THẾ HỆ KHÁC trong cùng tab (sau khi Tải lại tiện ích, mã cũ còn chạy thêm tới 1,5
+// giây): chỉ ẨN, tuyệt đối không xóa. Mã cũ tự tạo lại nút của nó ngay khi thấy nút bị xóa (theo dõi
+// thay đổi DOM) và xóa nút của mã mới -> hai bên xóa / tạo lại nhau vô tận, trang treo cứng (đo thật
+// 22/09/2026: tab YouTube treo, 330% CPU, sau khi Tải lại tiện ích). Ẩn chỉ đổi thuộc tính, không
+// kích hoạt bộ theo dõi thêm / bớt phần tử của mã kia.
+function ytAnCuaMaKhac(root, selector) {
+    if (!root) return;
+    root.querySelectorAll(selector).forEach(el => {
+        if (el.dataset.cstGen === YT_GEN || el.style.display === "none") return;
+        if (Number(el.dataset.cstBorn) > YT_BORN) return;          // của mã mới hơn: không đụng tới
+        el.style.display = "none";
+    });
+}
+
+function ytTaoLopPhuDe() {
+    const player = document.querySelector("#movie_player") ||
+                   document.querySelector(".html5-video-player");
+    if (!player) return null;
+
+    if (yt.dead) return null;
+    // Lớp phụ đề của mã cũ (đã mất kết nối): ẨN, không xóa (xem ytAnCuaMaKhac)
+    ytAnCuaMaKhac(player, ".cst-yt-overlay");
+    let overlay = player.querySelector(YT_OVERLAY);
+    if (overlay) {
+        ytTheoDoiTrinhPhat(player);
+        ytApDungKieuPhuDe(overlay);
+        ytCapNhatKichThuoc(player, overlay);
+        ytCapNhatViTri(player, overlay);
+        return overlay;
+    }
+
+    overlay = document.createElement("div");
+    overlay.className = "cst-yt-overlay";
+    overlay.dataset.cstGen = YT_GEN;
+    overlay.dataset.cstBorn = String(YT_BORN);
+    overlay.style.cssText = `
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: 92%;
+        width: max-content;
+        box-sizing: border-box;
+        text-align: center;
+        white-space: pre;
+        pointer-events: none;
+        z-index: 60;
+        opacity: 0;
+        transition: opacity 0.12s ease-out, bottom 0.18s ease-out, top 0.18s ease-out;
+    `;
+    ytApDungKieuPhuDe(overlay);
+    player.appendChild(overlay);
+
+    ytCapNhatKichThuoc(player, overlay);
+
+    ytTheoDoiTrinhPhat(player);
+    ytCapNhatViTri(player, overlay);
+
+    return overlay;
+}
+
+// Co chu ty le theo chieu rong trinh phat va ti le font nguoi dung chon
+function ytCapNhatKichThuoc(player, overlay) {
+    if (!player || !overlay) return;
+    const rong = player.clientWidth || 640;
+    const baseCo = Math.max(14, Math.min(rong * 0.026, 40));
+    const scale = (ytSubStyle.fontSize || 130) / 100;
+    overlay.style.fontSize = `${(baseCo * scale).toFixed(1)}px`;
+    yt.renderKey = "";
+}
+
+// Cỡ chữ và vị trí đổi theo kích thước trình phát (vào/ra toàn màn hình) và theo thanh
+// điều khiển (YouTube thêm lớp ytp-autohide khi ẩn thanh). Lỗi cũ: hai bộ theo dõi chỉ
+// tạo MỘT lần và giữ tham chiếu tới lớp phụ đề ĐẦU TIÊN; tắt/bật dịch hay chuyển video
+// tạo lớp mới nhưng bộ theo dõi vẫn cập nhật lớp cũ đã bị xóa, nên phụ đề mới kẹt ở vị
+// trí lúc tạo (ví dụ kẹt cao khi được tạo lúc thanh điều khiển đang hiện).
+// Giờ luôn tìm lớp phụ đề HIỆN TẠI, và gắn lại nếu YouTube thay phần tử trình phát.
+function ytTheoDoiTrinhPhat(player) {
+    if (yt.observedPlayer === player) return;
+    if (yt.resizeObserver) yt.resizeObserver.disconnect();
+    if (yt.classObserver) yt.classObserver.disconnect();
+    yt.observedPlayer = player;
+    const lopHienTai = () => player.querySelector(YT_OVERLAY);
+    if (window.ResizeObserver) {
+        yt.resizeObserver = new ResizeObserver(() => {
+            const o = lopHienTai();
+            if (o) { ytCapNhatKichThuoc(player, o); ytCapNhatViTri(player, o); }
+        });
+        yt.resizeObserver.observe(player);
+    }
+    yt.classObserver = new MutationObserver(() => {
+        const o = lopHienTai();
+        if (!o) return;
+        ytCapNhatViTri(player, o);
+        // Đo lại khi hiệu ứng hiện/ẩn thanh điều khiển đã xong (bố cục thanh có thể đổi)
+        clearTimeout(yt.viTriTimer);
+        yt.viTriTimer = setTimeout(() => { const o2 = lopHienTai(); if (o2) ytCapNhatViTri(player, o2); }, 320);
+    });
+    yt.classObserver.observe(player, { attributes: true, attributeFilter: ["class"] });
+}
+
+// Chiều cao THẬT của thanh điều khiển YouTube đang hiện (0 khi đang ẩn). Đo trực tiếp
+// vì giao diện YouTube mới có thanh điều khiển cao hơn. Trạng thái ẩn/hiện theo lớp
+// ytp-autohide (không theo độ mờ: lúc vừa hiện, độ mờ còn gần 0 sẽ bị hiểu nhầm là ẩn).
+function ytChieuCaoThanhDieuKhien(player) {
+    if (player.classList.contains("ytp-autohide")) return 0;
+    const bar = player.querySelector(".ytp-chrome-bottom");
+    if (!bar) return 0;
+    const cs = getComputedStyle(bar);
+    if (cs.display === "none" || cs.visibility === "hidden") return 0;
+    const pr = player.getBoundingClientRect();
+    const br = bar.getBoundingClientRect();
+    if (!br.height || br.top >= pr.bottom) return 0;
+    return Math.min(pr.height * 0.4, pr.bottom - br.top);
+}
+
+// Lề người dùng chọn tính từ mép khung video và được GIỮ NGUYÊN. Lỗi cũ: mỗi lần thanh
+// điều khiển hiện ra (rê chuột, tạm dừng), phụ đề bị cộng cứng 64 px nên nhảy lên cao dù
+// lề chỉ 1 đến 3%. Giờ chỉ nâng khi thanh điều khiển THỰC SỰ đè lên phụ đề, nâng vừa đủ
+// để không bị che, và trượt mượt; thanh ẩn đi thì trở lại đúng lề đã chọn.
+function ytCapNhatViTri(player, overlay) {
+    if (!player || !overlay) return;
+    const offset = ytSubStyle.offset !== undefined ? ytSubStyle.offset : defaultSubStyle.offset;
+    const margin = player.clientHeight * offset / 100 + 6;
+    if (ytSubStyle.position === "top") {
+        overlay.style.top = `${Math.round(margin)}px`;
+        overlay.style.bottom = "auto";
+    } else {
+        // "Luôn giữ sát lề": không nhích lên; vẽ trên thanh điều khiển (không chặn chuột)
+        const pin = !!ytSubStyle.pinBottom;
+        const bar = pin ? 0 : ytChieuCaoThanhDieuKhien(player);
+        overlay.style.top = "auto";
+        overlay.style.zIndex = pin ? "70" : "60";
+        overlay.style.bottom = `${Math.round(Math.max(margin, bar ? bar + 6 : 0))}px`;
+    }
+}
+
+// Tam an phu de goc cua YouTube de hai lop khong chong len nhau
+function ytAnPhuDeGoc(an) {
+    const khung = document.querySelector(".ytp-caption-window-container");
+    if (!khung) return;
+    if (an) {
+        if (yt.capTionDisplayCu === null) yt.capTionDisplayCu = khung.style.display || "";
+        khung.style.display = "none";
+    } else if (yt.capTionDisplayCu !== null) {
+        khung.style.display = yt.capTionDisplayCu;
+        yt.capTionDisplayCu = null;
+    }
+}
+
+function ytXoaLopPhuDe() {
+    const overlay = document.querySelector(YT_OVERLAY);
+    if (overlay) overlay.remove();
+    yt.overlay = null;
+}
+
+// ---------- Ve noi dung phu de (theo dong da ngat) ----------
+// Dong da ngat san theo cu phap (toi da ~42 ky tu). Neu khung hep hoac chu
+// to lam mot dong vuot be rong, ngat lai bang CHINH thuat toan tieng Viet
+// voi so ky tu vua khung, thay vi de trinh duyet tu xuong dong tuy tien.
+let ytDoChuCtx = null;
+function ytDoRongChu(text, font) {
+    if (!ytDoChuCtx) ytDoChuCtx = document.createElement("canvas").getContext("2d");
+    ytDoChuCtx.font = font;
+    return ytDoChuCtx.measureText(text).width;
+}
+
+function ytVuaKhung(lines, text, overlay, scale) {
+    const seg = window.CST_VI_SEG;
+    const player = overlay.parentElement;
+    if (!seg || !player) return lines;
+    const cs = getComputedStyle(overlay);
+    const fontPx = parseFloat(overlay.style.fontSize || cs.fontSize) * (scale || 1);
+    const font = `${cs.fontWeight} ${fontPx}px ${cs.fontFamily}`;
+    const padX = fontPx * 1.3;
+    const avail = player.clientWidth * 0.92 - padX;
+    let widest = 0;
+    let widestLen = 1;
+    for (const l of lines) {
+        const w = ytDoRongChu(l, font);
+        if (w > widest) { widest = w; widestLen = l.length; }
+    }
+    if (widest <= avail) return lines;
+    const perChar = widest / Math.max(1, widestLen);
+    const maxChars = Math.max(12, Math.floor(avail / perChar) - 1);
+    return seg.breakLines(text, { maxLineChars: maxChars, maxLines: 4 });
+}
+
+function ytTaoKhoiChu(lines, className, css) {
+    const div = document.createElement("div");
+    div.className = className;
+    if (css) div.style.cssText = css;
+    lines.forEach((l, i) => {
+        if (i) div.appendChild(document.createElement("br"));
+        div.appendChild(document.createTextNode(l));
+    });
+    return div;
+}
+
+function ytVePhuDe(overlay, viCue, enText, opts = {}) {
+    const s = ytChuanHoaKieu(ytSubStyle);
+    const isDual = s.mode === "dual" || state.dualMode;
+    const blocks = [];
+    if (viCue) {
+        const lines = ytVuaKhung(viCue.lines && viCue.lines.length ? viCue.lines : [viCue.text], viCue.text, overlay, 1);
+        blocks.push(ytTaoKhoiChu(lines, "cst-vi"));
+    }
+    if (enText && (isDual || !viCue)) {
+        const scale = viCue ? s.origScale / 100 : 1;
+        const seg = window.CST_VI_SEG;
+        const enLines = seg ? ytVuaKhung([enText], enText, overlay, scale) : [enText];
+        const css = viCue
+            ? `font-size:${scale.toFixed(2)}em;color:${s.origColor};font-weight:400;margin-top:0.12em;`
+            : "opacity:0.85;";
+        const block = ytTaoKhoiChu(enLines, "cst-orig", css);
+        if (viCue && state.originalFirst) {
+            block.style.marginTop = "0";
+            block.style.marginBottom = "0.12em";
+            blocks.unshift(block);
+        } else {
+            blocks.push(block);
+        }
+    }
+    overlay.replaceChildren(...blocks);
+    overlay.style.opacity = blocks.length ? (opts.dim ? "0.85" : "1") : "0";
+}
+
+// ---------- Tim cue dang phat ----------
+// Dung tim kiem nhi phan vi ban chep loi co the co hang nghin dong
+function ytTimTrong(list, timeSeconds) {
+    let lo = 0, hi = list.length - 1;
+    while (lo <= hi) {
+        const mid = (lo + hi) >> 1;
+        if (list[mid].start > timeSeconds) hi = mid - 1;
+        else if (list[mid].end <= timeSeconds) lo = mid + 1;
+        else return mid;
+    }
+    return -1;
+}
+
+function ytTimCue(timeSeconds) {
+    return ytTimTrong(yt.cues, timeSeconds);
+}
+
+// ---------- Dich mot nhom & dung cue tieng Viet ----------
+function ytGhepViCues() {
+    const all = [];
+    for (const g of yt.groups) if (g.viCues) all.push(...g.viCues);
+    all.sort((a, b) => a.start - b.start);
+    // Dam bao khong chong lan giua cac nhom (nhom sau thang)
+    for (let i = 1; i < all.length; i++) {
+        if (all[i].start < all[i - 1].end) all[i - 1].end = Math.max(all[i - 1].start + 0.05, all[i].start);
+    }
+    yt.viCues = all;
+}
+
+// Chon cua so dich quanh nhom gIdx: neu nhom chua het cau thi dich CHUNG
+// voi nhom ke tiep (toi da 3 nhom, ~480 ky tu) de mo hinh hieu tron y,
+// roi tra ban dich ve dung tung nhom / moc thoi gian.
+// opts.batch = true (dịch nền): gom cửa sổ lớn hơn (~900 ký tự / 6 nhóm) để
+// giảm số lần gọi Gemini; dịch khẩn cấp giữ cửa sổ nhỏ cho nhanh.
+function ytChonCuaSo(gIdx, opts = {}) {
+    const groups = yt.groups;
+    const maxChars = opts.batch ? 900 : 480;
+    const maxGroups = opts.batch ? 6 : 3;
+    const free = i => i >= 0 && i < groups.length && !groups[i].translated && !yt.inFlightGroups.has(i);
+    if (!free(gIdx)) return [];
+    const idxs = [gIdx];
+    let chars = groups[gIdx].text.length;
+    if (free(gIdx - 1) && !groupEndsSentence(groups[gIdx - 1]) && chars + groups[gIdx - 1].text.length < maxChars) {
+        idxs.unshift(gIdx - 1);
+        chars += groups[gIdx - 1].text.length;
+    }
+    while (idxs.length < maxGroups) {
+        const last = idxs[idxs.length - 1];
+        if (!free(last + 1)) break;
+        // Dịch khẩn cấp: dừng ở cuối câu. Dịch nền: gom tiếp các câu kề nhau.
+        if (!opts.batch && groupEndsSentence(groups[last])) break;
+        if (chars + groups[last + 1].text.length > maxChars) break;
+        // Không gom quá tầm dịch trước (tránh dịch phần người xem có thể không tới)
+        if (opts.horizon != null && groups[last + 1].start > opts.horizon) break;
+        idxs.push(last + 1);
+        chars += groups[last + 1].text.length;
+    }
+    // Dịch nền mà cửa sổ bị cắt giữa câu: lùi về cuối câu gần nhất (không dịch mảnh câu)
+    if (opts.batch && idxs.length > 1 && !groupEndsSentence(groups[idxs[idxs.length - 1]])) {
+        let k = idxs.length - 1;
+        while (k > 0 && !groupEndsSentence(groups[idxs[k]])) k--;
+        if (k > 0) idxs.length = k + 1;
+    }
+    return idxs;
+}
+
+function ytGanBanDich(groups, idxs, translations) {
+    idxs.forEach((gi, k) => {
+        const vi = translations[k];
+        if (!vi) return;
+        const nextStart = groups[gi + 1] ? groups[gi + 1].start : undefined;
+        const g = groups[gi];
+        if (!g.translated) yt.soNhomDaDich++;
+        g.viText = vi;                 // bản dịch có ngữ cảnh (còn dấu ngắt nghỉ ¦) cho lồng tiếng
+        g.viCues = segmentGroupVi(g, vi, nextStart);
+        g.translated = true;
+    });
+    ytGhepViCues();
+    ytCapNhatTienTrinh();
+    yt.renderKey = "";
+}
+
+async function ytDichNhom(gIdx, opts = {}) {
+    const groups = yt.groups;
+    const session = yt.session;
+    if (!session) return false;
+    const idxs = ytChonCuaSo(gIdx, opts);
+    if (!idxs.length) return false;
+
+    idxs.forEach(i => yt.inFlightGroups.add(i));
+    try {
+        const r = await translateWindow(session, idxs, {
+            realtime: true,
+            // Ban dich lai (sau khi phat hien dau hieu dich may) ve sau thi thay the
+            onRefined: better => {
+                if (yt.huyDich || yt.groups !== groups) return;
+                ytGanBanDich(groups, idxs, better.translations);
+                console.log(`[AI Subtitle] Đã dịch lại tự nhiên hơn cho nhóm ${idxs.join(", ")}`);
+            }
+        });
+        // Nguoi dung da tat dich hoac chuyen video trong luc cho
+        if (yt.huyDich || yt.groups !== groups) return false;
+        if (!r.translations || r.translations.every(t => !t)) return false;
+        ytGanBanDich(groups, idxs, r.translations);
+        return true;
+    } catch (e) {
+        console.warn(`Dịch nhóm ${idxs.join(",")} lỗi:`, e.message);
+        return false;
+    } finally {
+        if (yt.groups === groups) idxs.forEach(i => yt.inFlightGroups.delete(i));
+    }
+}
+
+// ---------- Vong lap dong bo & Dich khan cap theo thoi gian thuc (Real-time Fast Lane) ----------
+// Dòng phụ đề tại t, hoặc dòng NGAY SAU t (vị trí rơi vào khoảng lặng giữa hai dòng)
+function ytCueTaiHoacSau(t) {
+    const i = ytTimCue(t);
+    if (i !== -1) return i;
+    return yt.cues.findIndex(c => c.start >= t);
+}
+
+function ytDichKhanCap(cueIdx) {
+    if (cueIdx < 0 || cueIdx >= yt.cues.length) return;
+    const gIdx = yt.cueToGroupMap.get(cueIdx);
+    if (gIdx === undefined) return;
+    ytDichNhom(gIdx);
+}
+
+function ytBatDauDongBo() {
+    ytDungDongBo();
+
+    const capNhat = () => {
+        if (!yt.active) return;
+
+        const video = yt.videoEl;
+        const overlay = yt.overlay;
+        if (!video || !overlay) return;
+
+        const t = video.currentTime;
+        const viIdx = ytTimTrong(yt.viCues, t);
+        const enIdx = ytTimCue(t);
+        const isDual = ytSubStyle.mode === "dual" || state.dualMode;
+        const key = `${viIdx}|${isDual ? enIdx : ""}|${viIdx === -1 ? enIdx : ""}`;
+        if (key === yt.renderKey) return;
+        yt.renderKey = key;
+
+        const enText = enIdx !== -1 ? yt.cues[enIdx].text : "";
+
+        if (viIdx !== -1) {
+            const viCue = yt.viCues[viIdx];
+            ytVePhuDe(overlay, viCue, isDual ? enText : "");
+            return;
+        }
+
+        if (enIdx === -1) {
+            ytVePhuDe(overlay, null, "");
+            return;
+        }
+
+        // Câu hiện tại chưa dịch kịp:
+        // 1. Kích hoạt dịch khẩn cấp ngay lập tức (ưu tiên số 1) và dịch trước 2 nhóm kế
+        // 2. Hiện tạm câu gốc để người xem KHÔNG bị mất phụ đề
+        const gIdx = yt.cueToGroupMap.get(enIdx);
+        const group = gIdx !== undefined ? yt.groups[gIdx] : null;
+        if (group && !group.translated) {
+            ytDichNhom(gIdx);
+            if (gIdx + 1 < yt.groups.length) ytDichNhom(gIdx + 1);
+            if (gIdx + 2 < yt.groups.length) ytDichNhom(gIdx + 2);
+            ytVePhuDe(overlay, null, enText, { dim: true });
+        } else {
+            ytVePhuDe(overlay, null, "");
+        }
+    };
+
+    if (yt.videoEl && typeof yt.videoEl.requestVideoFrameCallback === "function") {
+        const vong = () => {
+            if (!yt.active) return;
+            capNhat();
+            yt.vfcId = yt.videoEl.requestVideoFrameCallback(vong);
+        };
+        yt.vfcId = yt.videoEl.requestVideoFrameCallback(vong);
+        // requestVideoFrameCallback dung khi video tam dung: van can cap nhat khi tua/doi kieu
+        const vongCham = () => {
+            if (!yt.active) return;
+            if (yt.videoEl && yt.videoEl.paused) capNhat();
+            yt.rafId = setTimeout(vongCham, 250);
+        };
+        yt.rafId = setTimeout(vongCham, 250);
+    } else {
+        const vong = () => {
+            if (!yt.active) return;
+            capNhat();
+            yt.rafId = requestAnimationFrame(vong);
+        };
+        yt.rafId = requestAnimationFrame(vong);
+    }
+
+    // Tua hoac doi toc do phat thi phai tinh lai ngay
+    if (yt.videoEl && !yt.daGanSuKien) {
+        const datLai = () => {
+            yt.renderKey = "";
+            yt.lastSpokenVi = null;
+            // Khi tua, kích hoạt dịch khẩn cấp ngay tại thời điểm mới
+            if (yt.videoEl) {
+                const seekIdx = ytCueTaiHoacSau(yt.videoEl.currentTime);
+                if (seekIdx !== -1) ytDichKhanCap(seekIdx);
+            }
+        };
+        yt.videoEl.addEventListener("seeked", datLai);
+        yt.videoEl.addEventListener("ratechange", datLai);
+        yt.daGanSuKien = true;
+    }
+}
+
+function ytDungDongBo() {
+    if (yt.rafId) {
+        cancelAnimationFrame(yt.rafId);
+        clearTimeout(yt.rafId);
+    }
+    if (yt.vfcId && yt.videoEl && typeof yt.videoEl.cancelVideoFrameCallback === "function") {
+        yt.videoEl.cancelVideoFrameCallback(yt.vfcId);
+    }
+    yt.rafId = null;
+    yt.vfcId = null;
+    yt.renderKey = "";
+}
+
+// ---------- Động cơ dịch đa luồng cửa sổ trượt (Multi-Worker Sliding Window Engine) ----------
+// 2 luồng là đủ theo kịp tốc độ xem; luồng thứ 3 chủ yếu dịch xa phía trước (lãng phí nếu người dùng tua)
+const NUM_CONCURRENT_WORKERS = 2;
+
+async function ytChayTienTrinhPrefetch(groups) {
+    yt.tongSoNhom = groups.length;
+    yt.soNhomDaDich = groups.filter(g => g.translated).length;
+    yt.daDichXong = false;
+
+    // Chỉ dịch trước trong khoảng "translateAhead" giây quanh vị trí đang xem
+    // (không dịch cả video khi người xem có thể chỉ xem vài phút).
+    const ahead = () => (window.CST_COST ? window.CST_COST.getMode(state.costMode).translateAhead : 120);
+
+    const worker = async (workerId) => {
+        while (!yt.huyDich && yt.groups === groups) {
+            const video = yt.videoEl;
+            const curTime = video ? video.currentTime : 0;
+            const horizon = curTime + ahead();
+
+            // Tìm nhóm chưa dịch có độ ưu tiên cao nhất gần playhead nhất
+            let bestGroupIdx = -1;
+            let bestDist = Infinity;
+
+            for (let i = 0; i < groups.length; i++) {
+                const g = groups[i];
+                if (g.translated || yt.inFlightGroups.has(i)) continue;
+                if (g.retryAt && g.retryAt > Date.now()) continue;
+                if (g.start > horizon || g.end < curTime - 5) continue;
+
+                const diff = g.start - curTime;
+
+                // Trọng số ưu tiên: các câu sắp phát trong 0s -> 45s có điểm số cao nhất
+                let score = 0;
+                if (diff >= -2 && diff <= 45) {
+                    score = diff; // Cực kỳ gần playhead
+                } else if (diff > 45) {
+                    score = 100 + diff; // Trong tương lai
+                } else {
+                    score = 1000 + Math.abs(diff); // Đã trôi qua
+                }
+
+                if (score < bestDist) {
+                    bestDist = score;
+                    bestGroupIdx = i;
+                }
+            }
+
+            if (bestGroupIdx === -1) {
+                if (groups.every(g => g.translated)) break;
+                // Chưa tới vùng cần dịch (hoặc worker khác đang dịch): chờ người xem tiến lên
+                await new Promise(r => setTimeout(r, yt.inFlightGroups.size > 0 ? 150 : 1000));
+                continue;
+            }
+
+            // Nhóm sắp phát (trong 8 giây tới, ví dụ vừa mở / vừa tua): lượt dịch NHỎ (tới hết câu,
+            // tối đa 3 nhóm) để có bản dịch nhanh nhất; nhóm xa hơn mới gom lượt lớn cho rẻ
+            const near = groups[bestGroupIdx].start - curTime < 8;
+            const ok = await ytDichNhom(bestGroupIdx, { batch: !near, horizon });
+            if (!ok && !groups[bestGroupIdx].translated) {
+                // Lỗi mạng/hạn ngạch: đánh dấu tạm để không lặp vô hạn. Câu sắp phát (trong 30
+                // giây tới) thử lại sau 2 rồi 4, 8 giây: chờ cố định 15 giây từng làm phụ đề và
+                // giọng đọc im cả quãng. Câu còn xa: 15 giây như cũ.
+                const g = groups[bestGroupIdx];
+                g.fails = (g.fails || 0) + 1;
+                const near = yt.videoEl && g.start - yt.videoEl.currentTime < 30;
+                g.retryAt = Date.now() + (near ? Math.min(8000, 1000 * 2 ** g.fails) : 15000);
+                await new Promise(r => setTimeout(r, 400));
+                if (groups.every(g => g.translated || (g.retryAt && g.retryAt > Date.now()))) await new Promise(r => setTimeout(r, 2000));
+            }
+
+            // Kích hoạt hiển thị ngay khi nhóm đầu tiên hoàn thành
+            if (!yt.active && yt.soNhomDaDich > 0) {
+                yt.active = true;
+                ytBatDauDongBo();
+                ytDatTrangThaiNut("on");
+            }
+
+            // Nghỉ ngắn để nhường luồng trình duyệt
+            await new Promise(r => setTimeout(r, 20));
+        }
+    };
+
+    const workers = [];
+    for (let w = 0; w < NUM_CONCURRENT_WORKERS; w++) {
+        workers.push(worker(w));
+    }
+    await Promise.all(workers);
+
+    if (yt.groups !== groups || yt.huyDich) return;
+    yt.daDichXong = groups.every(g => g.translated);
+    ytCapNhatTienTrinh();
+    if (yt.daDichXong) ytGhiCache(yt.currentVideoId);
+}
+
+function ytCapNhatTienTrinh() {
+    const icon = document.querySelector(".cst-yt-icon");
+    if (!icon) return;
+    if (yt.daDichXong) {
+        icon.title = "Đang hiện tiếng Việt thời gian thực. Bấm để tắt";
+        const badge = icon.querySelector(".cst-yt-progress");
+        if (badge) badge.remove();
+        return;
+    }
+    const phanTram = yt.tongSoNhom ? Math.round(yt.soNhomDaDich / yt.tongSoNhom * 100) : 0;
+    icon.title = `⚡ Đang dịch Real-time ${phanTram}% (Phụ đề hiển thị tức thì)`;
+
+    let badge = icon.querySelector(".cst-yt-progress");
+    if (!badge) {
+        badge = document.createElement("div");
+        badge.className = "cst-yt-progress";
+        badge.style.cssText = `
+            position: absolute; bottom: -3px; left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px; background: rgba(0,0,0,0.75);
+            padding: 1px 4px; border-radius: 6px; line-height: 1.2;
+        `;
+        icon.appendChild(badge);
+    }
+    badge.textContent = `${phanTram}%`;
+}
+
+function ytKichHoatHienThi() {
+    yt.overlay = ytTaoLopPhuDe();
+    ytAnPhuDeGoc(true);
+    yt.active = true;
+    yt.renderKey = "";
+    yt.lastSpokenVi = null;
+    ytBatDauDongBo();
+    if (window.CST_DUB) window.CST_DUB.dub.videoEl = yt.videoEl;
+    ytCapNhatTrangThaiNutThanhDieuKhien();
+    ytDatTrangThaiNut("on");
+}
+
+// Phụ đề tiếng Việt có sẵn: hiển thị nguyên (0 lượt gọi Gemini); lồng tiếng đọc thẳng
+// phụ đề tiếng Việt, nhịp theo chính nó
+function ytHienThiNguyenTiengViet(viCues) {
+    const seg = window.CST_VI_SEG;
+    yt.cues = viCues;
+    yt.groups = [];
+    yt.viCues = viCues.map(c => ({
+        start: c.start, end: c.end, text: c.text,
+        lines: seg ? seg.breakLines(c.text) : [c.text]
+    }));
+    yt.dubGroups = viCues.map(c => ({ start: c.start, end: c.end, viText: c.text, srcCues: [{ start: c.start, end: c.end, text: c.text }], viCues: [{ start: c.start, end: c.end, text: c.text }] }));
+    yt.daDichXong = true;
+    ytKichHoatHienThi();
+}
+
+// ---------- Tự động dịch khi mở video ----------
+// Ngôn ngữ nguồn: track phụ đề tự động (= ngôn ngữ đang nói) > track duy nhất > mẫu nội dung.
+// Nhận diện ngay trên máy, không gọi Gemini. Tiếng Việt / không chắc chắn -> không tự dịch.
+async function ytNhanDienNgonNgu(info) {
+    const LANG = window.CST_LANG;
+    const tracks = (info && info.tracks) || [];
+    if (!LANG || !tracks.length) return { lang: "unknown", confidence: 0, source: "none", action: "unsure" };
+    const asr = tracks.find(t => t.kind === "asr");
+    const meta = asr ? asr.languageCode : (tracks.length === 1 ? tracks[0].languageCode : "");
+    let sample = "";
+    if (!meta) {
+        try {
+            const cues = await ytTaiBanChepLoi(ytChonTrack(tracks, false).track.baseUrl);
+            sample = cues.slice(0, 40).map(c => c.text).join(" ");
+        } catch (e) { /* không lấy được mẫu: độ tin cậy thấp -> không tự dịch */ }
+    }
+    return LANG.decide({ metaLang: meta, sample });
+}
+
+async function ytTuDongDich() {
+    const ma = ytLayMaVideo();
+    if (yt.dead || !ytSettings.autoTranslate || !ma || yt.active || yt.busy || yt.autoTried === ma) return null;
+    yt.autoTried = ma;
+    // Chờ chuẩn bị (Cài đặt > Lồng tiếng): giữ video mới ở trạng thái dừng tối đa 5 giây trong
+    // lúc tải phụ đề + dịch + tạo giọng cho đoạn đầu, rồi phát -> có tiếng Việt ngay từ câu đầu
+    const api = window.CST_DUB;
+    const vid = document.querySelector("#movie_player video") || document.querySelector("video");
+    const holding = !!(ytSettings.prepareWait && ytSettings.dubEnabled && api && api.prepareHold && vid &&
+        api.prepareHold(vid, () => { const e = api.dub.engine; return !!(e && e.isReadyAt(vid.currentTime)); },
+            { initial: true, container: document.querySelector("#movie_player") }));
+    const buongCho = () => { if (holding && api.hold.active) api.hold.release(); };
+    try {
+        return await ytTuDongDichSau(ma);
+    } finally {
+        // Không dịch / không lồng tiếng được: phát ngay, không bắt chờ đủ 5 giây
+        if (!(api && api.dub.enabled)) buongCho();
+    }
+}
+
+async function ytTuDongDichSau(ma) {
+    // Trình phát chưa nạp xong dữ liệu video mới (danh sách phụ đề trống / còn của video cũ):
+    // hỏi lại mỗi 0,4 giây, tối đa ~8 giây, thay vì chờ cố định rồi bỏ cuộc
+    let info = null;
+    for (let i = 0; i < 20; i++) {
+        try { info = await ytHoiDanhSachPhuDe(); } catch (e) { info = null; }
+        if (ytLayMaVideo() !== ma) return null;
+        if (info && info.videoId === ma && info.tracks && info.tracks.length) break;
+        info = null;
+        await new Promise(r => setTimeout(r, 400));
+    }
+    if (!info || yt.active || yt.busy) return null;
+    const q = await ytNhanDienNgonNgu(info);
+    yt.langDecision = q;
+    console.log(`[AI Subtitle] Ngôn ngữ phụ đề: ${q.lang} (${Math.round(q.confidence * 100)}%, theo ${q.source}) -> ${q.action === "translate" ? "tự động dịch" : q.action === "skip" ? "đã là tiếng Việt, không dịch" : "chưa chắc chắn, không tự dịch"}`);
+    if (q.action !== "translate") return q;
+    const ok = await ytBatDauDich({ auto: true });
+    ytDatTrangThaiNut(ok ? "on" : "idle");
+    if (ok && ytLayMaVideo() === ma) await ytTuBatLongTieng();
+    return q;
+}
+
+// Lồng tiếng đang được bật (nút trên trình phát hoặc ô trong popup): tự bật lại sau khi dịch,
+// kể cả khi chuyển sang video khác. Tự động thì không hiện hộp thoại chặn màn hình.
+async function ytTuBatLongTieng() {
+    const api = window.CST_DUB;
+    if (!ytSettings.dubEnabled || !api || api.dub.enabled || api.dub.starting || yt.dubStarting || !yt.active || !yt.videoEl) return false;
+    yt.dubStarting = true;
+    try {
+        const player = document.querySelector("#movie_player") || document.querySelector(".html5-video-player");
+        const ok = await api.start({ video: yt.videoEl, container: player, getGroups: ytNhomLongTieng, quiet: true });
+        ytDatTrangThaiNutLongTieng(ok);
+        return ok;
+    } finally {
+        yt.dubStarting = false;
+    }
+}
+
+// opts.auto: gọi tự động khi mở video -> lỗi chỉ ghi ra console, không bật hộp thoại chặn trang
+async function ytBatDauDich(opts = {}) {
+    const baoLoi = msg => { if (opts.auto) console.warn("[AI Subtitle] " + msg); else ytBao(msg, { warn: true }); };
+    if (yt.busy || yt.dead) return false;
+    yt.busy = true;
+    yt.huyDich = false;
+    ytDatTrangThaiNut("loading");
+
+    try {
+        const info = await ytHoiDanhSachPhuDe();
+
+        if (!info.tracks || info.tracks.length === 0) {
+            baoLoi("Video này không có phụ đề để dịch. Hãy kiểm tra xem video có hỗ trợ phụ đề hoặc phụ đề tự động (CC) không.");
+            return false;
+        }
+
+        yt.currentVideoId = info.videoId || "";
+        yt.videoEl = document.querySelector("#movie_player video") || document.querySelector("video");
+
+        const chon = ytChonTrack(info.tracks, ytSettings.skipSameLang);
+        if (chon.daCoTiengViet && ytSettings.skipSameLang) {
+            console.log("Video đã có phụ đề tiếng Việt sẵn, áp dụng tùy chọn 'Bỏ qua dịch khi cùng ngôn ngữ'");
+            const viCues = await ytTaiBanChepLoi(chon.track.baseUrl);
+            if (viCues.length > 0) {
+                ytHienThiNguyenTiengViet(viCues);
+                return true;
+            }
+        }
+
+        // Xem lai video da dich thi lay ngay tu bo nho dem
+        const cache = await ytDocCache(yt.currentVideoId);
+        if (cache) {
+            yt.cues = cache.cues.map(c => ({ start: c[0], end: c[1], text: c[2] }));
+            yt.groups = [];
+            yt.viCues = cache.vi.map(c => {
+                const lines = String(c[2] || "").split("\n");
+                return { start: c[0], end: c[1], text: lines.join(" "), lines };
+            });
+            yt.dubGroups = (cache.g || []).map(g => ({
+                start: g[0], end: g[1], viText: g[2],
+                srcCues: g[3].map(c => ({ start: c[0], end: c[1], text: c[2] })),
+                viCues: g[4].map(c => ({ start: c[0], end: c[1], text: c[2] }))
+            }));
+            yt.daDichXong = true;
+            ytKichHoatHienThi();
+            console.log("Lay ban dich tu bo nho dem, khong can dich lai");
+            return true;
+        }
+
+        const track = chon.track;
+        console.log(`Dung ban chep loi: ${track.languageCode}${track.kind === "asr" ? " (tu dong)" : ""}`);
+
+        const cues = await ytTaiBanChepLoi(track.baseUrl);
+        if (cues.length === 0) {
+            baoLoi("YouTube chưa trả nội dung phụ đề. Hãy phát video vài giây rồi bấm dịch lại; nếu vẫn lỗi, tải lại trang (F5).");
+            return false;
+        }
+        // Phụ đề nguồn đã là tiếng Việt (theo mã track hoặc nội dung): hiển thị nguyên,
+        // không gửi Gemini dịch Việt sang Việt
+        const LANG = window.CST_LANG;
+        if (LANG && LANG.decide({ metaLang: track.languageCode, sample: cues.slice(0, 40).map(c => c.text).join(" ") }).action === "skip") {
+            ytHienThiNguyenTiengViet(cues);
+            return true;
+        }
+
+        yt.cues = cues;
+        yt.viCues = [];
+        yt.dubGroups = null;
+        const groups = groupCuesIntoSentences(cues, state.perCueMode).map(g => ({ ...g, translated: false, viCues: null }));
+        yt.groups = groups;
+        yt.cueToGroupMap.clear();
+        yt.inFlightGroups.clear();
+        groups.forEach((g, gIdx) => {
+            g.cueIndexes.forEach(ci => {
+                yt.cueToGroupMap.set(ci, gIdx);
+            });
+        });
+
+        // Ngu canh video: tieu de, kenh, mo ta; thuat ngu da thong nhat luu theo kenh
+        yt.session = await createContextSession({
+            title: info.title || "",
+            channel: info.author || "",
+            description: info.description || "",
+            keywords: info.keywords || []
+        }, info.channelId ? `yt_${info.channelId}` : (info.author ? `yt_${info.author}` : ""));
+        if (yt.session) yt.session.setUnits(groups.map(g => g.text));
+        if (yt.groups !== groups) return false;
+
+        console.log(`Đã nạp ${cues.length} dòng thành ${groups.length} nhóm câu. Lĩnh vực: ${yt.session ? yt.session.domain.primary : "?"}. Kích hoạt phụ đề Real-time.`);
+
+        // KÍCH HOẠT NGAY LẬP TỨC KHÔNG CẦN CHỜ ĐỢI
+        ytKichHoatHienThi();
+
+        // Kích hoạt dịch khẩn cấp ngay cho câu hiện tại
+        const curIdx = ytCueTaiHoacSau(yt.videoEl ? yt.videoEl.currentTime : 0);
+        if (curIdx !== -1) ytDichKhanCap(curIdx);
+
+        // Chạy đa luồng sliding-window prefetcher trong nền
+        ytChayTienTrinhPrefetch(groups);
+
+        return true;
+    } catch (err) {
+        console.error("Dich YouTube that bai:", err);
+        baoLoi(`Không dịch được: ${err.message}`);
+        return false;
+    } finally {
+        yt.busy = false;
+    }
+}
+
+// ---------- Quan sát phụ đề DOM trực tiếp (Live Streams / Native CC Realtime Fallback) ----------
+function ytBatDauDOMCaptionObserver() {
+    if (yt.domCaptionObserver) return;
+
+    let debounceTimer = null;
+    let lastDomText = "";
+
+    const handleMutation = () => {
+        if (!yt.active) return;
+        // Nếu đã có cues từ transcript thì ưu tiên cues đồng bộ cao cấp
+        if (yt.cues && yt.cues.length > 0) return;
+
+        const segs = document.querySelectorAll(".ytp-caption-segment");
+        if (!segs || segs.length === 0) return;
+
+        const currentText = Array.from(segs).map(s => (s.textContent || "").trim()).filter(Boolean).join(" ");
+        if (!currentText || currentText === lastDomText) return;
+        lastDomText = currentText;
+
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            if (!yt.overlay) yt.overlay = ytTaoLopPhuDe();
+            ytAnPhuDeGoc(true);
+
+            // Phu de truc tiep cung dung phien ngu canh: cac cau vua noi la ngu canh truoc
+            (async () => {
+                if (!yt.liveSession) {
+                    yt.liveSession = await createContextSession({ title: document.title.replace(/\s*-\s*YouTube$/, "") }, "");
+                    if (yt.liveSession) yt.liveSession.setUnits([]);
+                }
+                const session = yt.liveSession;
+                if (!session) return;
+                session.units.push(currentText);
+                if (session.units.length > 60) {
+                    // Giu cua so gan nhat de khong phinh bo nho
+                    session.units = session.units.slice(-30);
+                    session.results.clear();
+                }
+                const idx = session.units.length - 1;
+                try {
+                    const r = await translateWindow(session, [idx], { realtime: true });
+                    if (!yt.overlay || !r.translations[0]) return;
+                    const seg = window.CST_VI_SEG;
+                    const vi = seg ? seg.cleanText(r.translations[0]) : r.translations[0];
+                    const lines = seg ? seg.breakLines(vi) : [vi];
+                    const isDual = ytSubStyle.mode === "dual" || state.dualMode;
+                    ytVePhuDe(yt.overlay, { text: vi, lines }, isDual ? currentText : "");
+                } catch (e) {
+                    console.warn("Dich phu de truc tiep loi:", e.message);
+                }
+            })();
+        }, 120);
+    };
+
+    const targetNode = document.querySelector(".html5-video-player") || document.body;
+    yt.domCaptionObserver = new MutationObserver(handleMutation);
+    yt.domCaptionObserver.observe(targetNode, {
+        childList: true,
+        subtree: true,
+        characterData: true
+    });
+}
+
+function ytDungDOMCaptionObserver() {
+    if (yt.domCaptionObserver) {
+        yt.domCaptionObserver.disconnect();
+        yt.domCaptionObserver = null;
+    }
+}
+
+function ytTatDich() {
+    yt.active = false;
+    yt.huyDich = true;
+    ytDungDongBo();
+    ytDungDOMCaptionObserver();
+    ytAnPhuDeGoc(false);
+    ytXoaLopPhuDe();
+    yt.cues = [];
+    yt.groups = [];
+    yt.session = null;
+    yt.liveSession = null;
+    yt.viCues = [];
+    yt.lastSpokenVi = null;
+    yt.cueToGroupMap.clear();
+    yt.inFlightGroups.clear();
+    yt.daDichXong = false;
+
+    if (window.CST_DUB && window.CST_DUB.dub.enabled) {
+        window.CST_DUB.stop();
+        ytDatTrangThaiNutLongTieng(false);
+    }
+    yt.dubGroups = null;
+    ytDatTrangThaiNut("idle");
+}
+
+// ---------- Nút bấm & Menu điều khiển YouTube ----------
+function ytCapNhatTrangThaiNutThanhDieuKhien() {
+    const btn = document.querySelector(YT_BTN);
+    if (!btn) return;
+    const dot = btn.querySelector(".cst-btn-dot");
+    const badge = btn.querySelector(".cst-btn-badge");
+    const isDub = window.CST_DUB && window.CST_DUB.dub && window.CST_DUB.dub.enabled;
+
+    if (dot) {
+        if (yt.busy) {
+            dot.style.display = "block";
+            dot.style.backgroundColor = "#eab308";
+            dot.style.boxShadow = "0 0 5px #eab308";
+        } else if (yt.active) {
+            dot.style.display = "block";
+            dot.style.backgroundColor = "#22c55e";
+            dot.style.boxShadow = "0 0 5px #22c55e";
+        } else if (isDub) {
+            dot.style.display = "block";
+            dot.style.backgroundColor = "#38bdf8";
+            dot.style.boxShadow = "0 0 5px #38bdf8";
+        } else {
+            dot.style.display = "none";
+        }
+    }
+
+    // Trình đọc màn hình và người dùng bàn phím: nói rõ nút đang bật hay tắt
+    btn.setAttribute("aria-pressed", String(!!(yt.active || isDub)));
+    btn.setAttribute("title", yt.busy ? "Đang dịch phụ đề…"
+        : yt.active && isDub ? "Đang bật phụ đề Việt và lồng tiếng (Alt+S, Alt+D)"
+            : yt.active ? "Đang bật phụ đề tiếng Việt (Alt+S)"
+                : isDub ? "Đang lồng tiếng Việt (Alt+D)"
+                    : "Dịch phụ đề & lồng tiếng tiếng Việt (Alt+S, Alt+D)");
+    if (badge) {
+        if (yt.active || isDub) {
+            badge.style.background = "linear-gradient(135deg, #9333ea, #4f46e5)";
+            badge.style.boxShadow = "0 0 12px rgba(147, 51, 234, 0.9)";
+        } else {
+            badge.style.background = "linear-gradient(135deg, #7c3aed, #6366f1)";
+            badge.style.boxShadow = "0 2px 6px rgba(124, 58, 237, 0.45)";
+        }
+    }
+}
+
+function ytDatTrangThaiNut(status) {
+    const icon = document.querySelector(".cst-yt-icon");
+    if (icon) {
+        const kieu = {
+            idle:    { bg: "rgba(0,0,0,0.55)", noiDung: "\u{1F310}", tip: "Bật phụ đề tiếng Việt" },
+            loading: { bg: "#E2A11E",          noiDung: "\u{23F3}",  tip: "Đang dịch, vui lòng chờ..." },
+            on:      { bg: "#1E80E2",          noiDung: "\u{1F310}", tip: "Đang hiện tiếng Việt. Bấm để tắt" },
+            error:   { bg: "#D93025",          noiDung: "\u{26A0}",  tip: "Dịch thất bại. Bấm để thử lại" }
+        }[status] || {};
+        if (kieu.bg) icon.style.backgroundColor = kieu.bg;
+        if (kieu.noiDung) icon.innerHTML = kieu.noiDung;
+        if (kieu.tip) icon.title = kieu.tip;
+    }
+    ytCapNhatTrangThaiNutThanhDieuKhien();
+}
+
+function ytDatTrangThaiNutLongTieng(on) {
+    const icon = document.querySelector(".cst-yt-dub-icon");
+    if (icon) {
+        icon.style.backgroundColor = on ? "#1E8E3E" : "rgba(0,0,0,0.55)";
+        icon.innerHTML = on ? "\u{1F509}" : "\u{1F508}";
+        icon.title = on ? "Đang lồng tiếng. Bấm để tắt" : "Bật lồng tiếng Việt";
+    }
+    ytCapNhatTrangThaiNutThanhDieuKhien();
+}
+
+function ytTaoNutThanhDieuKhien() {
+    const player = document.querySelector("#movie_player") ||
+                   document.querySelector(".html5-video-player");
+    if (!player) return;
+
+    const rightControls = player.querySelector(".ytp-right-controls");
+    if (!rightControls) return;
+
+    if (yt.dead) return;
+    // Nút của mã cũ (bấm không còn tác dụng): ẨN, không xóa (xem ytAnCuaMaKhac)
+    ytAnCuaMaKhac(rightControls, ".cst-ytp-btn");
+    const existing = rightControls.querySelector(YT_BTN);
+    if (existing && existing.isConnected) {
+        ytCapNhatTrangThaiNutThanhDieuKhien();
+        return;
+    }
+    if (existing) existing.remove();
+
+    const btn = document.createElement("button");
+    btn.className = "ytp-button cst-ytp-btn";
+    btn.dataset.cstGen = YT_GEN;
+    btn.dataset.cstBorn = String(YT_BORN);
+    btn.setAttribute("title", "Dịch Phụ Đề & Lồng Tiếng AI (YouTube Dubbing)");
+    btn.setAttribute("aria-label", "Dịch Phụ Đề & Lồng Tiếng AI (YouTube Dubbing)");
+    btn.style.cssText = `
+        position: relative;
+        width: 44px;
+        height: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        padding: 0;
+        vertical-align: top;
+        outline: none;
+        flex-shrink: 0;
+        margin-left: 2px;
+    `;
+
+    // Biểu tượng YouTube Dubbing màu tím với gradient và hiệu ứng nổi bật
+    btn.innerHTML = `
+        <div class="cst-btn-badge" style="
+            width: 32px;
+            height: 32px;
+            border-radius: 7px;
+            background: linear-gradient(135deg, #7c3aed, #6366f1);
+            box-shadow: 0 2px 6px rgba(124, 58, 237, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.18s ease;
+        ">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 4.5V19.5L14 12L5 4.5Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="1.2" stroke-linejoin="round"></path>
+                <path d="M17 7.5C18.5 9 18.5 15 17 16.5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"></path>
+                <path d="M20 5C22.5 7.5 22.5 16.5 20 19" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"></path>
+            </svg>
+        </div>
+        <span class="cst-btn-dot" style="
+            display: none;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            border: 1.5px solid #000;
+            box-shadow: 0 0 4px #22c55e;
+        "></span>
+    `;
+
+    btn.addEventListener("mouseenter", () => {
+        const b = btn.querySelector(".cst-btn-badge");
+        if (b) {
+            b.style.transform = "scale(1.08)";
+            b.style.boxShadow = "0 3px 10px rgba(124, 58, 237, 0.75)";
+        }
+    });
+    btn.addEventListener("mouseleave", () => {
+        const b = btn.querySelector(".cst-btn-badge");
+        if (b) {
+            b.style.transform = "scale(1)";
+            b.style.boxShadow = yt.active ? "0 0 12px rgba(124, 58, 237, 0.9)" : "0 2px 6px rgba(124, 58, 237, 0.45)";
+        }
+    });
+
+    btn.addEventListener("click", e => {
+        e.stopPropagation();
+        e.preventDefault();
+        ytMoMenuNhanh(player, btn);
+    });
+
+    btn.addEventListener("dblclick", async e => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (yt.active) {
+            ytTatDich();
+        } else {
+            const ok = await ytBatDauDich();
+            ytDatTrangThaiNut(ok ? "on" : "idle");
+            if (ok) ytTuBatLongTieng();
+        }
+    });
+
+    // Thêm vào vị trí cuối thanh điều khiển (cạnh nút phóng to toàn màn hình)
+    rightControls.appendChild(btn);
+    ytCapNhatTrangThaiNutThanhDieuKhien();
+}
+
+// ---------- Thực đơn nhanh trên trình phát ----------
+// Nguyên tắc (1.4.1): mỗi dòng là MỘT công tắc thật (bấm được, đọc được bằng trình đọc màn hình),
+// không dùng nhãn "BẬT" trông giống nút bấm mà thực ra chỉ là chữ; trạng thái tự cập nhật khi
+// đang mở; việc hay làm nhất (đổi giọng đọc) làm ngay tại đây, không phải mở trang Cài đặt.
+const YT_MENU_CSS = `
+.cst-yt-menu { position:absolute; bottom:58px; right:12px; width:304px; max-height:min(72%,440px); overflow-y:auto;
+    background:rgba(18,18,22,.97); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:10px;
+    box-shadow:0 14px 40px rgba(0,0,0,.6); color:#fff; font:13px/1.45 Roboto,-apple-system,sans-serif;
+    z-index:1000; user-select:none; }
+.cst-yt-menu * { box-sizing:border-box; }
+.cst-menu-head { display:flex; align-items:center; gap:8px; padding:2px 4px 8px; }
+.cst-menu-title { flex:1; font-weight:600; font-size:13px; color:#fff; }
+.cst-menu-x { background:none; border:none; color:#9aa0a6; font-size:15px; line-height:1; cursor:pointer; padding:4px 6px; border-radius:6px; }
+.cst-menu-x:hover { color:#fff; background:rgba(255,255,255,.1); }
+.cst-row { display:flex; align-items:center; gap:10px; width:100%; text-align:left; padding:9px 10px; border:none;
+    border-radius:9px; background:rgba(255,255,255,.05); color:#fff; font:inherit; cursor:pointer; margin-bottom:6px; }
+.cst-row:hover { background:rgba(255,255,255,.1); }
+.cst-row[aria-disabled="true"] { opacity:.55; cursor:default; }
+.cst-row-label { flex:1; font-weight:500; }
+.cst-row-sub { display:block; font-weight:400; font-size:11px; color:#9aa0a6; margin-top:2px; }
+.cst-kbd { font-size:10px; color:#9aa0a6; border:1px solid rgba(255,255,255,.18); border-radius:4px; padding:1px 5px; }
+.cst-sw { flex-shrink:0; width:36px; height:20px; border-radius:10px; background:rgba(255,255,255,.22); position:relative; transition:background .18s; }
+.cst-sw::after { content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:transform .18s; }
+.cst-row[aria-checked="true"] .cst-sw { background:#7c5cff; }
+.cst-row[aria-checked="true"] .cst-sw::after { transform:translateX(16px); }
+.cst-sep { height:1px; background:rgba(255,255,255,.1); margin:8px 2px; }
+.cst-field { padding:2px 10px 8px; }
+.cst-field-label { font-size:11px; color:#9aa0a6; margin-bottom:6px; }
+.cst-seg { display:flex; gap:6px; }
+.cst-seg button { flex:1; padding:7px 0; border-radius:8px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.05); color:#c7c7cc; font:inherit; cursor:pointer; }
+.cst-seg button[aria-pressed="true"] { background:#7c5cff; border-color:#7c5cff; color:#fff; font-weight:600; }
+.cst-select { width:100%; padding:7px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.16);
+    background:rgba(255,255,255,.06); color:#fff; font:inherit; cursor:pointer; }
+.cst-select option, .cst-select optgroup { background:#1c1c20; color:#fff; }
+.cst-note-line { padding:0 10px 8px; font-size:11.5px; line-height:1.4; color:#fbbf24; }
+.cst-menu-foot { display:flex; gap:6px; }
+.cst-menu-foot button { flex:1; padding:8px 0; border-radius:8px; border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.06); color:#fff; font:inherit; font-weight:500; cursor:pointer; }
+.cst-menu-foot button:hover { background:rgba(255,255,255,.12); }
+.cst-yt-menu :focus-visible { outline:2px solid #a78bfa; outline-offset:2px; }
+@media (prefers-reduced-motion: reduce) { .cst-yt-menu *, .cst-yt-menu *::after { transition-duration:.001ms !important; } }
+`;
+
+function ytNapCssMenu() {
+    if (document.getElementById("cst-yt-menu-css")) return;
+    const st = document.createElement("style");
+    st.id = "cst-yt-menu-css";
+    st.textContent = YT_MENU_CSS;
+    (document.head || document.documentElement).appendChild(st);
+}
+
+// Tiến độ dịch của video đang xem (để biết còn chờ bao lâu, thay vì chỉ thấy "Đang dịch...")
+function ytTienDoDich() {
+    const gs = ytNhomLongTieng() || [];
+    if (!gs.length) return null;
+    return { xong: gs.filter(g => g && g.viText).length, tong: gs.length };
+}
+
+function ytMoMenuNhanh(player, btn) {
+    let menu = player.querySelector(".cst-yt-menu");
+    if (menu) {
+        // Bấm lại nút khi đang mở: đóng gọn (gỡ cả bộ lắng nghe phím Esc / bấm ra ngoài)
+        if (menu.cstDong) menu.cstDong(); else menu.remove();
+        return;
+    }
+    ytNapCssMenu();
+
+    const el = (tag, cls, txt) => {
+        const e = document.createElement(tag);
+        if (cls) e.className = cls;
+        if (txt != null) e.textContent = txt;
+        return e;
+    };
+    // Một dòng công tắc: là NÚT thật (Tab tới được, Enter/Space bấm được) và có role=switch để
+    // trình đọc màn hình đọc đúng "đang bật / đang tắt"
+    const congTac = (nhan, phim, onToggle) => {
+        const row = el("button", "cst-row");
+        row.type = "button";
+        row.setAttribute("role", "switch");
+        const label = el("span", "cst-row-label");
+        label.appendChild(document.createTextNode(nhan));
+        const sub = el("span", "cst-row-sub");
+        label.appendChild(sub);
+        row.appendChild(label);
+        if (phim) row.appendChild(el("span", "cst-kbd", phim));
+        row.appendChild(el("span", "cst-sw"));
+        row.addEventListener("click", () => { if (row.getAttribute("aria-disabled") !== "true") onToggle(row); });
+        row.cstSub = sub;
+        return row;
+    };
+
+    menu = el("div", "cst-yt-menu");
+    menu.setAttribute("role", "dialog");
+    menu.setAttribute("aria-label", "Dịch phụ đề và lồng tiếng");
+
+    const head = el("div", "cst-menu-head");
+    head.appendChild(el("span", "cst-menu-title", "Dịch & lồng tiếng Việt"));
+    const x = el("button", "cst-menu-x", "✕");
+    x.type = "button";
+    x.setAttribute("aria-label", "Đóng");
+    head.appendChild(x);
+    menu.appendChild(head);
+
+    const rowSub = congTac("Phụ đề tiếng Việt", "Alt+S", async row => {
+        if (yt.active) { ytTatDich(); capNhat(); return; }
+        row.setAttribute("aria-disabled", "true");
+        capNhat();
+        const ok = await ytBatDauDich();
+        ytDatTrangThaiNut(ok ? "on" : "idle");
+        row.removeAttribute("aria-disabled");
+        capNhat();
+    });
+    const rowDub = congTac("Lồng tiếng Việt", "Alt+D", async row => {
+        row.setAttribute("aria-disabled", "true");
+        capNhat();
+        await ytChuyenLongTieng(player);
+        row.removeAttribute("aria-disabled");
+        capNhat();
+    });
+    menu.appendChild(rowSub);
+    menu.appendChild(rowDub);
+
+    // Đổi giọng ngay tại đây: việc hay làm nhất mà trước đây phải mở trang Cài đặt
+    const voiceBox = el("div", "cst-field");
+    voiceBox.appendChild(el("div", "cst-field-label", "Giọng đọc"));
+    const voiceSel = el("select", "cst-select");
+    voiceSel.setAttribute("aria-label", "Giọng đọc tiếng Việt");
+    const LOCAL = window.CST_COST && window.CST_COST.LOCAL_TTS;
+    if (LOCAL) {
+        for (const region of ["Nam", "Bắc", "Trung"]) {
+            const ds = LOCAL.voices.filter(v => v.region === region);
+            if (!ds.length) continue;
+            const g = document.createElement("optgroup");
+            g.label = `Giọng miền ${region}`;
+            for (const v of ds) {
+                const op = document.createElement("option");
+                op.value = v.id;
+                op.textContent = `${v.id} (${v.gender.toLowerCase()}, ${v.style})`;
+                g.appendChild(op);
+            }
+            voiceSel.appendChild(g);
+        }
+    }
+    // Hiện đúng giọng đang dùng, kể cả khi lồng tiếng chưa bật (đọc từ cài đặt đã lưu)
+    if (LOCAL) {
+        voiceSel.value = LOCAL.defaultVoice;
+        chrome.storage.sync.get({ dubLocalVoice: "" }, r => {
+            if (r && r.dubLocalVoice) voiceSel.value = r.dubLocalVoice;
+        });
+    }
+    voiceSel.addEventListener("change", async () => {
+        await chrome.storage.sync.set({ dubLocalVoice: voiceSel.value });   // engine tự tạo lại giọng mới
+        ytBao(`Đang chuyển sang giọng ${voiceSel.value}…`);
+    });
+    voiceBox.appendChild(voiceSel);
+    menu.appendChild(voiceBox);
+
+    const canhBao = el("div", "cst-note-line");
+    canhBao.style.display = "none";
+    menu.appendChild(canhBao);
+
+    menu.appendChild(el("div", "cst-sep"));
+
+    const modeBox = el("div", "cst-field");
+    modeBox.appendChild(el("div", "cst-field-label", "Kiểu hiển thị phụ đề"));
+    const seg = el("div", "cst-seg");
+    const btnSingle = el("button", null, "Chỉ tiếng Việt");
+    const btnDual = el("button", null, "Song ngữ");
+    [btnSingle, btnDual].forEach(b => { b.type = "button"; seg.appendChild(b); });
+    modeBox.appendChild(seg);
+    menu.appendChild(modeBox);
+
+    const rowSkip = congTac("Bỏ qua dịch khi video đã có tiếng Việt", null, async row => {
+        ytSettings.skipSameLang = row.getAttribute("aria-checked") !== "true";
+        await chrome.storage.sync.set({ skipSameLang: ytSettings.skipSameLang });
+        capNhat();
+    });
+    menu.appendChild(rowSkip);
+
+    const foot = el("div", "cst-menu-foot");
+    const btnOptions = el("button", null, "Cài đặt");
+    btnOptions.type = "button";
+    foot.appendChild(btnOptions);
+    menu.appendChild(foot);
+
+    // ---- Trạng thái luôn đúng: vẽ lại phần chữ / công tắc mỗi 700 ms trong lúc thực đơn mở ----
+    function capNhat() {
+        const dubApi = window.CST_DUB;
+        const isDub = !!(dubApi && dubApi.dub && dubApi.dub.enabled);
+        const tienDo = ytTienDoDich();
+        rowSub.setAttribute("aria-checked", String(!!yt.active));
+        rowSub.cstSub.textContent = yt.busy ? "Đang dịch…"
+            : yt.active && tienDo ? `Đã dịch ${tienDo.xong}/${tienDo.tong} đoạn`
+                : yt.active ? "Đang bật" : "Đang tắt";
+        rowDub.setAttribute("aria-checked", String(isDub));
+        const st = dubApi && dubApi.dub ? dubApi.dub.lastStatus : null;
+        rowDub.cstSub.textContent = isDub
+            ? (st && st.voice ? `Đang đọc bằng giọng ${st.voice}` : "Đang bật")
+            : "Đang tắt";
+        rowSkip.setAttribute("aria-checked", String(!!ytSettings.skipSameLang));
+        rowSkip.cstSub.textContent = ytSettings.skipSameLang ? "Đang bật" : "Đang tắt";
+        const dual = ytSubStyle.mode === "dual" || state.dualMode;
+        btnSingle.setAttribute("aria-pressed", String(!dual));
+        btnDual.setAttribute("aria-pressed", String(dual));
+        // Giọng đọc: chỉ hiện khi dùng giọng VieNeu trên máy (giọng Gemini / hệ thống chọn trong Cài đặt)
+        const localProv = !st || st.provider === "vieneu";
+        voiceBox.style.display = localProv ? "block" : "none";
+        if (localProv && st && st.voice && voiceSel.value !== st.voice) voiceSel.value = st.voice;
+        // Cảnh báo (nếu có): giọng phải đổi sang giọng hệ thống, chạm ngân sách, Gemini lỗi
+        const lastAi = window.CST_LAST_AI_INFO || (typeof state !== "undefined" ? state.lastTranslationInfo : null);
+        let msg = "";
+        if (st && st.budgetBlocked) msg = "Đã chạm ngân sách chi phí nên ngừng tạo giọng AI.";
+        else if (st && st.fallback) msg = st.reason === "budget"
+            ? "Đã chạm ngân sách giọng AI nên đang dùng giọng hệ thống."
+            : "Giọng chính không dùng được nên đang dùng giọng hệ thống.";
+        else if (lastAi && lastAi.engine === "google_fallback") msg = `Gemini lỗi (${lastAi.fallbackReason || "không rõ"}), đang dịch tạm bằng Google. Bấm Cài đặt để kiểm tra Key.`;
+        canhBao.textContent = msg;
+        canhBao.style.display = msg ? "block" : "none";
+    }
+    capNhat();
+    const nhipCapNhat = setInterval(capNhat, 700);
+
+    btn.setAttribute("aria-expanded", "true");
+    const dongMenu = () => {
+        clearInterval(nhipCapNhat);
+        menu.remove();
+        document.removeEventListener("click", onDocClick);
+        document.removeEventListener("keydown", onKeyDown);
+        btn.setAttribute("aria-expanded", "false");
+        try { btn.focus(); } catch (e) { /* bỏ qua */ }
+    };
+    const onDocClick = e => { if (!menu.contains(e.target) && !btn.contains(e.target)) dongMenu(); };
+    // Esc đóng; Tab quanh vòng trong thực đơn (không rơi ra sau lưng trình phát YouTube)
+    const onKeyDown = e => {
+        if (e.key === "Escape") { e.stopPropagation(); dongMenu(); return; }
+        if (e.key !== "Tab" || !menu.contains(document.activeElement)) return;
+        const items = [...menu.querySelectorAll("button, select")].filter(x => x.getAttribute("aria-disabled") !== "true");
+        if (!items.length) return;
+        const dau = items[0], cuoi = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === dau) { e.preventDefault(); cuoi.focus(); }
+        else if (!e.shiftKey && document.activeElement === cuoi) { e.preventDefault(); dau.focus(); }
+    };
+    menu.cstDong = dongMenu;
+    setTimeout(() => document.addEventListener("click", onDocClick), 50);
+    document.addEventListener("keydown", onKeyDown);
+
+    x.addEventListener("click", dongMenu);
+    btnSingle.addEventListener("click", async () => {
+        ytSubStyle.mode = "single";
+        state.dualMode = false;
+        await chrome.storage.sync.set({ subStyle: ytSubStyle, dualMode: false });
+        yt.renderKey = "";
+        capNhat();
+    });
+    btnDual.addEventListener("click", async () => {
+        ytSubStyle.mode = "dual";
+        state.dualMode = true;
+        await chrome.storage.sync.set({ subStyle: ytSubStyle, dualMode: true });
+        yt.renderKey = "";
+        capNhat();
+    });
+    btnOptions.addEventListener("click", () => { dongMenu(); ytMoCaiDat(); });
+
+    player.appendChild(menu);
+    setTimeout(() => { try { rowSub.focus(); } catch (e) { /* bỏ qua */ } }, 0);
+}
+
+function ytTaoNut() {
+    // Luôn ưu tiên nút trong thanh điều khiển (giống YouTube Dubbing)
+    ytTaoNutThanhDieuKhien();
+
+    // Dọn dẹp bất kỳ icon nổi nào nếu trước đó có xuất hiện
+    const player = document.querySelector("#movie_player") || document.querySelector(".html5-video-player");
+    if (player) {
+        const floating1 = player.querySelector(".cst-yt-icon");
+        if (floating1) floating1.remove();
+        const floating2 = player.querySelector(".cst-yt-dub-icon");
+        if (floating2) floating2.remove();
+    }
+}
+
+// Nguồn cho lồng tiếng: nhóm câu đã dịch có ngữ cảnh (hoặc từ bộ nhớ đệm)
+function ytNhomLongTieng() {
+    return yt.dubGroups && yt.dubGroups.length ? yt.dubGroups : yt.groups;
+}
+
+// Mở trang Cài đặt: content script KHÔNG tự điều hướng tới chrome-extension://.../options.html
+// (trang web mở tài nguyên tiện ích bị Chrome chặn: ERR_BLOCKED_BY_CLIENT). Nhờ service
+// worker (ngữ cảnh có quyền của tiện ích) gọi chrome.runtime.openOptionsPage().
+// Thông báo nhỏ trên trình phát (content.js dựng), không chặn trang như alert()
+function ytBao(msg, opts) {
+    if (window.CST_UI && window.CST_UI.toast) return window.CST_UI.toast(msg, opts);
+    console.warn("[AI Subtitle] " + msg);
+    return null;
+}
+
+function ytMoCaiDat() {
+    try {
+        chrome.runtime.sendMessage({ action: "openOptions" }, res => {
+            const err = chrome.runtime.lastError;
+            if (err || !res || !res.ok) {
+                const why = err ? err.message : (res && res.error) || "không có phản hồi";
+                console.warn("[AI Subtitle] Không mở được trang Cài đặt:", why);
+                ytBao("Chưa mở được trang Cài đặt (" + why + "). Hãy bấm biểu tượng tiện ích trên thanh công cụ rồi chọn Cài đặt.", { warn: true });
+            }
+        });
+    } catch (e) {
+        // Tiện ích vừa được nạp lại: kết nối cũ của trang đã hết hiệu lực
+        console.warn("[AI Subtitle] Không mở được trang Cài đặt:", e.message);
+        ytBao("Tiện ích vừa được cập nhật nên trang này đang dùng kết nối cũ. Hãy tải lại trang rồi bấm lại.", { warn: true, actionLabel: "Tải lại trang", onAction: () => location.reload() });
+    }
+}
+
+async function ytChuyenLongTieng(player) {
+    const api = window.CST_DUB;
+    if (!api) return;
+
+    if (api.dub.enabled) {
+        api.stop();
+        ytDatTrangThaiNutLongTieng(false);
+        ytGhiLongTieng(false);
+        return;
+    }
+
+    // Lồng tiếng dùng chính bản dịch có ngữ cảnh, nên phải bật dịch trước
+    if (!yt.active) {
+        // Không hỏi bằng hộp thoại chặn trang: bấm lồng tiếng nghĩa là đồng ý dịch trước
+        ytBao("Đang dịch phụ đề để lồng tiếng…");
+        const ok = await ytBatDauDich();
+        ytDatTrangThaiNut(ok ? "on" : "idle");
+        if (!ok) return;
+    }
+
+    const ok = await api.start({ video: yt.videoEl, container: player, getGroups: ytNhomLongTieng });
+    ytDatTrangThaiNutLongTieng(ok);
+    if (ok) ytGhiLongTieng(true);
+}
+
+// Nhớ lựa chọn lồng tiếng (cùng khóa với ô trong popup) để video sau tự bật
+function ytGhiLongTieng(on) {
+    ytSettings.dubEnabled = !!on;
+    try { chrome.storage.sync.set({ dubEnabled: !!on }); } catch (e) { /* bỏ qua */ }
+}
+
+// ---------- Theo doi chuyen video ----------
+function ytLayMaVideo() {
+    try {
+        const u = new URL(location.href);
+        return u.searchParams.get("v") || "";
+    } catch (e) {
+        return "";
+    }
+}
+
+function ytTheoDoi() {
+    let maHienTai = ytLayMaVideo();
+
+    const kiemTra = () => {
+        if (yt.dead) return;
+        const ma = ytLayMaVideo();
+
+        if (ma === maHienTai) return;
+        maHienTai = ma;
+
+        if (yt.active || yt.busy) ytTatDich();
+        yt.currentVideoId = ma;
+        setTimeout(() => {
+            ytTaoNut();
+            ytTaoNutThanhDieuKhien();
+            ytTuDongDich();
+        }, 300);
+    };
+
+    setInterval(kiemTra, 800);
+    window.addEventListener("yt-navigate-finish", kiemTra);
+    window.addEventListener("popstate", kiemTra);
+
+    const observer = new MutationObserver(() => {
+        if (yt.dead) return;
+        if (!document.querySelector(YT_BTN)) ytTaoNutThanhDieuKhien();
+        else ytAnCuaMaKhac(document, ".cst-ytp-btn");
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    yt.btnObserver = observer;
+}
+
+// ---------- Khoi dong ----------
+// Tiện ích vừa được Tải lại / cập nhật: mã đang chạy trong tab này mất kết nối (không dịch, không
+// lồng tiếng được nữa). Tự tắt gọn: dừng giọng, bỏ lớp phụ đề và nút, trả phụ đề gốc; mã mới do
+// service worker nạp lại vào tab sẽ tiếp quản (không cần F5).
+function ytConKetNoi() {
+    try { return !!(chrome.runtime && chrome.runtime.id); } catch (e) { return false; }
+}
+function ytTuTatKhiMatKetNoi() {
+    const timer = setInterval(() => {
+        if (ytConKetNoi()) return;
+        clearInterval(timer);
+        yt.dead = true;                       // trước khi gỡ phần tử: bộ theo dõi không tạo lại nút nữa
+        try { if (yt.btnObserver) yt.btnObserver.disconnect(); } catch (e) { /* bỏ qua */ }
+        try { ytTatDich(); } catch (e) { /* bỏ qua */ }
+        try { if (window.CST_DUB) window.CST_DUB.stop(); } catch (e) { /* bỏ qua */ }
+        document.querySelectorAll(`${YT_OVERLAY}, ${YT_BTN}`).forEach(el => el.remove());
+        yt.huyDich = true;
+        console.log("[AI Subtitle] Tiện ích vừa được nạp lại: mã cũ trong tab này đã tự tắt.");
+    }, 1500);
+}
+
+async function ytKhoiDong() {
+    if (!location.hostname.includes("youtube.com")) return;
+    ytTuTatKhiMatKetNoi();
+    await ytNapCaiDatKieu();
+
+    // Lắng nghe thay đổi tùy chọn trực tiếp từ options page
+    try {
+        chrome.storage.onChanged.addListener((changes, area) => {
+            if (area === "sync") {
+                if (changes.subStyle) {
+                    ytSubStyle = ytChuanHoaKieu({ ...ytSubStyle, ...changes.subStyle.newValue });
+                    const player = document.querySelector("#movie_player") || document.querySelector(".html5-video-player");
+                    const overlay = document.querySelector(YT_OVERLAY);
+                    if (player && overlay) {
+                        ytApDungKieuPhuDe(overlay);
+                        ytCapNhatKichThuoc(player, overlay);
+                        ytCapNhatViTri(player, overlay);
+                        yt.renderKey = "";
+                    }
+                }
+                if (changes.dualMode) {
+                    state.dualMode = changes.dualMode.newValue;
+                    yt.renderKey = "";
+                }
+                if (changes.autoTranslate) ytSettings.autoTranslate = !!changes.autoTranslate.newValue;
+                if (changes.dubPrepareWait) ytSettings.prepareWait = changes.dubPrepareWait.newValue !== false;
+                if (changes.dubEnabled) {
+                    const bat = changes.dubEnabled.newValue !== false;
+                    const doi = bat !== ytSettings.dubEnabled;
+                    ytSettings.dubEnabled = bat;
+                    const api = window.CST_DUB;
+                    // Trang Cài đặt tự lưu TẤT CẢ mục mỗi lần đổi một thứ (ví dụ đổi giọng) nên
+                    // dubEnabled cũng bị báo "đổi" dù giá trị y nguyên: chỉ xử lý khi đổi thật,
+                    // không bật thêm một bộ đọc nữa (hai giọng chồng nhau)
+                    if (!doi) return;
+                    if (bat) ytTuBatLongTieng();
+                    else if (api && api.dub.enabled) { api.stop(); ytDatTrangThaiNutLongTieng(false); }
+                }
+            }
+        });
+    } catch (e) {}
+
+    ytTaoNut();
+    ytTaoNutThanhDieuKhien();
+    ytTheoDoi();
+    // Tự dịch sớm; ytTuDongDich tự chờ trình phát có danh sách phụ đề
+    setTimeout(ytTuDongDich, 400);
+    ytDonCache(); // xoa cache phien ban cu (co the chua ma giu cho bi lot)
+    console.log("Da san sang dich phu de YouTube");
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", ytKhoiDong);
+} else {
+    ytKhoiDong();
+}
