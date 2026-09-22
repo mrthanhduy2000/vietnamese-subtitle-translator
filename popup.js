@@ -58,9 +58,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     dubbingBox.addEventListener("change", () => {
+        // Ghi cài đặt là đủ: cả youtube.js lẫn content.js đều nghe storage.onChanged cho khóa này.
+        // Trước đây còn gửi thêm tin nhắn "setOptions" mà KHÔNG file nào xử lý (việc thừa).
         chrome.storage.sync.set({ dubEnabled: dubbingBox.checked });
-        // Also inform content script if active
-        notifyActiveTab({ method: "setOptions", dubEnabled: dubbingBox.checked });
     });
 
     // 5. Trạng thái THẬT của trang đang xem (dịch tới đâu, đang đọc giọng nào)
@@ -131,14 +131,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    async function notifyActiveTab(payload) {
-        try {
-            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-            if (tab && tab.id) {
-                chrome.tabs.sendMessage(tab.id, payload).catch(() => {});
-            }
-        } catch (e) {}
-    }
 
     // 6b. Chi phí ước tính hôm nay (từ service worker, chỉ lưu trên máy)
     const costEl = document.getElementById("costToday");

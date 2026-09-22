@@ -343,3 +343,17 @@ test("lịch sử phiên bản: có mục riêng trong Cài đặt, có ô tìm 
     assert.match(R("options.js"), /function veLichSu/);
     assert.doesNotMatch(R("options.js"), /historyList[^\n]*innerHTML\s*=/);
 });
+
+// BACKLOG mục 2 (đã sửa ở 1.4.4): bảng điều khiển từng gửi tin nhắn "setOptions" mà không file nào
+// xử lý. Bài này bắt mọi tin nhắn bảng điều khiển gửi cho trang phải có người nhận thật.
+test("bảng điều khiển: mọi tin nhắn gửi cho trang đều có nơi xử lý", () => {
+    const popup = R("popup.js");
+    const trang = R("content.js") + R("youtube.js");
+    const gui = [...popup.matchAll(/method:\s*"([\w-]+)"/g)].map(m => m[1]);
+    assert.ok(gui.length >= 3, "không đọc được danh sách tin nhắn của bảng điều khiển");
+    for (const m of new Set(gui)) {
+        assert.ok(trang.includes(`request.method === "${m}"`), `không ai xử lý tin nhắn "${m}"`);
+    }
+    assert.ok(!gui.includes("setOptions"), "setOptions đã bỏ: bật/tắt lồng tiếng đi qua storage.onChanged");
+    assert.doesNotMatch(popup, /notifyActiveTab/, "hàm gửi tin nhắn thừa vẫn còn");
+});

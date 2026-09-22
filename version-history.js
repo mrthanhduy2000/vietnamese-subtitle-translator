@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.4.4", luc: "01:40 23/09/2026", ten: "Bỏ tin nhắn thừa trong bảng điều khiển; tài liệu hết ghi cứng số phiên bản",
+            y: [
+                "Bảng điều khiển từng gửi cho trang một tin nhắn (setOptions) mà không file nào xử lý; bật tắt lồng tiếng vốn đã đi qua kho cài đặt nên tin nhắn đó là thừa.",
+                "Thêm bài kiểm tra: mọi tin nhắn bảng điều khiển gửi cho trang đều phải có nơi xử lý.",
+                "Tài liệu nội bộ không còn ghi cứng số phiên bản (trước ghi 1.4.0 trong khi thật là 1.4.3), nay trỏ về manifest.json."
+            ]
+        },
+        {
             v: "1.4.3", luc: "01:28 23/09/2026", ten: "Mục Lịch sử phiên bản trong Cài đặt",
             y: [
                 "Thêm mục Lịch sử phiên bản: đủ 35 bản từ bản gốc tới bản đang dùng, mỗi bản ghi rõ đã sửa gì.",

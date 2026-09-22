@@ -1,7 +1,8 @@
 # Vietnamese Subtitle Translator (Coursera + YouTube)
 
 Chrome MV3 extension: translates Coursera/YouTube subtitles into Vietnamese with Gemini, plus AI
-dubbing. **Real version is 1.4.0** (the folder name `v1.0.4` is stale, ignore it). No bundler, no
+dubbing. **`manifest.json` holds the real version** (the folder name `v1.0.4` is stale, and so is
+any version number written into a doc: never hardcode one here). No bundler, no
 dependencies, no build step: these source files *are* the extension, loaded unpacked in Chrome
 "Profile 42", id `lpknjhmnlocilmkmooomffknibghibao`. All source sits flat in the repo root. Code
 comments, UI strings and test names are Vietnamese.
