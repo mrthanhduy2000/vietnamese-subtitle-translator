@@ -11,6 +11,7 @@ const { DubEngine } = E_ENGINE;
 const { Clock, FakeVideo, FakeAudio } = require("./dub-sim.js");
 const { bgEnv, read } = require("./bg-env.js");
 
+const SYNC_MAX_LAG = 4.5;               // nguong bo cau cua engine (SYNC.maxQueueLag)
 const REQ = { action: "translateUnit", sentences: ["The model receives the image."], context: { domain: "AI" } };
 const reply = obj => ({ ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify(obj) }] } }] }) });
 const GOOGLE_OK = { ok: true, status: 200, json: async () => [[["Bản Google", "x"]], null, "en"] };
@@ -408,6 +409,62 @@ test("TTS quá thời gian chờ: không gửi lại cho cùng đoạn (máy ch�
     const all = S.provider.calls.flat();
     assert.equal(new Set(all).size, all.length, "đoạn đã quá thời gian bị gửi TTS lại");
     assert.ok(S.eng.stats.timeouts >= 1);
+});
+
+// Máy chủ giọng chậm hơn thời gian thực (tiến trình bị hạ mức ưu tiên, máy đang bận việc khác):
+// audio của câu sắp tới về khi phụ đề đã trôi qua. Trước 1.4.7 engine đứng im chờ TỪNG câu tới
+// 4,5 giây rồi mới bỏ, và vẫn tạo audio cho những câu đã bỏ -> mô phỏng trên dòng thời gian THẬT
+// của một video 11 phút: 12/61 câu được nói, có quãng im 60 giây. Nay: 30/61 câu, không im lâu.
+test("máy chủ giọng chậm hơn thời gian thực: vẫn đọc đều, nhảy tới câu còn kịp, KHÔNG tạo audio cho câu đã bỏ", async () => {
+    const groups = [];
+    // Người nói liên tục, câu nọ nối câu kia (như một bài nói thật): engine không có khoảng
+    // trống nào để bắt kịp, nên máy chủ chậm là lộ ra ngay
+    for (let i = 0; i < 20; i++) groups.push(mkGroup(`Câu số ${i + 1} nói về việc dọn dẹp lại căn phòng cho gọn gàng.`, i * 4, i * 4 + 4, "Line."));
+    const clock = new Clock(), video = new FakeVideo();
+    const audios = [];
+    const calls = [];                       // mỗi lượt TTS: các đoạn được xin + mốc hàng đợi lúc đó
+    let busyUntil = 0;
+    let eng = null;
+    const provider = {
+        id: "vieneu", label: "giả", caps: { prerender: true, live: false, free: true }, voiceLabel: "Thục Đoan",
+        voiceModel: { sylPerSec: 4.3, rateExp: 1, pauseFactor: 1.3, calibration: 1 },
+        tempo: { targetSps: 4.6, minSps: 3.9, maxTempo: 1.25, maxFloor: 1.15 },
+        naturalSps: () => 4.3,
+        audioKey: async p => "k" + p.id,
+        abort() {},
+        render(plans) {
+            calls.push({ ids: plans.map(p => p.id), mark: eng.lastSpokenStart });
+            const dur = plans.map(p => p.phrases.reduce((a, ph) => a + ph.syl, 0) / 4.3 + 0.3);
+            const gen = dur.reduce((a, b) => a + b, 0) * 900 + 250;       // tạo 1 giây lời nói mất 0,9 giây
+            const at = Math.max(clock.now(), busyUntil);                  // máy chủ chỉ 1 luồng
+            busyUntil = at + gen;
+            return new Promise(res => clock.setTimeout(() => res(plans.map((p, i) => ({
+                planId: p.id, wav: new Uint8Array(Math.round(dur[i] * 1000)), duration: dur[i], sampleRate: 24000
+            }))), at - clock.now() + gen));
+        }
+    };
+    eng = new DubEngine({
+        video, getGroups: () => groups, providers: { primary: provider },
+        now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id),
+        setTimeout: (f, ms) => clock.setTimeout(f, ms),
+        createObjectURL: b => "blob:" + b.length, revokeObjectURL() {},
+        createAudio: url => { const a = new FakeAudio(clock, { duration: Number(url.slice(5)) / 1000 }); audios.push(a); return a; }
+    }, { prefetchMax: 30 });
+    eng.start();
+    video.play();
+    for (let i = 0; i < 1600; i++) {          // 80 giây video
+        clock.advance(50, st => { video.step(st); audios.forEach(a => a.step(st)); });
+        await new Promise(r => setImmediate(r));
+    }
+    assert.ok(eng.stats.started.length >= 8, `máy chủ chậm mà chỉ đọc được ${eng.stats.started.length} câu`);
+    assert.ok((eng.stats.skipped || 0) >= 1, "phải nhảy tới câu còn kịp thay vì chờ từng câu một");
+    const wasted = calls.filter(c => c.mark != null && c.ids.every(id => {
+        const p = eng.planById.get(id);
+        return p && p.start <= c.mark;
+    }));
+    assert.equal(wasted.length, 0, "không được tạo audio cho câu đã bỏ (lấy mất lượt của câu sắp tới)");
+    const lags = eng.stats.started.map(x => x.t - x.due);
+    assert.ok(Math.max(...lags) <= SYNC_MAX_LAG, `câu đọc trễ tới ${Math.max(...lags).toFixed(1)} giây`);
 });
 
 // ================= 5. NGÂN SÁCH & THỐNG KÊ CHI PHÍ =================

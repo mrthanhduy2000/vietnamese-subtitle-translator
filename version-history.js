@@ -4,6 +4,24 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.4.7", luc: "11:46 23/09/2026", ten: "Máy chủ giọng chậm không còn làm lồng tiếng im cả quãng",
+            y: [
+                "Khi máy chủ giọng tạo không kịp (máy đang bận việc khác), engine đứng im chờ từng câu một tới 4,5 giây rồi mới bỏ, trong khi vẫn tiếp tục tạo audio cho những câu đã bỏ. Kết quả: im lặng cả quãng dài rồi bỗng đọc dồn cho kịp.",
+                "Nay engine ước lượng \"còn phải chờ bao lâu\" theo tốc độ tạo giọng ĐO ĐƯỢC, biết chắc không kịp thì nhảy tới câu mà audio còn về kịp và đọc liền mạch từ đó.",
+                "Không còn tạo audio cho câu đã trôi qua: mỗi lượt của máy chủ dành cho câu sắp đọc.",
+                "Hết audio phía trước thì chỉ xin MỘT câu ngắn mỗi lượt (thay vì gộp 4 câu), để có tiếng sớm nhất.",
+                "Máy chủ khỏe (0,23) thì mọi thứ y như cũ: 61/61 câu, không bỏ câu nào."
+            ],
+            bang: { cot: ["Mô phỏng trên dòng thời gian thật của một video 11 phút", "Trước", "Nay"], hang: [
+                ["Máy chủ khỏe (tạo 1 giây lời nói mất 0,23 giây)", "61/61 câu", "61/61 câu"],
+                ["Hơi chậm (0,45 giây)", "60/61 câu", "60/61 câu"],
+                ["Chậm (0,70 giây)", "58/61 câu", "58/61 câu"],
+                ["Chậm ngang thời gian thực (1,00 giây)", "12/61 câu", "30/61 câu"],
+                ["... câu đọc trễ quá 2 giây", "10 câu", "2 câu"],
+                ["... quãng im dài nhất", "63 giây", "không còn quãng im vì chờ audio"]
+            ] }
+        },
+        {
             v: "1.4.6", luc: "11:05 23/09/2026", ten: "Xác nhận đã khôi phục tốc độ giọng; tệp cài chịu được lỗi của macOS",
             y: [
                 "Đo lại sau khi cài lại dịch vụ: tốc độ tạo giọng về 0,23 (trước khi sửa là 1,07), mức ưu tiên tiến trình về 31 (trước là 4).",

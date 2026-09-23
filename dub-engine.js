@@ -51,6 +51,13 @@
         keepBehind: 90,           // giữ audio các câu vừa qua trong 90 giây (tua lùi ngắn phát ngay)
         keepAhead: 240,           // audio quá xa phía trước (sau khi tua lùi) cũng được giải phóng
         releaseEvery: 5000,       // kiểm tra giải phóng mỗi 5 giây (ms)         // câu chờ trong hàng quá mức này (giây): bỏ nguyên câu, không cắt giữa
+        skipAfter: 8,             // chờ audio mà biết chắc phải chờ quá bấy nhiêu giây (đã trễ +
+                                  // còn phải chờ) thì nhảy tới đoạn còn kịp. ĐO THẬT trên video
+                                  // thật: 4,5 giây làm mất thêm 2 câu khi máy chủ chỉ hơi chậm
+        skipAheadMax: 60,         // trần an toàn cho một lần nhảy tới đoạn còn kịp (giây). ĐO THẬT
+                                  // trên dòng thời gian video thật với máy chủ chậm: hạ trần này
+                                  // xuống 6 tới 14 giây làm MẤT nhiều câu hơn (14/61 so với 29/61)
+                                  // vì nhảy ngắn thì audio vẫn về muộn, lại phải nhảy tiếp
         dropLag: 4.0,             // giọng hệ thống trễ quá mức này mới bỏ phần còn lại của đoạn cũ (bớt mất lời)
         prefetchMax: 30,          // trần tạo trước audio (giây); chế độ sử dụng có thể hạ thấp hơn
         prefetchMin: 12,
@@ -725,7 +732,12 @@
                 if (idx < 0) return null;
                 const p = this.plans[idx];
                 const r = this.rendered.get(p.id);
-                if (!r) { const g = this.stats.gate || (this.stats.gate = { waiting: 0, ready: 0, stalled: 0, lastT: null }); g.noAudio = (g.noAudio || 0) + 1; g.noAudioT = Math.round(t * 100) / 100; return null; }
+                if (!r) {
+                    const g = this.stats.gate || (this.stats.gate = { waiting: 0, ready: 0, stalled: 0, lastT: null });
+                    g.noAudio = (g.noAudio || 0) + 1;
+                    g.noAudioT = Math.round(t * 100) / 100;
+                    return null;
+                }
                 // Vào giữa đoạn: vị trí trong audio = phần khung đã trôi qua x (độ dài audio / khung).
                 // Trước đây nhân với nhịp nền 1,22 -> tưởng đoạn sắp xong, bỏ luôn, im ~6 giây
                 const into = Math.max(0, t - p.start);
@@ -778,9 +790,53 @@
                     this.stats.dropped++;
                     continue;
                 }
-                return r ? { p, r, offset: 0, lag } : null;           // chưa có audio: chờ
+                if (r) return { p, r, offset: 0, lag };
+                // CHƯA CÓ AUDIO. Chờ, nhưng chỉ chờ chừng nào còn KỊP: máy chủ giọng chậm hơn
+                // thời gian thực (đo thật: mỗi giây lời nói mất >= 0,9 giây để tạo) thì audio đoạn
+                // này về lúc phụ đề đã trôi qua từ lâu. Trước đây engine đứng im tới 4,5 giây cho
+                // TỪNG câu rồi mới bỏ -> đo thật trên dòng thời gian video thật với máy chủ chậm:
+                // chỉ 12/61 câu được nói, có quãng im 60 giây. Nay nhảy thẳng tới đoạn đầu tiên mà
+                // audio còn kịp và nói liền mạch từ đó: bỏ ít câu hơn, không bao giờ im cả quãng.
+                const wait = this.waitAudio(p);
+                if (lag + wait <= SYNC.skipAfter) return null;        // còn kịp (hoặc chưa chắc hỏng): chờ
+                this.skipAhead(t, wait);
             }
             return null;
+        }
+
+        // Còn phải chờ bao lâu (giây media) mới có audio của đoạn này: thời gian một lượt TTS đo
+        // được; đoạn chưa được gửi đi còn phải chờ lượt đang chạy xong trước
+        waitAudio(p) {
+            const vr = Math.max(0.25, (this.d.video && this.d.video.playbackRate) || 1);
+            const rtf = this.renderRtf != null ? this.renderRtf : 0.5;
+            const over = 0.6;                                     // chi phí mỗi lượt gọi (mạng, khởi động)
+            const remain = job => {
+                const need = job.planIds.reduce((a, id) => a + ((this.planById.get(id) || {}).estDuration || 0), 0) * rtf + over;
+                return Math.max(0.3, need - (this.d.now() - job.t0) / 1000);
+            };
+            for (const j of this.jobs.values()) if (!j.orphan && j.planIds.indexOf(p.id) >= 0) return remain(j) * vr;
+            let busy = 0;
+            for (const j of this.jobs.values()) if (!j.orphan) busy = Math.max(busy, remain(j));
+            return (busy + (p.estDuration || 2) * rtf + over) * vr;
+        }
+
+        // Máy chủ giọng không theo kịp: bỏ qua các đoạn mà audio chắc chắn về muộn và nhảy tới
+        // đoạn đầu tiên còn kịp. Dừng trước đoạn ĐÃ CÓ audio (không phí lời đã tạo được).
+        skipAhead(t, wait) {
+            const target = t + Math.min(wait, SYNC.skipAheadMax) + 0.5;
+            const from = this.lastSpokenStart == null ? -Infinity : this.lastSpokenStart;
+            let moved = 0, mark = null;
+            for (const q of this.plans) {
+                if (q.start <= from + 1e-6) continue;
+                if (q.start >= target || this.rendered.has(q.id)) break;
+                mark = q.start;
+                moved++;
+            }
+            if (!moved) return false;
+            this.lastSpokenStart = mark;
+            this.stats.dropped += moved;
+            this.stats.skipped = (this.stats.skipped || 0) + 1;
+            return true;
         }
 
         // Đã sẵn sàng đọc tại vị trí t chưa: phụ đề quanh đó đã dịch và đoạn đọc sắp tới đã có audio.
@@ -885,7 +941,10 @@
             // Vừa bật / vừa tua (chưa nói câu nào): đoạn đã hết phụ đề sẽ không bao giờ được đọc
             // -> không tạo audio cho nó (từng làm tiếng đầu tiên chậm thêm một lượt tạo giọng)
             const fresh = this.lastSpokenStart == null;
-            const inWindow = p => p.start + p.estDuration >= t - 1 && !(fresh && p.end < t + 0.3) && p.start <= to && !this.rendered.has(p.id) && !this.pending.has(p.id) && (this.failed.get(p.id) || 0) < 2;
+            // Đoạn đã ở SAU mốc hàng đợi lời nói (đã nói / đã bỏ vì trễ) không bao giờ được đọc
+            // nữa: tạo audio cho nó là lấy mất lượt của đoạn sắp tới, đúng lúc đang thiếu nhất
+            const spoken = this.lastSpokenStart;
+            const inWindow = p => p.start + p.estDuration >= t - 1 && (spoken == null || p.start > spoken) && !(fresh && p.end < t + 0.3) && p.start <= to && !this.rendered.has(p.id) && !this.pending.has(p.id) && (this.failed.get(p.id) || 0) < 2;
             let todo = this.plans.filter(inWindow).sort((a, b) => a.start - b.start);
             if (!todo.length) return;
 
@@ -913,8 +972,13 @@
             // 3. TTS: gộp các đoạn liền nhau cùng người nói, không vượt tầm nhìn. Lượt đầu
             // sau khi bật / tua chỉ lấy một câu ngắn để có tiếng ngay (audio nhỏ về nhanh hơn).
             const warmup = this.warmup && !this.conservative;
-            const maxSyl = warmup ? SYNC.firstBatchSyl : SYNC.maxBatchSyl;
+            // ĐANG ĐÓI AUDIO (không còn gì để nói phía trước): gộp lượt lớn là tự sát, vì audio
+            // của cả lượt chỉ về khi lượt cuối cùng tạo xong. Lúc này chỉ xin MỘT đoạn ngắn để
+            // có tiếng sớm nhất, rồi lượt sau tiếp tục -> giọng đọc thưa nhưng đều, thay vì im.
+            const starving = this.lastSpokenStart != null && this.bufferedAhead(t) < 0.5;
+            const maxSyl = warmup || starving ? SYNC.firstBatchSyl : SYNC.maxBatchSyl;
             const batch = [first];
+            if (starving) { this.warmup = false; this.renderBatch(batch); return; }
             let syl = first.phrases.reduce((a, ph) => a + ph.syl, 0);
             const maxPlans = this.provider.caps.maxBatch || SYNC.maxBatchPlans;
             for (let i = this.plans.indexOf(first) + 1; i < this.plans.length && batch.length < maxPlans; i++) {
@@ -1009,7 +1073,17 @@
             try {
                 const out = await provider.render(batch, { persona: this.settings.persona, jobId });
                 const secs = (this.d.now() - job.t0) / 1000;
-                if (!job.orphan) this.renderLatency = this.renderLatency == null ? secs : this.renderLatency * 0.7 + secs * 0.3;
+                if (!job.orphan) {
+                    this.renderLatency = this.renderLatency == null ? secs : this.renderLatency * 0.7 + secs * 0.3;
+                    // Tốc độ tạo giọng = giây tạo / giây lời nói. Dự đoán "chờ bao lâu nữa" theo
+                    // đây CHÍNH XÁC hơn thời gian một lượt, vì lượt lớn và lượt nhỏ chênh nhau
+                    // nhiều lần; máy chủ khỏe ~0,23, chậm hơn thời gian thực là >= 1
+                    const audioSecs = out.reduce((a, o) => a + (o.duration || 0), 0);
+                    if (audioSecs > 0.3) {
+                        const rtf = secs / audioSecs;
+                        this.renderRtf = this.renderRtf == null ? rtf : this.renderRtf * 0.7 + rtf * 0.3;
+                    }
+                }
                 for (const o of out) {
                     const p = batch.find(x => x.id === o.planId);
                     if (!p) continue;

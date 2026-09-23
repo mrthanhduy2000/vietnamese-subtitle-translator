@@ -61,6 +61,18 @@ Knobs you will actually reach for:
   across chained segments. `continuesNext` treats gaps up to 1.5s as one continuous span.
 - **Skipping**: whole sentences only, never mid-sentence. `maxQueueLag` 4.5, `dropLag` 4.0 for the
   live provider. Gating happens in `nextSpeech`.
+- **Overload (added 1.4.7)**: when the TTS server is slower than real time, waiting for the next
+  sentence's audio is hopeless and the old code stood silent 4.5s per sentence, dropping them one
+  by one while still rendering sentences it had already given up on. Three parts now: `waitAudio(p)`
+  estimates the remaining wait from the **measured** `renderRtf` (generated seconds per second of
+  speech, EMA in `renderBatch`), `skipAhead` jumps the queue to the first sentence whose audio can
+  still arrive (`skipAfter` 8, `skipAheadMax` 60), and `schedule`'s `inWindow` refuses any plan at
+  or behind `lastSpokenStart`. Plus: with an empty buffer a request carries **one** short plan, not
+  a 4-plan batch. Simulated on a real 11-minute timeline with a server at RTF 1.0: 12/61 sentences
+  spoken before, 30/61 after; at RTF 0.23 nothing changes (61/61). The thresholds are measured, not
+  guessed: `skipAfter` 4.5 costs 2 sentences at RTF 0.7, and capping `skipAheadMax` at 6 to 14
+  seconds drops to 14/61 because short jumps land late again. See `tests/hardening.test.js`
+  "máy chủ giọng chậm hơn thời gian thực".
 - **Prefetch**: `prefetchAhead` is adaptive, roughly `(latency * 2.5 + 4) * playbackRate`, times 0.6
   if the user seeks twice in a minute, with a free-provider floor of 20 to 40s. `dubbing.js`
   `smartPrefetch` shrinks it 30% for videos over 30 minutes.
