@@ -629,3 +629,110 @@ test("phụ đề dài hơn khung: cắt lại theo bề rộng THẬT, không �
     assert.ok(/white-space:pre;/.test(csjs), "lớp phủ Coursera vẫn để trình duyệt tự ngắt dòng");
     assert.ok(/panelOpen \? 0\.5/.test(ytjs) && /panelOpen \? 0\.5/.test(csjs), "mở bản chép lời thì phụ đề phải thu hẹp");
 });
+
+// Settings offers "original track 0%" (mute it under the voice), but dubbing.js read the value
+// with `Number(x) || 0.2`, so 0% silently became 20%.
+test("a 0% original-track level stays 0%, and bad values fall back", () => {
+    const sb = dubbingEnvLocal([], () => ({}));
+    const L = sb.CST_DUB.level;
+    assert.equal(L(0, 0.2), 0);
+    assert.equal(L(0.35, 0.2), 0.35);
+    assert.equal(L(undefined, 0.2), 0.2);
+    assert.equal(L("", 1), 1);
+    assert.equal(L("abc", 1), 1);
+    assert.equal(L(3, 1), 1);
+    assert.ok(!/Number\([^)]*dubDuck[^)]*\)\s*\|\|/.test(R("dubbing.js")), "dubbing.js still reads dubDuck with ||");
+});
+
+test("the quick menu says what the voice is doing: ready ahead, slow server, skipped lines", () => {
+    const sb = dubbingEnvLocal([], () => ({}));
+    const E = sb.CST_DUB_ENGINE.DubEngine;
+    // the engine side: numbers straight from its own buffer and render-speed measurement
+    const h = E.prototype.health.call({ provider: { caps: { live: false } }, bufferedAhead: () => 12.4, renderRtf: 0.31, stats: { dropped: 0 } }, 5);
+    assert.equal(h.ahead, 12.4);
+    assert.equal(h.rtf, 0.31);
+
+    const dub = sb.CST_DUB.dub;
+    const video = { currentTime: 5, paused: false };
+    const fake = health => ({ d: { video }, health: () => health });
+    dub.enabled = true;
+    dub.lastStatus = { voice: "Ngọc Huyền" };
+
+    dub.engine = fake({ live: false, ahead: 34.2, rtf: 0.25, dropped: 0 });
+    let r = sb.CST_DUB.describeHealth();
+    assert.equal(r.text, "Giọng Ngọc Huyền · đã chuẩn bị trước 34 giây");
+    assert.equal(r.warn, false);
+
+    dub.engine = fake({ live: false, ahead: 0.2, rtf: 1.1, dropped: 3 });
+    r = sb.CST_DUB.describeHealth();
+    assert.match(r.text, /máy chủ giọng chậm \(1 giây lời mất 1,1 giây\), đã bỏ 3 câu/);
+    assert.equal(r.warn, true);
+
+    dub.engine = fake({ live: false, ahead: 0, rtf: null, dropped: 0 });
+    assert.match(sb.CST_DUB.describeHealth().text, /đang tạo giọng/);
+
+    dub.engine = fake({ live: true, ahead: 0, rtf: null, dropped: 0 });
+    assert.match(sb.CST_DUB.describeHealth().text, /đọc trực tiếp/);
+
+    dub.enabled = false;
+    assert.equal(sb.CST_DUB.describeHealth(), null);
+    dub.engine = null;
+});
+
+test("quick menu: subtitle size buttons and the two volume sliders, on both sites", async t => {
+    const dom = miniDom();
+    const sb = loadYouTube(dom);
+    t.after(() => sb.donTimers());
+    const saved = [];
+    sb.chrome.storage.sync.set = async obj => { saved.push(obj); };
+    const player = dom.doc.querySelector("#movie_player");
+    const btn = dom.doc.createElement("button");
+    player.appendChild(btn);
+    sb.ytMoMenuNhanh(player, btn);
+    const menu = player.querySelector(".cst-yt-menu");
+
+    const step = menu.querySelector(".cst-step");
+    assert.ok(step, "no subtitle size control in the menu");
+    const [minus, plus] = step.querySelectorAll("button");
+    const val = step.querySelector(".cst-step-val");
+    const before = vm.runInContext("ytSubStyle.fontSize", sb);
+    assert.equal(val.textContent, `${before}%`);
+    plus.fire("click");
+    assert.equal(vm.runInContext("ytSubStyle.fontSize", sb), before + 10);
+    assert.equal(val.textContent, `${before + 10}%`);
+    assert.ok(saved.some(o => o.subStyle && o.subStyle.fontSize === before + 10), "the new size was not stored");
+    minus.fire("click");
+    minus.fire("click");
+    assert.equal(vm.runInContext("ytSubStyle.fontSize", sb), before - 10);
+
+    const ranges = menu.querySelectorAll(".cst-range");
+    assert.equal(ranges.length, 2, "expected a voice volume and an original-track slider");
+    assert.match(menu.textContent, /Âm lượng giọng Việt/);
+    assert.match(menu.textContent, /Tiếng gốc khi đang đọc/);
+    // hidden while dubbing is off: they would do nothing
+    assert.equal(ranges[0].parent.parent.style.display, "none");
+    ranges[1].value = "0";
+    ranges[1].fire("change");
+    assert.ok(saved.some(o => o.dubDuck === 0), "0% for the original track must be stored as 0");
+
+    // Coursera builds the same controls from the same kit
+    const csjs = R("content.js");
+    assert.ok(/kit\.buildStepper\(/.test(csjs) && /kit\.buildVolumeControls\(/.test(csjs), "Coursera menu lacks the new controls");
+    assert.ok(/describeHealth\(\)/.test(csjs) && /describeHealth\(\)/.test(R("youtube.js")), "both menus must show the voice status");
+});
+
+// On Coursera a style change (font size, colour) waited for the next player resize, because the
+// render loop only re-applied the style when the box size changed.
+test("Coursera applies a subtitle style change at once, and a bilingual toggle repaints", () => {
+    const csjs = R("content.js");
+    const listener = csjs.slice(csjs.indexOf("if (changes.subStyle) {"), csjs.indexOf("if (changes.costMode)"));
+    assert.ok(/csRestyle\(\)/.test(listener), "the storage listener does not re-apply the overlay style");
+    assert.ok(/cs\.renderKey = ""/.test(listener), "a dualMode change does not force a repaint");
+    assert.ok(/function csRestyle\(\)[\s\S]{0,200}csApplyOverlayStyle\(ov\)/.test(csjs));
+});
+
+test("dubbing badge and the 'preparing' card use the product's dark card, not a bare black box", () => {
+    const d = R("dubbing.js");
+    assert.ok(!/background: rgba\(0,0,0,0\.65\)/.test(d) && !/background:rgba\(0,0,0,\.7\)/.test(d), "old black boxes still there");
+    assert.ok((d.match(/rgba\(40,38,34,\.94\)/g) || []).length >= 2, "badge and note should share the card colour");
+});

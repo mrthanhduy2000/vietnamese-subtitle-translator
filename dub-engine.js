@@ -993,6 +993,18 @@
             this.renderBatch(batch);
         }
 
+        // What the viewer should know about the voice right now, for the quick menu: how much audio
+        // is ready ahead, how fast the server makes it, how many sentences were skipped to catch up.
+        health(t) {
+            return {
+                live: !!this.provider.caps.live,
+                ahead: this.provider.caps.live ? 0 : this.bufferedAhead(t),
+                rtf: this.renderRtf == null ? null : this.renderRtf,
+                dropped: this.stats.dropped || 0,
+                errors: (this.stats.errors || 0) + (this.stats.timeouts || 0)
+            };
+        }
+
         // Số giây audio ĐÃ CÓ liên tục phía trước vị trí đang xem
         bufferedAhead(t) {
             let end = t;

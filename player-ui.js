@@ -35,6 +35,7 @@
     --cst-shadow:0 18px 46px rgba(0,0,0,.55);
     --cst-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     --cst-serif:"Newsreader","Tiempos Headline","Iowan Old Style",Charter,Georgia,serif;
+    color-scheme:dark;       /* native controls (range track, select popup) follow the theme too */
 }
 .cst-yt-menu[data-cst-theme="light"], .cst-yt-menu[data-cst-theme="auto"],
 .cst-tr-panel[data-cst-theme="light"], .cst-tr-panel[data-cst-theme="auto"] {
@@ -44,6 +45,7 @@
     --cst-accent:#D97757; --cst-accent-hover:#C56646; --cst-accent-soft:#FAF1EC;
     --cst-accent-shadow:rgba(217,119,87,.22); --cst-warn:#B4791C;
     --cst-shadow:0 18px 46px rgba(38,36,32,.28);
+    color-scheme:light;
 }
 @media (prefers-color-scheme: dark) {
     .cst-yt-menu[data-cst-theme="auto"], .cst-tr-panel[data-cst-theme="auto"] {
@@ -53,9 +55,10 @@
         --cst-accent:#D97757; --cst-accent-hover:#E08567; --cst-accent-soft:#33241F;
         --cst-accent-shadow:rgba(217,119,87,.35); --cst-warn:#E8B84B;
         --cst-shadow:0 18px 46px rgba(0,0,0,.55);
+        color-scheme:dark;
     }
 }
-.cst-yt-menu { position:absolute; bottom:58px; right:12px; width:312px; max-height:min(72%,462px); overflow-y:auto;
+.cst-yt-menu { position:absolute; bottom:58px; right:12px; width:312px; max-height:min(80%,560px); overflow-y:auto;
     background:var(--cst-bg); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
     border:1px solid var(--cst-border); border-radius:16px; padding:12px;
     box-shadow:var(--cst-shadow); color:var(--cst-text); font:13px/1.45 var(--cst-sans);
@@ -132,6 +135,24 @@
 .cst-tr-vi { font-size:13px; }
 .cst-tr-en { font-size:11.5px; color:var(--cst-text-2); }
 .cst-tr-empty { padding:14px 4px; font-size:12.5px; color:var(--cst-text-2); text-align:center; }
+/* ---- Quick controls: subtitle size stepper and volume sliders ---- */
+.cst-step { display:flex; align-items:center; gap:6px; }
+.cst-step button { flex-shrink:0; width:36px; height:30px; border-radius:8px; border:1px solid var(--cst-border);
+    background:var(--cst-soft); color:var(--cst-text); font:inherit; font-size:13px; font-weight:600; cursor:pointer;
+    transition:background-color .18s ease,border-color .18s ease; }
+.cst-step button:hover { background:var(--cst-card-hover); border-color:var(--cst-border-2); }
+.cst-step button:disabled { opacity:.4; cursor:default; }
+.cst-step-val { flex:1; text-align:center; font-size:13px; font-weight:600; font-variant-numeric:tabular-nums; }
+.cst-range-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:5px; }
+.cst-range-head .cst-field-label { margin-bottom:0; }
+.cst-range-val { font-size:11.5px; color:var(--cst-text-2); font-variant-numeric:tabular-nums; }
+.cst-range { -webkit-appearance:none; appearance:none; width:100%; height:4px; margin:6px 0; border-radius:999px; cursor:pointer;
+    background:linear-gradient(to right,var(--cst-accent) var(--cst-fill,50%),var(--cst-border-2) var(--cst-fill,50%)); }
+.cst-range::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:16px; height:16px; border-radius:50%;
+    background:#FFFFFF; border:2px solid var(--cst-accent); box-shadow:0 1px 4px rgba(0,0,0,.3); }
+.cst-range::-moz-range-thumb { width:12px; height:12px; border-radius:50%; background:#FFFFFF; border:2px solid var(--cst-accent); }
+.cst-health { display:block; margin-top:3px; font-size:11.5px; color:var(--cst-text-2); }
+.cst-health[data-warn="1"] { color:var(--cst-warn); }
 @media (max-width: 720px) { .cst-tr-panel { width:min(360px,72%); bottom:64px; } }
 @media (prefers-reduced-motion: reduce) { .cst-yt-menu *, .cst-yt-menu *::after { transition-duration:.001ms !important; } }
 `;
@@ -216,7 +237,121 @@
         }
     }
 
-    root.CST_PLAYER_UI = { MARK_SVG, BTN_ICON_SVG, BTN_ICON_URL, MENU_CSS, napCss, taoNut, datTrangThai };
+    // [-] value [+] for a number the viewer nudges often (subtitle size). get() reads the current
+    // value, set(n) stores it; the stepper clamps and redraws itself.
+    function buildStepper(doc, { label, get, set, min, max, step, format }) {
+        const box = doc.createElement("div");
+        box.className = "cst-field";
+        const head = doc.createElement("div");
+        head.className = "cst-field-label";
+        head.textContent = label;
+        box.appendChild(head);
+        const row = doc.createElement("div");
+        row.className = "cst-step";
+        const minus = doc.createElement("button");
+        const plus = doc.createElement("button");
+        const val = doc.createElement("span");
+        val.className = "cst-step-val";
+        val.setAttribute("aria-live", "polite");
+        minus.type = plus.type = "button";
+        minus.textContent = "A−";
+        plus.textContent = "A+";
+        minus.setAttribute("aria-label", `Giảm ${label.toLowerCase()}`);
+        plus.setAttribute("aria-label", `Tăng ${label.toLowerCase()}`);
+        row.appendChild(minus);
+        row.appendChild(val);
+        row.appendChild(plus);
+        box.appendChild(row);
+        const refresh = () => {
+            const n = Number(get());
+            val.textContent = format ? format(n) : String(n);
+            minus.disabled = n <= min;
+            plus.disabled = n >= max;
+        };
+        const nudge = dir => {
+            const n = Math.min(max, Math.max(min, Math.round((Number(get()) + dir * step) / step) * step));
+            Promise.resolve(set(n)).then(refresh, refresh);
+            refresh();
+        };
+        minus.addEventListener("click", () => nudge(-1));
+        plus.addEventListener("click", () => nudge(1));
+        refresh();
+        return { el: box, refresh };
+    }
+
+    // A labelled range input that stores on release and shows its value while dragging.
+    function buildSlider(doc, { label, get, set, min, max, step, format }) {
+        const box = doc.createElement("div");
+        box.className = "cst-field";
+        const head = doc.createElement("div");
+        head.className = "cst-range-head";
+        const name = doc.createElement("span");
+        name.className = "cst-field-label";
+        name.textContent = label;
+        const val = doc.createElement("span");
+        val.className = "cst-range-val";
+        head.appendChild(name);
+        head.appendChild(val);
+        const input = doc.createElement("input");
+        input.type = "range";
+        input.className = "cst-range";
+        input.min = String(min);
+        input.max = String(max);
+        input.step = String(step);
+        input.setAttribute("aria-label", label);
+        box.appendChild(head);
+        box.appendChild(input);
+        const show = n => {
+            val.textContent = format ? format(n) : String(n);
+            // the filled part of the track: drawn by us, so it matches the theme in light and dark
+            const fill = `${Math.round((n - min) / Math.max(1e-9, max - min) * 100)}%`;
+            if (input.style.setProperty) input.style.setProperty("--cst-fill", fill);
+        };
+        const refresh = () => {
+            if (doc.activeElement === input) return;          // do not yank the thumb mid-drag
+            const n = Number(get());
+            input.value = String(n);
+            show(n);
+        };
+        input.addEventListener("input", () => show(Number(input.value)));
+        input.addEventListener("change", () => set(Number(input.value)));
+        refresh();
+        return { el: box, refresh, input };
+    }
+
+    // The two volume sliders every dubbing viewer reaches for: the Vietnamese voice, and how far the
+    // original is turned down under it. Same storage keys and ranges as the Settings page;
+    // dubbing.js's storage listener applies a change while the voice is playing.
+    function buildVolumeControls(doc) {
+        const vol = { dubVolume: 1, dubDuck: 0.2 };
+        const pct = n => `${Math.round(n)}%`;
+        const store = obj => { try { return chrome.storage.sync.set(obj); } catch (e) { return null; } };
+        const box = doc.createElement("div");
+        const voice = buildSlider(doc, {
+            label: "Âm lượng giọng Việt", min: 40, max: 100, step: 5, format: pct,
+            get: () => Math.round(vol.dubVolume * 100),
+            set: n => { vol.dubVolume = n / 100; return store({ dubVolume: vol.dubVolume }); }
+        });
+        const duck = buildSlider(doc, {
+            label: "Tiếng gốc khi đang đọc", min: 0, max: 60, step: 5, format: n => (n ? pct(n) : "tắt hẳn"),
+            get: () => Math.round(vol.dubDuck * 100),
+            set: n => { vol.dubDuck = n / 100; return store({ dubDuck: vol.dubDuck }); }
+        });
+        box.appendChild(voice.el);
+        box.appendChild(duck.el);
+        const refresh = () => { voice.refresh(); duck.refresh(); };
+        try {
+            chrome.storage.sync.get({ dubVolume: 1, dubDuck: 0.2 }, r => {
+                const L = root.CST_DUB && root.CST_DUB.level;
+                vol.dubVolume = L ? L(r && r.dubVolume, 1) : Number(r && r.dubVolume) || 1;
+                vol.dubDuck = L ? L(r && r.dubDuck, 0.2) : Number(r && r.dubDuck);
+                refresh();
+            });
+        } catch (e) { /* no extension context */ }
+        return { el: box, refresh };
+    }
+
+    root.CST_PLAYER_UI = { MARK_SVG, BTN_ICON_SVG, BTN_ICON_URL, MENU_CSS, napCss, taoNut, datTrangThai, buildStepper, buildSlider, buildVolumeControls };
 })(typeof window !== "undefined" ? window : globalThis);
 
 if (typeof module !== "undefined" && module.exports) module.exports = globalThis.CST_PLAYER_UI;

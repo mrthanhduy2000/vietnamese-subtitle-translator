@@ -237,7 +237,7 @@
                 }, 0);
             },
             log: (...a) => console.warn("[Lồng tiếng]", ...a)
-        }, { duck: Number(s.dubDuck) || 0.2, volume: Number(s.dubVolume) || 1, prefetchMax: smartPrefetch(mode, opts.video) });
+        }, { duck: level(s.dubDuck, 0.2), volume: level(s.dubVolume, 1), prefetchMax: smartPrefetch(mode, opts.video) });
         dub.engine = engine;
         dub.enabled = true;
         dub.starting = false;
@@ -290,8 +290,8 @@
         chrome.storage.onChanged.addListener((changes, area) => {
             if (area !== "sync" || !dub.engine) return;
             const e = dub.engine;
-            if (changes.dubDuck) e.settings.duck = Number(changes.dubDuck.newValue) || 0.2;
-            if (changes.dubVolume) e.settings.volume = Number(changes.dubVolume.newValue) || 1;
+            if (changes.dubDuck) e.settings.duck = level(changes.dubDuck.newValue, 0.2);
+            if (changes.dubVolume) e.settings.volume = level(changes.dubVolume.newValue, 1);
             // Đổi giọng / nhà cung cấp: khởi động lại engine với cùng nguồn
             if (changes.dubProvider || changes.dubGeminiVoice || changes.dubGeminiVoice2 || changes.dubVoiceName || changes.dubTtsModel || changes.costMode || changes.dubLocalVoice || changes.dubLocalVoice2) {
                 const src = { video: e.d.video, getGroups: e.d.getGroups, container: dub.container };
@@ -339,6 +339,32 @@
         }, nhip);
     }
 
+    // A stored 0..1 level. 0 is a real choice ("mute the original"), so `Number(x) || fallback`
+    // is wrong here: it turned the Settings slider's 0% into 20%.
+    function level(x, fallback) {
+        const n = Number(x);
+        return Number.isFinite(n) && x !== null && x !== "" ? Math.min(1, Math.max(0, n)) : fallback;
+    }
+
+    // One line for the quick menu under "Lồng tiếng Việt": the voice, then what is ready or wrong.
+    function describeHealth() {
+        const e = dub.engine;
+        const st = dub.lastStatus;
+        if (!dub.enabled || !e) return null;
+        const voice = st && st.voice ? `Giọng ${st.voice}` : "Đang bật";
+        let h;
+        try { h = e.health(e.d.video.currentTime); } catch (err) { return { text: voice, warn: false }; }
+        if (h.live) return { text: `${voice} · đọc trực tiếp, không chuẩn bị trước`, warn: false };
+        const skipped = h.dropped ? `, đã bỏ ${h.dropped} câu để bắt kịp` : "";
+        if (h.rtf != null && h.rtf >= 0.8) {
+            return { text: `${voice} · máy chủ giọng chậm (1 giây lời mất ${h.rtf.toFixed(1).replace(".", ",")} giây)${skipped}`, warn: true };
+        }
+        if (h.ahead >= 1) return { text: `${voice} · đã chuẩn bị trước ${Math.round(h.ahead)} giây${skipped}`, warn: !!h.dropped };
+        const v = e.d.video;
+        if (v && !v.paused) return { text: `${voice} · đang tạo giọng…${skipped}`, warn: !!h.dropped };
+        return { text: voice, warn: false };
+    }
+
     // ---------- Nhãn trạng thái trên video ----------
     function showDubBadge(container) {
         if (!container) return;
@@ -347,12 +373,12 @@
             badge = document.createElement("div");
             badge.className = "cst-dub-badge";
             badge.style.cssText = `
-                position: absolute; top: 18px; left: 16px;
-                padding: 4px 10px; border-radius: 4px;
-                background: rgba(0,0,0,0.65); color: #fff;
-                font-size: 12px; font-family: sans-serif;
-                letter-spacing: 0.2px; z-index: 2147483000;
-                pointer-events: none; max-width: 60%;
+                position: absolute; top: 16px; left: 16px;
+                padding: 6px 11px; border-radius: 999px;
+                background: rgba(40,38,34,.94); color: #ECE8E1;
+                border: 1px solid #3A3732; box-shadow: 0 8px 24px rgba(0,0,0,.4);
+                font: 500 12px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+                z-index: 2147483000; pointer-events: none; max-width: 60%;
             `;
             container.appendChild(badge);
         }
@@ -373,6 +399,7 @@
         if (badge.textContent === text && badge.dataset.warn === String(warn)) return;
         badge.textContent = text;
         badge.dataset.warn = String(warn);
+        badge.style.borderColor = warn ? "rgba(232,184,75,.55)" : "#3A3732";   // same warning edge as the toast
         badge.style.transition = "opacity .6s";
         badge.style.opacity = "1";
         clearTimeout(badgeTimer);
@@ -406,7 +433,11 @@
         const note = document.createElement("div");
         note.className = "cst-prepare-note";
         note.textContent = "Đang chuẩn bị phụ đề và giọng Việt…";
-        note.style.cssText = "position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:8px 14px;border-radius:6px;background:rgba(0,0,0,.7);color:#fff;font:13px sans-serif;z-index:2147483000;pointer-events:none";
+        // Same card as the toast and the quick menu: the product's dark surface, not a bare black box
+        note.style.cssText = "position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:10px 16px;" +
+            "border-radius:12px;background:rgba(40,38,34,.94);color:#ECE8E1;border:1px solid #3A3732;" +
+            "box-shadow:0 18px 46px rgba(0,0,0,.5);font:500 13px/1.4 -apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;" +
+            "z-index:2147483000;pointer-events:none";
         const box = opts.container || video.parentElement;
         try { box && box.appendChild(note); } catch (e) { /* bỏ qua */ }
         const iv = setInterval(() => { if (ready() || performance.now() - t0 >= maxMs) end(true); }, 100);
@@ -432,5 +463,5 @@
         document.querySelectorAll(".cst-dub-badge").forEach(b => b.remove());
     }
 
-    window.CST_DUB = { dub, start, stop, forgetVideoAudio, pickVietnameseVoice, showDubBadge, hideDubBadge, readSettings, prepareHold, hold };
+    window.CST_DUB = { dub, start, stop, describeHealth, level, forgetVideoAudio, pickVietnameseVoice, showDubBadge, hideDubBadge, readSettings, prepareHold, hold };
 })();

@@ -1491,6 +1491,9 @@ function ytMoMenuNhanh(player, btn) {
     voiceBox.appendChild(voiceSel);
     menu.appendChild(voiceBox);
 
+    const volume = CST_UI_KIT().buildVolumeControls(document);
+    menu.appendChild(volume.el);
+
     const canhBao = el("div", "cst-note-line");
     canhBao.style.display = "none";
     menu.appendChild(canhBao);
@@ -1505,6 +1508,14 @@ function ytMoMenuNhanh(player, btn) {
     [btnSingle, btnDual].forEach(b => { b.type = "button"; seg.appendChild(b); });
     modeBox.appendChild(seg);
     menu.appendChild(modeBox);
+
+    const size = CST_UI_KIT().buildStepper(document, {
+        label: "Cỡ chữ phụ đề", min: 50, max: 250, step: 10,
+        get: () => ytChuanHoaKieu(ytSubStyle).fontSize,
+        set: n => { ytSubStyle = ytChuanHoaKieu({ ...ytSubStyle, fontSize: n }); return chrome.storage.sync.set({ subStyle: ytSubStyle }); },
+        format: n => `${n}%`
+    });
+    menu.appendChild(size.el);
 
     const rowSkip = congTac("Bỏ qua dịch khi video đã có tiếng Việt", null, async row => {
         ytSettings.skipSameLang = row.getAttribute("aria-checked") !== "true";
@@ -1541,9 +1552,12 @@ function ytMoMenuNhanh(player, btn) {
         rowSub.cstSub.style.color = yt.active && nguon && nguon.canhBao ? "var(--cst-warn)" : "";
         rowDub.setAttribute("aria-checked", String(isDub));
         const st = dubApi && dubApi.dub ? dubApi.dub.lastStatus : null;
-        rowDub.cstSub.textContent = isDub
-            ? (st && st.voice ? `Đang đọc bằng giọng ${st.voice}` : "Đang bật")
-            : "Đang tắt";
+        const suc = isDub && dubApi.describeHealth ? dubApi.describeHealth() : null;
+        rowDub.cstSub.textContent = isDub ? (suc ? suc.text : "Đang bật") : "Đang tắt";
+        rowDub.cstSub.style.color = suc && suc.warn ? "var(--cst-warn)" : "";
+        volume.el.style.display = isDub ? "block" : "none";
+        volume.refresh();
+        size.refresh();
         rowSkip.setAttribute("aria-checked", String(!!ytSettings.skipSameLang));
         rowSkip.cstSub.textContent = ytSettings.skipSameLang ? "Đang bật" : "Đang tắt";
         const dual = ytSubStyle.mode === "dual" || state.dualMode;

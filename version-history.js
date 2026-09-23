@@ -4,6 +4,23 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.5.6", luc: "19:11 23/09/2026", ten: "Chỉnh cỡ chữ và âm lượng ngay trên video, biết giọng đọc đang làm gì",
+            y: [
+                "Sửa lỗi: trong Cài đặt kéo \"Tiếng gốc khi đang đọc\" về 0% nhưng tiếng gốc vẫn còn 20%. Mã cũ coi số 0 là \"chưa chọn\" rồi thay bằng 20%. Nay 0% là tắt hẳn tiếng gốc đúng như bạn chọn.",
+                "Sửa lỗi trên Coursera: đổi cỡ chữ, màu hay viền phụ đề trong Cài đặt phải chờ tới lần đổi kích thước khung video mới thấy. Nay áp dụng ngay. Bật tắt song ngữ từ bên ngoài cũng vẽ lại liền, không chờ câu kế.",
+                "Thực đơn nhanh trên YouTube và Coursera có thêm nút chỉnh cỡ chữ phụ đề (A− / A+, mỗi lần 10%), không phải mở Cài đặt nữa.",
+                "Thêm hai thanh trượt khi đang lồng tiếng: âm lượng giọng Việt và mức tiếng gốc khi đang đọc. Đổi là nghe khác ngay, không phải tạo lại giọng.",
+                "Dòng Lồng tiếng Việt trong thực đơn nay nói giọng đang làm gì: đã chuẩn bị trước bao nhiêu giây, máy chủ giọng có đang chậm không (đo thật), và đã bỏ bao nhiêu câu để bắt kịp. Trước đây giọng im mà không biết vì sao.",
+                "Nhãn tên giọng và thẻ \"Đang chuẩn bị phụ đề và giọng Việt…\" đổi sang cùng kiểu thẻ tối với thông báo và thực đơn, không còn là hộp đen phông mặc định."
+            ],
+            bang: { cot: ["Việc", "Trước", "Nay"], hang: [
+                ["Tiếng gốc chọn 0%", "vẫn phát ở 20%", "tắt hẳn"],
+                ["Đổi cỡ chữ trên Coursera", "chờ tới khi khung video đổi cỡ", "thấy ngay"],
+                ["Chỉnh cỡ chữ, âm lượng", "phải mở trang Cài đặt", "ngay trong thực đơn trên video"],
+                ["Giọng im một lúc", "không có lời giải thích", "ghi rõ máy chủ chậm hoặc đang tạo giọng"]
+            ] }
+        },
+        {
             v: "1.5.5", luc: "17:22 23/09/2026", ten: "Sửa lỗi ngắt dòng phụ đề trên Coursera, phụ đề nhường chỗ cho bản chép lời",
             y: [
                 "Phụ đề trên Coursera bị ngắt giữa cụm từ, kiểu \"... mà bạn có thể thực / hiện,\". Nguyên nhân: phần cắt dòng cắt theo cú pháp chứ không theo bề rộng, còn lớp phủ lại để trình duyệt tự xuống dòng ở chỗ nào cũng được.",

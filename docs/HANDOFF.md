@@ -7,59 +7,49 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 
 ## Last touched
 
-2026-09-23 · lane A, plus tests in lane D · version `1.5.5`. Stage 1 of the plan the user approved
-after a feature comparison with youtube-dubbing.com (plan file:
-`~/.claude/plans/jiggly-sparking-milner.md`). Earlier today: 1.4.7 dubbing overload, 1.4.8 language
-cleanup, 1.4.9 to 1.5.2 icons and on-player identity, 1.5.3 Coursera parity.
+2026-09-23 · lanes A + B, plus `player-ui.js` and tests · version `1.5.6`. User asked for a general
+pass: "find the limitations in subtitles and text-to-audio and fix them". Earlier today: 1.4.7 to
+1.5.5 (dubbing overload, icons, Coursera parity, transcript panel, line fitting).
 
 ## What changed
 
-- **New `transcript.js`** (`CST_TRANSCRIPT`): the talk as text beside the picture, both languages,
-  the playing line highlighted and auto-scrolled (following stops the moment the reader scrolls).
-  Click a row to seek, search inside the talk, export `.srt`. `mergeLines(viCues, srcCues)` pairs the
-  two cue lists, which are cut differently, and `buildSrt` writes the file.
-- **No new data and no API call**: `ytTranscriptAdapter()` hands it `yt.viCues` + `yt.cues`,
-  `csTranscriptAdapter()` hands it `cs.viCues` + `cs.origCues`. Opened from the quick menu on both
-  sites ("Bản chép lời"), panel styling lives in `player-ui.js` so it follows the same theme.
-- **Source-track label in both quick menus** (`ytNguonPhuDe`, `csSubtitleSource`): the subtitle row
-  now says "phụ đề tác giả tải lên" or "phụ đề máy nghe tự động", the latter in the warning colour.
-  `yt.trackInfo` records which track `ytBatDauDich` settled on.
-- Geometry checked live on a Coursera lecture: panel 360x447 inside the picture, 20px clear of the
-  control bar, leaving 596 of 968px for the video.
-- **1.5.5, the line-break bug the user photographed.** Coursera drew a cue as
-  "... mà bạn có thể thực / hiện,": the segmenter breaks by syntax, not by pixels, and the Coursera
-  overlay let CSS wrap what did not fit. Measured on the page: at subtitle size 130% that sentence is
-  1085px wide against 848px of room. Fitting now lives in `subtitle-style.js` `fitLines` (canvas
-  measurement, falls back to an estimate in px), both players call it, and the Coursera overlay
-  copies the YouTube box exactly (`white-space:pre`, `width:max-content`, `max-width:92%`). With the
-  transcript panel open both overlays narrow to half width and shift left (`panelOpen`).
+- **Bug**: `dubbing.js` read `dubDuck`/`dubVolume` with `Number(x) || default`, so the Settings
+  slider's "original 0%" played at 20%. Now `CST_DUB.level()`.
+- **Bug**: Coursera ignored a subtitle style change until the player resized (`csRender` compares
+  only the box size). The storage listener now calls `csRestyle()`; a `dualMode` change repaints.
+- Both quick menus: subtitle size stepper (A−/A+, 10%), voice volume + original-level sliders
+  (shown only while dubbing), and a status line from `engine.health()` / `CST_DUB.describeHealth()`:
+  seconds ready ahead, slow server with measured RTF, lines skipped to catch up.
+- New shared builders in `player-ui.js`: `buildStepper`, `buildSlider`, `buildVolumeControls`. The
+  range track is drawn by us (`--cst-fill`): the native one ignored `color-scheme` and was black in
+  light mode (checked by rendering the menu in headless Chrome).
+- Dub badge and the "Đang chuẩn bị…" card now use the dark product card instead of a bare black box.
+- **Checked and dropped**: gap flicker between cues. Measured on a real Coursera track (201 cues,
+  199 gaps of exactly 0 s) and the real YouTube timeline (0 gaps): not a real problem, not built.
 
 ## State
 
-- `npm test`: 329 tests, 328 pass, 0 fail, 1 skip · committed by path · Reload at
-  `chrome://extensions`: **yes** (1.5.5)
-- VieNeu: healthy, RTF ~0.23, `Interactive`, LaunchAgent loaded.
+- `npm test`: 334 tests, 333 pass, 0 fail, 1 skip · committed by path · Reload at
+  `chrome://extensions`: **yes** (1.5.6)
 
 ## Unfinished / in progress
 
-- **Stages 2 to 5 of the approved plan are not started**: subtitle editing with an override store,
-  video summary (a paid Gemini call, needs the budget guard), read-aloud of selected text on any page
-  (needs `activeTab` + `scripting` permissions), and a generic site adapter with edX as the first new
-  site. The user has not named a concrete site yet.
-- Nothing from 1.5.1 to 1.5.5 has been seen running in Chrome: icons, Coursera overlay, the panel
-  and this line-break fix were all verified by tests plus live DOM probes, not by using the build.
-  The user's own subtitle size is unknown from here; the bug needs >100% to show.
-- Alt+S / Alt+D end to end and the quick-menu voice picker are still unmeasured (user deferred).
-- `docs/BACKLOG.md` has 8 open items, all needing the user's go-ahead first.
+- **Stages 2 to 5 of the approved plan are not started** (`~/.claude/plans/jiggly-sparking-milner.md`):
+  subtitle editing with an override store, video summary (paid Gemini call, budget guard),
+  read-aloud of selected text (needs `activeTab` + `scripting`), generic site adapter (edX first;
+  the user has not named a site).
+- Nothing from 1.5.1 to 1.5.6 has been seen running in the shipped build: tests, live DOM probes and
+  headless renders only. Alt+S / Alt+D end to end and the voice picker are still unmeasured.
+- `docs/BACKLOG.md` has 8 open items needing the user's go-ahead. Item 2 (`dualMode` stored twice)
+  bit again: the Coursera size stepper writes `subStyle.mode` from `state.dualMode` to avoid a flip.
 
 ## Traps hit this session
 
-- The mini DOM in `tests/ui.test.js` has no `isConnected`, so a `!panel.isConnected` guard closed the
-  panel on its first tick. Compare against `=== false` for "really removed".
-- `const` declarations inside a page script are not sandbox properties: reach them with
-  `vm.runInContext`, or feed the unit its data directly.
-- The Chrome bridge drops its tab group between calls: batch navigate + inspect in one call.
+- Control_Chrome `execute_javascript` answered "Chrome is not running" while `list_tabs` worked;
+  claude-in-chrome worked. It cannot open `file://` (it prefixes https).
+- Headless Chrome renders local previews but needs the sandbox off (ProcessSingleton socket) and
+  never exits after `--screenshot`: poll for the PNG, then `pkill -f hl-profile`.
 
 ## Suggested next step
 
-- Ask the user to reload and try the panel, then start stage 2 (editing) or whichever stage they pick.
+- Ask the user to reload and try the new menu controls, then pick the next plan stage.

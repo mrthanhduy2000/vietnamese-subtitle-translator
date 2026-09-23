@@ -77,6 +77,13 @@ Knobs you will actually reach for:
   if the user seeks twice in a minute, with a free-provider floor of 20 to 40s. `dubbing.js`
   `smartPrefetch` shrinks it 30% for videos over 30 minutes.
 - **Retention**: `keepBehind` 90s / `keepAhead` 240s in `releaseOld`, so a short rewind is free.
+- **Levels (1.5.6)**: `dubVolume` and `dubDuck` are 0..1 and read through `CST_DUB.level(x, fallback)`.
+  Never `Number(x) || fallback`: 0 is a real choice (mute the original), and that idiom turned the
+  Settings slider's 0% into 20%. Both are also set from the quick menu (`buildVolumeControls` in
+  `player-ui.js`) and applied live by the storage listener in `dubbing.js`.
+- **What the viewer sees (1.5.6)**: `engine.health(t)` returns `{ live, ahead, rtf, dropped, errors }`;
+  `CST_DUB.describeHealth()` turns it into the one line under "Lồng tiếng Việt" in both quick menus
+  (ready N seconds ahead / server slow at RTF x / N lines skipped), warning-coloured when it matters.
 - **Ducking**: voice cannot be separated from music, so the original track is ramped down
   (`duckRampPerTick` 0.09, `duckHold` 0.35) in `updateDuck`, with a guard against fighting the
   user's own volume changes.

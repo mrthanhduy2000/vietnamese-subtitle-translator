@@ -1179,6 +1179,15 @@ function csApplyOverlayStyle(ov) {
     cs.renderKey = "";
 }
 
+// A style change (Settings page, the size buttons in the quick menu) must show at once. csRender
+// only re-applies the style when the player changes size, so without this a new font size waited
+// for the next resize.
+function csRestyle() {
+    const ov = document.querySelector(CS_OVERLAY);
+    if (ov) csApplyOverlayStyle(ov);
+    cs.renderKey = "";
+}
+
 function csFindCue(list, t) {
     let lo = 0, hi = list.length - 1;
     while (lo <= hi) {
@@ -1404,6 +1413,8 @@ function csOpenMenu(btn) {
     });
     voiceBox.appendChild(voiceSel);
     menu.appendChild(voiceBox);
+    const volume = kit.buildVolumeControls(document);
+    menu.appendChild(volume.el);
 
     menu.appendChild(el("div", "cst-sep"));
     const modeBox = el("div", "cst-field");
@@ -1414,6 +1425,21 @@ function csOpenMenu(btn) {
     [btnSingle, btnDual].forEach(b => { b.type = "button"; seg.appendChild(b); });
     modeBox.appendChild(seg);
     menu.appendChild(modeBox);
+
+    const S = window.CST_STYLE;
+    const size = kit.buildStepper(document, {
+        label: "Cỡ chữ phụ đề", min: 50, max: 250, step: 10,
+        get: () => (S ? S.normalizeStyle(state.subStyle).fontSize : 90),
+        set: n => {
+            // carry the current display mode: the storage listener reads subStyle.mode back into
+            // dualMode, and a stale mode here would silently flip bilingual off (BACKLOG item 2)
+            state.subStyle = { ...(state.subStyle || {}), fontSize: n, mode: state.dualMode ? "dual" : "single" };
+            csRestyle();
+            try { return chrome.storage.sync.set({ subStyle: state.subStyle }); } catch (e) { return null; }
+        },
+        format: n => `${n}%`
+    });
+    menu.appendChild(size.el);
 
     const foot = el("div", "cst-menu-foot");
     const btnTranscript = el("button", null, "Bản chép lời");
@@ -1451,9 +1477,12 @@ function csOpenMenu(btn) {
         rowSub.cstSub.style.color = state.active && nguon && nguon.canhBao ? "var(--cst-warn)" : "";
         rowDub.setAttribute("aria-checked", String(isDub));
         const st = dubApi && dubApi.dub ? dubApi.dub.lastStatus : null;
-        rowDub.cstSub.textContent = isDub
-            ? (st && st.voice ? `Đang đọc bằng giọng ${st.voice}` : "Đang bật")
-            : "Đang tắt";
+        const suc = isDub && dubApi.describeHealth ? dubApi.describeHealth() : null;
+        rowDub.cstSub.textContent = isDub ? (suc ? suc.text : "Đang bật") : "Đang tắt";
+        rowDub.cstSub.style.color = suc && suc.warn ? "var(--cst-warn)" : "";
+        volume.el.style.display = isDub ? "block" : "none";
+        volume.refresh();
+        size.refresh();
         btnSingle.setAttribute("aria-pressed", String(!state.dualMode));
         btnDual.setAttribute("aria-pressed", String(!!state.dualMode));
         const localProv = !st || st.provider === "vieneu";
@@ -1661,9 +1690,11 @@ async function init() {
                     }
                     injectCueStyle();
                     repositionCues();
+                    csRestyle();
                 }
                 if (changes.dualMode) {
                     state.dualMode = changes.dualMode.newValue;
+                    cs.renderKey = "";            // repaint now, not at the next cue
                 }
                 if (changes.costMode) state.costMode = changes.costMode.newValue;
                 if (changes.autoTranslate) state.autoTranslate = changes.autoTranslate.newValue !== false;

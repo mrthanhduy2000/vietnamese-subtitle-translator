@@ -28,6 +28,9 @@ runs in the same world, reading `content.js`'s `state` and `CST_UI` directly (no
    The control button lives in Coursera's own control bar (`csPlayerParts` finds it by geometry,
    never by class name) and opens the same quick menu; the two circles that used to float over the
    picture are gone.
+   A style change must go through `csRestyle()` (the storage listener does): `csRender` only
+   re-applies the style when the player box changes size, so before 1.5.6 a new font size waited for
+   a resize. Both quick menus carry a subtitle-size stepper (`buildStepper` in `player-ui.js`).
 8. `disableTranslation` tears it down. `CS_GEN` tags every node this script instance created.
 
 **Transcript panel (1.5.4, both sites).** `transcript.js` (`CST_TRANSCRIPT.toggle(adapter)`) draws the
