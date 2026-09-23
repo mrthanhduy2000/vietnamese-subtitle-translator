@@ -6,38 +6,35 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-23 · lane B + tests · `1.6.1`. User asked: make Kim Thanh adapt to whether the video speaks
-fast or slow. User's setup: **voice Kim Thanh, dark theme**.
+2026-09-23 · lanes B + C · `1.6.2`. User: add an on/off for the second voice (unsure viewers want a
+second voice cutting in), keep fixing subtitles and voice. Setup: **Kim Thanh, dark theme**.
 
 ## What changed
 
-- `dub-engine.js`: `videoPace` / `planNeed` / `paceLimits` (constants in `SYNC`: paceWindow,
-  paceFloorShare, paceCeilingMax, paceCeilingPad, maxSpokenSps, lookAhead, lookAheadEarly) and a
-  look-ahead ramp in `chooseRate`. Details and numbers in `docs/DUBBING.md` §SYNC "Video pace".
-- `engine.health()` returns `pace`; `describeHealth` adds "người nói nhanh, đọc nhanh theo".
-- Two old pacing tests in `tests/hardening.test.js` encoded the fixed 1.3/1.4 ceiling; updated to
-  the new cap (pace-based, <= 1.55/1.65, <= 5.8 syl/s). Their "never ahead of the subtitle" check
-  caught the first version of the look-ahead (a sentence ended 0.96 s early), hence lookAheadEarly.
-- New test "slow voice on a fast speaker" compares with the old behaviour by toggling SYNC
-  (fast timeline: max lag 4.21 -> 1.76 s; slow timeline identical).
+- `dubSecondVoice` (default **false**): `DubEngine.oneVoice(script)` sets every speaker to S1 after
+  `buildDubScript` (also in `audioKeysForVideo`). Settings checkbox in the dubbing card hides both
+  "người nói thứ hai" pickers when off; a change restarts the engine (dubbing.js listener).
+  Existing users who had two voices now get one until they tick the box: intended, per the user.
+- Live measurement of 1.6.1 (video pace + look-ahead) on 4eY5DuqASQc, Kim Thanh: peak lag
+  1.88 -> 0.43 s, overrun 1.76 -> 0.42 s, top rate unchanged ~1.4, none dropped.
+- Looked at and kept: a chained continuation starting 0.8 s early then ending 2.8 s before its cue.
+  Chaining avoids a pause mid-sentence; the silence moving to the sentence end is the intended trade.
 
 ## State
 
-- `npm test`: 350 tests, 349 pass, 0 fail, 1 skip · Reload: **yes** (1.6.1 not yet loaded)
+- `npm test`: 351 tests, 350 pass, 0 fail, 1 skip · Reload: **yes** (1.6.2 not yet loaded)
 
 ## Unfinished / in progress
 
-- Not yet heard or measured live. Next: reload, open 4eY5DuqASQc at 8:25 with `cstDubDebug`, compare
-  `started` with the 1.6.0 live numbers (peak lag 1.88 s, rate 1.4).
-- The paceWindow median is recomputed every 2 s; a seek far ahead reads a fresh window at once
-  (plans near t), but nothing clears `this.pace` on hardReset. Harmless for now, worth a look.
+- `this.pace` is not cleared on hardReset (re-read within 2 s anyway).
 - A paraphrased leak on 4eY5DuqASQc (~8:40) still adds speech there.
-- Plan stages 3 to 5 on hold (no new features). `docs/BACKLOG.md`: 8 open items.
+- Plan stages 3 to 5 on hold (no new features beyond what the user asks). `docs/BACKLOG.md`: 8 items.
 
 ## Traps hit this session
 
-- Simulations need the sandbox off only for the VieNeu server, not for `sim-kim.js` (pure Node).
-- `ytcache4_*` was re-extracted read-only from the LevelDB log and the copy deleted afterwards.
+- A long in-page `await` loop (> 45 s) times out the claude-in-chrome call: poll in 20 s chunks.
+- Automation tabs play audio aloud in the user's Chrome; pause and close them when done, and remove
+  the `cstDubDebug` flag from youtube.com localStorage.
 
 ## Suggested next step
-- User reloads; measure live as above, with Kim Thanh.
+- User reloads and ticks/unticks the new box once to confirm the Settings wiring in the real page.

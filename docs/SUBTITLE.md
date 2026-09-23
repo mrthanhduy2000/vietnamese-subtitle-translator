@@ -127,7 +127,8 @@ UI: `uiTheme` (`auto` / `light` / `dark`), written by `theme.js`, **not** by `co
 also mirrored into `localStorage` as `cstUiTheme` so the page can paint before storage resolves.
 
 Dubbing: `dubEnabled`, `dubProvider`, `dubTtsModel`, `dubVoiceName`, `dubGeminiVoice`,
-`dubGeminiVoice2`, `dubLocalVoice`, `dubLocalVoice2`, `dubDuck`, `dubVolume`, `dubPrepareWait`,
+`dubGeminiVoice2`, `dubLocalVoice`, `dubLocalVoice2`, `dubSecondVoice` (off by default: every speaker is S1,
+see `DubEngine.oneVoice`), `dubDuck`, `dubVolume`, `dubPrepareWait`,
 `dubCondense`
 
 One-shot migration flags (do not reuse the names): `modelsVersion`, `costMigration113`,

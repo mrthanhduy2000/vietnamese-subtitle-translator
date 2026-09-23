@@ -4,6 +4,18 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.6.2", luc: "22:57 23/09/2026", ten: "Bật/tắt giọng đọc thứ hai; đo thật: giọng Kim Thanh hết trễ ở đoạn nói nhanh",
+            y: [
+                "Thêm công tắc \"Dùng giọng thứ hai cho người nói khác\" trong Cài đặt, mục Lồng tiếng. Mặc định TẮT: cả video đọc bằng một giọng, không đổi giọng giữa chừng. Bật lên thì câu của người nói thứ hai (phụ đề đánh dấu >>, gạch đầu dòng hoặc TÊN:) đọc bằng giọng thứ hai, và hai ô chọn giọng thứ hai mới hiện ra.",
+                "Đo trực tiếp bản 1.6.1 trên YouTube với giọng Kim Thanh, cùng đoạn dày chữ như lần trước: trễ tối đa từ 1,88 giây xuống 0,43 giây, nói lấn phụ đề từ 1,76 giây xuống 0,42 giây, tốc độ cao nhất giữ nguyên khoảng 1,4 lần, không bỏ câu nào."
+            ],
+            bang: { cot: ["Đo thật, đoạn dày chữ, Kim Thanh", "1.6.0", "1.6.1"], hang: [
+                ["Trễ lúc bắt đầu, câu tệ nhất", "1,88 giây", "0,43 giây"],
+                ["Nói lấn quá phụ đề, câu tệ nhất", "1,76 giây", "0,42 giây"],
+                ["Tốc độ cao nhất", "1,40 lần", "1,41 lần"]
+            ] }
+        },
+        {
             v: "1.6.1", luc: "22:43 23/09/2026", ten: "Giọng đọc tự thích ứng theo tốc độ nói của video, tăng tốc dần từ trước câu dày chữ",
             y: [
                 "Giọng đọc nay tự đo nhịp nói của video (khoảng 90 giây phía trước): mỗi câu cần đọc nhanh bao nhiêu để vừa khung phụ đề, theo tốc độ thật của giọng bạn chọn. Video nói nhanh thì giọng giữ nhịp nhanh đều cả đoạn và được nới trần tốc độ (tối đa 1,55 lần, không bao giờ quá 5,8 âm tiết mỗi giây). Video nói chậm thì không đổi gì.",

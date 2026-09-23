@@ -599,7 +599,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const testStatus = document.getElementById("testVoiceStatus");
 
     const dubSaved = await chrome.storage.sync.get({
-        dubVoiceName: "", dubDuck: 0.2, dubVolume: 1, dubProvider: "vieneu", dubPrepareWait: true,
+        dubVoiceName: "", dubDuck: 0.2, dubVolume: 1, dubProvider: "vieneu", dubPrepareWait: true, dubSecondVoice: false,
         dubGeminiVoice: "Kore", dubGeminiVoice2: "Charon", dubCondense: true, dubTtsModel: "",
         dubLocalVoice: "", dubLocalVoice2: ""
     });
@@ -665,6 +665,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     speechSynthesis.addEventListener("voiceschanged", fillVoices);
 
     if (providerSel) providerSel.value = dubSaved.dubProvider;
+    const secondVoiceBox = document.getElementById("dubSecondVoice");
+    if (secondVoiceBox) secondVoiceBox.checked = dubSaved.dubSecondVoice === true;
     const prepareWaitBox = document.getElementById("dubPrepareWait");
     if (prepareWaitBox) prepareWaitBox.checked = dubSaved.dubPrepareWait !== false;
     if (gVoiceSel) gVoiceSel.value = dubSaved.dubGeminiVoice;
@@ -796,6 +798,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             dubVolume: volSlider ? Number(volSlider.value) / 100 : 1,
             dubProvider: providerSel ? providerSel.value : "vieneu",
             dubPrepareWait: document.getElementById("dubPrepareWait") ? document.getElementById("dubPrepareWait").checked : true,
+            dubSecondVoice: document.getElementById("dubSecondVoice") ? document.getElementById("dubSecondVoice").checked : false,
             dubGeminiVoice: gVoiceSel ? gVoiceSel.value : "Kore",
             dubGeminiVoice2: gVoice2Sel ? gVoice2Sel.value : "Charon",
             dubCondense: false,   // Đàm: KHÔNG rút gọn lời thoại (mất nội dung người nói)
@@ -1064,15 +1067,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         const local = prov === "vieneu" || prov === "auto";
         const gem = prov === "gemini" || prov === "auto";
         const sys = prov === "system" || prov === "auto";
-        ["localTtsStatus", "dubLocalVoice", "dubLocalVoice2"].forEach(id => showIf(groupOf(id), local));
-        ["dubGeminiVoice", "dubGeminiVoice2", "dubTtsModel"].forEach(id => showIf(groupOf(id), gem));
+        const two = !!(document.getElementById("dubSecondVoice") || {}).checked;
+        ["localTtsStatus", "dubLocalVoice"].forEach(id => showIf(groupOf(id), local));
+        showIf(groupOf("dubLocalVoice2"), local && two);
+        ["dubGeminiVoice", "dubTtsModel"].forEach(id => showIf(groupOf(id), gem));
+        showIf(groupOf("dubGeminiVoice2"), gem && two);
         showIf(groupOf("dubVoice"), sys);
         ["geminiApiKeyInput", "geminiModelSelect", "customModelInput"].forEach(id => showIf(groupOf(id), useAi || gem));
         showIf(groupOf("geminiStrongModel"), useAi && (!costModeSel || costModeSel.value === "premium"));
         const budgetCard = document.getElementById("budgetDailyUsd");
         showIf(budgetCard && budgetCard.closest(".card"), useAi || gem);
     }
-    [providerSel, optUseAiBox, costModeSel].forEach(el => el && el.addEventListener("change", capNhatHienThi));
+    [providerSel, optUseAiBox, costModeSel, secondVoiceBox].forEach(el => el && el.addEventListener("change", capNhatHienThi));
     capNhatHienThi();
 
     // Giá trị ban đầu coi như đã lưu (tránh ghi thừa khi vừa mở trang)

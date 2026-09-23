@@ -421,7 +421,7 @@
             // Chỉ giọng MIỄN PHÍ (VieNeu) mới cắt đoạn đầu ngắn: đổi điểm cắt sau khi tua có thể phải
             // tạo lại vài đoạn; với Gemini TTS (tính tiền) giữ nguyên cách cắt để không tạo trùng
             const free = !!(this.provider && this.provider.caps && this.provider.caps.free);
-            const script = PLAN.buildDubScript(groups, { headAt: free ? this.headAt : null });
+            const script = this.oneVoice(PLAN.buildDubScript(groups, { headAt: free ? this.headAt : null }));
             const opts = { voiceModel: this.provider.voiceModel };
             const plans = PLAN.planAll(script, opts);
             // Giữ đoạn đã rút gọn / đã render (khóa theo id + nội dung)
@@ -445,6 +445,15 @@
                 }
             }
             return true;
+        }
+
+        // The second voice (a different voice when the subtitles mark another speaker with ">>",
+        // "- " or "NAME:") is optional and off by default: a voice switching mid-video surprises
+        // more than it helps when the marks are unreliable. Off = everyone is S1.
+        oneVoice(script) {
+            if (this.settings.secondVoice) return script;
+            for (const sg of script) sg.speaker = "S1";
+            return script;
         }
 
         planAt(t) {
@@ -1368,7 +1377,7 @@
             const groups = (this.d.getGroups() || []).filter(g => g && g.viText && g.viCues && g.viCues.length);
             const plans = [...this.plans];
             const heads = new Set([this.headAt, 0, null, Math.round((this.d.video && this.d.video.currentTime) || 0)]);
-            for (const h of heads) plans.push(...PLAN.planAll(PLAN.buildDubScript(groups, { headAt: h }), { voiceModel: this.provider.voiceModel }));
+            for (const h of heads) plans.push(...PLAN.planAll(this.oneVoice(PLAN.buildDubScript(groups, { headAt: h })), { voiceModel: this.provider.voiceModel }));
             const keys = new Set();
             for (const p of plans) {
                 if (p.audioKey) keys.add(p.audioKey);

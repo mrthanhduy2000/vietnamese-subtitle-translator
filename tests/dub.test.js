@@ -536,3 +536,27 @@ test("slow voice on a fast speaker: speeds up early and evenly, and a slow speak
     const slowNew = await paceRun(1.4);
     assert.ok(Math.abs(slowNew.rateMean - slowOld.rateMean) < 0.03, `slow speaker sped up: ${slowOld.rateMean.toFixed(2)} -> ${slowNew.rateMean.toFixed(2)}`);
 });
+
+// A second voice for a second speaker is optional and off by default (the user: not every viewer
+// wants a voice switching in the middle of a video).
+test("second voice: off by default reads every speaker with the main voice; on keeps S1/S2", () => {
+    const a = group("Bạn nghĩ sao về cách này?", [{ start: 0, end: 1.5, text: "What do you think about this?" }]);
+    const b = group("Tôi nghĩ nó rất hiệu quả.", [{ start: 2, end: 3.5, text: ">> I think it works really well." }]);
+    const c = group("Vậy thì thử luôn nhé.", [{ start: 4, end: 5, text: ">> Let's try it then." }]);
+    const make = settings => {
+        const clock = new Clock();
+        const prov = { id: "x", caps: { prerender: true }, voiceModel: PLAN.DEFAULT_VOICE_MODEL, render: async () => [] };
+        const eng = new DubEngine({ video: new FakeVideo(), getGroups: () => [a, b, c], providers: { primary: prov },
+            now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id) }, settings);
+        eng.refresh(true);
+        return eng.plans.map(p => p.speaker);
+    };
+    assert.deepEqual([...new Set(make({}))], ["S1"], "default must be one voice");
+    assert.deepEqual(make({ secondVoice: true }), ["S1", "S2", "S1"]);
+    const html = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "options.html"), "utf8");
+    const js = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "options.js"), "utf8");
+    const dj = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "dubbing.js"), "utf8");
+    assert.ok(html.includes('id="dubSecondVoice"'), "no switch in Settings");
+    assert.ok(/dubSecondVoice: document\.getElementById\("dubSecondVoice"\)/.test(js), "Settings does not save it");
+    assert.ok(/secondVoice: s\.dubSecondVoice === true/.test(dj) && /changes\.dubSecondVoice \|\|/.test(dj), "dubbing does not read it or react to a change");
+});

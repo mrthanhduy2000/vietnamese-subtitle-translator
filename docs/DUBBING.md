@@ -90,7 +90,8 @@ Knobs you will actually reach for:
   to `mid * 0.92` when `mid > 1`. `chooseRate` also looks `lookAhead` (3) plans ahead and starts
   climbing early, bounded so the current sentence ends at most `lookAheadEarly` (0.5 s) before its
   subtitle. Simulated with Kim Thanh on two real cached timelines: lag over 1 s 3 -> 0 and 5 -> 1,
-  a slow speaker (timeline x1.35) unchanged. Harness: `scratchpad/sim-kim.js` pattern, see
+  a slow speaker (timeline x1.35) unchanged. Measured live on 4eY5DuqASQc 8:25 to end (1.6.1, Kim Thanh):
+  peak start lag 1.88 -> 0.43 s, overrun 1.76 -> 0.42 s, top rate 1.40 -> 1.41, none dropped. Harness: `scratchpad/sim-kim.js` pattern, see
   `tests/dub.test.js` "slow voice on a fast speaker".
 - **Prefetch**: `prefetchAhead` is adaptive, roughly `(latency * 2.5 + 4) * playbackRate`, times 0.6
   if the user seeks twice in a minute, with a free-provider floor of 20 to 40s. `dubbing.js`
