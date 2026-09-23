@@ -1400,7 +1400,7 @@ function ytTaoNutThanhDieuKhien() {
             justify-content: center;
             transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
         ">
-            <span style="width:17px;height:17px;display:flex;">${CST_MARK_SVG}</span>
+            <span style="width:18px;height:18px;display:flex;align-items:center;justify-content:center;">${CST_BTN_ICON_SVG}</span>
         </div>
         <span class="cst-btn-dot" style="
             display: none;
@@ -1458,10 +1458,21 @@ function ytTaoNutThanhDieuKhien() {
 // Nguyên tắc (1.4.1): mỗi dòng là MỘT công tắc thật (bấm được, đọc được bằng trình đọc màn hình),
 // không dùng nhãn "BẬT" trông giống nút bấm mà thực ra chỉ là chữ; trạng thái tự cập nhật khi
 // đang mở; việc hay làm nhất (đổi giọng đọc) làm ngay tại đây, không phải mở trang Cài đặt.
-// The extension's own mark, the same one the popup header shows. Kept as a string so the
-// control-bar button and the menu header cannot drift apart.
-const CST_MARK_SVG = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+// The extension's own mark, the same one the popup header shows: the menu header wears it plain.
+// width/height are required. Without them the SVG has no intrinsic size, and inside the button it
+// rendered as an empty coloured square (fixed in 1.5.0).
+const CST_MARK_SVG = `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="currentColor" aria-hidden="true" focusable="false">
         <path d="M12 2C12.4 7.2 16.8 11.6 22 12C16.8 12.4 12.4 16.8 12 22C11.6 16.8 7.2 12.4 2 12C7.2 11.6 11.6 7.2 12 2Z"></path>
+    </svg>`;
+
+// The control-bar button sits at 17px on top of a moving picture, next to YouTube's own icons. The
+// bare mark reads as a blob at that size, so the button wears it inside a speech bubble: the bubble
+// says "this speaks and subtitles", the mark inside keeps it the same product as the popup.
+const CST_BTN_ICON_SVG = `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" aria-hidden="true" focusable="false">
+        <path d="M4.2 4.6h15.6c1.55 0 2.8 1.25 2.8 2.8v7.9c0 1.55-1.25 2.8-2.8 2.8h-6.6l-4.3 3.2c-.62.46-1.5.02-1.5-.75V18.1H4.2c-1.55 0-2.8-1.25-2.8-2.8V7.4c0-1.55 1.25-2.8 2.8-2.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+        <g transform="translate(12 11.35) scale(0.42) translate(-12 -12)">
+            <path d="M12 2C12.4 7.2 16.8 11.6 22 12C16.8 12.4 12.4 16.8 12 22C11.6 16.8 7.2 12.4 2 12C7.2 11.6 11.6 7.2 12 2Z" fill="currentColor"></path>
+        </g>
     </svg>`;
 
 const YT_MENU_CSS = `

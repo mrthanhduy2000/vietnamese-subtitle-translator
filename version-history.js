@@ -4,6 +4,18 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.5.0", luc: "16:00 23/09/2026", ten: "Nút trên thanh điều khiển YouTube có biểu tượng riêng, không còn ô trống",
+            y: [
+                "Bản 1.4.9 đặt biểu tượng vào nút nhưng không ghi kích thước cho hình vẽ, nên trên YouTube nút chỉ hiện một ô màu trống trơn.",
+                "Nút nay có biểu tượng riêng: bong bóng thoại lồng tia sáng của tiện ích, nhìn rõ ở cỡ 17 điểm ảnh ngay cạnh các nút sẵn có của YouTube, và vẫn cùng một nhà với bảng điều khiển.",
+                "Thêm bài kiểm tra: mọi hình vẽ trong nút phải khai báo kích thước, để lỗi ô trống không lặp lại."
+            ],
+            bang: { cot: ["Nút trên thanh điều khiển", "1.4.9", "1.5.0"], hang: [
+                ["Hình bên trong nút", "không hiện (ô màu trống)", "bong bóng thoại + tia sáng"],
+                ["Kích thước hình", "không khai báo", "lấp đầy khung 18 điểm ảnh"]
+            ] }
+        },
+        {
             v: "1.4.9", luc: "15:55 23/09/2026", ten: "Nút và thực đơn trên YouTube dùng chung một bộ nhận diện với bảng điều khiển",
             y: [
                 "Nút trên thanh điều khiển YouTube trước đây màu tím với biểu tượng loa, không giống bảng điều khiển và trang Cài đặt. Nay dùng đúng biểu tượng và màu cam đất của tiện ích.",

@@ -428,11 +428,18 @@ test("on-player button, menu and toast use the same palette as the popup", () =>
         assert.ok(menuCss.includes(t.dark), `thực đơn trên video thiếu màu ${name} của giao diện tối (${t.dark})`);
     }
     assert.ok(menuCss.includes(accent.light), "thực đơn trên video không dùng màu nhấn của bảng điều khiển");
-    // The control-bar button wears the same accent and the same mark as the popup header
+    // The control-bar button wears the same accent and an icon built from the same mark
     assert.ok(ytjs.includes("const CST_MARK_SVG"), "thiếu biểu tượng dùng chung");
     const btn = ytjs.split("function ytTaoNutThanhDieuKhien()")[1].split("\nfunction ")[0];
-    assert.ok(btn.includes("${CST_MARK_SVG}"), "nút trên thanh điều khiển không dùng biểu tượng dùng chung");
+    assert.ok(btn.includes("${CST_BTN_ICON_SVG}"), "nút trên thanh điều khiển không dùng biểu tượng của nút");
     assert.ok(btn.includes(accent.light), "nút trên thanh điều khiển không dùng màu nhấn của bảng điều khiển");
+    // An inline SVG with no width/height has no intrinsic size: inside the button that rendered as
+    // an empty coloured square. Both marks must carry their own size.
+    for (const name of ["CST_MARK_SVG", "CST_BTN_ICON_SVG"]) {
+        const svg = ytjs.split(`const ${name} = \``)[1].split("`;")[0];
+        assert.match(svg, /<svg[^>]*width="100%"[^>]*height="100%"/, `${name} thiếu kích thước nên sẽ hiện ô trống`);
+        assert.ok(/currentColor/.test(svg), `${name} phải theo màu chữ của nút`);
+    }
     // No leftovers of the old purple theme on any of the on-player surfaces
     const purple = /#7c3aed|#6366f1|#9333ea|#7c5cff|#a78bfa|#a855f7/i;
     assert.ok(!purple.test(ytjs), "youtube.js còn màu tím của giao diện cũ");
