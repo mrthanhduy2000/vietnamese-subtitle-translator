@@ -527,9 +527,10 @@ function ytChieuCaoThanhDieuKhien(player) {
 function ytCapNhatViTri(player, overlay) {
     if (!player || !overlay) return;
     // With the transcript panel open the picture is narrower: keep the subtitles inside what is left
-    if (yt.panelOpen) {
-        overlay.style.maxWidth = "min(92%, calc(100% - 452px))";
-        overlay.style.transform = "translateX(calc(-50% - 212px))";
+    const room = ytSideRoom();
+    if (room) {
+        overlay.style.maxWidth = `min(92%, calc(100% - ${room + 48}px))`;
+        overlay.style.transform = `translateX(calc(-50% - ${Math.round(room / 2)}px))`;
     } else {
         overlay.style.maxWidth = "92%";
         overlay.style.transform = "translateX(-50%)";
@@ -573,10 +574,21 @@ function ytXoaLopPhuDe() {
 // to lam mot dong vuot be rong, ngat lai bang CHINH thuat toan tieng Viet
 // voi so ky tu vua khung, thay vi de trinh duyet tu xuong dong tuy tien.
 
+// Pixels taken on the right by what we draw over the player: the transcript panel (392 + 12) or
+// the quick menu (340 + 12). The subtitle moves left of it instead of running underneath: seen
+// on a real page, the open menu hid the end of both subtitle lines.
+function ytSideRoom() {
+    return Math.max(yt.panelOpen ? 404 : 0, yt.menuOpen ? 352 : 0);
+}
+
 function ytVuaKhung(lines, text, overlay, scale) {
     const S = window.CST_STYLE;
     if (!S || !S.fitLines) return lines;
-    const rong = yt.panelOpen ? 0.5 : 0.92;        // the transcript panel takes the right half
+    const box = overlay.parentElement;
+    const room = ytSideRoom();
+    const w = (box && box.clientWidth) || 0;
+    // what the transcript panel or the quick menu leaves free on the left, as a share of the player
+    const rong = room && w ? Math.max(0.3, Math.min(0.92, (w - room - 48) / w)) : 0.92;
     return S.fitLines(lines, text, overlay, { scale, box: overlay.parentElement, widthRatio: rong });
 }
 
@@ -1633,9 +1645,17 @@ function ytMoMenuNhanh(player, btn) {
     const nhipCapNhat = setInterval(capNhat, 700);
 
     btn.setAttribute("aria-expanded", "true");
+    const nhuongCho = on => {
+        yt.menuOpen = on;
+        const ov = document.querySelector(YT_OVERLAY);
+        if (ov) ytCapNhatViTri(player, ov);
+        yt.renderKey = "";
+    };
+    nhuongCho(true);
     const dongMenu = () => {
         clearInterval(nhipCapNhat);
         menu.remove();
+        nhuongCho(false);
         document.removeEventListener("click", onDocClick);
         document.removeEventListener("keydown", onKeyDown);
         btn.setAttribute("aria-expanded", "false");

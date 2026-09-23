@@ -4,6 +4,21 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.6.0", luc: "22:30 23/09/2026", ten: "Sửa theo lần đo trên video thật: thực đơn không che phụ đề, bản chép lời tự cuộn đúng",
+            y: [
+                "Đo trực tiếp trên YouTube trong Chrome của bạn, giọng Kim Thanh, nền tối. Thực đơn mở ra che mất cuối hai dòng phụ đề. Nay phụ đề tự dịch sang trái và thu hẹp lại khi thực đơn mở, giống như khi mở bản chép lời. Áp dụng cho cả Coursera.",
+                "Bản chép lời không tự cuộn tới dòng đang phát (video ở 8:20 mà danh sách đứng ở 0:02). Hai lỗi chồng nhau: vị trí dòng tính lệch 112 điểm ảnh, và lệnh cuộn chỉ chạy một lần nên bị ngắt giữa chừng là kẹt luôn. Nay mỗi nhịp đều kiểm tra lại, xa thì nhảy thẳng, gần thì cuộn mượt.",
+                "Không tách đôi \"gần bằng\", \"gần giống\", \"xấp xỉ\" khi ngắt dòng (gặp thật: \"cũng gần / bằng với tiền thuê nhà\").",
+                "Đo giọng Kim Thanh trên đoạn dày chữ: tốc độ đọc lên tới 1,4 lần, trễ tối đa 1,9 giây rồi bắt kịp sau khoảng 10 giây, không bỏ câu nào. Kim Thanh là giọng nói chậm nhất trong 25 giọng (3,8 âm tiết mỗi giây)."
+            ],
+            bang: { cot: ["Đo trên video thật (8:25 đến hết, 13 câu, Kim Thanh)", "Kết quả"], hang: [
+                ["Câu bị bỏ", "0"],
+                ["Trễ lúc bắt đầu, đoạn thưa chữ", "tối đa 0,26 giây"],
+                ["Trễ lúc bắt đầu, đoạn dày chữ", "tối đa 1,88 giây, bắt kịp sau khoảng 10 giây"],
+                ["Tốc độ đọc cao nhất", "1,4 lần"]
+            ] }
+        },
+        {
             v: "1.5.9", luc: "22:18 23/09/2026", ten: "Đo tốc độ nói của cả 25 giọng; thực đơn, bảng chép lời và bảng điều khiển gọn gàng, dễ đọc hơn",
             y: [
                 "Đo thật tốc độ nói của cả 25 giọng VieNeu trên máy bạn. Trước đây chỉ 4 giọng có số đo, 21 giọng còn lại dùng chung con số ước 4,8 âm tiết mỗi giây, lệch tới 24% (giọng thật từ 3,8 đến 5,8). Nay bộ lồng tiếng chọn đúng nhịp ngay từ câu đầu với mọi giọng.",

@@ -253,13 +253,21 @@
             }
             if (on) now = r;
         }
-        // Follow the video, but stop following the moment the reader scrolls by hand
-        if (now && open.follow && !open.editing && now !== open.lastRow) {
-            open.lastRow = now;
-            const list = panel.querySelector(".cst-tr-list");
-            if (list && list.scrollTo) {
-                const top = (now.offsetTop || 0) - (list.clientHeight || 0) / 2 + (now.clientHeight || 0) / 2;
-                list.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+        // Follow the video, but stop following the moment the reader scrolls by hand. Checked on every
+        // tick, not only when the line changes: measured on a real page, a smooth scroll interrupted
+        // halfway (the tab went to the background) left the list stuck at the top for good.
+        // offsetTop is relative to the panel, so the list's own offset is taken off.
+        const list = panel.querySelector(".cst-tr-list");
+        if (now && open.follow && !open.editing && list && list.scrollTo) {
+            const rowTop = (now.offsetTop || 0) - (list.offsetTop || 0);
+            const rowH = now.clientHeight || 0;
+            const viewH = list.clientHeight || 0;
+            const inView = rowTop >= list.scrollTop && rowTop + rowH <= list.scrollTop + viewH;
+            if (now !== open.lastRow || !inView) {
+                open.lastRow = now;
+                const top = Math.max(0, rowTop - viewH / 2 + rowH / 2);
+                const far = Math.abs(top - (list.scrollTop || 0)) > viewH * 3;
+                list.scrollTo({ top, behavior: far ? "auto" : "smooth" });
             }
         }
     }

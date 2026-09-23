@@ -627,7 +627,7 @@ test("phụ đề dài hơn khung: cắt lại theo bề rộng THẬT, không �
     const csjs = R("content.js");
     assert.ok(/S\.fitLines\(/.test(ytjs) && /S\.fitLines\(/.test(csjs), "hai trang phải dùng chung phép cắt dòng");
     assert.ok(/white-space:pre;/.test(csjs), "lớp phủ Coursera vẫn để trình duyệt tự ngắt dòng");
-    assert.ok(/panelOpen \? 0\.5/.test(ytjs) && /panelOpen \? 0\.5/.test(csjs), "mở bản chép lời thì phụ đề phải thu hẹp");
+    assert.ok(/ytSideRoom\(\)/.test(ytjs) && /csSideRoom\(\)/.test(csjs), "mở bản chép lời thì phụ đề phải thu hẹp");
 });
 
 // Settings offers "original track 0%" (mute it under the voice), but dubbing.js read the value
@@ -779,4 +779,35 @@ test("popup shows what the page is doing: title, translation progress, voice sta
     const cs = R("content.js");
     assert.ok(/sendResponse\(\{ site, title, active: yt\.active/.test(cs) && /sendResponse\(\{ site, title, active: state\.active/.test(cs), "the page must report its title");
     assert.ok(/describeHealth\(\) : null;[\s\S]{0,200}health: health \? health\.text/.test(cs), "the page must report the voice status");
+});
+
+
+// Seen on a real YouTube page (2026-09-23): the open quick menu hid the end of both subtitle lines,
+// and the transcript list stayed at 0:02 while the video played 8:20.
+test("the open quick menu pushes the subtitle aside on both sites", () => {
+    const yt = R("youtube.js"), cs = R("content.js");
+    assert.ok(/yt\.panelOpen \? 404 : 0, yt\.menuOpen \? 352 : 0/.test(yt));
+    assert.ok(/cs\.panelOpen \? 404 : 0, cs\.menuOpen \? 352 : 0/.test(cs));
+    assert.ok(/nhuongCho\(true\);[\s\S]{0,200}const dongMenu = \(\) => \{[\s\S]{0,120}nhuongCho\(false\);/.test(yt), "YouTube menu must give the room back on close");
+    assert.ok(/nhuongCho\(true\);[\s\S]{0,200}const dong = \(\) => \{[\s\S]{0,120}nhuongCho\(false\);/.test(cs), "Coursera menu must give the room back on close");
+});
+
+test("transcript keeps following when a scroll was cut short, and measures rows from the list", async t => {
+    const dom = miniDom();
+    const sb = loadYouTube(dom);
+    t.after(() => { sb.donTimers(); sb.CST_TRANSCRIPT.close(); });
+    const player = dom.doc.querySelector("#movie_player");
+    const video = { currentTime: 30, paused: false, play: () => Promise.resolve() };
+    const vi = Array.from({ length: 40 }, (_, i) => ({ start: i * 2, end: i * 2 + 2, text: `Câu số ${i}.` }));
+    sb.CST_TRANSCRIPT.toggle({ box: () => player, videoEl: () => video, lines: () => sb.CST_TRANSCRIPT.mergeLines(vi, []), theme: () => "dark" });
+    const panel = player.querySelector(".cst-tr-panel");
+    const list = panel.querySelector(".cst-tr-list");
+    const calls = [];
+    list.offsetTop = 112; list.clientHeight = 300; list.scrollTop = 0;
+    list.scrollTo = o => { calls.push(o); /* the smooth scroll never lands: scrollTop stays 0 */ };
+    panel.querySelectorAll(".cst-tr-row").forEach((r, i) => { r.offsetTop = 112 + i * 50; r.clientHeight = 50; });
+    await new Promise(r => setTimeout(r, 400));
+    assert.ok(calls.length >= 2, `it gave up after ${calls.length} scroll call(s)`);
+    // row 15 (t = 30 s) sits 750 px into the list: centred means 750 - 150 + 25
+    assert.equal(calls[calls.length - 1].top, 625);
 });

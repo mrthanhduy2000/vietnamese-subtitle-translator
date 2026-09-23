@@ -35,8 +35,9 @@ runs in the same world, reading `content.js`'s `state` and `CST_UI` directly (no
 
 **On-player layout (1.5.9).** Both quick menus are two sections built with `kit.buildSection`
 ("Phụ đề": switch, display mode, size, skip; "Giọng đọc": switch with `describeHealth`, voice,
-volumes), then the footer. The transcript panel is 392 px wide; the overlays shift by 212 px and
-cap at `calc(100% - 452px)` while it is open. The popup's "Đang xem" card reads `title` and
+volumes), then the footer. The transcript panel is 392 px wide. `ytSideRoom` / `csSideRoom` return
+the pixels taken on the right (panel 404, open menu 352); the overlay shifts by half and caps at
+`calc(100% - room - 48px)`, and the line fitting uses the same free width. The popup's "Đang xem" card reads `title` and
 `dub.health` from `getStatus`.
 
 **Context leaks (1.5.8).** Each translation request carries neighbouring lines as context, and the

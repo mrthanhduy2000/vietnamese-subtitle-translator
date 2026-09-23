@@ -1028,7 +1028,7 @@ const CS_GEN = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 const CS_BTN = `.cst-cs-btn[data-cst-gen="${CS_GEN}"]`;
 const CS_OVERLAY = `.cst-cs-overlay[data-cst-gen="${CS_GEN}"]`;
-const cs = { viCues: [], origCues: [], renderKey: "", raf: 0, timer: 0, styleKey: "", panelOpen: false, edits: null };
+const cs = { viCues: [], origCues: [], renderKey: "", raf: 0, timer: 0, styleKey: "", panelOpen: false, menuOpen: false, edits: null };
 
 function csVideo() {
     return document.querySelector("video");
@@ -1159,6 +1159,12 @@ function csOverlay() {
     return ov;
 }
 
+// Pixels taken on the right by the transcript panel (392 + 12) or the quick menu (340 + 12); the
+// subtitle moves left of it instead of running underneath (see ytSideRoom in youtube.js).
+function csSideRoom() {
+    return Math.max(cs.panelOpen ? 404 : 0, cs.menuOpen ? 352 : 0);
+}
+
 function csApplyOverlayStyle(ov) {
     const S = window.CST_STYLE;
     if (!ov || !S) return;
@@ -1177,9 +1183,10 @@ function csApplyOverlayStyle(ov) {
     ov.style.textShadow = S.textShadow(s);
     ov.style.padding = S.backgroundColor(s) === "transparent" ? "2px 6px" : "0.18em 0.6em 0.22em";
     // With the transcript panel open the picture is narrower: keep the subtitles inside what is left
-    if (cs.panelOpen) {
-        ov.style.maxWidth = "min(92%, calc(100% - 452px))";
-        ov.style.transform = "translateX(calc(-50% - 212px))";
+    const room = csSideRoom();
+    if (room) {
+        ov.style.maxWidth = `min(92%, calc(100% - ${room + 48}px))`;
+        ov.style.transform = `translateX(calc(-50% - ${Math.round(room / 2)}px))`;
     } else {
         ov.style.maxWidth = "92%";
         ov.style.transform = "translateX(-50%)";
@@ -1232,7 +1239,10 @@ function csPaint(ov, vi, origText) {
     };
     // The segmenter cuts by syntax, not by pixels. Without this the browser wraps an over-wide line
     // wherever it likes, which is how "... mà bạn có thể thực / hiện," showed up on a real lecture.
-    const rong = cs.panelOpen ? 0.5 : 0.92;          // the transcript panel takes the right half
+    const room = csSideRoom();
+    const w = (box && box.clientWidth) || 0;
+    // what the transcript panel or the quick menu leaves free on the left, as a share of the player
+    const rong = room && w ? Math.max(0.3, Math.min(0.92, (w - room - 48) / w)) : 0.92;
     const vua = (lines, text, scale) => (S && S.fitLines
         ? S.fitLines(lines, text, ov, { scale, box, widthRatio: rong })
         : lines);
@@ -1547,9 +1557,17 @@ function csOpenMenu(btn) {
     }
     box.appendChild(menu);
     btn.setAttribute("aria-expanded", "true");
+    const nhuongCho = on => {
+        cs.menuOpen = on;
+        const ov = document.querySelector(CS_OVERLAY);
+        if (ov) csApplyOverlayStyle(ov);
+        cs.renderKey = "";
+    };
+    nhuongCho(true);
     const dong = () => {
         clearInterval(nhip);
         menu.remove();
+        nhuongCho(false);
         document.removeEventListener("click", onDocClick);
         document.removeEventListener("keydown", onKeyDown);
         btn.setAttribute("aria-expanded", "false");

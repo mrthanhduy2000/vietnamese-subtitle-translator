@@ -6,40 +6,37 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-23 · lanes A + C, `cost-policy.js` · `1.5.9`. User: keep fixing subtitles and voice, make
-the UI practical, beautiful, academic and spacious; may open and measure any video.
+2026-09-23 · lanes A + C · `1.6.0`. First live measurement in the user's Chrome after a Reload
+(1.5.9 confirmed running). User's setup: **voice Kim Thanh, dark theme**.
 
 ## What changed
 
-- All 25 VieNeu voices have a measured `sps` (method in `docs/DUBBING.md` §VieNeu). 21 used a
-  shared guess of 4.8 before, off by up to 24%. `CST_COST.voiceLabel` shows chậm/vừa/nhanh.
-- Checked and left alone: VieNeu pronounces English words (prompt, token, workflow) with an English
-  G2P, correctly. No action needed there.
-- Quick menus (both sites): two sections via `kit.buildSection`, roomier, shorter labels.
-- Transcript panel: front-matter line, hairline rows, italic serif source line, accent rule on the
-  playing row, 392 px wide (overlay shift updated in both players).
-- Popup: "Đang xem" card (title, progress bar, voice health) from `getStatus` (now sends `title`,
-  `dub.health`). Settings: duck hint says 0% mutes.
-- Renders: `scratchpad/shot.sh` + harness pages that load the real content scripts with
-  `chrome-shim.js` and call `ytMoMenuNhanh` / `CST_TRANSCRIPT.toggle` directly.
+- Open quick menu hid the subtitle's line ends: `ytSideRoom` / `csSideRoom` (panel 404, menu 352)
+  shift and narrow the overlay; `yt.menuOpen` / `cs.menuOpen` set on open and close.
+- Transcript did not follow (list stuck at 0:02 at 8:20): row offset was measured from the panel,
+  and the smooth scroll ran once. Now rechecked each tick, instant jump when far.
+- Compounds: gần bằng, gần giống, xấp xỉ, tương đương với.
+- Measured live, Kim Thanh, 8:25 to end, 13 sentences: 0 dropped; dense stretch peaks at rate 1.4 and
+  1.9 s lag, recovered in ~10 s. Server has no speed knob (turbo ignores `speed`). Her 60 to 110 ms
+  gaps between words were NOT cut: that is the closure of final stops, cutting would slur.
+- Coursera seen live: button in the control bar, track hidden, own overlay, no floating circles.
+- `docs/TESTING.md`: how to measure live (hidden tabs, `cstDubDebug`, Reload limits).
 
 ## State
 
-- `npm test`: 347 tests, 346 pass, 0 fail, 1 skip · Reload: **yes**
+- `npm test`: 349 tests, 348 pass, 0 fail, 1 skip · Reload: **yes** (1.6.0 not yet loaded)
 
 ## Unfinished / in progress
 
-- **The user's Chrome still runs an old build** (seen live on 4eY5DuqASQc: no size stepper, log lines
-  at old positions). 1.5.6 to 1.5.9 have never run there. Automation cannot reach
-  `chrome://extensions` or extension pages (claude-in-chrome prefixes https), so only the user can Reload.
-- A paraphrased context leak is not caught; 7 cues still exceed 25 cps (dense speech).
-- Plan stages 3 to 5 on hold: the user asked for no new features.
-- `docs/BACKLOG.md`: 8 open items needing the user's go-ahead.
+- Kim Thanh lags ~2 s at dense stretches; raising the rate caps is the only lever left and the user
+  once complained about rushed speech. Needs their call, not a silent tweak.
+- The remaining paraphrased leak on 4eY5DuqASQc around 8:40 adds to that lag.
+- Plan stages 3 to 5 on hold (no new features). `docs/BACKLOG.md`: 8 open items.
 
 ## Traps hit this session
 
-- A harness page must set `ytSettings.uiTheme` itself: `ytKhoiDong` exits off youtube.com.
-- `sed` edits of generated HTML with `&` and quotes fail silently; generate harnesses in Python.
+- claude-in-chrome tabs go hidden between calls; re-run `switch_to_tab` before every measurement.
+- `requestVideoFrameCallback` stops in hidden tabs, so overlay reads there are stale, not a bug.
 
 ## Suggested next step
-- After the user reloads: open 4eY5DuqASQc at 8:25 with claude-in-chrome, measure overlay and dubbing.
+- User reloads; re-check the menu over a subtitle and transcript following at 8:20 on 4eY5DuqASQc.

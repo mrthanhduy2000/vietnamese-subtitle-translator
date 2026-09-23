@@ -80,3 +80,12 @@ Two traps in `ui.test.js` that cost a session real time:
   created.
 - `const` declarations inside a `vm` script (`yt`, `state`, ...) never become properties of the
   sandbox object. Reach them with `vm.runInContext("yt.active = true", sb)`, not `sb.yt`.
+
+## Live measurement in the user's Chrome (claude-in-chrome)
+
+- A tab opened by automation is often hidden (`document.hidden`): Chrome then does not load the video
+  at all (readyState 0). Bring it to the front with Control_Chrome `switch_to_tab` first.
+- Dubbing diagnostics: set `localStorage.cstDubDebug = "1"` on youtube.com, reload; the engine writes
+  a JSON snapshot to `<html data-cst-dub>` every 500 ms (`started` has due time, start, rate, overrun).
+- `chrome://extensions` and `chrome-extension://` pages cannot be opened by the tools: only the user can Reload.
+- Prefer a cached video (`ytcache4_*`): no Gemini cost.
