@@ -49,7 +49,20 @@
     // Both players hold two lists: the Vietnamese cues we built and the source cues. A row is one
     // Vietnamese cue plus whatever source text overlaps it, so the two columns line up even though
     // the two languages are cut into different numbers of cues.
+    // The panel asks for the lines every 150 ms, but they only change when a translation lands (the
+    // players then build new arrays) or a line is edited (invalidate() bumps rev). Remember the
+    // last answer for the same arrays: on a one-hour talk that is ~1.7 ms of main thread a second.
+    let memo = null;
+    let rev = 0;
     function mergeLines(viCues, srcCues) {
+        const key = [viCues, srcCues, viCues ? viCues.length : 0, srcCues ? srcCues.length : 0, rev];
+        if (memo && memo.key.every((x, k) => x === key[k])) return memo.out;
+        const out = mergeLinesNow(viCues, srcCues);
+        memo = { key, out };
+        return out;
+    }
+
+    function mergeLinesNow(viCues, srcCues) {
         const vi = viCues || [];
         const src = (srcCues || []).slice().sort((a, b) => a.start - b.start);
         const out = [];
@@ -219,6 +232,8 @@
                 if (root.CST_UI && root.CST_UI.toast) root.CST_UI.toast("Chưa lưu được dòng này, thử lại nhé.", { warn: true });
             }
             if (!open) return;
+            rev++;                                  // the text changed under the remembered lines
+            memo = null;
             open.key = "";                          // redraw with the new text and the "đã sửa" mark
             buildRows(panel, adapter);
             if (pausedByUs && v && v.paused && v.play) v.play().catch(() => {});
@@ -235,6 +250,8 @@
 
     // Edits made elsewhere (Settings, another tab) change the text under the panel
     function invalidate() {
+        rev++;
+        memo = null;
         if (!open || open.editing) return;
         open.key = "";
         buildRows(open.panel, open.adapter);
@@ -276,7 +293,8 @@
         if (!open) return;
         clearInterval(open.timer);
         const adapter = open.adapter;
-        open.panel.remove();
+        const kit = root.CST_PLAYER_UI;
+        if (kit && kit.dismiss) kit.dismiss(open.panel); else open.panel.remove();
         open = null;
         // the subtitles get the full width back
         if (adapter && adapter.onPanel) { try { adapter.onPanel(false); } catch (e) { /* bỏ qua */ } }

@@ -452,7 +452,7 @@ function ytTaoLopPhuDe() {
         pointer-events: none;
         z-index: 60;
         opacity: 0;
-        transition: opacity 0.12s ease-out, bottom 0.18s ease-out, top 0.18s ease-out;
+        transition: opacity 0.12s ease-out, bottom 0.18s ease-out, top 0.18s ease-out, transform 0.24s cubic-bezier(.16,1,.3,1), max-width 0.24s cubic-bezier(.16,1,.3,1);
     `;
     ytApDungKieuPhuDe(overlay);
     player.appendChild(overlay);
@@ -1454,6 +1454,7 @@ function ytTienDoDich() {
 
 function ytMoMenuNhanh(player, btn) {
     let menu = player.querySelector(".cst-yt-menu");
+    if (menu && menu.dataset.cstLeaving) menu = null;             // one on its way out does not count
     if (menu) {
         // Bấm lại nút khi đang mở: đóng gọn (gỡ cả bộ lắng nghe phím Esc / bấm ra ngoài)
         if (menu.cstDong) menu.cstDong(); else menu.remove();
@@ -1654,7 +1655,7 @@ function ytMoMenuNhanh(player, btn) {
     nhuongCho(true);
     const dongMenu = () => {
         clearInterval(nhipCapNhat);
-        menu.remove();
+        if (CST_UI_KIT().dismiss) CST_UI_KIT().dismiss(menu); else menu.remove();
         nhuongCho(false);
         document.removeEventListener("click", onDocClick);
         document.removeEventListener("keydown", onKeyDown);

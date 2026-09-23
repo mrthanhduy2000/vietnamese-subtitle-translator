@@ -177,10 +177,11 @@ test("transcript panel: pencil opens an edit box, Enter saves, the video pauses 
     const box = new El("div");
     const video = { currentTime: 3, paused: false, pause() { this.paused = true; }, play() { this.paused = false; return Promise.resolve(); } };
     const viCues = [{ start: 0, end: 2, text: "Câu một." }, { start: 2, end: 4, text: "Câu hai bị dịch sai." }];
+    const NO_SOURCE = [];
     const saved = [];
     const adapter = {
         box: () => box, videoEl: () => video, title: () => "t", dual: () => false, theme: () => "dark",
-        lines: () => sb.CST_TRANSCRIPT.mergeLines(viCues, []),
+        lines: () => sb.CST_TRANSCRIPT.mergeLines(viCues, NO_SOURCE),   // same arrays each call, like the players
         saveEdit: async (line, text) => {
             saved.push({ start: line.start, text, machine: line.machine });
             E.sync({ lines: { [String(line.start * 1000)]: { text, orig: line.machine } } }, { display: viCues });

@@ -560,3 +560,61 @@ test("second voice: off by default reads every speaker with the main voice; on k
     assert.ok(/dubSecondVoice: document\.getElementById\("dubSecondVoice"\)/.test(js), "Settings does not save it");
     assert.ok(/secondVoice: s\.dubSecondVoice === true/.test(dj) && /changes\.dubSecondVoice \|\|/.test(dj), "dubbing does not read it or react to a change");
 });
+
+// 1.6.3: planning the whole video on every new translated group cost ~90 ms of main thread on a
+// 60-minute lecture (a visible stutter each time). Only a window around playback is planned now.
+function longLecture(minutes, marks) {
+    const base = lectureGroups();
+    const span = base[base.length - 1].end + 2;
+    const out = [];
+    for (let k = 0; out.length === 0 || out[out.length - 1].end < minutes * 60; k++) base.forEach((g, i) => {
+        const o = k * span;
+        const src = g.srcCues.map((c, j) => ({ ...c, start: c.start + o, end: c.end + o, text: marks && j === 0 && (k + i) % 3 === 0 ? ">> " + c.text : c.text }));
+        out.push({ ...g, start: g.start + o, end: g.end + o, srcCues: src, viCues: g.viCues.map(c => ({ ...c, start: c.start + o, end: c.end + o })) });
+    });
+    return out;
+}
+
+test("planning window: same plans as a whole-video build around playback, second voice included", () => {
+    const groups = longLecture(60, true);
+    const clock = new Clock(), video = new FakeVideo();
+    const prov = { id: "x", caps: { prerender: true }, voiceModel: PLAN.DEFAULT_VOICE_MODEL, render: async () => [] };
+    const eng = new DubEngine({ video, getGroups: () => groups, providers: { primary: prov },
+        now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id) }, { secondVoice: true });
+    video.currentTime = 1800;
+    eng.refresh(true);
+    const whole = PLAN.planAll(PLAN.buildDubScript(groups), { voiceModel: PLAN.DEFAULT_VOICE_MODEL });
+    assert.ok(eng.plans.length < whole.length / 4, `planned ${eng.plans.length} of ${whole.length}`);
+    const byId = new Map(whole.map(p => [p.id, p]));
+    // every windowed plan away from the window's far edge matches the whole-video plan exactly
+    const inner = eng.plans.filter(p => p.start > 1800 - 120 && p.start < 1800 + 300);
+    assert.ok(inner.length > 20);
+    for (const p of inner) {
+        const w = byId.get(p.id);
+        assert.ok(w, `plan ${p.id} does not exist in a whole-video build`);
+        assert.equal(p.text, w.text);
+        assert.equal(p.speaker, w.speaker, `speaker differs at ${p.start}`);
+        assert.equal(p.continuesNext, w.continuesNext);
+    }
+    assert.ok(inner.some(p => p.speaker === "S2"), "the fixture should contain a second speaker");
+});
+
+test("audio of a plan that left the window is released, not kept forever", () => {
+    const groups = longLecture(20);
+    const clock = new Clock(), video = new FakeVideo();
+    const revoked = [];
+    const prov = { id: "x", caps: { prerender: true }, voiceModel: PLAN.DEFAULT_VOICE_MODEL, audioKey: async p => p.id, render: async () => [] };
+    const eng = new DubEngine({ video, getGroups: () => groups, providers: { primary: prov }, audioCache: {},
+        now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id),
+        revokeObjectURL: u => revoked.push(u) });
+    video.currentTime = 60;
+    eng.refresh(true);
+    const early = eng.plans.slice(0, 5);
+    early.forEach(p => eng.rendered.set(p.id, { url: "blob:" + p.id, duration: 2, stretch: 1, text: p.text }));
+    video.currentTime = 900;                    // far ahead: the early plans leave the window
+    eng.refresh(true);
+    assert.ok(early.every(p => !eng.planById.has(p.id)));
+    eng.releaseOld(900);
+    assert.equal(eng.rendered.size, 0, "rendered audio of vanished plans must be freed");
+    assert.equal(revoked.length, 5);
+});

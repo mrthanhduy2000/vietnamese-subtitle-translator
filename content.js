@@ -1152,7 +1152,7 @@ function csOverlay() {
     // must not wrap them again (white-space:pre), and the box hugs the text (width:max-content).
     ov.style.cssText = "position:absolute;left:50%;transform:translateX(-50%);max-width:92%;" +
         "width:max-content;box-sizing:border-box;text-align:center;pointer-events:none;" +
-        "white-space:pre;opacity:0;z-index:60;transition:opacity .12s ease;";
+        "white-space:pre;opacity:0;z-index:60;transition:opacity .12s ease,bottom .18s ease-out,transform .24s cubic-bezier(.16,1,.3,1),max-width .24s cubic-bezier(.16,1,.3,1);";
     box.appendChild(ov);
     cs.styleKey = "";
     csApplyOverlayStyle(ov);
@@ -1376,7 +1376,8 @@ function csOpenMenu(btn) {
     const box = csPlayerBox();
     const kit = window.CST_PLAYER_UI;
     if (!box || !kit) return;
-    const open = box.querySelector(".cst-yt-menu");
+    let open = box.querySelector(".cst-yt-menu");
+    if (open && open.dataset.cstLeaving) open = null;             // one on its way out does not count
     if (open) {
         if (open.cstDong) open.cstDong(); else open.remove();
         return;
@@ -1566,7 +1567,7 @@ function csOpenMenu(btn) {
     nhuongCho(true);
     const dong = () => {
         clearInterval(nhip);
-        menu.remove();
+        if (kit.dismiss) kit.dismiss(menu); else menu.remove();
         nhuongCho(false);
         document.removeEventListener("click", onDocClick);
         document.removeEventListener("keydown", onKeyDown);

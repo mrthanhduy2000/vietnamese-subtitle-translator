@@ -108,6 +108,14 @@ Knobs you will actually reach for:
   (`duckRampPerTick` 0.09, `duckHold` 0.35) in `updateDuck`, with a guard against fighting the
   user's own volume changes.
 
+**Planning window (1.6.3).** `refresh` plans only groups overlapping
+`[step*planStep - planBehind, (step+1)*planStep + planAhead]` (60 / 150 / 300 s) plus one group past
+the edge (for `continuesNext`); the step number is in the signature, so it rebuilds at most once a
+minute while nothing new arrives. Speaker parity for the window comes from
+`PLAN.speakerStateBefore(all, first)`. Whole-video planning cost ~90 ms per new group on a 60-minute
+talk; now ~15 ms. `releaseOld` frees audio whose plan left the window (it used to skip them: a leak).
+`audioKeysForVideo` still plans the whole video, on purpose (forget-audio needs every key).
+
 `tick` is the 50ms main loop. It splits into `tickLive` (Web Speech, no buffer) and `tickBuffer`
 (prerendered timeline). A seek is detected in `tick` as `t < lastT - 0.3 || t > lastT + 2.5` and
 calls `hardReset`, which drops queued speech, renders a tiny first batch (`warmup`), and re-anchors.

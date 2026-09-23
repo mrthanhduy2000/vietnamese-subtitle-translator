@@ -83,6 +83,9 @@
         // to fit its subtitle, at this voice's measured rate. A fast stretch lifts the floor (an
         // even, brisk pace instead of slow-fast-slow) and loosens the ceiling, never beyond what a
         // fast newsreader says (maxSpokenSps). A slow video changes nothing.
+        planStep: 60,             // the planning window moves in steps of this many seconds
+        planBehind: 150,          // ... and covers this much before the current step
+        planAhead: 300,           // ... and this much after it (keepAhead 240 + prefetch fits inside)
         paceWindow: 90,
         paceEvery: 2000,          // ms between two pace readings
         paceFloorShare: 0.92,     // floor = this share of the typical need (median)
@@ -414,14 +417,32 @@
 
         // ---------------- Dựng kịch bản & kế hoạch từ bản dịch có ngữ cảnh ----------------
         refresh(force) {
-            const groups = (this.d.getGroups() || []).filter(g => g && g.viText && g.viCues && g.viCues.length);
-            const sig = groups.length + "|" + groups.map(g => g.viText.length).join(",") + "|" + (this.provider && this.provider.id) + "|" + (this.provider && this.provider.caps && this.provider.caps.free ? this.headAt : "");
+            const all = (this.d.getGroups() || []).filter(g => g && g.viText && g.viCues && g.viCues.length);
+            // Only a window around playback is planned. Measured on a 60-minute lecture: planning the
+            // whole video took ~90 ms on the page's main thread, and it ran again every time one more
+            // group finished translating, i.e. hundreds of visible stutters. The window moves in
+            // planStep steps, so a rebuild happens at most once per step while nothing new arrives.
+            const t = (this.d.video && this.d.video.currentTime) || 0;
+            const step = Math.floor(t / SYNC.planStep);
+            const from = (step * SYNC.planStep) - SYNC.planBehind;
+            const to = (step + 1) * SYNC.planStep + SYNC.planAhead;
+            const groups = [];
+            let tail = null;
+            for (const g of all) {
+                if (g.end < from) continue;
+                if (g.start > to) { if (!tail || g.start < tail.start) tail = g; continue; }
+                groups.push(g);
+            }
+            if (tail) groups.push(tail);              // one past the edge, so continuesNext stays right
+            const sig = step + "|" + groups.length + "|" + groups.map(g => g.viText.length).join(",") + "|" + (this.provider && this.provider.id) + "|" + (this.provider && this.provider.caps && this.provider.caps.free ? this.headAt : "");
             if (!force && sig === this.sourceSig) return false;
             this.sourceSig = sig;
             // Chỉ giọng MIỄN PHÍ (VieNeu) mới cắt đoạn đầu ngắn: đổi điểm cắt sau khi tua có thể phải
             // tạo lại vài đoạn; với Gemini TTS (tính tiền) giữ nguyên cách cắt để không tạo trùng
             const free = !!(this.provider && this.provider.caps && this.provider.caps.free);
-            const script = this.oneVoice(PLAN.buildDubScript(groups, { headAt: free ? this.headAt : null }));
+            const first = groups.reduce((m, g) => Math.min(m, g.start), Infinity);
+            const speakerState = this.settings.secondVoice && isFinite(first) ? PLAN.speakerStateBefore(all, first) : null;
+            const script = this.oneVoice(PLAN.buildDubScript(groups, { headAt: free ? this.headAt : null, speakerState }));
             const opts = { voiceModel: this.provider.voiceModel };
             const plans = PLAN.planAll(script, opts);
             // Giữ đoạn đã rút gọn / đã render (khóa theo id + nội dung)
@@ -813,8 +834,10 @@
             if (!this.d.audioCache || !this.provider.audioKey) return;
             for (const [id, r] of this.rendered) {
                 const p = this.planById.get(id);
-                if (!p || (this.speech && this.speech.id === id)) continue;
-                if (p.start + (r.duration / (r.stretch || 1)) < t - SYNC.keepBehind || p.start > t + SYNC.keepAhead) {
+                if (this.speech && this.speech.id === id) continue;
+                // no plan any more: outside the planning window (far from playback) or re-cut. Kept
+                // forever before, which leaked an object URL and its audio per plan that went away.
+                if (!p || p.start + (r.duration / (r.stretch || 1)) < t - SYNC.keepBehind || p.start > t + SYNC.keepAhead) {
                     if (r.el) { try { r.el.pause(); r.el.removeAttribute && r.el.removeAttribute("src"); } catch (e) { /* bỏ qua */ } }
                     if (r.url && this.d.revokeObjectURL) this.d.revokeObjectURL(r.url);
                     this.rendered.delete(id);
@@ -1399,6 +1422,7 @@
         }
 
         hardReset(reason) {
+            this.pace = null;                   // the pace of where we were says nothing about where we are
             this.silence();
             this.speech = null;                 // lời đang nói không còn đúng vị trí: bỏ
             this.lastSpokenStart = null;

@@ -184,7 +184,19 @@
 .cst-health { display:block; margin-top:3px; font-size:11.5px; color:var(--cst-text-2); }
 .cst-health[data-warn="1"] { color:var(--cst-warn); }
 @media (max-width: 720px) { .cst-tr-panel { width:min(392px,72%); bottom:64px; } }
-@media (prefers-reduced-motion: reduce) { .cst-yt-menu *, .cst-yt-menu *::after { transition-duration:.001ms !important; } }
+/* ---- Motion: short and soft, and none at all for "reduce motion" ---- */
+@keyframes cst-pop-in { from { opacity:0; transform:translateY(8px) scale(.985); } to { opacity:1; transform:none; } }
+@keyframes cst-pop-out { from { opacity:1; transform:none; } to { opacity:0; transform:translateY(6px) scale(.99); } }
+@keyframes cst-slide-in { from { opacity:0; transform:translateX(14px); } to { opacity:1; transform:none; } }
+@keyframes cst-slide-out { from { opacity:1; transform:none; } to { opacity:0; transform:translateX(10px); } }
+.cst-yt-menu { transform-origin:bottom right; animation:cst-pop-in .2s cubic-bezier(.16,1,.3,1) both; }
+.cst-yt-menu[data-cst-leaving] { animation:cst-pop-out .13s ease-in both; pointer-events:none; }
+.cst-tr-panel { animation:cst-slide-in .24s cubic-bezier(.16,1,.3,1) both; }
+.cst-tr-panel[data-cst-leaving] { animation:cst-slide-out .15s ease-in both; pointer-events:none; }
+@media (prefers-reduced-motion: reduce) {
+    .cst-yt-menu *, .cst-yt-menu *::after { transition-duration:.001ms !important; }
+    .cst-yt-menu, .cst-tr-panel, .cst-yt-menu[data-cst-leaving], .cst-tr-panel[data-cst-leaving] { animation:none !important; }
+}
 `;
 
     function napCss(doc) {
@@ -394,7 +406,19 @@
         return { el: box, refresh };
     }
 
-    root.CST_PLAYER_UI = { MARK_SVG, BTN_ICON_SVG, BTN_ICON_URL, MENU_CSS, napCss, taoNut, datTrangThai, buildStepper, buildSlider, buildVolumeControls, buildSection };
+    // Remove a menu or panel after a short exit animation. Marked data-cst-leaving at once, so a
+    // lookup for "the open menu" can skip it; removed right away where there is no animation to
+    // wait for (reduced motion, or a test harness without matchMedia).
+    function dismiss(el) {
+        if (!el || el.dataset.cstLeaving) return;
+        const w = typeof window !== "undefined" ? window : null;
+        const still = !w || !w.matchMedia || w.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (still) { el.remove(); return; }
+        el.dataset.cstLeaving = "1";
+        setTimeout(() => el.remove(), 170);
+    }
+
+    root.CST_PLAYER_UI = { MARK_SVG, BTN_ICON_SVG, BTN_ICON_URL, MENU_CSS, napCss, taoNut, datTrangThai, buildStepper, buildSlider, buildVolumeControls, buildSection, dismiss };
 })(typeof window !== "undefined" ? window : globalThis);
 
 if (typeof module !== "undefined" && module.exports) module.exports = globalThis.CST_PLAYER_UI;

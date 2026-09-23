@@ -364,10 +364,35 @@
     }
     const hasWords = t => /[\p{L}\p{N}]/u.test(String(t || "").replace(/¦/g, ""));
 
+    // Who is speaking at the start of a window: replays the speaker marks of every translated group
+    // that starts before t0 (a regex on one line per group, cheap). Lets the engine build the script
+    // for a window around playback only and still get the same S1/S2 as a whole-video build.
+    function speakerStateBefore(groups, t0) {
+        let speakerIdx = 0, count = 0;
+        const named = new Map();
+        const list = (groups || []).filter(g => g && g.viText && g.viCues && g.viCues.length && g.start < t0);
+        list.sort((a, b) => a.start - b.start);
+        for (const g of list) {
+            const mark = detectSpeakerMark(g.srcCues && g.srcCues[0] && g.srcCues[0].text);
+            if (mark) {
+                if (mark.name) {
+                    if (!named.has(mark.name)) named.set(mark.name, named.size);
+                    speakerIdx = named.get(mark.name);
+                } else if (count > 0) {
+                    speakerIdx = speakerIdx === 0 ? 1 : 0;
+                }
+            }
+            count++;
+        }
+        return { speakerIdx, named, count };
+    }
+
     function buildDubScript(groups, opts = {}) {
         const segments = [];
-        let speakerIdx = 0;
-        const named = new Map();
+        const st0 = opts.speakerState || null;
+        let speakerIdx = st0 ? st0.speakerIdx : 0;
+        const named = st0 ? new Map(st0.named) : new Map();
+        const before = st0 ? st0.count : 0;
         const PAUSE_SPLIT = opts.pauseSplit || 0.55;
         const SEG_SOFT = opts.segSoft || 6;       // đoạn đã >= 6 giây và dòng trước kết thúc bằng dấu câu: cắt
         const SEG_HARD = opts.segHard || 8;       // thêm dòng này sẽ vượt 8 giây: cắt ở ranh giới dòng
@@ -388,7 +413,7 @@
                 if (mark.name) {
                     if (!named.has(mark.name)) named.set(mark.name, named.size);
                     speakerIdx = named.get(mark.name);
-                } else if (gi > 0) {
+                } else if (gi + before > 0) {
                     speakerIdx = speakerIdx === 0 ? 1 : 0;
                 }
             }
@@ -764,7 +789,7 @@
     }
 
     const api = {
-        numberToVietnamese, countSyllables, adaptForSpeech, classifyIntent, buildPhrases,
+        numberToVietnamese, countSyllables, adaptForSpeech, classifyIntent, buildPhrases, speakerStateBefore,
         buildDubScript, stripSoundNotes, planSegment, planAll, smoothRates, speechSeconds, pauseSeconds, rateForSps, rateForSpeedup, speedMultiplier, condensedIsSafe,
         DEFAULT_VOICE_MODEL, LIMITS, INTENT_PROSODY, PAUSE
     };

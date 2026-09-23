@@ -4,6 +4,21 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.6.3", luc: "23:06 23/09/2026", ten: "Mượt hơn với video dài; thực đơn và bản chép lời mở, đóng có chuyển động",
+            y: [
+                "Sửa nguyên nhân giật hình khi dịch video dài: mỗi lần thêm một nhóm câu dịch xong, bộ lồng tiếng dựng lại kịch bản cho toàn bộ video, tốn khoảng 90 mili giây (bằng 5 khung hình) với bài giảng 60 phút, và lặp lại hàng trăm lần trong lúc dịch. Nay chỉ dựng cho khoảng quanh chỗ đang xem: còn khoảng 15 mili giây, nhịp nặng nhất từ 97 xuống 16 mili giây. Kịch bản thu được giống hệt cách cũ (đã kiểm chứng từng đoạn, kể cả khi bật giọng thứ hai).",
+                "Sửa rò rỉ bộ nhớ: audio của những đoạn không còn trong kịch bản trước đây không bao giờ được giải phóng.",
+                "Tua tới chỗ khác thì nhịp đo tốc độ nói của video được đo lại ngay, không dùng số đo của chỗ cũ.",
+                "Thực đơn trên video hiện ra mềm (mờ dần và nhích lên), bản chép lời trượt vào từ phải, cả hai mờ dần khi đóng. Phụ đề trượt mượt sang bên khi nhường chỗ. Ai bật \"giảm chuyển động\" trong hệ điều hành thì không có hiệu ứng nào.",
+                "Bản chép lời không ghép lại toàn bộ lời thoại mỗi 150 mili giây nữa, chỉ khi có câu mới hoặc khi bạn sửa một dòng."
+            ],
+            bang: { cot: ["Bài giảng 60 phút", "Trước", "Nay"], hang: [
+                ["Dựng lại kịch bản lồng tiếng mỗi lần có câu mới", "khoảng 90 mili giây", "khoảng 15 mili giây"],
+                ["Nhịp xử lý nặng nhất", "97 mili giây", "16 mili giây"],
+                ["Số đoạn phải lập kế hoạch", "668", "96"]
+            ] }
+        },
+        {
             v: "1.6.2", luc: "22:57 23/09/2026", ten: "Bật/tắt giọng đọc thứ hai; đo thật: giọng Kim Thanh hết trễ ở đoạn nói nhanh",
             y: [
                 "Thêm công tắc \"Dùng giọng thứ hai cho người nói khác\" trong Cài đặt, mục Lồng tiếng. Mặc định TẮT: cả video đọc bằng một giọng, không đổi giọng giữa chừng. Bật lên thì câu của người nói thứ hai (phụ đề đánh dấu >>, gạch đầu dòng hoặc TÊN:) đọc bằng giọng thứ hai, và hai ô chọn giọng thứ hai mới hiện ra.",

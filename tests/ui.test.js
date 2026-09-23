@@ -793,8 +793,8 @@ test("the open quick menu pushes the subtitle aside on both sites", () => {
     const yt = R("youtube.js"), cs = R("content.js");
     assert.ok(/yt\.panelOpen \? 404 : 0, yt\.menuOpen \? 352 : 0/.test(yt));
     assert.ok(/cs\.panelOpen \? 404 : 0, cs\.menuOpen \? 352 : 0/.test(cs));
-    assert.ok(/nhuongCho\(true\);[\s\S]{0,200}const dongMenu = \(\) => \{[\s\S]{0,120}nhuongCho\(false\);/.test(yt), "YouTube menu must give the room back on close");
-    assert.ok(/nhuongCho\(true\);[\s\S]{0,200}const dong = \(\) => \{[\s\S]{0,120}nhuongCho\(false\);/.test(cs), "Coursera menu must give the room back on close");
+    assert.ok(/nhuongCho\(true\);[\s\S]{0,200}const dongMenu = \(\) => \{[\s\S]{0,200}nhuongCho\(false\);/.test(yt), "YouTube menu must give the room back on close");
+    assert.ok(/nhuongCho\(true\);[\s\S]{0,200}const dong = \(\) => \{[\s\S]{0,200}nhuongCho\(false\);/.test(cs), "Coursera menu must give the room back on close");
 });
 
 test("transcript keeps following when a scroll was cut short, and measures rows from the list", async t => {
@@ -815,4 +815,16 @@ test("transcript keeps following when a scroll was cut short, and measures rows 
     assert.ok(calls.length >= 2, `it gave up after ${calls.length} scroll call(s)`);
     // row 15 (t = 30 s) sits 750 px into the list: centred means 750 - 150 + 25
     assert.equal(calls[calls.length - 1].top, 625);
+});
+
+
+test("menu and transcript open and close with a short animation, and none for reduced motion", () => {
+    const kit = R("player-ui.js");
+    assert.ok(/\.cst-yt-menu \{ transform-origin:bottom right; animation:cst-pop-in/.test(kit));
+    assert.ok(/\.cst-tr-panel \{ animation:cst-slide-in/.test(kit));
+    assert.ok(/prefers-reduced-motion: reduce\) \{[\s\S]{0,200}animation:none !important/.test(kit), "reduced motion must switch the animations off");
+    assert.ok(/kit\.dismiss\(menu\)/.test(R("content.js")) && /dismiss\(menu\)/.test(R("youtube.js")) && /kit\.dismiss\(open\.panel\)/.test(R("transcript.js")));
+    // a menu on its way out is not "the open menu": a quick second click opens a new one
+    assert.ok(/if \(menu && menu\.dataset\.cstLeaving\) menu = null;/.test(R("youtube.js")));
+    assert.ok(/if \(open && open\.dataset\.cstLeaving\) open = null;/.test(R("content.js")));
 });
