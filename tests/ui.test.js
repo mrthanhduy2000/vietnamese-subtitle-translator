@@ -671,6 +671,11 @@ test("the quick menu says what the voice is doing: ready ahead, slow server, ski
     dub.engine = fake({ live: false, ahead: 0, rtf: null, dropped: 0 });
     assert.match(sb.CST_DUB.describeHealth().text, /đang tạo giọng/);
 
+    dub.engine = fake({ live: false, ahead: 20, rtf: 0.22, dropped: 0, pace: 1.3 });
+    assert.match(sb.CST_DUB.describeHealth().text, /người nói nhanh, đọc nhanh theo/);
+    dub.engine = fake({ live: false, ahead: 20, rtf: 0.22, dropped: 0, pace: 0.95 });
+    assert.doesNotMatch(sb.CST_DUB.describeHealth().text, /người nói nhanh/);
+
     dub.engine = fake({ live: true, ahead: 0, rtf: null, dropped: 0 });
     assert.match(sb.CST_DUB.describeHealth().text, /đọc trực tiếp/);
 

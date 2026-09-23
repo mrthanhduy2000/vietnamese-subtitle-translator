@@ -77,6 +77,20 @@
         denseRatio: 1.15,         // câu phải đọc nhanh hơn 1,15x mới vừa khung: rút khoảng nghỉ trong câu (không bỏ chữ)
         lagMaxSpeechRate: 1.4,    // đang trễ > lagBoostAt giây: được đọc nhanh tới 1,4x (Mỹ Duyên ~5 âm tiết/giây,
         lagBoostAt: 1.0,          // ngang tốc độ đọc tin tức) để bắt kịp, KHÔNG bỏ chữ    // ms: quá mức này thì tạo audio với câu gốc, không chờ rút gọn nữa    // cần ít nhất bấy nhiêu giây trước khi đoạn phát mới kịp rút gọn
+        // Adapt to how fast the video speaks (1.6.1). A slow voice (Kim Thanh, 3.8 syllables/s) on a
+        // fast speaker hit the fixed 1.3x ceiling sentence after sentence and fell ~2 s behind. The
+        // engine now reads the pace of the next paceWindow seconds: the speed each sentence needs
+        // to fit its subtitle, at this voice's measured rate. A fast stretch lifts the floor (an
+        // even, brisk pace instead of slow-fast-slow) and loosens the ceiling, never beyond what a
+        // fast newsreader says (maxSpokenSps). A slow video changes nothing.
+        paceWindow: 90,
+        paceEvery: 2000,          // ms between two pace readings
+        paceFloorShare: 0.92,     // floor = this share of the typical need (median)
+        paceCeilingMax: 1.55,     // ceiling may rise to this (lag boost adds 0.1 on top)
+        paceCeilingPad: 1.08,     // ceiling = the upper-quartile need, plus this margin
+        maxSpokenSps: 5.8,        // no rate makes the voice say more than this many syllables/s
+        lookAhead: 3,             // sentences ahead that may pull the rate up early (see chooseRate)
+        lookAheadEarly: 0.5,      // ... and how much sooner than its subtitle a sentence may end for it
         duckRampPerTick: 0.09,    // tốc độ hạ/nâng âm lượng video mỗi nhịp (mượt ~200 ms)
         duckHold: 0.35            // giữ mức hạ thêm chút sau khi nói xong (tránh "bơm" âm lượng giữa các cụm)
     };
@@ -659,7 +673,66 @@
             return Math.max(SYNC.minSpeechRate, f / vr);
         }
 
+        // How fast the coming stretch of the video speaks, as the playback rate each sentence needs to
+        // fit its subtitle with this voice: { mid, high } (syllable-weighted median and upper
+        // quartile). Rendered audio gives the true length; otherwise the voice's measured pace.
+        videoPace(t) {
+            const now = this.d.now ? this.d.now() : 0;
+            if (this.pace && now - this.pace.at < SYNC.paceEvery) return this.pace;
+            const need = [];
+            const ps = this.plans;
+            for (let i = 0; i < ps.length; i++) {
+                const p = ps[i];
+                if (p.start < t - 10 || p.start > t + SYNC.paceWindow) continue;
+                const syl = p.phrases.reduce((a, ph) => a + ph.syl, 0);
+                if (syl < 3) continue;
+                const x = this.planNeed(i);
+                if (x != null) need.push({ x, w: syl });
+            }
+            const pick = share => {
+                if (!need.length) return 1;
+                const a = need.slice().sort((u, v) => u.x - v.x);
+                const total = a.reduce((s2, u) => s2 + u.w, 0);
+                let acc = 0;
+                for (const u of a) { acc += u.w; if (acc >= total * share) return u.x; }
+                return a[a.length - 1].x;
+            };
+            this.pace = { at: now, mid: pick(0.5), high: pick(0.75), n: need.length };
+            return this.pace;
+        }
+
+        // The playback rate plan i needs to finish inside its subtitle slot, or null if unknown
+        planNeed(i) {
+            const ps = this.plans;
+            const p = ps[i];
+            if (!p) return null;
+            const syl = p.phrases.reduce((a, ph) => a + ph.syl, 0);
+            const r = this.rendered.get(p.id);
+            const sps = this.voiceSps.get(p.speaker) || (this.provider.naturalSps ? this.provider.naturalSps(p.speaker) : 4.5);
+            const natural = r && r.duration ? r.duration : syl / Math.max(1, sps);
+            const next = ps[i + 1];
+            let end = p.start + (p.targetDuration || 0) + SYNC.fitSlack;
+            if (next) end = Math.min(end, p.continuesNext ? next.start : next.start - 0.12);
+            const slot = end - p.start;
+            return slot >= 0.5 ? natural / slot : null;
+        }
+
+        // Rate limits for this moment: the fixed ones, widened for a fast-speaking stretch
+        paceLimits(p, t) {
+            const pace = this.videoPace(t);
+            const sps = this.voiceSps.get(p.speaker) || (this.provider.naturalSps ? this.provider.naturalSps(p.speaker) : 4.5);
+            const spsCap = SYNC.maxSpokenSps / Math.max(1, sps);
+            const vr = Math.max(1, (this.d.video && this.d.video.playbackRate) || 1);
+            let ceiling = Math.max(SYNC.maxSpeechRate, Math.min(SYNC.paceCeilingMax, pace.high * SYNC.paceCeilingPad, spsCap));
+            let lagCeiling = Math.max(SYNC.lagMaxSpeechRate, Math.min(SYNC.paceCeilingMax + 0.1, ceiling + 0.1, spsCap));
+            // the video itself already plays faster: its rate multiplies ours, so the room shrinks
+            if (vr > 1) { ceiling = Math.max(SYNC.maxSpeechRate, ceiling / vr); lagCeiling = Math.max(SYNC.lagMaxSpeechRate, lagCeiling / vr); }
+            const floor = pace.mid > 1 ? Math.min(ceiling, pace.mid * SYNC.paceFloorShare) / vr : 0;
+            return { ceiling, lagCeiling, floor };
+        }
+
         chooseRate(p, r, t, offset, lag) {
+            const lim = this.provider.caps && this.provider.caps.prerender ? this.paceLimits(p, t) : { ceiling: SYNC.maxSpeechRate, lagCeiling: SYNC.lagMaxSpeechRate, floor: 0 };
             const i = this.plans.indexOf(p);
             const next = i >= 0 ? this.plans[i + 1] : null;
             // Câu CHƯA HẾT (đoạn nối tiếp sang đoạn sau): đọc lấp tới đoạn sau, được chậm xuống
@@ -670,7 +743,9 @@
             // Đang nói SỚM hơn phụ đề (nối liền đoạn trước) mà câu vẫn chưa hết: được chậm tới 0,95x
             // để lấp khung, thay vì nói nhanh rồi phải nghỉ giữa câu hay chạy trước phụ đề
             const early = p.start - t;
-            const floor = joined ? (early > 0.3 ? SYNC.minSpeechRate : Math.max(SYNC.minSpeechRate, this.floorRate(p) - 0.08)) : this.floorRate(p);
+            let floor = joined ? (early > 0.3 ? SYNC.minSpeechRate : Math.max(SYNC.minSpeechRate, this.floorRate(p) - 0.08)) : this.floorRate(p);
+            // a fast-speaking stretch: keep the pace up evenly, unless we are ahead of the subtitle
+            if (early <= 0.3) floor = Math.max(floor, lim.floor);
             let endAt = joined ? next.start - SYNC.joinGap : p.start + (p.targetDuration || 0) + SYNC.fitSlack;
             if (next && !joined) endAt = Math.min(endAt, next.start - 0.12);
             const win = Math.max(0.5, endAt - t);
@@ -679,12 +754,31 @@
             want = Math.max(floor, want);
             // Đang sớm giữa câu: được chậm lại nhanh hơn (0,1 mỗi đoạn, như lúc tăng tốc) để kịp lấp khung
             const stepDown = joined && early > 0.3 ? SYNC.rateStepUp : SYNC.rateStepDown;
+            // Look ahead: a dense sentence coming up (in the same stretch of speech) is reached by
+            // speeding up gradually from here, since the rate may only climb rateStepUp per sentence.
+            // Measured on a real timeline: without it a 35-syllable sentence in a 6.5 s slot (needs
+            // 1.5x) got 1.3x and pushed 1.4 s of lag onto the next one.
+            if (this.provider.caps && this.provider.caps.prerender && i >= 0) {
+                let ahead = want;
+                let gapEnd = p.start + (r.duration - offset) / Math.max(1, want);
+                for (let k = 1; k <= SYNC.lookAhead; k++) {
+                    const q = this.plans[i + k];
+                    if (!q || q.start - gapEnd > SYNC.rateMemory) break;
+                    const need = this.planNeed(i + k);
+                    if (need != null) ahead = Math.max(ahead, Math.min(lim.ceiling, need) - SYNC.rateStepUp * k);
+                    gapEnd = q.start + (q.targetDuration || 0);
+                }
+                // ... but never so fast that this sentence ends well before its own subtitle does:
+                // the voice running ahead of the text was a complaint of its own (1.3.2)
+                const earliest = (r.duration - offset) / Math.max(0.5, win - SYNC.lookAheadEarly);
+                want = Math.max(want, Math.min(ahead, earliest));
+            }
             if (this.lastRate && t - this.lastRateEnd < SYNC.rateMemory) {
                 want = Math.max(this.lastRate - stepDown, Math.min(this.lastRate + SYNC.rateStepUp, want));
             }
-            let ceiling = lag > SYNC.lagBoostAt ? SYNC.lagMaxSpeechRate : SYNC.maxSpeechRate;
+            let ceiling = lag > SYNC.lagBoostAt ? lim.lagCeiling : lim.ceiling;
             // Vừa bắt kịp (trần trở về 1,3x): hạ tốc độ từ từ, không tụt 0,1 trong một câu
-            if (this.lastRate && t - this.lastRateEnd < SYNC.rateMemory) ceiling = Math.max(ceiling, Math.min(SYNC.lagMaxSpeechRate, this.lastRate - SYNC.rateStepDown));
+            if (this.lastRate && t - this.lastRateEnd < SYNC.rateMemory) ceiling = Math.max(ceiling, Math.min(lim.lagCeiling, this.lastRate - SYNC.rateStepDown));
             if (lag > SYNC.lagBoostAt) want = Math.max(want, (r.duration - offset) / win * (1 + Math.min(0.12, lag * 0.06)));
             let rate = Math.max(floor, Math.min(ceiling, want));
             // Tốc độ sàn vừa được hiệu chỉnh lại (đo giọng thật) không được làm nhịp nhảy quá bước cho phép
@@ -1001,7 +1095,8 @@
                 ahead: this.provider.caps.live ? 0 : this.bufferedAhead(t),
                 rtf: this.renderRtf == null ? null : this.renderRtf,
                 dropped: this.stats.dropped || 0,
-                errors: (this.stats.errors || 0) + (this.stats.timeouts || 0)
+                errors: (this.stats.errors || 0) + (this.stats.timeouts || 0),
+                pace: this.pace && this.pace.n >= 3 ? this.pace.mid : null     // typical rate the video asks for
             };
         }
 

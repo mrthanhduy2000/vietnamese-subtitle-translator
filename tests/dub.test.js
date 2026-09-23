@@ -475,3 +475,64 @@ test("kịch bản Gemini TTS: có hướng dẫn giọng theo ý định, nhấ
     assert.match(s, /không đọc phần hướng dẫn/);
     assert.ok(!/¦/.test(s));
 });
+
+// 1.6.1: adapt to how fast the video speaks. A slow voice (Kim Thanh, measured 3.8 syllables/s)
+// on a fast speaker used to hit the fixed ceiling sentence after sentence and fall behind. Measured
+// on two real cached timelines: lag over 1 s went 3 -> 0 and 5 -> 1, a slow speaker was unchanged.
+async function paceRun(timeScale, { oldBehaviour = false } = {}) {
+    const { SYNC } = require("../dub-engine.js");
+    const saved = { lookAhead: SYNC.lookAhead, paceCeilingMax: SYNC.paceCeilingMax, paceFloorShare: SYNC.paceFloorShare };
+    if (oldBehaviour) { SYNC.lookAhead = 0; SYNC.paceCeilingMax = SYNC.maxSpeechRate; SYNC.paceFloorShare = 0; }
+    try {
+        const clock = new Clock(), video = new FakeVideo();
+        const groups = lectureGroups().map(g => ({
+            ...g, start: g.start * timeScale, end: g.end * timeScale,
+            srcCues: g.srcCues.map(c => ({ ...c, start: c.start * timeScale, end: c.end * timeScale })),
+            viCues: g.viCues.map(c => ({ ...c, start: c.start * timeScale, end: c.end * timeScale }))
+        }));
+        const audios = [];
+        const RAW_SPS = 3.61;                       // Kim Thanh after pause trimming, measured
+        const prov = {
+            id: "vieneu", label: "VieNeu", caps: { prerender: true, live: false, free: true, serial: true, maxBatch: 1, timeStretch: true },
+            tempo: { targetSps: 4.8, maxTempo: 1.22, minSps: 4.0, maxFloor: 1.15 },
+            voiceModel: { ...PLAN.DEFAULT_VOICE_MODEL, sylPerSec: 4.66, rateExp: 1, pauseFactor: 1 },
+            naturalSps: () => 3.8 * 0.86, audioKey: async p => "k" + p.id, abort() {},
+            render: async plans => plans.map(p => ({ planId: p.id, wav: new Uint8Array(4), duration: p.phrases.reduce((a, ph) => a + ph.syl, 0) / RAW_SPS + 0.05 }))
+        };
+        const eng = new DubEngine({
+            video, getGroups: () => groups, providers: { primary: prov },
+            now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id),
+            setTimeout: (f, ms) => clock.setTimeout(f, ms), createObjectURL: () => "blob:x", revokeObjectURL() {},
+            createAudio: () => { const a = new FakeAudio(clock, { duration: 99 }); audios.push(a); return a; }
+        });
+        eng.start();
+        for (let i = 0; i < 20; i++) { clock.advance(50); await new Promise(r => setImmediate(r)); }
+        video.play();
+        const end = groups[groups.length - 1].end + 2;
+        for (let i = 0; i < 20000 && video.currentTime < end; i++) {
+            clock.advance(50, st => { video.step(st); audios.forEach(a => a.step(st)); });
+            if (i % 4 === 0) await new Promise(r => setImmediate(r));
+        }
+        eng.stop();
+        const st = eng.stats.started;
+        return {
+            lagMax: Math.max(...st.map(x => x.t - x.due)),
+            rateMean: st.reduce((a, x) => a + x.rate, 0) / st.length,
+            rateMax: Math.max(...st.map(x => x.rate)),
+            spoken: st.length, dropped: eng.stats.dropped
+        };
+    } finally {
+        Object.assign(SYNC, saved);
+    }
+}
+
+test("slow voice on a fast speaker: speeds up early and evenly, and a slow speaker is left alone", async () => {
+    const fastOld = await paceRun(0.8, { oldBehaviour: true });
+    const fastNew = await paceRun(0.8);
+    assert.equal(fastNew.dropped, 0);
+    assert.ok(fastNew.lagMax < fastOld.lagMax - 0.2, `lag ${fastOld.lagMax.toFixed(2)} -> ${fastNew.lagMax.toFixed(2)}`);
+    assert.ok(fastNew.rateMax <= 1.65, `never beyond the spoken-pace cap: ${fastNew.rateMax}`);
+    const slowOld = await paceRun(1.4, { oldBehaviour: true });
+    const slowNew = await paceRun(1.4);
+    assert.ok(Math.abs(slowNew.rateMean - slowOld.rateMean) < 0.03, `slow speaker sped up: ${slowOld.rateMean.toFixed(2)} -> ${slowNew.rateMean.toFixed(2)}`);
+});

@@ -914,8 +914,12 @@ test("nhịp nói BÁM PHỤ ĐỀ mà vẫn ĐỀU: nói xong gần mốc cuố
         assert.ok(rates.length >= 8, `chỉ nói ${rates.length} câu`);
         // Sàn: giọng chậm 3,6 âm tiết/giây -> không dưới 4,0/3,6 = 1,11x (nghe >= 4 âm tiết/giây)
         const floor = Math.max(0.95, Math.min(1.15, 4.0 / sps));
-        // Trần 1,3x; đang trễ > 1 giây được tới 1,4x để bắt kịp (không bỏ chữ)
-        assert.ok(rates.every((r, i) => r >= floor - 1e-9 && r <= (st[i].lag > 1 || (i > 0 && rates[i - 1] > 1.3) ? 1.4 : 1.3) + 1e-9), `ngoài dải [${floor.toFixed(2)} ; 1,3/1,4]: ${JSON.stringify(rates)}`);
+        // Ceiling (1.6.1): 1.3x normally, raised by how fast the video speaks up to 1.55x (1.65x while
+        // lagging), and never so fast that the voice says more than 5.8 syllables per second.
+        // This scenario needs ~1.8x per sentence, so a slow voice now uses the raised ceiling.
+        const cap = Math.max(1.3, Math.min(1.55, 5.8 / sps));
+        const lagCap = Math.max(1.4, Math.min(1.65, 5.8 / sps));
+        assert.ok(rates.every((r, i) => r >= floor - 1e-9 && r <= (st[i].lag > 1 || (i > 0 && rates[i - 1] > cap) ? lagCap : cap) + 1e-9), `ngoài dải [${floor.toFixed(2)} ; ${cap.toFixed(2)}/${lagCap.toFixed(2)}]: ${JSON.stringify(rates)}`);
         for (let i = 1; i < rates.length; i++) {
             const d = rates[i] - rates[i - 1];
             assert.ok(d <= 0.1 + 1e-9 && d >= -0.06 - 1e-9, `nhịp nhảy ${rates[i - 1]} -> ${rates[i]}`);
@@ -1413,7 +1417,8 @@ test("người nói RẤT nhanh (đo thật 1.2.9: trễ dồn tới 4 giây): G
     assert.ok(S.eng.plans.some(p => p.tightPauses), "câu dày chữ phải rút khoảng nghỉ");
     const lags = st.map(x => x.t - x.due);
     assert.ok(Math.max(...lags) < 2, `trễ tối đa ${Math.max(...lags).toFixed(2)} giây`);
-    assert.ok(st.every(x => x.rate <= 1.4 + 1e-9));
+    // 1.6.1: the ceiling follows the video's pace but never passes 5.8 syllables per second
+    assert.ok(st.every(x => x.rate <= Math.max(1.4, Math.min(1.65, 5.8 / sps)) + 1e-9), JSON.stringify(st.map(x => x.rate)));
 });
 
 test("VieNeu: câu dày chữ gửi yêu cầu khoảng nghỉ ngắn (0,15 giây), khóa kho riêng; service worker giới hạn trong [0,1 ; 0,4]", async () => {

@@ -359,7 +359,10 @@
         if (h.rtf != null && h.rtf >= 0.8) {
             return { text: `${voice} · máy chủ giọng chậm (1 giây lời mất ${h.rtf.toFixed(1).replace(".", ",")} giây)${skipped}`, warn: true };
         }
-        if (h.ahead >= 1) return { text: `${voice} · đã chuẩn bị trước ${Math.round(h.ahead)} giây${skipped}`, warn: !!h.dropped };
+        // The video speaks fast and the voice keeps up with it (dub-engine paceLimits): say so, or a
+        // quicker voice than usual looks like a fault
+        const fast = h.pace != null && h.pace > 1.12 ? " · người nói nhanh, đọc nhanh theo" : "";
+        if (h.ahead >= 1) return { text: `${voice} · đã chuẩn bị trước ${Math.round(h.ahead)} giây${fast}${skipped}`, warn: !!h.dropped };
         const v = e.d.video;
         if (v && !v.paused) return { text: `${voice} · đang tạo giọng…${skipped}`, warn: !!h.dropped };
         return { text: voice, warn: false };

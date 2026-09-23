@@ -83,6 +83,15 @@ Knobs you will actually reach for:
   guessed: `skipAfter` 4.5 costs 2 sentences at RTF 0.7, and capping `skipAheadMax` at 6 to 14
   seconds drops to 14/61 because short jumps land late again. See `tests/hardening.test.js`
   "slow voice server".
+- **Video pace (1.6.1)**: `videoPace(t)` reads the next `paceWindow` (90 s): for each plan,
+  `planNeed(i)` = natural audio length (rendered, else syllables / measured voice sps) over its slot,
+  syllable-weighted median (`mid`) and upper quartile (`high`). `paceLimits` raises the ceiling to
+  `min(paceCeilingMax 1.55, high * 1.08, maxSpokenSps 5.8 / sps)` (+0.1 while lagging) and the floor
+  to `mid * 0.92` when `mid > 1`. `chooseRate` also looks `lookAhead` (3) plans ahead and starts
+  climbing early, bounded so the current sentence ends at most `lookAheadEarly` (0.5 s) before its
+  subtitle. Simulated with Kim Thanh on two real cached timelines: lag over 1 s 3 -> 0 and 5 -> 1,
+  a slow speaker (timeline x1.35) unchanged. Harness: `scratchpad/sim-kim.js` pattern, see
+  `tests/dub.test.js` "slow voice on a fast speaker".
 - **Prefetch**: `prefetchAhead` is adaptive, roughly `(latency * 2.5 + 4) * playbackRate`, times 0.6
   if the user seeks twice in a minute, with a free-provider floor of 20 to 40s. `dubbing.js`
   `smartPrefetch` shrinks it 30% for videos over 30 minutes.

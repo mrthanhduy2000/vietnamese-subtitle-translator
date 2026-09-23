@@ -4,6 +4,22 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.6.1", luc: "22:43 23/09/2026", ten: "Giọng đọc tự thích ứng theo tốc độ nói của video, tăng tốc dần từ trước câu dày chữ",
+            y: [
+                "Giọng đọc nay tự đo nhịp nói của video (khoảng 90 giây phía trước): mỗi câu cần đọc nhanh bao nhiêu để vừa khung phụ đề, theo tốc độ thật của giọng bạn chọn. Video nói nhanh thì giọng giữ nhịp nhanh đều cả đoạn và được nới trần tốc độ (tối đa 1,55 lần, không bao giờ quá 5,8 âm tiết mỗi giây). Video nói chậm thì không đổi gì.",
+                "Giọng biết trước câu nào sắp dày chữ và tăng tốc dần từ vài câu trước, thay vì đến sát câu đó mới dồn gấp rồi trễ. Mỗi câu vẫn chỉ nhanh hơn câu trước tối đa 0,1 nên nhịp không giật; và câu hiện tại không bao giờ kết thúc sớm quá 0,5 giây so với phụ đề của nó.",
+                "Khi đang đọc nhanh theo người nói, thực đơn ghi rõ \"người nói nhanh, đọc nhanh theo\".",
+                "Đo bằng mô phỏng trên dòng thời gian thật của hai video, với tốc độ thật của giọng Kim Thanh."
+            ],
+            bang: { cot: ["Giọng Kim Thanh, dòng thời gian thật", "Trước", "Nay"], hang: [
+                ["Video nói nhanh 1: câu trễ quá 1 giây", "3", "0"],
+                ["Video nói nhanh 1: trễ tối đa", "1,41 giây", "0,94 giây"],
+                ["Video 2: câu trễ quá 1 giây", "5", "1"],
+                ["Video 2: 90% số câu trễ dưới", "0,76 giây", "0,23 giây"],
+                ["Người nói chậm: tốc độ đọc trung bình", "1,05 lần", "1,05 lần (không đổi)"]
+            ] }
+        },
+        {
             v: "1.6.0", luc: "22:30 23/09/2026", ten: "Sửa theo lần đo trên video thật: thực đơn không che phụ đề, bản chép lời tự cuộn đúng",
             y: [
                 "Đo trực tiếp trên YouTube trong Chrome của bạn, giọng Kim Thanh, nền tối. Thực đơn mở ra che mất cuối hai dòng phụ đề. Nay phụ đề tự dịch sang trái và thu hẹp lại khi thực đơn mở, giống như khi mở bản chép lời. Áp dụng cho cả Coursera.",
