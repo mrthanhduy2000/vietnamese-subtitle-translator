@@ -4,6 +4,19 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.5.1", luc: "16:10 23/09/2026", ten: "Biểu tượng trên nút YouTube hiện được thật, đo trực tiếp trên trang",
+            y: [
+                "Nguyên nhân ô trống: chính CSS của YouTube ép hình vẽ đặt trong nút của trình phát về chiều rộng 0. Đo trên trang thật: chiều cao 18 điểm ảnh nhưng chiều rộng 0.",
+                "Nay biểu tượng được vẽ bằng ảnh nền của nút, thứ mà CSS của YouTube không với tới được. Đã thử ngay trên trang YouTube thật trước khi phát hành.",
+                "Biểu tượng vẫn là bong bóng thoại lồng tia sáng của tiện ích, cùng màu cam đất với bảng điều khiển.",
+                "Bài kiểm tra tự động nay bắt buộc nút phải vẽ biểu tượng bằng ảnh nền và không được đổi màu bằng thuộc tính gộp (làm mất biểu tượng); bài này báo hỏng trên đúng bản 1.5.0."
+            ],
+            bang: { cot: ["Đo trên trang YouTube thật", "1.5.0", "1.5.1"], hang: [
+                ["Chiều rộng hình trong nút", "0 điểm ảnh", "19 điểm ảnh"],
+                ["Nhìn thấy biểu tượng", "không, chỉ có ô màu", "có"]
+            ] }
+        },
+        {
             v: "1.5.0", luc: "16:00 23/09/2026", ten: "Nút trên thanh điều khiển YouTube có biểu tượng riêng, không còn ô trống",
             y: [
                 "Bản 1.4.9 đặt biểu tượng vào nút nhưng không ghi kích thước cho hình vẽ, nên trên YouTube nút chỉ hiện một ô màu trống trơn.",

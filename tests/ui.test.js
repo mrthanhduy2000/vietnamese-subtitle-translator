@@ -430,16 +430,26 @@ test("on-player button, menu and toast use the same palette as the popup", () =>
     assert.ok(menuCss.includes(accent.light), "thực đơn trên video không dùng màu nhấn của bảng điều khiển");
     // The control-bar button wears the same accent and an icon built from the same mark
     assert.ok(ytjs.includes("const CST_MARK_SVG"), "thiếu biểu tượng dùng chung");
-    const btn = ytjs.split("function ytTaoNutThanhDieuKhien()")[1].split("\nfunction ")[0];
-    assert.ok(btn.includes("${CST_BTN_ICON_SVG}"), "nút trên thanh điều khiển không dùng biểu tượng của nút");
+    // the function body only: the shared icon constants are declared further down the file
+    const btn = ytjs.split("function ytTaoNutThanhDieuKhien()")[1].split(/\nfunction |\nconst /)[0];
     assert.ok(btn.includes(accent.light), "nút trên thanh điều khiển không dùng màu nhấn của bảng điều khiển");
-    // An inline SVG with no width/height has no intrinsic size: inside the button that rendered as
-    // an empty coloured square. Both marks must carry their own size.
-    for (const name of ["CST_MARK_SVG", "CST_BTN_ICON_SVG"]) {
-        const svg = ytjs.split(`const ${name} = \``)[1].split("`;")[0];
-        assert.match(svg, /<svg[^>]*width="100%"[^>]*height="100%"/, `${name} thiếu kích thước nên sẽ hiện ô trống`);
-        assert.ok(/currentColor/.test(svg), `${name} phải theo màu chữ của nút`);
-    }
+    // Measured on a real YouTube page: their stylesheet computes an inline <svg> inside .ytp-button
+    // to width 0, so the button showed an empty coloured square. The icon has to be painted as a
+    // background image, which their CSS cannot reach, and it must never be an inline <svg> again.
+    assert.ok(ytjs.includes("const CST_BTN_ICON_URL"), "thiếu biểu tượng dạng ảnh nền cho nút");
+    assert.match(ytjs, /CST_BTN_ICON_URL = `data:image\/svg\+xml;charset=utf-8,\$\{encodeURIComponent\(CST_BTN_ICON_SVG\)\}`/,
+        "biểu tượng nút phải dựng từ CST_BTN_ICON_SVG");
+    assert.ok(btn.includes("${CST_BTN_ICON_URL}") && /background-image:\s*url/.test(btn),
+        "nút phải vẽ biểu tượng bằng ảnh nền (YouTube ép <svg> trong nút về rộng 0)");
+    assert.ok(/background-size:\s*\d/.test(btn), "ảnh nền của nút phải có kích thước");
+    assert.ok(!/<svg/.test(btn), "nút không được nhúng <svg> trực tiếp nữa");
+    // The state update must not use the "background" shorthand: that would drop the icon
+    const capNhat = ytjs.split("function ytCapNhatTrangThaiNutThanhDieuKhien()")[1].split("\nfunction ")[0];
+    assert.ok(!/badge\.style\.background\s*=/.test(capNhat), "đổi trạng thái bằng background sẽ xóa mất biểu tượng");
+    assert.ok(/badge\.style\.backgroundColor\s*=/.test(capNhat), "đổi trạng thái phải dùng backgroundColor");
+    // The menu header still draws the mark inline, inside our own panel, so it keeps its own size
+    const markSvg = ytjs.split("const CST_MARK_SVG = `")[1].split("`;")[0];
+    assert.match(markSvg, /<svg[^>]*width="100%"[^>]*height="100%"/, "biểu tượng trong thực đơn thiếu kích thước");
     // No leftovers of the old purple theme on any of the on-player surfaces
     const purple = /#7c3aed|#6366f1|#9333ea|#7c5cff|#a78bfa|#a855f7/i;
     assert.ok(!purple.test(ytjs), "youtube.js còn màu tím của giao diện cũ");

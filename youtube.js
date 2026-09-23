@@ -1313,7 +1313,7 @@ function ytCapNhatTrangThaiNutThanhDieuKhien() {
                     : "Dịch phụ đề & lồng tiếng tiếng Việt (Alt+S, Alt+D)");
     if (badge) {
         const on = yt.active || isDub;
-        badge.style.background = on ? "#E08567" : "#D97757";
+        badge.style.backgroundColor = on ? "#E08567" : "#D97757";   // never the "background" shorthand: it drops the icon
         badge.style.boxShadow = on ? "0 0 12px rgba(217, 119, 87, 0.75)" : "0 2px 8px rgba(217, 119, 87, 0.45)";
     }
 }
@@ -1392,16 +1392,14 @@ function ytTaoNutThanhDieuKhien() {
             width: 30px;
             height: 30px;
             border-radius: 9px;
-            background: #D97757;
-            color: #FFFFFF;
+            background-color: #D97757;
+            background-image: url(&quot;${CST_BTN_ICON_URL}&quot;);
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 19px 19px;
             box-shadow: 0 2px 8px rgba(217, 119, 87, 0.45);
-            display: flex;
-            align-items: center;
-            justify-content: center;
             transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
-        ">
-            <span style="width:18px;height:18px;display:flex;align-items:center;justify-content:center;">${CST_BTN_ICON_SVG}</span>
-        </div>
+        "></div>
         <span class="cst-btn-dot" style="
             display: none;
             position: absolute;
@@ -1465,15 +1463,19 @@ const CST_MARK_SVG = `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="
         <path d="M12 2C12.4 7.2 16.8 11.6 22 12C16.8 12.4 12.4 16.8 12 22C11.6 16.8 7.2 12.4 2 12C7.2 11.6 11.6 7.2 12 2Z"></path>
     </svg>`;
 
-// The control-bar button sits at 17px on top of a moving picture, next to YouTube's own icons. The
-// bare mark reads as a blob at that size, so the button wears it inside a speech bubble: the bubble
-// says "this speaks and subtitles", the mark inside keeps it the same product as the popup.
-const CST_BTN_ICON_SVG = `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" aria-hidden="true" focusable="false">
-        <path d="M4.2 4.6h15.6c1.55 0 2.8 1.25 2.8 2.8v7.9c0 1.55-1.25 2.8-2.8 2.8h-6.6l-4.3 3.2c-.62.46-1.5.02-1.5-.75V18.1H4.2c-1.55 0-2.8-1.25-2.8-2.8V7.4c0-1.55 1.25-2.8 2.8-2.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+// The control-bar button sits on top of a moving picture, next to YouTube's own icons, and it is
+// YouTube's stylesheet that wins in there: measured on a real page, an inline <svg> inside the
+// button computes to width 0 and the button shows as an empty coloured square (1.4.9 and 1.5.0).
+// So the icon is painted as a background image, which no stylesheet of theirs can reach. The shape
+// is a speech bubble with the extension's own mark inside: "this one speaks and subtitles", in the
+// same family as the popup header.
+const CST_BTN_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
+        <path d="M4.2 4.6h15.6c1.55 0 2.8 1.25 2.8 2.8v7.9c0 1.55-1.25 2.8-2.8 2.8h-6.6l-4.3 3.2c-.62.46-1.5.02-1.5-.75V18.1H4.2c-1.55 0-2.8-1.25-2.8-2.8V7.4c0-1.55 1.25-2.8 2.8-2.8Z" stroke="#FFFFFF" stroke-width="1.8" stroke-linejoin="round"/>
         <g transform="translate(12 11.35) scale(0.42) translate(-12 -12)">
-            <path d="M12 2C12.4 7.2 16.8 11.6 22 12C16.8 12.4 12.4 16.8 12 22C11.6 16.8 7.2 12.4 2 12C7.2 11.6 11.6 7.2 12 2Z" fill="currentColor"></path>
+            <path d="M12 2C12.4 7.2 16.8 11.6 22 12C16.8 12.4 12.4 16.8 12 22C11.6 16.8 7.2 12.4 2 12C7.2 11.6 11.6 7.2 12 2Z" fill="#FFFFFF"/>
         </g>
     </svg>`;
+const CST_BTN_ICON_URL = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(CST_BTN_ICON_SVG)}`;
 
 const YT_MENU_CSS = `
 /* One visual language across the three surfaces: the popup, the Settings page and this menu.
