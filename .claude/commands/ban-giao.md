@@ -19,7 +19,9 @@ for permission between them, and do not skip one because it looks unnecessary.
    - No: skip it and say in one line why.
 
 4. Rewrite `docs/HANDOFF.md` completely. Keep its headings and their order, replace the content,
-   keep it to roughly 40 lines (45 hard cap). Write it for a session that knows nothing: name
+   keep it to roughly 40 lines (45 hard cap). If the note you are replacing came from a different
+   session and its "Unfinished" items are still open, carry them over instead of deleting them.
+   Write it for a session that knows nothing: name
    the files, name the
    version, say what is unfinished, and record any trap that cost you time. Do not narrate the
    diff, git already has it.

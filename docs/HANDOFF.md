@@ -26,6 +26,10 @@ complaint again: subtitles run, the voice is silent for a stretch, then rushes o
 - New test in `tests/hardening.test.js` ("máy chủ giọng chậm hơn thời gian thực") fails on the old
   engine, passes on the new one. `docs/DUBBING.md` §SYNC records the measured thresholds.
 
+- Separately, a docs/infra session added a **`Language` section to `CLAUDE.md`**: comments, new
+  function and test names, and commit messages are English; chat replies and every string the end
+  user reads stay Vietnamese. Existing Vietnamese names and comments are left alone.
+
 ## State
 
 - `npm test`: 322 tests, 321 pass, 0 fail, 1 skip · committed by path · Reload at
