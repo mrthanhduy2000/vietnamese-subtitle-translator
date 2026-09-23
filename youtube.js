@@ -528,8 +528,8 @@ function ytCapNhatViTri(player, overlay) {
     if (!player || !overlay) return;
     // With the transcript panel open the picture is narrower: keep the subtitles inside what is left
     if (yt.panelOpen) {
-        overlay.style.maxWidth = "min(92%, calc(100% - 420px))";
-        overlay.style.transform = "translateX(calc(-50% - 196px))";
+        overlay.style.maxWidth = "min(92%, calc(100% - 452px))";
+        overlay.style.transform = "translateX(calc(-50% - 212px))";
     } else {
         overlay.style.maxWidth = "92%";
         overlay.style.transform = "translateX(-50%)";
@@ -1511,7 +1511,7 @@ function ytMoMenuNhanh(player, btn) {
 
     // Đổi giọng ngay tại đây: việc hay làm nhất mà trước đây phải mở trang Cài đặt
     const voiceBox = el("div", "cst-field");
-    voiceBox.appendChild(el("div", "cst-field-label", "Giọng đọc"));
+    voiceBox.appendChild(el("div", "cst-field-label", "Chọn giọng"));
     const voiceSel = el("select", "cst-select");
     voiceSel.setAttribute("aria-label", "Giọng đọc tiếng Việt");
     const LOCAL = window.CST_COST && window.CST_COST.LOCAL_TTS;
@@ -1524,7 +1524,7 @@ function ytMoMenuNhanh(player, btn) {
             for (const v of ds) {
                 const op = document.createElement("option");
                 op.value = v.id;
-                op.textContent = `${v.id} (${v.gender.toLowerCase()}, ${v.style})`;
+                op.textContent = window.CST_COST && window.CST_COST.voiceLabel ? window.CST_COST.voiceLabel(v) : `${v.id} (${v.gender.toLowerCase()}, ${v.style})`;
                 g.appendChild(op);
             }
             voiceSel.appendChild(g);
@@ -1551,10 +1551,8 @@ function ytMoMenuNhanh(player, btn) {
     canhBao.style.display = "none";
     menu.appendChild(canhBao);
 
-    menu.appendChild(el("div", "cst-sep"));
-
     const modeBox = el("div", "cst-field");
-    modeBox.appendChild(el("div", "cst-field-label", "Kiểu hiển thị phụ đề"));
+    modeBox.appendChild(el("div", "cst-field-label", "Kiểu hiển thị"));
     const seg = el("div", "cst-seg");
     const btnSingle = el("button", null, "Chỉ tiếng Việt");
     const btnDual = el("button", null, "Song ngữ");
@@ -1563,7 +1561,7 @@ function ytMoMenuNhanh(player, btn) {
     menu.appendChild(modeBox);
 
     const size = CST_UI_KIT().buildStepper(document, {
-        label: "Cỡ chữ phụ đề", min: 50, max: 250, step: 10,
+        label: "Cỡ chữ", min: 50, max: 250, step: 10,
         get: () => ytChuanHoaKieu(ytSubStyle).fontSize,
         set: n => { ytSubStyle = ytChuanHoaKieu({ ...ytSubStyle, fontSize: n }); return chrome.storage.sync.set({ subStyle: ytSubStyle }); },
         format: n => `${n}%`
@@ -1675,6 +1673,12 @@ function ytMoMenuNhanh(player, btn) {
     });
     btnOptions.addEventListener("click", () => { dongMenu(); ytMoCaiDat(); });
 
+    // Two sections, each holding only its own controls: what is on the page, then what is spoken
+    const kit = CST_UI_KIT();
+    if (kit.buildSection) {
+        [head, kit.buildSection(document, "Phụ đề"), rowSub, modeBox, size.el, rowSkip,
+            kit.buildSection(document, "Giọng đọc"), rowDub, voiceBox, volume.el, canhBao, foot].forEach(n => menu.appendChild(n));
+    }
     player.appendChild(menu);
     setTimeout(() => { try { rowSub.focus(); } catch (e) { /* bỏ qua */ } }, 0);
 }

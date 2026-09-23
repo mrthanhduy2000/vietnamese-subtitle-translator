@@ -6,39 +6,40 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-23 · lanes A + B, one prompt line in `background.js` · `1.5.8`. User: no new features, only
-improve subtitles and the voice. Everything below was measured on real data first.
+2026-09-23 · lanes A + C, `cost-policy.js` · `1.5.9`. User: keep fixing subtitles and voice, make
+the UI practical, beautiful, academic and spacious; may open and measure any video.
 
 ## What changed
 
-- `dub-planner.js` `adaptForSpeech`: numbers, money, K/M/B, versions, ordinals, decades, links, #,
-  2x. Checked against VieNeu's own normalizer (how to run it: `docs/DUBBING.md` §Speech text).
-  The old code turned 1.500.000 into 1500000, which the server reads digit by digit.
-- `vi-quality.js` `trimContextLeak`: cuts a translation tail that repeats the next units (the model
-  translated its context). Wired into Coursera, YouTube live and YouTube cache load. Prompt line added;
-  `TR_PROMPT_VERSION` deliberately not bumped (would re-bill every cached translation).
-- `vi-segmenter.js` `straddleCost` 45 + missing compounds (tủ đồ, trào lưu, bày biện, bất cứ...).
-- Real data: two cached videos parsed read-only from Profile 42's `Local Extension Settings`
-  LevelDB log. 347 cues: straddles 38 -> 7, >25 cps 16 -> 7, >30 cps 8 -> 1, duplicated text 257 -> 0.
+- All 25 VieNeu voices have a measured `sps` (method in `docs/DUBBING.md` §VieNeu). 21 used a
+  shared guess of 4.8 before, off by up to 24%. `CST_COST.voiceLabel` shows chậm/vừa/nhanh.
+- Checked and left alone: VieNeu pronounces English words (prompt, token, workflow) with an English
+  G2P, correctly. No action needed there.
+- Quick menus (both sites): two sections via `kit.buildSection`, roomier, shorter labels.
+- Transcript panel: front-matter line, hairline rows, italic serif source line, accent rule on the
+  playing row, 392 px wide (overlay shift updated in both players).
+- Popup: "Đang xem" card (title, progress bar, voice health) from `getStatus` (now sends `title`,
+  `dub.health`). Settings: duck hint says 0% mutes.
+- Renders: `scratchpad/shot.sh` + harness pages that load the real content scripts with
+  `chrome-shim.js` and call `ytMoMenuNhanh` / `CST_TRANSCRIPT.toggle` directly.
 
 ## State
 
-- `npm test`: 344 tests, 343 pass, 0 fail, 1 skip · `npm run compare`: 0 violations · Reload: **yes**
+- `npm test`: 347 tests, 346 pass, 0 fail, 1 skip · Reload: **yes**
 
 ## Unfinished / in progress
 
-- A paraphrased leak is not caught (one clause remains in the measured case). Not fixable without
-  alignment to the source; do not loosen the thresholds, 0 false positives on 105 groups now.
-- Reading speed: 7 cues still exceed 25 cps; the speech itself is that dense.
+- **The user's Chrome still runs an old build** (seen live on 4eY5DuqASQc: no size stepper, log lines
+  at old positions). 1.5.6 to 1.5.9 have never run there. Automation cannot reach
+  `chrome://extensions` or extension pages (claude-in-chrome prefixes https), so only the user can Reload.
+- A paraphrased context leak is not caught; 7 cues still exceed 25 cps (dense speech).
 - Plan stages 3 to 5 on hold: the user asked for no new features.
-- 1.5.1 to 1.5.8 not yet seen in the shipped build (tests, probes, headless renders only).
 - `docs/BACKLOG.md`: 8 open items needing the user's go-ahead.
 
 ## Traps hit this session
 
-- Storage LevelDB: only a `.log` file; parse 32 KB blocks, 7-byte record headers, write batches.
-- Shell: generate test code from a file script, not `node -e` with Vietnamese quotes inline.
-- Control_Chrome JS fails; claude-in-chrome works. Headless Chrome renders need the sandbox off.
+- A harness page must set `ytSettings.uiTheme` itself: `ytKhoiDong` exits off youtube.com.
+- `sed` edits of generated HTML with `&` and quotes fail silently; generate harnesses in Python.
 
 ## Suggested next step
-- User reloads and rewatches video 4eY5DuqASQc around 8:30 (the leak) to hear the fix.
+- After the user reloads: open 4eY5DuqASQc at 8:25 with claude-in-chrome, measure overlay and dubbing.

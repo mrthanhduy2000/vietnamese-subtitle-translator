@@ -73,10 +73,39 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    // The "Đang xem" card: the video's title, how far the translation is, what the voice is doing
+    function veTheDangXem(st) {
+        const card = document.getElementById("nowCard");
+        if (!card) return false;
+        if (!st || !(st.active || st.busy || (st.dub && st.dub.on))) { card.hidden = true; return false; }
+        const $ = id => document.getElementById(id);
+        $("nowSite").textContent = st.site === "youtube" ? "YouTube" : "Coursera";
+        $("nowTitle").textContent = st.title || "";
+        $("nowTitle").hidden = !st.title;
+        const hasProgress = st.tong > 0 && (st.active || st.busy);
+        $("nowProgress").hidden = !hasProgress;
+        if (hasProgress) {
+            const pct = Math.round(st.xong / st.tong * 100);
+            $("nowBar").style.width = `${pct}%`;
+            $("nowCount").textContent = st.xong >= st.tong ? "Đã dịch xong" : `Đã dịch ${st.xong}/${st.tong} đoạn`;
+        }
+        const voice = st.dub && st.dub.on ? (st.dub.health || (st.dub.voice ? `Giọng ${st.dub.voice}` : "Đang lồng tiếng")) : "";
+        $("nowVoice").textContent = voice;
+        $("nowVoice").hidden = !voice;
+        $("nowVoice").classList.toggle("warn", !!(st.dub && st.dub.warn));
+        card.hidden = false;
+        return true;
+    }
+
     function veTrangThai(st) {
         const el = document.getElementById("pageStatus");
         if (!el) return;
         if (!st) { el.hidden = true; return; }
+        if (veTheDangXem(st)) {
+            el.hidden = true;
+            if (st.active && btnLabel) btnLabel.textContent = "Dịch lại bài giảng";
+            return;
+        }
         const phan = [];
         if (st.busy) phan.push("Đang dịch…");
         else if (st.active) phan.push(st.tong ? `Đã dịch ${st.xong}/${st.tong} đoạn` : "Phụ đề tiếng Việt đang bật");

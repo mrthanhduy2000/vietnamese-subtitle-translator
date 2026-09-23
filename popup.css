@@ -968,3 +968,28 @@ input:focus-visible,
     background: var(--claude-card-hover);
     color: var(--claude-text);
 }
+
+
+/* ---- "Đang xem": the page in front of you, set like the front matter of a paper ---- */
+.now-card { margin: 0 0 12px; padding: 14px 16px 13px; border: 1px solid var(--claude-border);
+    border-radius: var(--claude-radius-md); background: var(--claude-card); box-shadow: var(--claude-shadow-subtle); }
+.now-card[hidden] { display: none; }
+.now-kicker { display: flex; justify-content: space-between; align-items: baseline; font-size: 10.5px;
+    letter-spacing: .6px; text-transform: uppercase; color: var(--claude-text-muted); }
+.now-site { letter-spacing: .2px; text-transform: none; font-size: 11px; color: var(--claude-accent); font-weight: 600; }
+.now-title { margin: 6px 0 0; font-family: var(--claude-font-serif); font-size: 15px; line-height: 1.35; color: var(--claude-text);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.now-title[hidden] { display: none; }
+.now-progress { display: flex; align-items: center; gap: 10px; margin-top: 11px; }
+.now-progress[hidden] { display: none; }
+.now-bar { flex: 1; height: 4px; border-radius: 999px; background: var(--claude-card-subtle); overflow: hidden;
+    box-shadow: inset 0 0 0 1px var(--claude-border); }
+.now-bar > i { display: block; height: 100%; width: 0; border-radius: 999px; background: var(--claude-accent);
+    transition: width .5s cubic-bezier(.16,1,.3,1); }
+.now-count { flex-shrink: 0; font-size: 11.5px; color: var(--claude-text-secondary); font-variant-numeric: tabular-nums; }
+.now-voice { margin: 9px 0 0; padding-top: 9px; border-top: 1px dashed var(--claude-border); font-size: 12px;
+    line-height: 1.45; color: var(--claude-text-secondary); }
+.now-voice[hidden] { display: none; }
+.now-voice.warn { color: #B4791C; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .now-voice.warn { color: #E8B84B; } }
+:root[data-theme="dark"] .now-voice.warn { color: #E8B84B; }

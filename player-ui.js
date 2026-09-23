@@ -58,11 +58,11 @@
         color-scheme:dark;
     }
 }
-.cst-yt-menu { position:absolute; bottom:58px; right:12px; width:312px; max-height:min(80%,560px); overflow-y:auto;
+.cst-yt-menu { position:absolute; bottom:58px; right:12px; width:340px; max-height:min(84%,600px); overflow-y:auto; overscroll-behavior:contain;
     background:var(--cst-bg); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
-    border:1px solid var(--cst-border); border-radius:16px; padding:12px;
+    border:1px solid var(--cst-border); border-radius:18px; padding:16px 16px 14px;
     box-shadow:var(--cst-shadow); color:var(--cst-text); font:13px/1.45 var(--cst-sans);
-    z-index:1000; user-select:none; }
+    z-index:1000; user-select:none; scrollbar-width:thin; }
 .cst-yt-menu * { box-sizing:border-box; }
 .cst-menu-head { display:flex; align-items:center; gap:9px; padding:1px 2px 11px; }
 .cst-menu-mark { flex-shrink:0; width:24px; height:24px; border-radius:8px; background:var(--cst-accent);
@@ -101,7 +101,7 @@
 .cst-select:hover { border-color:var(--cst-border-2); }
 .cst-select option, .cst-select optgroup { background:var(--cst-card); color:var(--cst-text); }
 .cst-note-line { padding:0 2px 10px; font-size:11.5px; line-height:1.45; color:var(--cst-warn); }
-.cst-menu-foot { display:flex; gap:8px; }
+.cst-menu-foot { display:flex; gap:8px; margin-top:14px; padding-top:14px; border-top:1px solid var(--cst-border); }
 .cst-menu-foot button { flex:1; padding:9px 0; border-radius:8px; border:1px solid var(--cst-border);
     background:var(--cst-soft); color:var(--cst-text); font:inherit; font-size:13px; font-weight:500; cursor:pointer;
     transition:background-color .18s ease,border-color .18s ease; }
@@ -109,7 +109,7 @@
 .cst-yt-menu :focus-visible, .cst-tr-panel :focus-visible { outline:2px solid var(--cst-accent); outline-offset:2px; }
 
 /* ---- Transcript panel: the talk as text, beside the picture ---- */
-.cst-tr-panel { position:absolute; top:12px; right:12px; bottom:76px; width:min(360px,42%);
+.cst-tr-panel { position:absolute; top:12px; right:12px; bottom:76px; width:min(392px,44%);
     display:flex; flex-direction:column; gap:8px; padding:12px;
     background:var(--cst-bg); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
     border:1px solid var(--cst-border); border-radius:16px; box-shadow:var(--cst-shadow);
@@ -134,6 +134,14 @@
 .cst-tr-text { flex:1; display:flex; flex-direction:column; gap:2px; }
 .cst-tr-vi { font-size:13px; }
 .cst-tr-en { font-size:11.5px; color:var(--cst-text-2); }
+.cst-tr-meta { font-size:11.5px; color:var(--cst-muted); letter-spacing:.2px; margin-top:-4px; font-variant-numeric:tabular-nums; }
+.cst-tr-panel .cst-tr-list { gap:0; }
+.cst-tr-panel .cst-tr-row { padding:9px 10px 9px 12px; border:none; border-left:2px solid transparent; border-radius:0 10px 10px 0; }
+.cst-tr-panel .cst-tr-row + .cst-tr-row { background-image:linear-gradient(var(--cst-border),var(--cst-border)); background-size:calc(100% - 12px) 1px; background-position:12px 0; background-repeat:no-repeat; }
+.cst-tr-panel .cst-tr-row[data-cst-now="1"] { background:var(--cst-accent-soft); border-left-color:var(--cst-accent); }
+.cst-tr-panel .cst-tr-time { width:40px; padding-top:2px; font-size:11px; letter-spacing:.3px; }
+.cst-tr-panel .cst-tr-vi { font-size:13.5px; line-height:1.55; }
+.cst-tr-panel .cst-tr-en { font-family:var(--cst-serif); font-style:italic; font-size:12.5px; line-height:1.45; }
 .cst-tr-row { position:relative; }
 .cst-tr-edit { flex-shrink:0; align-self:flex-start; width:26px; height:26px; margin:-2px -4px 0 0; border-radius:8px;
     border:none; background:none; color:var(--cst-muted); font-size:13px; line-height:1; cursor:pointer; opacity:0;
@@ -152,6 +160,11 @@
     font:inherit; font-size:12px; font-weight:600; cursor:pointer; transition:background-color .18s ease; }
 .cst-tr-save:hover { background:var(--cst-accent-hover); }
 .cst-tr-empty { padding:14px 4px; font-size:12.5px; color:var(--cst-text-2); text-align:center; }
+/* ---- Sections: a serif title and a hairline, like a chapter heading in a book ---- */
+.cst-sec { display:flex; align-items:center; gap:10px; margin:14px 2px 10px; }
+.cst-sec:first-of-type { margin-top:4px; }
+.cst-sec-title { font-family:var(--cst-serif); font-size:13.5px; font-style:italic; letter-spacing:.1px; color:var(--cst-text-2); }
+.cst-sec::after { content:""; flex:1; height:1px; background:var(--cst-border); }
 /* ---- Quick controls: subtitle size stepper and volume sliders ---- */
 .cst-step { display:flex; align-items:center; gap:6px; }
 .cst-step button { flex-shrink:0; width:36px; height:30px; border-radius:8px; border:1px solid var(--cst-border);
@@ -170,7 +183,7 @@
 .cst-range::-moz-range-thumb { width:12px; height:12px; border-radius:50%; background:#FFFFFF; border:2px solid var(--cst-accent); }
 .cst-health { display:block; margin-top:3px; font-size:11.5px; color:var(--cst-text-2); }
 .cst-health[data-warn="1"] { color:var(--cst-warn); }
-@media (max-width: 720px) { .cst-tr-panel { width:min(360px,72%); bottom:64px; } }
+@media (max-width: 720px) { .cst-tr-panel { width:min(392px,72%); bottom:64px; } }
 @media (prefers-reduced-motion: reduce) { .cst-yt-menu *, .cst-yt-menu *::after { transition-duration:.001ms !important; } }
 `;
 
@@ -252,6 +265,19 @@
             badge.style.backgroundColor = on ? "#E08567" : "#D97757";   // never the shorthand: it drops the icon
             badge.style.boxShadow = on ? "0 0 12px rgba(217, 119, 87, 0.75)" : "0 2px 8px rgba(217, 119, 87, 0.45)";
         }
+    }
+
+    // A section heading inside the quick menu ("Phụ đề", "Giọng đọc")
+    function buildSection(doc, title) {
+        const h = doc.createElement("div");
+        h.className = "cst-sec";
+        h.setAttribute("role", "heading");
+        h.setAttribute("aria-level", "3");
+        const t = doc.createElement("span");
+        t.className = "cst-sec-title";
+        t.textContent = title;
+        h.appendChild(t);
+        return h;
     }
 
     // [-] value [+] for a number the viewer nudges often (subtitle size). get() reads the current
@@ -345,12 +371,12 @@
         const store = obj => { try { return chrome.storage.sync.set(obj); } catch (e) { return null; } };
         const box = doc.createElement("div");
         const voice = buildSlider(doc, {
-            label: "Âm lượng giọng Việt", min: 40, max: 100, step: 5, format: pct,
+            label: "Âm lượng giọng", min: 40, max: 100, step: 5, format: pct,
             get: () => Math.round(vol.dubVolume * 100),
             set: n => { vol.dubVolume = n / 100; return store({ dubVolume: vol.dubVolume }); }
         });
         const duck = buildSlider(doc, {
-            label: "Tiếng gốc khi đang đọc", min: 0, max: 60, step: 5, format: n => (n ? pct(n) : "tắt hẳn"),
+            label: "Tiếng gốc khi đọc", min: 0, max: 60, step: 5, format: n => (n ? pct(n) : "tắt hẳn"),
             get: () => Math.round(vol.dubDuck * 100),
             set: n => { vol.dubDuck = n / 100; return store({ dubDuck: vol.dubDuck }); }
         });
@@ -368,7 +394,7 @@
         return { el: box, refresh };
     }
 
-    root.CST_PLAYER_UI = { MARK_SVG, BTN_ICON_SVG, BTN_ICON_URL, MENU_CSS, napCss, taoNut, datTrangThai, buildStepper, buildSlider, buildVolumeControls };
+    root.CST_PLAYER_UI = { MARK_SVG, BTN_ICON_SVG, BTN_ICON_URL, MENU_CSS, napCss, taoNut, datTrangThai, buildStepper, buildSlider, buildVolumeControls, buildSection };
 })(typeof window !== "undefined" ? window : globalThis);
 
 if (typeof module !== "undefined" && module.exports) module.exports = globalThis.CST_PLAYER_UI;

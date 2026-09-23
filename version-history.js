@@ -4,6 +4,21 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.5.9", luc: "22:18 23/09/2026", ten: "Đo tốc độ nói của cả 25 giọng; thực đơn, bảng chép lời và bảng điều khiển gọn gàng, dễ đọc hơn",
+            y: [
+                "Đo thật tốc độ nói của cả 25 giọng VieNeu trên máy bạn. Trước đây chỉ 4 giọng có số đo, 21 giọng còn lại dùng chung con số ước 4,8 âm tiết mỗi giây, lệch tới 24% (giọng thật từ 3,8 đến 5,8). Nay bộ lồng tiếng chọn đúng nhịp ngay từ câu đầu với mọi giọng.",
+                "Danh sách giọng ghi rõ giọng nói chậm, vừa hay nhanh, ví dụ \"Mỹ Duyên (nữ, đọc truyện, nói chậm)\": bài giảng nhiều chữ nên chọn giọng nói vừa hoặc nhanh.",
+                "Thực đơn trên video chia hai phần có tiêu đề, Phụ đề và Giọng đọc, mỗi phần chỉ gồm nút của nó; khoảng cách rộng hơn, nhãn gọn hơn.",
+                "Bản chép lời trình bày như một trang đọc: dòng đầu ghi số dòng, thời lượng, số dòng đã sửa; câu gốc in nghiêng như chú thích; dòng đang phát đánh dấu bằng vạch màu bên trái; khung rộng hơn nên ít xuống dòng vụn.",
+                "Bảng điều khiển (bấm biểu tượng tiện ích) có thẻ Đang xem: tên video, thanh tiến độ dịch, và giọng đang đọc kèm tình trạng (đã chuẩn bị trước bao nhiêu giây, máy chủ có chậm không).",
+                "Sửa ghi chú trong Cài đặt: kéo tiếng gốc về 0% là tắt hẳn (ghi chú cũ vẫn nói không tắt)."
+            ],
+            bang: { cot: ["Giọng VieNeu", "Trước", "Nay"], hang: [
+                ["Số giọng có số đo tốc độ nói", "4 trên 25", "25 trên 25"],
+                ["Sai số lớn nhất của con số ước chung", "24%", "không còn dùng con số ước"]
+            ] }
+        },
+        {
             v: "1.5.8", luc: "22:02 23/09/2026", ten: "Giọng đọc số và ký hiệu đúng kiểu Việt, phụ đề không lặp câu, không vắt ngang câu",
             y: [
                 "Giọng VieNeu đọc \"1.500.000 đồng\" thành \"một năm không không không không không\". Lỗi do chính tiện ích: bỏ dấu chấm thành 1500000, mà máy chủ giọng đọc từng chữ số với mọi số từ 7 chữ số trở lên. Nay đọc \"một triệu năm trăm nghìn\". Kiểm chứng bằng đúng bộ chuẩn hóa chữ của máy chủ VieNeu.",

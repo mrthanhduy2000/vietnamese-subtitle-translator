@@ -707,8 +707,8 @@ test("quick menu: subtitle size buttons and the two volume sliders, on both site
 
     const ranges = menu.querySelectorAll(".cst-range");
     assert.equal(ranges.length, 2, "expected a voice volume and an original-track slider");
-    assert.match(menu.textContent, /Âm lượng giọng Việt/);
-    assert.match(menu.textContent, /Tiếng gốc khi đang đọc/);
+    assert.match(menu.textContent, /Âm lượng giọng/);
+    assert.match(menu.textContent, /Tiếng gốc khi đọc/);
     // hidden while dubbing is off: they would do nothing
     assert.equal(ranges[0].parent.parent.style.display, "none");
     ranges[1].value = "0";
@@ -735,4 +735,48 @@ test("dubbing badge and the 'preparing' card use the product's dark card, not a 
     const d = R("dubbing.js");
     assert.ok(!/background: rgba\(0,0,0,0\.65\)/.test(d) && !/background:rgba\(0,0,0,\.7\)/.test(d), "old black boxes still there");
     assert.ok((d.match(/rgba\(40,38,34,\.94\)/g) || []).length >= 2, "badge and note should share the card colour");
+});
+
+// 2026-09-23: 21 of the 25 VieNeu voices had no measured pace and shared a guess of 4.8 syllables per
+// second; measured on the local server they range from 3.8 to 5.8, so the guess was off by up to 24%.
+test("every VieNeu voice has a measured pace, and the pickers say how fast it speaks", () => {
+    const C = require("../cost-policy.js");
+    for (const v of C.LOCAL_TTS.voices) {
+        assert.ok(v.sps >= 3.5 && v.sps <= 6.5, `${v.id}: sps ${v.sps}`);
+    }
+    assert.equal(C.voiceLabel(C.LOCAL_TTS.voices.find(v => v.id === "Mỹ Duyên")), "Mỹ Duyên (nữ, đọc truyện, nói chậm)");
+    assert.match(C.voiceLabel(C.LOCAL_TTS.voices.find(v => v.id === "Thùy Dung")), /nói nhanh\)$/);
+    for (const f of ["youtube.js", "content.js", "options.js"]) assert.ok(/CST_COST\.voiceLabel\(v\)/.test(R(f)), f);
+});
+
+test("quick menu is two titled sections, subtitles first, voice second, on both sites", async t => {
+    const dom = miniDom();
+    const sb = loadYouTube(dom);
+    t.after(() => sb.donTimers());
+    const player = dom.doc.querySelector("#movie_player");
+    const btn = dom.doc.createElement("button");
+    player.appendChild(btn);
+    sb.ytMoMenuNhanh(player, btn);
+    const menu = player.querySelector(".cst-yt-menu");
+    const kids = menu.children;
+    const secs = kids.filter(k => k.className === "cst-sec");
+    assert.deepEqual(secs.map(s => s.textContent), ["Phụ đề", "Giọng đọc"]);
+    const idx = el => kids.indexOf(el);
+    const rows = menu.querySelectorAll(".cst-row");
+    assert.ok(idx(secs[0]) < idx(rows[0]) && idx(rows[0]) < idx(secs[1]), "the subtitle switch belongs to the first section");
+    assert.ok(idx(menu.querySelector(".cst-step")) < idx(secs[1]), "the size control belongs to the subtitle section");
+    const dubRow = rows.find(r => /Lồng tiếng Việt/.test(r.textContent));
+    assert.ok(idx(secs[1]) < idx(dubRow), "the dubbing switch belongs to the voice section");
+    assert.ok(kids[kids.length - 1].className === "cst-menu-foot", "footer comes last");
+    assert.ok(/kit\.buildSection\(document, "Phụ đề"\)[\s\S]{0,120}kit\.buildSection\(document, "Giọng đọc"\)/.test(R("content.js")), "Coursera menu uses the same sections");
+});
+
+test("popup shows what the page is doing: title, translation progress, voice status", () => {
+    const html = R("popup.html");
+    for (const id of ["nowCard", "nowTitle", "nowBar", "nowCount", "nowVoice"]) assert.ok(html.includes(`id="${id}"`), id);
+    const js = R("popup.js");
+    assert.ok(/function veTheDangXem\(st\)/.test(js));
+    const cs = R("content.js");
+    assert.ok(/sendResponse\(\{ site, title, active: yt\.active/.test(cs) && /sendResponse\(\{ site, title, active: state\.active/.test(cs), "the page must report its title");
+    assert.ok(/describeHealth\(\) : null;[\s\S]{0,200}health: health \? health\.text/.test(cs), "the page must report the voice status");
 });

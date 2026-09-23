@@ -60,34 +60,36 @@
         startScript: "~/VieNeu-TTS/cst-start.command",
         defaultVoice: "Mỹ Duyên",
         defaultVoice2: "Thái Sơn",
-        // sps: tốc độ nói đo trên máy Đàm (âm tiết/giây, không tính khoảng lặng); giọng chưa đo
-        // dùng ước lượng rồi tự hiệu chỉnh theo audio thật
+        // sps: tốc độ nói đo trên máy Đàm (âm tiết/giây, không tính khoảng lặng).
+        // 2026-09-23: all 25 measured on the local server (3 lecture sentences each, voiced frames
+        // only, scaled by 0.984 to match the 4 voices measured earlier, which the method reproduced
+        // within 4%). Before, 21 voices shared a guess of 4.8, off by up to 24%.
         voices: [
             { id: "Thùy Dung", sps: 5.4, gender: "Nữ", region: "Nam", style: "tin tức" },
             { id: "Mỹ Duyên", sps: 4.2, gender: "Nữ", region: "Nam", style: "đọc truyện" },
-            { id: "Thục Đoan", gender: "Nữ", region: "Nam", style: "kể chuyện" },
-            { id: "Kim Thanh", gender: "Nữ", region: "Nam", style: "đọc truyện" },
+            { id: "Thục Đoan", sps: 5.3, gender: "Nữ", region: "Nam", style: "kể chuyện" },
+            { id: "Kim Thanh", sps: 3.8, gender: "Nữ", region: "Nam", style: "đọc truyện" },
             { id: "Minh Triết", sps: 5.2, gender: "Nam", region: "Nam", style: "tin tức" },
-            { id: "Đức Trí", gender: "Nam", region: "Nam", style: "đọc truyện" },
+            { id: "Đức Trí", sps: 4.0, gender: "Nam", region: "Nam", style: "đọc truyện" },
             { id: "Thái Sơn", sps: 4.6, gender: "Nam", region: "Nam", style: "kể chuyện" },
-            { id: "Adam", gender: "Nam", region: "Nam", style: "tự nhiên" },
-            { id: "Minh Quân Pro", gender: "Nam", region: "Bắc", style: "tự nhiên" },
-            { id: "Trúc Ly", gender: "Nữ", region: "Bắc", style: "tự nhiên" },
-            { id: "Mai Anh", gender: "Nữ", region: "Bắc", style: "tin tức" },
-            { id: "Ngọc Huyền", gender: "Nữ", region: "Bắc", style: "tự nhiên" },
-            { id: "Anh Khôi", gender: "Nam", region: "Bắc", style: "kể chuyện" },
-            { id: "Adam bựa", gender: "Nam", region: "Bắc", style: "tự nhiên" },
-            { id: "Thiền Tâm Đức", gender: "Nam", region: "Bắc", style: "kể chuyện" },
-            { id: "Minh Đức", gender: "Nam", region: "Bắc", style: "tin tức" },
-            { id: "Phạm Tuyên", gender: "Nam", region: "Bắc", style: "tự nhiên" },
-            { id: "Xuân Vĩnh", gender: "Nam", region: "Bắc", style: "tự nhiên" },
-            { id: "Thanh Bình", gender: "Nam", region: "Bắc", style: "kể chuyện" },
-            { id: "Ngọc Linh", gender: "Nữ", region: "Bắc", style: "kể chuyện" },
-            { id: "Đoan Trang", gender: "Nữ", region: "Bắc", style: "tự nhiên" },
-            { id: "Quỳnh Anh", gender: "Nữ", region: "Bắc", style: "đọc truyện" },
-            { id: "Mạnh Dũng", gender: "Nam", region: "Bắc", style: "tự nhiên" },
-            { id: "Quang Sơn", gender: "Nam", region: "Trung", style: "tự nhiên" },
-            { id: "Ngọc Trân", gender: "Nữ", region: "Trung", style: "tự nhiên" }
+            { id: "Adam", sps: 5.0, gender: "Nam", region: "Nam", style: "tự nhiên" },
+            { id: "Minh Quân Pro", sps: 5.4, gender: "Nam", region: "Bắc", style: "tự nhiên" },
+            { id: "Trúc Ly", sps: 5.7, gender: "Nữ", region: "Bắc", style: "tự nhiên" },
+            { id: "Mai Anh", sps: 5.0, gender: "Nữ", region: "Bắc", style: "tin tức" },
+            { id: "Ngọc Huyền", sps: 5.1, gender: "Nữ", region: "Bắc", style: "tự nhiên" },
+            { id: "Anh Khôi", sps: 5.5, gender: "Nam", region: "Bắc", style: "kể chuyện" },
+            { id: "Adam bựa", sps: 4.9, gender: "Nam", region: "Bắc", style: "tự nhiên" },
+            { id: "Thiền Tâm Đức", sps: 4.4, gender: "Nam", region: "Bắc", style: "kể chuyện" },
+            { id: "Minh Đức", sps: 4.7, gender: "Nam", region: "Bắc", style: "tin tức" },
+            { id: "Phạm Tuyên", sps: 5.0, gender: "Nam", region: "Bắc", style: "tự nhiên" },
+            { id: "Xuân Vĩnh", sps: 5.5, gender: "Nam", region: "Bắc", style: "tự nhiên" },
+            { id: "Thanh Bình", sps: 5.8, gender: "Nam", region: "Bắc", style: "kể chuyện" },
+            { id: "Ngọc Linh", sps: 4.9, gender: "Nữ", region: "Bắc", style: "kể chuyện" },
+            { id: "Đoan Trang", sps: 4.9, gender: "Nữ", region: "Bắc", style: "tự nhiên" },
+            { id: "Quỳnh Anh", sps: 4.6, gender: "Nữ", region: "Bắc", style: "đọc truyện" },
+            { id: "Mạnh Dũng", sps: 5.3, gender: "Nam", region: "Bắc", style: "tự nhiên" },
+            { id: "Quang Sơn", sps: 5.5, gender: "Nam", region: "Trung", style: "tự nhiên" },
+            { id: "Ngọc Trân", sps: 4.6, gender: "Nữ", region: "Trung", style: "tự nhiên" }
         ]
     };
 
@@ -267,7 +269,15 @@
         return { score, reasons, tier: score >= threshold ? "strong" : "cheap" };
     }
 
+    // "Mỹ Duyên (nữ, đọc truyện, nói chậm)": the measured pace helps pick a voice for a dense talk
+    function voiceLabel(v) {
+        if (!v) return "";
+        const pace = !v.sps ? "" : v.sps < 4.4 ? ", nói chậm" : v.sps > 5.2 ? ", nói nhanh" : ", nói vừa";
+        return `${v.id} (${String(v.gender || "").toLowerCase()}, ${v.style}${pace})`;
+    }
+
     const api = {
+        voiceLabel,
         TRANSLATION_MODELS, TTS_MODELS, LOCAL_TTS, DEFAULT_MODELS, RETIRED_MODELS, MODELS_VERSION, AUTO, AUTO_CANDIDATES, AUDIO_TOKENS_PER_SEC,
         findModel, modelLabel, costRank, thinkingLevelFor, modelChain, migrateModelSettings, afterShutdown, liveModel,
         estimateTextCost, estimateTtsCost, BUDGET_DEFAULTS,

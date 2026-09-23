@@ -146,6 +146,16 @@
         }
         open.rows = rows;
         open.lastRow = null;
+        const meta = panel.querySelector(".cst-tr-meta");
+        if (meta) {
+            const v = adapter.videoEl && adapter.videoEl();
+            const secs = v && isFinite(v.duration) && v.duration > 0 ? v.duration : (lines.length ? lines[lines.length - 1].end : 0);
+            const mins = Math.max(1, Math.round(secs / 60));
+            const edited = lines.filter(l => l.edited).length;
+            meta.textContent = lines.length
+                ? [`${lines.length} dòng`, `${mins} phút`, needle ? `${rows.length} dòng khớp` : "", edited ? `${edited} dòng đã sửa` : ""].filter(Boolean).join(" · ")
+                : "";
+        }
         if (!rows.length) {
             list.appendChild(el("div", "cst-tr-empty", needle
                 ? "Không có dòng nào khớp."
@@ -289,6 +299,10 @@
         head.appendChild(btnSrt);
         head.appendChild(btnClose);
         panel.appendChild(head);
+
+        // One line of front matter under the title: how long the talk is and what has been corrected
+        const meta = el("div", "cst-tr-meta", "");
+        panel.appendChild(meta);
 
         const search = el("input", "cst-tr-search");
         search.type = "search";

@@ -128,6 +128,12 @@ temperature }`.
 
 First stop when there is no voice at all: `curl 127.0.0.1:8000/health`.
 
+**Voice paces (1.5.9).** Every voice in `LOCAL_TTS.voices` now has a measured `sps`. Method, so it
+can be redone: 3 lecture sentences per voice through `POST /v1/audio/speech` (pcm, 24 kHz), count
+syllables over voiced 20 ms frames (energy within 38 dB of the peak), scale by 0.984 so the 4
+voices measured earlier are reproduced (they were, within 4%). Needs the sandbox off for loopback.
+`CST_COST.voiceLabel(v)` shows the pace (chậm < 4.4 <= vừa <= 5.2 < nhanh) in all three pickers.
+
 ### Gemini TTS (paid)
 
 `POST` to `GEMINI_BASE` with `responseModalities: ["AUDIO"]` and a prebuilt voice name; the reply

@@ -615,7 +615,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             for (const v of LOCAL.voices.filter(x => x.region === region)) {
                 const op = document.createElement("option");
                 op.value = v.id;
-                op.textContent = `${v.id} (${v.gender.toLowerCase()}, ${v.style})`;
+                op.textContent = window.CST_COST && window.CST_COST.voiceLabel ? window.CST_COST.voiceLabel(v) : `${v.id} (${v.gender.toLowerCase()}, ${v.style})`;
                 group.appendChild(op);
             }
             sel.appendChild(group);

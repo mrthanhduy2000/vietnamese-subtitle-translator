@@ -42,9 +42,20 @@
                     </svg>
                     Cài đặt
                 </button>
-                <span class="brand-badge" title="Cập nhật lúc 22:02 23/09/2026">v1.5.8</span>
+                <span class="brand-badge" title="Cập nhật lúc 22:18 23/09/2026">v1.5.9</span>
             </div>
         </header>
+
+        <!-- What the page in front of you is doing right now: filled from the page's getStatus reply -->
+        <section class="now-card anim-entry" id="nowCard" style="--delay: 0.05s;" aria-live="polite" hidden>
+            <div class="now-kicker"><span>Đang xem</span><span class="now-site" id="nowSite"></span></div>
+            <p class="now-title" id="nowTitle"></p>
+            <div class="now-progress" id="nowProgress" hidden>
+                <div class="now-bar"><i id="nowBar"></i></div>
+                <span class="now-count" id="nowCount"></span>
+            </div>
+            <p class="now-voice" id="nowVoice" hidden></p>
+        </section>
 
         <!-- Chi phí ước tính hôm nay (chỉ lưu trên máy) -->
         <button type="button" class="cost-today anim-entry" id="costToday" style="--delay: 0.08s;" title="Xem chi tiết và đặt ngân sách trong Cài đặt" hidden></button>

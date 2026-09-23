@@ -33,6 +33,12 @@ runs in the same world, reading `content.js`'s `state` and `CST_UI` directly (no
    a resize. Both quick menus carry a subtitle-size stepper (`buildStepper` in `player-ui.js`).
 8. `disableTranslation` tears it down. `CS_GEN` tags every node this script instance created.
 
+**On-player layout (1.5.9).** Both quick menus are two sections built with `kit.buildSection`
+("Phụ đề": switch, display mode, size, skip; "Giọng đọc": switch with `describeHealth`, voice,
+volumes), then the footer. The transcript panel is 392 px wide; the overlays shift by 212 px and
+cap at `calc(100% - 452px)` while it is open. The popup's "Đang xem" card reads `title` and
+`dub.health` from `getStatus`.
+
 **Context leaks (1.5.8).** Each translation request carries neighbouring lines as context, and the
 model sometimes translates them into the unit before (measured: one unit held the next two units'
 content, shown and spoken twice). `CST_QUALITY.trimContextLeak(text, next)` cuts a tail whose word

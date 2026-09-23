@@ -1178,8 +1178,8 @@ function csApplyOverlayStyle(ov) {
     ov.style.padding = S.backgroundColor(s) === "transparent" ? "2px 6px" : "0.18em 0.6em 0.22em";
     // With the transcript panel open the picture is narrower: keep the subtitles inside what is left
     if (cs.panelOpen) {
-        ov.style.maxWidth = "min(92%, calc(100% - 420px))";
-        ov.style.transform = "translateX(calc(-50% - 196px))";
+        ov.style.maxWidth = "min(92%, calc(100% - 452px))";
+        ov.style.transform = "translateX(calc(-50% - 212px))";
     } else {
         ov.style.maxWidth = "92%";
         ov.style.transform = "translateX(-50%)";
@@ -1432,7 +1432,7 @@ function csOpenMenu(btn) {
     menu.appendChild(rowDub);
 
     const voiceBox = el("div", "cst-field");
-    voiceBox.appendChild(el("div", "cst-field-label", "Giọng đọc"));
+    voiceBox.appendChild(el("div", "cst-field-label", "Chọn giọng"));
     const voiceSel = el("select", "cst-select");
     voiceSel.setAttribute("aria-label", "Giọng đọc tiếng Việt");
     const LOCAL = window.CST_COST && window.CST_COST.LOCAL_TTS;
@@ -1445,7 +1445,7 @@ function csOpenMenu(btn) {
             for (const v of ds) {
                 const op = document.createElement("option");
                 op.value = v.id;
-                op.textContent = `${v.id} (${v.gender.toLowerCase()}, ${v.style})`;
+                op.textContent = window.CST_COST && window.CST_COST.voiceLabel ? window.CST_COST.voiceLabel(v) : `${v.id} (${v.gender.toLowerCase()}, ${v.style})`;
                 g.appendChild(op);
             }
             voiceSel.appendChild(g);
@@ -1464,9 +1464,8 @@ function csOpenMenu(btn) {
     const volume = kit.buildVolumeControls(document);
     menu.appendChild(volume.el);
 
-    menu.appendChild(el("div", "cst-sep"));
     const modeBox = el("div", "cst-field");
-    modeBox.appendChild(el("div", "cst-field-label", "Kiểu hiển thị phụ đề"));
+    modeBox.appendChild(el("div", "cst-field-label", "Kiểu hiển thị"));
     const seg = el("div", "cst-seg");
     const btnSingle = el("button", null, "Chỉ tiếng Việt");
     const btnDual = el("button", null, "Song ngữ");
@@ -1476,7 +1475,7 @@ function csOpenMenu(btn) {
 
     const S = window.CST_STYLE;
     const size = kit.buildStepper(document, {
-        label: "Cỡ chữ phụ đề", min: 50, max: 250, step: 10,
+        label: "Cỡ chữ", min: 50, max: 250, step: 10,
         get: () => (S ? S.normalizeStyle(state.subStyle).fontSize : 90),
         set: n => {
             // carry the current display mode: the storage listener reads subStyle.mode back into
@@ -1541,6 +1540,11 @@ function csOpenMenu(btn) {
     capNhat();
     const nhip = setInterval(capNhat, 700);
 
+    // Two sections, each holding only its own controls: what is on the page, then what is spoken
+    if (kit.buildSection) {
+        [head, kit.buildSection(document, "Phụ đề"), rowSub, modeBox, size.el,
+            kit.buildSection(document, "Giọng đọc"), rowDub, voiceBox, volume.el, foot].forEach(n => menu.appendChild(n));
+    }
     box.appendChild(menu);
     btn.setAttribute("aria-expanded", "true");
     const dong = () => {
@@ -1929,15 +1933,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         // bằng giọng nào (trước đây chỉ có bật/tắt nên bấm xong không biết chuyện gì đang xảy ra)
         const dubApi = window.CST_DUB;
         const st = dubApi && dubApi.dub ? dubApi.dub.lastStatus : null;
-        const dub = { on: !!(dubApi && dubApi.dub && dubApi.dub.enabled), voice: (st && st.voice) || "", label: (st && st.label) || "" };
+        const health = dubApi && dubApi.describeHealth ? dubApi.describeHealth() : null;
+        const dub = { on: !!(dubApi && dubApi.dub && dubApi.dub.enabled), voice: (st && st.voice) || "", label: (st && st.label) || "", health: health ? health.text : "", warn: !!(health && health.warn) };
+        const title = site === "youtube"
+            ? document.title.replace(/^\(\d+\)\s*/, "").replace(/\s*-\s*YouTube\s*$/i, "").trim()
+            : ((document.querySelector("h1") || {}).textContent || document.title.replace(/\s*\|\s*Coursera.*$/i, "")).trim();
         const demXong = gs => (gs || []).filter(g => g && g.viText).length;
         if (site === "youtube" && typeof yt !== "undefined") {
             const gs = (typeof ytNhomLongTieng === "function" ? ytNhomLongTieng() : yt.groups) || [];
-            sendResponse({ site, active: yt.active, busy: yt.busy, dub, xong: demXong(gs), tong: gs.length });
+            sendResponse({ site, title, active: yt.active, busy: yt.busy, dub, xong: demXong(gs), tong: gs.length });
             return true;
         }
         const gs = state.dubGroups || [];
-        sendResponse({ site, active: state.active, busy: state.busy, dub, xong: demXong(gs), tong: gs.length });
+        sendResponse({ site, title, active: state.active, busy: state.busy, dub, xong: demXong(gs), tong: gs.length });
         return true;
     }
 });
