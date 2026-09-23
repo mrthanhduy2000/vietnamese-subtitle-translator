@@ -21,8 +21,14 @@ runs in the same world, reading `content.js`'s `state` and `CST_UI` directly (no
    term hints, char-budgeted.
 5. `vi-quality.js` scores the result; above threshold `refineUnit` retranslates with the strong model.
 6. `vi-segmenter.js` `segmentGroupSafe` re-cuts the Vietnamese into cues and breaks lines by syntax,
-   not by character count. `applyTranslation` writes them back.
-7. `disableTranslation` tears it down. `CS_GEN` tags every node this script instance created.
+   not by character count. `applyTranslation` writes them back **and** fills `cs.viCues` / `cs.origCues`.
+7. Display (1.5.3): the track goes to `mode = "hidden"` and `csStartRender` paints our own overlay
+   (`.cst-cs-overlay`) with `CST_STYLE`, exactly like the YouTube one. Before that the Vietnamese went
+   to the browser's cue renderer, which Coursera paints over, so the two boxes overlapped.
+   The control button lives in Coursera's own control bar (`csPlayerParts` finds it by geometry,
+   never by class name) and opens the same quick menu; the two circles that used to float over the
+   picture are gone.
+8. `disableTranslation` tears it down. `CS_GEN` tags every node this script instance created.
 
 ## YouTube flow (`youtube.js` + `yt-bridge.js`)
 

@@ -7,72 +7,53 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 
 ## Last touched
 
-2026-09-23 · lanes A and C plus a test in lane D · version `1.5.2`. Before this: 1.4.7 the dubbing
+2026-09-23 · lanes A and C, plus tests in lane D · version `1.5.3`. Earlier today: 1.4.7 the dubbing
 overload fix, 1.4.8 the language cleanup, 1.4.9 to 1.5.2 the on-player and icon redesign.
 
 ## What changed
 
-- **1.4.9, the on-player surfaces now share one identity.** The control-bar button was a purple
-  gradient with a speaker glyph and the quick menu had its own purple theme, so nothing on the video
-  matched the popup or the Settings page. Both now use the extension's own mark (`CST_MARK_SVG`,
-  one string feeding the button and the menu header) and the palette from `popup.css`: accent
-  `#D97757`, cards with a border, 8/12/16 radii, the serif title face, and the popup's exact 36x20
-  switch. The menu follows the `uiTheme` setting (light / dark / auto) through `data-cst-theme`,
-  updated live from `storage.onChanged`. `cstToast` in `content.js` carries the same palette; it
-  stays dark in both themes because it sits on a video. The status dot is down to two colours,
-  amber while working and green while on, with the detail in the button title.
-- **1.5.0 / 1.5.1, the button was empty on the real page.** Adding `width`/`height` to the inline
-  SVG (1.5.0) did not help: measured in the page, YouTube's own stylesheet computes an inline `<svg>`
-  inside `.ytp-button` to **width 0** while height stays 18px. The icon is now painted as a
-  `background-image` data URI on the badge, which their CSS cannot reach, and the state code sets
-  `backgroundColor` (the `background` shorthand would drop the image). Verified by injecting the
-  badge into a live YouTube control bar and zooming in: icon visible next to the empty old one.
-  The icon itself is a speech bubble with the brand mark inside; the menu header still inlines
-  `CST_MARK_SVG`, which renders fine inside our own panel.
-- **1.5.2, one mark for the whole product.** The toolbar icon, the popup header, the popup's primary
-  button, the Settings header and the player menu were four different shapes. All of them now draw
-  the same speech-bubble-with-spark, and `icons/` holds four PNGs drawn per size (16/32/48/128,
-  smaller ones bolder) instead of one file scaled four ways. `tools/make-icon.py` draws them with
-  PIL, since this machine has no SVG rasteriser; re-run it if the mark ever changes.
-- **New guards**: `tests/ui.test.js` "on-player button, menu and toast use the same palette as the
-  popup" reads the tokens out of `popup.css` and fails if the on-player styles drift again (it fails
-  on the pre-1.4.9 file, 4 purple literals). It also fails if the button stops painting its icon as a
-  background image or starts setting the `background` shorthand: it fails on the 1.5.0 file. A second
-  test, "the product mark and the toolbar icons are the same everywhere", checks the shared path data
-  in the three source files and reads each PNG's IHDR to confirm it is really the declared size.
-- **1.4.7** measured on the real caption timeline of `H9yU-Y22vGI` at RTF 1.0: 12/61 sentences
-  spoken before the overload fix, 30/61 after, sentences over 2s late 10 → 2, healthy server
-  unchanged at 61/61. `docs/DUBBING.md` §SYNC holds the measured thresholds.
+- **New file `player-ui.js`** (`CST_PLAYER_UI`, loaded before `content.js` and `youtube.js`): the
+  product mark, the control-bar button builder and the quick-menu stylesheet. Both players draw from
+  it, so they cannot drift apart again; `youtube.js` lost its private copies.
+- **Coursera now works like YouTube.** The Vietnamese used to go to the browser's cue renderer, which
+  Coursera paints over, so two boxes overlapped. `applyTranslation` now fills `cs.viCues` /
+  `cs.origCues`, sets the track to `mode = "hidden"`, and `csStartRender` paints our own
+  `.cst-cs-overlay` with `CST_STYLE`. The two circles floating over the picture are gone: one button
+  sits in Coursera's own control bar and opens the same quick menu (subtitles, dubbing, voice,
+  display mode, Settings).
+- **`csPlayerParts` finds the control bar by geometry**, never by class name (Coursera's are hashed).
+  Two traps measured live: searching the whole document catches the buttons of an open dialog, so it
+  climbs the video's own ancestors, stops before `<body>` and needs 3+ controls; and the anchor is the
+  **rightmost** button, not the last one in DOM order.
+- Still true from earlier today: the control-bar icon is painted as a `background-image` because
+  YouTube's CSS computes an inline `<svg>` in `.ytp-button` to width 0, and `icons/` holds four PNGs
+  drawn per size by `tools/make-icon.py` (no SVG rasteriser on this machine).
 
 ## State
 
-- `npm test`: 324 tests, 323 pass, 0 fail, 1 skip · committed by path · Reload at
-  `chrome://extensions`: **yes** (1.5.2)
+- `npm test`: 325 tests, 324 pass, 0 fail, 1 skip · committed by path · Reload at
+  `chrome://extensions`: **yes** (1.5.3)
 - VieNeu: healthy, RTF ~0.23, `Interactive`, LaunchAgent loaded.
 
 ## Unfinished / in progress
 
-- Nothing from 1.5.1 or 1.5.2 has been seen in place: the control-bar icon was proved as an injected
-  element in a live page, and the toolbar / popup / Settings marks only as rendered PNGs and markup.
-  The user has to reload the extension to confirm.
-- Never reproduced live in the user's Chrome: a YouTube tab driven through the extension bridge
-  reports `document.hidden = true` and the player stays at `readyState 0`, so playback never starts.
-  Any measurement that needs a really playing video has to be run by the user.
+- **Coursera 1.5.3 has not been seen running.** Button placement and overlay geometry were verified
+  by injecting copies into the live lecture page (48x48 before fullscreen; overlay centred, 64px
+  above the bar), but the shipped code has not been loaded in Chrome yet. Dubbing on Coursera is
+  untouched but also untested since the display rewrite.
+- Nothing from 1.5.1 / 1.5.2 has been seen in place either (toolbar, popup and Settings marks).
 - Alt+S / Alt+D end to end and the quick-menu voice picker are still unmeasured (user deferred).
 - `docs/BACKLOG.md` has 8 open items, all needing the user's go-ahead first.
 
 ## Traps hit this session
 
+- The Chrome bridge drops its tab group between calls: batch navigate + inspect in one
+  `browser_batch`, and rebuild with `tabs_context_mcp{createIfEmpty:true}` when it errors.
+- YouTube enforces Trusted Types, so `innerHTML` throws in page-world probes (content scripts are
+  exempt). Build probe elements with DOM calls.
 - The sandbox blocks loopback TCP and refuses to start a local static server, and the preview pane
-  cannot screenshot a `file://` page: there is no way from here to render a page for your own eyes.
-  Assert on the CSS instead, and send the preview file to the user. That blind spot cost two
-  releases: a static preview sized the icon with its own CSS, the real button did not.
-- The way to check anything visual on YouTube: drive the page through the Chrome bridge, build the
-  element with DOM calls (the page enforces Trusted Types, so `innerHTML` throws there), strip
-  `ytp-autohide` from `#movie_player` to keep the control bar up, then `zoom` on its rectangle.
-- Sweep constants, do not reason about them: three plausible dubbing guards measured as worthless
-  or harmful in 1.4.7.
+  cannot screenshot a `file://` page: assert on the source, probe the live page, send the user a file.
 
 ## Suggested next step
 
-- Ask the user how the new menu looks on a video, or pick a `docs/BACKLOG.md` item.
+- Ask the user to reload and watch a Coursera lecture, then fix whatever the overlay gets wrong.

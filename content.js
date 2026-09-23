@@ -144,19 +144,9 @@ function injectCueStyle() {
     (document.head || document.documentElement).appendChild(style);
 }
 
+// The control-bar button's state. Kept as a named function because the whole file calls it.
 function setIconState(status) {
-    const icon = document.querySelector(CS_ICON);
-    if (!icon) return;
-    const styles = {
-        idle:    { bg: "rgba(0,0,0,0.5)", content: "\u{1F310}", title: "Bat dich phu de sang tieng Viet" },
-        loading: { bg: "#E2A11E",         content: "\u{23F3}",  title: "Dang dich, vui long cho..." },
-        on:      { bg: "#1E80E2",         content: "\u{1F310}", title: "Dang hien tieng Viet. Bam de tat" },
-        error:   { bg: "#D93025",         content: "\u{26A0}",  title: "Dich that bai. Bam de thu lai" }
-    };
-    const s = styles[status] || styles.idle;
-    icon.style.backgroundColor = s.bg;
-    icon.innerHTML = s.content;
-    icon.title = s.title;
+    csUpdateButton(status);
 }
 
 // ---------- Bao ve thuat ngu va danh tu rieng ----------
@@ -837,6 +827,27 @@ function applyTranslation(track, groups, translations) {
         });
     }
 
+    // Our own overlay paints from here on. The track keeps the cues (the dubbing engine and the
+    // "restore original" path read them) but goes to "hidden", so the browser draws nothing:
+    // its cue boxes and Coursera's own caption box used to land on top of each other.
+    cs.viCues = [];
+    cs.origCues = [];
+    for (const g of state.dubGroups) for (const c of (g.viCues || [])) {
+        cs.viCues.push({ start: c.start, end: c.end, lines: c.lines || [c.text], text: c.text || (c.lines || []).join(" ") });
+    }
+    cs.viCues.sort((a, b) => a.start - b.start);
+    for (let i = 1; i < cs.viCues.length; i++) {
+        if (cs.viCues[i].start < cs.viCues[i - 1].end) cs.viCues[i - 1].end = Math.max(cs.viCues[i - 1].start + 0.05, cs.viCues[i].start);
+    }
+    originals.forEach((cue, i) => {
+        const text = plainCueText({ text: state.originalCueTexts.get(i) });
+        if (text) cs.origCues.push({ start: cue.startTime, end: cue.endTime, text });
+    });
+    cs.origCues.sort((a, b) => a.start - b.start);
+    try { track.mode = "hidden"; } catch (e) { /* bỏ qua */ }
+    cs.renderKey = "";
+    csStartRender();
+
     console.log(`Da ap ban dich: ${originals.length} cue goc -> ${viCount} cue tieng Viet, dong dai nhat ${longestLine} ky tu`);
     if (state.glossaryMisses > 0) {
         console.warn(`Co ${state.glossaryMisses} thuat ngu khong khoi phuc duoc dung cach`);
@@ -915,8 +926,8 @@ async function translateCoursera() {
         session,
         groups,
         (done, total) => {
-            const icon = document.querySelector(CS_ICON);
-            if (icon) icon.title = `Dang dich ${done}/${total} nhom...`;
+            const btn = document.querySelector(CS_BTN);
+            if (btn) btn.setAttribute("title", `Đang dịch ${done}/${total} nhóm…`);
         }
     );
 
@@ -973,8 +984,9 @@ function disableTranslation() {
     // Tat long tieng truoc vi no doc tu phu de da dich
     if (window.CST_DUB && window.CST_DUB.dub.enabled) {
         window.CST_DUB.stop();
-        setDubIconState(false);
+        csUpdateButton();
     }
+    csStopRender();
     restoreOriginalCues();
     state.active = false;
     state.originalCueTexts = null;
@@ -987,102 +999,433 @@ function disableTranslation() {
 // Mã thế hệ của lần nạp mã này (xem YT_GEN trong youtube.js): nút của mã cũ đã mất kết nối
 // với tiện ích (sau khi Tải lại) bị thay bằng nút còn sống
 const CS_GEN = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-const CS_ICON = `.cst-translate-icon[data-cst-gen="${CS_GEN}"]`;
 
-function createTranslateIcon() {
-    const site = getCurrentSite();
-    let container = null;
 
-    if (site === "coursera") {
-        const selectors = [
-            "#video-player-row",
-            "div[data-testid='video-player']",
-            ".rc-VideoMiniPlayerContainer",
-            "div.video-wrapper",
-            "video"
-        ];
-        for (const sel of selectors) {
-            const el = document.querySelector(sel);
-            if (el) {
-                container = sel === "video" ? el.parentElement : el;
-                break;
-            }
+// ---------- Coursera: control-bar button, subtitle overlay, quick menu ----------
+// Same shape as YouTube. Two things used to go wrong here: the Vietnamese was handed to the
+// browser's own cue renderer, which Coursera paints too, so the two boxes overlapped; and the
+// controls were two circles floating over the picture instead of a button in the player's bar.
+
+const CS_BTN = `.cst-cs-btn[data-cst-gen="${CS_GEN}"]`;
+const CS_OVERLAY = `.cst-cs-overlay[data-cst-gen="${CS_GEN}"]`;
+const cs = { viCues: [], origCues: [], renderKey: "", raf: 0, timer: 0, styleKey: "" };
+
+function csVideo() {
+    return document.querySelector("video");
+}
+
+// Coursera's class names are hashed and change between deploys, so the control bar is found by
+// geometry. Measured trap: searching the whole document catches the buttons of any dialog that
+// happens to overlap the picture, so the search climbs the video's own ancestors and stops at the
+// first one holding at least three controls of its own, never at <body>.
+function csPlayerParts() {
+    const v = csVideo();
+    if (!v) return null;
+    const r = v.getBoundingClientRect();
+    if (!r.width || !r.height) return null;
+    const inBar = b => {
+        const br = b.getBoundingClientRect();
+        return br.width > 10 && br.height > 10
+            && br.top > r.top + r.height * 0.55 && br.bottom < r.bottom + 90
+            && br.left >= r.left - 24 && br.right <= r.right + 24;
+    };
+    let box = v.parentElement;
+    let btns = [];
+    while (box && box !== document.body) {
+        btns = [...box.querySelectorAll("button")].filter(b => !b.classList.contains("cst-cs-btn") && inBar(b));
+        if (btns.length >= 3) break;
+        box = box.parentElement;
+    }
+    if (!box || box === document.body || btns.length < 3) return null;
+    // the rightmost control is the anchor (fullscreen); ours goes in front of it
+    const last = btns.reduce((a, b) => (b.getBoundingClientRect().left > a.getBoundingClientRect().left ? b : a));
+    const wrap = last.parentElement;
+    const group = wrap && wrap.parentElement;
+    if (!group || group.children.length < 2) return null;
+    return { box, group, before: wrap, height: Math.round(wrap.getBoundingClientRect().height) || 48 };
+}
+
+function csControlGroup() {
+    return csPlayerParts();
+}
+
+// The container holding both the picture and the control bar: the overlay goes in there so it
+// lines up with the video and rides along into fullscreen.
+function csPlayerBox() {
+    const parts = csPlayerParts();
+    if (parts) return parts.box;
+    const v = csVideo();
+    return v ? v.parentElement : null;
+}
+
+// Elements from an older generation of this script (after Reload) cannot work any more. Hide them,
+// never remove them: removing makes the old code rebuild and remove ours, and the tab spins.
+function csHideOlderGen(root, selector) {
+    if (!root) return;
+    root.querySelectorAll(selector).forEach(el => {
+        if (el.dataset.cstGen !== CS_GEN && el.style.display !== "none") el.style.display = "none";
+    });
+}
+
+function csCreateButton() {
+    const kit = window.CST_PLAYER_UI;
+    const ctl = csControlGroup();
+    if (!kit || !ctl) return null;
+    csHideOlderGen(document, ".cst-translate-icon, .cst-dub-icon, .cst-cs-btn");
+    const existing = document.querySelector(CS_BTN);
+    if (existing && existing.isConnected) {
+        csUpdateButton();
+        return existing;
+    }
+    const size = Math.max(26, Math.min(32, ctl.height - 16));
+    const btn = kit.taoNut(document, {
+        size,
+        title: "Dịch phụ đề & lồng tiếng tiếng Việt",
+        className: "cst-cs-btn",
+        onClick: () => csOpenMenu(btn),
+        onDblClick: () => { if (state.active) disableTranslation(); else enableTranslation(); }
+    });
+    btn.dataset.cstGen = CS_GEN;
+    btn.style.width = `${ctl.height}px`;
+    btn.style.height = `${ctl.height}px`;
+    const wrap = document.createElement("div");
+    wrap.className = "cst-cs-btn-wrap";
+    wrap.dataset.cstGen = CS_GEN;
+    wrap.style.cssText = "display:flex;align-items:center;justify-content:center;";
+    wrap.appendChild(btn);
+    ctl.group.insertBefore(wrap, ctl.before);
+    csUpdateButton();
+    return btn;
+}
+
+function csUpdateButton(status) {
+    const kit = window.CST_PLAYER_UI;
+    const btn = document.querySelector(CS_BTN);
+    if (!kit || !btn) return;
+    const isDub = !!(window.CST_DUB && window.CST_DUB.dub && window.CST_DUB.dub.enabled);
+    const busy = status === "loading" || state.busy;
+    const on = status === "on" || state.active || isDub;
+    kit.datTrangThai(btn, {
+        busy,
+        on: on && !busy,
+        title: busy ? "Đang dịch phụ đề…"
+            : status === "error" ? "Dịch thất bại. Bấm để thử lại"
+                : state.active && isDub ? "Đang bật phụ đề Việt và lồng tiếng"
+                    : state.active ? "Đang bật phụ đề tiếng Việt"
+                        : isDub ? "Đang lồng tiếng Việt"
+                            : "Dịch phụ đề & lồng tiếng tiếng Việt"
+    });
+}
+
+// ---- The subtitle overlay: our own box on the picture, never the browser's cue renderer ----
+function csOverlay() {
+    const box = csPlayerBox();
+    if (!box) return null;
+    csHideOlderGen(box, ".cst-cs-overlay");
+    let ov = box.querySelector(CS_OVERLAY);
+    if (ov && ov.isConnected) return ov;
+    if (getComputedStyle(box).position === "static") box.style.position = "relative";
+    ov = document.createElement("div");
+    ov.className = "cst-cs-overlay";
+    ov.dataset.cstGen = CS_GEN;
+    ov.style.cssText = "position:absolute;left:50%;transform:translateX(-50%);max-width:88%;" +
+        "text-align:center;pointer-events:none;white-space:pre-line;opacity:0;z-index:60;" +
+        "transition:opacity .12s ease;";
+    box.appendChild(ov);
+    cs.styleKey = "";
+    csApplyOverlayStyle(ov);
+    return ov;
+}
+
+function csApplyOverlayStyle(ov) {
+    const S = window.CST_STYLE;
+    if (!ov || !S) return;
+    const s = S.normalizeStyle(state.subStyle);
+    const box = csPlayerBox();
+    const width = (box && box.clientWidth) || 640;
+    const height = (box && box.clientHeight) || 360;
+    const base = Math.max(14, Math.min(width * 0.026, 40));
+    ov.style.fontFamily = S.fontStack(s.fontFamily);
+    ov.style.fontSize = `${(base * (s.fontSize || 90) / 100).toFixed(1)}px`;
+    ov.style.fontWeight = s.fontWeight;
+    ov.style.lineHeight = String(s.lineHeight);
+    ov.style.color = s.fontColor;
+    ov.style.backgroundColor = S.backgroundColor(s);
+    ov.style.borderRadius = `${s.borderRadius}px`;
+    ov.style.textShadow = S.textShadow(s);
+    ov.style.padding = S.backgroundColor(s) === "transparent" ? "2px 6px" : "0.18em 0.6em 0.22em";
+    const margin = height * (s.offset || 0) / 100 + 6;
+    const ctl = csControlGroup();
+    const bar = s.pinBottom ? 0 : (ctl ? ctl.height + 16 : 64);
+    if (s.position === "top") {
+        ov.style.top = `${Math.round(margin)}px`;
+        ov.style.bottom = "auto";
+    } else {
+        ov.style.top = "auto";
+        ov.style.bottom = `${Math.round(Math.max(margin, bar))}px`;
+    }
+    S.ensureFont(document, s.fontFamily, s.fontWeight).then(() => { cs.renderKey = ""; });
+    cs.styleKey = `${width}x${height}|${JSON.stringify(s)}`;
+    cs.renderKey = "";
+}
+
+function csFindCue(list, t) {
+    let lo = 0, hi = list.length - 1;
+    while (lo <= hi) {
+        const mid = (lo + hi) >> 1;
+        if (list[mid].start > t) hi = mid - 1;
+        else if (list[mid].end <= t) lo = mid + 1;
+        else return list[mid];
+    }
+    return null;
+}
+
+function csPaint(ov, vi, origText) {
+    const S = window.CST_STYLE;
+    const s = S ? S.normalizeStyle(state.subStyle) : { origScale: 80, origColor: "#d4d4d8" };
+    const blocks = [];
+    const block = (lines, css) => {
+        const d = document.createElement("div");
+        if (css) d.style.cssText = css;
+        d.textContent = lines.join("\n");
+        return d;
+    };
+    if (vi) blocks.push(block(vi.lines && vi.lines.length ? vi.lines : [vi.text]));
+    if (origText && (state.dualMode || !vi)) {
+        const scale = vi ? (s.origScale || 80) / 100 : 1;
+        const css = vi
+            ? `font-size:${scale.toFixed(2)}em;color:${s.origColor};font-weight:400;margin-top:0.12em;`
+            : "opacity:0.85;";
+        const b = block([origText], css);
+        if (vi && state.originalFirst) {
+            b.style.marginTop = "0";
+            b.style.marginBottom = "0.12em";
+            blocks.unshift(b);
+        } else {
+            blocks.push(b);
         }
     }
+    ov.replaceChildren(...blocks);
+    ov.style.opacity = blocks.length ? "1" : "0";
+}
 
-    if (!container) return;
-    // Biểu tượng của mã cũ (sau khi Tải lại tiện ích): ẨN, không xóa. Xóa thì mã cũ tạo lại ngay và xóa
-    // biểu tượng của mã mới -> hai bên xóa / tạo lại nhau vô tận, trang treo (xem youtube.js ytAnCuaMaKhac)
-    container.querySelectorAll(".cst-translate-icon, .cst-dub-icon").forEach(el => { if (el.dataset.cstGen !== CS_GEN && el.style.display !== "none") el.style.display = "none"; });
-    if (container.querySelector(CS_ICON)) return;
-    if (getComputedStyle(container).position === "static") {
-        container.style.position = "relative";
+function csRender() {
+    const v = csVideo();
+    const ov = document.querySelector(CS_OVERLAY);
+    if (!v || !ov) return;
+    // Coursera can switch its own captions back on; only one of us should be painting
+    const track = state.activeTrack && state.activeTrack.track;
+    if (track && track.mode !== "hidden") track.mode = "hidden";
+    const box = csPlayerBox();
+    if (box && cs.styleKey && !cs.styleKey.startsWith(`${box.clientWidth}x${box.clientHeight}|`)) csApplyOverlayStyle(ov);
+    const t = v.currentTime;
+    const vi = csFindCue(cs.viCues, t);
+    const orig = csFindCue(cs.origCues, t);
+    const key = `${vi ? vi.start : -1}|${state.dualMode && orig ? orig.start : -1}`;
+    if (key === cs.renderKey) return;
+    cs.renderKey = key;
+    csPaint(ov, vi, orig ? orig.text : "");
+}
+
+// One frame per repaint while the tab is visible. A test harness (and any context without
+// requestAnimationFrame) falls back to a plain 100 ms timer.
+function csStartRender() {
+    csOverlay();
+    if (cs.raf || cs.timer) return;
+    const raf = typeof requestAnimationFrame === "function" ? requestAnimationFrame : null;
+    if (!raf) {
+        cs.timer = setInterval(csRender, 100);
+        return;
     }
+    const tick = () => {
+        if (!cs.raf) return;
+        csRender();
+        cs.raf = raf(tick);
+    };
+    cs.raf = raf(tick);
+}
 
-    const icon = document.createElement("div");
-    icon.className = "cst-translate-icon";
-    icon.dataset.cstGen = CS_GEN;
-    icon.style.cssText = `
-        position: absolute; top: 16px; right: 16px;
-        width: 40px; height: 40px; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 20px; color: #fff; cursor: pointer; opacity: 0.75;
-        z-index: 2147483000; transition: opacity 0.2s, background-color 0.2s;
-        user-select: none;
-    `;
-    icon.addEventListener("mouseover", () => { icon.style.opacity = "1"; });
-    icon.addEventListener("mouseout", () => { icon.style.opacity = "0.75"; });
-    icon.addEventListener("click", event => {
-        event.stopPropagation();
-        event.preventDefault();
-        if (state.active) disableTranslation();
-        else enableTranslation();
+function csStopRender() {
+    if (cs.raf && typeof cancelAnimationFrame === "function") cancelAnimationFrame(cs.raf);
+    if (cs.timer) clearInterval(cs.timer);
+    cs.timer = 0;
+    cs.raf = 0;
+    cs.renderKey = "";
+    const ov = document.querySelector(CS_OVERLAY);
+    if (ov) ov.remove();
+    const track = state.activeTrack && state.activeTrack.track;
+    if (track && track.mode === "hidden") track.mode = "showing";
+}
+
+// ---- The quick menu, the same panel YouTube shows ----
+function csOpenMenu(btn) {
+    const box = csPlayerBox();
+    const kit = window.CST_PLAYER_UI;
+    if (!box || !kit) return;
+    const open = box.querySelector(".cst-yt-menu");
+    if (open) {
+        if (open.cstDong) open.cstDong(); else open.remove();
+        return;
+    }
+    kit.napCss(document);
+
+    const el = (tag, cls, txt) => {
+        const e = document.createElement(tag);
+        if (cls) e.className = cls;
+        if (txt != null) e.textContent = txt;
+        return e;
+    };
+    const congTac = (nhan, onToggle) => {
+        const row = el("button", "cst-row");
+        row.type = "button";
+        row.setAttribute("role", "switch");
+        const label = el("span", "cst-row-label");
+        label.appendChild(document.createTextNode(nhan));
+        const sub = el("span", "cst-row-sub");
+        label.appendChild(sub);
+        row.appendChild(label);
+        row.appendChild(el("span", "cst-sw"));
+        row.addEventListener("click", () => { if (row.getAttribute("aria-disabled") !== "true") onToggle(row); });
+        row.cstSub = sub;
+        return row;
+    };
+
+    const menu = el("div", "cst-yt-menu");
+    menu.setAttribute("role", "dialog");
+    menu.setAttribute("aria-label", "Dịch phụ đề và lồng tiếng");
+    menu.dataset.cstGen = CS_GEN;
+    menu.dataset.cstTheme = state.uiTheme || "auto";
+    menu.style.bottom = `${(csControlGroup() || { height: 48 }).height + 22}px`;
+
+    const head = el("div", "cst-menu-head");
+    const mark = el("span", "cst-menu-mark");
+    mark.innerHTML = kit.MARK_SVG;
+    mark.style.color = "#FFFFFF";
+    head.appendChild(mark);
+    head.appendChild(el("span", "cst-menu-title", "Dịch & lồng tiếng Việt"));
+    const x = el("button", "cst-menu-x", "✕");
+    x.type = "button";
+    x.setAttribute("aria-label", "Đóng");
+    head.appendChild(x);
+    menu.appendChild(head);
+
+    const rowSub = congTac("Phụ đề tiếng Việt", async row => {
+        if (state.active) { disableTranslation(); capNhat(); return; }
+        row.setAttribute("aria-disabled", "true");
+        capNhat();
+        await enableTranslation();
+        row.removeAttribute("aria-disabled");
+        capNhat();
+    });
+    const rowDub = congTac("Lồng tiếng Việt", async row => {
+        row.setAttribute("aria-disabled", "true");
+        capNhat();
+        await toggleDubbing(csPlayerBox() || document.body);
+        row.removeAttribute("aria-disabled");
+        capNhat();
+    });
+    menu.appendChild(rowSub);
+    menu.appendChild(rowDub);
+
+    const voiceBox = el("div", "cst-field");
+    voiceBox.appendChild(el("div", "cst-field-label", "Giọng đọc"));
+    const voiceSel = el("select", "cst-select");
+    voiceSel.setAttribute("aria-label", "Giọng đọc tiếng Việt");
+    const LOCAL = window.CST_COST && window.CST_COST.LOCAL_TTS;
+    if (LOCAL) {
+        for (const region of ["Nam", "Bắc", "Trung"]) {
+            const ds = LOCAL.voices.filter(v => v.region === region);
+            if (!ds.length) continue;
+            const g = document.createElement("optgroup");
+            g.label = `Giọng miền ${region}`;
+            for (const v of ds) {
+                const op = document.createElement("option");
+                op.value = v.id;
+                op.textContent = `${v.id} (${v.gender.toLowerCase()}, ${v.style})`;
+                g.appendChild(op);
+            }
+            voiceSel.appendChild(g);
+        }
+        voiceSel.value = LOCAL.defaultVoice;
+        try {
+            chrome.storage.sync.get({ dubLocalVoice: "" }, r => { if (r && r.dubLocalVoice) voiceSel.value = r.dubLocalVoice; });
+        } catch (e) { /* bỏ qua */ }
+    }
+    voiceSel.addEventListener("change", async () => {
+        try { await chrome.storage.sync.set({ dubLocalVoice: voiceSel.value }); } catch (e) { /* bỏ qua */ }
+        cstToast(`Đang chuyển sang giọng ${voiceSel.value}…`);
+    });
+    voiceBox.appendChild(voiceSel);
+    menu.appendChild(voiceBox);
+
+    menu.appendChild(el("div", "cst-sep"));
+    const modeBox = el("div", "cst-field");
+    modeBox.appendChild(el("div", "cst-field-label", "Kiểu hiển thị phụ đề"));
+    const seg = el("div", "cst-seg");
+    const btnSingle = el("button", null, "Chỉ tiếng Việt");
+    const btnDual = el("button", null, "Song ngữ");
+    [btnSingle, btnDual].forEach(b => { b.type = "button"; seg.appendChild(b); });
+    modeBox.appendChild(seg);
+    menu.appendChild(modeBox);
+
+    const foot = el("div", "cst-menu-foot");
+    const btnOptions = el("button", null, "Cài đặt");
+    btnOptions.type = "button";
+    foot.appendChild(btnOptions);
+    menu.appendChild(foot);
+
+    const datKieuHienThi = async dual => {
+        state.dualMode = dual;
+        cs.renderKey = "";
+        try { await chrome.storage.sync.set({ dualMode: dual }); } catch (e) { /* bỏ qua */ }
+        capNhat();
+    };
+    btnSingle.addEventListener("click", () => datKieuHienThi(false));
+    btnDual.addEventListener("click", () => datKieuHienThi(true));
+    btnOptions.addEventListener("click", () => {
+        try { chrome.runtime.sendMessage({ action: "openOptions" }); } catch (e) { /* bỏ qua */ }
     });
 
-    container.appendChild(icon);
-    setIconState("idle");
+    function capNhat() {
+        const dubApi = window.CST_DUB;
+        const isDub = !!(dubApi && dubApi.dub && dubApi.dub.enabled);
+        rowSub.setAttribute("aria-checked", String(!!state.active));
+        rowSub.cstSub.textContent = state.busy ? "Đang dịch…" : state.active ? "Đang bật" : "Đang tắt";
+        rowDub.setAttribute("aria-checked", String(isDub));
+        const st = dubApi && dubApi.dub ? dubApi.dub.lastStatus : null;
+        rowDub.cstSub.textContent = isDub
+            ? (st && st.voice ? `Đang đọc bằng giọng ${st.voice}` : "Đang bật")
+            : "Đang tắt";
+        btnSingle.setAttribute("aria-pressed", String(!state.dualMode));
+        btnDual.setAttribute("aria-pressed", String(!!state.dualMode));
+        const localProv = !st || st.provider === "vieneu";
+        voiceBox.style.display = localProv ? "block" : "none";
+        if (localProv && st && st.voice && voiceSel.value !== st.voice) voiceSel.value = st.voice;
+        csUpdateButton();
+    }
+    capNhat();
+    const nhip = setInterval(capNhat, 700);
 
-    createDubIcon(container);
+    box.appendChild(menu);
+    btn.setAttribute("aria-expanded", "true");
+    const dong = () => {
+        clearInterval(nhip);
+        menu.remove();
+        document.removeEventListener("click", onDocClick);
+        document.removeEventListener("keydown", onKeyDown);
+        btn.setAttribute("aria-expanded", "false");
+        try { btn.focus(); } catch (e) { /* bỏ qua */ }
+    };
+    menu.cstDong = dong;
+    const onDocClick = e => { if (!menu.contains(e.target) && !btn.contains(e.target)) dong(); };
+    const onKeyDown = e => { if (e.key === "Escape") { e.stopPropagation(); dong(); } };
+    setTimeout(() => {
+        document.addEventListener("click", onDocClick);
+        document.addEventListener("keydown", onKeyDown);
+    }, 0);
+    x.addEventListener("click", dong);
 }
 
-// Nut long tieng rieng, dat ngay duoi nut dich
-function createDubIcon(container) {
-    if (!container || container.querySelector(`.cst-dub-icon[data-cst-gen="${CS_GEN}"]`)) return;
-
-    const icon = document.createElement("div");
-    icon.className = "cst-dub-icon";
-    icon.dataset.cstGen = CS_GEN;
-    icon.innerHTML = "\u{1F508}";
-    icon.title = "Bật lồng tiếng Việt";
-    icon.style.cssText = `
-        position: absolute; top: 64px; right: 16px;
-        width: 40px; height: 40px; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 19px; color: #fff; cursor: pointer; opacity: 0.75;
-        background-color: rgba(0,0,0,0.5);
-        z-index: 2147483000; transition: opacity 0.2s, background-color 0.2s;
-        user-select: none;
-    `;
-    icon.addEventListener("mouseover", () => { icon.style.opacity = "1"; });
-    icon.addEventListener("mouseout", () => { icon.style.opacity = "0.75"; });
-    icon.addEventListener("click", async event => {
-        event.stopPropagation();
-        event.preventDefault();
-        await toggleDubbing(container);
-    });
-
-    container.appendChild(icon);
-}
-
-function setDubIconState(on) {
-    const icon = document.querySelector(`.cst-dub-icon[data-cst-gen="${CS_GEN}"]`);
-    if (!icon) return;
-    icon.style.backgroundColor = on ? "#1E8E3E" : "rgba(0,0,0,0.5)";
-    icon.innerHTML = on ? "\u{1F509}" : "\u{1F508}";
-    icon.title = on ? "Đang lồng tiếng. Bấm để tắt" : "Bật lồng tiếng Việt";
-}
-
-// Bat hoac tat long tieng
 async function toggleDubbing(container) {
     const api = window.CST_DUB;
     if (!api) {
@@ -1092,7 +1435,7 @@ async function toggleDubbing(container) {
 
     if (api.dub.enabled) {
         api.stop();
-        setDubIconState(false);
+        csUpdateButton();
         rememberDub(false);
         return;
     }
@@ -1107,7 +1450,7 @@ async function toggleDubbing(container) {
 
     const videoEl = container.querySelector("video") || document.querySelector("video");
     const ok = await api.start({ video: videoEl, container, getGroups: () => state.dubGroups || [] });
-    setDubIconState(ok);
+    csUpdateButton();
     if (ok) rememberDub(true);
 }
 
@@ -1128,7 +1471,7 @@ async function courseraAutoDub() {
     state.dubStarting = true;
     try {
         const ok = await api.start({ video: videoEl, container, getGroups: () => state.dubGroups || [], quiet: true });
-        setDubIconState(ok);
+        csUpdateButton();
         return ok;
     } finally {
         state.dubStarting = false;
@@ -1144,7 +1487,8 @@ function watchNavigation() {
             state.active = false;
             state.originalCueTexts = null;
             state.activeTrack = null;
-            setTimeout(() => { createTranslateIcon(); courseraAutoTranslate(); }, 1500);
+            csStopRender();
+            setTimeout(() => { csCreateButton(); courseraAutoTranslate(); }, 1500);
         }
     };
     const interval = setInterval(checkUrl, 1000);
@@ -1219,12 +1563,14 @@ async function loadSettings() {
         const saved = await chrome.storage.sync.get({
             dualMode: false, perCueMode: false, styleOriginal: false, originalFirst: false,
             dubVoiceName: "", dubDuck: 0.12, dubAutoRate: true,
-            subStyle: null, costMode: "balanced", autoTranslate: true, dubEnabled: true
+            subStyle: null, costMode: "balanced", autoTranslate: true, dubEnabled: true,
+            uiTheme: "auto"
         });
         state.dubEnabled = saved.dubEnabled !== false;
         state.costMode = saved.costMode;
         state.autoTranslate = saved.autoTranslate !== false;
         state.dualMode = saved.dualMode;
+        state.uiTheme = saved.uiTheme || "auto";
         state.perCueMode = saved.perCueMode;
         state.styleOriginal = saved.styleOriginal;
         state.originalFirst = saved.originalFirst;
@@ -1275,7 +1621,7 @@ async function init() {
                     state.dubEnabled = changes.dubEnabled.newValue !== false;
                     if (getCurrentSite() === "coursera") {
                         if (state.dubEnabled) courseraAutoDub();
-                        else if (window.CST_DUB && window.CST_DUB.dub.enabled) { window.CST_DUB.stop(); setDubIconState(false); }
+                        else if (window.CST_DUB && window.CST_DUB.dub.enabled) { window.CST_DUB.stop(); csUpdateButton(); }
                     }
                 }
                 // (dubbing.js tự áp dụng thay đổi giọng / mức âm cho engine lồng tiếng đang chạy)
@@ -1289,11 +1635,12 @@ async function init() {
         return;
     }
     injectCueStyle();
-    createTranslateIcon();
+    csCreateButton();
 
     const observer = new MutationObserver(() => {
         if (state.dead) return;
-        if (!document.querySelector(CS_ICON)) createTranslateIcon();
+        // Coursera rebuilds its control bar on navigation; put the button back when it does
+        if (!document.querySelector(CS_BTN)) csCreateButton();
     });
     observer.observe(document.body, { childList: true, subtree: true });
     state.observers.push(observer);

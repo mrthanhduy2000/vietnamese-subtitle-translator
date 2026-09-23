@@ -326,6 +326,12 @@ test("Coursera: cue tiếng Việt thay cue gốc, số cue không bị ép theo
     assert.equal(track.cues.length, 1, track.cues.map(c => c.text).join(" | "));
     assert.equal(track.cues[0].text, "Chúng ta hãy xem xét\nmạng nơ-ron tích chập hai lớp.");
     assert.ok(track.cues[0].id.startsWith("cst-vi"));
+    // Coursera draws our own overlay now, so the browser's cue renderer must be silenced: its box
+    // and Coursera's own caption box used to land on top of each other
+    assert.equal(track.mode, "hidden", "track phải chuyển sang hidden để trình duyệt không vẽ cue");
+    const viCues = vm.runInContext("cs.viCues.map(c => ({ start: c.start, end: c.end, lines: c.lines }))", env);
+    assert.equal(viCues.length, 1, "lớp phủ phải có dữ liệu cue tiếng Việt để tự vẽ");
+    assert.deepEqual(JSON.parse(JSON.stringify(viCues[0].lines)), ["Chúng ta hãy xem xét", "mạng nơ-ron tích chập hai lớp."]);
     vm.runInContext(`restoreOriginalCues()`, env);
     assert.deepEqual([...track.cues.map(c => c.text)], ["Let's take a look at", "convolutional neural networks with two layers."]);
 });

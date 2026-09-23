@@ -11,7 +11,7 @@ Everything else is one content-script bundle at `document_idle`, in this order:
 
 ```
 glossary.js -> cst-cache.js -> cost-policy.js -> lang-detect.js -> vi-segmenter.js ->
-subtitle-style.js -> context-engine.js -> vi-quality.js -> dub-planner.js -> dub-audio.js ->
+subtitle-style.js -> player-ui.js -> context-engine.js -> vi-quality.js -> dub-planner.js -> dub-audio.js ->
 dub-engine.js -> dubbing.js -> content.js -> youtube.js
 ```
 
@@ -40,6 +40,7 @@ dub-engine.js -> dubbing.js -> content.js -> youtube.js
 | `popup.js` | 267 | Popup logic; re-injects content scripts if they are missing | n/a |
 | `yt-bridge.js` | 219 | MAIN-world page bridge: reads YouTube's internal player response, fetches timedtext with the player's `pot` token | none (postMessage protocol only) |
 | `subtitle-style.js` | 213 | Shared subtitle font/stroke/position styling and its defaults | `CST_STYLE` |
+| `player-ui.js` | 192 | The product mark, the control-bar button and the quick-menu stylesheet, shared by both players | `CST_PLAYER_UI` |
 | `chrome-shim.js` | 167 | Fakes `chrome.*` so `popup.html` / `options.html` open outside the extension. Self-disables inside it | `window.chrome` |
 | `popup.html` | 166 | Popup markup | n/a |
 | `vi-quality.js` | 165 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |

@@ -4,6 +4,21 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.5.3", luc: "16:37 23/09/2026", ten: "Coursera hiển thị phụ đề như YouTube, có nút riêng trên thanh điều khiển",
+            y: [
+                "Phụ đề trên Coursera trước đây được giao cho phần vẽ phụ đề sẵn có của trình duyệt, mà Coursera cũng vẽ phụ đề của họ lên cùng chỗ, nên hai khung đè lên nhau và chữ chồng chữ. Nay tiện ích tự vẽ lớp phủ riêng như bên YouTube, và tắt hẳn phần vẽ của trình duyệt.",
+                "Lớp phủ dùng chung bộ kiểu chữ, màu, nền và vị trí với YouTube, tự nâng lên trên thanh điều khiển nên không bị thanh che.",
+                "Bỏ hai nút tròn nổi trên video. Thay bằng MỘT nút nằm ngay trong thanh điều khiển của Coursera, cạnh nút toàn màn hình, mở đúng thực đơn nhanh như trên YouTube: bật tắt phụ đề, bật tắt lồng tiếng, chọn giọng, chọn kiểu hiển thị, mở Cài đặt.",
+                "Biểu tượng, màu sắc và thực đơn của hai trang nay lấy từ cùng một tệp dùng chung, không còn mỗi nơi một kiểu."
+            ],
+            bang: { cot: ["Trên Coursera", "Trước", "Nay"], hang: [
+                ["Ai vẽ phụ đề", "trình duyệt vẽ, Coursera vẽ chồng lên", "tiện ích tự vẽ, chỉ một khung"],
+                ["Kiểu phụ đề", "khác YouTube", "giống hệt YouTube"],
+                ["Nút điều khiển", "2 nút tròn nổi trên video", "1 nút trong thanh điều khiển"],
+                ["Thực đơn nhanh", "không có", "có, giống YouTube"]
+            ] }
+        },
+        {
             v: "1.5.2", luc: "16:18 23/09/2026", ten: "Một biểu tượng duy nhất cho toàn bộ tiện ích",
             y: [
                 "Trước đây mỗi nơi một hình: biểu tượng trên thanh Chrome là chữ C xanh, bảng điều khiển là hình tia, trang Cài đặt là nút phát màu tím, trên YouTube lại là hình khác. Nay tất cả dùng chung một hình: bong bóng thoại lồng tia sáng, màu cam đất.",

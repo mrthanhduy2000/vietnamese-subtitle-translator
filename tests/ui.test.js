@@ -227,7 +227,7 @@ function loadYouTube(dom) {
     };
     sb.window = sb; sb.globalThis = sb;
     vm.createContext(sb);
-    for (const f of ["glossary.js", "cst-cache.js", "cost-policy.js", "lang-detect.js", "vi-segmenter.js", "subtitle-style.js", "context-engine.js", "vi-quality.js", "content.js", "youtube.js"]) vm.runInContext(read(f), sb);
+    for (const f of ["glossary.js", "cst-cache.js", "cost-policy.js", "lang-detect.js", "vi-segmenter.js", "subtitle-style.js", "player-ui.js", "context-engine.js", "vi-quality.js", "content.js", "youtube.js"]) vm.runInContext(read(f), sb);
     sb.donTimers = () => { timers.forEach(id => { clearTimeout(id); clearInterval(id); }); timers.clear(); };
     return sb;
 }
@@ -412,8 +412,8 @@ test("tệp cài dịch vụ: chờ gỡ xong rồi mới nạp, có thử lại
 // popup.css and fails if the on-player styles drift away from it again.
 test("on-player button, menu and toast use the same palette as the popup", () => {
     const popup = R("popup.css");
-    const ytjs = R("youtube.js");
-    const menuCss = ytjs.split("const YT_MENU_CSS = `")[1].split("`;")[0];
+    const kit = R("player-ui.js");                 // the shared player UI: mark, button, menu stylesheet
+    const menuCss = kit.split("const MENU_CSS = `")[1].split("`;")[0];
     // popup.css lists the light value in :root first, then the dark override in the media query
     const token = name => {
         const hits = [...popup.matchAll(new RegExp("--claude-" + name + ":\\s*(#[0-9A-Fa-f]{6})", "g"))].map(m => m[1]);
@@ -429,31 +429,31 @@ test("on-player button, menu and toast use the same palette as the popup", () =>
     }
     assert.ok(menuCss.includes(accent.light), "thực đơn trên video không dùng màu nhấn của bảng điều khiển");
     // The control-bar button wears the same accent and an icon built from the same mark
-    assert.ok(ytjs.includes("const CST_MARK_SVG"), "thiếu biểu tượng dùng chung");
-    // the function body only: the shared icon constants are declared further down the file
-    const btn = ytjs.split("function ytTaoNutThanhDieuKhien()")[1].split(/\nfunction |\nconst /)[0];
+    assert.ok(kit.includes("const MARK_SVG"), "thiếu biểu tượng dùng chung");
+    const btn = kit.split("function badgeCss(")[1].split("\n    }")[0];
     assert.ok(btn.includes(accent.light), "nút trên thanh điều khiển không dùng màu nhấn của bảng điều khiển");
     // Measured on a real YouTube page: their stylesheet computes an inline <svg> inside .ytp-button
     // to width 0, so the button showed an empty coloured square. The icon has to be painted as a
     // background image, which their CSS cannot reach, and it must never be an inline <svg> again.
-    assert.ok(ytjs.includes("const CST_BTN_ICON_URL"), "thiếu biểu tượng dạng ảnh nền cho nút");
-    assert.match(ytjs, /CST_BTN_ICON_URL = `data:image\/svg\+xml;charset=utf-8,\$\{encodeURIComponent\(CST_BTN_ICON_SVG\)\}`/,
-        "biểu tượng nút phải dựng từ CST_BTN_ICON_SVG");
-    assert.ok(btn.includes("${CST_BTN_ICON_URL}") && /background-image:\s*url/.test(btn),
+    assert.ok(kit.includes("const BTN_ICON_URL"), "thiếu biểu tượng dạng ảnh nền cho nút");
+    assert.match(kit, /BTN_ICON_URL = `data:image\/svg\+xml;charset=utf-8,\$\{encodeURIComponent\(BTN_ICON_SVG\)\}`/,
+        "biểu tượng nút phải dựng từ BTN_ICON_SVG");
+    assert.ok(btn.includes("${BTN_ICON_URL}") && /background-image:url/.test(btn),
         "nút phải vẽ biểu tượng bằng ảnh nền (YouTube ép <svg> trong nút về rộng 0)");
-    assert.ok(/background-size:\s*\d/.test(btn), "ảnh nền của nút phải có kích thước");
+    assert.ok(/background-size:/.test(btn), "ảnh nền của nút phải có kích thước");
     assert.ok(!/<svg/.test(btn), "nút không được nhúng <svg> trực tiếp nữa");
     // The state update must not use the "background" shorthand: that would drop the icon
-    const capNhat = ytjs.split("function ytCapNhatTrangThaiNutThanhDieuKhien()")[1].split("\nfunction ")[0];
+    const capNhat = kit.split("function datTrangThai(")[1].split("\n    }")[0];
     assert.ok(!/badge\.style\.background\s*=/.test(capNhat), "đổi trạng thái bằng background sẽ xóa mất biểu tượng");
     assert.ok(/badge\.style\.backgroundColor\s*=/.test(capNhat), "đổi trạng thái phải dùng backgroundColor");
-    // The menu header still draws the mark inline, inside our own panel, so it keeps its own size
-    const markSvg = ytjs.split("const CST_MARK_SVG = `")[1].split("`;")[0];
+    // The menu header draws the mark inline, inside our own panel, so it keeps its own size
+    const markSvg = kit.split("const MARK_SVG = `")[1].split("`;")[0];
     assert.match(markSvg, /<svg[^>]*width="100%"[^>]*height="100%"/, "biểu tượng trong thực đơn thiếu kích thước");
     // No leftovers of the old purple theme on any of the on-player surfaces
     const purple = /#7c3aed|#6366f1|#9333ea|#7c5cff|#a78bfa|#a855f7/i;
-    assert.ok(!purple.test(ytjs), "youtube.js còn màu tím của giao diện cũ");
-    assert.ok(!purple.test(R("content.js")), "content.js còn màu tím của giao diện cũ");
+    for (const file of ["player-ui.js", "youtube.js", "content.js"]) {
+        assert.ok(!purple.test(R(file)), `${file} còn màu tím của giao diện cũ`);
+    }
     // The toast on top of the video stays dark in both themes, but with the same dark tokens
     const toast = R("content.js").split("function cstToast")[1].split("\nfunction ")[0];
     assert.ok(toast.includes(token("border").dark), "thông báo trên video không dùng màu viền của giao diện tối");
@@ -465,7 +465,7 @@ test("on-player button, menu and toast use the same palette as the popup", () =>
 // (a sunburst, a play triangle, a speaker), which is why the extension looked like three products.
 test("the product mark and the toolbar icons are the same everywhere", () => {
     const BUBBLE = "M4.2 4.6h15.6c1.55 0 2.8 1.25 2.8 2.8v7.9c0 1.55-1.25 2.8-2.8 2.8h-6.6l-4.3 3.2";
-    for (const file of ["popup.html", "options.html", "youtube.js"]) {
+    for (const file of ["popup.html", "options.html", "player-ui.js"]) {
         assert.ok(R(file).includes(BUBBLE), `${file} chưa dùng biểu tượng chung`);
     }
     // the Settings header carried a play triangle; the play triangle on "Nghe thử" is a different
@@ -475,7 +475,7 @@ test("the product mark and the toolbar icons are the same everywhere", () => {
     assert.ok(!/polygon/.test(brand), "tiêu đề trang Cài đặt còn biểu tượng nút phát cũ");
     // the spark belongs inside the bubble now: a lone spark means an old mark was left behind
     const SPARK = "M12 2C12.4 7.2 16.8 11.6 22 12";
-    for (const file of ["popup.html", "options.html", "youtube.js"]) {
+    for (const file of ["popup.html", "options.html", "player-ui.js"]) {
         const src = R(file);
         assert.equal(src.split(SPARK).length, src.split(BUBBLE).length, `${file} còn biểu tượng tia đứng một mình`);
     }
@@ -497,4 +497,30 @@ test("the product mark and the toolbar icons are the same everywhere", () => {
     }
     // the drawing script that made them stays in the repo, so the next session can redraw them
     assert.ok(fs.existsSync(path.join(__dirname, "..", "tools", "make-icon.py")), "thiếu tệp vẽ lại biểu tượng");
+});
+
+// Coursera used to be the odd one out: two circles floating over the picture, and the Vietnamese
+// handed to the browser's own cue renderer, which Coursera paints over. Now it works like YouTube:
+// one button inside the player's own control bar, and our own overlay on the picture.
+test("Coursera draws its own overlay and puts one button in the player's control bar", () => {
+    const src = R("content.js");
+    // the two floating circles are gone
+    assert.ok(!/class = "cst-translate-icon"|className = "cst-translate-icon"/.test(src), "vẫn còn nút tròn dịch nổi trên video");
+    assert.ok(!/function createDubIcon/.test(src), "vẫn còn nút tròn lồng tiếng nổi trên video");
+    // the button is the shared one, dropped into Coursera's own control group
+    assert.ok(/CST_PLAYER_UI/.test(src), "nút Coursera phải dùng khối giao diện dùng chung");
+    const create = src.split("function csCreateButton()")[1].split("\nfunction ")[0];
+    assert.ok(/kit\.taoNut\(/.test(create), "nút Coursera phải dựng bằng taoNut của khối dùng chung");
+    assert.ok(/insertBefore\(wrap, ctl\.before\)/.test(create), "nút phải chèn vào thanh điều khiển của Coursera");
+    // the control bar is found by geometry; two traps found by measuring on the real page
+    const parts = src.split("function csPlayerParts()")[1].split("\nfunction ")[0];
+    assert.ok(/box !== document\.body/.test(parts), "không được leo tới <body>: sẽ bắt nhầm nút của hộp thoại");
+    assert.ok(/btns\.length >= 3/.test(parts), "phải có ít nhất 3 nút mới coi là thanh điều khiển");
+    assert.ok(/reduce\(\(a, b\) => \(b\.getBoundingClientRect\(\)\.left/.test(parts), "phải lấy nút phải cùng, không phải nút cuối trong DOM");
+    // our own overlay, and the browser's cue renderer silenced
+    assert.ok(/class="cst-cs-overlay"|"cst-cs-overlay"/.test(src), "thiếu lớp phủ phụ đề riêng của Coursera");
+    assert.ok(/track\.mode = "hidden"/.test(src), "phải tắt phần vẽ cue của trình duyệt");
+    const style = src.split("function csApplyOverlayStyle(ov)")[1].split("\nfunction ")[0];
+    assert.ok(/CST_STYLE|S\.normalizeStyle/.test(style), "lớp phủ phải dùng chung bộ kiểu phụ đề với YouTube");
+    assert.ok(/ctl\.height/.test(style), "lớp phủ phải nâng lên trên thanh điều khiển");
 });

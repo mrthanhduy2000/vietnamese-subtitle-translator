@@ -82,6 +82,7 @@ function loadGen(dom, file, connected) {
     sb.window = sb; sb.globalThis = sb;
     vm.createContext(sb);
     for (const f of ["cost-policy.js", "vi-segmenter.js", "subtitle-style.js", "context-engine.js", "vi-quality.js"]) vm.runInContext(read(f), sb);
+    vm.runInContext(fs.readFileSync(path.join(__dirname, "..", "player-ui.js"), "utf8"), sb);
     vm.runInContext(file === "youtube.js" ? read(file) : fs.readFileSync(file, "utf8"), sb);
     return sb;
 }
