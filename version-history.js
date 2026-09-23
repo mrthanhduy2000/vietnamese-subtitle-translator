@@ -4,6 +4,22 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.5.2", luc: "16:18 23/09/2026", ten: "Một biểu tượng duy nhất cho toàn bộ tiện ích",
+            y: [
+                "Trước đây mỗi nơi một hình: biểu tượng trên thanh Chrome là chữ C xanh, bảng điều khiển là hình tia, trang Cài đặt là nút phát màu tím, trên YouTube lại là hình khác. Nay tất cả dùng chung một hình: bong bóng thoại lồng tia sáng, màu cam đất.",
+                "Biểu tượng trên thanh công cụ Chrome được vẽ lại ở bốn cỡ riêng (16, 32, 48, 128 điểm ảnh), cỡ nhỏ có nét dày hơn để không bị nhòe.",
+                "Trang Cài đặt bỏ nốt mảng màu tím còn sót trong ô biểu tượng.",
+                "Thêm bài kiểm tra: mọi nơi phải dùng đúng một hình, và mỗi tệp biểu tượng phải đúng số điểm ảnh đã khai báo."
+            ],
+            bang: { cot: ["Biểu tượng ở từng nơi", "Trước", "Nay"], hang: [
+                ["Thanh công cụ Chrome", "chữ C màu xanh", "bong bóng thoại cam đất"],
+                ["Bảng điều khiển", "hình tia bốn cánh", "bong bóng thoại"],
+                ["Trang Cài đặt", "nút phát trên nền tím", "bong bóng thoại trên nền cam đất"],
+                ["Nút trên YouTube", "bong bóng thoại (từ 1.5.1)", "giữ nguyên"],
+                ["Số tệp biểu tượng", "1 tệp dùng cho mọi cỡ", "4 tệp vẽ riêng cho từng cỡ"]
+            ] }
+        },
+        {
             v: "1.5.1", luc: "16:10 23/09/2026", ten: "Biểu tượng trên nút YouTube hiện được thật, đo trực tiếp trên trang",
             y: [
                 "Nguyên nhân ô trống: chính CSS của YouTube ép hình vẽ đặt trong nút của trình phát về chiều rộng 0. Đo trên trang thật: chiều cao 18 điểm ảnh nhưng chiều rộng 0.",

@@ -69,12 +69,12 @@
             width: 38px;
             height: 38px;
             border-radius: 10px;
-            background: linear-gradient(135deg, #7c3aed, #6366f1);
+            background: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
-            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+            box-shadow: 0 2px 8px rgba(217, 119, 87, 0.3);
         }
 
         .brand-title {
@@ -858,10 +858,14 @@
         <div class="header-content">
             <div class="brand">
                 <div class="brand-icon">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon>
-                        <path d="M19 8v8" stroke-width="2.5"></path>
-                    </svg>
+                    <span style="width:22px;height:22px;display:flex;">
+                        <svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" aria-hidden="true">
+                            <path d="M4.2 4.6h15.6c1.55 0 2.8 1.25 2.8 2.8v7.9c0 1.55-1.25 2.8-2.8 2.8h-6.6l-4.3 3.2c-.62.46-1.5.02-1.5-.75V18.1H4.2c-1.55 0-2.8-1.25-2.8-2.8V7.4c0-1.55 1.25-2.8 2.8-2.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+                            <g transform="translate(12 11.35) scale(0.42) translate(-12 -12)">
+                                <path d="M12 2C12.4 7.2 16.8 11.6 22 12C16.8 12.4 12.4 16.8 12 22C11.6 16.8 7.2 12.4 2 12C7.2 11.6 11.6 7.2 12 2Z" fill="currentColor"></path>
+                            </g>
+                        </svg>
+                    </span>
                 </div>
                 <div>
                     <h1 class="brand-title">Dịch Phụ Đề & Lồng Tiếng AI</h1>
@@ -873,7 +877,7 @@
                 <button type="button" class="theme-btn" data-theme-set="dark" title="Luôn dùng giao diện tối">Tối</button>
                 <button type="button" class="theme-btn" data-theme-set="auto" title="Theo cài đặt sáng/tối của máy">Theo máy</button>
             </div>
-            <span class="header-badge" title="Cập nhật lúc 16:10 23/09/2026">Phiên bản v1.5.1 · cập nhật 16:10 23/09/2026</span>
+            <span class="header-badge" title="Cập nhật lúc 16:18 23/09/2026">Phiên bản v1.5.2 · cập nhật 16:18 23/09/2026</span>
         </div>
     </header>
 

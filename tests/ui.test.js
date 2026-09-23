@@ -459,3 +459,42 @@ test("on-player button, menu and toast use the same palette as the popup", () =>
     assert.ok(toast.includes(token("border").dark), "thông báo trên video không dùng màu viền của giao diện tối");
     assert.ok(toast.includes(accent.light), "nút thao tác trong thông báo không dùng màu nhấn");
 });
+
+// One mark for the whole product: the toolbar icon, the popup header, its primary button, the
+// Settings header and the menu drawn on the YouTube player. They used to be four different shapes
+// (a sunburst, a play triangle, a speaker), which is why the extension looked like three products.
+test("the product mark and the toolbar icons are the same everywhere", () => {
+    const BUBBLE = "M4.2 4.6h15.6c1.55 0 2.8 1.25 2.8 2.8v7.9c0 1.55-1.25 2.8-2.8 2.8h-6.6l-4.3 3.2";
+    for (const file of ["popup.html", "options.html", "youtube.js"]) {
+        assert.ok(R(file).includes(BUBBLE), `${file} chưa dùng biểu tượng chung`);
+    }
+    // the Settings header carried a play triangle; the play triangle on "Nghe thử" is a different
+    // thing and stays, so this only looks inside the header block
+    const brand = R("options.html").split('<div class="brand">')[1].split("</div>")[0];
+    assert.ok(brand.includes(BUBBLE), "tiêu đề trang Cài đặt chưa dùng biểu tượng chung");
+    assert.ok(!/polygon/.test(brand), "tiêu đề trang Cài đặt còn biểu tượng nút phát cũ");
+    // the spark belongs inside the bubble now: a lone spark means an old mark was left behind
+    const SPARK = "M12 2C12.4 7.2 16.8 11.6 22 12";
+    for (const file of ["popup.html", "options.html", "youtube.js"]) {
+        const src = R(file);
+        assert.equal(src.split(SPARK).length, src.split(BUBBLE).length, `${file} còn biểu tượng tia đứng một mình`);
+    }
+    // the popup draws it twice: header and primary button
+    assert.equal(R("popup.html").split(BUBBLE).length - 1, 2, "bảng điều khiển phải dùng biểu tượng chung ở cả hai chỗ");
+    // every icon the manifest declares must exist and really be that many pixels across
+    const m = JSON.parse(R("manifest.json"));
+    const pngSize = rel => {
+        const buf = fs.readFileSync(path.join(__dirname, "..", rel));
+        assert.equal(buf.toString("ascii", 1, 4), "PNG", `${rel} không phải tệp PNG`);
+        return { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20) };
+    };
+    for (const set of [m.icons, m.action.default_icon]) {
+        for (const [size, rel] of Object.entries(set)) {
+            const px = pngSize(rel);
+            assert.equal(px.w, Number(size), `${rel} khai báo ${size} nhưng rộng ${px.w}`);
+            assert.equal(px.h, Number(size), `${rel} khai báo ${size} nhưng cao ${px.h}`);
+        }
+    }
+    // the drawing script that made them stays in the repo, so the next session can redraw them
+    assert.ok(fs.existsSync(path.join(__dirname, "..", "tools", "make-icon.py")), "thiếu tệp vẽ lại biểu tượng");
+});

@@ -1456,11 +1456,13 @@ function ytTaoNutThanhDieuKhien() {
 // Nguyên tắc (1.4.1): mỗi dòng là MỘT công tắc thật (bấm được, đọc được bằng trình đọc màn hình),
 // không dùng nhãn "BẬT" trông giống nút bấm mà thực ra chỉ là chữ; trạng thái tự cập nhật khi
 // đang mở; việc hay làm nhất (đổi giọng đọc) làm ngay tại đây, không phải mở trang Cài đặt.
-// The extension's own mark, the same one the popup header shows: the menu header wears it plain.
-// width/height are required. Without them the SVG has no intrinsic size, and inside the button it
-// rendered as an empty coloured square (fixed in 1.5.0).
-const CST_MARK_SVG = `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="currentColor" aria-hidden="true" focusable="false">
-        <path d="M12 2C12.4 7.2 16.8 11.6 22 12C16.8 12.4 12.4 16.8 12 22C11.6 16.8 7.2 12.4 2 12C7.2 11.6 11.6 7.2 12 2Z"></path>
+// The product mark: a speech bubble with the spark inside. The toolbar icon, the popup header, the
+// Settings header and this menu all wear it, so the whole thing reads as one product.
+const CST_MARK_SVG = `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" aria-hidden="true" focusable="false">
+        <path d="M4.2 4.6h15.6c1.55 0 2.8 1.25 2.8 2.8v7.9c0 1.55-1.25 2.8-2.8 2.8h-6.6l-4.3 3.2c-.62.46-1.5.02-1.5-.75V18.1H4.2c-1.55 0-2.8-1.25-2.8-2.8V7.4c0-1.55 1.25-2.8 2.8-2.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+        <g transform="translate(12 11.35) scale(0.42) translate(-12 -12)">
+            <path d="M12 2C12.4 7.2 16.8 11.6 22 12C16.8 12.4 12.4 16.8 12 22C11.6 16.8 7.2 12.4 2 12C7.2 11.6 11.6 7.2 12 2Z" fill="currentColor"></path>
+        </g>
     </svg>`;
 
 // The control-bar button sits on top of a moving picture, next to YouTube's own icons, and it is

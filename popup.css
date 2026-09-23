@@ -168,7 +168,7 @@ body {
 }
 
 .sparkle-wrap:hover {
-    transform: rotate(24deg) scale(1.08);
+    transform: scale(1.08);
 }
 
 .claude-sparkle {
@@ -540,7 +540,7 @@ body {
 }
 
 .button-primary:hover .btn-icon {
-    transform: rotate(20deg) scale(1.1);
+    transform: scale(1.1);
 }
 
 /* Shimmer Sweep Animation on Button */

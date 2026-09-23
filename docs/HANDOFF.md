@@ -7,8 +7,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 
 ## Last touched
 
-2026-09-23 · lane A (`youtube.js`, `content.js`) plus a test in lane D · version `1.5.1`. Before
-this: 1.4.7 the dubbing overload fix, 1.4.8 the language cleanup, 1.4.9 the on-player redesign.
+2026-09-23 · lanes A and C plus a test in lane D · version `1.5.2`. Before this: 1.4.7 the dubbing
+overload fix, 1.4.8 the language cleanup, 1.4.9 to 1.5.2 the on-player and icon redesign.
 
 ## What changed
 
@@ -29,24 +29,32 @@ this: 1.4.7 the dubbing overload fix, 1.4.8 the language cleanup, 1.4.9 the on-p
   badge into a live YouTube control bar and zooming in: icon visible next to the empty old one.
   The icon itself is a speech bubble with the brand mark inside; the menu header still inlines
   `CST_MARK_SVG`, which renders fine inside our own panel.
+- **1.5.2, one mark for the whole product.** The toolbar icon, the popup header, the popup's primary
+  button, the Settings header and the player menu were four different shapes. All of them now draw
+  the same speech-bubble-with-spark, and `icons/` holds four PNGs drawn per size (16/32/48/128,
+  smaller ones bolder) instead of one file scaled four ways. `tools/make-icon.py` draws them with
+  PIL, since this machine has no SVG rasteriser; re-run it if the mark ever changes.
 - **New guards**: `tests/ui.test.js` "on-player button, menu and toast use the same palette as the
   popup" reads the tokens out of `popup.css` and fails if the on-player styles drift again (it fails
   on the pre-1.4.9 file, 4 purple literals). It also fails if the button stops painting its icon as a
-  background image or starts setting the `background` shorthand: it fails on the 1.5.0 file.
+  background image or starts setting the `background` shorthand: it fails on the 1.5.0 file. A second
+  test, "the product mark and the toolbar icons are the same everywhere", checks the shared path data
+  in the three source files and reads each PNG's IHDR to confirm it is really the declared size.
 - **1.4.7** measured on the real caption timeline of `H9yU-Y22vGI` at RTF 1.0: 12/61 sentences
   spoken before the overload fix, 30/61 after, sentences over 2s late 10 → 2, healthy server
   unchanged at 61/61. `docs/DUBBING.md` §SYNC holds the measured thresholds.
 
 ## State
 
-- `npm test`: 323 tests, 322 pass, 0 fail, 1 skip · committed by path · Reload at
-  `chrome://extensions`: **yes** (1.5.1)
+- `npm test`: 324 tests, 323 pass, 0 fail, 1 skip · committed by path · Reload at
+  `chrome://extensions`: **yes** (1.5.2)
 - VieNeu: healthy, RTF ~0.23, `Interactive`, LaunchAgent loaded.
 
 ## Unfinished / in progress
 
-- The 1.5.1 icon was proved in the live control bar as an injected element, not yet as the shipped
-  button: the user has to reload the extension to see it in place.
+- Nothing from 1.5.1 or 1.5.2 has been seen in place: the control-bar icon was proved as an injected
+  element in a live page, and the toolbar / popup / Settings marks only as rendered PNGs and markup.
+  The user has to reload the extension to confirm.
 - Never reproduced live in the user's Chrome: a YouTube tab driven through the extension bridge
   reports `document.hidden = true` and the player stays at `readyState 0`, so playback never starts.
   Any measurement that needs a really playing video has to be run by the user.
