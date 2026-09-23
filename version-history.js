@@ -4,6 +4,15 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.4.6", luc: "11:05 23/09/2026", ten: "Xác nhận đã khôi phục tốc độ giọng; tệp cài chịu được lỗi của macOS",
+            y: [
+                "Đo lại sau khi cài lại dịch vụ: tốc độ tạo giọng về 0,23 (trước khi sửa là 1,07), mức ưu tiên tiến trình về 31 (trước là 4).",
+                "Bài kiểm tra chạy thật: 25/25 câu được đọc, trễ tối đa 1,15 giây, ba đoạn đầu có audio sau 2,2 giây.",
+                "Tệp cài dịch vụ: lần cài lại đầu tiên bị macOS trả lỗi và để máy chủ tắt hẳn, vì lệnh gỡ chưa xong mà lệnh nạp đã chạy. Nay chờ gỡ xong, thử lại 5 lần, hỏng thì báo rõ và chỉ cách bật tạm.",
+                "Bảng so sánh của bản 1.4.5 đã điền số đo thật."
+            ]
+        },
+        {
             v: "1.4.5", luc: "10:55 23/09/2026", ten: "Sửa lỗi máy chủ giọng chạy chậm gấp 5 lần; tiện ích tự đo tốc độ",
             y: [
                 "Tệp cài dịch vụ tự khởi động (bản 1.4.2) đặt mức ưu tiên Nền, làm macOS đẩy máy chủ giọng sang lõi tiết kiệm điện: tạo 1 giây lời nói mất 1,07 giây thay vì khoảng 0,23. Nay đặt mức Tương tác.",
@@ -12,8 +21,11 @@
                 "Thêm công cụ đo nhanh: node tools/vieneu-bench.js"
             ],
             bang: { cot: ["Đo thật trên MacBook Air M3", "Mức ưu tiên Nền (1.4.2)", "Mức Tương tác (1.4.5)"], hang: [
-                ["Tạo 1 giây lời nói mất", "1,07 giây", "cần đo lại sau khi cài lại"],
-                ["Ba đoạn đầu có audio sau", "10,3 giây", "cần đo lại sau khi cài lại"]
+                ["Tạo 1 giây lời nói mất", "1,07 giây", "0,23 giây"],
+                ["Ba đoạn đầu có audio sau", "10,3 giây", "2,2 giây"],
+                ["Mức ưu tiên tiến trình", "4 (lõi tiết kiệm điện)", "31 (bình thường)"],
+                ["Số câu đọc được", "0/24 (bài kiểm tra vẫn báo ĐẠT)", "25/25"],
+                ["Câu trễ trên 1 giây khi mở video", "4 câu, tối đa 3,40 giây", "1 câu, tối đa 1,15 giây"]
             ] }
         },
         {
