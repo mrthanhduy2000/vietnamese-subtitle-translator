@@ -1257,6 +1257,27 @@ function csStopRender() {
     if (track && track.mode === "hidden") track.mode = "showing";
 }
 
+// What the transcript panel needs from this player: the same two lists the overlay draws from.
+function csTranscriptAdapter() {
+    return {
+        box: () => csPlayerBox(),
+        videoEl: () => csVideo(),
+        lines: () => (window.CST_TRANSCRIPT ? window.CST_TRANSCRIPT.mergeLines(cs.viCues, cs.origCues) : []),
+        title: () => (document.querySelector("h1") || {}).textContent || document.title.replace(/\s*\|\s*Coursera.*$/i, ""),
+        dual: () => !!state.dualMode,
+        theme: () => state.uiTheme || "auto"
+    };
+}
+
+// How trustworthy the source captions are. Coursera labels machine-heard tracks "(auto)".
+function csSubtitleSource() {
+    const el = state.activeTrack;
+    if (!el) return null;
+    const label = `${el.label || ""} ${el.srclang || ""}`.toLowerCase();
+    if (/auto/.test(label)) return { nhan: "Phụ đề máy nghe tự động", canhBao: true };
+    return { nhan: "Phụ đề của khoá học", canhBao: false };
+}
+
 // ---- The quick menu, the same panel YouTube shows ----
 function csOpenMenu(btn) {
     const box = csPlayerBox();
@@ -1369,8 +1390,16 @@ function csOpenMenu(btn) {
     menu.appendChild(modeBox);
 
     const foot = el("div", "cst-menu-foot");
+    const btnTranscript = el("button", null, "Bản chép lời");
+    btnTranscript.type = "button";
+    btnTranscript.title = "Xem toàn bộ lời thoại, bấm một dòng để nhảy tới, xuất tệp .srt";
+    btnTranscript.addEventListener("click", () => {
+        if (window.CST_TRANSCRIPT) window.CST_TRANSCRIPT.toggle(csTranscriptAdapter());
+        dong();
+    });
     const btnOptions = el("button", null, "Cài đặt");
     btnOptions.type = "button";
+    foot.appendChild(btnTranscript);
     foot.appendChild(btnOptions);
     menu.appendChild(foot);
 
@@ -1390,7 +1419,10 @@ function csOpenMenu(btn) {
         const dubApi = window.CST_DUB;
         const isDub = !!(dubApi && dubApi.dub && dubApi.dub.enabled);
         rowSub.setAttribute("aria-checked", String(!!state.active));
-        rowSub.cstSub.textContent = state.busy ? "Đang dịch…" : state.active ? "Đang bật" : "Đang tắt";
+        const nguon = csSubtitleSource();
+        const hauTo = state.active && nguon ? ` · ${nguon.nhan.toLowerCase()}` : "";
+        rowSub.cstSub.textContent = (state.busy ? "Đang dịch…" : state.active ? "Đang bật" : "Đang tắt") + hauTo;
+        rowSub.cstSub.style.color = state.active && nguon && nguon.canhBao ? "var(--cst-warn)" : "";
         rowDub.setAttribute("aria-checked", String(isDub));
         const st = dubApi && dubApi.dub ? dubApi.dub.lastStatus : null;
         rowDub.cstSub.textContent = isDub

@@ -26,7 +26,7 @@
     const MENU_CSS = `
 /* One visual language across the three surfaces: the popup, the Settings page and this menu.
    The tokens mirror popup.css; light or dark follows the uiTheme setting (auto = the machine). */
-.cst-yt-menu {
+.cst-yt-menu, .cst-tr-panel {
     --cst-bg:rgba(31,30,27,.975); --cst-card:#282622; --cst-card-hover:#312E2A; --cst-soft:#23211E;
     --cst-text:#ECE8E1; --cst-text-2:#A8A39A; --cst-muted:#78736B;
     --cst-border:#3A3732; --cst-border-2:#48453F;
@@ -36,7 +36,8 @@
     --cst-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     --cst-serif:"Newsreader","Tiempos Headline","Iowan Old Style",Charter,Georgia,serif;
 }
-.cst-yt-menu[data-cst-theme="light"], .cst-yt-menu[data-cst-theme="auto"] {
+.cst-yt-menu[data-cst-theme="light"], .cst-yt-menu[data-cst-theme="auto"],
+.cst-tr-panel[data-cst-theme="light"], .cst-tr-panel[data-cst-theme="auto"] {
     --cst-bg:rgba(250,249,245,.985); --cst-card:#FFFFFF; --cst-card-hover:#F2EFE8; --cst-soft:#F6F4EE;
     --cst-text:#262420; --cst-text-2:#6B665E; --cst-muted:#969086;
     --cst-border:#E8E4DC; --cst-border-2:#DDD8CE;
@@ -45,7 +46,7 @@
     --cst-shadow:0 18px 46px rgba(38,36,32,.28);
 }
 @media (prefers-color-scheme: dark) {
-    .cst-yt-menu[data-cst-theme="auto"] {
+    .cst-yt-menu[data-cst-theme="auto"], .cst-tr-panel[data-cst-theme="auto"] {
         --cst-bg:rgba(31,30,27,.975); --cst-card:#282622; --cst-card-hover:#312E2A; --cst-soft:#23211E;
         --cst-text:#ECE8E1; --cst-text-2:#A8A39A; --cst-muted:#78736B;
         --cst-border:#3A3732; --cst-border-2:#48453F;
@@ -102,7 +103,36 @@
     background:var(--cst-soft); color:var(--cst-text); font:inherit; font-size:13px; font-weight:500; cursor:pointer;
     transition:background-color .18s ease,border-color .18s ease; }
 .cst-menu-foot button:hover { background:var(--cst-card-hover); border-color:var(--cst-border-2); }
-.cst-yt-menu :focus-visible { outline:2px solid var(--cst-accent); outline-offset:2px; }
+.cst-yt-menu :focus-visible, .cst-tr-panel :focus-visible { outline:2px solid var(--cst-accent); outline-offset:2px; }
+
+/* ---- Transcript panel: the talk as text, beside the picture ---- */
+.cst-tr-panel { position:absolute; top:12px; right:12px; bottom:76px; width:min(360px,42%);
+    display:flex; flex-direction:column; gap:8px; padding:12px;
+    background:var(--cst-bg); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    border:1px solid var(--cst-border); border-radius:16px; box-shadow:var(--cst-shadow);
+    color:var(--cst-text); font:13px/1.45 var(--cst-sans); z-index:62; user-select:text; }
+.cst-tr-panel * { box-sizing:border-box; }
+.cst-tr-head { display:flex; align-items:center; gap:8px; }
+.cst-tr-title { flex:1; font-family:var(--cst-serif); font-size:15px; font-weight:500; letter-spacing:-.2px; }
+.cst-tr-act { flex-shrink:0; padding:5px 10px; border-radius:8px; border:1px solid var(--cst-border);
+    background:var(--cst-soft); color:var(--cst-text); font:inherit; font-size:12px; font-weight:500; cursor:pointer;
+    transition:background-color .18s ease,border-color .18s ease; }
+.cst-tr-act:hover { background:var(--cst-card-hover); border-color:var(--cst-border-2); }
+.cst-tr-search { width:100%; padding:7px 10px; border-radius:8px; border:1px solid var(--cst-border);
+    background:var(--cst-card); color:var(--cst-text); font:inherit; font-size:12.5px; }
+.cst-tr-search::placeholder { color:var(--cst-muted); }
+.cst-tr-list { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:2px; padding-right:2px; }
+.cst-tr-row { display:flex; gap:9px; width:100%; text-align:left; padding:7px 9px; border:1px solid transparent;
+    border-radius:10px; background:none; color:var(--cst-text); font:inherit; cursor:pointer;
+    transition:background-color .15s ease,border-color .15s ease; }
+.cst-tr-row:hover { background:var(--cst-card-hover); }
+.cst-tr-row[data-cst-now="1"] { background:var(--cst-accent-soft); border-color:var(--cst-accent); }
+.cst-tr-time { flex-shrink:0; width:42px; font-size:11.5px; color:var(--cst-muted); padding-top:1px; font-variant-numeric:tabular-nums; }
+.cst-tr-text { flex:1; display:flex; flex-direction:column; gap:2px; }
+.cst-tr-vi { font-size:13px; }
+.cst-tr-en { font-size:11.5px; color:var(--cst-text-2); }
+.cst-tr-empty { padding:14px 4px; font-size:12.5px; color:var(--cst-text-2); text-align:center; }
+@media (max-width: 720px) { .cst-tr-panel { width:min(360px,72%); bottom:64px; } }
 @media (prefers-reduced-motion: reduce) { .cst-yt-menu *, .cst-yt-menu *::after { transition-duration:.001ms !important; } }
 `;
 

@@ -4,6 +4,16 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.5.4", luc: "16:59 23/09/2026", ten: "Bản chép lời cạnh video, xuất .srt, và báo phụ đề nguồn là loại nào",
+            y: [
+                "Thêm khung Bản chép lời trượt ra cạnh video trên cả YouTube và Coursera: xem toàn bộ lời thoại song ngữ, dòng đang phát tự sáng và tự cuộn theo, bấm một dòng là video nhảy tới đó, có ô tìm trong lời thoại.",
+                "Xuất tệp .srt cho video đang xem. Đang để Song ngữ thì tệp có cả dòng gốc, để Chỉ tiếng Việt thì chỉ có bản dịch.",
+                "Thực đơn nhanh nay nói rõ đang đọc phụ đề loại nào: phụ đề tác giả tải lên hay phụ đề máy nghe tự động. Phụ đề máy nghe là nguyên nhân chính làm bản dịch sai, nên dòng này hiện màu cảnh báo.",
+                "Khung chép lời không tốn thêm tiền: nó dùng lại đúng dữ liệu mà lớp phụ đề đang vẽ.",
+                "Mở khung bằng nút Bản chép lời trong thực đơn nhanh."
+            ]
+        },
+        {
             v: "1.5.3", luc: "16:37 23/09/2026", ten: "Coursera hiển thị phụ đề như YouTube, có nút riêng trên thanh điều khiển",
             y: [
                 "Phụ đề trên Coursera trước đây được giao cho phần vẽ phụ đề sẵn có của trình duyệt, mà Coursera cũng vẽ phụ đề của họ lên cùng chỗ, nên hai khung đè lên nhau và chữ chồng chữ. Nay tiện ích tự vẽ lớp phủ riêng như bên YouTube, và tắt hẳn phần vẽ của trình duyệt.",

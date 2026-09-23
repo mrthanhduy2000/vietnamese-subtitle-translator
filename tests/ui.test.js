@@ -94,6 +94,8 @@ function miniDom() {
         removeAttribute(k) { delete this.attrs[k]; }
         appendTextNode(t) { this.text += t; }
         appendChild(c) { if (c.parent) c.remove(); c.parent = this; this.children.push(c); return c; }
+        replaceChildren(...kids) { this.children.forEach(c => { c.parent = null; }); this.children = []; this.text = ""; kids.forEach(k => this.appendChild(k)); }
+        scrollTo() {}
         remove() { if (!this.parent) return; this.parent.children = this.parent.children.filter(x => x !== this); this.parent = null; }
         setAttribute(k, v) { this.attrs[k] = v; }
         getAttribute(k) { return this.attrs[k]; }
@@ -227,7 +229,7 @@ function loadYouTube(dom) {
     };
     sb.window = sb; sb.globalThis = sb;
     vm.createContext(sb);
-    for (const f of ["glossary.js", "cst-cache.js", "cost-policy.js", "lang-detect.js", "vi-segmenter.js", "subtitle-style.js", "player-ui.js", "context-engine.js", "vi-quality.js", "content.js", "youtube.js"]) vm.runInContext(read(f), sb);
+    for (const f of ["glossary.js", "cst-cache.js", "cost-policy.js", "lang-detect.js", "vi-segmenter.js", "subtitle-style.js", "player-ui.js", "transcript.js", "context-engine.js", "vi-quality.js", "content.js", "youtube.js"]) vm.runInContext(read(f), sb);
     sb.donTimers = () => { timers.forEach(id => { clearTimeout(id); clearInterval(id); }); timers.clear(); };
     return sb;
 }
@@ -523,4 +525,81 @@ test("Coursera draws its own overlay and puts one button in the player's control
     const style = src.split("function csApplyOverlayStyle(ov)")[1].split("\nfunction ")[0];
     assert.ok(/CST_STYLE|S\.normalizeStyle/.test(style), "lớp phủ phải dùng chung bộ kiểu phụ đề với YouTube");
     assert.ok(/ctl\.height/.test(style), "lớp phủ phải nâng lên trên thanh điều khiển");
+});
+
+// The transcript panel (1.5.4): the talk as text beside the picture. The data is what the overlay
+// already draws from, so opening the panel costs no API call and no money.
+test("bản chép lời: dựng .srt đúng định dạng và ghép đúng dòng gốc với dòng dịch", () => {
+    const T = require("../transcript.js");
+    const vi = [{ start: 0, end: 2, text: "Xin chào các bạn." }, { start: 2, end: 5.5, lines: ["Hôm nay ta học", "mạng nơ-ron."] }];
+    const en = [{ start: 0, end: 1.9, text: "Hello everyone." }, { start: 2.1, end: 5.5, text: "Today we learn neural networks." }];
+    const lines = T.mergeLines(vi, en);
+    assert.equal(lines.length, 2);
+    assert.equal(lines[0].vi, "Xin chào các bạn.");
+    assert.equal(lines[0].en, "Hello everyone.");
+    assert.equal(lines[1].vi, "Hôm nay ta học mạng nơ-ron.", "cue nhiều dòng phải gộp lại thành một dòng chép lời");
+    assert.equal(lines[1].en, "Today we learn neural networks.");
+    // .srt: số thứ tự từ 1, mốc thời gian hh:mm:ss,mmm, một dòng trống giữa các khối
+    const srt = T.buildSrt(lines);
+    assert.equal(T.srtClock(3661.5), "01:01:01,500");
+    assert.match(srt, /^1\n00:00:00,000 --> 00:00:02,000\nXin chào các bạn\.\n\n2\n/);
+    assert.ok(!srt.includes("Hello everyone"), "chế độ một thứ tiếng không được kèm dòng gốc");
+    assert.ok(T.buildSrt(lines, { keepOriginal: true }).includes("Hello everyone."), "chế độ song ngữ phải kèm dòng gốc");
+    // tên tệp bỏ dấu và ký tự lạ để mọi hệ điều hành nhận
+    assert.equal(T.fileName("Bài giảng: Mạng nơ-ron / phần 1"), "Bai-giang-Mang-no-ron-phan-1.srt");
+});
+
+test("bản chép lời: mở trong trình phát, bấm một dòng thì video nhảy tới, dòng đang phát được đánh dấu", async t => {
+    const dom = miniDom();
+    const sb = loadYouTube(dom);
+    t.after(() => { sb.donTimers(); sb.CST_TRANSCRIPT.close(); });
+    const player = dom.doc.querySelector("#movie_player");
+    const video = { currentTime: 0, paused: true, play: () => Promise.resolve() };
+    // yt.viCues is declared with const inside the script, so it is not a sandbox property: feed the
+    // panel the same shape of data directly (youtube.js wiring is covered by the next test)
+    const viCues = [{ start: 0, end: 2, text: "Câu một." }, { start: 2, end: 4, text: "Câu hai." }];
+    const enCues = [{ start: 0, end: 2, text: "Line one." }, { start: 2, end: 4, text: "Line two." }];
+    const adapter = {
+        box: () => player,
+        videoEl: () => video,
+        lines: () => sb.CST_TRANSCRIPT.mergeLines(viCues, enCues),
+        title: () => "Bài nói thử",
+        dual: () => false,
+        theme: () => "dark"
+    };
+    sb.CST_TRANSCRIPT.toggle(adapter);
+    const panel = player.querySelector(".cst-tr-panel");
+    assert.ok(panel, "không mở được bản chép lời");
+    assert.equal(panel.attrs["role"], "dialog");
+    const rows = panel.querySelectorAll(".cst-tr-row");
+    assert.equal(rows.length, 2, "phải có đủ dòng lời thoại");
+    assert.match(rows[0].textContent, /Câu một\./);
+    assert.match(rows[0].textContent, /Line one\./, "phải hiện cả dòng gốc");
+
+    // bấm một dòng: video nhảy tới đúng mốc
+    rows[1].fire("click");
+    assert.equal(video.currentTime, 2, "bấm dòng không nhảy tới đúng mốc");
+
+    // dòng đang phát được đánh dấu để mắt bám theo
+    video.currentTime = 2.5;
+    await new Promise(r => setTimeout(r, 400));
+    assert.equal(rows[1].attrs["aria-current"], "true", "dòng đang phát chưa được đánh dấu");
+    assert.equal(rows[0].attrs["aria-current"], "false");
+
+    // bấm nút lần nữa thì đóng (cùng một nút mở và đóng)
+    sb.CST_TRANSCRIPT.toggle(adapter);
+    assert.equal(player.querySelector(".cst-tr-panel"), null, "bấm lần nữa phải đóng bản chép lời");
+});
+
+test("thực đơn nhanh: có nút mở bản chép lời và nói rõ đang đọc phụ đề nguồn nào", () => {
+    const ytjs = R("youtube.js");
+    const csjs = R("content.js");
+    for (const [ten, src] of [["youtube.js", ytjs], ["content.js", csjs]]) {
+        assert.ok(/Bản chép lời/.test(src), `${ten} thiếu nút mở bản chép lời`);
+        assert.ok(/CST_TRANSCRIPT\.toggle/.test(src), `${ten} chưa gọi bản chép lời`);
+    }
+    // phụ đề máy nghe tự động là nguyên nhân chính làm bản dịch sai: phải nói cho người xem biết
+    assert.ok(/Phụ đề máy nghe tự động/.test(ytjs) && /Phụ đề máy nghe tự động/.test(csjs), "thiếu nhãn phụ đề máy nghe");
+    assert.ok(/yt\.trackInfo = \{/.test(ytjs), "youtube.js phải nhớ đang dùng bản chép lời nào");
+    assert.ok(/--cst-warn/.test(ytjs) && /--cst-warn/.test(csjs), "nhãn cảnh báo phải dùng màu cảnh báo của bộ giao diện");
 });

@@ -1130,6 +1130,9 @@ async function ytBatDauDich(opts = {}) {
         }
 
         const track = chon.track;
+        // Which track we ended up on decides how good the translation can be: machine-heard captions
+        // are the usual reason a line comes out wrong, so the menu says which one is in use
+        yt.trackInfo = { languageCode: track.languageCode, kind: track.kind || "", viSan: !!chon.daCoTiengViet };
         console.log(`Dung ban chep loi: ${track.languageCode}${track.kind === "asr" ? " (tu dong)" : ""}`);
 
         const cues = await ytTaiBanChepLoi(track.baseUrl);
@@ -1522,8 +1525,16 @@ function ytMoMenuNhanh(player, btn) {
     menu.appendChild(rowSkip);
 
     const foot = el("div", "cst-menu-foot");
+    const btnTranscript = el("button", null, "Bản chép lời");
+    btnTranscript.type = "button";
+    btnTranscript.title = "Xem toàn bộ lời thoại, bấm một dòng để nhảy tới, xuất tệp .srt";
+    btnTranscript.addEventListener("click", () => {
+        if (window.CST_TRANSCRIPT) window.CST_TRANSCRIPT.toggle(ytTranscriptAdapter());
+        dongMenu();
+    });
     const btnOptions = el("button", null, "Cài đặt");
     btnOptions.type = "button";
+    foot.appendChild(btnTranscript);
     foot.appendChild(btnOptions);
     menu.appendChild(foot);
 
@@ -1533,9 +1544,12 @@ function ytMoMenuNhanh(player, btn) {
         const isDub = !!(dubApi && dubApi.dub && dubApi.dub.enabled);
         const tienDo = ytTienDoDich();
         rowSub.setAttribute("aria-checked", String(!!yt.active));
-        rowSub.cstSub.textContent = yt.busy ? "Đang dịch…"
+        const nguon = ytNguonPhuDe();
+        const hauTo = yt.active && nguon ? ` · ${nguon.nhan.toLowerCase()}` : "";
+        rowSub.cstSub.textContent = (yt.busy ? "Đang dịch…"
             : yt.active && tienDo ? `Đã dịch ${tienDo.xong}/${tienDo.tong} đoạn`
-                : yt.active ? "Đang bật" : "Đang tắt";
+                : yt.active ? "Đang bật" : "Đang tắt") + hauTo;
+        rowSub.cstSub.style.color = yt.active && nguon && nguon.canhBao ? "var(--cst-warn)" : "";
         rowDub.setAttribute("aria-checked", String(isDub));
         const st = dubApi && dubApi.dub ? dubApi.dub.lastStatus : null;
         rowDub.cstSub.textContent = isDub
@@ -1632,6 +1646,28 @@ function ytNhomLongTieng() {
 // (trang web mở tài nguyên tiện ích bị Chrome chặn: ERR_BLOCKED_BY_CLIENT). Nhờ service
 // worker (ngữ cảnh có quyền của tiện ích) gọi chrome.runtime.openOptionsPage().
 // Thông báo nhỏ trên trình phát (content.js dựng), không chặn trang như alert()
+// What the transcript panel needs from this player. The lists are the ones the overlay already
+// draws from, so the panel costs no extra work and fills in as the translation arrives.
+function ytTranscriptAdapter() {
+    return {
+        box: () => document.querySelector("#movie_player") || document.querySelector(".html5-video-player"),
+        videoEl: () => yt.videoEl || document.querySelector("video"),
+        lines: () => (window.CST_TRANSCRIPT ? window.CST_TRANSCRIPT.mergeLines(yt.viCues, yt.cues) : []),
+        title: () => document.title.replace(/\s*-\s*YouTube\s*$/i, "").trim(),
+        dual: () => ytSubStyle.mode === "dual" || state.dualMode,
+        theme: () => ytSettings.uiTheme || "auto"
+    };
+}
+
+// How trustworthy the source captions are: the one thing that decides translation quality and the
+// user could not see before. Machine-heard captions have no punctuation and mishear names.
+function ytNguonPhuDe() {
+    const info = yt.trackInfo;
+    if (!info) return null;
+    if (info.kind === "asr") return { nhan: "Phụ đề máy nghe tự động", canhBao: true };
+    return { nhan: info.viSan ? "Phụ đề tiếng Việt có sẵn" : "Phụ đề tác giả tải lên", canhBao: false };
+}
+
 function ytBao(msg, opts) {
     if (window.CST_UI && window.CST_UI.toast) return window.CST_UI.toast(msg, opts);
     console.warn("[AI Subtitle] " + msg);
