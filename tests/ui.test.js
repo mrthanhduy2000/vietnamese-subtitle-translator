@@ -390,3 +390,18 @@ test("máy chủ giọng chạy chậm: dịch vụ chạy ở mức ưu tiên t
     assert.match(R("tests/vieneu.live.js"), /máy chủ VieNeu quá chậm/);
     assert.match(R("tests/vieneu.live.js"), /chỉ đọc \$\{rates\.length\}/, "0 câu được nói từng lọt qua và vẫn in ĐẠT");
 });
+
+// Đo thật 23/09/2026: chạy bootout rồi bootstrap liền nhau -> launchd trả "Bootstrap failed: 5:
+// Input/output error" và để máy chủ giọng TẮT HẲN. Người dùng mất giọng đọc cho tới khi cài lại.
+test("tệp cài dịch vụ: chờ gỡ xong rồi mới nạp, có thử lại, và báo cách dùng tạm khi hỏng", () => {
+    const sh = R("tools/vieneu-autostart.command");
+    const nap = sh.indexOf("launchctl bootstrap");
+    const cho = sh.indexOf("launchctl print");
+    assert.ok(cho !== -1 && cho < nap, "phải chờ launchd gỡ xong trước khi nạp lại");
+    assert.match(sh, /for i in \{1\.\.5\}/, "phải thử nạp lại vài lần khi launchd báo bận");
+    assert.match(sh, /cst-start\.command/, "hỏng thì phải chỉ cách bật máy chủ ngay lập tức");
+    assert.match(sh, /exit 1/, "hỏng thì phải thoát với mã lỗi, không báo 'Đã cài'");
+    // Không được báo thành công trước khi biết đã nạp được
+    const báo = sh.indexOf("Đã cài.");
+    assert.ok(báo > nap, "chỉ báo 'Đã cài' sau khi nạp thành công");
+});

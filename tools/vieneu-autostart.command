@@ -56,8 +56,32 @@ cat > "$PLIST" <<PLISTEOF
 </plist>
 PLISTEOF
 
-launchctl bootout "gui/$UID/$LABEL" 2>/dev/null || true
-launchctl bootstrap "gui/$UID" "$PLIST"
+# Gỡ bản đang nạp (nếu có) rồi CHỜ launchd gỡ xong hẳn. Chạy bootout và bootstrap liền nhau làm
+# launchd trả "Bootstrap failed: 5: Input/output error" và bỏ dịch vụ ở trạng thái đã tắt (đo thật
+# 23/09/2026: máy chủ giọng tắt hẳn sau lần cài đó).
+if launchctl print "gui/$UID/$LABEL" > /dev/null 2>&1; then
+    launchctl bootout "gui/$UID/$LABEL" 2>/dev/null || true
+    for i in {1..15}; do
+        launchctl print "gui/$UID/$LABEL" > /dev/null 2>&1 || break
+        sleep 1
+    done
+fi
+launchctl enable "gui/$UID/$LABEL" 2>/dev/null || true
+
+nap_duoc=0
+for i in {1..5}; do
+    if launchctl bootstrap "gui/$UID" "$PLIST" 2>/tmp/vieneu-bootstrap.err; then nap_duoc=1; break; fi
+    echo "Lần $i chưa nạp được ($(tr -d '\n' < /tmp/vieneu-bootstrap.err)), thử lại sau 2 giây..."
+    sleep 2
+done
+if [[ $nap_duoc -ne 1 ]]; then
+    echo ""
+    echo "KHÔNG nạp được dịch vụ. Máy chủ giọng đang TẮT."
+    echo "Cách dùng tạm ngay bây giờ: nhấp đúp ~/VieNeu-TTS/cst-start.command"
+    echo "Rồi thử lại tệp này sau, hoặc khởi động lại máy."
+    exit 1
+fi
+launchctl kickstart "gui/$UID/$LABEL" 2>/dev/null || true
 echo "Đã cài. Máy chủ VieNeu sẽ tự chạy khi đăng nhập và tự bật lại nếu bị tắt."
 for i in {1..40}; do
     if curl -s -m 2 http://127.0.0.1:8000/health > /dev/null; then echo "VieNeu đã sẵn sàng."; exit 0; fi

@@ -10,7 +10,13 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 2026-09-23 · lanes B + D (said so in the commit) · version `1.4.5`. A perf audit that found one real
 regression, caused by this project's own `tools/vieneu-autostart.command` from 1.4.2.
 
-## What changed
+## What changed (newest first)
+
+- `tools/vieneu-autostart.command` reinstall failed with `Bootstrap failed: 5: Input/output error`
+  and left the server **stopped**: `bootout` is async, so the immediately following `bootstrap` hits
+  a label launchd has not released yet. It now polls until the job is gone, retries the bootstrap 5
+  times, and on failure says to double-click `~/VieNeu-TTS/cst-start.command` and exits non-zero.
+  `tests/ui.test.js` pins that order. No version bump: `tools/` and `tests/` are not runtime.
 
 - **The bug**: the LaunchAgent set `ProcessType = Background`, so macOS ran the VieNeu server at
   low QoS (measured `pri 4`, E-cores). Generating 1s of speech took **1.07s** instead of ~0.23s, and
@@ -24,11 +30,11 @@ regression, caused by this project's own `tools/vieneu-autostart.command` from 1
 
 ## State
 
-- `npm test`: 320 pass, 0 fail · committed by path · Reload at `chrome://extensions`: **yes**
-- **The installed plist is still `Background`.** The user must re-run
-  `zsh tools/vieneu-autostart.command`; Claude is blocked from installing LaunchAgents here.
-- After they do, re-measure with `node tools/vieneu-bench.js 3` (expect ~0.25) and `node
-  tests/vieneu.live.js`.
+- `npm test`: 321 pass, 0 fail · committed by path · Reload at `chrome://extensions`: **yes** (1.4.5)
+- **The VieNeu server is DOWN right now** and the LaunchAgent is not loaded; the plist on disk is
+  already correct (`Interactive`). The user must re-run `zsh tools/vieneu-autostart.command`
+  (Claude is blocked from `launchctl bootstrap` here).
+- After they do: `node tools/vieneu-bench.js 3` (expect ~0.25) and `node tests/vieneu.live.js`.
 
 ## Unfinished / in progress
 
