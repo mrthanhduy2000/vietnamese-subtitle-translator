@@ -11,7 +11,7 @@ const { DubEngine } = E_ENGINE;
 const { Clock, FakeVideo, FakeAudio } = require("./dub-sim.js");
 const { bgEnv, read } = require("./bg-env.js");
 
-const SYNC_MAX_LAG = 4.5;               // nguong bo cau cua engine (SYNC.maxQueueLag)
+const SYNC_MAX_LAG = 4.5;               // the engine's drop threshold (SYNC.maxQueueLag)
 const REQ = { action: "translateUnit", sentences: ["The model receives the image."], context: { domain: "AI" } };
 const reply = obj => ({ ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify(obj) }] } }] }) });
 const GOOGLE_OK = { ok: true, status: 200, json: async () => [[["Bản Google", "x"]], null, "en"] };
@@ -411,18 +411,18 @@ test("TTS quá thời gian chờ: không gửi lại cho cùng đoạn (máy ch�
     assert.ok(S.eng.stats.timeouts >= 1);
 });
 
-// Máy chủ giọng chậm hơn thời gian thực (tiến trình bị hạ mức ưu tiên, máy đang bận việc khác):
-// audio của câu sắp tới về khi phụ đề đã trôi qua. Trước 1.4.7 engine đứng im chờ TỪNG câu tới
-// 4,5 giây rồi mới bỏ, và vẫn tạo audio cho những câu đã bỏ -> mô phỏng trên dòng thời gian THẬT
-// của một video 11 phút: 12/61 câu được nói, có quãng im 60 giây. Nay: 30/61 câu, không im lâu.
-test("máy chủ giọng chậm hơn thời gian thực: vẫn đọc đều, nhảy tới câu còn kịp, KHÔNG tạo audio cho câu đã bỏ", async () => {
+// Voice server slower than real time (process starved of CPU, machine busy): a segment's audio
+// lands after its subtitle is gone. Before 1.4.7 the engine waited 4.5s per segment before
+// dropping it, and kept rendering segments it had already dropped. Simulated on the real timeline
+// of an 11-minute video: 12/61 sentences spoken with a 63s silence; after the fix, 30/61.
+test("slow voice server: keeps speaking, skips to a reachable segment, renders nothing for dropped ones", async () => {
     const groups = [];
-    // Người nói liên tục, câu nọ nối câu kia (như một bài nói thật): engine không có khoảng
-    // trống nào để bắt kịp, nên máy chủ chậm là lộ ra ngay
+    // Wall-to-wall speech, one sentence straight into the next, like a real talk: the engine has
+    // no gap to catch up in, so a slow server shows immediately
     for (let i = 0; i < 20; i++) groups.push(mkGroup(`Câu số ${i + 1} nói về việc dọn dẹp lại căn phòng cho gọn gàng.`, i * 4, i * 4 + 4, "Line."));
     const clock = new Clock(), video = new FakeVideo();
     const audios = [];
-    const calls = [];                       // mỗi lượt TTS: các đoạn được xin + mốc hàng đợi lúc đó
+    const calls = [];                       // per TTS request: the segments asked for + the queue mark then
     let busyUntil = 0;
     let eng = null;
     const provider = {
@@ -435,8 +435,8 @@ test("máy chủ giọng chậm hơn thời gian thực: vẫn đọc đều, nh
         render(plans) {
             calls.push({ ids: plans.map(p => p.id), mark: eng.lastSpokenStart });
             const dur = plans.map(p => p.phrases.reduce((a, ph) => a + ph.syl, 0) / 4.3 + 0.3);
-            const gen = dur.reduce((a, b) => a + b, 0) * 900 + 250;       // tạo 1 giây lời nói mất 0,9 giây
-            const at = Math.max(clock.now(), busyUntil);                  // máy chủ chỉ 1 luồng
+            const gen = dur.reduce((a, b) => a + b, 0) * 900 + 250;       // 0.9s to generate 1s of speech
+            const at = Math.max(clock.now(), busyUntil);                  // the real server has 1 stream
             busyUntil = at + gen;
             return new Promise(res => clock.setTimeout(() => res(plans.map((p, i) => ({
                 planId: p.id, wav: new Uint8Array(Math.round(dur[i] * 1000)), duration: dur[i], sampleRate: 24000
@@ -452,19 +452,19 @@ test("máy chủ giọng chậm hơn thời gian thực: vẫn đọc đều, nh
     }, { prefetchMax: 30 });
     eng.start();
     video.play();
-    for (let i = 0; i < 1600; i++) {          // 80 giây video
+    for (let i = 0; i < 1600; i++) {          // 80 seconds of video
         clock.advance(50, st => { video.step(st); audios.forEach(a => a.step(st)); });
         await new Promise(r => setImmediate(r));
     }
-    assert.ok(eng.stats.started.length >= 8, `máy chủ chậm mà chỉ đọc được ${eng.stats.started.length} câu`);
-    assert.ok((eng.stats.skipped || 0) >= 1, "phải nhảy tới câu còn kịp thay vì chờ từng câu một");
+    assert.ok(eng.stats.started.length >= 8, `only ${eng.stats.started.length} segments spoken on a slow server`);
+    assert.ok((eng.stats.skipped || 0) >= 1, "must skip to a reachable segment instead of waiting one by one");
     const wasted = calls.filter(c => c.mark != null && c.ids.every(id => {
         const p = eng.planById.get(id);
         return p && p.start <= c.mark;
     }));
-    assert.equal(wasted.length, 0, "không được tạo audio cho câu đã bỏ (lấy mất lượt của câu sắp tới)");
+    assert.equal(wasted.length, 0, "rendered audio for a dropped segment (steals a slot from the next one)");
     const lags = eng.stats.started.map(x => x.t - x.due);
-    assert.ok(Math.max(...lags) <= SYNC_MAX_LAG, `câu đọc trễ tới ${Math.max(...lags).toFixed(1)} giây`);
+    assert.ok(Math.max(...lags) <= SYNC_MAX_LAG, `a segment started ${Math.max(...lags).toFixed(1)}s late`);
 });
 
 // ================= 5. NGÂN SÁCH & THỐNG KÊ CHI PHÍ =================

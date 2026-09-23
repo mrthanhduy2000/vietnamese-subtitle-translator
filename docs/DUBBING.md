@@ -72,7 +72,7 @@ Knobs you will actually reach for:
   spoken before, 30/61 after; at RTF 0.23 nothing changes (61/61). The thresholds are measured, not
   guessed: `skipAfter` 4.5 costs 2 sentences at RTF 0.7, and capping `skipAheadMax` at 6 to 14
   seconds drops to 14/61 because short jumps land late again. See `tests/hardening.test.js`
-  "máy chủ giọng chậm hơn thời gian thực".
+  "slow voice server".
 - **Prefetch**: `prefetchAhead` is adaptive, roughly `(latency * 2.5 + 4) * playbackRate`, times 0.6
   if the user seeks twice in a minute, with a free-provider floor of 20 to 40s. `dubbing.js`
   `smartPrefetch` shrinks it 30% for videos over 30 minutes.

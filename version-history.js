@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.4.8", luc: "12:10 23/09/2026", ten: "Dọn lại phần mã vừa viết cho đúng quy ước ngôn ngữ của dự án",
+            y: [
+                "Không đổi cách chạy: chỉ viết lại bằng tiếng Anh những dòng ghi chú và tên bài kiểm tra MỚI thêm ở bản 1.4.7, theo quy ước mới của dự án (ghi chú trong mã và tên hàm mới viết bằng tiếng Anh).",
+                "Mọi chữ bạn nhìn thấy trên màn hình vẫn là tiếng Việt như cũ, kể cả trang Cài đặt, bảng điều khiển và các thông báo trên video."
+            ]
+        },
+        {
             v: "1.4.7", luc: "11:46 23/09/2026", ten: "Máy chủ giọng chậm không còn làm lồng tiếng im cả quãng",
             y: [
                 "Khi máy chủ giọng tạo không kịp (máy đang bận việc khác), engine đứng im chờ từng câu một tới 4,5 giây rồi mới bỏ, trong khi vẫn tiếp tục tạo audio cho những câu đã bỏ. Kết quả: im lặng cả quãng dài rồi bỗng đọc dồn cho kịp.",

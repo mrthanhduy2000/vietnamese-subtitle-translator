@@ -51,13 +51,12 @@
         keepBehind: 90,           // giữ audio các câu vừa qua trong 90 giây (tua lùi ngắn phát ngay)
         keepAhead: 240,           // audio quá xa phía trước (sau khi tua lùi) cũng được giải phóng
         releaseEvery: 5000,       // kiểm tra giải phóng mỗi 5 giây (ms)         // câu chờ trong hàng quá mức này (giây): bỏ nguyên câu, không cắt giữa
-        skipAfter: 8,             // chờ audio mà biết chắc phải chờ quá bấy nhiêu giây (đã trễ +
-                                  // còn phải chờ) thì nhảy tới đoạn còn kịp. ĐO THẬT trên video
-                                  // thật: 4,5 giây làm mất thêm 2 câu khi máy chủ chỉ hơi chậm
-        skipAheadMax: 60,         // trần an toàn cho một lần nhảy tới đoạn còn kịp (giây). ĐO THẬT
-                                  // trên dòng thời gian video thật với máy chủ chậm: hạ trần này
-                                  // xuống 6 tới 14 giây làm MẤT nhiều câu hơn (14/61 so với 29/61)
-                                  // vì nhảy ngắn thì audio vẫn về muộn, lại phải nhảy tiếp
+        skipAfter: 8,             // lag + expected wait above this: give up on the segment and skip
+                                  // to one whose audio can still arrive. Measured: 4.5 loses 2 more
+                                  // sentences when the server is only slightly slow
+        skipAheadMax: 60,         // safety bound on one skip (s). Measured on a real timeline with a
+                                  // slow server: capping at 6 to 14 loses MORE sentences (14/61 vs
+                                  // 29/61), because a short jump lands late again and skips again
         dropLag: 4.0,             // giọng hệ thống trễ quá mức này mới bỏ phần còn lại của đoạn cũ (bớt mất lời)
         prefetchMax: 30,          // trần tạo trước audio (giây); chế độ sử dụng có thể hạ thấp hơn
         prefetchMin: 12,
@@ -791,25 +790,23 @@
                     continue;
                 }
                 if (r) return { p, r, offset: 0, lag };
-                // CHƯA CÓ AUDIO. Chờ, nhưng chỉ chờ chừng nào còn KỊP: máy chủ giọng chậm hơn
-                // thời gian thực (đo thật: mỗi giây lời nói mất >= 0,9 giây để tạo) thì audio đoạn
-                // này về lúc phụ đề đã trôi qua từ lâu. Trước đây engine đứng im tới 4,5 giây cho
-                // TỪNG câu rồi mới bỏ -> đo thật trên dòng thời gian video thật với máy chủ chậm:
-                // chỉ 12/61 câu được nói, có quãng im 60 giây. Nay nhảy thẳng tới đoạn đầu tiên mà
-                // audio còn kịp và nói liền mạch từ đó: bỏ ít câu hơn, không bao giờ im cả quãng.
+                // No audio yet: wait only while waiting can still pay off. With a server slower than
+                // real time the audio lands long after the subtitle is gone; waiting 4.5s per
+                // sentence and dropping them one by one measured 12/61 sentences spoken and a
+                // 63s silence. Skipping to the first reachable sentence measured 30/61.
                 const wait = this.waitAudio(p);
-                if (lag + wait <= SYNC.skipAfter) return null;        // còn kịp (hoặc chưa chắc hỏng): chờ
+                if (lag + wait <= SYNC.skipAfter) return null;        // still reachable: wait
                 this.skipAhead(t, wait);
             }
             return null;
         }
 
-        // Còn phải chờ bao lâu (giây media) mới có audio của đoạn này: thời gian một lượt TTS đo
-        // được; đoạn chưa được gửi đi còn phải chờ lượt đang chạy xong trước
+        // Media seconds until this segment's audio can exist, from the measured generation speed.
+        // A segment not sent yet also waits for the job in flight to finish.
         waitAudio(p) {
             const vr = Math.max(0.25, (this.d.video && this.d.video.playbackRate) || 1);
             const rtf = this.renderRtf != null ? this.renderRtf : 0.5;
-            const over = 0.6;                                     // chi phí mỗi lượt gọi (mạng, khởi động)
+            const over = 0.6;                                     // per-request overhead (network, startup)
             const remain = job => {
                 const need = job.planIds.reduce((a, id) => a + ((this.planById.get(id) || {}).estDuration || 0), 0) * rtf + over;
                 return Math.max(0.3, need - (this.d.now() - job.t0) / 1000);
@@ -820,8 +817,9 @@
             return (busy + (p.estDuration || 2) * rtf + over) * vr;
         }
 
-        // Máy chủ giọng không theo kịp: bỏ qua các đoạn mà audio chắc chắn về muộn và nhảy tới
-        // đoạn đầu tiên còn kịp. Dừng trước đoạn ĐÃ CÓ audio (không phí lời đã tạo được).
+        // Server cannot keep up: drop the segments whose audio is certain to land late and move the
+        // queue to the first one that can still make it. Stops before a segment that already has
+        // audio, so nothing already generated is wasted.
         skipAhead(t, wait) {
             const target = t + Math.min(wait, SYNC.skipAheadMax) + 0.5;
             const from = this.lastSpokenStart == null ? -Infinity : this.lastSpokenStart;
@@ -941,8 +939,8 @@
             // Vừa bật / vừa tua (chưa nói câu nào): đoạn đã hết phụ đề sẽ không bao giờ được đọc
             // -> không tạo audio cho nó (từng làm tiếng đầu tiên chậm thêm một lượt tạo giọng)
             const fresh = this.lastSpokenStart == null;
-            // Đoạn đã ở SAU mốc hàng đợi lời nói (đã nói / đã bỏ vì trễ) không bao giờ được đọc
-            // nữa: tạo audio cho nó là lấy mất lượt của đoạn sắp tới, đúng lúc đang thiếu nhất
+            // A segment at or behind the speech queue mark (spoken, or dropped for lag) will never
+            // be spoken: rendering it steals a server slot from the segment that is about to play
             const spoken = this.lastSpokenStart;
             const inWindow = p => p.start + p.estDuration >= t - 1 && (spoken == null || p.start > spoken) && !(fresh && p.end < t + 0.3) && p.start <= to && !this.rendered.has(p.id) && !this.pending.has(p.id) && (this.failed.get(p.id) || 0) < 2;
             let todo = this.plans.filter(inWindow).sort((a, b) => a.start - b.start);
@@ -972,9 +970,9 @@
             // 3. TTS: gộp các đoạn liền nhau cùng người nói, không vượt tầm nhìn. Lượt đầu
             // sau khi bật / tua chỉ lấy một câu ngắn để có tiếng ngay (audio nhỏ về nhanh hơn).
             const warmup = this.warmup && !this.conservative;
-            // ĐANG ĐÓI AUDIO (không còn gì để nói phía trước): gộp lượt lớn là tự sát, vì audio
-            // của cả lượt chỉ về khi lượt cuối cùng tạo xong. Lúc này chỉ xin MỘT đoạn ngắn để
-            // có tiếng sớm nhất, rồi lượt sau tiếp tục -> giọng đọc thưa nhưng đều, thay vì im.
+            // Starving (nothing buffered ahead): a big batch is self-defeating, since none of it
+            // arrives until the last segment is generated. Ask for ONE short segment instead, so
+            // there is voice again as soon as possible, and let the next pass continue.
             const starving = this.lastSpokenStart != null && this.bufferedAhead(t) < 0.5;
             const maxSyl = warmup || starving ? SYNC.firstBatchSyl : SYNC.maxBatchSyl;
             const batch = [first];
@@ -1075,9 +1073,9 @@
                 const secs = (this.d.now() - job.t0) / 1000;
                 if (!job.orphan) {
                     this.renderLatency = this.renderLatency == null ? secs : this.renderLatency * 0.7 + secs * 0.3;
-                    // Tốc độ tạo giọng = giây tạo / giây lời nói. Dự đoán "chờ bao lâu nữa" theo
-                    // đây CHÍNH XÁC hơn thời gian một lượt, vì lượt lớn và lượt nhỏ chênh nhau
-                    // nhiều lần; máy chủ khỏe ~0,23, chậm hơn thời gian thực là >= 1
+                    // Generation speed = seconds spent / seconds of speech. Predicts the remaining
+                    // wait far better than per-job latency, because batch sizes differ by a lot.
+                    // A healthy local server is ~0.23; >= 1 means slower than real time.
                     const audioSecs = out.reduce((a, o) => a + (o.duration || 0), 0);
                     if (audioSecs > 0.3) {
                         const rtf = secs / audioSecs;
