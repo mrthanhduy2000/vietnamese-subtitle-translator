@@ -603,3 +603,29 @@ test("thực đơn nhanh: có nút mở bản chép lời và nói rõ đang đ�
     assert.ok(/yt\.trackInfo = \{/.test(ytjs), "youtube.js phải nhớ đang dùng bản chép lời nào");
     assert.ok(/--cst-warn/.test(ytjs) && /--cst-warn/.test(csjs), "nhãn cảnh báo phải dùng màu cảnh báo của bộ giao diện");
 });
+
+// Ảnh chụp thật trên Coursera 1.5.4: dòng "Một tính năng khác mà bạn có thể thực hiện," bị trình
+// duyệt ngắt giữa cụm thành "... có thể thực / hiện,". Lý do: phần cắt dòng của bộ phân đoạn cắt
+// theo cú pháp chứ không theo bề rộng, còn lớp phủ Coursera lại để CSS tự xuống dòng.
+test("phụ đề dài hơn khung: cắt lại theo bề rộng THẬT, không để trình duyệt ngắt bừa", () => {
+    require("../vi-segmenter.js");
+    const S = require("../subtitle-style.js");
+    const text = "Một tính năng khác mà bạn có thể thực hiện, cũng là điều mà Claude vừa làm gần đây.";
+    const overlay = { style: { fontSize: "24px" } };
+    const hep = S.fitLines([text], text, overlay, { box: { clientWidth: 400 }, widthRatio: 0.92 });
+    assert.ok(hep.length > 1, "khung hẹp mà vẫn để nguyên một dòng");
+    const rongNhat = Math.max(...hep.map(l => l.length));
+    assert.ok(rongNhat <= 30, `dòng dài nhất ${rongNhat} ký tự, vẫn tràn khung`);
+    // cắt theo cú pháp: không được bỏ chữ, và không tách "thực hiện" làm đôi
+    assert.equal(hep.join(" ").replace(/\s+/g, " "), text, "cắt dòng làm mất hoặc thêm chữ");
+    assert.ok(!hep.some(l => /\bthực$/.test(l)), "vẫn cắt giữa cụm 'thực hiện'");
+    // khung rộng thì giữ nguyên, không cắt vụn
+    assert.equal(S.fitLines([text], text, overlay, { box: { clientWidth: 1600 }, widthRatio: 0.92 }).length, 1);
+
+    // cả hai trang phải dùng chung một phép cắt này, và không để CSS tự ngắt dòng nữa
+    const ytjs = R("youtube.js");
+    const csjs = R("content.js");
+    assert.ok(/S\.fitLines\(/.test(ytjs) && /S\.fitLines\(/.test(csjs), "hai trang phải dùng chung phép cắt dòng");
+    assert.ok(/white-space:pre;/.test(csjs), "lớp phủ Coursera vẫn để trình duyệt tự ngắt dòng");
+    assert.ok(/panelOpen \? 0\.5/.test(ytjs) && /panelOpen \? 0\.5/.test(csjs), "mở bản chép lời thì phụ đề phải thu hẹp");
+});

@@ -44,7 +44,8 @@ const yt = {
     soNhomDaDich: 0,
     tongSoNhom: 0,
     vfcId: null,
-    daGanSuKien: false
+    daGanSuKien: false,
+    panelOpen: false      // bản chép lời đang mở: phụ đề nhường chỗ
 };
 
 // ============================================================
@@ -523,6 +524,14 @@ function ytChieuCaoThanhDieuKhien(player) {
 // để không bị che, và trượt mượt; thanh ẩn đi thì trở lại đúng lề đã chọn.
 function ytCapNhatViTri(player, overlay) {
     if (!player || !overlay) return;
+    // With the transcript panel open the picture is narrower: keep the subtitles inside what is left
+    if (yt.panelOpen) {
+        overlay.style.maxWidth = "min(92%, calc(100% - 420px))";
+        overlay.style.transform = "translateX(calc(-50% - 196px))";
+    } else {
+        overlay.style.maxWidth = "92%";
+        overlay.style.transform = "translateX(-50%)";
+    }
     const offset = ytSubStyle.offset !== undefined ? ytSubStyle.offset : defaultSubStyle.offset;
     const margin = player.clientHeight * offset / 100 + 6;
     if (ytSubStyle.position === "top") {
@@ -561,32 +570,12 @@ function ytXoaLopPhuDe() {
 // Dong da ngat san theo cu phap (toi da ~42 ky tu). Neu khung hep hoac chu
 // to lam mot dong vuot be rong, ngat lai bang CHINH thuat toan tieng Viet
 // voi so ky tu vua khung, thay vi de trinh duyet tu xuong dong tuy tien.
-let ytDoChuCtx = null;
-function ytDoRongChu(text, font) {
-    if (!ytDoChuCtx) ytDoChuCtx = document.createElement("canvas").getContext("2d");
-    ytDoChuCtx.font = font;
-    return ytDoChuCtx.measureText(text).width;
-}
 
 function ytVuaKhung(lines, text, overlay, scale) {
-    const seg = window.CST_VI_SEG;
-    const player = overlay.parentElement;
-    if (!seg || !player) return lines;
-    const cs = getComputedStyle(overlay);
-    const fontPx = parseFloat(overlay.style.fontSize || cs.fontSize) * (scale || 1);
-    const font = `${cs.fontWeight} ${fontPx}px ${cs.fontFamily}`;
-    const padX = fontPx * 1.3;
-    const avail = player.clientWidth * 0.92 - padX;
-    let widest = 0;
-    let widestLen = 1;
-    for (const l of lines) {
-        const w = ytDoRongChu(l, font);
-        if (w > widest) { widest = w; widestLen = l.length; }
-    }
-    if (widest <= avail) return lines;
-    const perChar = widest / Math.max(1, widestLen);
-    const maxChars = Math.max(12, Math.floor(avail / perChar) - 1);
-    return seg.breakLines(text, { maxLineChars: maxChars, maxLines: 4 });
+    const S = window.CST_STYLE;
+    if (!S || !S.fitLines) return lines;
+    const rong = yt.panelOpen ? 0.5 : 0.92;        // the transcript panel takes the right half
+    return S.fitLines(lines, text, overlay, { scale, box: overlay.parentElement, widthRatio: rong });
 }
 
 function ytTaoKhoiChu(lines, className, css) {
@@ -1655,7 +1644,14 @@ function ytTranscriptAdapter() {
         lines: () => (window.CST_TRANSCRIPT ? window.CST_TRANSCRIPT.mergeLines(yt.viCues, yt.cues) : []),
         title: () => document.title.replace(/\s*-\s*YouTube\s*$/i, "").trim(),
         dual: () => ytSubStyle.mode === "dual" || state.dualMode,
-        theme: () => ytSettings.uiTheme || "auto"
+        theme: () => ytSettings.uiTheme || "auto",
+        onPanel: on => {
+            yt.panelOpen = !!on;
+            const player = document.querySelector("#movie_player") || document.querySelector(".html5-video-player");
+            const overlay = document.querySelector(YT_OVERLAY);
+            if (player && overlay) ytCapNhatViTri(player, overlay);
+            yt.renderKey = "";
+        }
     };
 }
 

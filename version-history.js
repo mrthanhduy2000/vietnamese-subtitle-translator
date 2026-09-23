@@ -4,6 +4,21 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.5.5", luc: "17:22 23/09/2026", ten: "Sửa lỗi ngắt dòng phụ đề trên Coursera, phụ đề nhường chỗ cho bản chép lời",
+            y: [
+                "Phụ đề trên Coursera bị ngắt giữa cụm từ, kiểu \"... mà bạn có thể thực / hiện,\". Nguyên nhân: phần cắt dòng cắt theo cú pháp chứ không theo bề rộng, còn lớp phủ lại để trình duyệt tự xuống dòng ở chỗ nào cũng được.",
+                "Đo thật trên trang: với cỡ chữ 130% một câu dài chiếm 1085 điểm ảnh trong khi khung chỉ rộng 848, nên bị ngắt bừa. Nay tiện ích đo đúng phông và cỡ chữ bạn đang dùng rồi cắt lại theo cú pháp (khoảng 50 ký tự mỗi dòng ở cỡ 130%).",
+                "Phép cắt dòng này nay dùng chung cho cả YouTube và Coursera, nằm ở một chỗ duy nhất.",
+                "Lớp phủ Coursera nay giống hệt YouTube: khung ôm sát chữ, không cho trình duyệt tự ngắt dòng nữa.",
+                "Mở Bản chép lời thì phụ đề tự thu hẹp và dịch sang trái, không còn chạy xuống dưới khung chép lời."
+            ],
+            bang: { cot: ["Đo trên trang Coursera thật, cỡ chữ 130%", "Trước", "Nay"], hang: [
+                ["Bề rộng một câu dài", "1085 điểm ảnh", "1085 điểm ảnh"],
+                ["Khung chứa được", "848 điểm ảnh", "848 điểm ảnh"],
+                ["Cách xử lý khi tràn", "trình duyệt ngắt bừa giữa cụm", "cắt lại theo cú pháp, 50 ký tự mỗi dòng"]
+            ] }
+        },
+        {
             v: "1.5.4", luc: "16:59 23/09/2026", ten: "Bản chép lời cạnh video, xuất .srt, và báo phụ đề nguồn là loại nào",
             y: [
                 "Thêm khung Bản chép lời trượt ra cạnh video trên cả YouTube và Coursera: xem toàn bộ lời thoại song ngữ, dòng đang phát tự sáng và tự cuộn theo, bấm một dòng là video nhảy tới đó, có ô tìm trong lời thoại.",

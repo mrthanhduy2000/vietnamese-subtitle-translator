@@ -156,8 +156,11 @@
     function close() {
         if (!open) return;
         clearInterval(open.timer);
+        const adapter = open.adapter;
         open.panel.remove();
         open = null;
+        // the subtitles get the full width back
+        if (adapter && adapter.onPanel) { try { adapter.onPanel(false); } catch (e) { /* bỏ qua */ } }
     }
 
     // adapter: { box(), videoEl(), lines(), title?(), dual?(), theme?() }
@@ -213,6 +216,9 @@
         list.addEventListener("wheel", () => { open.follow = false; }, { passive: true });
         list.addEventListener("touchmove", () => { open.follow = false; }, { passive: true });
         panel.addEventListener("keydown", e => { if (e.key === "Escape") { e.stopPropagation(); close(); } });
+
+        // the subtitle overlay has to step aside, or it runs underneath the panel
+        if (adapter.onPanel) { try { adapter.onPanel(true); } catch (e) { /* bỏ qua */ } }
 
         open.timer = setInterval(() => {
             // the player can tear its own DOM down under us (navigation, theatre mode). A host with

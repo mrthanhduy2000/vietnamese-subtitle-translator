@@ -203,10 +203,57 @@
         return hexToRgba(s.bgColor, (s.bgOpacity / 100).toFixed(2));
     }
 
+    // ---------- Fitting a cue to the box it is drawn in ----------
+    // The segmenter breaks a cue into lines by syntax, not by pixels, so a long line can still be
+    // wider than the overlay. Left to CSS the browser then wraps it anywhere, which is how
+    // "... mà bạn có thể thực / hiện," happened on a real lecture. Measure the real font and, when a
+    // line does not fit, ask the segmenter to break the same text into shorter lines.
+    let measureCtx = null;
+
+    // Canvas when there is one; otherwise an estimate in the same unit (px), because the caller
+    // compares the result against a pixel width. A rough average glyph is half the font size.
+    function textWidth(text, font, fontPx) {
+        const uoc = () => String(text).length * (fontPx || parseFloat(font) || 16) * 0.5;
+        if (typeof document === "undefined") return uoc();
+        if (!measureCtx) {
+            const c = document.createElement("canvas");
+            measureCtx = c.getContext ? c.getContext("2d") : null;
+        }
+        if (!measureCtx) return uoc();
+        measureCtx.font = font;
+        return measureCtx.measureText(text).width;
+    }
+
+    // lines: what the segmenter produced. text: the same cue as one string. box: the element the
+    // overlay is drawn in. opts.scale: for the smaller source-language block. Returns lines that fit.
+    function fitLines(lines, text, overlay, opts = {}) {
+        const seg = (typeof globalThis !== "undefined" && globalThis.CST_VI_SEG) || null;
+        const box = opts.box || (overlay && overlay.parentElement);
+        if (!seg || !box || !overlay || !lines || !lines.length) return lines;
+        const cs = typeof getComputedStyle === "function" ? getComputedStyle(overlay) : {};
+        const fontPx = parseFloat(overlay.style.fontSize || cs.fontSize || 16) * (opts.scale || 1);
+        if (!(fontPx > 0)) return lines;
+        const font = `${cs.fontWeight || 400} ${fontPx}px ${cs.fontFamily || "sans-serif"}`;
+        const padX = fontPx * 1.3;
+        const avail = (box.clientWidth || 0) * (opts.widthRatio || 0.88) - padX;
+        if (!(avail > 0)) return lines;
+        let widest = 0;
+        let widestLen = 1;
+        for (const l of lines) {
+            const w = textWidth(l, font, fontPx);
+            if (w > widest) { widest = w; widestLen = l.length; }
+        }
+        if (widest <= avail) return lines;
+        const perChar = widest / Math.max(1, widestLen);
+        const maxChars = Math.max(12, Math.floor(avail / perChar) - 1);
+        return seg.breakLines(text, { maxLineChars: maxChars, maxLines: opts.maxLines || 4 });
+    }
+
     const api = {
         FONTS, STROKES, DEFAULT_STYLE,
         getFont, normalizeStyle, fontStack, ensureFont, isLocalFontAvailable,
-        textShadow, backgroundColor, hexToRgba, googleFontsUrl
+        textShadow, backgroundColor, hexToRgba, googleFontsUrl,
+        fitLines, textWidth
     };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_STYLE = api;

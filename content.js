@@ -1008,7 +1008,7 @@ const CS_GEN = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 const CS_BTN = `.cst-cs-btn[data-cst-gen="${CS_GEN}"]`;
 const CS_OVERLAY = `.cst-cs-overlay[data-cst-gen="${CS_GEN}"]`;
-const cs = { viCues: [], origCues: [], renderKey: "", raf: 0, timer: 0, styleKey: "" };
+const cs = { viCues: [], origCues: [], renderKey: "", raf: 0, timer: 0, styleKey: "", panelOpen: false };
 
 function csVideo() {
     return document.querySelector("video");
@@ -1128,9 +1128,11 @@ function csOverlay() {
     ov = document.createElement("div");
     ov.className = "cst-cs-overlay";
     ov.dataset.cstGen = CS_GEN;
-    ov.style.cssText = "position:absolute;left:50%;transform:translateX(-50%);max-width:88%;" +
-        "text-align:center;pointer-events:none;white-space:pre-line;opacity:0;z-index:60;" +
-        "transition:opacity .12s ease;";
+    // Same box as the YouTube overlay: the lines are already fitted to the width, so the browser
+    // must not wrap them again (white-space:pre), and the box hugs the text (width:max-content).
+    ov.style.cssText = "position:absolute;left:50%;transform:translateX(-50%);max-width:92%;" +
+        "width:max-content;box-sizing:border-box;text-align:center;pointer-events:none;" +
+        "white-space:pre;opacity:0;z-index:60;transition:opacity .12s ease;";
     box.appendChild(ov);
     cs.styleKey = "";
     csApplyOverlayStyle(ov);
@@ -1154,6 +1156,14 @@ function csApplyOverlayStyle(ov) {
     ov.style.borderRadius = `${s.borderRadius}px`;
     ov.style.textShadow = S.textShadow(s);
     ov.style.padding = S.backgroundColor(s) === "transparent" ? "2px 6px" : "0.18em 0.6em 0.22em";
+    // With the transcript panel open the picture is narrower: keep the subtitles inside what is left
+    if (cs.panelOpen) {
+        ov.style.maxWidth = "min(92%, calc(100% - 420px))";
+        ov.style.transform = "translateX(calc(-50% - 196px))";
+    } else {
+        ov.style.maxWidth = "92%";
+        ov.style.transform = "translateX(-50%)";
+    }
     const margin = height * (s.offset || 0) / 100 + 6;
     const ctl = csControlGroup();
     const bar = s.pinBottom ? 0 : (ctl ? ctl.height + 16 : 64);
@@ -1183,6 +1193,7 @@ function csFindCue(list, t) {
 function csPaint(ov, vi, origText) {
     const S = window.CST_STYLE;
     const s = S ? S.normalizeStyle(state.subStyle) : { origScale: 80, origColor: "#d4d4d8" };
+    const box = csPlayerBox();
     const blocks = [];
     const block = (lines, css) => {
         const d = document.createElement("div");
@@ -1190,13 +1201,22 @@ function csPaint(ov, vi, origText) {
         d.textContent = lines.join("\n");
         return d;
     };
-    if (vi) blocks.push(block(vi.lines && vi.lines.length ? vi.lines : [vi.text]));
+    // The segmenter cuts by syntax, not by pixels. Without this the browser wraps an over-wide line
+    // wherever it likes, which is how "... mà bạn có thể thực / hiện," showed up on a real lecture.
+    const rong = cs.panelOpen ? 0.5 : 0.92;          // the transcript panel takes the right half
+    const vua = (lines, text, scale) => (S && S.fitLines
+        ? S.fitLines(lines, text, ov, { scale, box, widthRatio: rong })
+        : lines);
+    if (vi) {
+        const lines = vi.lines && vi.lines.length ? vi.lines : [vi.text];
+        blocks.push(block(vua(lines, vi.text || lines.join(" "), 1)));
+    }
     if (origText && (state.dualMode || !vi)) {
         const scale = vi ? (s.origScale || 80) / 100 : 1;
         const css = vi
             ? `font-size:${scale.toFixed(2)}em;color:${s.origColor};font-weight:400;margin-top:0.12em;`
             : "opacity:0.85;";
-        const b = block([origText], css);
+        const b = block(vua([origText], origText, scale), css);
         if (vi && state.originalFirst) {
             b.style.marginTop = "0";
             b.style.marginBottom = "0.12em";
@@ -1265,7 +1285,13 @@ function csTranscriptAdapter() {
         lines: () => (window.CST_TRANSCRIPT ? window.CST_TRANSCRIPT.mergeLines(cs.viCues, cs.origCues) : []),
         title: () => (document.querySelector("h1") || {}).textContent || document.title.replace(/\s*\|\s*Coursera.*$/i, ""),
         dual: () => !!state.dualMode,
-        theme: () => state.uiTheme || "auto"
+        theme: () => state.uiTheme || "auto",
+        onPanel: on => {
+            cs.panelOpen = !!on;
+            const ov = document.querySelector(CS_OVERLAY);
+            if (ov) csApplyOverlayStyle(ov);
+            cs.renderKey = "";
+        }
     };
 }
 
