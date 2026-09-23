@@ -405,3 +405,40 @@ test("tệp cài dịch vụ: chờ gỡ xong rồi mới nạp, có thử lại
     const báo = sh.indexOf("Đã cài.");
     assert.ok(báo > nap, "chỉ báo 'Đã cài' sau khi nạp thành công");
 });
+
+// One product, three surfaces: the popup, the Settings page and the menu drawn on top of the
+// YouTube player. The player menu used to carry its own purple theme, which made the control-bar
+// button look like a different extension. The palette now comes from popup.css, so this test reads
+// popup.css and fails if the on-player styles drift away from it again.
+test("on-player button, menu and toast use the same palette as the popup", () => {
+    const popup = R("popup.css");
+    const ytjs = R("youtube.js");
+    const menuCss = ytjs.split("const YT_MENU_CSS = `")[1].split("`;")[0];
+    // popup.css lists the light value in :root first, then the dark override in the media query
+    const token = name => {
+        const hits = [...popup.matchAll(new RegExp("--claude-" + name + ":\\s*(#[0-9A-Fa-f]{6})", "g"))].map(m => m[1]);
+        assert.ok(hits.length >= 2, `popup.css thiếu token --claude-${name} cho cả hai giao diện`);
+        return { light: hits[0], dark: hits[1] };
+    };
+    const accent = token("accent");
+    assert.equal(accent.light, accent.dark, "accent phải giống nhau ở hai giao diện");
+    for (const name of ["card", "text", "border"]) {
+        const t = token(name);
+        assert.ok(menuCss.includes(t.light), `thực đơn trên video thiếu màu ${name} của giao diện sáng (${t.light})`);
+        assert.ok(menuCss.includes(t.dark), `thực đơn trên video thiếu màu ${name} của giao diện tối (${t.dark})`);
+    }
+    assert.ok(menuCss.includes(accent.light), "thực đơn trên video không dùng màu nhấn của bảng điều khiển");
+    // The control-bar button wears the same accent and the same mark as the popup header
+    assert.ok(ytjs.includes("const CST_MARK_SVG"), "thiếu biểu tượng dùng chung");
+    const btn = ytjs.split("function ytTaoNutThanhDieuKhien()")[1].split("\nfunction ")[0];
+    assert.ok(btn.includes("${CST_MARK_SVG}"), "nút trên thanh điều khiển không dùng biểu tượng dùng chung");
+    assert.ok(btn.includes(accent.light), "nút trên thanh điều khiển không dùng màu nhấn của bảng điều khiển");
+    // No leftovers of the old purple theme on any of the on-player surfaces
+    const purple = /#7c3aed|#6366f1|#9333ea|#7c5cff|#a78bfa|#a855f7/i;
+    assert.ok(!purple.test(ytjs), "youtube.js còn màu tím của giao diện cũ");
+    assert.ok(!purple.test(R("content.js")), "content.js còn màu tím của giao diện cũ");
+    // The toast on top of the video stays dark in both themes, but with the same dark tokens
+    const toast = R("content.js").split("function cstToast")[1].split("\nfunction ")[0];
+    assert.ok(toast.includes(token("border").dark), "thông báo trên video không dùng màu viền của giao diện tối");
+    assert.ok(toast.includes(accent.light), "nút thao tác trong thông báo không dùng màu nhấn");
+});

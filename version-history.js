@@ -4,6 +4,17 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.4.9", luc: "15:55 23/09/2026", ten: "Nút và thực đơn trên YouTube dùng chung một bộ nhận diện với bảng điều khiển",
+            y: [
+                "Nút trên thanh điều khiển YouTube trước đây màu tím với biểu tượng loa, không giống bảng điều khiển và trang Cài đặt. Nay dùng đúng biểu tượng và màu cam đất của tiện ích.",
+                "Thực đơn nhanh trên video được vẽ lại theo đúng bộ màu, bo góc, kiểu chữ và công tắc của bảng điều khiển: thẻ có viền, tiêu đề chữ có chân, công tắc 36x20 giống hệt.",
+                "Thực đơn nhanh nay theo luôn lựa chọn Sáng / Tối trong Cài đặt, đổi trong Cài đặt là đổi ngay, không cần tải lại trang.",
+                "Thông báo nhỏ hiện trên video cũng dùng chung bộ màu đó; nút thao tác trong thông báo chuyển sang màu nhấn.",
+                "Chấm trạng thái trên nút rút còn hai màu cho dễ hiểu: vàng là đang dịch, xanh lá là đang bật. Đang bật phụ đề hay lồng tiếng thì xem ở chú thích khi rê chuột.",
+                "Thêm bài kiểm tra tự động: bộ màu của nút, thực đơn và thông báo phải khớp với bảng điều khiển, tránh về sau lại lệch nhau."
+            ]
+        },
+        {
             v: "1.4.8", luc: "12:10 23/09/2026", ten: "Dọn lại phần mã vừa viết cho đúng quy ước ngôn ngữ của dự án",
             y: [
                 "Không đổi cách chạy: chỉ viết lại bằng tiếng Anh những dòng ghi chú và tên bài kiểm tra MỚI thêm ở bản 1.4.7, theo quy ước mới của dự án (ghi chú trong mã và tên hàm mới viết bằng tiếng Anh).",

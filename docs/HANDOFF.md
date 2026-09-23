@@ -7,33 +7,37 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 
 ## Last touched
 
-2026-09-23 · lane B (`dub-engine.js`) plus one test · version `1.4.8`. Two turns: the overload fix
-for the user's "subtitles run, voice goes silent, then rushes" report, then a language cleanup.
+2026-09-23 · lane A (`youtube.js`, `content.js`) plus a test in lane D · version `1.4.9`. Before
+this: 1.4.7 the dubbing overload fix, 1.4.8 the language cleanup.
 
 ## What changed
 
-- **1.4.7, the fix.** The engine had no overload behaviour. With a TTS server slower than real time,
-  `nextSpeech` stood silent 4.5s per sentence before dropping it, and `schedule` kept spending the
-  server on sentences already given up on. Measured on the real caption timeline of the user's video
-  (`H9yU-Y22vGI`, 61 cues, wall-to-wall speech) at RTF 1.0: **12/61 sentences spoken, 63s silence**.
-  Now `waitAudio(p)` estimates the remaining wait from a measured `renderRtf` EMA, `skipAhead` jumps
-  the queue to the first sentence whose audio can still arrive (`SYNC.skipAfter` 8, `skipAheadMax`
-  60), `inWindow` refuses plans at or behind `lastSpokenStart`, and an empty buffer asks for one
-  short plan instead of a 4-plan batch. After: **30/61 spoken**, sentences over 2s late 10 → 2.
-  RTF 0.7 / 0.45 / 0.23 unchanged at 58 / 60 / 61 of 61, so a healthy server sees no difference.
-- **1.4.8, no behaviour change.** The comments and the test name added in 1.4.7 are now English, per
-  the `Language` section a docs session added to `CLAUDE.md`. Pre-existing Vietnamese comments,
-  function names and test names were left alone, and every end-user string stays Vietnamese.
+- **1.4.9, the on-player surfaces now share one identity.** The control-bar button was a purple
+  gradient with a speaker glyph and the quick menu had its own purple theme, so nothing on the video
+  matched the popup or the Settings page. Both now use the extension's own mark (`CST_MARK_SVG`,
+  one string feeding the button and the menu header) and the palette from `popup.css`: accent
+  `#D97757`, cards with a border, 8/12/16 radii, the serif title face, and the popup's exact 36x20
+  switch. The menu follows the `uiTheme` setting (light / dark / auto) through `data-cst-theme`,
+  updated live from `storage.onChanged`. `cstToast` in `content.js` carries the same palette; it
+  stays dark in both themes because it sits on a video. The status dot is down to two colours,
+  amber while working and green while on, with the detail in the button title.
+- **New guard**: `tests/ui.test.js` "on-player button, menu and toast use the same palette as the
+  popup" reads the tokens out of `popup.css` and fails if the on-player styles drift again. It
+  fails on the pre-1.4.9 file (4 purple literals).
+- **1.4.7** measured on the real caption timeline of `H9yU-Y22vGI` at RTF 1.0: 12/61 sentences
+  spoken before the overload fix, 30/61 after, sentences over 2s late 10 → 2, healthy server
+  unchanged at 61/61. `docs/DUBBING.md` §SYNC holds the measured thresholds.
 
 ## State
 
-- `npm test`: 322 tests, 321 pass, 0 fail, 1 skip · committed by path · Reload at
-  `chrome://extensions`: **yes** (1.4.8)
-- VieNeu: healthy, RTF ~0.23, `Interactive`, LaunchAgent loaded. The user's own server is **not**
-  the slow case above; the fix matters when the machine gets busy.
+- `npm test`: 323 tests, 322 pass, 0 fail, 1 skip · committed by path · Reload at
+  `chrome://extensions`: **yes** (1.4.9)
+- VieNeu: healthy, RTF ~0.23, `Interactive`, LaunchAgent loaded.
 
 ## Unfinished / in progress
 
+- **The 1.4.9 look has not been seen on a real video.** It was verified against `popup.css` by test
+  and in a static preview built from the real CSS; nobody has opened the menu in Chrome yet.
 - Never reproduced live in the user's Chrome: a YouTube tab driven through the extension bridge
   reports `document.hidden = true` and the player stays at `readyState 0`, so playback never starts.
   Any measurement that needs a really playing video has to be run by the user.
@@ -42,13 +46,12 @@ for the user's "subtitles run, voice goes silent, then rushes" report, then a la
 
 ## Traps hit this session
 
-- The sandbox blocks loopback TCP: `curl 127.0.0.1:8000` fails and a port probe says "closed" while
-  the server is provably up. Read `~/VieNeu-TTS/server.log` and `launchctl print` instead.
-- Two plausible guards measured as worth **nothing** (a fresh-branch drop, a reachability filter at
-  start) and one as actively harmful (capping the skip distance: 29/61 → 14/61). Sweep, do not reason.
-- `tests/dub-sim.js` has no slow-server helper; build the scenario inline with a provider that
-  resolves through the virtual clock and serialises itself (the real server is 1 stream).
+- The sandbox blocks loopback TCP and refuses to start a local static server, and the preview pane
+  cannot screenshot a `file://` page: there is no way from here to render a page for your own eyes.
+  Assert on the CSS instead, and send the preview file to the user.
+- Sweep constants, do not reason about them: three plausible dubbing guards measured as worthless
+  or harmful in 1.4.7.
 
 ## Suggested next step
 
-- Ask the user to watch a video and report, or pick a `BACKLOG.md` item.
+- Ask the user how the new menu looks on a video, or pick a `docs/BACKLOG.md` item.

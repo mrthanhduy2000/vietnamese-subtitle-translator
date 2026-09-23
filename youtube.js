@@ -63,12 +63,14 @@ const ytSettings = {
     dubEnabled: true,           // Tự bật lồng tiếng sau khi dịch (mặc định BẬT; nhớ lần bật/tắt gần nhất)
     prepareWait: true,          // Mở video mới: tạm dừng tối đa 5 giây chờ phụ đề + giọng Việt sẵn sàng
     skipSameLang: true,         // Bỏ qua dịch khi cùng ngôn ngữ
-    smartSentenceBreak: true    // Luôn bật: phân đoạn & ngắt dòng theo cú pháp tiếng Việt
+    smartSentenceBreak: true,   // Luôn bật: phân đoạn & ngắt dòng theo cú pháp tiếng Việt
+    uiTheme: "auto"             // Light or dark for the on-player menu, same setting as the two pages
 };
 
 async function ytNapCaiDatKieu() {
     try {
-        const res = await chrome.storage.sync.get(["subStyle", "dualMode", "skipSameLang", "autoTranslate", "dubEnabled", "dubPrepareWait"]);
+        const res = await chrome.storage.sync.get(["subStyle", "dualMode", "skipSameLang", "autoTranslate", "dubEnabled", "dubPrepareWait", "uiTheme"]);
+        if (res.uiTheme) ytSettings.uiTheme = res.uiTheme;
         ytSettings.prepareWait = res.dubPrepareWait !== false;
         if (res.autoTranslate !== undefined) ytSettings.autoTranslate = !!res.autoTranslate;
         // Chưa từng chọn (cài mới, kho cài đặt bị tạo lại) -> bật: người dùng muốn nghe giọng Việt ngay
@@ -1291,21 +1293,14 @@ function ytCapNhatTrangThaiNutThanhDieuKhien() {
     const badge = btn.querySelector(".cst-btn-badge");
     const isDub = window.CST_DUB && window.CST_DUB.dub && window.CST_DUB.dub.enabled;
 
+    // Two states only, the same two the popup shows: amber while it works, green while it is on.
+    // Which of subtitles or dubbing is on is in the title below, where it can be read out loud.
     if (dot) {
-        if (yt.busy) {
-            dot.style.display = "block";
-            dot.style.backgroundColor = "#eab308";
-            dot.style.boxShadow = "0 0 5px #eab308";
-        } else if (yt.active) {
-            dot.style.display = "block";
-            dot.style.backgroundColor = "#22c55e";
-            dot.style.boxShadow = "0 0 5px #22c55e";
-        } else if (isDub) {
-            dot.style.display = "block";
-            dot.style.backgroundColor = "#38bdf8";
-            dot.style.boxShadow = "0 0 5px #38bdf8";
-        } else {
-            dot.style.display = "none";
+        const mau = yt.busy ? "#E8B84B" : (yt.active || isDub) ? "#22C55E" : null;
+        dot.style.display = mau ? "block" : "none";
+        if (mau) {
+            dot.style.backgroundColor = mau;
+            dot.style.boxShadow = `0 0 5px ${mau}`;
         }
     }
 
@@ -1317,13 +1312,9 @@ function ytCapNhatTrangThaiNutThanhDieuKhien() {
                 : isDub ? "Đang lồng tiếng Việt (Alt+D)"
                     : "Dịch phụ đề & lồng tiếng tiếng Việt (Alt+S, Alt+D)");
     if (badge) {
-        if (yt.active || isDub) {
-            badge.style.background = "linear-gradient(135deg, #9333ea, #4f46e5)";
-            badge.style.boxShadow = "0 0 12px rgba(147, 51, 234, 0.9)";
-        } else {
-            badge.style.background = "linear-gradient(135deg, #7c3aed, #6366f1)";
-            badge.style.boxShadow = "0 2px 6px rgba(124, 58, 237, 0.45)";
-        }
+        const on = yt.active || isDub;
+        badge.style.background = on ? "#E08567" : "#D97757";
+        badge.style.boxShadow = on ? "0 0 12px rgba(217, 119, 87, 0.75)" : "0 2px 8px rgba(217, 119, 87, 0.45)";
     }
 }
 
@@ -1394,24 +1385,22 @@ function ytTaoNutThanhDieuKhien() {
         margin-left: 2px;
     `;
 
-    // Biểu tượng YouTube Dubbing màu tím với gradient và hiệu ứng nổi bật
+    // The control-bar button wears the same mark and the same accent as the popup header, so the
+    // three surfaces read as one product instead of three.
     btn.innerHTML = `
         <div class="cst-btn-badge" style="
-            width: 32px;
-            height: 32px;
-            border-radius: 7px;
-            background: linear-gradient(135deg, #7c3aed, #6366f1);
-            box-shadow: 0 2px 6px rgba(124, 58, 237, 0.45);
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            background: #D97757;
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(217, 119, 87, 0.45);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.18s ease;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
         ">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5 4.5V19.5L14 12L5 4.5Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="1.2" stroke-linejoin="round"></path>
-                <path d="M17 7.5C18.5 9 18.5 15 17 16.5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"></path>
-                <path d="M20 5C22.5 7.5 22.5 16.5 20 19" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"></path>
-            </svg>
+            <span style="width:17px;height:17px;display:flex;">${CST_MARK_SVG}</span>
         </div>
         <span class="cst-btn-dot" style="
             display: none;
@@ -1421,9 +1410,9 @@ function ytTaoNutThanhDieuKhien() {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: #22c55e;
-            border: 1.5px solid #000;
-            box-shadow: 0 0 4px #22c55e;
+            background: #22C55E;
+            border: 1.5px solid #1F1E1B;
+            box-shadow: 0 0 4px rgba(34, 197, 94, 0.8);
         "></span>
     `;
 
@@ -1431,14 +1420,14 @@ function ytTaoNutThanhDieuKhien() {
         const b = btn.querySelector(".cst-btn-badge");
         if (b) {
             b.style.transform = "scale(1.08)";
-            b.style.boxShadow = "0 3px 10px rgba(124, 58, 237, 0.75)";
+            b.style.boxShadow = "0 4px 14px rgba(217, 119, 87, 0.55)";
         }
     });
     btn.addEventListener("mouseleave", () => {
         const b = btn.querySelector(".cst-btn-badge");
         if (b) {
             b.style.transform = "scale(1)";
-            b.style.boxShadow = yt.active ? "0 0 12px rgba(124, 58, 237, 0.9)" : "0 2px 6px rgba(124, 58, 237, 0.45)";
+            b.style.boxShadow = yt.active ? "0 0 12px rgba(217, 119, 87, 0.75)" : "0 2px 8px rgba(217, 119, 87, 0.45)";
         }
     });
 
@@ -1469,43 +1458,92 @@ function ytTaoNutThanhDieuKhien() {
 // Nguyên tắc (1.4.1): mỗi dòng là MỘT công tắc thật (bấm được, đọc được bằng trình đọc màn hình),
 // không dùng nhãn "BẬT" trông giống nút bấm mà thực ra chỉ là chữ; trạng thái tự cập nhật khi
 // đang mở; việc hay làm nhất (đổi giọng đọc) làm ngay tại đây, không phải mở trang Cài đặt.
+// The extension's own mark, the same one the popup header shows. Kept as a string so the
+// control-bar button and the menu header cannot drift apart.
+const CST_MARK_SVG = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+        <path d="M12 2C12.4 7.2 16.8 11.6 22 12C16.8 12.4 12.4 16.8 12 22C11.6 16.8 7.2 12.4 2 12C7.2 11.6 11.6 7.2 12 2Z"></path>
+    </svg>`;
+
 const YT_MENU_CSS = `
-.cst-yt-menu { position:absolute; bottom:58px; right:12px; width:304px; max-height:min(72%,440px); overflow-y:auto;
-    background:rgba(18,18,22,.97); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
-    border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:10px;
-    box-shadow:0 14px 40px rgba(0,0,0,.6); color:#fff; font:13px/1.45 Roboto,-apple-system,sans-serif;
+/* One visual language across the three surfaces: the popup, the Settings page and this menu.
+   The tokens mirror popup.css; light or dark follows the uiTheme setting (auto = the machine). */
+.cst-yt-menu {
+    --cst-bg:rgba(31,30,27,.975); --cst-card:#282622; --cst-card-hover:#312E2A; --cst-soft:#23211E;
+    --cst-text:#ECE8E1; --cst-text-2:#A8A39A; --cst-muted:#78736B;
+    --cst-border:#3A3732; --cst-border-2:#48453F;
+    --cst-accent:#D97757; --cst-accent-hover:#E08567; --cst-accent-soft:#33241F;
+    --cst-accent-shadow:rgba(217,119,87,.35); --cst-warn:#E8B84B;
+    --cst-shadow:0 18px 46px rgba(0,0,0,.55);
+    --cst-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --cst-serif:"Newsreader","Tiempos Headline","Iowan Old Style",Charter,Georgia,serif;
+}
+.cst-yt-menu[data-cst-theme="light"], .cst-yt-menu[data-cst-theme="auto"] {
+    --cst-bg:rgba(250,249,245,.985); --cst-card:#FFFFFF; --cst-card-hover:#F2EFE8; --cst-soft:#F6F4EE;
+    --cst-text:#262420; --cst-text-2:#6B665E; --cst-muted:#969086;
+    --cst-border:#E8E4DC; --cst-border-2:#DDD8CE;
+    --cst-accent:#D97757; --cst-accent-hover:#C56646; --cst-accent-soft:#FAF1EC;
+    --cst-accent-shadow:rgba(217,119,87,.22); --cst-warn:#B4791C;
+    --cst-shadow:0 18px 46px rgba(38,36,32,.28);
+}
+@media (prefers-color-scheme: dark) {
+    .cst-yt-menu[data-cst-theme="auto"] {
+        --cst-bg:rgba(31,30,27,.975); --cst-card:#282622; --cst-card-hover:#312E2A; --cst-soft:#23211E;
+        --cst-text:#ECE8E1; --cst-text-2:#A8A39A; --cst-muted:#78736B;
+        --cst-border:#3A3732; --cst-border-2:#48453F;
+        --cst-accent:#D97757; --cst-accent-hover:#E08567; --cst-accent-soft:#33241F;
+        --cst-accent-shadow:rgba(217,119,87,.35); --cst-warn:#E8B84B;
+        --cst-shadow:0 18px 46px rgba(0,0,0,.55);
+    }
+}
+.cst-yt-menu { position:absolute; bottom:58px; right:12px; width:312px; max-height:min(72%,462px); overflow-y:auto;
+    background:var(--cst-bg); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    border:1px solid var(--cst-border); border-radius:16px; padding:12px;
+    box-shadow:var(--cst-shadow); color:var(--cst-text); font:13px/1.45 var(--cst-sans);
     z-index:1000; user-select:none; }
 .cst-yt-menu * { box-sizing:border-box; }
-.cst-menu-head { display:flex; align-items:center; gap:8px; padding:2px 4px 8px; }
-.cst-menu-title { flex:1; font-weight:600; font-size:13px; color:#fff; }
-.cst-menu-x { background:none; border:none; color:#9aa0a6; font-size:15px; line-height:1; cursor:pointer; padding:4px 6px; border-radius:6px; }
-.cst-menu-x:hover { color:#fff; background:rgba(255,255,255,.1); }
-.cst-row { display:flex; align-items:center; gap:10px; width:100%; text-align:left; padding:9px 10px; border:none;
-    border-radius:9px; background:rgba(255,255,255,.05); color:#fff; font:inherit; cursor:pointer; margin-bottom:6px; }
-.cst-row:hover { background:rgba(255,255,255,.1); }
+.cst-menu-head { display:flex; align-items:center; gap:9px; padding:1px 2px 11px; }
+.cst-menu-mark { flex-shrink:0; width:24px; height:24px; border-radius:8px; background:var(--cst-accent);
+    display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px var(--cst-accent-shadow); }
+.cst-menu-mark svg { width:15px; height:15px; display:block; }
+.cst-menu-title { flex:1; font-family:var(--cst-serif); font-size:15.5px; font-weight:500; letter-spacing:-.2px; color:var(--cst-text); }
+.cst-menu-x { background:none; border:none; color:var(--cst-muted); font-size:14px; line-height:1; cursor:pointer;
+    padding:5px 7px; border-radius:8px; transition:background-color .18s ease,color .18s ease; }
+.cst-menu-x:hover { color:var(--cst-text); background:var(--cst-card-hover); }
+.cst-row { display:flex; align-items:center; gap:10px; width:100%; text-align:left; padding:10px 12px;
+    border:1px solid var(--cst-border); border-radius:12px; background:var(--cst-card); color:var(--cst-text);
+    font:inherit; cursor:pointer; margin-bottom:8px; transition:background-color .18s ease,border-color .18s ease; }
+.cst-row:hover { background:var(--cst-card-hover); border-color:var(--cst-border-2); }
 .cst-row[aria-disabled="true"] { opacity:.55; cursor:default; }
-.cst-row-label { flex:1; font-weight:500; }
-.cst-row-sub { display:block; font-weight:400; font-size:11px; color:#9aa0a6; margin-top:2px; }
-.cst-kbd { font-size:10px; color:#9aa0a6; border:1px solid rgba(255,255,255,.18); border-radius:4px; padding:1px 5px; }
-.cst-sw { flex-shrink:0; width:36px; height:20px; border-radius:10px; background:rgba(255,255,255,.22); position:relative; transition:background .18s; }
-.cst-sw::after { content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:transform .18s; }
-.cst-row[aria-checked="true"] .cst-sw { background:#7c5cff; }
+.cst-row-label { flex:1; font-weight:500; font-size:13px; }
+.cst-row-sub { display:block; font-weight:400; font-size:11.5px; color:var(--cst-text-2); margin-top:3px; }
+.cst-kbd { flex-shrink:0; font-family:var(--cst-sans); font-size:10.5px; color:var(--cst-text-2);
+    border:1px solid var(--cst-border); background:var(--cst-soft); border-radius:4px; padding:2px 6px; }
+.cst-sw { flex-shrink:0; width:36px; height:20px; border-radius:999px; background:var(--cst-border-2);
+    position:relative; transition:background-color .22s cubic-bezier(.16,1,.3,1); }
+.cst-sw::after { content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%;
+    background:#FFFFFF; box-shadow:0 1px 3px rgba(0,0,0,.18); transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
+.cst-row[aria-checked="true"] .cst-sw { background:var(--cst-accent); }
 .cst-row[aria-checked="true"] .cst-sw::after { transform:translateX(16px); }
-.cst-sep { height:1px; background:rgba(255,255,255,.1); margin:8px 2px; }
-.cst-field { padding:2px 10px 8px; }
-.cst-field-label { font-size:11px; color:#9aa0a6; margin-bottom:6px; }
-.cst-seg { display:flex; gap:6px; }
-.cst-seg button { flex:1; padding:7px 0; border-radius:8px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.05); color:#c7c7cc; font:inherit; cursor:pointer; }
-.cst-seg button[aria-pressed="true"] { background:#7c5cff; border-color:#7c5cff; color:#fff; font-weight:600; }
-.cst-select { width:100%; padding:7px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.16);
-    background:rgba(255,255,255,.06); color:#fff; font:inherit; cursor:pointer; }
-.cst-select option, .cst-select optgroup { background:#1c1c20; color:#fff; }
-.cst-note-line { padding:0 10px 8px; font-size:11.5px; line-height:1.4; color:#fbbf24; }
-.cst-menu-foot { display:flex; gap:6px; }
-.cst-menu-foot button { flex:1; padding:8px 0; border-radius:8px; border:1px solid rgba(255,255,255,.14);
-    background:rgba(255,255,255,.06); color:#fff; font:inherit; font-weight:500; cursor:pointer; }
-.cst-menu-foot button:hover { background:rgba(255,255,255,.12); }
-.cst-yt-menu :focus-visible { outline:2px solid #a78bfa; outline-offset:2px; }
+.cst-sep { height:1px; background:var(--cst-border); margin:10px 2px; }
+.cst-field { padding:0 2px 10px; }
+.cst-field-label { font-size:11px; letter-spacing:.2px; text-transform:uppercase; color:var(--cst-muted); margin-bottom:7px; }
+.cst-seg { display:flex; gap:3px; padding:3px; border-radius:999px; background:var(--cst-soft); border:1px solid var(--cst-border); }
+.cst-seg button { flex:1; padding:6px 0; border-radius:999px; border:none; background:none; color:var(--cst-text-2);
+    font:inherit; font-size:12.5px; cursor:pointer; transition:background-color .18s ease,color .18s ease; }
+.cst-seg button:hover { color:var(--cst-text); }
+.cst-seg button[aria-pressed="true"] { background:var(--cst-card); color:var(--cst-text); font-weight:600;
+    box-shadow:0 1px 3px rgba(0,0,0,.18); }
+.cst-select { width:100%; padding:9px 10px; border-radius:8px; border:1px solid var(--cst-border);
+    background:var(--cst-card); color:var(--cst-text); font:inherit; font-size:13px; cursor:pointer; }
+.cst-select:hover { border-color:var(--cst-border-2); }
+.cst-select option, .cst-select optgroup { background:var(--cst-card); color:var(--cst-text); }
+.cst-note-line { padding:0 2px 10px; font-size:11.5px; line-height:1.45; color:var(--cst-warn); }
+.cst-menu-foot { display:flex; gap:8px; }
+.cst-menu-foot button { flex:1; padding:9px 0; border-radius:8px; border:1px solid var(--cst-border);
+    background:var(--cst-soft); color:var(--cst-text); font:inherit; font-size:13px; font-weight:500; cursor:pointer;
+    transition:background-color .18s ease,border-color .18s ease; }
+.cst-menu-foot button:hover { background:var(--cst-card-hover); border-color:var(--cst-border-2); }
+.cst-yt-menu :focus-visible { outline:2px solid var(--cst-accent); outline-offset:2px; }
 @media (prefers-reduced-motion: reduce) { .cst-yt-menu *, .cst-yt-menu *::after { transition-duration:.001ms !important; } }
 `;
 
@@ -1560,8 +1598,13 @@ function ytMoMenuNhanh(player, btn) {
     menu = el("div", "cst-yt-menu");
     menu.setAttribute("role", "dialog");
     menu.setAttribute("aria-label", "Dịch phụ đề và lồng tiếng");
+    menu.dataset.cstTheme = ytSettings.uiTheme || "auto";
 
     const head = el("div", "cst-menu-head");
+    const mark = el("span", "cst-menu-mark");
+    mark.innerHTML = CST_MARK_SVG;
+    mark.style.color = "#FFFFFF";
+    head.appendChild(mark);
     head.appendChild(el("span", "cst-menu-title", "Dịch & lồng tiếng Việt"));
     const x = el("button", "cst-menu-x", "✕");
     x.type = "button";
@@ -1896,6 +1939,11 @@ async function ytKhoiDong() {
                 if (changes.dualMode) {
                     state.dualMode = changes.dualMode.newValue;
                     yt.renderKey = "";
+                }
+                if (changes.uiTheme) {
+                    ytSettings.uiTheme = changes.uiTheme.newValue || "auto";
+                    const open = document.querySelector(".cst-yt-menu");
+                    if (open) open.dataset.cstTheme = ytSettings.uiTheme;
                 }
                 if (changes.autoTranslate) ytSettings.autoTranslate = !!changes.autoTranslate.newValue;
                 if (changes.dubPrepareWait) ytSettings.prepareWait = changes.dubPrepareWait.newValue !== false;

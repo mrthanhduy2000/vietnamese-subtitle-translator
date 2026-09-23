@@ -62,11 +62,14 @@ function cstToast(message, opts = {}) {
         box.setAttribute("role", "status");
         box.setAttribute("aria-live", "polite");
         const inPlayer = host !== document.body;
+        // Same palette as the popup, the Settings page and the on-player menu. It stays dark in both
+        // themes because it sits on top of a video, where a cream panel would glare.
         box.style.cssText = `position:${inPlayer ? "absolute" : "fixed"};top:${inPlayer ? "58px" : "16px"};left:50%;transform:translateX(-50%);
             max-width:min(620px,84%);display:flex;align-items:center;gap:12px;z-index:2147483001;
-            padding:10px 14px;border-radius:8px;background:rgba(18,18,22,.94);color:#fff;
-            font:13px/1.45 Roboto,-apple-system,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.45);
-            border:1px solid ${opts.warn ? "rgba(234,179,8,.55)" : "rgba(255,255,255,.14)"};opacity:0;transition:opacity .25s`;
+            padding:11px 14px;border-radius:12px;background:rgba(40,38,34,.965);color:#ECE8E1;
+            font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+            box-shadow:0 18px 46px rgba(0,0,0,.5);
+            border:1px solid ${opts.warn ? "rgba(232,184,75,.55)" : "#3A3732"};opacity:0;transition:opacity .25s`;
         const text = document.createElement("span");
         text.textContent = message;
         text.style.cssText = "flex:1;white-space:pre-line";
@@ -75,7 +78,7 @@ function cstToast(message, opts = {}) {
             const btn = document.createElement("button");
             btn.type = "button";
             btn.textContent = opts.actionLabel;
-            btn.style.cssText = "flex-shrink:0;padding:5px 11px;border-radius:6px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.1);color:#fff;font:inherit;font-weight:600;cursor:pointer";
+            btn.style.cssText = "flex-shrink:0;padding:6px 12px;border-radius:8px;border:none;background:#D97757;color:#FFFFFF;font:inherit;font-weight:500;cursor:pointer";
             btn.addEventListener("click", () => { box.remove(); try { opts.onAction(); } catch (e) { /* bỏ qua */ } });
             box.appendChild(btn);
         }
@@ -83,7 +86,7 @@ function cstToast(message, opts = {}) {
         close.type = "button";
         close.setAttribute("aria-label", "Đóng thông báo");
         close.textContent = "✕";
-        close.style.cssText = "flex-shrink:0;background:none;border:none;color:#c7c7cc;font-size:13px;cursor:pointer;padding:2px 4px";
+        close.style.cssText = "flex-shrink:0;background:none;border:none;color:#A8A39A;font-size:13px;cursor:pointer;padding:2px 4px;border-radius:6px";
         close.addEventListener("click", () => box.remove());
         box.appendChild(close);
         host.appendChild(box);
@@ -385,7 +388,7 @@ function logEngine(response, n) {
     if (response.engine === "gemini") {
         const fb = response.fallbackFrom ? `, ${response.fallbackFrom} không dùng được nên lùi sang model này` : "";
         console.log(`%c[AI Subtitle]%c 🤖 GEMINI (${response.model}) ${n} đoạn, ${response.latency}ms${response.fromCache ? " (bộ nhớ đệm)" : ""}${fb}`,
-            "background:#7c3aed;color:#fff;padding:2px 6px;border-radius:4px;font-weight:bold;", "color:#a855f7;font-weight:bold;");
+            "background:#D97757;color:#fff;padding:2px 6px;border-radius:4px;font-weight:bold;", "color:#D97757;font-weight:bold;");
     } else if (response.engine === "google_fallback") {
         console.warn(`[AI Subtitle] ⚠️ Gemini lỗi ("${response.fallbackReason || "Không xác định"}"), dùng Google Translate (không có ngữ cảnh)`);
     }
