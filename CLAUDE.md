@@ -31,8 +31,32 @@ comments, UI strings and test names are Vietnamese.
 4. **The default model must stay `"auto"`.** The user's Gemini key is a new key and gets 404 for
    `gemini-2.5-flash-lite`. Never hardcode a model as default just because the docs call it stable;
    availability is per API key and `background.js` probes it.
-5. **Reply to the user in Vietnamese**, plain Vietnamese, no long dashes. Files and docs in this
-   repo are English.
+5. **Language: English in the repo, Vietnamese to people.** Full table in the next section. This
+   is the rule broken most often, because most of what is already here is Vietnamese.
+
+## Language
+
+| Thing | Language |
+|---|---|
+| Your chat replies to the user | **Vietnamese**, plain, no long dashes |
+| Comments you write in code | **English** |
+| Names of new functions, variables, constants, files | **English** |
+| Names of new tests | **English** |
+| Commit messages, `docs/`, `CLAUDE.md` | **English** |
+| Strings the end user reads: labels in `options.html` and `popup.html`, toast text, `manifest.json` description and command descriptions | **Vietnamese** |
+
+That last row is not a style choice. This extension is for Vietnamese users; translating a UI
+string breaks the product. If you are unsure whether a string is UI, check whether it reaches the
+screen.
+
+**The Vietnamese already here stays.** Do not start a translation pass:
+
+- The 41 Vietnamese function names (`ytBatDauDich`, `layNoiDungPhuDe`, `capNhatHienThi`, ...) keep
+  their names. Renaming them across 14,400 lines fails in ways the tests do not catch.
+- The 231 Vietnamese test names keep their names.
+- The ~1,000 Vietnamese comment lines get translated **only** when you are already rewriting that
+  exact block for another reason. Never open a file just to translate comments, and never ship a
+  diff that is only comment translation.
 
 ## Read protocol (this is the token budget)
 
