@@ -1,8 +1,8 @@
 ---
-description: Hand over end of turn - test, bump version, rewrite docs/HANDOFF.md, commit
+description: Hand over end of turn - test, bump version, rewrite docs/HANDOFF.md, commit, push to GitHub
 ---
 
-Hand over whatever is currently uncommitted in this project. Steps 1 to 6 are the job. Do not ask
+Hand over whatever is currently uncommitted in this project. Steps 1 to 7 are the job. Do not ask
 for permission between them, and do not skip one because it looks unnecessary.
 
 1. `git status --short` and `git diff --stat`. If nothing changed, say so in one line and stop:
@@ -31,8 +31,16 @@ for permission between them, and do not skip one because it looks unnecessary.
    A few lines, not an essay.
 
 6. `git add -A` then `git commit`, with the version number in the subject line if step 3 bumped it.
-   Then report to the user **in Vietnamese**: what changed, whether the version moved, whether they
-   need to click Reload at `chrome://extensions`, and anything you left unfinished.
+   (If another session is working in this folder at the same time, add your own paths, not `-A`.)
+
+7. `git push` to `origin` (private repo `github.com/mrthanhduy2000/vietnamese-subtitle-translator`).
+   The user wants every update on GitHub. Credentials live in the macOS keychain through `gh`, which
+   the Bash sandbox cannot read: if the push fails with an authentication or keychain error, run the
+   same `git push` again with the sandbox disabled. Never force-push. If it still fails (offline,
+   remote ahead), leave the commit local and say so in the report.
+
+Then report to the user **in Vietnamese**: what changed, whether the version moved, whether they
+need to click Reload at `chrome://extensions`, whether it reached GitHub, and anything unfinished.
 
 If the user has explicitly told you in this conversation not to commit, do steps 1 to 5, skip the
 commit, and say in one line that the handover is written but uncommitted at their request.

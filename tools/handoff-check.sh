@@ -1,5 +1,6 @@
 #!/bin/zsh
-# Stop hook: reminds Claude to hand over when the working tree has uncommitted changes.
+# Stop hook: reminds Claude to hand over when the working tree has uncommitted changes, and to
+# push when there are commits that have not reached GitHub yet.
 # Wired in .claude/settings.json. Exits silently (0) when there is nothing to hand over,
 # so quiet turns cost nothing.
 #
@@ -18,10 +19,17 @@ cd "$dir" 2>/dev/null || exit 0
 git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
 
 changed=$(git status --porcelain 2>/dev/null)
-[ -z "$changed" ] && exit 0
+if [ -z "$changed" ]; then
+    # Nothing uncommitted. Committed but not on GitHub yet? The user wants every update pushed.
+    # Compares with the local copy of origin/main, so it works offline and costs no network call.
+    ahead=$(git rev-list --count '@{u}..HEAD' 2>/dev/null)
+    [ -n "$ahead" ] && [ "$ahead" -gt 0 ] 2>/dev/null || exit 0
+    printf '{"decision":"block","reason":"PUSH REQUIRED: %s commit(s) are not on GitHub yet (origin, private repo mrthanhduy2000/vietnamese-subtitle-translator). Run git push. The gh credentials are in the macOS keychain, which the Bash sandbox cannot read: on an auth or keychain error retry with the sandbox disabled. Never force-push. If it still cannot reach GitHub, say so in one line and stop."}\n' "$ahead"
+    exit 0
+fi
 
 count=$(printf '%s\n' "$changed" | grep -c . | tr -d ' ')
 # Strip quotes and backslashes so a exotic filename cannot break the JSON below.
 files=$(printf '%s\n' "$changed" | awk '{print $NF}' | head -8 | tr -d '"\\' | tr '\n' ' ')
 
-printf '{"decision":"block","reason":"BAN GIAO / HANDOFF REQUIRED: %s uncommitted file(s) (%s). CLAUDE.md requires a handoff before you finish a turn that changed files. Run the /ban-giao command, which does it all: npm test (bar is 0 fail), node tools/bump-version.js if any runtime file changed, rewrite docs/HANDOFF.md, then git add -A and git commit. If the user explicitly told you not to commit, say that in one line and stop."}\n' "$count" "$files"
+printf '{"decision":"block","reason":"BAN GIAO / HANDOFF REQUIRED: %s uncommitted file(s) (%s). CLAUDE.md requires a handoff before you finish a turn that changed files. Run the /ban-giao command, which does it all: npm test (bar is 0 fail), node tools/bump-version.js if any runtime file changed, rewrite docs/HANDOFF.md, then git add -A, git commit and git push. If the user explicitly told you not to commit, say that in one line and stop."}\n' "$count" "$files"

@@ -120,6 +120,7 @@ npm test                       # fully offline, ~14s. The bar is 0 fail. 1 skip 
                                # (316 tests / 315 pass on 2026-09-23; the count grows as tests are added)
 npm run compare                # old vs new segmenter over the fixtures
 node tools/bump-version.js     # run at the end of every code change
+git push                       # after every commit: private repo on GitHub (see Definition of done)
 node tests/vieneu.live.js      # needs the local TTS server running
 curl 127.0.0.1:8000/health     # is the VieNeu TTS server up?
 open ~/VieNeu-TTS/cst-start.command   # start it (lives outside this repo)
@@ -131,7 +132,7 @@ The one skipped test needs `OLD_YT=<path-to-an-older-youtube.js>`; skipping it i
 
 **A turn that changed any file is not finished until you have handed over.** Run `/ban-giao`; it is
 this whole checklist. A `Stop` hook (`tools/handoff-check.sh`, wired in `.claude/settings.json`)
-looks for uncommitted changes and tells you to do it if you forget. It fires at most once per turn,
+looks for uncommitted changes, or commits not yet pushed to GitHub, and tells you if you forget. It fires at most once per turn,
 so it cannot loop. A turn that only answered a question and changed nothing needs no handover.
 
 By hand, `/ban-giao` is:
@@ -150,5 +151,9 @@ By hand, `/ban-giao` is:
 5. `git add -A && git commit`, version number in the subject if step 2 bumped it. **If another
    session is working in this folder at the same time, commit your own paths, not `-A`** - it has
    happened here, and you would be committing someone's half-finished feature.
-6. Report to the user in Vietnamese: what changed, whether the version moved, whether they need to
-   click Reload at `chrome://extensions`, and anything you left unfinished.
+6. `git push` to `origin`. The repo lives at `github.com/mrthanhduy2000/vietnamese-subtitle-translator`
+   (**private**), and the user wants every update there. `gh` keeps the credentials in the macOS
+   keychain, which the Bash sandbox cannot read: on an auth or keychain error, retry the push with
+   the sandbox disabled. Never force-push.
+7. Report to the user in Vietnamese: what changed, whether the version moved, whether they need to
+   click Reload at `chrome://extensions`, whether it reached GitHub, and anything you left unfinished.
