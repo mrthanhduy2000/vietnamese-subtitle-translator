@@ -33,6 +33,13 @@ runs in the same world, reading `content.js`'s `state` and `CST_UI` directly (no
    a resize. Both quick menus carry a subtitle-size stepper (`buildStepper` in `player-ui.js`).
 8. `disableTranslation` tears it down. `CS_GEN` tags every node this script instance created.
 
+**Editing a line (1.5.7).** The pencil on a transcript row saves through `adapter.saveEdit` ->
+`CST_EDITS.save`, then `ytApplyEdits` / `csApplyEdits` call `CST_EDITS.sync` over both the display
+cues and the dub groups (separate objects on the cache path and on Coursera) and rebuild the group's
+`viText` token by token, keeping the pause hints of untouched cues. `CST_EDITS.notify` makes the
+engine `refresh(true)`, which drops audio only where the text changed. Both players also listen on
+`storage.onChanged` for their own `edits:` key, so Settings and other tabs apply live.
+
 **Transcript panel (1.5.4, both sites).** `transcript.js` (`CST_TRANSCRIPT.toggle(adapter)`) draws the
 whole talk beside the picture from the lists the overlay already uses, so it costs no API call:
 `ytTranscriptAdapter()` feeds it `yt.viCues` + `yt.cues`, `csTranscriptAdapter()` feeds it
@@ -111,6 +118,13 @@ not actually change. `youtube.js` has a deliberate "only act on a real change" g
 not stack two dubbing voices. Keep it.
 
 ### `chrome.storage.local` (owned by `background.js`, not user-editable)
+
+`edits:<videoKey>` is the exception: the viewer's own line corrections, written by
+`subtitle-edits.js` from the transcript panel and the Settings tab "Phụ đề đã sửa". videoKey is
+`currentVideoMeta().videoKey` (`yt:<id>` or the Coursera lecture path). Shape:
+`{ title, url, updated, lines: { "<startMs>": { text, orig } } }`. Never write edits into
+`ytcache4_*`: `ytGhiCache` stores `cstOrig` (the machine text) so a revert in Settings really reverts.
+
 
 `modelAccess` per-API-key model availability, keyed by a SHA-256 hash of the key, 3-day TTL ·
 `costLedger` daily cost ledger · `ytcache4_<videoId>` cached YouTube translations (an older

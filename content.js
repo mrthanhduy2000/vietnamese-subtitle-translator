@@ -847,6 +847,7 @@ function applyTranslation(track, groups, translations) {
     try { track.mode = "hidden"; } catch (e) { /* bỏ qua */ }
     cs.renderKey = "";
     csStartRender();
+    csLoadEdits();
 
     console.log(`Da ap ban dich: ${originals.length} cue goc -> ${viCount} cue tieng Viet, dong dai nhat ${longestLine} ky tu`);
     if (state.glossaryMisses > 0) {
@@ -1008,7 +1009,7 @@ const CS_GEN = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 const CS_BTN = `.cst-cs-btn[data-cst-gen="${CS_GEN}"]`;
 const CS_OVERLAY = `.cst-cs-overlay[data-cst-gen="${CS_GEN}"]`;
-const cs = { viCues: [], origCues: [], renderKey: "", raf: 0, timer: 0, styleKey: "", panelOpen: false };
+const cs = { viCues: [], origCues: [], renderKey: "", raf: 0, timer: 0, styleKey: "", panelOpen: false, edits: null };
 
 function csVideo() {
     return document.querySelector("video");
@@ -1287,6 +1288,28 @@ function csStopRender() {
 }
 
 // What the transcript panel needs from this player: the same two lists the overlay draws from.
+// ---- The viewer's own corrections (subtitle-edits.js) ----
+function csEditKey() {
+    return currentVideoMeta().videoKey;
+}
+
+// Lay the stored edits over what the overlay draws (cs.viCues) and what the voice reads
+// (state.dubGroups). They are separate objects on Coursera, so both lists are walked.
+function csApplyEdits() {
+    const E = window.CST_EDITS;
+    if (!E) return 0;
+    const n = E.sync(cs.edits, { groups: state.dubGroups, display: cs.viCues });
+    if (n) { cs.renderKey = ""; E.notify(); }
+    return n;
+}
+
+async function csLoadEdits() {
+    const E = window.CST_EDITS;
+    if (!E) return;
+    cs.edits = await E.load(csEditKey());
+    csApplyEdits();
+}
+
 function csTranscriptAdapter() {
     return {
         box: () => csPlayerBox(),
@@ -1295,6 +1318,12 @@ function csTranscriptAdapter() {
         title: () => (document.querySelector("h1") || {}).textContent || document.title.replace(/\s*\|\s*Coursera.*$/i, ""),
         dual: () => !!state.dualMode,
         theme: () => state.uiTheme || "auto",
+        saveEdit: async (line, text) => {
+            cs.edits = await window.CST_EDITS.save(csEditKey(),
+                { title: (document.querySelector("h1") || {}).textContent || document.title, url: location.href },
+                line.start, text, line.machine);
+            csApplyEdits();
+        },
         onPanel: on => {
             cs.panelOpen = !!on;
             const ov = document.querySelector(CS_OVERLAY);
@@ -1681,6 +1710,14 @@ async function init() {
 
     // Lắng nghe thay đổi cài đặt từ options để cập nhật ngay
     try {
+        // An edit saved in another tab or in Settings shows here at once (reverts included)
+        chrome.storage.onChanged.addListener((changes, area) => {
+            if (area !== "local" || !window.CST_EDITS) return;
+            const ch = changes[window.CST_EDITS.keyOf(csEditKey())];
+            if (!ch) return;
+            cs.edits = ch.newValue || null;
+            csApplyEdits();
+        });
         chrome.storage.onChanged.addListener((changes, area) => {
             if (area === "sync") {
                 if (changes.subStyle) {

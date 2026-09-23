@@ -940,6 +940,107 @@ document.addEventListener("DOMContentLoaded", async () => {
         historySummary.textContent = `${ds.length} mục, từ bản gốc tới v${ds[0].v}. Mỗi bản ghi rõ đã sửa gì; bản nào có số đo thật thì kèm bảng so sánh trước và sau.`;
     }
 
+    // ---- Edited subtitle lines (subtitle-edits.js) ----
+    // Every video with at least one hand-corrected line. Change a line here and the open video tab
+    // picks it up through storage.onChanged; "Khôi phục" puts the machine translation back.
+    const editsList = document.getElementById("editsList");
+    const editsFilter = document.getElementById("editsFilter");
+    const editsSummary = document.getElementById("editsSummary");
+    const clock = ms => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
+    async function renderEdits() {
+        const E = window.CST_EDITS;
+        if (!editsList || !E) return;
+        const all = await E.listAll();
+        const needle = ((editsFilter && editsFilter.value) || "").trim().toLowerCase();
+        const total = all.reduce((a, r) => a + Object.keys(r.lines).length, 0);
+        if (editsSummary && total) editsSummary.textContent = `${total} dòng đã sửa trong ${all.length} video. Mỗi lần mở lại video, bản sửa của bạn nằm trên bản dịch máy và giọng Việt đọc đúng câu đã sửa.`;
+        editsList.textContent = "";
+        const shown = all.map(r => ({ ...r, keys: Object.keys(r.lines).sort((a, b) => a - b).filter(k => {
+            const l = r.lines[k];
+            return !needle || (l.text + " " + l.orig + " " + (r.title || "")).toLowerCase().includes(needle);
+        }) })).filter(r => r.keys.length);
+        if (!shown.length) {
+            const p = document.createElement("p");
+            p.className = "ver-empty";
+            p.textContent = all.length ? "Không có dòng nào khớp với từ khóa này." : "Chưa sửa dòng nào. Bản sửa của bạn sẽ hiện ở đây.";
+            editsList.appendChild(p);
+            return;
+        }
+        for (const r of shown) {
+            const item = document.createElement("div");
+            item.className = "ver-item";
+            const head = document.createElement("div");
+            head.className = "ver-head";
+            const site = document.createElement("span");
+            site.className = "ver-num";
+            site.textContent = r.videoKey.startsWith("yt:") ? "YouTube" : "Coursera";
+            const title = document.createElement(r.url ? "a" : "span");
+            title.className = "ver-name ed-video-title";
+            title.textContent = r.title || r.videoKey;
+            if (r.url) { title.href = r.url; title.target = "_blank"; title.rel = "noopener"; }
+            const when = document.createElement("span");
+            when.className = "ver-time";
+            when.textContent = `${Object.keys(r.lines).length} dòng` + (r.updated ? ` · ${new Date(r.updated).toLocaleDateString("vi-VN")}` : "");
+            head.appendChild(site);
+            head.appendChild(title);
+            head.appendChild(when);
+            item.appendChild(head);
+            for (const k of r.keys) {
+                const l = r.lines[k];
+                const row = document.createElement("div");
+                row.className = "ed-line";
+                const t = document.createElement("span");
+                t.className = "ed-time";
+                t.textContent = clock(Number(k));
+                const input = document.createElement("input");
+                input.className = "form-input";
+                input.value = l.text;
+                input.setAttribute("aria-label", `Dòng lúc ${clock(Number(k))}`);
+                input.addEventListener("change", async () => {
+                    await E.save(r.videoKey, null, Number(k) / 1000, input.value, l.orig);
+                    renderEdits();
+                });
+                const undo = document.createElement("button");
+                undo.type = "button";
+                undo.className = "btn btn-secondary ed-small";
+                undo.textContent = "Khôi phục";
+                undo.title = "Bỏ bản sửa, dùng lại bản dịch máy";
+                undo.addEventListener("click", async () => { await E.removeLine(r.videoKey, Number(k) / 1000); renderEdits(); });
+                const machine = document.createElement("span");
+                machine.className = "ed-machine";
+                machine.textContent = l.orig;
+                machine.title = "Bản dịch máy";
+                row.appendChild(t);
+                row.appendChild(input);
+                row.appendChild(undo);
+                row.appendChild(machine);
+                item.appendChild(row);
+            }
+            const acts = document.createElement("div");
+            acts.className = "ed-actions";
+            const wipe = document.createElement("button");
+            wipe.type = "button";
+            wipe.className = "btn btn-secondary ed-small";
+            wipe.textContent = "Khôi phục cả video";
+            wipe.addEventListener("click", async () => {
+                // two clicks, not a blocking dialog: the first arms, the second clears
+                if (wipe.dataset.armed !== "1") { wipe.dataset.armed = "1"; wipe.textContent = "Bấm lần nữa để khôi phục hết"; return; }
+                await E.clearVideo(r.videoKey);
+                renderEdits();
+            });
+            acts.appendChild(wipe);
+            item.appendChild(acts);
+            editsList.appendChild(item);
+        }
+    }
+    if (editsFilter) editsFilter.addEventListener("input", renderEdits);
+    try {
+        chrome.storage.onChanged.addListener((changes, area) => {
+            if (area === "local" && Object.keys(changes).some(k => k.startsWith("edits:"))) renderEdits();
+        });
+    } catch (e) { /* ngoài extension */ }
+    renderEdits();
+
     // ---- Giao diện Sáng / Tối / Theo máy ----
     const themeBtns = [...document.querySelectorAll(".theme-btn")];
     function veTheme() {

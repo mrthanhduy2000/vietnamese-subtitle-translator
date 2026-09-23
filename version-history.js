@@ -4,6 +4,17 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.5.7", luc: "21:45 23/09/2026", ten: "Sửa tay một dòng phụ đề, giọng Việt đọc đúng câu đã sửa",
+            y: [
+                "Trong Bản chép lời, rê chuột vào một dòng rồi bấm biểu tượng bút chì để sửa bản dịch. Enter để lưu, Esc để hủy. Video tự tạm dừng trong lúc bạn gõ và phát tiếp khi lưu xong.",
+                "Bản sửa được lưu riêng cho từng video, trên máy của bạn. Mở lại video (kể cả khi bản dịch lấy từ bộ nhớ đệm) thì bản sửa vẫn nằm trên bản dịch máy.",
+                "Giọng Việt đọc đúng câu đã sửa. Chỉ câu bị sửa mới được tạo giọng lại, các câu khác giữ nguyên audio đã có.",
+                "Dòng đã sửa có nhãn \"đã sửa\" màu cam, và có nút \"Dùng bản dịch máy\" để quay về bản gốc bất cứ lúc nào.",
+                "Tab mới \"Phụ đề đã sửa\" trong Cài đặt: xem mọi dòng đã sửa của mọi video, bản dịch máy gạch ngang bên dưới, sửa tiếp, khôi phục từng dòng hoặc cả video. Đổi ở đây là video đang mở cập nhật ngay.",
+                "Xuất .srt từ Bản chép lời nay có luôn các dòng bạn đã sửa."
+            ]
+        },
+        {
             v: "1.5.6", luc: "19:11 23/09/2026", ten: "Chỉnh cỡ chữ và âm lượng ngay trên video, biết giọng đọc đang làm gì",
             y: [
                 "Sửa lỗi: trong Cài đặt kéo \"Tiếng gốc khi đang đọc\" về 0% nhưng tiếng gốc vẫn còn 20%. Mã cũ coi số 0 là \"chưa chọn\" rồi thay bằng 20%. Nay 0% là tắt hẳn tiếng gốc đúng như bạn chọn.",

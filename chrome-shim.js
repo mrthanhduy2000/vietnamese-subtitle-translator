@@ -88,6 +88,15 @@
                 resolve();
             });
         },
+        // subtitle-edits.js drops a video's record once its last edit is reverted
+        remove: function (keys) {
+            return new Promise((resolve) => {
+                const store = loadStorage();
+                (Array.isArray(keys) ? keys : [keys]).forEach(k => { delete store[k]; });
+                saveStorage(store);
+                resolve();
+            });
+        },
         clear: function () {
             return new Promise((resolve) => {
                 saveStorage({});

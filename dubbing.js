@@ -463,5 +463,11 @@
         document.querySelectorAll(".cst-dub-badge").forEach(b => b.remove());
     }
 
-    window.CST_DUB = { dub, start, stop, describeHealth, level, forgetVideoAudio, pickVietnameseVoice, showDubBadge, hideDubBadge, readSettings, prepareHold, hold };
+    // The viewer corrected a line (subtitle-edits.js): rebuild the plans now. refresh(true) drops the
+    // audio of every line whose text changed and keeps the rest, so only the edited lines re-render.
+    function refreshText() {
+        if (dub.engine) { try { dub.engine.refresh(true); } catch (e) { /* bỏ qua */ } }
+    }
+
+    window.CST_DUB = { dub, start, stop, describeHealth, level, refreshText, forgetVideoAudio, pickVietnameseVoice, showDubBadge, hideDubBadge, readSettings, prepareHold, hold };
 })();

@@ -6,40 +6,40 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-23 · lanes A + B, `player-ui.js`, tests · `1.5.6`. User: "find the limitations in subtitles
-and text-to-audio and fix them". Earlier today 1.4.7 to 1.5.5.
+2026-09-23 · lanes A + B + C, tests · `1.5.7`. Stage 2 of the approved plan (subtitle editing).
 
 ## What changed
 
-- **Bug**: `dubbing.js` read `dubDuck`/`dubVolume` with `Number(x) || default`, so the Settings
-  slider's "original 0%" played at 20%. Now `CST_DUB.level()`.
-- **Bug**: Coursera ignored a subtitle style change until the player resized (`csRender` compares
-  only the box size). The storage listener now calls `csRestyle()`; a `dualMode` change repaints.
-- Both quick menus: subtitle size stepper (A−/A+, 10%), voice volume + original-level sliders
-  (shown only while dubbing), and a status line from `engine.health()` / `CST_DUB.describeHealth()`:
-  seconds ready ahead, slow server with measured RTF, lines skipped to catch up.
-- Shared builders in `player-ui.js` (`buildStepper`, `buildSlider`, `buildVolumeControls`); range
-  track drawn by us (`--cst-fill`), the native one was black in light mode. Dub badge and the
-  "Đang chuẩn bị…" card moved to the dark product card.
-- **Dropped after measuring**: gap flicker. Real Coursera track: 199 of 200 gaps are 0 s.
+- New `subtitle-edits.js` (`CST_EDITS`): corrections per video in `storage.local` `edits:<videoKey>`,
+  matched back by cue start (60 ms tolerance). `sync(rec, { groups, display })` lays them over the
+  overlay cues and the dub groups, parks the machine text on the cue (`cstOrig`,
+  `g.cstOrigViText`) and rebuilds `viText` token by token so untouched cues keep their ¦ hints.
+- Transcript rows are now `div role=button` with a pencil: edit box, Enter saves, Esc cancels, the
+  video pauses while typing, "Dùng bản dịch máy" reverts. Our fields swallow keys (YouTube shortcuts).
+- `ytApplyEdits` / `csApplyEdits` run after every translation, cache load and edit; both players
+  listen for their `edits:` key. `CST_DUB.refreshText` -> `refresh(true)` re-renders only the lines
+  whose text changed (tested). `ytGhiCache` stores the machine text, never the edits.
+- Settings tab "Phụ đề đã sửa": list, edit, revert a line or a whole video (two-click, no dialog).
+  `chrome-shim.js` gained `storage.remove` (the preview shim lacked it).
 
 ## State
 
-- `npm test`: 334 tests, 333 pass, 0 fail, 1 skip · Reload at `chrome://extensions`: **yes**
+- `npm test`: 340 tests, 339 pass, 0 fail, 1 skip (new `tests/edits.test.js`) · Reload: **yes**
 
 ## Unfinished / in progress
 
-- **Plan stages 2 to 5 not started** (`~/.claude/plans/jiggly-sparking-milner.md`): subtitle edits,
-  video summary (paid, budget guard), read-aloud (needs `activeTab` + `scripting`), site adapter
-  (edX first; user has not named a site).
-- 1.5.1 to 1.5.6 not yet seen in the shipped build (tests, probes, headless renders only).
-- `docs/BACKLOG.md`: 8 open items. Item 2 (`dualMode` twice) bit again, worked around in the stepper.
+- **Plan stages 3 to 5 not started** (`~/.claude/plans/jiggly-sparking-milner.md`): video summary
+  (paid, budget guard), read-aloud (`activeTab` + `scripting` are **already** in the manifest),
+  site adapter (edX first; user has not named a site).
+- Not done from stage 2: exporting .srt from Settings (Coursera keeps no per-video translation).
+- 1.5.1 to 1.5.7 not yet seen in the shipped build (tests, probes, headless renders only).
+- `docs/BACKLOG.md`: 8 open items. Item 2 (`dualMode` twice) worked around in the size stepper.
 
 ## Traps hit this session
 
-- Control_Chrome JS says "Chrome is not running"; use claude-in-chrome (no `file://` there).
-- Headless Chrome previews need the sandbox off and never exit: poll the PNG, `pkill -f hl-profile`.
+- Control_Chrome JS fails ("Chrome is not running"): use claude-in-chrome, which cannot open `file://`.
+- Headless Chrome renders local previews (sandbox off, never exits: poll the PNG, `pkill -f hl-profile`).
+  For Settings, seed `localStorage["cst_extension_storage_v8"]` and add a `<base href>`.
 
 ## Suggested next step
-
-- User reloads and tries the new menu controls, then picks the next plan stage.
+- User tries an edit on a real video; then stage 3 or 4.
