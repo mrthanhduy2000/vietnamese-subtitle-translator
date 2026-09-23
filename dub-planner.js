@@ -104,11 +104,49 @@
     // Chỉ đổi CÁCH VIẾT, không đổi nghĩa: ký hiệu, số thập phân, ngoặc đơn.
     function adaptForSpeech(text) {
         let t = SEG ? SEG.cleanText(text, { keepHints: true }) : String(text || "");
+        // Every rule below was checked against the VieNeu server's own normalizer (sea_g2p), by
+        // reading back what it actually says. See tests/dub.test.js "speech text".
+        // Web addresses: without this the scheme is spelled out letter by letter ("hát tê tê phê")
+        t = t.replace(/\bhttps?:\/\/(?:www\.)?/gi, "").replace(/\bwww\./gi, "");
+        // Only real domain endings, lower case: "TP.HCM" or "v.v." must stay as they are
+        t = t.replace(/\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|org|net|ai|io|dev|edu|gov|vn|co|app|me|info|so|gg|tv|ly|us|uk)\b(?:\/[\w\-./]*[\w\-/])?/g,
+            m => m.replace(/\//g, " gạch chéo ").replace(/\./g, " chấm ").replace(/\s+/g, " ").trim());
+        // $20 -> "20 đô la" (read as "hai mươi u s d" otherwise); 5 USD -> "5 đô la"
+        t = t.replace(/(?:US)?\$\s?(\d[\d.,]*)(\s?(?:[KMB]|nghìn|ngàn|triệu|tỷ)\b)?/g, (m0, n, mag) => `${n}${mag || ""} đô la`);
+        t = t.replace(/(\d)\s?USD\b/g, "$1 đô la");
         t = t.replace(/(\d)\s*%/g, "$1 phần trăm");
-        // 1.000.000 -> 1000000 (dấu chấm hàng nghìn kiểu Việt)
-        t = t.replace(/\b\d{1,3}(?:\.\d{3})+\b/g, m => m.replace(/\./g, ""));
+        // 7B / 200K / 1.5M after a number: "7 tỷ", "200 nghìn", "1.5 triệu" (not "bảy bê", "hai trăm ca")
+        t = t.replace(/\b(\d+(?:[.,]\d+)?)\s?([KMB])\b/g, (m0, n, u) => `${n} ${{ K: "nghìn", M: "triệu", B: "tỷ" }[u]}`);
+        // Grouped thousands, Vietnamese 1.500.000 or English 1,500,000: say it in words. The old code
+        // stripped the dots to 1500000, and the server reads 7+ digit runs one digit at a time
+        // ("một năm không không không không không"); an English 1,000 came out as "một".
+        t = t.replace(/\b\d{1,3}(?:\.\d{3})+(?![.,]?\d)|\b\d{1,3}(?:,\d{3})+(?![.,]?\d)/g, m => numberToVietnamese(Number(m.replace(/[.,]/g, ""))));
+        t = t.replace(/\b\d{7,}\b/g, m => numberToVietnamese(Number(m)));
+        // A version or a section number is read with "chấm": Python 3.11, Claude 3.5, phiên bản 2.0, mục 3.4
+        t = t.replace(/(?:\b(phiên bản)\s+)?\bv(\d+(?:\.\d+)+)\b/gi, (m0, pre, v) => `${pre || "phiên bản"} ${v.split(".").join(" chấm ")}`);
+        // 127.0.0.1, 1.2.3: three or more parts is never a decimal
+        t = t.replace(/\b\d+(?:\.\d+){2,}\b/g, m => m.split(".").join(" chấm "));
+        // A capitalised word counts only if it is not Vietnamese: "Trong 3.5 giây" is a decimal
+        t = t.replace(/(?<![\p{L}\p{N}])([A-Za-zÀ-ỹĐđ]+(?: bản)?)(\s)(\d+)\.(\d+)(?![.,]?\d)/gu, (m0, w, sp, a, b) => {
+            const lw = w.toLowerCase();
+            const section = /^(?:phiên bản|version|mục|chương|phần|bài|điều|khoản)$/.test(lw);
+            const product = /^[A-Z][A-Za-z]*$/.test(w) && !(SEG && SEG.isVietWord && SEG.isVietWord(lw));
+            return section || product ? `${w}${sp}${a} chấm ${b}` : m0;
+        });
+        // 2x, 1,3x -> "2 lần", "1,3 lần" ("hai ích" otherwise). Algebra like 2x - 1 or 2x = 4 is left alone
+        t = t.replace(/\b(\d+(?:[.,]\d+)?)[x×](?![\p{L}\d])(?!\s*[-+*/=^<>])/gu, "$1 lần");
         // 1,4 / 3.5 -> "1 phẩy 4" (thập phân 1 đến 2 chữ số)
         t = t.replace(/\b(\d+)[.,](\d{1,2})\b/g, "$1 phẩy $2");
+        // 1st, 2nd, 3rd, 4th -> thứ nhất, thứ hai, thứ ba, thứ tư ("một st" otherwise)
+        const ORD = { 1: "thứ nhất", 2: "thứ hai", 3: "thứ ba", 4: "thứ tư" };
+        t = t.replace(/\b(\d+)(?:st|nd|rd|th)\b/gi, (m0, n) => ORD[n] || `thứ ${n}`);
+        // 1990s -> "thập niên 1990" (the server reads the s as "giây"); "những năm 1990s" -> "những năm 1990"
+        t = t.replace(/\b(những năm|thập niên)\s+(\d{2,4})'?s\b/gi, "$1 $2");
+        t = t.replace(/(?<![\p{L}])([Nn])ăm\s+(\d{4})'?s\b/gu, (m0, n, y) => `${n === "N" ? "Những" : "những"} năm ${y}`);
+        t = t.replace(/\b(\d{2}|\d{3}0)'?s\b/g, "thập niên $1");
+        // #1 -> "số 1" ("thăng một" otherwise)
+        t = t.replace(/#(\d+)/g, "số $1");
+
         t = t.replace(/(\d)\s*[x×]\s*(\d)/g, "$1 nhân $2");
         t = t.replace(/\s=\s|(?<=\w)=(?=\w)/g, " bằng ");
         t = t.replace(/\s\+\s/g, " cộng ");
@@ -119,6 +157,7 @@
         t = t.replace(/(\d)\s*(km|m|cm|kg|g)\/(h|s|min)\b/gi, (m0, d, u1, u2) => `${d} ${UNIT_SAY[u1.toLowerCase()]} trên ${UNIT_SAY[u2.toLowerCase()]}`);
         t = t.replace(/(\d)\s*(km|cm|mm|kg|ms)\b/g, (m0, d, u) => `${d} ${UNIT_SAY[u]}`);
         t = t.replace(/\be\.g\.,?/gi, "ví dụ,").replace(/\bi\.e\.,?/gi, "tức là,");
+        t = t.replace(/(ví dụ|tức là),\s+\1(?![\p{L}])/giu, "$1");   // "e.g. ví dụ" said the same words twice
         // Ngoặc đơn: đọc như chú thích, ngắt nghỉ nhẹ hai bên
         t = t.replace(/\s*\(([^()]{1,80})\)\s*/g, ", $1, ");
         t = t.replace(/["“”«»]/g, "");

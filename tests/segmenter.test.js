@@ -240,3 +240,47 @@ test("hiệu năng: nhóm 400 ký tự phân đoạn dưới 60ms", () => {
     const ms = Number(process.hrtime.bigint() - t0) / 1e6 / 5;
     assert.ok(ms < 60, `${ms.toFixed(1)}ms`);
 });
+
+// ---- Real data from two cached YouTube videos (2026-09-23) ----
+// A cue that starts a new sentence and stops before it ends makes the reader hold two thoughts at
+// once. On 347 real cues 38 did it; the straddle cost brings that to 7.
+test("cues end with the sentence they start (real lecture, source with punctuation)", () => {
+    const vi = "Điều thứ ba là sự đánh đổi. Mỗi khi bạn đồng ý với một việc, nghĩa là bạn đang từ chối một việc khác, và điều đó hoàn toàn ổn. Cố gắng làm mọi thứ chỉ khiến chúng ta rốt cuộc chẳng làm tốt được việc gì.";
+    const src = [{"start":108.08,"end":113.04,"text":"And the third: Trade-off. Every yes is a no to something else. And that’s"},{"start":113.04,"end":117.12,"text":"okay. By trying to do everything, we end up doing nothing well."}];
+    const cues = seg.segmentGroupSafe(vi, src, { maxEnd: 118.6 });
+    const straddles = cues.filter(c => /[.?!…]\s+\p{Lu}/u.test(c.text) && !/[.?!…]$/.test(c.text.trim()));
+    assert.deepEqual(straddles.map(c => c.text), [], cues.map(c => c.lines.join(" / ")).join(" || "));
+    assert.equal(cues.map(c => c.text).join(" "), vi, "no word may be lost or added");
+    // and the compounds this exposed stay whole
+    for (const w of ["tủ đồ", "trào lưu", "bày biện", "bất cứ lúc nào"]) {
+        const lines = seg.breakLines("Mục tiêu của tôi là xây dựng một " + w + " thật gọn gàng mà vẫn đủ dùng hằng ngày", { maxLineChars: 30 });
+        assert.ok(lines.some(l => l.includes(w)), w + " was split: " + lines.join(" / "));
+    }
+});
+
+// One group came back with the next two groups translated into it (they were only context). The
+// subtitle showed those sentences twice and the voice read them twice, at 36 to 51 chars per second.
+test("a translation that leaked the next units is trimmed, and a clean one is left alone", () => {
+    const Q = require("../vi-quality.js");
+    const [g26, g27, g28, g29] = ["[Nhạc] Không biết các bạn có biết không, nhưng trước khi làm YouTube, tôi từng là chuyên viên tư vấn tài chính. Khi xem xét tình hình tài chính của mọi người, tôi không thể tin được có bao nhiêu người chỉ sống dựa vào thẻ tín dụng. Tôi hiểu rằng đôi khi việc này là cần thiết để giúp bạn tiến xa hơn trong cuộc sống, nhưng đó thực sự là một con dốc trơn trượt và cũng không","bền vững về lâu dài. Văn hóa dùng thẻ tín dụng không phổ biến ở châu Á và tôi lớn lên với tư duy rằng mình phải trả hết mọi khoản nợ vì đó là điều cha tôi luôn khắc ghi trong đầu. Tôi dùng thẻ tín dụng vì có thể tích điểm khách sạn, điểm chuyến bay và nhiều ưu đãi khác. Chúng tôi có một khoản vay thế chấp, nhưng số tiền trả hàng tháng cũng tương đương với tiền thuê nhà trước đây. Ngoài khoản đó ra, chúng tôi không còn bất kỳ khoản nợ nào khác, đặc biệt là nợ do chi tiêu quá mức cho những thứ nằm ngoài khả năng chi trả. Như tôi đã nói, vấn đề không nằm ở vài đô la tiết kiệm được nhờ lối sống này, mà là sự tự do để đưa ra...","nhưng số tiền đó cũng gần bằng với tiền thuê nhà chúng tôi từng trả. Ngoài ra, chúng tôi không còn bất kỳ khoản nợ nào khác, nhất là những khoản nợ do chi tiêu quá mức cho những thứ nằm ngoài khả năng chi trả.","Như tôi đã nói, vấn đề không nằm ở vài đô la tiết kiệm được nhờ lối sống này, mà là sự tự do để đưa ra những quyết định ý nghĩa khi cơ hội đến, bởi chúng tôi đã tích lũy được một khoản tiết kiệm và thực sự có khả năng đầu tư."];
+    const cut = Q.trimContextLeak(g27, g28 + " " + g29);
+    assert.ok(cut.length < g27.length - 200, "the leaked sentences are still there");
+    assert.ok(!/Như tôi đã nói/.test(cut) && !/bất kỳ khoản nợ nào khác/.test(cut), cut);
+    assert.ok(/Chúng tôi có một khoản vay thế chấp/.test(cut), "cut into the unit's own content (And we have a mortgage)");
+    assert.ok(g27.startsWith(cut));
+    // no false alarm on the neighbours, which are clean
+    assert.equal(Q.trimContextLeak(g26, g27 + " " + g28), g26);
+    assert.equal(Q.trimContextLeak(g28, g29), g28);
+    // a unit that merely shares a few common words with the next one is not touched
+    const own = "Hôm nay chúng ta học về mạng nơ-ron, một chủ đề thú vị.";
+    assert.equal(Q.trimContextLeak(own, "Mạng nơ-ron gồm nhiều lớp, và chúng ta sẽ học từng lớp."), own);
+});
+
+test("every translation path runs the leak trim", () => {
+    const read = f => require("node:fs").readFileSync(require("node:path").join(__dirname, "..", f), "utf8");
+    const cs = read("content.js"), yt = read("youtube.js"), bg = read("background.js");
+    assert.ok(/translations = trimTranslationLeaks\(translations\)\.list;/.test(cs), "Coursera");
+    assert.ok(/ytTrimLeaks\(groups, idxs\);\n    ytGhepViCues\(\);/.test(yt), "YouTube live");
+    assert.ok(/ytRepairCachedLeaks\(\);\n            yt\.daDichXong = true;/.test(yt), "YouTube cache");
+    assert.ok(/KHÔNG viết tiếp phần nằm trong \[NGỮ CẢNH SAU\]/.test(bg), "the prompt says so too");
+});

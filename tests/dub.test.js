@@ -46,6 +46,31 @@ test("kịch bản: '>>' đổi người nói, giọng được gán theo ngư�
 });
 
 // ================= 2. VĂN BẢN ĐỂ NÓI & NGỮ ĐIỆU =================
+// Measured against the VieNeu server's own normalizer (sea_g2p): each "before" was what the voice
+// actually said. 1.500.000 was stripped to 1500000, which the server reads digit by digit.
+test("speech text: numbers, money, versions, links and shorthand are read the Vietnamese way", () => {
+    const say = P => PLAN.adaptForSpeech(P);
+    assert.equal(say("tức 1.500.000 đồng."), "tức một triệu năm trăm nghìn đồng.");
+    assert.equal(say("có 1,500,000 người và 1,000 mẫu."), "có một triệu năm trăm nghìn người và một nghìn mẫu.");
+    assert.equal(say("mã 12345678 ở đây."), "mã mười hai triệu ba trăm bốn mươi lăm nghìn sáu trăm bảy mươi tám ở đây.");
+    assert.equal(say("Giá là $20 mỗi tháng, hoặc 5 USD."), "Giá là 20 đô la mỗi tháng, hoặc 5 đô la.");
+    assert.equal(say("Có 7B tham số, ngữ cảnh 200K token, 1.5M người dùng."), "Có 7 tỷ tham số, ngữ cảnh 200 nghìn token, 1 phẩy 5 triệu người dùng.");
+    assert.equal(say("Dùng Python 3.11 và phiên bản v2.0."), "Dùng Python 3 chấm 11 và phiên bản 2 chấm 0.");
+    assert.equal(say("Phiên bản v1.1.7 chạy ở 127.0.0.1."), "Phiên bản 1 chấm 1 chấm 7 chạy ở 127 chấm 0 chấm 0 chấm 1.");
+    assert.equal(say("Chương 3.4, mục 2.1."), "Chương 3 chấm 4, mục 2 chấm 1.");
+    // a Vietnamese word at the start of a sentence is not a product name: still a decimal
+    assert.equal(say("Trong 3.5 giây, Claude 3.5 trả lời."), "Trong 3 phẩy 5 giây, Claude 3 chấm 5 trả lời.");
+    assert.equal(say("Truy cập https://www.claude.ai/code để thử."), "Truy cập claude chấm ai gạch chéo code để thử.");
+    assert.equal(say("Ở TP.HCM, v.v."), "Ở TP.HCM, v.v.", "abbreviations must not be read as web addresses");
+    assert.equal(say("Thứ tự: 1st, 2nd, 3rd, 4th, 10th."), "Thứ tự: thứ nhất, thứ hai, thứ ba, thứ tư, thứ 10.");
+    assert.equal(say("Năm 1990s, những năm 1980s, thập niên 90s."), "Những năm 1990, những năm 1980, thập niên 90.");
+    assert.equal(say("Bước #1 nhanh 2x, tốc độ 1,3x."), "Bước số 1 nhanh 2 lần, tốc độ 1 phẩy 3 lần.");
+    assert.equal(say("Ta có 2x - 1 và 2x = 4, ảnh 1920x1080."), "Ta có 2x - 1 và 2x bằng 4, ảnh 1920 nhân 1080.", "algebra and sizes keep their meaning");
+    assert.equal(say("Google nói vậy, e.g. ví dụ này."), "Google nói vậy, ví dụ này.");
+    // the duration model counts what is said: "một triệu năm trăm nghìn" is 5 syllables, not 7 digits
+    assert.equal(PLAN.countSyllables(say("1.500.000")), 5);
+});
+
 test("đọc số tiếng Việt đúng (kể cả mốt, lăm, tư, linh)", () => {
     const cases = { 21: "hai mươi mốt", 25: "hai mươi lăm", 24: "hai mươi tư", 105: "một trăm linh năm", 175: "một trăm bảy mươi lăm", 2024: "hai nghìn không trăm hai mươi tư", 1800000000000: "một nghìn tám trăm tỷ" };
     for (const [n, v] of Object.entries(cases)) assert.equal(PLAN.numberToVietnamese(Number(n)), v);

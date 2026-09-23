@@ -33,6 +33,19 @@ runs in the same world, reading `content.js`'s `state` and `CST_UI` directly (no
    a resize. Both quick menus carry a subtitle-size stepper (`buildStepper` in `player-ui.js`).
 8. `disableTranslation` tears it down. `CS_GEN` tags every node this script instance created.
 
+**Context leaks (1.5.8).** Each translation request carries neighbouring lines as context, and the
+model sometimes translates them into the unit before (measured: one unit held the next two units'
+content, shown and spoken twice). `CST_QUALITY.trimContextLeak(text, next)` cuts a tail whose word
+pairs repeat the next units' translation; it runs in `applyTranslation` (Coursera, via
+`trimTranslationLeaks`), `ytGanBanDich` (`ytTrimLeaks`, both directions) and on cache load
+(`ytRepairCachedLeaks`). A paraphrased leak shares words, not word pairs, and is not caught.
+The prompt now forbids finishing the last item's sentence; `TR_PROMPT_VERSION` was deliberately
+not bumped, since that would re-bill every cached translation for an additive instruction.
+
+**Sentence straddling (1.5.8).** `segmentTokens` charges `straddleCost` (45) for a cue that starts a
+sentence and ends before it does. On 347 real cues: 38 -> 7. It exposes missing compounds in
+`COMPOUND_LIST` more often; add them rather than lowering the cost.
+
 **Editing a line (1.5.7).** The pencil on a transcript row saves through `adapter.saveEdit` ->
 `CST_EDITS.save`, then `ytApplyEdits` / `csApplyEdits` call `CST_EDITS.sync` over both the display
 cues and the dub groups (separate objects on the cache path and on Coursera) and rebuild the group's

@@ -159,7 +159,55 @@
         };
     }
 
-    const api = { assess, CALQUES, englishLeftovers, vre };
+    // ---------- Context leaking into a translation ----------
+    // Each request carries the neighbouring lines as context, and now and then the model translates
+    // that context too, into the unit before it. Measured on a real cached video: one group's
+    // translation held the next two groups' content (which were also translated on their own), so
+    // the subtitle showed a sentence twice and the voice read it twice, at 36 to 51 characters per
+    // second to fit. Detect it by the text itself, with no extra request: the tail of this unit
+    // repeats the next unit's translation, word pair for word pair.
+    const syllables = t => String(t || "").toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/).filter(Boolean);
+    const pairs = w => { const out = []; for (let i = 1; i < w.length; i++) out.push(w[i - 1] + " " + w[i]); return out; };
+    function clauseEnds(t) {
+        const out = [];
+        const re = /[,.;:!?…]+["”')\]]*\s+/g;
+        let m;
+        while ((m = re.exec(t))) out.push(m.index + m[0].length);
+        return out;
+    }
+
+    // Returns text without the leaked tail, or text unchanged. next: the following unit(s)' translation.
+    function trimContextLeak(text, next) {
+        const t = String(text || "");
+        const nextPairs = new Set(pairs(syllables(next)));
+        const nextWords = new Set(syllables(next));
+        if (!nextPairs.size) return t;
+        const ends = clauseEnds(t);
+        let best = null;
+        for (const b of ends) {
+            const tail = pairs(syllables(t.slice(b)));
+            if (tail.length < 6 || syllables(t.slice(0, b)).length < 4) continue;
+            const hit = tail.filter(x => nextPairs.has(x)).length;
+            // at least half the word pairs repeat the next unit, and more repeat than not
+            const score = hit - (tail.length - hit);
+            if (hit >= 6 && hit / tail.length >= 0.5 && (!best || score > best.score)) best = { b, score };
+        }
+        if (!best) return t;
+        // Walk back over short clauses made only of the next unit's words ("Ngoài khoản đó ra,"):
+        // a paraphrase shares words, not word pairs. Stop at the first clause with its own content.
+        let cut = best.b;
+        for (let k = ends.indexOf(cut) - 1; k >= -1; k--) {
+            const from = k >= 0 ? ends[k] : 0;
+            const clause = syllables(t.slice(from, cut));
+            if (!clause.length || clause.length > 6) break;
+            if (clause.filter(w => nextWords.has(w)).length / clause.length < 1) break;
+            if (syllables(t.slice(0, from)).length < 4) break;
+            cut = from;
+        }
+        return t.slice(0, cut).replace(/[,;:\s]+$/, "");
+    }
+
+    const api = { assess, CALQUES, englishLeftovers, vre, trimContextLeak };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_QUALITY = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

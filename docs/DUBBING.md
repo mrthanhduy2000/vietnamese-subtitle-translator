@@ -42,6 +42,16 @@ breakKind, offset, dur, pause }`.
 **rendered** (engine RAM) `{ url, duration, stretch, fit, overflow, text, el }`
 **speech** (playing now) `{ id, mediaStart, offset, rate, end }`
 
+## Speech text (`adaptForSpeech`, 1.5.8)
+
+What the voice is sent, for every provider. Check a change against what VieNeu actually says: its
+normalizer is `sea_g2p` and runs offline with
+`~/VieNeu-TTS/.venv/bin/python` + `from vieneu_utils.phonemize_text import PuncNormalizer`.
+Measured facts behind the rules: the server reads a digit run of 7+ digits one digit at a time
+(`1500000` -> "một năm không..."), so grouped and long numbers are sent as words; `$20` is "u s d",
+`7B`/`200K` are letters, English `1,000` becomes "một", `1990s` ends in "giây". Versions and section
+numbers are read with "chấm", a decimal with "phẩy". Test: `tests/dub.test.js` "speech text".
+
 ## The SYNC block is the tuning bible
 
 `dub-engine.js` lines 27 to 76, one object named `SYNC`. **Every timing constant lives there.** If

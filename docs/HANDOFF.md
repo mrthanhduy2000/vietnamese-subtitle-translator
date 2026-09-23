@@ -6,40 +6,39 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-23 · lanes A + B + C, tests · `1.5.7`. Stage 2 of the approved plan (subtitle editing).
+2026-09-23 · lanes A + B, one prompt line in `background.js` · `1.5.8`. User: no new features, only
+improve subtitles and the voice. Everything below was measured on real data first.
 
 ## What changed
 
-- New `subtitle-edits.js` (`CST_EDITS`): corrections per video in `storage.local` `edits:<videoKey>`,
-  matched back by cue start (60 ms tolerance). `sync(rec, { groups, display })` lays them over the
-  overlay cues and the dub groups, parks the machine text on the cue (`cstOrig`,
-  `g.cstOrigViText`) and rebuilds `viText` token by token so untouched cues keep their ¦ hints.
-- Transcript rows are now `div role=button` with a pencil: edit box, Enter saves, Esc cancels, the
-  video pauses while typing, "Dùng bản dịch máy" reverts. Our fields swallow keys (YouTube shortcuts).
-- `ytApplyEdits` / `csApplyEdits` run after every translation, cache load and edit; both players
-  listen for their `edits:` key. `CST_DUB.refreshText` -> `refresh(true)` re-renders only the lines
-  whose text changed (tested). `ytGhiCache` stores the machine text, never the edits.
-- Settings tab "Phụ đề đã sửa": list, edit, revert a line or a whole video (two-click, no dialog).
-  `chrome-shim.js` gained `storage.remove` (the preview shim lacked it).
+- `dub-planner.js` `adaptForSpeech`: numbers, money, K/M/B, versions, ordinals, decades, links, #,
+  2x. Checked against VieNeu's own normalizer (how to run it: `docs/DUBBING.md` §Speech text).
+  The old code turned 1.500.000 into 1500000, which the server reads digit by digit.
+- `vi-quality.js` `trimContextLeak`: cuts a translation tail that repeats the next units (the model
+  translated its context). Wired into Coursera, YouTube live and YouTube cache load. Prompt line added;
+  `TR_PROMPT_VERSION` deliberately not bumped (would re-bill every cached translation).
+- `vi-segmenter.js` `straddleCost` 45 + missing compounds (tủ đồ, trào lưu, bày biện, bất cứ...).
+- Real data: two cached videos parsed read-only from Profile 42's `Local Extension Settings`
+  LevelDB log. 347 cues: straddles 38 -> 7, >25 cps 16 -> 7, >30 cps 8 -> 1, duplicated text 257 -> 0.
 
 ## State
 
-- `npm test`: 340 tests, 339 pass, 0 fail, 1 skip (new `tests/edits.test.js`) · Reload: **yes**
+- `npm test`: 344 tests, 343 pass, 0 fail, 1 skip · `npm run compare`: 0 violations · Reload: **yes**
 
 ## Unfinished / in progress
 
-- **Plan stages 3 to 5 not started** (`~/.claude/plans/jiggly-sparking-milner.md`): video summary
-  (paid, budget guard), read-aloud (`activeTab` + `scripting` are **already** in the manifest),
-  site adapter (edX first; user has not named a site).
-- Not done from stage 2: exporting .srt from Settings (Coursera keeps no per-video translation).
-- 1.5.1 to 1.5.7 not yet seen in the shipped build (tests, probes, headless renders only).
-- `docs/BACKLOG.md`: 8 open items. Item 2 (`dualMode` twice) worked around in the size stepper.
+- A paraphrased leak is not caught (one clause remains in the measured case). Not fixable without
+  alignment to the source; do not loosen the thresholds, 0 false positives on 105 groups now.
+- Reading speed: 7 cues still exceed 25 cps; the speech itself is that dense.
+- Plan stages 3 to 5 on hold: the user asked for no new features.
+- 1.5.1 to 1.5.8 not yet seen in the shipped build (tests, probes, headless renders only).
+- `docs/BACKLOG.md`: 8 open items needing the user's go-ahead.
 
 ## Traps hit this session
 
-- Control_Chrome JS fails ("Chrome is not running"): use claude-in-chrome, which cannot open `file://`.
-- Headless Chrome renders local previews (sandbox off, never exits: poll the PNG, `pkill -f hl-profile`).
-  For Settings, seed `localStorage["cst_extension_storage_v8"]` and add a `<base href>`.
+- Storage LevelDB: only a `.log` file; parse 32 KB blocks, 7-byte record headers, write batches.
+- Shell: generate test code from a file script, not `node -e` with Vietnamese quotes inline.
+- Control_Chrome JS fails; claude-in-chrome works. Headless Chrome renders need the sandbox off.
 
 ## Suggested next step
-- User tries an edit on a real video; then stage 3 or 4.
+- User reloads and rewatches video 4eY5DuqASQc around 8:30 (the leak) to hear the fix.

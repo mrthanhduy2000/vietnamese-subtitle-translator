@@ -4,6 +4,23 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.5.8", luc: "22:02 23/09/2026", ten: "Giọng đọc số và ký hiệu đúng kiểu Việt, phụ đề không lặp câu, không vắt ngang câu",
+            y: [
+                "Giọng VieNeu đọc \"1.500.000 đồng\" thành \"một năm không không không không không\". Lỗi do chính tiện ích: bỏ dấu chấm thành 1500000, mà máy chủ giọng đọc từng chữ số với mọi số từ 7 chữ số trở lên. Nay đọc \"một triệu năm trăm nghìn\". Kiểm chứng bằng đúng bộ chuẩn hóa chữ của máy chủ VieNeu.",
+                "Sửa thêm cách đọc: $20 thành \"20 đô la\" (trước là \"u s d\"), 7B và 200K thành \"7 tỷ\", \"200 nghìn\" (trước là \"bảy bê\", \"hai trăm ca\"), 1,000 kiểu Anh thành \"một nghìn\" (trước là \"một\"), 1990s thành \"những năm 1990\" (trước đọc chữ s thành \"giây\"), 1st/2nd thành \"thứ nhất, thứ hai\", Python 3.11 và v2.0 đọc bằng \"chấm\", địa chỉ web không còn đánh vần \"hát tê tê phê\", #1 thành \"số 1\", 2x thành \"2 lần\".",
+                "Sửa lỗi nặng: đôi khi mô hình dịch luôn cả câu ngữ cảnh phía sau vào bản dịch của câu trước, trong khi câu sau vẫn được dịch riêng. Phụ đề hiện một ý hai lần, giọng Việt đọc hai lần và phải đọc 36 đến 51 ký tự mỗi giây. Nay tiện ích tự nhận ra phần lấn và cắt bỏ, không tốn thêm lượt gọi, áp dụng cả cho video đã dịch và lưu từ trước.",
+                "Phụ đề không còn để một khung chứa đuôi câu trước dính với nửa đầu câu sau. Đo trên 2 video thật: từ 38 khung xuống 7.",
+                "Bổ sung các từ ghép hay bị tách đôi khi ngắt dòng: tủ đồ, trào lưu, bày biện, bất cứ lúc nào, đồ đạc, ngăn nắp và vài từ khác."
+            ],
+            bang: { cot: ["Đo trên 2 video thật đã dịch (347 khung phụ đề)", "Trước", "Nay"], hang: [
+                ["Khung vắt ngang hai câu", "38", "7"],
+                ["Khung phải đọc nhanh hơn 25 ký tự/giây", "16", "7"],
+                ["Khung phải đọc nhanh hơn 30 ký tự/giây", "8", "1"],
+                ["Khung nhanh nhất", "45,5 ký tự/giây", "31 ký tự/giây"],
+                ["Nội dung hiện và đọc hai lần", "257 ký tự", "0"]
+            ] }
+        },
+        {
             v: "1.5.7", luc: "21:45 23/09/2026", ten: "Sửa tay một dòng phụ đề, giọng Việt đọc đúng câu đã sửa",
             y: [
                 "Trong Bản chép lời, rê chuột vào một dòng rồi bấm biểu tượng bút chì để sửa bản dịch. Enter để lưu, Esc để hủy. Video tự tạm dừng trong lúc bạn gõ và phát tiếp khi lưu xong.",

@@ -329,7 +329,10 @@ const UNIT_SYSTEM_PROMPT = [
     "Bạn là biên dịch viên phụ đề Anh sang Việt cho bài giảng và video (Coursera, YouTube).",
     "Làm trong đầu, KHÔNG viết ra: hiểu cả đoạn và quan hệ với câu trước/sau; xác định chủ thể, hành động, đối tượng và mỗi đại từ chỉ vào đâu; chọn nghĩa từ đa nghĩa theo lĩnh vực và câu cụ thể; nhận diện thuật ngữ. Sau đó mới viết câu tiếng Việt tự nhiên như giảng viên người Việt nói.",
     "Quy tắc: dịch theo ý, không dịch từng chữ, không giữ trật tự câu tiếng Anh khi tiếng Việt không nói vậy (tránh 'nó là quan trọng để', 'trong thứ tự để', 'tất cả của các', 'hãy để chúng ta', 'đang đi để', lặp 'một cách', lặp 'của nó'). Cụm động từ, thành ngữ dịch theo nghĩa. Đại từ mơ hồ thì nêu rõ đối tượng, rõ rồi thì lược; không mở câu bằng 'Nó' máy móc. Không thêm, không bớt nội dung. Tên riêng, sản phẩm, viết tắt, mã lệnh giữ nguyên. Dùng đúng thuật ngữ đã thống nhất nếu có.",
-    "Các mục trong [CẦN DỊCH] là phụ đề LIÊN TIẾP, có thể là mảnh của cùng một câu: hiểu trọn ý rồi trả mỗi mục một bản dịch, đúng số mục, đúng thứ tự, nối lại thành đoạn liền mạch; được chuyển vài chữ giữa hai mục kề nhau nhưng không mục nào rỗng. Ngữ cảnh trước/sau chỉ để hiểu, không dịch lại."
+    "Các mục trong [CẦN DỊCH] là phụ đề LIÊN TIẾP, có thể là mảnh của cùng một câu: hiểu trọn ý rồi trả mỗi mục một bản dịch, đúng số mục, đúng thứ tự, nối lại thành đoạn liền mạch; được chuyển vài chữ giữa hai mục kề nhau nhưng không mục nào rỗng. Ngữ cảnh trước/sau chỉ để hiểu, không dịch lại.",
+    // Measured on a real video: an item that stops mid-sentence ("And we have a mortgage,") came back
+    // with the rest of the sentence and the next two context lines translated into it.
+    "Mục cuối có thể dừng giữa câu: dịch đúng tới chữ cuối của mục đó rồi dừng, KHÔNG viết tiếp phần nằm trong [NGỮ CẢNH SAU], kể cả để câu tròn ý."
 ].join("\n");
 
 function unitSchema(wantTerms) {

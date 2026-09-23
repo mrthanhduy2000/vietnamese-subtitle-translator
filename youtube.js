@@ -686,6 +686,51 @@ function ytChonCuaSo(gIdx, opts = {}) {
     return idxs;
 }
 
+// A unit whose translation also holds the next units' content (CST_QUALITY.trimContextLeak).
+// Windows are translated at different times, so check each new unit against its translated
+// neighbours both ways: the unit before it may be the one that leaked into this one's content.
+function ytTrimLeaks(groups, idxs) {
+    const Q = window.CST_QUALITY;
+    if (!Q || !Q.trimContextLeak) return 0;
+    const check = new Set();
+    for (const i of idxs) { check.add(i - 1); check.add(i); }
+    let n = 0;
+    for (const k of check) {
+        const g = groups[k];
+        if (!g || !g.viText) continue;
+        const next = [groups[k + 1], groups[k + 2]].filter(x => x && x.viText).map(x => x.viText).join(" ");
+        if (!next) continue;
+        const cut = Q.trimContextLeak(g.viText, next);
+        if (cut === g.viText) continue;
+        g.viText = cut;
+        g.viCues = segmentGroupVi(g, cut, groups[k + 1] ? groups[k + 1].start : undefined);
+        n++;
+    }
+    if (n) console.warn(`[AI Subtitle] Bỏ phần dịch lấn sang câu sau ở ${n} nhóm`);
+    return n;
+}
+
+// Translations cached before the leak check existed can still carry it. Repair them on load, with
+// no request: trim the group the voice reads (yt.dubGroups) and redraw the overlay cues it covers.
+function ytRepairCachedLeaks() {
+    const gs = yt.dubGroups || [];
+    const before = gs.map(g => g.viText);
+    if (!ytTrimLeaks(gs, gs.map((g, i) => i))) return 0;
+    let n = 0;
+    gs.forEach((g, i) => {
+        if (g.viText === before[i]) return;
+        n++;
+        const until = gs[i + 1] ? gs[i + 1].start : Infinity;
+        yt.viCues = yt.viCues.filter(c => c.start < g.start - 0.001 || c.start >= until - 0.001);
+        for (const c of g.viCues) yt.viCues.push({ start: c.start, end: c.end, text: c.text, lines: c.lines || [c.text] });
+    });
+    yt.viCues.sort((a, b) => a.start - b.start);
+    for (let i = 1; i < yt.viCues.length; i++) {
+        if (yt.viCues[i].start < yt.viCues[i - 1].end) yt.viCues[i - 1].end = Math.max(yt.viCues[i - 1].start + 0.05, yt.viCues[i].start);
+    }
+    return n;
+}
+
 function ytGanBanDich(groups, idxs, translations) {
     idxs.forEach((gi, k) => {
         const vi = translations[k];
@@ -697,6 +742,7 @@ function ytGanBanDich(groups, idxs, translations) {
         g.viCues = segmentGroupVi(g, vi, nextStart);
         g.translated = true;
     });
+    ytTrimLeaks(groups, idxs);
     ytGhepViCues();
     ytCapNhatTienTrinh();
     yt.renderKey = "";
@@ -1117,6 +1163,7 @@ async function ytBatDauDich(opts = {}) {
                 srcCues: g[3].map(c => ({ start: c[0], end: c[1], text: c[2] })),
                 viCues: g[4].map(c => ({ start: c[0], end: c[1], text: c[2] }))
             }));
+            ytRepairCachedLeaks();
             yt.daDichXong = true;
             ytApplyEdits();
             ytKichHoatHienThi();

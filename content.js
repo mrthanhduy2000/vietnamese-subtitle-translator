@@ -729,6 +729,24 @@ function groupCuesIntoSentences(cues, perCueMode) {
 //   - ngat moi cue thanh 1-2 dong theo cu phap tieng Viet
 //   - gan thoi gian bam theo nhip noi cua cue nguon
 // ============================================================
+// A translation that carries the next units' content too (see CST_QUALITY.trimContextLeak) shows
+// that content twice and makes the voice read it twice. Compare each unit with the next two.
+function trimTranslationLeaks(translations) {
+    const Q = window.CST_QUALITY;
+    if (!Q || !Q.trimContextLeak) return { list: translations, trimmed: 0 };
+    let trimmed = 0;
+    const list = translations.map((t, i) => {
+        if (!t) return t;
+        const next = [translations[i + 1], translations[i + 2]].filter(Boolean).join(" ");
+        if (!next) return t;
+        const out = Q.trimContextLeak(t, next);
+        if (out !== t) trimmed++;
+        return out;
+    });
+    if (trimmed) console.warn(`[AI Subtitle] Bỏ phần dịch lấn sang câu sau ở ${trimmed} nhóm`);
+    return { list, trimmed };
+}
+
 function segmentGroupVi(group, viText, nextStart) {
     // Cho phep cue cuoi keo dai vao khoang lang phia sau neu qua day chu,
     // nhung khong de len nhom ke tiep.
@@ -787,6 +805,7 @@ function repositionCues() {
 }
 
 function applyTranslation(track, groups, translations) {
+    translations = trimTranslationLeaks(translations).list;
     const originals = state.originalCues || [];
     removeAllCues(track);
     state.dubGroups = [];
