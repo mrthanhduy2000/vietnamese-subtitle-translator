@@ -23,7 +23,12 @@ const realFetch = (u, o) => (String(u).startsWith(COST.LOCAL_TTS.url) ? fetch(u,
     let t0 = Date.now();
     const r1 = await B.send({ action: "synthesizeSpeech", engine: "vieneu", text, voice: "Thùy Dung", parts: [{ key: "live-1", weight: 20 }] });
     assert.equal(r1.ok, true, r1.error);
-    console.log(`Tạo audio: ${r1.parts[0].duration.toFixed(2)} giây lời nói trong ${((Date.now() - t0) / 1000).toFixed(2)} giây`);
+    const rtf = ((Date.now() - t0) / 1000) / r1.parts[0].duration;
+    console.log(`Tạo audio: ${r1.parts[0].duration.toFixed(2)} giây lời nói trong ${((Date.now() - t0) / 1000).toFixed(2)} giây (RTF ${rtf.toFixed(2)})`);
+    // RTF = thời gian tạo / thời lượng audio. Lồng tiếng theo thời gian thực cần tạo TRƯỚC 20 giây
+    // audio, nên RTF gần 1 là hỏng. Đo thật 23/09/2026: dịch vụ tự khởi động đặt ProcessType
+    // Background làm RTF từ 0,23 lên 1,07 mà không có gì báo lỗi, chỉ thấy giọng trễ.
+    assert.ok(rtf < 0.8, `máy chủ VieNeu quá chậm: RTF ${rtf.toFixed(2)} (bình thường ~0,25). Kiểm tra ProcessType trong ~/Library/LaunchAgents/com.damduy.vieneu.plist, phải là Interactive`);
     t0 = Date.now();
     const r2 = await B.send({ action: "synthesizeSpeech", engine: "vieneu", text, voice: "Thùy Dung", parts: [{ key: "live-1", weight: 20 }] });
     assert.equal(r2.fromCache, true);
@@ -111,6 +116,8 @@ const realFetch = (u, o) => (String(u).startsWith(COST.LOCAL_TTS.url) ? fetch(u,
     const effMean = sps.reduce((a, b) => a + b, 0) / sps.length;
     console.log(`  Giọng Mỹ Duyên đo được: ${effMean.toFixed(2)} âm tiết/giây (audio đã rút khoảng lặng dài); sàn x${eng2.floorRate({ speaker: "S1" }).toFixed(3)}, trung bình x${mean.toFixed(3)} -> nghe ${(effMean * mean).toFixed(2)} âm tiết/giây`);
     eng2.stop();
+    assert.ok(rates.length >= Math.ceil(eng2.plans.length * 0.8),
+        `chỉ đọc ${rates.length}/${eng2.plans.length} câu (mảng rỗng từng lọt qua mọi kiểm tra và vẫn in ĐẠT)`);
     assert.ok(eng2.stats.dropped === 0, "không được bỏ câu");
     assert.ok(Math.max(...jumps) <= 0.101, "nhịp đổi đột ngột giữa hai câu");
 

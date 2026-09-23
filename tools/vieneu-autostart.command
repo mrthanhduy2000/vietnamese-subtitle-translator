@@ -46,7 +46,10 @@ cat > "$PLIST" <<PLISTEOF
     <key>RunAtLoad</key><true/>
     <key>KeepAlive</key><true/>
     <key>ThrottleInterval</key><integer>10</integer>
-    <key>ProcessType</key><string>Background</string>
+    <!-- Interactive, KHÔNG phải Background: người xem đang chờ giọng đọc theo thời gian thực.
+         Đo thật 23/09/2026 trên MacBook Air M3: để Background thì macOS hạ ưu tiên (pri 4, đẩy sang
+         lõi tiết kiệm điện) và tạo 1 giây lời nói mất 1,07 giây; để Interactive thì khoảng 0,23. -->
+    <key>ProcessType</key><string>Interactive</string>
     <key>StandardOutPath</key><string>$APP/server.log</string>
     <key>StandardErrorPath</key><string>$APP/server.log</string>
 </dict>

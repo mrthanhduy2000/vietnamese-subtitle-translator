@@ -797,6 +797,20 @@ async function synthesize(req, text, parts, signal) {
 // Không tốn tiền API; audio vẫn vào cùng kho audio và cơ chế chống tạo trùng như Gemini.
 const LOCAL = COST.LOCAL_TTS;
 
+// Tốc độ tạo giọng THẬT của máy chủ VieNeu: thời gian tạo / thời lượng audio (RTF) của 5 lượt gần
+// nhất. Lồng tiếng phải tạo TRƯỚC khoảng 20 giây audio, nên RTF gần 1 là giọng sẽ trễ. Đo thật
+// 23/09/2026: dịch vụ chạy ở mức ưu tiên thấp làm RTF từ 0,23 lên 1,07 mà không có gì báo.
+const localSpeed = { gan: [] };
+function ghiTocDoTao(giaySinh, giayAudio) {
+    if (!(giayAudio > 0.3)) return;
+    localSpeed.gan.push(giaySinh / giayAudio);
+    while (localSpeed.gan.length > 5) localSpeed.gan.shift();
+}
+function tocDoTaoGiong() {
+    if (!localSpeed.gan.length) return 0;
+    return localSpeed.gan.reduce((a, b) => a + b, 0) / localSpeed.gan.length;
+}
+
 async function handleLocalTtsStatus() {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 1500);
@@ -808,7 +822,7 @@ async function handleLocalTtsStatus() {
         if (running) {
             try { const m = await (await fetch(LOCAL.url + "/v1/models", { signal: controller.signal })).json(); model = ((m.data || [])[0] || {}).id || ""; } catch (e) { model = ""; }
         }
-        return { ok: true, running, backend: data.backend || "", model, busy: (data.active || 0) + (data.waiting || 0) };
+        return { ok: true, running, backend: data.backend || "", model, busy: (data.active || 0) + (data.waiting || 0), rtf: Math.round(tocDoTaoGiong() * 100) / 100 };
     } catch (e) {
         return { ok: true, running: false, error: "Máy chủ VieNeu chưa chạy" };
     } finally {
@@ -943,6 +957,7 @@ async function synthesizeLocalOnce(req, text, parts, signal) {
         // Audio dài bất thường so với lời thoại (mô hình lặp / kéo dài âm): không dùng
         const syl = String(text || "").split(/\s+/).filter(Boolean).length;
         if (syl >= 3 && audioSec > 2.5 + syl / 1.6) return { ok: false, errorType: "runaway", error: `audio dài bất thường (${audioSec.toFixed(1)} giây cho ${syl} âm tiết)` };
+        ghiTocDoTao((Date.now() - t0) / 1000, audioSec);
         track(metaOf(req), { localSec: audioSec });
         const mime = `audio/L16;rate=${sr}`;
         if (!parts) {

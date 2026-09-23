@@ -4,6 +4,19 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.4.5", luc: "10:55 23/09/2026", ten: "Sửa lỗi máy chủ giọng chạy chậm gấp 5 lần; tiện ích tự đo tốc độ",
+            y: [
+                "Tệp cài dịch vụ tự khởi động (bản 1.4.2) đặt mức ưu tiên Nền, làm macOS đẩy máy chủ giọng sang lõi tiết kiệm điện: tạo 1 giây lời nói mất 1,07 giây thay vì khoảng 0,23. Nay đặt mức Tương tác.",
+                "Tiện ích tự đo tốc độ tạo giọng của 5 lượt gần nhất và hiện trong Cài đặt; quá chậm thì báo ngay trên video thay vì để bạn đoán vì sao giọng trễ.",
+                "Bài kiểm tra chạy thật nay BÁO HỎNG khi máy chủ chậm, và khi không câu nào được đọc (trước đó vẫn in ĐẠT).",
+                "Thêm công cụ đo nhanh: node tools/vieneu-bench.js"
+            ],
+            bang: { cot: ["Đo thật trên MacBook Air M3", "Mức ưu tiên Nền (1.4.2)", "Mức Tương tác (1.4.5)"], hang: [
+                ["Tạo 1 giây lời nói mất", "1,07 giây", "cần đo lại sau khi cài lại"],
+                ["Ba đoạn đầu có audio sau", "10,3 giây", "cần đo lại sau khi cài lại"]
+            ] }
+        },
+        {
             v: "1.4.4", luc: "01:40 23/09/2026", ten: "Bỏ tin nhắn thừa trong bảng điều khiển; tài liệu hết ghi cứng số phiên bản",
             y: [
                 "Bảng điều khiển từng gửi cho trang một tin nhắn (setOptions) mà không file nào xử lý; bật tắt lồng tiếng vốn đã đi qua kho cài đặt nên tin nhắn đó là thừa.",

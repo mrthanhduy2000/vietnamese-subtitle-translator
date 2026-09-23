@@ -357,3 +357,36 @@ test("bảng điều khiển: mọi tin nhắn gửi cho trang đều có nơi x
     assert.ok(!gui.includes("setOptions"), "setOptions đã bỏ: bật/tắt lồng tiếng đi qua storage.onChanged");
     assert.doesNotMatch(popup, /notifyActiveTab/, "hàm gửi tin nhắn thừa vẫn còn");
 });
+
+// Đo thật 23/09/2026: dịch vụ tự khởi động đặt ProcessType Background làm máy chủ giọng chậm gấp
+// ~5 lần (RTF 0,23 -> 1,07). Không có gì báo lỗi, chỉ thấy giọng trễ. Ba lớp chặn cho lần sau.
+test("máy chủ giọng chạy chậm: dịch vụ chạy ở mức ưu tiên tương tác, tiện ích đo được và báo cho người xem", async () => {
+    // 1. Tệp cài dịch vụ không được đặt mức ưu tiên nền
+    const sh = R("tools/vieneu-autostart.command");
+    assert.match(sh, /<key>ProcessType<\/key><string>Interactive<\/string>/, "dịch vụ phải chạy ở mức Interactive");
+    assert.doesNotMatch(sh, /<string>Background<\/string>/, "ProcessType Background làm giọng chậm gấp 5 lần");
+
+    // 2. Service worker đo tốc độ tạo thật và báo ra ngoài
+    const { bgEnv } = require("./bg-env.js");
+    const wav = new Uint8Array(48000 * 2 * 4);           // 4 giây audio ở 48 kHz, 16 bit
+    let cham = false;
+    const env = bgEnv(async (url) => {
+        if (String(url).includes("/health")) return { ok: true, json: async () => ({ status: "ok", backend: "onnx", active: 0, waiting: 0 }) };
+        if (String(url).includes("/v1/models")) return { ok: true, json: async () => ({ data: [{ id: "vieneu" }] }) };
+        if (cham) await new Promise(r => setTimeout(r, 120));   // tạo chậm hơn thời lượng audio
+        return { ok: true, status: 200, arrayBuffer: async () => wav.buffer, headers: { get: () => null } };
+    }, {}, { timeScale: 0.001 });
+    const truoc = await env.send({ action: "localTtsStatus" });
+    assert.equal(truoc.rtf, 0, "chưa tạo lượt nào thì chưa có số đo");
+    await env.send({ action: "synthesizeSpeech", engine: "vieneu", text: "Xin chào các bạn, hôm nay chúng ta học về dữ liệu.", voice: "Mỹ Duyên", parts: [{ key: "k1", weight: 10 }] });
+    const sau = await env.send({ action: "localTtsStatus" });
+    assert.ok(typeof sau.rtf === "number", "trạng thái phải kèm tốc độ tạo giọng");
+
+    // 3. Trang Cài đặt hiện tốc độ đó, và phần lồng tiếng cảnh báo khi quá chậm
+    assert.match(R("options.js"), /Tốc độ tạo giọng đo được/);
+    assert.match(R("dubbing.js"), /canhBaoMayChuCham/);
+    assert.match(R("dubbing.js"), /rtf < 0\.8/, "ngưỡng cảnh báo");
+    // Bài chạy thật phải HỎNG khi máy chủ chậm, thay vì in ĐẠT
+    assert.match(R("tests/vieneu.live.js"), /máy chủ VieNeu quá chậm/);
+    assert.match(R("tests/vieneu.live.js"), /chỉ đọc \$\{rates\.length\}/, "0 câu được nói từng lọt qua và vẫn in ĐẠT");
+});

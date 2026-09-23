@@ -244,6 +244,7 @@
         // Bật theo dõi SAU khi bộ đọc đã chạy: stop() bên trên (dọn bộ đọc cũ) cũng tắt bộ theo dõi,
         // nên đặt ở giữa hàm thì nó bị xóa ngay và giọng không bao giờ tự chuyển về VieNeu
         if (localMissing) doiVieNeuSanSang(opts);
+        else if (primary && primary.id === "vieneu") canhBaoMayChuCham(opts);
         startDebug(engine);
         dub.container = opts.container || null;
         engine.start();
@@ -298,6 +299,22 @@
             }
         });
     } catch (e) { /* ngoài extension */ }
+
+    // ---------- Máy chủ giọng chạy chậm: nói cho người xem biết, một lần mỗi trang ----------
+    // Máy chủ chậm thì giọng Việt trễ dần mà không có lỗi nào; người xem chỉ thấy "giọng bị trễ".
+    async function canhBaoMayChuCham(opts) {
+        if (dub.slowWarned) return;
+        const r = await sendMessage({ action: "localTtsStatus" });
+        const rtf = r && Number(r.rtf);
+        if (!rtf || rtf < 0.8) return;                      // 0 = chưa đo được lượt nào
+        dub.slowWarned = true;
+        if (window.CST_UI && window.CST_UI.toast) {
+            window.CST_UI.toast(
+                `Máy chủ giọng đang chậm: tạo 1 giây lời nói mất ${rtf.toFixed(2)} giây (bình thường khoảng 0,25). Giọng Việt có thể trễ dần.`,
+                { warn: true, actionLabel: "Mở Cài đặt", onAction: () => sendMessage({ action: "openOptions" }) }
+            );
+        }
+    }
 
     // ---------- Tự chuyển về giọng VieNeu ngay khi máy chủ sẵn sàng ----------
     // Người xem không phải bấm "Thử lại": cứ 8 giây hỏi máy chủ một lần (tối đa 5 phút, chỉ khi
