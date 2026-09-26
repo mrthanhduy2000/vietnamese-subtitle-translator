@@ -1887,6 +1887,7 @@ async function ytKhoiDong() {
                         yt.renderKey = "";
                     }
                 }
+                if (changes.skipSameLang) ytSettings.skipSameLang = changes.skipSameLang.newValue !== false;   // next video
                 if (changes.dualMode) {
                     state.dualMode = !!changes.dualMode.newValue;
                     ytSubStyle.mode = state.dualMode ? "dual" : "single";

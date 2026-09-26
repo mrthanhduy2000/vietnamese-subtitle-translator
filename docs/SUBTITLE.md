@@ -154,6 +154,9 @@ also mirrored into `localStorage` as `cstUiTheme` so the page can paint before s
 Dubbing: `dubEnabled`, `dubProvider`, `dubTtsModel`, `dubVoiceName`, `dubGeminiVoice`,
 `dubGeminiVoice2`, `dubLocalVoice`, `dubLocalVoice2`, `dubSecondVoice` (off by default: every speaker is S1,
 see `DubEngine.oneVoice`), `dubDuck`, `dubVolume`, `dubPrepareWait`.
+`dubMaxRate` (0 = automatic, else 1.1 to 1.5: caps every rate in `DubEngine.chooseRate` /
+`paceLimits` through `userMaxRate()`, applied live). Subtitles: `skipSameLang` (on: a video's own
+Vietnamese track is used as is; off: translate from the source track; YouTube, Coursera, generic).
 `dubCondense` is retired (condensing is permanently off, see `DUBBING.md`); old stored values are ignored
 
 One-shot migration flags (do not reuse the names): `modelsVersion`, `costMigration113`,
@@ -180,6 +183,12 @@ database, which is separate (see `DUBBING.md`).
 ### `chrome.storage.session`
 
 `costSession` per-session cost.
+
+**Backup (1.6.6).** `settings-backup.js` + the "Sao lưu cài đặt" card: exports all of
+`storage.sync` and the `edits:*` keys of `storage.local` (never caches), the API key only when the
+box is ticked. Import validates (`parseBackup`), confirms, writes, reloads the page so the stale
+form cannot autosave over it. Controls marked `data-no-save` are skipped by the autosave listener.
+A new sync key is backed up automatically; a new local key needs a prefix in `LOCAL_PREFIXES`.
 
 ## Adding a setting: the 4 places
 

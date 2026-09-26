@@ -122,6 +122,10 @@ calls `hardReset`, which drops queued speech, renders a tiny first batch (`warmu
 `cancelObsoleteJobs` deliberately lets jobs that are nearly done finish, because aborting a Gemini
 call still bills for it.
 
+**Viewer cap (1.6.6).** `settings.maxRate` (storage `dubMaxRate`) is the one user override of this
+block: when set, `userMaxRate()` clamps `ceiling`, `lagCeiling` and the final rate, even below a
+slow voice's floor rate. The voice then falls behind instead of rushing; it never drops words.
+
 ## The three TTS providers
 
 Selected by the `dubProvider` setting. `createVieneuProvider` / `createGeminiProvider` /

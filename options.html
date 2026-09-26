@@ -885,7 +885,7 @@
                 <button type="button" class="theme-btn" data-theme-set="dark" title="Luôn dùng giao diện tối">Tối</button>
                 <button type="button" class="theme-btn" data-theme-set="auto" title="Theo cài đặt sáng/tối của máy">Theo máy</button>
             </div>
-            <span class="header-badge" title="Cập nhật lúc 19:58 26/09/2026">Phiên bản v1.6.5 · cập nhật 19:58 26/09/2026</span>
+            <span class="header-badge" title="Cập nhật lúc 20:06 26/09/2026">Phiên bản v1.6.6 · cập nhật 20:06 26/09/2026</span>
         </div>
     </header>
 
@@ -1201,6 +1201,11 @@
                     </label>
                     <div class="field-hint">Phụ đề đã là tiếng Việt thì bỏ qua.</div>
                     <label class="group-row" style="margin-top: 14px; font-weight: 600;">
+                        <input type="checkbox" id="skipSameLang" checked>
+                        <span>Bỏ qua dịch khi video đã có phụ đề tiếng Việt</span>
+                    </label>
+                    <div class="field-hint">Bật: video đã có phụ đề tiếng Việt thì dùng luôn, không dịch, không tốn phí. Tắt: vẫn dịch từ phụ đề gốc (thường là tiếng Anh), hữu ích khi phụ đề Việt có sẵn là bản dịch máy kém.</div>
+                    <label class="group-row" style="margin-top: 14px; font-weight: 600;">
                         <input type="checkbox" id="autoDub" checked>
                         <span>Tự động lồng tiếng Việt khi mở video</span>
                     </label>
@@ -1258,6 +1263,30 @@
                     <div class="form-group" id="customModelRow" style="display: none; margin-bottom: 14px;">
                         <label class="form-label" for="customModelInput">Tên Model tùy chỉnh:</label>
                         <input type="text" id="customModelInput" class="form-input" placeholder="Tên model chính xác theo tài liệu Gemini API">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Sao lưu cài đặt</h2>
+                        <p class="card-desc">Lưu toàn bộ cài đặt, danh sách thuật ngữ và các dòng phụ đề đã sửa ra một tệp. Gỡ tiện ích rồi cài lại sẽ mất hết những thứ này; có tệp sao lưu thì nhập lại là xong.</p>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label class="group-row" style="font-weight: 600;">
+                                <input type="checkbox" id="backupIncludeKey" data-no-save="1" checked>
+                                <span>Kèm Gemini API Key trong tệp</span>
+                            </label>
+                            <div class="field-hint">Khóa được ghi dạng chữ thường trong tệp: đừng gửi tệp cho người khác hay đưa lên mạng. Bỏ chọn nếu chỉ muốn sao lưu phần còn lại.</div>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1; flex-direction: row; gap: 8px; flex-wrap: wrap;">
+                            <button type="button" class="btn btn-secondary" id="backupExport">Xuất tệp sao lưu</button>
+                            <button type="button" class="btn btn-secondary" id="backupImport">Nhập từ tệp…</button>
+                            <input type="file" id="backupFile" accept=".json,application/json" data-no-save="1" hidden>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <div class="field-hint" id="backupStatus" role="status"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -1473,6 +1502,19 @@ Claude's code => Claude Code</div>
                         </div>
 
                         <div class="form-group">
+                            <label class="form-label" for="dubMaxRate">Tốc độ đọc tối đa</label>
+                            <select id="dubMaxRate" class="form-select">
+                                <option value="0" selected>Tự động (khuyên dùng)</option>
+                                <option value="1.1">1,1 lần (rất thong thả)</option>
+                                <option value="1.2">1,2 lần</option>
+                                <option value="1.3">1,3 lần</option>
+                                <option value="1.4">1,4 lần</option>
+                                <option value="1.5">1,5 lần</option>
+                            </select>
+                            <div class="field-hint">Tự động: giọng nhanh dần theo tốc độ nói của video, tới khoảng 1,6 lần khi người nói rất nhanh. Chọn mức thấp hơn nếu muốn nghe rõ hơn: giọng Việt có thể trễ sau hình vài giây ở đoạn nói nhanh, nhưng không bao giờ bị bỏ chữ.</div>
+                        </div>
+
+                        <div class="form-group">
                             <label class="form-label" for="dubTtsModel">Model Gemini TTS (nâng cao, để trống = tự chọn)</label>
                             <input type="text" id="dubTtsModel" class="form-input">
                         </div>
@@ -1509,6 +1551,7 @@ Claude's code => Claude Code</div>
     <script src="dub-audio.js"></script>
     <script src="dub-engine.js"></script>
     <script src="subtitle-edits.js"></script>
+    <script src="settings-backup.js"></script>
     <script src="options.js"></script>
 </body>
 </html>

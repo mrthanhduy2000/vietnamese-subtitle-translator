@@ -29,6 +29,7 @@ dub-engine.js -> dubbing.js -> content.js -> youtube.js
 | `background.js` | 1256 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access | n/a (message router) |
 | `popup.css` | 923 | Popup styling only | n/a |
 | `options.js` | 871 | Settings logic. No Save button: debounced autosave every 350ms, flushed on `pagehide` | n/a |
+| `settings-backup.js` | 90 | Pure build/parse of the settings backup file (all of `storage.sync` + `edits:*`, key optional) | `CST_BACKUP` (options page only) |
 | `vi-segmenter.js` | 864 | Vietnamese cue segmentation + line breaking, two-stage dynamic programming over syllable gaps | `CST_VI_SEG` |
 | `dub-planner.js` | 734 | Pure function: text -> speech script -> prosody and timing. No I/O | `CST_DUB_PLAN` |
 | `glossary.js` | 665 | Pure data: 17 domain term groups, normalize rules, proper nouns never to translate | `CST_GLOSSARY_GROUPS` and friends (globalThis + module.exports) |

@@ -6,9 +6,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-26 · lane A (`content.js`, `dubbing.js`) + C (`popup.js`, `options.js`) + D
-(`background.js`, `manifest.json` description) · `1.6.5`. User: stage 5, multi-site support. User
-has no Udemy/edX account and no sample pages: build for any site, not for named ones.
+2026-09-26 · lanes A + B + C (`options.*`, new `settings-backup.js`) · `1.6.6`. User asked for
+three Settings items: backup/restore, max reading speed, skipSameLang in Settings.
 
 ## What changed
 
@@ -17,15 +16,18 @@ has no Udemy/edX account and no sample pages: build for any site, not for named 
   biggest `<video>`, `<track>` elements plus script-added `textTracks`, floating button + frame over
   the picture when no control bar is found, native fullscreen shows the track. Full write-up:
   `docs/SUBTITLE.md` §Generic. Verified live on `tests/harness/generic.html` (both track kinds).
-- 1.6.4 (same day): backlog 1-4 + 6 fixed, dub plan rebuild 13.1 -> 3.9 ms, throttled observers.
+- 1.6.6: "Sao lưu cài đặt" card (`settings-backup.js`, all sync keys + `edits:*`, key optional),
+  `dubMaxRate` (`DubEngine.userMaxRate`, live), `skipSameLang` now in Settings and honoured by
+  Coursera/generic `pickBestTrack`. Verified on options.html via the `static` server + shim.
+- 1.6.5: generic sites. 1.6.4: backlog fixes, plan rebuild 13.1 -> 3.9 ms.
 
 ## State
 
-- `npm test`: 368 tests, 367 pass, 0 fail, 1 skip · Reload: **yes** (1.6.5 not yet loaded)
+- `npm test`: 374 tests, 373 pass, 0 fail, 1 skip · Reload: **yes** (1.6.6 not yet loaded)
 
 ## Unfinished / in progress
 
-- Not verified in real Chrome: generic injection from the popup/shortcut, `ensureYtBridge` after a
+- Not verified in real Chrome: the backup download (Blob + a.download on an extension page), generic injection from the popup/shortcut, `ensureYtBridge` after a
   Reload, dubbing on a generic page, native fullscreen. Harness covered display + translation only.
 - Udemy (DOM captions) and edX (cross-origin iframe) need site sources: `BACKLOG.md` item 9.
 - Not measured live: jank on a long video while translating (`longtask`; costs a little Gemini).
@@ -37,7 +39,7 @@ has no Udemy/edX account and no sample pages: build for any site, not for named 
 
 - Harness pages need `chrome.runtime.id` set after `chrome-shim.js`, or the liveness poller marks
   the script dead and nothing is drawn. The hidden browser pane also stops rAF: call `csRender()`.
-- Udemy course previews have no captions and no text tracks, so they cannot serve as samples.
+- The preview shim keeps storage in the page's localStorage: clear it after testing import.
 
 ## Suggested next step
-- Reload, then on any page with a captioned `<video>` press Alt+S; check button, subtitle, dubbing.
+- Reload; export a backup (check the file); then Alt+S on any page with a captioned `<video>`.

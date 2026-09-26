@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.6.6", luc: "20:06 26/09/2026", ten: "Sao lưu cài đặt, giới hạn tốc độ đọc, tùy chọn dùng phụ đề Việt có sẵn",
+            y: [
+                "Thẻ mới \"Sao lưu cài đặt\": xuất toàn bộ cài đặt, danh sách thuật ngữ và các dòng phụ đề đã sửa ra một tệp, nhập lại bất cứ lúc nào. Có thể chọn kèm hoặc không kèm Gemini API Key. Bản dịch và audio đã lưu không nằm trong tệp (tự tạo lại được).",
+                "Mục mới \"Tốc độ đọc tối đa\" trong phần Lồng tiếng: Tự động (như trước) hoặc giới hạn từ 1,1 đến 1,5 lần. Giới hạn thấp nghe rõ hơn nhưng giọng có thể trễ sau hình ở đoạn nói nhanh; không bao giờ bỏ chữ. Đổi là có hiệu lực từ câu kế tiếp.",
+                "Mục mới \"Bỏ qua dịch khi video đã có phụ đề tiếng Việt\" (mặc định bật). Tắt đi thì vẫn dịch từ phụ đề gốc, dùng khi phụ đề Việt sẵn có là bản dịch máy kém. Áp dụng cho YouTube, Coursera và các trang video khác."
+            ]
+        },
+        {
             v: "1.6.5", luc: "19:58 26/09/2026", ten: "Dịch phụ đề và lồng tiếng trên các trang video khác",
             y: [
                 "Ngoài YouTube và Coursera, giờ dịch được phụ đề trên mọi trang có video dùng phụ đề chuẩn của trình duyệt (trang khoá học, blog, trang trường, trình phát video.js, Plyr...). Mở trang, bấm nút tiện ích rồi bấm Dịch, hoặc dùng phím tắt Alt+S / Alt+D.",

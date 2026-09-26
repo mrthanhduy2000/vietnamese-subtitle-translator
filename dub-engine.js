@@ -757,12 +757,22 @@
             let lagCeiling = Math.max(SYNC.lagMaxSpeechRate, Math.min(SYNC.paceCeilingMax + 0.1, ceiling + 0.1, spsCap));
             // the video itself already plays faster: its rate multiplies ours, so the room shrinks
             if (vr > 1) { ceiling = Math.max(SYNC.maxSpeechRate, ceiling / vr); lagCeiling = Math.max(SYNC.lagMaxSpeechRate, lagCeiling / vr); }
+            const cap = this.userMaxRate();
+            if (cap) { ceiling = Math.min(ceiling, cap); lagCeiling = Math.min(lagCeiling, cap); }
             const floor = pace.mid > 1 ? Math.min(ceiling, pace.mid * SYNC.paceFloorShare) / vr : 0;
             return { ceiling, lagCeiling, floor };
         }
 
+        // The viewer's "fastest the voice may read" setting (dubMaxRate), or null for automatic.
+        // It wins over every adaptive ceiling: a capped voice falls behind instead of rushing, and
+        // no word is ever dropped to make up for it.
+        userMaxRate() {
+            const m = Number(this.settings.maxRate);
+            return m >= 1 && m <= 2 ? m : null;
+        }
+
         chooseRate(p, r, t, offset, lag) {
-            const lim = this.provider.caps && this.provider.caps.prerender ? this.paceLimits(p, t) : { ceiling: SYNC.maxSpeechRate, lagCeiling: SYNC.lagMaxSpeechRate, floor: 0 };
+            const lim = this.provider.caps && this.provider.caps.prerender ? this.paceLimits(p, t) : { ceiling: Math.min(SYNC.maxSpeechRate, this.userMaxRate() || 9), lagCeiling: Math.min(SYNC.lagMaxSpeechRate, this.userMaxRate() || 9), floor: 0 };
             const i = this.plans.indexOf(p);
             const next = i >= 0 ? this.plans[i + 1] : null;
             // Câu CHƯA HẾT (đoạn nối tiếp sang đoạn sau): đọc lấp tới đoạn sau, được chậm xuống
@@ -813,6 +823,8 @@
             let rate = Math.max(floor, Math.min(ceiling, want));
             // Tốc độ sàn vừa được hiệu chỉnh lại (đo giọng thật) không được làm nhịp nhảy quá bước cho phép
             if (this.lastRate && t - this.lastRateEnd < SYNC.rateMemory) rate = Math.min(rate, this.lastRate + SYNC.rateStepUp);
+            const cap = this.userMaxRate();
+            if (cap) rate = Math.min(rate, cap);          // above even a slow voice's floor rate
             this.lastRate = rate;
             this.lastRateEnd = t + (r.duration - offset) / rate;
             return rate;

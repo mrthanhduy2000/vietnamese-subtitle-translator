@@ -644,10 +644,15 @@ function pickBestTrack() {
         const kind = (t.kind || "").toLowerCase();
         return kind === "" || kind === "subtitles" || kind === "captions";
     });
-    const pool = usable.length > 0 ? usable : tracks;
+    let pool = usable.length > 0 ? usable : tracks;
 
-    const viTrack = pool.find(t => (t.srclang || "").toLowerCase().startsWith("vi"));
-    if (viTrack) return { track: viTrack, alreadyVietnamese: true };
+    const isVi = t => (t.srclang || "").toLowerCase().startsWith("vi");
+    const viTrack = pool.find(isVi);
+    // Settings "Dùng phụ đề tiếng Việt có sẵn" (skipSameLang, on by default). Off: translate from
+    // the source track anyway, e.g. when the site's Vietnamese is a poor machine translation.
+    if (viTrack && state.skipSameLang !== false) return { track: viTrack, alreadyVietnamese: true };
+    const others = pool.filter(t => !isVi(t));
+    if (viTrack && others.length) pool = others;
 
     const enTrack = pool.find(t => (t.srclang || "").toLowerCase().startsWith("en"));
     const chosen = enTrack || pool[0];
@@ -1844,12 +1849,13 @@ async function loadSettings() {
         const saved = await chrome.storage.sync.get({
             dualMode: null, perCueMode: false, styleOriginal: false, originalFirst: false,
             dubVoiceName: "", dubDuck: 0.12, dubAutoRate: true,
-            subStyle: null, costMode: "balanced", autoTranslate: true, dubEnabled: true,
+            subStyle: null, costMode: "balanced", autoTranslate: true, dubEnabled: true, skipSameLang: true,
             uiTheme: "auto"
         });
         state.dubEnabled = saved.dubEnabled !== false;
         state.costMode = saved.costMode;
         state.autoTranslate = saved.autoTranslate !== false;
+        state.skipSameLang = saved.skipSameLang !== false;
         state.dualMode = window.CST_STYLE ? window.CST_STYLE.resolveDual(saved) : !!saved.dualMode;
         state.uiTheme = saved.uiTheme || "auto";
         state.perCueMode = saved.perCueMode;
@@ -1893,6 +1899,7 @@ async function init() {
                 }
                 if (changes.costMode) state.costMode = changes.costMode.newValue;
                 if (changes.autoTranslate) state.autoTranslate = changes.autoTranslate.newValue !== false;
+                if (changes.skipSameLang) state.skipSameLang = changes.skipSameLang.newValue !== false;
                 // Tu dien thay doi: ap dung cho cac cau dich tiep theo, khong can tai lai trang
                 if (changes.glossaryEnabled || changes.enabledGroups || changes.userKeep || changes.userNormalize) {
                     loadGlossary();

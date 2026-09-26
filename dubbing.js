@@ -25,6 +25,7 @@
         dubDuck: 0.2,                 // mức tiếng gốc khi có lời Việt (giữ nhạc nền nghe được)
         dubVolume: 1,
         dubSecondVoice: false,        // a second voice for a second speaker: off unless the viewer asks
+        dubMaxRate: 0,                // fastest the voice may read (1.1 to 1.6); 0 = automatic
         dubPrepareWait: true,         // mở video mới / tua tới đoạn mới: tạm dừng tối đa 5 giây chờ phụ đề + giọng
         useAi: true,
         geminiApiKey: "",
@@ -238,7 +239,7 @@
                 }, 0);
             },
             log: (...a) => console.warn("[Lồng tiếng]", ...a)
-        }, { duck: level(s.dubDuck, 0.2), volume: level(s.dubVolume, 1), secondVoice: s.dubSecondVoice === true, prefetchMax: smartPrefetch(mode, opts.video) });
+        }, { duck: level(s.dubDuck, 0.2), volume: level(s.dubVolume, 1), secondVoice: s.dubSecondVoice === true, maxRate: Number(s.dubMaxRate) || null, prefetchMax: smartPrefetch(mode, opts.video) });
         dub.engine = engine;
         dub.enabled = true;
         dub.starting = false;
@@ -293,6 +294,7 @@
             const e = dub.engine;
             if (changes.dubDuck) e.settings.duck = level(changes.dubDuck.newValue, 0.2);
             if (changes.dubVolume) e.settings.volume = level(changes.dubVolume.newValue, 1);
+            if (changes.dubMaxRate) e.settings.maxRate = Number(changes.dubMaxRate.newValue) || null;   // next sentence on
             // Đổi giọng / nhà cung cấp: khởi động lại engine với cùng nguồn
             if (changes.dubSecondVoice || changes.dubProvider || changes.dubGeminiVoice || changes.dubGeminiVoice2 || changes.dubVoiceName || changes.dubTtsModel || changes.costMode || changes.dubLocalVoice || changes.dubLocalVoice2) {
                 const src = { video: e.d.video, getGroups: e.d.getGroups, container: dub.container };

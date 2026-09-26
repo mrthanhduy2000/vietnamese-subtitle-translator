@@ -330,6 +330,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         autoTranslate: true,
         dubEnabled: true,
         perCueMode: false,
+        skipSameLang: true,
         budgetDailyUsd: COST.BUDGET_DEFAULTS.daily,
         budgetVideoUsd: COST.BUDGET_DEFAULTS.video
     });
@@ -337,6 +338,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (autoTranslateBox) autoTranslateBox.checked = savedAi.autoTranslate !== false;
     const autoDubBox = document.getElementById("autoDub");
     if (autoDubBox) autoDubBox.checked = savedAi.dubEnabled !== false;
+    const skipSameLangBox = document.getElementById("skipSameLang");
+    if (skipSameLangBox) skipSameLangBox.checked = savedAi.skipSameLang !== false;
     const perCueBox = document.getElementById("perCueMode");
     if (perCueBox) perCueBox.checked = !!savedAi.perCueMode;
     const budgetDailyInput = document.getElementById("budgetDailyUsd");
@@ -599,7 +602,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const dubSaved = await chrome.storage.sync.get({
         dubVoiceName: "", dubDuck: 0.2, dubVolume: 1, dubProvider: "vieneu", dubPrepareWait: true, dubSecondVoice: false,
-        dubGeminiVoice: "Kore", dubGeminiVoice2: "Charon", dubTtsModel: "",
+        dubGeminiVoice: "Kore", dubGeminiVoice2: "Charon", dubTtsModel: "", dubMaxRate: 0,
         dubLocalVoice: "", dubLocalVoice2: ""
     });
 
@@ -670,6 +673,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (prepareWaitBox) prepareWaitBox.checked = dubSaved.dubPrepareWait !== false;
     if (gVoiceSel) gVoiceSel.value = dubSaved.dubGeminiVoice;
     if (gVoice2Sel) gVoice2Sel.value = dubSaved.dubGeminiVoice2;
+    const maxRateSel = document.getElementById("dubMaxRate");
+    if (maxRateSel) maxRateSel.value = String(Number(dubSaved.dubMaxRate) || 0);
     if (ttsModelInput) {
         ttsModelInput.value = dubSaved.dubTtsModel || "";
         ttsModelInput.placeholder = COST.DEFAULT_MODELS.tts;
@@ -781,6 +786,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             autoTranslate: autoTranslateBox ? autoTranslateBox.checked : true,
             dubEnabled: autoDubBox ? autoDubBox.checked : true,
             perCueMode: perCueBox ? perCueBox.checked : false,
+            skipSameLang: skipSameLangBox ? skipSameLangBox.checked : true,
             budgetDailyUsd: budgetDailyInput ? Math.max(0, Number(budgetDailyInput.value) || 0) : COST.BUDGET_DEFAULTS.daily,
             budgetVideoUsd: budgetVideoInput ? Math.max(0, Number(budgetVideoInput.value) || 0) : COST.BUDGET_DEFAULTS.video,
 
@@ -800,6 +806,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             dubGeminiVoice: gVoiceSel ? gVoiceSel.value : "Kore",
             dubGeminiVoice2: gVoice2Sel ? gVoice2Sel.value : "Charon",
             dubTtsModel: ttsModelInput ? ttsModelInput.value.trim() : "",
+            dubMaxRate: maxRateSel ? Number(maxRateSel.value) || 0 : 0,
             dubLocalVoice: localVoiceSel ? localVoiceSel.value : "",
             dubLocalVoice2: localVoice2Sel ? localVoice2Sel.value : ""
         };
@@ -836,8 +843,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveTimer = setTimeout(saveNow, 350);
     }
     const area = document.querySelector(".content-area") || document.body;
-    area.addEventListener("input", scheduleSave, true);
-    area.addEventListener("change", scheduleSave, true);
+    // backup controls are not settings: ticking "include the key" must not rewrite every key
+    const saveUnlessBackup = e => { if (!(e.target && e.target.dataset && e.target.dataset.noSave)) scheduleSave(); };
+    area.addEventListener("input", saveUnlessBackup, true);
+    area.addEventListener("change", saveUnlessBackup, true);
     document.addEventListener("click", e => {
         if (e.target.closest(".mode-btn, .color-dot, #resetDefaultBtn")) scheduleSave();
     }, true);
@@ -1081,6 +1090,64 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Giá trị ban đầu coi như đã lưu (tránh ghi thừa khi vừa mở trang)
     lastSaved = JSON.stringify(collectSettings());
+
+    // ---- Backup / restore (settings-backup.js) ----
+    const BK = window.CST_BACKUP;
+    const backupStatus = document.getElementById("backupStatus");
+    const sayBackup = (msg, warn) => {
+        if (!backupStatus) return;
+        backupStatus.textContent = msg;
+        backupStatus.style.color = warn ? "var(--primary)" : "";
+    };
+    const exportBtn = document.getElementById("backupExport");
+    if (BK && exportBtn) exportBtn.addEventListener("click", async () => {
+        try {
+            await saveNow();                                   // a change still waiting for its 350 ms
+            const sync = await chrome.storage.sync.get(null);
+            const local = await chrome.storage.local.get(null);
+            const includeKey = !!(document.getElementById("backupIncludeKey") || {}).checked;
+            const data = BK.buildBackup(sync, local, { includeKey, appVersion: chrome.runtime.getManifest ? chrome.runtime.getManifest().version : "" });
+            const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = BK.fileName();
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
+            const n = Object.keys(data.local).length;
+            sayBackup(`✓ Đã xuất ${Object.keys(data.sync).length} mục cài đặt${n ? `, phụ đề đã sửa của ${n} video` : ""}${data.hasKey ? ", kèm API Key" : includeKey ? " (chưa có API Key nào để kèm)" : ", không kèm API Key"}. Tệp nằm trong thư mục Tải về.`);
+        } catch (e) {
+            sayBackup(`⚠ Chưa xuất được: ${e.message}`, true);
+        }
+    });
+    const importBtn = document.getElementById("backupImport");
+    const fileInput = document.getElementById("backupFile");
+    if (BK && importBtn && fileInput) {
+        importBtn.addEventListener("click", () => { fileInput.value = ""; fileInput.click(); });
+        fileInput.addEventListener("change", async () => {
+            const file = fileInput.files && fileInput.files[0];
+            if (!file) return;
+            const parsed = BK.parseBackup(await file.text());
+            if (!parsed.ok) { sayBackup(`⚠ ${parsed.error}`, true); return; }
+            const sm = parsed.summary;
+            const when = sm.exported ? new Date(sm.exported).toLocaleString("vi-VN") : "không rõ";
+            const ask = `Nhập tệp sao lưu (tạo lúc ${when}${sm.app ? `, phiên bản ${sm.app}` : ""})?\n\n` +
+                `- ${sm.settings} mục cài đặt${sm.hasKey ? ", kèm API Key" : " (không có API Key: giữ khóa đang dùng)"}\n` +
+                `- ${sm.edits} dòng phụ đề đã sửa trên ${sm.videos} video\n\n` +
+                "Cài đặt hiện tại sẽ bị thay bằng nội dung trong tệp.";
+            if (!confirm(ask)) { sayBackup("Đã hủy, không đổi gì."); return; }
+            try {
+                clearTimeout(saveTimer);                       // the form on screen is about to be stale
+                await chrome.storage.sync.set(parsed.sync);
+                if (Object.keys(parsed.local).length) await chrome.storage.local.set(parsed.local);
+                sayBackup("✓ Đã nhập. Đang tải lại trang Cài đặt…");
+                setTimeout(() => location.reload(), 600);
+            } catch (e) {
+                sayBackup(`⚠ Chưa nhập được: ${e.message}`, true);
+            }
+        });
+    }
     if (statusEl) {
         statusEl.textContent = "Mọi thay đổi được tự lưu và áp dụng ngay";
         statusEl.classList.add("show");
