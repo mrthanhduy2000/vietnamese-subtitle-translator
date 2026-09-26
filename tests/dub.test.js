@@ -178,13 +178,6 @@ test("khớp thời lượng: câu quá dài so với lời gốc bị đánh d�
     assert.ok(p.sps <= PLAN.LIMITS.maxSps + 0.05, "không ép tốc độ vượt trần");
 });
 
-test("rút gọn lời nói chỉ được chấp nhận khi giữ nguyên số liệu và thuật ngữ", () => {
-    const orig = "Mô hình GPT-4 có khoảng 175 tỷ tham số và được huấn luyện trên 300 tỷ token.";
-    assert.equal(PLAN.condensedIsSafe(orig, "GPT-4 có khoảng 175 tỷ tham số, huấn luyện trên 300 tỷ token.").ok, true);
-    assert.equal(PLAN.condensedIsSafe(orig, "Mô hình có nhiều tham số, huấn luyện trên 300 tỷ token.").ok, false, "mất số liệu và tên mô hình");
-    assert.equal(PLAN.condensedIsSafe(orig, orig).ok, false, "không ngắn hơn");
-});
-
 test("giọng liền mạch: tốc độ hai đoạn sát nhau không nhảy đột ngột", () => {
     const plans = PLAN.planAll(PLAN.buildDubScript(lectureGroups()));
     for (let i = 1; i < plans.length; i++) {

@@ -107,8 +107,7 @@
     const DEFAULT_MODELS = {
         cheap: AUTO,                         // model chính: mọi phụ đề
         strong: "gemini-3.5-flash-lite",     // model nâng cấp: chỉ câu khó / dịch lại ở chế độ Cao cấp
-        tts: "gemini-2.5-flash-preview-tts", // giọng AI: key không có quyền 2.5 thì dùng 3.1 TTS
-        universal: "gemini-3.1-flash-lite"   // model rẻ nhất mọi key đều gọi được (dùng cho việc phụ, ví dụ rút gọn lời nói)
+        tts: "gemini-2.5-flash-preview-tts"  // giọng AI: key không có quyền 2.5 thì dùng 3.1 TTS
     };
 
     // Model đã bị Google tắt / tên cũ không còn hợp lệ -> model thay thế

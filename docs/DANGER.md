@@ -67,14 +67,19 @@ cooldown survives.
 Persisted: `accessMap` (`modelAccess`) and the cost `ledger`. But the ledger save is debounced, so a
 worker kill can lose the most recent cost entries.
 
-## 5. Three retry layers that multiply
+## 5. Retry layers that multiply
 
-`translateWithRetry` (3 linear retries plus a MyMemory fallback), inside it `geminiCall` (its own
-retries plus per-model cooldowns), inside it `callGeminiUnit` (a model fallback loop that also
-degrades the response schema and thinking config).
+`translateUnitMiss` walks the model chain (`COST.modelChain`, capped at the mode's price) and moves
+to the next model on `NEXT_MODEL_ON` (404 / not for this key, rate limit, daily quota, overloaded,
+bad output, blocked); a timeout, key, payment or request error goes straight to Google. Inside it
+`callGeminiUnit` (up to 3 passes: drops the JSON schema or thinking config the model refuses,
+doubles a truncated output once), inside that `geminiCall` (retries only 5xx / network, 2 for the
+first model of the chain and 0 for the models after it, plus per-model cooldowns). The Google
+fallback is `translateWithRetry` (2 tries plus MyMemory), one sentence per request, all at once.
 
 Adding one retry at the bottom multiplies latency and spend at the top. Change the count in one
-place only, and check what the other two do with it.
+place only, and check what the other layers do with it. Measured worst case with every model
+overloaded: 5 Gemini calls, then Google.
 
 ## 6. YouTube DOM selectors
 
@@ -86,9 +91,10 @@ this is the first place to look, and there is no test that can catch it.
 ## 7. Observers and timers must come down in the right order
 
 MutationObservers in both `content.js` and `youtube.js`, plus `classObserver`, `resizeObserver`,
-`domCaptionObserver`, a 700ms menu repaint, 800 and 1000ms navigation polls, and a
-`requestVideoFrameCallback` loop. Every one of them needs an explicit teardown in the disable path.
-Set the `dead` flag first, then remove nodes, then disconnect.
+a 700ms menu repaint, 800 and 1000ms navigation polls, and a `requestVideoFrameCallback` loop.
+Every one of them needs an explicit teardown in the disable path. Set the `dead` flag first, then
+remove nodes, then disconnect. `content.js` keeps its polls in `state.intervals`; the dead path
+clears them all (1.7.3: the navigation poll used to survive and rebuild a dead button).
 
 ## 8. `options.js` saves every key on every change
 

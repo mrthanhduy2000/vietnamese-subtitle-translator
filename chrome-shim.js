@@ -39,15 +39,13 @@
     const defaultData = {
         dualMode: false,
         perCueMode: false,
-        styleOriginal: false,
         originalFirst: false,
         glossaryEnabled: true,
         userKeep: "",
         userNormalize: "",
         enabledGroups: ["tech", "academic", "cybersecurity", "sustainability", "realestate", "legal"],
         dubVoiceName: "",
-        dubDuck: 0.12,
-        dubAutoRate: true
+        dubDuck: 0.12
     };
 
     // Ensure storage has defaults

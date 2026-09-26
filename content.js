@@ -19,7 +19,6 @@ const state = {
     active: false,
     dualMode: false,
     perCueMode: false,
-    styleOriginal: false,
     glossaryKeep: [],
     glossaryNormalize: [],
     glossaryEnabled: true,
@@ -29,9 +28,6 @@ const state = {
     reLoose: null,
     reRisky: null,
     dubEnabled: true,
-    dubVoiceName: "",
-    dubDuck: 0.12,
-    dubAutoRate: true,
     originalFirst: false,
     originalCueTexts: null,
     originalCues: null,
@@ -1083,8 +1079,19 @@ const CS_BTN = `.cst-cs-btn[data-cst-gen="${CS_GEN}"]`;
 const CS_OVERLAY = `.cst-cs-overlay[data-cst-gen="${CS_GEN}"]`;
 const cs = { viCues: [], origCues: [], renderKey: "", raf: 0, timer: 0, styleKey: "", panelOpen: false, menuOpen: false, edits: null };
 
+// The render loop runs every frame and asks where the video and the player box are. Finding them
+// walks the video's ancestors and measures every control-bar button (and, on generic pages, every
+// video): layout reads, 60 times a second. The answer only changes when the page reflows, so it is
+// kept for CS_MEMO_MS, and dropped at once when the element leaves the page. Building the button
+// always looks afresh (csControlGroup).
+const CS_MEMO_MS = 500;
+const csMemo = { box: null, boxAt: -Infinity, video: null, videoAt: -Infinity };
+const csNow = () => (typeof performance !== "undefined" && performance.now ? performance.now() : Date.now());
+
 function csVideo() {
     if (getCurrentSite() !== "generic") return document.querySelector("video");
+    const now = csNow();
+    if (csMemo.video && csMemo.video.isConnected && now - csMemo.videoAt < CS_MEMO_MS) return csMemo.video;
     // Generic pages can hold several videos (previews, ads, a muted hero loop): take the biggest
     // one on screen, a playing one first
     let best = null, bestScore = 0;
@@ -1095,6 +1102,8 @@ function csVideo() {
         const score = area * (v.paused ? 1 : 2);
         if (score > bestScore) { bestScore = score; best = v; }
     }
+    csMemo.video = best;
+    csMemo.videoAt = now;
     return best;
 }
 
@@ -1136,11 +1145,17 @@ function csControlGroup() {
 // The container holding both the picture and the control bar: the overlay goes in there so it
 // lines up with the video and rides along into fullscreen.
 function csPlayerBox() {
+    const now = csNow();
+    if (csMemo.box && csMemo.box.isConnected !== false && now - csMemo.boxAt < CS_MEMO_MS) return csMemo.box;
     const parts = csPlayerParts();
-    if (parts) return parts.box;
-    const v = csVideo();
-    if (!v) return null;
-    return getCurrentSite() === "generic" ? csFrame(v) : v.parentElement;
+    let box = parts ? parts.box : null;
+    if (!box) {
+        const v = csVideo();
+        box = !v ? null : getCurrentSite() === "generic" ? csFrame(v) : v.parentElement;
+    }
+    csMemo.box = box;
+    csMemo.boxAt = now;
+    return box;
 }
 
 // Generic page, no control bar found: the video's parent can be much bigger than the picture
@@ -1184,6 +1199,7 @@ function csHideOlderGen(root, selector) {
 
 function csCreateButton() {
     const kit = window.CST_PLAYER_UI;
+    csMemo.boxAt = -Infinity;                     // the bar may have been rebuilt: look afresh
     const ctl = csControlGroup();
     if (kit && !ctl && getCurrentSite() === "generic") return csCreateFloatingButton(kit);
     if (!kit || !ctl) return null;
@@ -1753,8 +1769,7 @@ async function courseraAutoDub() {
     if (!isTrackSite(getCurrentSite()) || !state.dubEnabled || !api || api.dub.enabled || state.dubStarting || !state.active) return false;
     const videoEl = csVideo();
     if (!videoEl) return false;
-    const icon = document.querySelector(`.cst-dub-icon[data-cst-gen="${CS_GEN}"]`);
-    const container = (icon && icon.parentElement) || videoEl.parentElement;
+    const container = csPlayerBox() || videoEl.parentElement;
     state.dubStarting = true;
     try {
         const ok = await api.start({ video: videoEl, container, getGroups: () => state.dubGroups || [], quiet: true });
@@ -1767,6 +1782,7 @@ async function courseraAutoDub() {
 
 function watchNavigation() {
     const checkUrl = () => {
+        if (state.dead) return;
         if (location.href !== state.currentUrl) {
             console.log("Da chuyen bai giang, dat lai trang thai");
             state.currentUrl = location.href;
@@ -1848,8 +1864,7 @@ async function loadGlossary() {
 async function loadSettings() {
     try {
         const saved = await chrome.storage.sync.get({
-            dualMode: null, perCueMode: false, styleOriginal: false, originalFirst: false,
-            dubVoiceName: "", dubDuck: 0.12, dubAutoRate: true,
+            dualMode: null, perCueMode: false, originalFirst: false,
             subStyle: null, costMode: "balanced", autoTranslate: true, dubEnabled: true, skipSameLang: true,
             uiTheme: "auto"
         });
@@ -1860,11 +1875,7 @@ async function loadSettings() {
         state.dualMode = window.CST_STYLE ? window.CST_STYLE.resolveDual(saved) : !!saved.dualMode;
         state.uiTheme = saved.uiTheme || "auto";
         state.perCueMode = saved.perCueMode;
-        state.styleOriginal = saved.styleOriginal;
         state.originalFirst = saved.originalFirst;
-        state.dubVoiceName = saved.dubVoiceName;
-        state.dubDuck = saved.dubDuck;
-        state.dubAutoRate = saved.dubAutoRate;
         if (saved.subStyle) state.subStyle = saved.subStyle;
         await loadGlossary();
     } catch (err) {
@@ -1898,6 +1909,13 @@ async function init() {
                     state.dualMode = !!changes.dualMode.newValue;
                     cs.renderKey = "";            // repaint now, not at the next cue
                 }
+                // The popup's "Tiếng Anh ở trên" applied only after the next Translate click
+                if (changes.originalFirst) {
+                    state.originalFirst = !!changes.originalFirst.newValue;
+                    cs.renderKey = "";
+                    repositionCues();
+                    if (typeof yt !== "undefined") yt.renderKey = "";
+                }
                 if (changes.costMode) state.costMode = changes.costMode.newValue;
                 if (changes.autoTranslate) state.autoTranslate = changes.autoTranslate.newValue !== false;
                 if (changes.skipSameLang) state.skipSameLang = changes.skipSameLang.newValue !== false;
@@ -1905,10 +1923,6 @@ async function init() {
                 if (changes.glossaryEnabled || changes.enabledGroups || changes.userKeep || changes.userNormalize) {
                     loadGlossary();
                 }
-                // Long tieng: cap nhat giong, muc giam am va toc do doc ngay
-                if (changes.dubVoiceName) state.dubVoiceName = changes.dubVoiceName.newValue;
-                if (changes.dubDuck) state.dubDuck = changes.dubDuck.newValue;
-                if (changes.dubAutoRate) state.dubAutoRate = changes.dubAutoRate.newValue;
                 if (changes.dubEnabled) {
                     state.dubEnabled = changes.dubEnabled.newValue !== false;
                     if (isTrackSite(getCurrentSite())) {
@@ -1961,6 +1975,10 @@ async function init() {
         if (ok) return;
         clearInterval(kt);
         state.dead = true;
+        // The navigation poll and the generic-page retries too: left running, a lecture change after
+        // Reload made this dead copy build its button again and hide the live one (csHideOlderGen)
+        state.intervals.forEach(id => clearInterval(id));
+        state.intervals = [];
         try { if (window.CST_DUB) window.CST_DUB.stop(); } catch (e) { /* bỏ qua */ }
         try { if (state.active) disableTranslation(); } catch (e) { /* bỏ qua */ }
         state.observers.forEach(o => { try { o.disconnect(); } catch (e) { /* bỏ qua */ } });
@@ -2053,7 +2071,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.method === "translate") {
         state.dualMode = !!request.dualMode;
         state.perCueMode = !!request.perCueMode;
-        state.styleOriginal = !!request.styleOriginal;
         state.originalFirst = !!request.originalFirst;
         if (request.dubEnabled !== undefined) {
             state.dubEnabled = !!request.dubEnabled;

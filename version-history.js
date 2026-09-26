@@ -4,6 +4,17 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.7.3", luc: "01:17 27/09/2026", ten: "Rà soát toàn bộ: ít gọi API hơn, sửa lỗi sau khi Tải lại, gọn mã",
+            y: [
+                "YouTube: mở lại một video đã xem dở không còn phải trả tiền dịch lại. Trước đây cách gom câu để gửi Gemini phụ thuộc vị trí đang xem, nên lần mở sau (YouTube tự tiếp tục ở chỗ cũ) gửi câu theo cách khác và bộ nhớ đệm không nhận ra. Nay mỗi câu luôn thuộc đúng một nhóm cố định.",
+                "Gemini bị giới hạn tốc độ, hết hạn mức ngày hoặc quá tải ở model rẻ nhất: tiện ích dịch bằng model kế tiếp (không vượt mức giá của chế độ đang chọn) thay vì chuyển ngay sang Google không có ngữ cảnh. Bản dịch tạm bằng Google cũng không còn bị lưu vĩnh viễn cho video đó.",
+                "Sửa lỗi Coursera: sau khi Tải lại tiện ích mà chưa F5, chuyển sang bài giảng khác có thể làm hiện lại nút cũ đã mất tác dụng và che nút mới.",
+                "Công tắc \"Tiếng Anh ở trên\" trong bảng điều khiển áp dụng ngay khi đang xem. Bỏ công tắc \"Làm mờ dòng tiếng Anh\" vì nó chưa bao giờ có tác dụng (cỡ và màu dòng gốc chỉnh trong Cài đặt).",
+                "Nhẹ máy hơn: phụ đề Coursera không còn đo lại cả thanh điều khiển 60 lần mỗi giây; mở tab YouTube không còn đọc toàn bộ kho lưu trữ mỗi lần (một lần mỗi ngày); kho audio trong trang giới hạn 16 MB.",
+                "Gỡ mã không còn dùng: bộ rút gọn lời thoại (vốn bị khóa vĩnh viễn, nay không thể bật lại), nhánh đọc phụ đề trực tiếp chưa bao giờ chạy, bộ chặn khoảng lặng, nút tròn đời cũ. Bản dịch dự phòng Google dịch các câu song song, nhanh hơn."
+            ]
+        },
+        {
             v: "1.7.2", luc: "00:32 27/09/2026", ten: "Giọng sạch hơn, hết tiếng ù trầm, ngắt nghỉ theo mệnh đề",
             y: [
                 "Lọc tiếng ù trầm (dưới 80 Hz với giọng nữ, 60 Hz với giọng nam): bản thu mẫu của Mỹ Duyên có tiếng ù trầm nằm dưới cả lời nói, giọng cô ấy lại không có âm nào thấp như vậy, nên cắt đi không làm mỏng giọng.",

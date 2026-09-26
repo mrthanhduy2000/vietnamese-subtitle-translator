@@ -84,13 +84,9 @@
         firstBatchSyl: 40,        // lượt ĐẦU sau khi bật / tua: chỉ một câu ngắn -> có tiếng sớm nhất
         thinBuffer: 1.5,          // audio sẵn phía trước < (độ trễ TTS x hệ số này) -> cho chạy 2 lượt để bắt kịp
         keepIfDone: 0.6,          // lượt cũ đã chạy >= 60% thời gian thường lệ: để chạy nốt (audio đã gần như chắc chắn bị tính tiền)
-        condenseMinOver: 0.6,     // rút gọn câu chữ chỉ khi vượt khung > 0,6 s VÀ > 20% (vượt nhẹ: co giãn cục bộ)
-        condenseMinRatio: 0.2,
-        condenseLeadTime: 2.5,
-        condenseMaxWait: 2500,
         denseRatio: 1.15,         // câu phải đọc nhanh hơn 1,15x mới vừa khung: rút khoảng nghỉ trong câu (không bỏ chữ)
         lagMaxSpeechRate: 1.4,    // đang trễ > lagBoostAt giây: được đọc nhanh tới 1,4x (Mỹ Duyên ~5 âm tiết/giây,
-        lagBoostAt: 1.0,          // ngang tốc độ đọc tin tức) để bắt kịp, KHÔNG bỏ chữ    // ms: quá mức này thì tạo audio với câu gốc, không chờ rút gọn nữa    // cần ít nhất bấy nhiêu giây trước khi đoạn phát mới kịp rút gọn
+        lagBoostAt: 1.0,          // ngang tốc độ đọc tin tức) để bắt kịp, KHÔNG bỏ chữ
         // Adapt to how fast the video speaks (1.6.1). A slow voice (Kim Thanh, 3.8 syllables/s) on a
         // fast speaker hit the fixed 1.3x ceiling sentence after sentence and fell ~2 s behind. The
         // engine now reads the pace of the next paceWindow seconds: the speed each sentence needs
@@ -360,7 +356,9 @@
     // ============================================================
     class DubEngine {
         // deps: { video, getGroups, providers:{primary, fallback}, now, setInterval, clearInterval,
-        //         createAudio(url), createObjectURL(bytes), revokeObjectURL, onStatus, condense(plan) }
+        //         createAudio(url), createObjectURL(bytes), revokeObjectURL, onStatus }
+        // There is no condensing path: a line is always spoken whole (CLAUDE.md rule 1). 1.7.3 removed
+        // the machinery that a single `condense: null` in dubbing.js used to keep switched off.
         constructor(deps, settings = {}) {
             this.d = deps;
             this.settings = { duck: 0.2, volume: 1, ...settings };
@@ -372,7 +370,6 @@
             this.rendered = new Map();      // planId -> { url, duration, stretch, el }
             this.pending = new Set();
             this.failed = new Map();        // planId -> số lần lỗi
-            this.condensed = new Set();
             this.cacheChecked = new Set();  // planId đã tra kho audio (tránh tra lại)
             this.jobs = new Map();          // jobId -> { planIds, t0, orphan }
             this.jobSeq = 0;
@@ -385,7 +382,7 @@
             this.warmup = true;             // lượt TTS đầu tiên nhỏ (có tiếng sớm nhất)
             this.lastSpokenStart = null;    // mốc bắt đầu của câu vừa nói (hàng đợi lời nói)
             this.lastT = null;
-            this.stats = { started: [], corrections: 0, dropped: 0, errors: 0, requests: 0, lagMax: 0, cacheHits: 0, ttsPlans: 0, aborted: 0, condenseCalls: 0 };
+            this.stats = { started: [], corrections: 0, dropped: 0, errors: 0, requests: 0, lagMax: 0, cacheHits: 0, ttsPlans: 0, aborted: 0 };
             this.duckFactor = 1;
             this.baseVolume = null;
             this.lastSetVolume = null;
@@ -474,16 +471,7 @@
             const speakerState = this.settings.secondVoice && isFinite(first) ? PLAN.speakerStateBefore(all, first) : null;
             const script = this.oneVoice(PLAN.buildDubScript(groups, { headAt: free ? this.headAt : null, speakerState, ...(free ? FREE_SEGMENTS : {}) }));
             const opts = { voiceModel: this.provider.voiceModel };
-            const plans = PLAN.planAll(script, opts);
-            // Giữ đoạn đã rút gọn / đã render (khóa theo id + nội dung)
-            this.plans = plans.map(p => {
-                const old = this.planById.get(p.id);
-                if (old && old.subtitleText === p.subtitleText && old.condensedText) {
-                    const again = PLAN.planSegment(script[p.index], { ...opts, overrideText: old.condensedText });
-                    if (again) { again.condensedText = old.condensedText; return again; }
-                }
-                return p;
-            });
+            this.plans = PLAN.planAll(script, opts);
             this.planById = new Map(this.plans.map(p => [p.id, p]));
             // Audio đã tạo cho lời thoại KHÁC (đoạn được cắt lại sau khi tua, bản dịch được sửa):
             // bỏ để tạo lại cho đúng lời, trừ đoạn đang nói
@@ -1124,10 +1112,7 @@
 
         schedule(t) {
             if (!this.provider.caps.prerender) return;
-            // Rút gọn câu (gọi Gemini) chỉ được giữ hàng tạo audio tối đa condenseMaxWait: Gemini
-            // chậm / bị giới hạn tốc độ từng chặn 8 đến 16 giây -> giọng im cả quãng
-            const condenseBlocking = this.busyCondense && this.d.now() - this.condenseT0 < SYNC.condenseMaxWait;
-            if (this.busyLookup || condenseBlocking || this.budgetBlocked) return;
+            if (this.busyLookup || this.budgetBlocked) return;
             // Bình thường chỉ MỘT lượt TTS cho vị trí đang xem. Khi audio sẵn phía trước sắp
             // cạn (mạng chậm, vừa tua) cho chạy thêm lượt thứ hai để bắt kịp: KHÔNG tốn thêm
             // (tiền tính theo độ dài audio, không theo số lượt). Lượt cũ chạy nốt không chặn
@@ -1162,14 +1147,9 @@
                 return;
             }
 
-            // 2. Câu vượt khung ĐÁNG KỂ: rút gọn câu chữ TRƯỚC khi tạo audio (chỉ một lần)
             const first = todo[0];
-            if (!(this.provider.caps && this.provider.caps.free) && this.needsCondense(first) && first.start - t >= SYNC.condenseLeadTime) {
-                this.condenseBeforeTts(first);
-                return;
-            }
 
-            // 3. TTS: gộp các đoạn liền nhau cùng người nói, không vượt tầm nhìn. Lượt đầu
+            // 2. TTS: gộp các đoạn liền nhau cùng người nói, không vượt tầm nhìn. Lượt đầu
             // sau khi bật / tua chỉ lấy một câu ngắn để có tiếng ngay (audio nhỏ về nhanh hơn).
             const warmup = this.warmup && !this.conservative;
             // Starving (nothing buffered ahead): a big batch is self-defeating, since none of it
@@ -1187,7 +1167,6 @@
                 const inSpill = p.start <= to + SYNC.batchSpill && !this.rendered.has(p.id) && !this.pending.has(p.id);
                 if (!(inWindow(p) || inSpill) || p.speaker !== first.speaker || syl + s > maxSyl || (this.failed.get(p.id) || 0) > 0) break;
                 if (p.start - batch[batch.length - 1].end > 3) break;
-                if (!(this.provider.caps && this.provider.caps.free) && this.needsCondense(p) && p.start - t >= SYNC.condenseLeadTime) break;   // để lượt sau rút gọn trước
                 batch.push(p);
                 syl += s;
             }
@@ -1230,12 +1209,6 @@
             const next = i >= 0 ? this.plans[i + 1] : null;
             const win = Math.max(0.8, next ? Math.min(next.start - p.start, (p.targetDuration || 0) + 1.5) : (p.targetDuration || 0) + 0.25);
             return (syl / Math.max(1, sps)) / win;
-        }
-
-        needsCondense(p) {
-            if (!this.d.condense || this.condensed.has(p.id) || p.condensedText) return false;
-            const over = p.overflow || 0;
-            return over > SYNC.condenseMinOver && over > SYNC.condenseMinRatio * Math.max(0.5, p.targetDuration);
         }
 
         async lookupCache(plans) {
@@ -1405,26 +1378,6 @@
                     try { this.provider.abort(jobId); } catch (e) { /* bỏ qua */ }
                 }
             }
-        }
-
-        async condenseBeforeTts(plan) {
-            this.busyCondense = true;
-            this.condenseT0 = this.d.now();
-            this.condensed.add(plan.id);
-            this.stats.condenseCalls++;
-            try {
-                const text = await this.d.condense(plan);
-                if (!text || !PLAN.condensedIsSafe(plan.text, text).ok) return;
-                const p = this.planById.get(plan.id);
-                // Về quá muộn: câu đã có audio (hoặc đang tạo) bằng lời gốc -> giữ nguyên
-                if (!p || this.rendered.has(p.id) || this.pending.has(p.id)) return;
-                p.condensedText = text;
-                this.sourceSig = "";
-                this.refresh(true);
-                const np = this.planById.get(plan.id);
-                if (np) this.cacheChecked.delete(np.id);   // lời nói mới -> khóa audio mới
-            } catch (e) { /* rút gọn thất bại: dùng câu gốc + co giãn cục bộ */ }
-            finally { this.busyCondense = false; }
         }
 
         onProviderError(e) {

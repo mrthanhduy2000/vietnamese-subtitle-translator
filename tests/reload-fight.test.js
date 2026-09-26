@@ -119,3 +119,35 @@ test("mã mới gặp mã CŨ chưa vá (còn xóa nút của thế hệ khác):
     const n = dom.pump();
     assert.ok(n < 50, `${n} lượt`);
 });
+
+test("Coursera after Reload: the dead copy stops its navigation poll too, so a lecture change cannot bring its button back (1.7.3)", async () => {
+    const intervals = new Map();
+    let seq = 0, alive = true;
+    const noop = () => {};
+    const el = () => ({ style: {}, dataset: {}, appendChild: noop, addEventListener: noop, setAttribute: noop, remove: noop });
+    const sandbox = {
+        console: { log: noop, warn: noop, error: console.error },
+        setTimeout: () => 0, clearTimeout: noop,
+        setInterval: f => { intervals.set(++seq, f); return seq; }, clearInterval: id => intervals.delete(id),
+        Promise, Map, Set, Math, JSON, Date, RegExp, Array, Object, String, Number,
+        location: { href: "https://www.coursera.org/learn/ml/lecture/a", hostname: "www.coursera.org", pathname: "/learn/ml/lecture/a" },
+        document: { readyState: "complete", title: "t", body: el(), head: el(), documentElement: el(), getElementById: () => null,
+            querySelector: () => null, querySelectorAll: () => [], getElementsByTagName: () => [], createElement: el, addEventListener: noop },
+        addEventListener: noop, postMessage: noop,
+        MutationObserver: class { observe() {} disconnect() {} },
+        chrome: {
+            storage: { sync: { get: async d => ({ ...d, autoTranslate: false }), set: async () => {} }, local: { get: async () => ({}), set: async () => {} }, onChanged: { addListener: noop } },
+            runtime: { get id() { return alive ? "ext" : undefined; }, lastError: null, onMessage: { addListener: noop }, sendMessage: noop }
+        }
+    };
+    sandbox.window = sandbox;
+    sandbox.globalThis = sandbox;
+    vm.createContext(sandbox);
+    for (const f of ["glossary.js", "subtitle-style.js", "content.js"]) vm.runInContext(read(f), sandbox);
+    for (let i = 0; i < 20 && intervals.size < 2; i++) await new Promise(r => setImmediate(r));
+    assert.ok(intervals.size >= 2, `navigation poll and liveness poll running (${intervals.size})`);
+    alive = false;                                   // Reload: this copy is orphaned
+    for (const f of [...intervals.values()]) f();
+    assert.equal(intervals.size, 0, "every poll of the dead copy is cleared");
+    assert.equal(vm.runInContext("state.dead", sandbox), true);
+});

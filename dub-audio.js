@@ -430,44 +430,6 @@
         return { samples: shrinkSilences(samples, sr, list), matched, soft, joined, breaths, pauses };
     }
 
-    // Downward expander for the gaps between words. Some VieNeu voices carry a hiss from their
-    // reference recording (measured: Mỹ Duyên's silence sits at -51 dB against -75 dB for Thục Đoan
-    // and Kim Thanh); speech masks it, the gaps do not. Frames under the silence threshold are
-    // pulled down by up to `depthDb`, with a smoothed gain so no word onset is clipped.
-    function gateNoise(samples, sr, opts = {}) {
-        // 1.6.8: gentler than 1.6.7 (was 18 dB below a fixed -30 dB-under-speech threshold, 30 ms
-        // hold), which also caught the soft decay of words and made word ends sound clipped. The
-        // threshold now follows the take's own noise floor: only frames within 6 dB of it count as a
-        // gap (Mỹ Duyên: floor ~-53 dB, gate under ~-47), never above 30 dB under speech. The gate
-        // holds 60 ms after a word, opens 40 ms before one, and releases over ~50 ms.
-        const depth = dbToLin(-(opts.depthDb != null ? opts.depthDb : 14));
-        const { frames, size } = frameRms(samples, sr, 10);
-        const sorted = Array.from(frames).filter(x => x > 1e-6).sort((a, b) => a - b);
-        if (!sorted.length) return samples;
-        const speechLevel = sorted[Math.floor(sorted.length * 0.9)];
-        const floor = sorted[Math.floor(sorted.length * 0.1)];
-        const th = Math.min(speechLevel * dbToLin(-30), Math.max(floor * dbToLin(6), dbToLin(-72)));
-        const open = new Uint8Array(frames.length);
-        for (let f = 0; f < frames.length; f++) if (frames[f] >= th) for (let k = Math.max(0, f - 4); k <= Math.min(frames.length - 1, f + 6); k++) open[k] = 1;
-        const target = Array.from(open, o => (o ? 1 : depth));
-        // smooth: open within 2 frames, close slowly
-        const g = new Float32Array(frames.length);
-        let cur = 1;
-        for (let f = 0; f < frames.length; f++) {
-            const t = target[f];
-            cur = t > cur ? cur + (t - cur) * 0.6 : cur + (t - cur) * 0.2;
-            g[f] = cur;
-        }
-        const out = new Float32Array(samples.length);
-        for (let i = 0; i < samples.length; i++) {
-            const f = Math.min(frames.length - 1, Math.floor(i / size));
-            const nx = Math.min(frames.length - 1, f + 1);
-            const w = (i - f * size) / size;
-            out[i] = samples[i] * (g[f] * (1 - w) + g[nx] * w);
-        }
-        return out;
-    }
-
     // ---------------- Spectral noise reduction (1.7.0) ----------------
     // In-place iterative radix-2 FFT (re, im: Float64Array of length n, n a power of two).
     function fft(re, im, inverse) {
@@ -703,7 +665,7 @@
     const api = {
         base64ToBytes, pcm16leToFloat, decodeWav, encodeWav, analyze, findSilences, trimSilence,
         normalize, fade, edgeJump, prepareSpeech, compressPauses, splitBySilence, slice, dbToLin, linToDb,
-        shrinkSilences, punctuationBreaks, textBreaks, spokenWeight, shapePauses, gateNoise, denoise, fft,
+        shrinkSilences, punctuationBreaks, textBreaks, spokenWeight, shapePauses, denoise, fft,
         highPass, cleanTake, startsVoiced
     };
     if (typeof module === "object" && module.exports) module.exports = api;

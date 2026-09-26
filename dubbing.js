@@ -35,12 +35,24 @@
     // ---------- Kho audio phía trang: L1 RAM (giữ qua các lần bật/tắt lồng tiếng) ----------
     // L2 bền vững (IndexedDB) nằm ở service worker (cst-cache.js): đọc qua tin nhắn,
     // còn GHI do chính service worker làm ngay khi nhận audio từ Gemini TTS.
+    // Capped by bytes too (1.7.3): at 48 kHz a take is ~0.5 to 1 MB, so 40 entries could hold ~40 MB
+    // in the page, on top of the engine's own copies of what is playing. 16 MB is ~170 s of speech;
+    // anything older comes back from the service worker's store.
     const audioL1 = new Map();
     const AUDIO_L1_MAX = 40;
+    const AUDIO_L1_BYTES = 16 * 1024 * 1024;
+    let audioL1Bytes = 0;
+    const recBytes = rec => (rec && rec.wav && rec.wav.byteLength) || 0;
     function l1Put(key, rec) {
+        if (audioL1.has(key)) audioL1Bytes -= recBytes(audioL1.get(key));
         audioL1.delete(key);
         audioL1.set(key, rec);
-        while (audioL1.size > AUDIO_L1_MAX) audioL1.delete(audioL1.keys().next().value);
+        audioL1Bytes += recBytes(rec);
+        while (audioL1.size > AUDIO_L1_MAX || (audioL1Bytes > AUDIO_L1_BYTES && audioL1.size > 1)) {
+            const oldest = audioL1.keys().next().value;
+            audioL1Bytes -= recBytes(audioL1.get(oldest));
+            audioL1.delete(oldest);
+        }
     }
     let startSeq = 0;
     const audioCache = {
@@ -68,7 +80,7 @@
         const eng = dub.engine;
         if (!eng) return { ok: false, error: "Video này chưa bật lồng tiếng" };
         const keys = await eng.audioKeysForVideo();
-        keys.forEach(k => audioL1.delete(k));
+        keys.forEach(k => { if (audioL1.has(k)) { audioL1Bytes -= recBytes(audioL1.get(k)); audioL1.delete(k); } });
         const r = await sendMessage({ action: "audioCacheDelete", keys });
         eng.forgetRendered();
         return { ok: !!(r && r.ok), removed: (r && r.removed) || 0 };
@@ -85,19 +97,6 @@
     async function readSettings() {
         try { return { ...DEFAULTS, ...(await chrome.storage.sync.get(DEFAULTS)) }; }
         catch (e) { return { ...DEFAULTS }; }
-    }
-
-    async function pickVietnameseVoice(preferredName) {
-        const voices = await new Promise(resolve => {
-            const v = speechSynthesis.getVoices();
-            if (v.length) return resolve(v);
-            speechSynthesis.addEventListener("voiceschanged", () => resolve(speechSynthesis.getVoices()), { once: true });
-            setTimeout(() => resolve(speechSynthesis.getVoices()), 1500);
-        });
-        const exact = preferredName && voices.find(v => v.name === preferredName);
-        if (exact) return exact;
-        const vi = voices.filter(v => (v.lang || "").toLowerCase().startsWith("vi"));
-        return vi.find(v => /premium|enhanced|natural|neural|nâng cao|cao cấp|tự nhiên/i.test(v.name)) || vi[0] || null;
     }
 
     // Chọn provider theo cài đặt: Gemini AI (tự nhiên, cần API Key) và giọng
@@ -219,14 +218,6 @@
             revokeObjectURL: url => URL.revokeObjectURL(url),
             createAudio: url => { const a = new Audio(url); a.preload = "auto"; return a; },
             audioCache,
-            // Rút gọn câu chữ bằng Gemini chỉ khi giọng chính là Gemini TTS. Với VieNeu (miễn phí,
-            // co giãn tốc độ đủ khớp) KHÔNG rút gọn: mỗi lần rút gọn chặn việc tạo audio trong
-            // lúc chờ Gemini và tranh hạn mức với việc dịch -> giọng im từng quãng
-            // VieNeu: rút gọn KHÔNG CHẶN, chỉ câu dài hơn khung rõ rệt và còn >= 6 giây nữa mới phát
-            // (người nói nhanh); chi phí rất nhỏ (model rẻ nhất, vài chục token, có kho đệm)
-            // KHÔNG BAO GIỜ rút gọn lời thoại (mọi giọng): rút gọn làm mất nội dung người nói muốn
-            // truyền đạt. Người nói nhanh được xử lý bằng tốc độ đọc và rút khoảng nghỉ trong câu.
-            condense: null,
             onStatus: st => { dub.lastStatus = st; renderBadge(); },
             // Tua tới đoạn chưa có audio: chờ chuẩn bị (nếu bật) để có tiếng ngay khi phát tiếp
             onReset: reason => {
@@ -475,5 +466,5 @@
         if (dub.engine) { try { dub.engine.refresh(true); } catch (e) { /* bỏ qua */ } }
     }
 
-    window.CST_DUB = { dub, start, stop, describeHealth, level, refreshText, forgetVideoAudio, pickVietnameseVoice, showDubBadge, hideDubBadge, readSettings, prepareHold, hold };
+    window.CST_DUB = { dub, start, stop, describeHealth, level, refreshText, forgetVideoAudio, showDubBadge, hideDubBadge, readSettings, prepareHold, hold };
 })();

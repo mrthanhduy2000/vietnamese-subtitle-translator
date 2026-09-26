@@ -665,7 +665,7 @@
 
     function planSegment(seg, opts = {}) {
         const model = { ...DEFAULT_VOICE_MODEL, ...(opts.voiceModel || {}) };
-        const speechText = adaptForSpeech(opts.overrideText || seg.speechSource || seg.subtitleText);
+        const speechText = adaptForSpeech(seg.speechSource || seg.subtitleText);
         const intent = classifyIntent(seg.srcText, speechText);
         const P = INTENT_PROSODY[intent.type] || INTENT_PROSODY.neutral;
 
@@ -824,19 +824,9 @@
         return smoothRates(plans);
     }
 
-    // Kiểm tra bản rút gọn lời nói (do Gemini đề xuất) không làm mất thông tin
-    // cứng: số, thuật ngữ viết hoa/viết tắt, tên riêng phải còn nguyên.
-    function condensedIsSafe(original, condensed) {
-        const keyTokens = s => (String(s).match(/\d+(?:[.,]\d+)?|[A-Z][A-Za-z0-9+.#-]*[A-Z0-9][A-Za-z0-9+.#-]*|[A-Z][a-z]+(?:\s[A-Z][a-z]+)*/g) || []);
-        const a = keyTokens(original), b = new Set(keyTokens(condensed));
-        const missing = a.filter(x => !b.has(x) && !/^(?:[A-ZĐ][a-zà-ỹ]+)$/.test(x));
-        const shorter = countSyllables(condensed) <= countSyllables(original) * 0.93;
-        return { ok: missing.length === 0 && shorter && condensed.trim().length > 0, missing, shorter };
-    }
-
     const api = {
         numberToVietnamese, countSyllables, adaptForSpeech, classifyIntent, buildPhrases, speakerStateBefore,
-        buildDubScript, stripSoundNotes, planSegment, planAll, smoothRates, speechSeconds, pauseSeconds, rateForSps, rateForSpeedup, speedMultiplier, condensedIsSafe,
+        buildDubScript, stripSoundNotes, planSegment, planAll, smoothRates, speechSeconds, pauseSeconds, rateForSps, rateForSpeedup, speedMultiplier,
         DEFAULT_VOICE_MODEL, LIMITS, INTENT_PROSODY, PAUSE
     };
     if (typeof module === "object" && module.exports) module.exports = api;

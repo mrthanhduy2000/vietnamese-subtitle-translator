@@ -128,8 +128,10 @@ let keyBlock = null;                // { key, until, type, reason }: khóa sai /
 
 const sleep = (ms, signal) => new Promise((resolve, reject) => {
     if (signal && signal.aborted) return reject(new GeminiError("aborted", "Đã hủy"));
-    const t = setTimeout(resolve, ms);
-    if (signal) signal.addEventListener("abort", () => { clearTimeout(t); reject(new GeminiError("aborted", "Đã hủy")); }, { once: true });
+    // the abort listener goes when the wait ends, not only when it fires: a job's signal lives on
+    const onAbort = () => { clearTimeout(t); reject(new GeminiError("aborted", "Đã hủy")); };
+    const t = setTimeout(() => { if (signal) signal.removeEventListener("abort", onAbort); resolve(); }, ms);
+    if (signal) signal.addEventListener("abort", onAbort, { once: true });
 });
 
 function retryDelayMs(body) {
@@ -383,7 +385,9 @@ function parseUnitJson(raw) {
 
 let unitSchemaUnsupported = false;
 
-async function callGeminiUnit(req, apiKey, model) {
+// retries: geminiCall's retries for a 5xx / network error. The first model of a chain gets 2; a model
+// tried after another one failed gets none, so falling through the chain adds one quick call each.
+async function callGeminiUnit(req, apiKey, model, retries = 2) {
     const { sys, user } = buildUnitPrompt(req);
     const srcChars = req.sentences.join(" ").length;
     const timeoutMs = Math.min(15000, 4500 + srcChars * 6 + (req.refine ? 2000 : 0));
@@ -408,7 +412,7 @@ async function callGeminiUnit(req, apiKey, model) {
                 system_instruction: { parts: [{ text: sys }] },
                 contents: [{ parts: [{ text: user }] }],
                 generationConfig
-            }, { timeoutMs, retries: 2, backoffMs: 500, timeoutCooldownMs: 15000 });
+            }, { timeoutMs, retries, backoffMs: 500, timeoutCooldownMs: 15000 });
         } catch (e) {
             if (e.type === "invalid" && /thinking/i.test(e.message) && thinking) { noThinkingCfg.add(model); continue; }
             if (e.type === "invalid" && /schema|mime/i.test(e.message) && !unitSchemaUnsupported) { unitSchemaUnsupported = true; continue; }
@@ -570,6 +574,8 @@ async function handleTranslateUnit(request) {
     return translateUnitMiss(req, sentences, cfg, tier, meta, budget);
 }
 
+const NEXT_MODEL_ON = new Set(["not_found", "unavailable_for_key", "rate_limit", "quota", "unavailable", "bad_output", "blocked"]);
+
 async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
     // 3-4. MODEL CHÍNH hoặc MODEL NÂNG CẤP (content script định tuyến).
     // Model không gọi được (404 model không tồn tại / không cấp cho key này) -> ghi nhớ,
@@ -577,6 +583,10 @@ async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
     // nào gọi được (hoặc lỗi khác) mới dùng Google dự phòng.
     let aiFailedReason = null;
     let firstTried = null;
+    // Google by choice (Gemini off, no key) is the translation the viewer asked for: "google", kept
+    // by the per-video cache. Google because Gemini failed or the budget ran out: "google_fallback",
+    // shown now but not kept, so the next visit asks Gemini again (1.7.3; "google" was unreachable).
+    let byChoice = false;
     if (budget.runaway) {
         aiFailedReason = "Đã vượt gấp đôi ngân sách ngày, tạm dùng bản dịch miễn phí";
     } else if (cfg.useAi && cfg.geminiApiKey) {
@@ -588,7 +598,7 @@ async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
             tried.add(model);
             if (!firstTried) firstTried = model;
             try {
-                const r = await callGeminiUnit({ ...request, sentences }, cfg.geminiApiKey, model);
+                const r = await callGeminiUnit({ ...request, sentences }, cfg.geminiApiKey, model, model === firstTried ? 2 : 0);
                 r.tier = tier;
                 if (model !== firstTried) r.fallbackFrom = firstTried;
                 track(meta, { trUsd: COST.estimateTextCost(model, r.usage.in, r.usage.out + r.usage.thoughts), trCalls: 1 });
@@ -602,25 +612,30 @@ async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
                 return { ok: true, ...r, cacheKey: key, budget: budget.level };
             } catch (e) {
                 aiFailedReason = e.message;
-                if (e.type !== "not_found" && e.type !== "unavailable_for_key") break;
+                // The next model of the chain is tried when this failure belongs to this model and
+                // passes: gone for this key (404), its own rate limit or daily quota, overloaded
+                // after geminiCall's retries, or an unusable answer. The chain never goes above the
+                // mode's price ceiling (COST.modelChain). Before, all but the first two fell straight
+                // to Google Translate (no context), and a YouTube video could keep that version.
+                // Not tried again: a timeout (a second one doubles the wait), a key, payment or
+                // request problem (every model fails the same), an abort.
+                if (!NEXT_MODEL_ON.has(e.type)) break;
             }
         }
     } else {
         aiFailedReason = !cfg.useAi ? "Đã tắt dịch bằng Gemini trong cài đặt" : "Chưa cài đặt API Key Gemini";
+        byChoice = true;
     }
     if (request.refine) return { ok: false, error: aiFailedReason || "Không dịch lại được" };
 
     // Dự phòng: Google Translate (không ngữ cảnh). Không lưu bền vững để lần sau còn thử lại Gemini.
+    // One request per sentence, all at once: sent one after another, a 6-sentence window waited
+    // for six round trips (each with its own retries) before the viewer saw anything
     const tStart = Date.now();
-    const translations = [];
-    for (const s of sentences) {
-        if (!s) { translations.push(""); continue; }
-        const r = await translateWithRetry(s, "auto", "vi");
-        translations.push(r.text);
-    }
+    const translations = await Promise.all(sentences.map(s => (s ? translateWithRetry(s, "auto", "vi").then(r => r.text) : "")));
     return {
         ok: true, translations, terms: [],
-        engine: aiFailedReason ? "google_fallback" : "google",
+        engine: byChoice ? "google" : "google_fallback",
         fallbackReason: aiFailedReason,
         latency: Date.now() - tStart
     };
@@ -840,34 +855,9 @@ async function handleLocalTtsStatus() {
     }
 }
 
-// Làm nóng giọng khi bật lồng tiếng: lượt đầu của mỗi giọng chậm hơn hẳn (nạp giọng mẫu),
-// nên tạo trước một câu rất ngắn để câu thoại đầu tiên có ngay. Không lưu, không tính thống kê.
-const localWarmed = new Set();   // giọng đã làm nóng trong phiên service worker này
-async function handleLocalTtsWarm(req) {
-    const voices = [...new Set((req.voices || []).filter(Boolean))].filter(v => !localWarmed.has(v)).slice(0, 2);
-    for (const voice of voices) {
-        // Cùng hàng đợi với câu thoại thật (không tranh luồng duy nhất của máy chủ); có hạn giờ
-        const r = await localSerial(async () => {
-            const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), 8000);
-            try {
-                const res = await fetch(LOCAL.url + "/v1/audio/speech", {
-                    method: "POST", headers: { "Content-Type": "application/json" }, signal: controller.signal,
-                    body: JSON.stringify({ model: LOCAL.model, voice, input: "Xin chào.", response_format: "pcm", sample_rate: LOCAL.sampleRate, temperature: LOCAL.temperature })
-                });
-                await res.arrayBuffer();
-                return { ok: res.ok };
-            } catch (e) { return { ok: false }; } finally { clearTimeout(timer); }
-        }, null, 1);
-        if (!r.ok) return { ok: false };
-        localWarmed.add(voice);
-    }
-    return { ok: true };
-}
-
-// Máy chủ VieNeu trên CPU chỉ tạo MỘT luồng mỗi lúc: mọi yêu cầu (mọi tab, trang Cài đặt,
-// làm nóng giọng) xếp hàng TẠI ĐÂY, gửi lần lượt -> không tự gây lỗi 429 "máy chủ bận".
-// Câu thoại (ưu tiên 0) luôn được gửi trước việc làm nóng giọng (ưu tiên 1).
+// Máy chủ VieNeu trên CPU chỉ tạo MỘT luồng mỗi lúc: mọi yêu cầu (mọi tab, trang Cài đặt)
+// xếp hàng TẠI ĐÂY, gửi lần lượt -> không tự gây lỗi 429 "máy chủ bận". A lower priority number
+// goes first.
 const localQueue = [];
 let localBusy = false;
 function localSerial(fn, signal, priority = 0) {
@@ -1015,43 +1005,6 @@ async function handleAudioCacheGet(req) {
     const n = Object.keys(hits).length;
     if (n) track(metaOf(req), { hitsAudio: n, avoided: n });
     return { ok: true, hits };
-}
-
-// Rút gọn NHẸ một câu nói quá dài so với thời lượng lời gốc (có cache bền vững).
-async function handleCondenseSpeech(req) {
-    const cfg = await modelsFromCfg();
-    if (!cfg.useAi || !cfg.geminiApiKey) return { ok: false, error: "Chưa bật Gemini" };
-    // Model rẻ nhất mà key này gọi được (việc phụ, không cần model mạnh)
-    const model = COST.modelChain("cheap", cfg, "economy", await isUnavailableFn(cfg.geminiApiKey))[0];
-    if (!model) return { ok: false, errorType: "unavailable_for_key", error: "Không có model khả dụng" };
-    const seconds = Math.round(Number(req.seconds || 0) * 2) / 2;
-    let key = null;
-    try { key = caches ? await CST_CACHE.hashKey(["cond", TR_PROMPT_VERSION, model, CST_CACHE.normalizeText(req.text), seconds]) : null; } catch (e) { key = null; }
-    if (key) {
-        const hit = await caches.tr.get(key);
-        if (hit && hit.text) return { ok: true, text: hit.text, fromCache: true };
-    }
-    const sys = [
-        "Bạn là biên tập viên lồng tiếng tiếng Việt. Rút gọn NHẸ câu thoại để đọc kịp trong thời lượng cho trước.",
-        "Giữ nguyên ý nghĩa, mọi số liệu, thuật ngữ, tên riêng. Không thêm ý mới, không bỏ ý chính. Chỉ lược từ thừa, lời dẫn, cách nói vòng; câu tự nhiên, dễ đọc thành tiếng.",
-        "Chỉ trả về câu đã rút gọn."
-    ].join("\n");
-    const user = `[LỜI GỐC TIẾNG ANH] ${req.srcText || ""}\n[CÂU CẦN RÚT GỌN] ${req.text}\n[THỜI LƯỢNG] khoảng ${seconds.toFixed(1)} giây, tối đa khoảng ${req.maxSyllables || 0} âm tiết`;
-    const generationConfig = { temperature: 0.2, maxOutputTokens: 256 };
-    const thinking = thinkingConfigFor(model);
-    if (thinking) generationConfig.thinkingConfig = thinking;
-    try {
-        const data = await geminiCall(model, cfg.geminiApiKey, {
-            system_instruction: { parts: [{ text: sys }] }, contents: [{ parts: [{ text: user }] }], generationConfig
-        }, { timeoutMs: 8000, retries: 1, backoffMs: 500 });
-        const text = sanitizeModelOutput(responseText(data), []);
-        const u = data.usageMetadata || {};
-        track(metaOf(req), { trUsd: COST.estimateTextCost(model, u.promptTokenCount || 0, (u.candidatesTokenCount || 0) + (u.thoughtsTokenCount || 0)), trCalls: 1 });
-        if (text && key) caches.tr.set(key, { text });
-        return text ? { ok: true, text } : { ok: false, error: "Phản hồi rỗng" };
-    } catch (e) {
-        return { ok: false, errorType: e.type, error: e.message };
-    }
 }
 
 // ---- Quản lý bộ nhớ đệm (trang Cài đặt) ----
@@ -1321,7 +1274,6 @@ const ROUTES = {
     translateUnit: handleTranslateUnit,
     translateUnitStore: handleTranslateUnitStore,
     synthesizeSpeech: handleSynthesizeSpeech,
-    condenseSpeech: handleCondenseSpeech,
     audioCacheGet: handleAudioCacheGet,
     audioCacheDelete: handleAudioCacheDelete,
     cacheStats: handleCacheStats,
@@ -1331,7 +1283,6 @@ const ROUTES = {
     openOptions: handleOpenOptions,
     costStats: handleCostStats,
     localTtsStatus: handleLocalTtsStatus,
-    localTtsWarm: handleLocalTtsWarm,
     costReset: handleCostReset
 };
 

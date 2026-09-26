@@ -6,40 +6,40 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-27 · lane B (+ `background.js`, `cost-policy.js`) · `1.7.2`. User: Mỹ Duyên cleaner and
-steadier (noise, rumble, clicks, loudness) and smarter pauses (clauses, sentence length, joins).
+2026-09-27 · lanes A + B + C + D · `1.7.3`. User: full codebase audit (dead code, API/token cost,
+retries, leaks, performance) and fix what the evidence supports. Commit message lists everything.
 
 ## What changed
 
-- 1.7.2 (details and numbers: `DUBBING.md` "Cleanup and pauses v3"): `AUDIO.cleanTake` = 4th-order
-  high-pass (`LOCAL_TTS.highPassHz` 80 female / 60 male via `localHighPass`) + `denoise` with a
-  corrected noise estimate (mean over pure-hiss frames, bias 1.3); `gateNoise` off the VieNeu path;
-  `textBreaks` soft breaks before clause openings of long sentences, sentence pause by length;
-  positions in spoken syllables from first to last sound; 20 ms onset for voiced starts;
-  engine `gapAfter` / `SYNC.joinGapClause` 0.15 after a part ending on , ; :. Style version 7.
-- Measured, left alone: per-take loudness (LUFS sd 0.2 to 0.3 dB), soft clipper, DC, 48 kHz, EQ.
+- Cost: YouTube translation windows are fixed by the text (`ytCanonicalWindows`), so a revisit hits
+  the cache; `translateUnitMiss` moves to the next model on `NEXT_MODEL_ON` (price-capped chain);
+  `engine: "google"` (chosen) vs `google_fallback` (failed; not saved into `ytcache4_`).
+- Bugs: Coursera dead copy kept its navigation poll after Reload; popup "Tiếng Anh ở trên" was not
+  live; popup "Làm mờ dòng tiếng Anh" (`styleOriginal`) was never read, removed.
+- Perf: Coursera render loop memo (`csMemo`, 500 ms); YouTube full-storage sweep once a day
+  (`ytSweptAt`); page audio L1 capped at 16 MB; Google fallback sentences in parallel.
+- Removed (no caller, verified): condense machinery + `condenseSpeech`, `localTtsWarm`,
+  `ytBatDauDOMCaptionObserver`, legacy floating icons, `pickVietnameseVoice`, `gateNoise`,
+  `DEFAULT_MODELS.universal`. Docs updated (DANGER 5/7, DUBBING, SUBTITLE, TESTING, MAP, CLAUDE.md).
 
 ## State
 
-- `npm test`: 408 tests, 407 pass, 0 fail, 1 skip · Reload: **yes** + F5 video tabs (not loaded)
-- Harness `smooth.html`, same takes, 120 s Mỹ Duyên, old -> new: 24/24 spoken, 0 rate changes,
-  0 overlaps both; median rate 1.11 -> 1.08; start lag p50 -0.04 both, max 0.68 -> 0.81 s.
+- `npm test`: 413 tests, 412 pass, 0 fail, 1 skip · Reload: **yes** + F5 video tabs (not loaded)
 
 ## Unfinished / in progress
 
-- The user has not listened yet: A/B files `MyDuyen-1.7.1.wav` / `MyDuyen-1.7.2.wav` were sent.
-- A subordinate clause with no comma and no connective ("Khi ... lên | mô hình ...") still has its
-  stop closed; only connectives in `STARTERS*` are detected. Watch for false soft breaks.
-- "Truyền cảm" (expressiveness) not solved: VieNeu takes no prosody control, ignores `speed`.
-- Not verified in real Chrome with the extension loaded: 1.7.2 end to end, backup download,
-  generic injection, `ensureYtBridge` after Reload, 1.7.0 AI-dub case (no sample video found).
+- Kept on purpose, unverified: host permissions `fonts.googleapis.com` / `fonts.gstatic.com` look
+  unneeded (fonts load by `<link>`); remove only after a real-Chrome check of options + overlay fonts.
+- Prompts and context size were NOT trimmed (quality risk, no way to measure offline without spend).
+- 1.7.2 audio not heard by the user yet. "Truyền cảm" not solved. Not verified in real Chrome:
+  1.7.2/1.7.3 end to end, backup download, generic injection, `ensureYtBridge`, 1.7.0 AI-dub case.
 - Udemy / edX: `BACKLOG.md` 9. Long-video jank unmeasured. Leak on 4eY5DuqASQc ~8:40.
 
 ## Traps hit this session
 
+- `bg-env.js` `send` never resolves for an unknown action: awaiting a removed route hangs `npm test`.
 - The sandbox blocks loopback: `curl 127.0.0.1:8000` exits 7 while VieNeu is up. Retry unsandboxed.
 - `npm test` runs an explicit file list in `package.json`: a new test file must be added there.
-- The browser JS tool times out after 45 s: poll `H.done` in the harness, never await the run.
 
 ## Suggested next step
-- Reload; listen to a long Mỹ Duyên lecture: clause pauses natural? any pause in a wrong place?
+- Reload; revisit a half-watched YouTube video: no new Gemini calls for the part already seen.

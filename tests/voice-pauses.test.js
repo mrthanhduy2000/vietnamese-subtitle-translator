@@ -1,5 +1,5 @@
-// 1.6.7: the voice pauses only where the text has punctuation, the hiss between words is pulled
-// down, a sentence split across two translation groups is read in one go (free voice), 48 kHz.
+// 1.6.7: the voice pauses only where the text has punctuation (the hiss gate tested here was removed
+// in 1.7.3), a sentence split across two translation groups is read in one go (free voice), 48 kHz.
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const A = require("../dub-audio.js");
@@ -62,14 +62,6 @@ test("tight mode caps every kept pause at maxPause", () => {
     assert.ok(got.every(p => p <= 0.17), JSON.stringify(got));
 });
 
-test("the gate pulls hiss between words down and leaves the words alone", () => {
-    const x = speech([1, 1], [0.5], 0.004);             // hiss at about -48 dB
-    const g = A.gateNoise(x, SR);
-    const level = (y, a, b) => { let q = 0; for (let i = Math.round(a * SR); i < Math.round(b * SR); i++) q += y[i] * y[i]; return 10 * Math.log10(q / ((b - a) * SR)); };
-    assert.ok(level(g, 1.1, 1.4) < level(x, 1.1, 1.4) - 12, "gap not quieter");
-    assert.ok(Math.abs(level(g, 0.2, 0.8) - level(x, 0.2, 0.8)) < 0.2, "speech changed");
-});
-
 function mkGroup(start, cues) {
     const viCues = cues.map(([s, e, t]) => ({ start: s, end: e, text: t, lines: [t] }));
     return { start, end: viCues[viCues.length - 1].end, viText: cues.map(c => c[2]).join(" "), viCues,
@@ -119,23 +111,6 @@ test("pause v2: a short lead-in comma is light, a comma before a joining word le
     // v3 (1.7.2): a sentence rests by its length, so the two-word "Thật sao?" rests less than the
     // 17-word sentence before it, and the question mark still adds a little
     assert.ok(question.cap > 0.3 && question.cap < 0.4, `short question ${question.cap}`);
-});
-
-test("gate v2 follows the take's own noise floor and leaves soft word tails alone", () => {
-    // a word with a long soft decay (down to ~-44 dB), then hiss at -52 dB
-    const n = SR * 2;
-    const x = new Float32Array(n);
-    let seed = 3;
-    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647 - 0.5) * 2;
-    for (let i = 0; i < n; i++) {
-        const t = i / SR;
-        const env = t < 0.5 ? 0.3 : t < 0.9 ? 0.3 * Math.exp(-(t - 0.5) * 12) : 0;
-        x[i] = env * Math.sin(2 * Math.PI * 180 * t) + 0.0025 * rnd();
-    }
-    const g = A.gateNoise(x, SR);
-    const lvl = (y, a, b) => { let q = 0; for (let i = Math.round(a * SR); i < Math.round(b * SR); i++) q += y[i] * y[i]; return 10 * Math.log10(q / ((b - a) * SR)); };
-    assert.ok(Math.abs(lvl(g, 0.5, 0.75) - lvl(x, 0.5, 0.75)) < 0.5, "the decay of the word was cut");
-    assert.ok(lvl(g, 1.3, 1.9) < lvl(x, 1.3, 1.9) - 8, "the hiss was not pulled down");
 });
 
 test("a voice that starts late is not chased: no playbackRate churn while it plays", () => {

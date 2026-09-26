@@ -12,7 +12,7 @@ The one skip is intentional (see `reload-fight.test.js` below). **A fail is a re
 The per-file counts below were taken on 2026-09-23 and drift as tests are added; treat them as a
 sense of weight, not an assertion.
 
-## The 9 files in `npm test`
+## The files in `npm test` (the list lives in `package.json`: add a new file there)
 
 | File | ~Tests | Covers |
 |---|---|---|
@@ -24,12 +24,13 @@ sense of weight, not an assertion.
 | `hardening.test.js` | 76 | Per-API-key model access, options opening, language auto-detect, no-clipping dubbing, budget caps, the version-scheme rule |
 | `bridge.test.js` | 4 | `yt-bridge.js` recovering empty captions that are missing the `pot` token, and restoring the viewer's original caption track |
 | `reload-fight.test.js` | 2 | Old and new content scripts coexisting after a reload must not loop forever recreating buttons. **The second case needs `OLD_YT=<path>` and skips without it** |
-| `backlog.test.js` | 9 | Settings with one source of truth (condense switch, `dualMode` via `CST_STYLE.resolveDual`), the single YouTube bridge, glossary loads in Node, segmenter `explain()`, the `buildPhrases` memo, throttled body observers |
+| `backlog.test.js` | 9 | Settings with one source of truth (no condense code anywhere, `dualMode` via `CST_STYLE.resolveDual`), the single YouTube bridge, glossary loads in Node, segmenter `explain()`, the `buildPhrases` memo, throttled body observers |
 | `generic-site.test.js` | 5 | Unlisted sites: shortcut injects the ISOLATED group once through `activeTab` then delivers the command, `chrome://` left alone, no all-sites permission, generic track path, host-prefixed keys |
 | `settings.test.js` | 6 | Backup build/parse (key optional, caches excluded, foreign files refused), the Settings wiring, `dubMaxRate` capping every rate, `skipSameLang` on all three sites |
-| `voice-pauses.test.js` | 10 | `shapePauses` (unpunctuated stops closed, punctuation kept, breath in long runs, tight cap), `gateNoise`, `joinGroups` segmenting, 48 kHz wiring |
+| `voice-pauses.test.js` | 8 | `shapePauses` (unpunctuated stops closed, punctuation kept, breath in long runs, tight cap), `joinGroups` segmenting, 48 kHz wiring |
 | `spoken-lang.test.js` | 8 | `spokenLanguage` (audio > ASR > title, AI dubs, Vietsub titles), `ytChonTrack` with AI-dub ASR tracks, the gate before the cache |
 | `quality.test.js` | 6 | Size scale (100% = old 70%), `lingerCues`, `denoise` (hiss down, voice kept, clean take skipped), FFT round trip, wiring |
+| `audit.test.js` | 7 | 1.7.3 audit: popup "Tiếng Anh ở trên" live, dead popup switch gone, Coursera render-loop memo, YouTube does not save a Google-fallback video, daily storage sweep, parallel Google fallback, removed dead code |
 | `voice-clean.test.js` | 10 | `highPass` (rumble cut, voice band kept), the corrected hiss estimate, `spokenWeight`, `textBreaks` soft clause breaks and sentence pauses by length, `shapePauses` keeping a clause-opening stop, lead silence skipped, the 20 ms voiced onset, engine `gapAfter`, wiring (no gate) |
 | `ui.test.js` | 13 | Shortcuts (Alt+S / Alt+D / Alt+Shift+V), no blocking `alert`/`confirm` on the user's page, focus rings and reduced-motion, `role=status` toasts, the YouTube quick menu built on a mini-DOM, light/dark theme wiring, the VieNeu autostart script, auto-switch back to VieNeu when the server appears, and the release-history data |
 

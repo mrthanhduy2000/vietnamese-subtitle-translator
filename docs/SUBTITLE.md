@@ -123,23 +123,31 @@ a Reload the viewer clicks Translate again).
    onto the Vietnamese dub, and re-runs the opening checks when they move off it.
 3. `ytHoiNoiDungPhuDe` asks the bridge to fetch the track; `ytDocNoiDungPhuDe` parses it.
    Auto-generated tracks carry per-word timings, which the segmenter uses.
-4. `ytChayTienTrinhPrefetch` runs a 2-worker sliding-window pool over `ytDichNhom`, staying
-   `translateAhead` seconds ahead of playback. `ytDichKhanCap` jumps the queue after a seek.
+4. `ytChayTienTrinhPrefetch` runs a 2-worker pool over `ytDichNhom`, staying `translateAhead`
+   seconds ahead of playback. `ytDichKhanCap` jumps the queue after a seek. Windows are fixed by the
+   text alone (`ytCanonicalWindows`, 1.7.3: close at a sentence end from 420 chars or 4 groups, at
+   most 800 chars / 6 groups / 45 s), so a second visit from any position sends the same sentences
+   and the translation cache hits. The prefetch takes a window only when all of it is inside the
+   horizon; a failed window backs off as a whole.
 5. `ytVePhuDe` draws the subtitle itself into an overlay (YouTube's own caption layer is not used).
    `ytBatDauDongBo` drives it off `requestVideoFrameCallback`.
-6. `ytBatDauDOMCaptionObserver` is the fallback path that reads YouTube's own rendered captions.
-7. `ytTatDich` tears down. `YT_GEN` / `YT_BORN` tag nodes; see `DANGER.md` before touching them.
+6. `ytTatDich` tears down. (A never-wired live-caption path, `ytBatDauDOMCaptionObserver`, was
+   removed in 1.7.3: wired, it would have cost one Gemini call per caption change.)
+   `YT_GEN` / `YT_BORN` tag nodes; see `DANGER.md` before touching them.
 
 ## Message contracts
 
 ### Anything -> service worker: `chrome.runtime.sendMessage({ action })`
 
-15 actions in the `ROUTES` table at the end of `background.js`, plus `ttsAbort`, which is handled
+14 actions in the `ROUTES` table at the end of `background.js`, plus `ttsAbort`, which is handled
 synchronously *before* routing (it must not wait on the queue):
 
-`translateUnit` · `translateUnitStore` · `synthesizeSpeech` · `condenseSpeech` · `audioCacheGet` ·
+`ensureYtBridge` · `translateUnit` · `translateUnitStore` · `synthesizeSpeech` · `audioCacheGet` ·
 `audioCacheDelete` · `cacheStats` · `cacheClear` · `modelStatus` · `testKey` · `openOptions` ·
-`costStats` · `costReset` · `localTtsStatus` · `localTtsWarm` · `ttsAbort`
+`costStats` · `costReset` · `localTtsStatus` · `ttsAbort` (`condenseSpeech` and `localTtsWarm` had no
+caller and were removed in 1.7.3). `translateUnit` answers `engine`: `gemini`, `google` (Gemini off
+or no key: the chosen engine) or `google_fallback` (Gemini failed or the budget ran out: shown, but
+YouTube does not save such a video, so the next visit asks Gemini again).
 
 To add one: write `handleX`, add `X: handleX` to `ROUTES`. Nothing else.
 
@@ -162,7 +170,8 @@ Request/response pairs correlated by `requestId`:
 ### `chrome.storage.sync` (27 settings written by `options.js` `collectSettings`, plus `uiTheme`)
 
 Subtitle: `subStyle` (nested object; defaults live in `subtitle-style.js`), `dualMode`,
-`perCueMode`, `styleOriginal`, `originalFirst`, `skipSameLang`
+`perCueMode`, `originalFirst`, `skipSameLang` (`styleOriginal`, the popup's "Làm mờ dòng tiếng Anh",
+was never read by the page and was removed in 1.7.3; old stored values are ignored)
 
 AI and cost: `useAi`, `geminiApiKey`, `geminiModel`, `geminiStrongModel`, `costMode`,
 `autoTranslate`, `budgetDailyUsd`, `budgetVideoUsd`
@@ -199,7 +208,8 @@ not stack two dubbing voices. Keep it.
 
 `modelAccess` per-API-key model availability, keyed by a SHA-256 hash of the key, 3-day TTL ·
 `costLedger` daily cost ledger · `ytcache4_<videoId>` cached YouTube translations (an older
-`ytcache` prefix exists) · `ctxterms_<key>` agreed context terms · plus the `cst-cache` IndexedDB
+`ytcache` prefix exists; swept once a day, `ytSweptAt`, since the sweep reads all of storage.local) ·
+`ctxterms_<key>` agreed context terms · plus the `cst-cache` IndexedDB
 database, which is separate (see `DUBBING.md`).
 
 ### `chrome.storage.session`

@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const translateBtn = document.getElementById("translateBtn");
     const btnLabel = document.getElementById("btnLabel");
     const dualModeBox = document.getElementById("dualMode");
-    const styleOrigBox = document.getElementById("styleOriginal");
     const origFirstBox = document.getElementById("originalFirst");
     const dubbingBox = document.getElementById("dubbingMode");
     const subOptionsWrapper = document.getElementById("subOptionsWrapper");
@@ -19,13 +18,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         dualMode: false,
         perCueMode: false,
         useAi: true,
-        styleOriginal: false,
         originalFirst: false,
         dubEnabled: true
     });
 
     dualModeBox.checked = Boolean(saved.dualMode);
-    styleOrigBox.checked = Boolean(saved.styleOriginal);
     origFirstBox.checked = Boolean(saved.originalFirst);
     dubbingBox.checked = saved.dubEnabled !== false;
 
@@ -37,9 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         } else {
             subOptionsWrapper.classList.remove("expanded");
         }
-        [styleOrigBox, origFirstBox].forEach(box => {
-            box.disabled = !isDual;
-        });
+        origFirstBox.disabled = !isDual;
     }
     updateSubOptions(false);
 
@@ -49,9 +44,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         updateSubOptions(true);
     });
 
-    styleOrigBox.addEventListener("change", () => {
-        chrome.storage.sync.set({ styleOriginal: styleOrigBox.checked });
-    });
 
     origFirstBox.addEventListener("change", () => {
         chrome.storage.sync.set({ originalFirst: origFirstBox.checked });
@@ -243,7 +235,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 method: "translate",
                 dualMode: dualModeBox.checked,
                 perCueMode: Boolean((await chrome.storage.sync.get({ perCueMode: false })).perCueMode),   // chỉnh trong Cài đặt
-                styleOriginal: styleOrigBox.checked,
                 originalFirst: origFirstBox.checked,
                 dubEnabled: dubbingBox.checked
             };

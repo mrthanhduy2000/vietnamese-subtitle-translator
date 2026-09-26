@@ -7,8 +7,12 @@ const path = require("node:path");
 
 const R = f => fs.readFileSync(path.join(__dirname, "..", f), "utf8");
 
-test("condensing has exactly one switch: dubbing.js passes condense: null", () => {
-    assert.match(R("dubbing.js"), /condense: null/);
+test("condensing does not exist: no engine path, no service-worker route, no setting (1.7.3)", () => {
+    // 1.6.4 kept the machinery behind one `condense: null` switch; 1.7.3 removed it outright
+    assert.doesNotMatch(R("dubbing.js"), /condense/);
+    assert.doesNotMatch(R("dub-engine.js"), /needsCondense|condenseBeforeTts|condensedText|SYNC\.condense/);
+    assert.doesNotMatch(R("background.js"), /condenseSpeech|handleCondenseSpeech/);
+    assert.doesNotMatch(R("dub-planner.js"), /condensedIsSafe|overrideText/);
     for (const f of ["options.js", "dubbing.js", "cost-policy.js", "options.html"]) {
         assert.doesNotMatch(R(f), /dubCondense/, f);
     }

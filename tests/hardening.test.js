@@ -853,7 +853,7 @@ test("VieNeu là giọng chính (chế độ Cân bằng, có API key): KHÔNG r
     assert.equal(await env.CST_DUB.start({ video, getGroups: () => require("./dub-sim.js").lectureGroups() }), true);
     const eng = env.CST_DUB.dub.engine;
     assert.equal(eng.provider.id, "vieneu");
-    assert.equal(eng.d.condense, null, "Đàm: KHÔNG BAO GIỜ rút gọn lời thoại");
+    assert.equal(eng.d.condense, undefined, "Đàm: KHÔNG BAO GIỜ rút gọn lời thoại (the engine has no condense path)");
     assert.ok(!msgs.some(m => m.action === "modelStatus"), "không cần hỏi model Gemini TTS");
     for (let i = 0; i < 20; i++) { video.currentTime += 0.5; eng.tick(); await new Promise(r => setImmediate(r)); }
     assert.ok(!msgs.some(m => m.action === "condenseSpeech"), "không gửi yêu cầu rút gọn");
@@ -1038,20 +1038,17 @@ test("nguồn giọng mặc định: Giọng Việt trên máy (VieNeu); chuyể
     assert.doesNotMatch(html, /dubLocalModel|Model VieNeu/);
 });
 
-test("rút gọn câu (Gemini) chậm 8 giây: KHÔNG chặn việc tạo audio quá 2,5 giây, giọng không im cả quãng", async () => {
+test("audio twice as long as its slot: the voice keeps going, nothing holds the audio queue", async () => {
     const groups = Array.from({ length: 8 }, (_, i) => mkGroup(`Đây là một câu khá dài số ${i + 1} trong bài giảng về trí tuệ nhân tạo và dữ liệu lớn.`, 1 + i * 3, 3 + i * 3, `S${i}.`));
-    // audio dài gấp đôi khung -> mọi câu "cần rút gọn"
+    // audio twice the slot: the kind of line the removed condense path (1.7.3) used to hold up
     const S = speechRun(groups, groups.map(() => 4.2));
-    let calls = 0;
-    S.eng.d.condense = () => { calls++; const t0 = S.eng.d.now(); return new Promise(res => { const id = S.eng.d.setInterval(() => { if (S.eng.d.now() - t0 >= 8000) { S.eng.d.clearInterval(id); res(null); } }, 50); }); };
     await S.run(300);
     S.video.play();
     await S.run(12000);
-    assert.ok(calls >= 1);
     const first = S.eng.stats.started[0];
     assert.ok(first && first.t < 4, `câu đầu tiên có tiếng lúc ${first && first.t}`);
     assert.ok(S.eng.stats.started.length >= 4, `chỉ đọc ${S.eng.stats.started.length} câu trong 12 giây`);
-    // Trước đây câu 2 trễ 3,9 giây vì chờ rút gọn; nay trễ chỉ do audio dài hơn khung
+    // lag comes only from audio longer than its slot
     const worst = Math.max(...S.eng.stats.started.map(x => x.lag));
     assert.ok(worst < 2, `trễ ${worst.toFixed(2)} giây vì chờ rút gọn`);
 });
@@ -1120,7 +1117,7 @@ test("mở video ở GIỮA một đoạn đọc: nói tiếp từ đúng chỗ 
     assert.ok(st[0].t - 303.8 < 0.8, `có tiếng sau ${(st[0].t - 303.8).toFixed(2)} giây`);
 });
 
-test("VieNeu: mọi yêu cầu (nhiều tab, làm nóng giọng) xếp hàng trong service worker, máy chủ không bao giờ nhận 2 yêu cầu cùng lúc", async () => {
+test("VieNeu: mọi yêu cầu (nhiều tab, nghe thử trong Cài đặt) xếp hàng trong service worker, máy chủ không bao giờ nhận 2 yêu cầu cùng lúc", async () => {
     const calls = [];
     const inner = vieneuServer(calls);
     let active = 0, peak = 0;
@@ -1131,15 +1128,13 @@ test("VieNeu: mọi yêu cầu (nhiều tab, làm nóng giọng) xếp hàng tro
         try { return await inner(u, o); } finally { active--; }
     }, cfg());
     const rs = await Promise.all([
-        E.send({ action: "localTtsWarm", voices: ["Mỹ Duyên", "Thái Sơn"] }),
+        E.send({ action: "synthesizeSpeech", engine: "vieneu", text: "Xin chào, đây là giọng nghe thử.", voice: "Thái Sơn" }),
         ...[1, 2, 3, 4].map(i => E.send({ action: "synthesizeSpeech", engine: "vieneu", text: `Câu thử số ${i} cho hàng đợi.`, voice: "Mỹ Duyên", parts: [{ key: "q" + i, weight: 6 }] }))
     ]);
     assert.ok(rs.every(r => r.ok), JSON.stringify(rs.map(r => r.error)));
     assert.equal(peak, 1, `máy chủ nhận ${peak} yêu cầu cùng lúc`);
-    // Làm nóng mỗi giọng chỉ một lần trong phiên
-    const warmCalls = calls.filter(c => c.input === "Xin chào.").length;
-    await E.send({ action: "localTtsWarm", voices: ["Mỹ Duyên", "Thái Sơn"] });
-    assert.equal(calls.filter(c => c.input === "Xin chào.").length, warmCalls);
+    // 1.7.3: the unused warm-up route is gone
+    assert.doesNotMatch(require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "background.js"), "utf8"), /localTtsWarm/);
 });
 
 test("VieNeu bị kẹt (log thật: 6 giây audio mất 45 giây): hủy theo độ dài câu rồi tạo lại, câu vẫn có audio", async () => {
@@ -1399,7 +1394,7 @@ test("KHÔNG rút gọn lời thoại ở mọi chế độ / mọi giọng; Cà
         const env = dubbingEnvFor(mode, "gemini", msgs, () => ({ ok: false }));
         const video = new FakeVideo(); video.play();
         assert.equal(await env.CST_DUB.start({ video, getGroups: () => require("./dub-sim.js").lectureGroups() }), true);
-        assert.equal(env.CST_DUB.dub.engine.d.condense, null, `chế độ ${mode}`);
+        assert.equal(env.CST_DUB.dub.engine.d.condense, undefined, `chế độ ${mode}`);
         env.CST_DUB.stop();
     }
 });
@@ -1559,4 +1554,24 @@ test("đổi giọng đọc: hai lượt bật lồng tiếng cùng lúc chỉ �
     assert.equal(env.CST_DUB.dub.engine, running[0], "bộ đọc đang chạy phải là bộ mới nhất");
     env.CST_DUB.stop();
     assert.equal(made.filter(e => e.running).length, 0);
+});
+
+test("page audio cache is capped by bytes: 48 kHz takes cannot pile up tens of MB in the tab (1.7.3)", async () => {
+    const msgs = [];
+    const env = dubbingEnvFor("balanced", "vieneu", msgs, m => (m.action === "localTtsStatus" ? { ok: true, running: true } : { ok: true, hits: {} }));
+    const video = new FakeVideo();
+    assert.equal(await env.CST_DUB.start({ video, getGroups: () => [] }), true);
+    const cache = env.CST_DUB.dub.engine.d.audioCache;
+    const MB = 1024 * 1024;
+    for (let i = 0; i < 30; i++) cache.put(`k${i}`, { wav: new Uint8Array(MB), duration: 10, sampleRate: 48000 });
+    const newest = await cache.get(["k29"]);
+    assert.ok(newest.k29, "the newest take stays in the page");
+    msgs.length = 0;
+    const oldest = await cache.get(["k0"]);
+    assert.ok(!oldest.k0, "the oldest take was dropped (16 MB cap), it comes back from the service worker");
+    assert.ok(msgs.some(m => m.action === "audioCacheGet"), "a dropped take is asked from the service worker");
+    // small takes still reach the entry cap of 40, not the byte cap
+    for (let i = 0; i < 40; i++) cache.put(`s${i}`, { wav: new Uint8Array(1000), duration: 0.1, sampleRate: 48000 });
+    assert.ok((await cache.get(["s0"])).s0);
+    env.CST_DUB.stop();
 });

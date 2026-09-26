@@ -37,7 +37,6 @@ const yt = {
     requestSeq: 0,
     resizeObserver: null,
     classObserver: null,
-    domCaptionObserver: null,
     capTionDisplayCu: null,
     daDichXong: false,
     huyDich: false,
@@ -135,6 +134,10 @@ async function ytDocCache(videoId) {
 
 async function ytGhiCache(videoId) {
     if (!videoId || yt.viCues.length === 0) return;
+    if (yt.groups.some(g => g.fallback)) {
+        console.log("[AI Subtitle] Có đoạn dịch tạm bằng Google: không lưu bản dịch video này, lần sau dịch lại bằng Gemini");
+        return;
+    }
     try {
         const r = x => Math.round(x * 1000) / 1000;
         const key = YT_CACHE_PREFIX + videoId;
@@ -174,6 +177,18 @@ async function ytDonCache() {
         const xoa = keys.slice(0, keys.length - YT_CACHE_TOI_DA);
         await chrome.storage.local.remove(xoa);
     } catch (e) { /* bo qua */ }
+}
+
+// Every YouTube tab ran ytDonCache on load, and it reads ALL of storage.local (up to 15 saved videos,
+// the viewer's edits, the cost ledger: megabytes) only to find stale keys. Once a day is enough; a
+// save (ytGhiCache) still sweeps after itself.
+async function ytSweepCacheDaily() {
+    try {
+        const { ytSweptAt = 0 } = await chrome.storage.local.get({ ytSweptAt: 0 });
+        if (Date.now() - ytSweptAt < 864e5) return;
+        await chrome.storage.local.set({ ytSweptAt: Date.now() });
+        await ytDonCache();
+    } catch (e) { /* bỏ qua */ }
 }
 
 // Make sure the one bridge (yt-bridge.js, MAIN world) runs in this page. The manifest injects it at
@@ -615,41 +630,48 @@ function ytGhepViCues() {
     ytApplyEdits();
 }
 
-// Chon cua so dich quanh nhom gIdx: neu nhom chua het cau thi dich CHUNG
-// voi nhom ke tiep (toi da 3 nhom, ~480 ky tu) de mo hinh hieu tron y,
-// roi tra ban dich ve dung tung nhom / moc thoi gian.
-// opts.batch = true (dịch nền): gom cửa sổ lớn hơn (~900 ký tự / 6 nhóm) để
-// giảm số lần gọi Gemini; dịch khẩn cấp giữ cửa sổ nhỏ cho nhanh.
-function ytChonCuaSo(gIdx, opts = {}) {
+// Translation windows fixed by the group list alone (1.7.3). ytChonCuaSo used to build a window
+// around whichever group a worker picked: small near the playhead, larger further on, cut short by
+// what was in flight. Opening the video again (YouTube resumes where the viewer left off) built
+// different windows, so the translation cache, keyed by the exact sentences, missed and Gemini was
+// paid again for lines it had already translated. Now each group belongs to exactly one window
+// that depends only on the text: a window closes at a sentence end once it holds WIN_SOFT_CHARS or
+// WIN_SOFT_GROUPS, never grows past WIN_HARD_CHARS / WIN_HARD_GROUPS or WIN_MAX_SPAN seconds, and a
+// sentence that runs across groups stays in one window (the old rule: never a fragment alone). The
+// prefetch takes a window only when all of it lies inside the translate-ahead horizon.
+const WIN_SOFT_CHARS = 420, WIN_SOFT_GROUPS = 4, WIN_HARD_CHARS = 800, WIN_HARD_GROUPS = 6, WIN_MAX_SPAN = 45;
+function ytCanonicalWindows(groups) {
+    const of = new Array(groups.length);
+    const wins = [];
+    let cur = [], chars = 0;
+    const close = () => {
+        if (cur.length) { cur.forEach(i => { of[i] = wins.length; }); wins.push(cur); }
+        cur = []; chars = 0;
+    };
+    groups.forEach((g, i) => {
+        const len = String(g.text || "").length + 1;
+        if (cur.length && (chars + len > WIN_HARD_CHARS || cur.length >= WIN_HARD_GROUPS ||
+            g.end - groups[cur[0]].start > WIN_MAX_SPAN)) close();
+        cur.push(i);
+        chars += len;
+        if (groupEndsSentence(g) && (chars >= WIN_SOFT_CHARS || cur.length >= WIN_SOFT_GROUPS)) close();
+    });
+    close();
+    return { groups, of, wins };
+}
+
+function ytWindows(groups) {
+    if (!yt.windows || yt.windows.groups !== groups) yt.windows = ytCanonicalWindows(groups);
+    return yt.windows;
+}
+
+// The untranslated groups of gIdx's window, or [] while any of them is being translated
+function ytChonCuaSo(gIdx) {
     const groups = yt.groups;
-    const maxChars = opts.batch ? 900 : 480;
-    const maxGroups = opts.batch ? 6 : 3;
-    const free = i => i >= 0 && i < groups.length && !groups[i].translated && !yt.inFlightGroups.has(i);
-    if (!free(gIdx)) return [];
-    const idxs = [gIdx];
-    let chars = groups[gIdx].text.length;
-    if (free(gIdx - 1) && !groupEndsSentence(groups[gIdx - 1]) && chars + groups[gIdx - 1].text.length < maxChars) {
-        idxs.unshift(gIdx - 1);
-        chars += groups[gIdx - 1].text.length;
-    }
-    while (idxs.length < maxGroups) {
-        const last = idxs[idxs.length - 1];
-        if (!free(last + 1)) break;
-        // Dịch khẩn cấp: dừng ở cuối câu. Dịch nền: gom tiếp các câu kề nhau.
-        if (!opts.batch && groupEndsSentence(groups[last])) break;
-        if (chars + groups[last + 1].text.length > maxChars) break;
-        // Không gom quá tầm dịch trước (tránh dịch phần người xem có thể không tới)
-        if (opts.horizon != null && groups[last + 1].start > opts.horizon) break;
-        idxs.push(last + 1);
-        chars += groups[last + 1].text.length;
-    }
-    // Dịch nền mà cửa sổ bị cắt giữa câu: lùi về cuối câu gần nhất (không dịch mảnh câu)
-    if (opts.batch && idxs.length > 1 && !groupEndsSentence(groups[idxs[idxs.length - 1]])) {
-        let k = idxs.length - 1;
-        while (k > 0 && !groupEndsSentence(groups[idxs[k]])) k--;
-        if (k > 0) idxs.length = k + 1;
-    }
-    return idxs;
+    if (!groups[gIdx] || groups[gIdx].translated || yt.inFlightGroups.has(gIdx)) return [];
+    const w = ytWindows(groups);
+    const idxs = w.wins[w.of[gIdx]].filter(i => !groups[i].translated);
+    return idxs.some(i => yt.inFlightGroups.has(i)) ? [] : idxs;
 }
 
 // A unit whose translation also holds the next units' content (CST_QUALITY.trimContextLeak).
@@ -697,28 +719,31 @@ function ytRepairCachedLeaks() {
     return n;
 }
 
-function ytGanBanDich(groups, idxs, translations) {
+// engine: who produced the translation. A context-free Google fallback (Gemini briefly failing) is
+// shown, but the video is then not saved to the per-video cache (ytGhiCache), or it would come back
+// on every later visit instead of the Gemini translation
+function ytGanBanDich(groups, idxs, translations, engine) {
     idxs.forEach((gi, k) => {
         const vi = translations[k];
         if (!vi) return;
         const nextStart = groups[gi + 1] ? groups[gi + 1].start : undefined;
         const g = groups[gi];
         if (!g.translated) yt.soNhomDaDich++;
+        g.fallback = engine === "google_fallback";
         g.viText = vi;                 // bản dịch có ngữ cảnh (còn dấu ngắt nghỉ ¦) cho lồng tiếng
         g.viCues = segmentGroupVi(g, vi, nextStart);
         g.translated = true;
     });
     ytTrimLeaks(groups, idxs);
     ytGhepViCues();
-    ytCapNhatTienTrinh();
     yt.renderKey = "";
 }
 
-async function ytDichNhom(gIdx, opts = {}) {
+async function ytDichNhom(gIdx) {
     const groups = yt.groups;
     const session = yt.session;
     if (!session) return false;
-    const idxs = ytChonCuaSo(gIdx, opts);
+    const idxs = ytChonCuaSo(gIdx);
     if (!idxs.length) return false;
 
     idxs.forEach(i => yt.inFlightGroups.add(i));
@@ -728,14 +753,14 @@ async function ytDichNhom(gIdx, opts = {}) {
             // Ban dich lai (sau khi phat hien dau hieu dich may) ve sau thi thay the
             onRefined: better => {
                 if (yt.huyDich || yt.groups !== groups) return;
-                ytGanBanDich(groups, idxs, better.translations);
+                ytGanBanDich(groups, idxs, better.translations, better.engine);
                 console.log(`[AI Subtitle] Đã dịch lại tự nhiên hơn cho nhóm ${idxs.join(", ")}`);
             }
         });
         // Nguoi dung da tat dich hoac chuyen video trong luc cho
         if (yt.huyDich || yt.groups !== groups) return false;
         if (!r.translations || r.translations.every(t => !t)) return false;
-        ytGanBanDich(groups, idxs, r.translations);
+        ytGanBanDich(groups, idxs, r.translations, r.engine);
         return true;
     } catch (e) {
         console.warn(`Dịch nhóm ${idxs.join(",")} lỗi:`, e.message);
@@ -886,7 +911,10 @@ async function ytChayTienTrinhPrefetch(groups) {
                 const g = groups[i];
                 if (g.translated || yt.inFlightGroups.has(i)) continue;
                 if (g.retryAt && g.retryAt > Date.now()) continue;
-                if (g.start > horizon || g.end < curTime - 5) continue;
+                if (g.end < curTime - 5) continue;
+                const win = ytWindows(groups).wins[ytWindows(groups).of[i]];
+                if (groups[win[win.length - 1]].start > horizon) continue;   // all of its window, or wait
+                if (win.some(k => yt.inFlightGroups.has(k))) continue;        // a mate is being translated
 
                 const diff = g.start - curTime;
 
@@ -913,18 +941,19 @@ async function ytChayTienTrinhPrefetch(groups) {
                 continue;
             }
 
-            // Nhóm sắp phát (trong 8 giây tới, ví dụ vừa mở / vừa tua): lượt dịch NHỎ (tới hết câu,
-            // tối đa 3 nhóm) để có bản dịch nhanh nhất; nhóm xa hơn mới gom lượt lớn cho rẻ
-            const near = groups[bestGroupIdx].start - curTime < 8;
-            const ok = await ytDichNhom(bestGroupIdx, { batch: !near, horizon });
+            // The group's fixed window (ytCanonicalWindows), wherever the viewer is
+            const win = ytWindows(groups).wins[ytWindows(groups).of[bestGroupIdx]];
+            const ok = await ytDichNhom(bestGroupIdx);
             if (!ok && !groups[bestGroupIdx].translated) {
                 // Lỗi mạng/hạn ngạch: đánh dấu tạm để không lặp vô hạn. Câu sắp phát (trong 30
                 // giây tới) thử lại sau 2 rồi 4, 8 giây: chờ cố định 15 giây từng làm phụ đề và
-                // giọng đọc im cả quãng. Câu còn xa: 15 giây như cũ.
+                // giọng đọc im cả quãng. Câu còn xa: 15 giây như cũ. The whole window waits: marking
+                // only the picked group let a worker send the same window again at once via a mate.
                 const g = groups[bestGroupIdx];
-                g.fails = (g.fails || 0) + 1;
+                const fails = (g.fails || 0) + 1;
                 const near = yt.videoEl && g.start - yt.videoEl.currentTime < 30;
-                g.retryAt = Date.now() + (near ? Math.min(8000, 1000 * 2 ** g.fails) : 15000);
+                const retryAt = Date.now() + (near ? Math.min(8000, 1000 * 2 ** fails) : 15000);
+                for (const k of win) if (!groups[k].translated) { groups[k].fails = fails; groups[k].retryAt = retryAt; }
                 await new Promise(r => setTimeout(r, 400));
                 if (groups.every(g => g.translated || (g.retryAt && g.retryAt > Date.now()))) await new Promise(r => setTimeout(r, 2000));
             }
@@ -949,35 +978,7 @@ async function ytChayTienTrinhPrefetch(groups) {
 
     if (yt.groups !== groups || yt.huyDich) return;
     yt.daDichXong = groups.every(g => g.translated);
-    ytCapNhatTienTrinh();
     if (yt.daDichXong) ytGhiCache(yt.currentVideoId);
-}
-
-function ytCapNhatTienTrinh() {
-    const icon = document.querySelector(".cst-yt-icon");
-    if (!icon) return;
-    if (yt.daDichXong) {
-        icon.title = "Đang hiện tiếng Việt thời gian thực. Bấm để tắt";
-        const badge = icon.querySelector(".cst-yt-progress");
-        if (badge) badge.remove();
-        return;
-    }
-    const phanTram = yt.tongSoNhom ? Math.round(yt.soNhomDaDich / yt.tongSoNhom * 100) : 0;
-    icon.title = `⚡ Đang dịch Real-time ${phanTram}% (Phụ đề hiển thị tức thì)`;
-
-    let badge = icon.querySelector(".cst-yt-progress");
-    if (!badge) {
-        badge = document.createElement("div");
-        badge.className = "cst-yt-progress";
-        badge.style.cssText = `
-            position: absolute; bottom: -3px; left: 50%;
-            transform: translateX(-50%);
-            font-size: 9px; background: rgba(0,0,0,0.75);
-            padding: 1px 4px; border-radius: 6px; line-height: 1.2;
-        `;
-        icon.appendChild(badge);
-    }
-    badge.textContent = `${phanTram}%`;
 }
 
 function ytKichHoatHienThi() {
@@ -1289,87 +1290,15 @@ async function ytBatDauDich(opts = {}) {
     }
 }
 
-// ---------- Quan sát phụ đề DOM trực tiếp (Live Streams / Native CC Realtime Fallback) ----------
-function ytBatDauDOMCaptionObserver() {
-    if (yt.domCaptionObserver) return;
-
-    let debounceTimer = null;
-    let lastDomText = "";
-
-    const handleMutation = () => {
-        if (!yt.active) return;
-        // Nếu đã có cues từ transcript thì ưu tiên cues đồng bộ cao cấp
-        if (yt.cues && yt.cues.length > 0) return;
-
-        const segs = document.querySelectorAll(".ytp-caption-segment");
-        if (!segs || segs.length === 0) return;
-
-        const currentText = Array.from(segs).map(s => (s.textContent || "").trim()).filter(Boolean).join(" ");
-        if (!currentText || currentText === lastDomText) return;
-        lastDomText = currentText;
-
-        if (debounceTimer) clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            if (!yt.overlay) yt.overlay = ytTaoLopPhuDe();
-            ytAnPhuDeGoc(true);
-
-            // Phu de truc tiep cung dung phien ngu canh: cac cau vua noi la ngu canh truoc
-            (async () => {
-                if (!yt.liveSession) {
-                    yt.liveSession = await createContextSession({ title: document.title.replace(/\s*-\s*YouTube$/, "") }, "");
-                    if (yt.liveSession) yt.liveSession.setUnits([]);
-                }
-                const session = yt.liveSession;
-                if (!session) return;
-                session.units.push(currentText);
-                if (session.units.length > 60) {
-                    // Giu cua so gan nhat de khong phinh bo nho
-                    session.units = session.units.slice(-30);
-                    session.results.clear();
-                }
-                const idx = session.units.length - 1;
-                try {
-                    const r = await translateWindow(session, [idx], { realtime: true });
-                    if (!yt.overlay || !r.translations[0]) return;
-                    const seg = window.CST_VI_SEG;
-                    const vi = seg ? seg.cleanText(r.translations[0]) : r.translations[0];
-                    const lines = seg ? seg.breakLines(vi) : [vi];
-                    const isDual = ytSubStyle.mode === "dual" || state.dualMode;
-                    ytVePhuDe(yt.overlay, { text: vi, lines }, isDual ? currentText : "");
-                } catch (e) {
-                    console.warn("Dich phu de truc tiep loi:", e.message);
-                }
-            })();
-        }, 120);
-    };
-
-    const targetNode = document.querySelector(".html5-video-player") || document.body;
-    yt.domCaptionObserver = new MutationObserver(handleMutation);
-    yt.domCaptionObserver.observe(targetNode, {
-        childList: true,
-        subtree: true,
-        characterData: true
-    });
-}
-
-function ytDungDOMCaptionObserver() {
-    if (yt.domCaptionObserver) {
-        yt.domCaptionObserver.disconnect();
-        yt.domCaptionObserver = null;
-    }
-}
-
 function ytTatDich() {
     yt.active = false;
     yt.huyDich = true;
     ytDungDongBo();
-    ytDungDOMCaptionObserver();
     ytAnPhuDeGoc(false);
     ytXoaLopPhuDe();
     yt.cues = [];
     yt.groups = [];
     yt.session = null;
-    yt.liveSession = null;
     yt.viCues = [];
     yt.lastSpokenVi = null;
     yt.cueToGroupMap.clear();
@@ -1400,29 +1329,12 @@ function ytCapNhatTrangThaiNutThanhDieuKhien() {
     });
 }
 
+// The control-bar button shows the state (busy / on); the status argument is kept for the callers
 function ytDatTrangThaiNut(status) {
-    const icon = document.querySelector(".cst-yt-icon");
-    if (icon) {
-        const kieu = {
-            idle:    { bg: "rgba(0,0,0,0.55)", noiDung: "\u{1F310}", tip: "Bật phụ đề tiếng Việt" },
-            loading: { bg: "#E2A11E",          noiDung: "\u{23F3}",  tip: "Đang dịch, vui lòng chờ..." },
-            on:      { bg: "#1E80E2",          noiDung: "\u{1F310}", tip: "Đang hiện tiếng Việt. Bấm để tắt" },
-            error:   { bg: "#D93025",          noiDung: "\u{26A0}",  tip: "Dịch thất bại. Bấm để thử lại" }
-        }[status] || {};
-        if (kieu.bg) icon.style.backgroundColor = kieu.bg;
-        if (kieu.noiDung) icon.innerHTML = kieu.noiDung;
-        if (kieu.tip) icon.title = kieu.tip;
-    }
     ytCapNhatTrangThaiNutThanhDieuKhien();
 }
 
 function ytDatTrangThaiNutLongTieng(on) {
-    const icon = document.querySelector(".cst-yt-dub-icon");
-    if (icon) {
-        icon.style.backgroundColor = on ? "#1E8E3E" : "rgba(0,0,0,0.55)";
-        icon.innerHTML = on ? "\u{1F509}" : "\u{1F508}";
-        icon.title = on ? "Đang lồng tiếng. Bấm để tắt" : "Bật lồng tiếng Việt";
-    }
     ytCapNhatTrangThaiNutThanhDieuKhien();
 }
 
@@ -1681,6 +1593,7 @@ function ytMoMenuNhanh(player, btn) {
             ? "Đã chạm ngân sách giọng AI nên đang dùng giọng hệ thống."
             : "Giọng chính không dùng được nên đang dùng giọng hệ thống.";
         else if (lastAi && lastAi.engine === "google_fallback") msg = `Gemini lỗi (${lastAi.fallbackReason || "không rõ"}), đang dịch tạm bằng Google. Bấm Cài đặt để kiểm tra Key.`;
+        else if (lastAi && lastAi.engine === "google" && /API Key/.test(lastAi.fallbackReason || "")) msg = "Chưa có API Key Gemini nên đang dịch bằng Google (không theo ngữ cảnh). Bấm Cài đặt để thêm Key.";
         canhBao.textContent = msg;
         canhBao.style.display = msg ? "block" : "none";
     }
@@ -1744,20 +1657,6 @@ function ytMoMenuNhanh(player, btn) {
     }
     player.appendChild(menu);
     setTimeout(() => { try { rowSub.focus(); } catch (e) { /* bỏ qua */ } }, 0);
-}
-
-function ytTaoNut() {
-    // Luôn ưu tiên nút trong thanh điều khiển (giống YouTube Dubbing)
-    ytTaoNutThanhDieuKhien();
-
-    // Dọn dẹp bất kỳ icon nổi nào nếu trước đó có xuất hiện
-    const player = document.querySelector("#movie_player") || document.querySelector(".html5-video-player");
-    if (player) {
-        const floating1 = player.querySelector(".cst-yt-icon");
-        if (floating1) floating1.remove();
-        const floating2 = player.querySelector(".cst-yt-dub-icon");
-        if (floating2) floating2.remove();
-    }
 }
 
 // Nguồn cho lồng tiếng: nhóm câu đã dịch có ngữ cảnh (hoặc từ bộ nhớ đệm)
@@ -1908,7 +1807,6 @@ function ytTheoDoi() {
         if (yt.active || yt.busy) ytTatDich();
         yt.currentVideoId = ma;
         setTimeout(() => {
-            ytTaoNut();
             ytTaoNutThanhDieuKhien();
             ytTuDongDich();
         }, 300);
@@ -2018,7 +1916,6 @@ async function ytKhoiDong() {
         });
     } catch (e) {}
 
-    ytTaoNut();
     ytTaoNutThanhDieuKhien();
     ytTheoDoi();
     // Tự dịch sớm; ytTuDongDich tự chờ trình phát có danh sách phụ đề
@@ -2026,7 +1923,7 @@ async function ytKhoiDong() {
     window.addEventListener("message", event => {
         if (event.source === window && event.data && event.data.cstType === "AM_THANH_DOI") ytKhiDoiAmThanh(event.data);
     });
-    ytDonCache(); // xoa cache phien ban cu (co the chua ma giu cho bi lot)
+    ytSweepCacheDaily();
     console.log("Da san sang dich phu de YouTube");
 }
 

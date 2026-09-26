@@ -215,10 +215,35 @@ test("YouTube: nhóm chưa hết câu được dịch CHUNG với nhóm kế (kh
         { text: "Next topic.", translated: false }
     ];
     const idx = vm.runInContext("yt.groups = __g; yt.inFlightGroups.clear(); ytChonCuaSo(0)", env);
-    assert.deepEqual([...idx], [0, 1]);
-    // Bắt đầu từ mảnh sau: lùi lại lấy mảnh trước
+    assert.deepEqual([...idx], [0, 1, 2]);
+    // starting from the second fragment gives the same window (1.7.3: windows are fixed)
     const idx2 = vm.runInContext("ytChonCuaSo(1)", env);
-    assert.deepEqual([...idx2], [0, 1]);
+    assert.deepEqual([...idx2], [0, 1, 2]);
+});
+
+test("YouTube windows depend on the text only: the same window from any group, any start point", () => {
+    const env = makeContentEnv(() => ({ ok: true, translations: [] }), { youtube: true });
+    const g = [];
+    for (let i = 0; i < 40; i++) g.push({ text: i % 4 === 3 ? `and this sentence number ${i} ends right here with words.` : `this is fragment ${i} of a long sentence that`, translated: false });
+    env.__g = g;
+    const all = vm.runInContext("yt.groups = __g; yt.inFlightGroups.clear(); __g.map((_, i) => ytChonCuaSo(i).join(','))", env);
+    const wins = [...new Set(all)].map(w => w.split(",").map(Number));
+    // every group sits in exactly one window, windows tile the list in order
+    assert.deepEqual(wins.flat(), g.map((_, i) => i));
+    for (const w of wins) {
+        const chars = w.reduce((a, i) => a + g[i].text.length + 1, 0);
+        assert.ok(w.length <= 6 && chars <= 800 + 60, `window too big: ${w}`);
+        const last = g[w[w.length - 1]].text;
+        if (w !== wins[wins.length - 1]) assert.ok(/\.$/.test(last) || w.length === 6 || chars > 740, `window ends mid-sentence: ${w}`);
+    }
+    // a group in flight blocks its whole window; a translated group is left out
+    vm.runInContext("yt.inFlightGroups.add(1)", env);
+    assert.deepEqual([...vm.runInContext("ytChonCuaSo(0)", env)], []);
+    vm.runInContext("yt.inFlightGroups.clear(); __g[0].translated = true", env);
+    assert.ok(!vm.runInContext("ytChonCuaSo(1)", env).includes(0));
+    // a new group list (another video) gets its own windows
+    vm.runInContext("yt.groups = __g.slice(10).map(x => ({ ...x, translated: false }))", env);
+    assert.ok(vm.runInContext("ytChonCuaSo(0).length", env) >= 1);
 });
 
 test("YouTube -> lồng tiếng: dùng CHÍNH bản dịch có ngữ cảnh của nhóm câu (không dịch lại từng phụ đề)", async () => {

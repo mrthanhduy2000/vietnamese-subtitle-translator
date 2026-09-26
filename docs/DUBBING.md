@@ -4,9 +4,10 @@ Line numbers drift. Grep the function name.
 
 **Rule that overrides everything here: never condense, shorten or summarize a line.** If Vietnamese
 speech does not fit its slot, the allowed levers are speech rate, trimming pauses inside the
-sentence, chaining sentences together, and accepting a small lag. `condense` is set to `null` in
-`dubbing.js` on purpose. The condense machinery (`needsCondense`, `condenseBeforeTts`, the
-`condenseSpeech` service-worker action) still exists but must stay unused.
+sentence, chaining sentences together, and accepting a small lag. There is no condense code: the
+machinery that one `condense: null` in `dubbing.js` used to keep off (`needsCondense`,
+`condenseBeforeTts`, the `condenseSpeech` action, `condensedIsSafe`) was removed in 1.7.3, and
+`tests/backlog.test.js` fails if any of it comes back.
 
 ## Four files, one direction of data
 
@@ -148,7 +149,7 @@ with `cst-start.command`).
 
 Engine sends `{ action: "synthesizeSpeech", engine: "vieneu", text, voice, jobId, parts: [{ key,
 weight }], maxPause }`. `background.js` probes `/health` and `/v1/models` (`handleLocalTtsStatus`),
-warms the model (`handleLocalTtsWarm`), and calls the OpenAI-compatible
+and calls the OpenAI-compatible
 `POST /v1/audio/speech` with `{ model, voice, input, response_format: "pcm", sample_rate,
 temperature }`.
 
@@ -172,7 +173,7 @@ sentence 0.4 / clause 0.32 / comma 0.26 s (capped by `maxPause`, so tight mode s
 every other stop to 0.09 s, and leaves one 0.16 s breath per 4.5 s of unpunctuated speech; and
 `buildDubScript({ joinGroups })` (free voice only) reads a sentence that spans two translation groups
 as one segment (a split made the model end the first half with a falling tone, then stop). Then
-`AUDIO.gateNoise` pulls the gaps down 18 dB (Mỹ Duyên's reference hiss: gaps -52.8 -> -64.7 dB).
+`AUDIO.gateNoise` (removed in 1.7.3, see below) pulled the gaps down 18 dB (Mỹ Duyên's reference hiss: gaps -52.8 -> -64.7 dB).
 Requests are 48 kHz: Chrome's pitch-preserving time-stretch roughened a 24 kHz Thục Đoan copy much
 more (roughest-decile harmonicity 0.700 -> 0.613 at 1.4x vs 0.669 -> 0.649 at 48 kHz). The server
 ignores `speed`, so the browser stretch cannot be avoided. `LOCAL_STYLE_VERSION` 4: all VieNeu audio
@@ -208,7 +209,7 @@ male, picked by `localHighPass(voice)`) then `denoise`; per piece `shapePauses` 
   1-4 kHz, -9.6 dB at 4-12 kHz; fricatives 0.0 dB, loud speech -0.1 dB, weak word tails -1.2 dB
   (was -0.7). Flaring-bin index in the gaps 14.6 -> 10.6 (raw 9.7). 97 -> 75 ms per take.
 - The gate (`gateNoise`) is off the path: after the fix it took only ~1.5 dB more off the gaps and
-  made the floor rise and fall with the words. The function stays exported.
+  made the floor rise and fall with the words. Removed in 1.7.3.
 - Pauses: `textBreaks` adds soft breaks before clause openings (`STARTERS2`, `STARTERS1`, weak "và"
   / "hoặc") when the clause before has >= 5 words (6 for weak) and >= 3 (4) follow. Only a real
   stop of the voice (>= 0.12 s) near one keeps 0.1 + 0.008 per word (max 0.2); the voice stopped

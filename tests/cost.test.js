@@ -137,7 +137,7 @@ test("bản dịch lại (tốt hơn) được ghi đè vào cache và đánh d�
     assert.equal(r2.restored, true);
 });
 
-test("lỗi 503 kéo dài: thử lại CÓ GIỚI HẠN (3 lượt/yêu cầu), rồi dùng Google; bản Google KHÔNG lưu bền vững", async () => {
+test("lỗi 503 kéo dài: thử lại CÓ GIỚI HẠN (3 lượt ở model đầu, 1 lượt mỗi model kế), rồi dùng Google; bản Google KHÔNG lưu bền vững", async () => {
     let gem = 0;
     const f = async u => {
         if (u.includes("generativelanguage")) { gem++; return { ok: false, status: 503, statusText: "x", json: async () => ({ error: { code: 503, status: "UNAVAILABLE", message: "The model is overloaded." } }) }; }
@@ -146,9 +146,11 @@ test("lỗi 503 kéo dài: thử lại CÓ GIỚI HẠN (3 lượt/yêu cầu), 
     const E = bgEnv(f, { geminiApiKey: "k", costMigration113: true });
     const r1 = await E.send(REQ);
     assert.equal(r1.engine, "google_fallback");
-    assert.equal(gem, 3, "1 lượt đầu + tối đa 2 lượt thử lại");
+    // chain (auto, balanced): 2.5, 3.1, 3.5 Flash-Lite. 1.7.3: an overloaded model hands over to the
+    // next one (one attempt each) instead of going straight to Google
+    assert.equal(gem, 5, "3 lượt ở model đầu + 1 lượt mỗi model kế");
     await E.send(REQ);
-    assert.equal(gem, 6, "lần sau vẫn thử lại Gemini vì bản Google không được lưu");
+    assert.equal(gem, 10, "lần sau vẫn thử lại Gemini vì bản Google không được lưu");
 });
 
 test("chuyển model một lần: mặc định cũ (3.5 / 3.1 / 2.5 do bản 1.1.5 tự đặt) -> Tự động; lựa chọn khác giữ nguyên; tên model đã tắt được thay", async () => {
@@ -208,15 +210,6 @@ test("TTS lưu kho NGAY trong service worker (trước khi trả lời): khởi 
     assert.equal(st.audio.count, 2);
     const cleared = await B.send({ action: "cacheClear", which: "audio" });
     assert.equal(cleared.audio.count, 0);
-});
-
-test("rút gọn lời nói có cache: cùng câu, cùng thời lượng -> không gọi lại", async () => {
-    let calls = 0;
-    const E = bgEnv(async () => { calls++; return reply("x") && { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: "Câu gọn." }] } }] }) }; }, { geminiApiKey: "k", costMigration113: true });
-    const q = { action: "condenseSpeech", text: "Một câu rất dài cần rút gọn.", seconds: 2.1, srcText: "x" };
-    assert.equal((await E.send(q)).text, "Câu gọn.");
-    assert.equal((await E.send(q)).fromCache, true);
-    assert.equal(calls, 1);
 });
 
 test("TTS: không tự dùng model Pro; lỗi 500 thử lại đúng 1 lần; hủy khi người dùng tua", async () => {
@@ -393,7 +386,7 @@ async function dubRun(opts = {}) {
         now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id),
         createObjectURL: () => "blob:x", revokeObjectURL() {},
         createAudio: () => { const a = new FakeAudio(clock, { duration: 99 }); audios.push(a); return a; },
-        audioCache: opts.store, condense: opts.condense
+        audioCache: opts.store
     }, { prefetchMax: opts.prefetchMax || 18 });
     eng.start();
     const run = async ms => {
@@ -463,30 +456,8 @@ test("tua đi chỗ khác: hủy lượt TTS không còn liên quan, không tín
     assert.ok(S.eng.stats.aborted >= 1);
 });
 
-test("rút gọn: vượt nhẹ -> KHÔNG gọi (co giãn cục bộ); vượt nhiều -> rút gọn TRƯỚC, rồi TTS đúng một lần", async () => {
-    // Nhóm 1: vượt nhẹ; nhóm 2: vượt rất nhiều (câu dài trong khung ngắn)
-    const seg = require("../vi-segmenter.js");
-    const mk = (vi, s, e, en) => { const src = [{ start: s, end: e, text: en }]; return { start: s, end: e, srcCues: src, viText: vi, viCues: seg.segmentGroupSafe(vi, src) }; };
-    const groups = [
-        mk("Hôm nay chúng ta sẽ tìm hiểu về mạng nơ-ron.", 20, 22.2, "Today we'll learn about neural networks."),
-        mk("Trước khi chuyển sang phần tiếp theo, hãy cùng tóm tắt thật kỹ tất cả những gì chúng ta đã học về cơ chế chú ý và mạng hồi quy.", 30, 31.4, "Let's recap.")
-    ];
-    const condensed = [];
-    const S = await dubRun({ store: audioStore(), groups, condense: async p => { condensed.push(p.id); return "Hãy cùng tóm tắt những gì đã học về cơ chế chú ý và mạng hồi quy."; } });
-    S.video.play();
-    await S.run(31000);   // tới khi cả hai đoạn đã phát
-    const [p1, p2] = S.eng.plans;
-    assert.deepEqual(condensed, [p2.id], "chỉ đoạn vượt nhiều mới được rút gọn");
-    const all = S.prov.calls.flat();
-    assert.equal(all.filter(id => id === p2.id).length, 1, "đoạn rút gọn phải tạo audio đúng một lần");
-    assert.equal(all.filter(id => id === p1.id).length, 1);
-    assert.match(S.eng.planById.get(p2.id).text, /Hãy cùng tóm tắt/);
-    assert.equal(S.eng.stats.condenseCalls, 1);
-});
-
 test("audio dài hơn khung sau khi tạo: chỉ co giãn cục bộ (<= 1,15x), không rút gọn rồi tạo lại", async () => {
-    const condensed = [];
-    const S = await dubRun({ store: audioStore(), dur: p => p.targetDuration * 1.35, condense: async p => { condensed.push(p.id); return null; } });
+    const S = await dubRun({ store: audioStore(), dur: p => p.targetDuration * 1.35 });
     S.video.play();
     await S.run(30000);
     const all = S.prov.calls.flat();
@@ -509,7 +480,7 @@ const gErr = (status, statusName, message, details) => ({ ok: false, status, sta
 const GOOGLE_OK = { ok: true, status: 200, json: async () => [[["Bản Google", "x"]], null, "en"] };
 const cfgK = { geminiApiKey: "k", costMigration113: true };
 
-test("429 (giới hạn tốc độ): không thử lại dồn dập; tạm ngưng ĐÚNG model đó theo thời gian máy chủ báo, model khác vẫn dùng được", async () => {
+test("429 (giới hạn tốc độ): không thử lại dồn dập; tạm ngưng ĐÚNG model đó, model kế trong chuỗi dịch thay (không rơi về Google)", async () => {
     const seen = [];
     const f = async u => {
         if (!u.includes("generativelanguage")) return GOOGLE_OK;
@@ -519,14 +490,24 @@ test("429 (giới hạn tốc độ): không thử lại dồn dập; tạm ngư
     };
     const E = bgEnv(f, cfgK);
     const r1 = await E.send({ ...REQ, sentences: ["First."] });
-    assert.equal(r1.engine, "google_fallback");
-    assert.deepEqual(seen, ["gemini-2.5-flash-lite"], "429 không được thử lại ngay");
+    assert.equal(r1.engine, "gemini", "the next model of the chain translates, with context");
+    assert.equal(r1.fallbackFrom, "gemini-2.5-flash-lite");
+    assert.deepEqual(seen, ["gemini-2.5-flash-lite", "gemini-3.1-flash-lite"], "429 không được thử lại ngay");
     const r2 = await E.send({ ...REQ, sentences: ["Second."] });
-    assert.equal(r2.engine, "google_fallback");
-    assert.deepEqual(seen, ["gemini-2.5-flash-lite"], "trong thời gian tạm ngưng không gọi lại model bị giới hạn");
+    assert.equal(r2.engine, "gemini");
+    assert.deepEqual(seen.filter(m => m === "gemini-2.5-flash-lite").length, 1, "trong thời gian tạm ngưng không gọi lại model bị giới hạn");
     const r3 = await E.send({ ...REQ, sentences: ["Third."], tier: "strong" });
     assert.equal(r3.engine, "gemini");
-    assert.deepEqual(seen, ["gemini-2.5-flash-lite", "gemini-3.5-flash-lite"]);
+    assert.equal(seen[seen.length - 1], "gemini-3.5-flash-lite");
+    // economy caps the chain at the cheapest usable model: a rate limit there still goes to Google
+    const seenE = [];
+    const E2 = bgEnv(async u => {
+        if (!u.includes("generativelanguage")) return GOOGLE_OK;
+        seenE.push(u.match(/models\/([^:]+)/)[1]);
+        return gErr(429, "RESOURCE_EXHAUSTED", "Resource has been exhausted", []);
+    }, { ...cfgK, costMode: "economy" });
+    assert.equal((await E2.send({ ...REQ, sentences: ["Cheap."] })).engine, "google_fallback");
+    assert.deepEqual(seenE, ["gemini-2.5-flash-lite"], "Tiết kiệm: never a pricier model");
 });
 
 test("400 yêu cầu sai: gọi đúng 1 lần, không thử lại, không ghi gì vào kho", async () => {
@@ -822,7 +803,6 @@ test("danh mục: 2.5 Flash-Lite có trong danh sách, rẻ nhất nhưng CHỈ 
     assert.equal(COST.findModel("gemini-2.5-flash-lite").access, "restricted");
     assert.equal(COST.DEFAULT_MODELS.cheap, "auto");
     assert.equal(COST.AUTO_CANDIDATES[0], "gemini-2.5-flash-lite");
-    assert.equal(COST.DEFAULT_MODELS.universal, "gemini-3.1-flash-lite");
     assert.equal(COST.modelLabel("gemini-2.5-flash-lite"), "Gemini 2.5 Flash-Lite");
     assert.equal(Math.min(...COST.TRANSLATION_MODELS.map(m => m.costRank)), COST.costRank("gemini-2.5-flash-lite"));
     assert.ok(COST.costRank(COST.DEFAULT_MODELS.strong) > COST.costRank(COST.AUTO_CANDIDATES[0]));

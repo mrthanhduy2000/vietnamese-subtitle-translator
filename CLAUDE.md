@@ -20,8 +20,9 @@ comments, UI strings and test names are Vietnamese.
 
 1. **Never condense, shorten or summarize dubbing lines.** If the Vietnamese speech overruns its
    subtitle slot, fix it with speech rate, pause trimming and sentence chaining. Dropping words
-   loses what the speaker actually said. `condense` is deliberately disabled in `dubbing.js`; leave
-   it off, and do not propose "translate it shorter" either.
+   loses what the speaker actually said. There is no condense code any more (removed in 1.7.3,
+   `tests/backlog.test.js` guards it); do not add one back, and do not propose "translate it
+   shorter" either.
 2. **Bump the version at the end of every code change**: `node tools/bump-version.js`. Scheme is
    +0.0.1 with carry at 9 (`1.2.9` -> `1.3.0`, `1.9.9` -> `2.0.0`). The script owns all five places
    the version appears; never hand-edit `build-info.js` or a version badge.
