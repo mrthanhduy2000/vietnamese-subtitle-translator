@@ -186,6 +186,15 @@ threshold altered 2 to 4% of Thục Đoan's speech samples (clipped word tails),
 Duyên's hiss drops 4 to 9 dB instead of 12. Free voices segment with `FREE_SEGMENTS` (`joinGroups`,
 `segSoft` 8, `segHard` 11) so fewer sentences are cut into two utterances. `LOCAL_STYLE_VERSION` 5.
 
+**Hiss removal (1.7.1).** `AUDIO.denoise` runs on the whole VieNeu take before it is cut: STFT
+(1024 / hop 256 at 48 kHz), per-bin noise power = 20th percentile over frames x 1.6, decision-directed
+Wiener gain (a-priori SNR smoothing 0.98) with a -12 dB floor and 3-bin smoothing (no musical noise).
+A take with speech/floor over 50 dB is left alone (Thục Đoan ~58 to 60 dB: skipped; Mỹ Duyên ~40 to
+41 dB: applied). Measured on Mỹ Duyên: stationary hiss down ~10 dB in the low and high bands, speech
+energy change under 0.1 dB, harmonicity unchanged; ~140 ms per 10 s take in the service worker.
+Pause shaping measured on 8 Mỹ Duyên sentences with , ; : ? ! : 14/14 punctuation marks matched a
+pause, 6 unpunctuated stops closed. `LOCAL_STYLE_VERSION` 6.
+
 ### Gemini TTS (paid)
 
 `POST` to `GEMINI_BASE` with `responseModalities: ["AUDIO"]` and a prebuilt voice name; the reply

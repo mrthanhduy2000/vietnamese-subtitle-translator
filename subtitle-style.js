@@ -67,7 +67,7 @@
         offset: 1,
         pinBottom: false,          // true: luôn sát lề đã chọn, thanh điều khiển có thể che tạm
         fontFamily: "be-vietnam-pro",
-        fontSize: 90,
+        fontSize: 100,             // 1.7.0 scale: 100% = the old 70%, the size the user reads best
         fontWeight: "400",
         strokeStyle: "glow",
         strokeColor: "#000000",
@@ -90,7 +90,7 @@
             s.fontFamily = LEGACY[String(s.fontFamily || "").toLowerCase()] || DEFAULT_STYLE.fontFamily;
         }
         if (!STROKES.some(k => k.id === s.strokeStyle)) s.strokeStyle = DEFAULT_STYLE.strokeStyle;
-        s.fontSize = clampNum(s.fontSize, 50, 250, DEFAULT_STYLE.fontSize);
+        s.fontSize = clampNum(s.fontSize, 50, 300, DEFAULT_STYLE.fontSize);
         s.bgOpacity = clampNum(s.bgOpacity, 0, 100, DEFAULT_STYLE.bgOpacity);
         s.offset = clampNum(s.offset, 0, 40, DEFAULT_STYLE.offset);
         s.borderRadius = clampNum(s.borderRadius, 0, 24, DEFAULT_STYLE.borderRadius);
@@ -258,8 +258,32 @@
         return !!(saved.subStyle && saved.subStyle.mode === "dual");
     }
 
+    // Reading time (1.7.0): a line stays on screen into the silence after it, up to maxLinger
+    // seconds, never closer than `gap` to the next line. Measured on the 22 fixture sentences: 5 of
+    // 32 lines ran faster than 20 characters per second and one showed for under a second. Display
+    // only; the voice keeps the subtitle's own timing (it plans from the dub groups, not from these).
+    function lingerCues(cues, opts = {}) {
+        const maxLinger = opts.maxLinger != null ? opts.maxLinger : 0.7;
+        const gap = opts.gap != null ? opts.gap : 0.06;
+        // idempotent: the subtitle's own end is kept in baseEnd, so running it twice (a cache load of
+        // an already lingered list) never stretches a line further
+        for (let i = 0; i < cues.length; i++) {
+            const c = cues[i], next = cues[i + 1];
+            if (c.baseEnd == null) c.baseEnd = c.end;
+            const limit = next ? next.start - gap : c.baseEnd + maxLinger;
+            c.end = Math.max(c.baseEnd, Math.min(c.baseEnd + maxLinger, limit));
+        }
+        return cues;
+    }
+
+    // Subtitle size scale (1.7.0). The user found the old 70% the right reading size and asked for it
+    // to be called 100%; every size is rescaled the same way. fontSize is what the viewer sees and
+    // picks, SIZE_UNIT turns it into the old multiplier: 100 -> 0.70, 130 -> 0.91, 200 -> 1.40.
+    const SIZE_UNIT = 0.7;
+    const sizeFactor = fontSize => (Number(fontSize) || DEFAULT_STYLE.fontSize) / 100 * SIZE_UNIT;
+
     const api = {
-        FONTS, STROKES, DEFAULT_STYLE, resolveDual,
+        FONTS, STROKES, DEFAULT_STYLE, resolveDual, SIZE_UNIT, sizeFactor, lingerCues,
         getFont, normalizeStyle, fontStack, ensureFont, isLocalFontAvailable,
         textShadow, backgroundColor, hexToRgba, googleFontsUrl,
         fitLines, textWidth

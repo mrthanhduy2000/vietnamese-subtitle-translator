@@ -379,6 +379,107 @@
         return out;
     }
 
+    // ---------------- Spectral noise reduction (1.7.0) ----------------
+    // In-place iterative radix-2 FFT (re, im: Float64Array of length n, n a power of two).
+    function fft(re, im, inverse) {
+        const n = re.length;
+        for (let i = 1, j = 0; i < n; i++) {
+            let bit = n >> 1;
+            for (; j & bit; bit >>= 1) j ^= bit;
+            j ^= bit;
+            if (i < j) { let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; }
+        }
+        for (let len = 2; len <= n; len <<= 1) {
+            const ang = (inverse ? 2 : -2) * Math.PI / len;
+            const wr = Math.cos(ang), wi = Math.sin(ang);
+            for (let i = 0; i < n; i += len) {
+                let cr = 1, ci = 0;
+                for (let k = 0; k < len / 2; k++) {
+                    const a = i + k, b = a + len / 2;
+                    const xr = re[b] * cr - im[b] * ci, xi = re[b] * ci + im[b] * cr;
+                    re[b] = re[a] - xr; im[b] = im[a] - xi;
+                    re[a] += xr; im[a] += xi;
+                    const nr = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = nr;
+                }
+            }
+        }
+        if (inverse) for (let i = 0; i < n; i++) { re[i] /= n; im[i] /= n; }
+    }
+
+    // Stationary hiss removal for a TTS take. Some VieNeu voices (Mỹ Duyên: floor -51 dB against
+    // -75 dB for Thục Đoan) carry a steady hiss from their reference recording, audible under the
+    // words too, where a gate cannot reach. The hiss spectrum is learnt from the take's quietest
+    // frames, then every frame gets a per-bin Wiener gain with a decision-directed a-priori SNR
+    // (Ephraim-Malah), which is what keeps "musical noise" (the warbly artefact of plain spectral
+    // subtraction) away. The gain never goes under -maxDb, and a take whose floor is already far
+    // under the speech (a clean voice) is returned untouched.
+    function denoise(samples, sr, opts = {}) {
+        const N = opts.fftSize || (sr >= 32000 ? 1024 : 512), H = N / 4;
+        if (samples.length < N * 4) return { samples, applied: false, reason: "short" };
+        const win = new Float64Array(N);
+        for (let i = 0; i < N; i++) win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / N);
+        const frames = Math.floor((samples.length - N) / H) + 1;
+        const bins = N / 2 + 1;
+        const mags = [], phs = [];
+        const energy = new Float64Array(frames);
+        const re = new Float64Array(N), im = new Float64Array(N);
+        for (let f = 0; f < frames; f++) {
+            for (let i = 0; i < N; i++) { re[i] = samples[f * H + i] * win[i]; im[i] = 0; }
+            fft(re, im, false);
+            const m = new Float32Array(bins), p = new Float32Array(bins);
+            let e = 0;
+            for (let k = 0; k < bins; k++) { m[k] = Math.hypot(re[k], im[k]); p[k] = Math.atan2(im[k], re[k]); e += m[k] * m[k]; }
+            mags.push(m); phs.push(p); energy[f] = e;
+        }
+        // noise profile: mean power of the quietest 10% of frames (at least 8)
+        const order = Array.from(energy.keys()).sort((a, b) => energy[a] - energy[b]);
+        const quiet = order.slice(0, Math.max(8, Math.floor(frames * 0.1)));
+        const loud = energy[order[Math.floor(frames * 0.9)]] || 1e-12;
+        const floorE = quiet.reduce((a, f) => a + energy[f], 0) / quiet.length;
+        const snrDb = 10 * Math.log10(loud / Math.max(1e-20, floorE));
+        if (snrDb > (opts.skipAboveDb != null ? opts.skipAboveDb : 50)) return { samples, applied: false, reason: "clean", snrDb };
+        // per-bin noise power: the 20th percentile over all frames (minimum-statistics style) times a
+        // bias of 1.6. A mean over the quietest frames under-estimated it: those are often the digital
+        // silence at the ends of the take, far below the hiss between words.
+        const noise = new Float64Array(bins);
+        const col = new Float64Array(frames);
+        const q = Math.floor(frames * (opts.noisePercentile != null ? opts.noisePercentile : 0.2));
+        for (let k = 0; k < bins; k++) {
+            for (let f = 0; f < frames; f++) col[f] = mags[f][k] * mags[f][k];
+            col.sort();
+            noise[k] = col[q] * (opts.noiseBias != null ? opts.noiseBias : 1.6);
+        }
+        const gMin = dbToLin(-(opts.maxDb != null ? opts.maxDb : 12));
+        const alpha = 0.98;
+        const prevClean = new Float64Array(bins);
+        const out = new Float64Array(samples.length);
+        const norm = new Float64Array(samples.length);
+        const g = new Float64Array(bins);
+        for (let f = 0; f < frames; f++) {
+            const m = mags[f];
+            for (let k = 0; k < bins; k++) {
+                const nk = Math.max(noise[k], 1e-20);
+                const post = m[k] * m[k] / nk;                          // a-posteriori SNR
+                const prio = alpha * prevClean[k] / nk + (1 - alpha) * Math.max(0, post - 1);
+                g[k] = Math.max(gMin, prio / (1 + prio));
+            }
+            // light smoothing across neighbouring bins
+            for (let k = 0; k < bins; k++) {
+                const a = g[Math.max(0, k - 1)], c = g[Math.min(bins - 1, k + 1)];
+                const gk = Math.max(gMin, 0.25 * a + 0.5 * g[k] + 0.25 * c);
+                re[k] = m[k] * gk * Math.cos(phs[f][k]);
+                im[k] = m[k] * gk * Math.sin(phs[f][k]);
+                prevClean[k] = (m[k] * gk) * (m[k] * gk);
+            }
+            for (let k = 1; k < N / 2; k++) { re[N - k] = re[k]; im[N - k] = -im[k]; }
+            fft(re, im, true);
+            for (let i = 0; i < N; i++) { out[f * H + i] += re[i] * win[i]; norm[f * H + i] += win[i] * win[i]; }
+        }
+        const res = new Float32Array(samples.length);
+        for (let i = 0; i < samples.length; i++) res[i] = norm[i] > 1e-6 ? out[i] / norm[i] : samples[i];
+        return { samples: res, applied: true, snrDb };
+    }
+
     function prepareSpeech(samples, sr, opts = {}) {
         const trimmed = trimSilence(samples, sr, opts.keepMs || 25);
         const norm = normalize(trimmed, sr, opts);
@@ -455,7 +556,7 @@
     const api = {
         base64ToBytes, pcm16leToFloat, decodeWav, encodeWav, analyze, findSilences, trimSilence,
         normalize, fade, edgeJump, prepareSpeech, compressPauses, splitBySilence, slice, dbToLin, linToDb,
-        shrinkSilences, punctuationBreaks, shapePauses, gateNoise
+        shrinkSilences, punctuationBreaks, shapePauses, gateNoise, denoise, fft
     };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_DUB_AUDIO = api;

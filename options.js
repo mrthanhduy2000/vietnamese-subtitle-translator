@@ -166,7 +166,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // 3. Typography: dùng đúng hàm như trên trang video
         previewBox.style.fontFamily = S.fontStack(s.fontFamily);
         previewBox.style.fontWeight = s.fontWeight;
-        previewBox.style.fontSize = `${(15.5 * (s.fontSize / 100)).toFixed(1)}px`;
+        previewBox.style.fontSize = `${(15.5 * S.sizeFactor(s.fontSize)).toFixed(1)}px`;
         previewBox.style.lineHeight = String(s.lineHeight);
         previewBox.style.textShadow = S.textShadow(s);
         previewViLine.style.color = s.fontColor;
@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         let lines = SEG ? SEG.breakLines(PREVIEW_VI) : [PREVIEW_VI];
         const container = previewBox.parentElement;
         if (SEG && container) {
-            const fontPx = 15.5 * (s.fontSize / 100);
+            const fontPx = 15.5 * S.sizeFactor(s.fontSize);
             const avail = container.clientWidth * 0.86 - fontPx * 1.6;
             const ctx = (updatePreview._ctx = updatePreview._ctx || document.createElement("canvas").getContext("2d"));
             ctx.font = `${s.fontWeight} ${fontPx}px ${S.fontStack(s.fontFamily)}`;

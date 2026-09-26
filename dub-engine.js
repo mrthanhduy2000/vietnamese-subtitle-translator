@@ -231,7 +231,8 @@
     // 3: giữ khoảng ngừng tự nhiên (tới 0,4 giây) + dấu phẩy ở chỗ người nói gốc ngừng
     // 4 (1.6.7): no comma at source pauses, punctuation-aware pause shaping, 48 kHz
     // 5 (1.6.8): pause shaping v2 (comma pause follows the clause), gentler gate, longer segments
-    const LOCAL_STYLE_VERSION = 5;
+    // 6 (1.7.0): spectral hiss removal (AUDIO.denoise) before shaping
+    const LOCAL_STYLE_VERSION = 6;
     // Free voice segmenting: whole sentences across translation groups, and a segment may run to
     // 11 s (paid: 8) before it is cut at a subtitle line. Every cut restarts the voice's intonation;
     // the free server renders ~4x faster than real time, so a longer segment costs ~3 s ahead.

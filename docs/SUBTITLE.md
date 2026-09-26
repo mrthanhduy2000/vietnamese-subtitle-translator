@@ -68,6 +68,14 @@ talk, export `.srt` (bilingual when the display mode is bilingual). Both quick m
 source track is in use (`ytNguonPhuDe` / `csSubtitleSource`): machine-heard captions are the usual
 reason a translated line is wrong, and the label turns warning-coloured for them.
 
+**Size scale and reading time (1.7.1).** `CST_STYLE.sizeFactor(fontSize)` = fontSize / 100 x 0.7: the
+user found the old 70% the right size and asked for it to be called 100%; every pixel conversion
+(YouTube and Coursera overlays, `video::cue`, the Settings preview) goes through it, and
+`fontScale170` rescales stored sizes once (old / 0.7, rounded to 5). `CST_STYLE.lingerCues` keeps each
+display line up to 0.7 s into the silence after it (0.06 s before the next line, idempotent via
+`baseEnd`, which is what the cache stores). Display copies only: the voice keeps subtitle timing.
+Fixture timeline: lines over 20 chars/s 3 -> 2, lines under 1 s 1 -> 0.
+
 ## Generic video pages (`content.js`, 1.6.5)
 
 Any http(s) page that is not YouTube or Coursera: `getCurrentSite()` returns `"generic"` and
@@ -173,7 +181,8 @@ Vietnamese track is used as is; off: translate from the source track; YouTube, C
 `dubCondense` is retired (condensing is permanently off, see `DUBBING.md`); old stored values are ignored
 
 One-shot migration flags (do not reuse the names): `modelsVersion`, `costMigration113`,
-`localVoices1111`, `dubProvider1113`, `styleDefaults118`
+`localVoices1111`, `dubProvider1113`, `styleDefaults118`, `fontScale170` (size / 0.7, chained after
+`styleDefaults118`), `voiceMyDuyen170`
 
 **`options.js` writes every key on every change**, so `storage.onChanged` fires for keys that did
 not actually change. `youtube.js` has a deliberate "only act on a real change" guard so this does

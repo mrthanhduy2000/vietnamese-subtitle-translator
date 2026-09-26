@@ -131,7 +131,7 @@ function injectCueStyle() {
     const style = document.createElement("style");
     style.id = "cst-cue-style";
     // 130% la co chuan cua trinh phat (giu nguyen quy uoc cu cua ban 1.0.4)
-    const fontEm = (s.fontSize / 130).toFixed(2);
+    const fontEm = (S.sizeFactor(s.fontSize) * 100 / 130).toFixed(2);
     style.textContent = `
         video::cue {
             font-family: ${S.fontStack(s.fontFamily)} !important;
@@ -890,6 +890,7 @@ function applyTranslation(track, groups, translations) {
     for (let i = 1; i < cs.viCues.length; i++) {
         if (cs.viCues[i].start < cs.viCues[i - 1].end) cs.viCues[i - 1].end = Math.max(cs.viCues[i - 1].start + 0.05, cs.viCues[i].start);
     }
+    if (window.CST_STYLE && window.CST_STYLE.lingerCues) window.CST_STYLE.lingerCues(cs.viCues);   // reading time
     originals.forEach((cue, i) => {
         const text = plainCueText({ text: state.originalCueTexts.get(i) });
         if (text) cs.origCues.push({ start: cue.startTime, end: cue.endTime, text });
@@ -1295,7 +1296,7 @@ function csApplyOverlayStyle(ov) {
     const height = (box && box.clientHeight) || 360;
     const base = Math.max(14, Math.min(width * 0.026, 40));
     ov.style.fontFamily = S.fontStack(s.fontFamily);
-    ov.style.fontSize = `${(base * (s.fontSize || 90) / 100).toFixed(1)}px`;
+    ov.style.fontSize = `${(base * S.sizeFactor(s.fontSize)).toFixed(1)}px`;
     ov.style.fontWeight = s.fontWeight;
     ov.style.lineHeight = String(s.lineHeight);
     ov.style.color = s.fontColor;
@@ -1614,8 +1615,8 @@ function csOpenMenu(btn) {
 
     const S = window.CST_STYLE;
     const size = kit.buildStepper(document, {
-        label: "Cỡ chữ", min: 50, max: 250, step: 10,
-        get: () => (S ? S.normalizeStyle(state.subStyle).fontSize : 90),
+        label: "Cỡ chữ", min: 50, max: 300, step: 10,
+        get: () => (S ? S.normalizeStyle(state.subStyle).fontSize : 100),
         set: n => {
             // keep the subStyle.mode mirror in step with dualMode, the real source
             state.subStyle = { ...(state.subStyle || {}), fontSize: n, mode: state.dualMode ? "dual" : "single" };

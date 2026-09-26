@@ -558,10 +558,11 @@ test("Chrome đang chạy bản cũ (chưa nạp lại) còn file đã mới: tr
 });
 
 // ================= 7. KIỂU PHỤ ĐỀ MẶC ĐỊNH, VỊ TRÍ ỔN ĐỊNH, BỎ DEEPLEARNING.AI (1.1.8) =================
-test("kiểu mặc định: cỡ 90%, độ đậm 400, viền quầng mờ, lề 1% (một nguồn duy nhất)", () => {
+test("kiểu mặc định: cỡ 100% (thang 1.7.0 = 70% cũ), độ đậm 400, viền quầng mờ, lề 1% (một nguồn duy nhất)", () => {
     const S = require("../subtitle-style.js");
     const d = S.DEFAULT_STYLE;
-    assert.equal(d.fontSize, 90);
+    assert.equal(d.fontSize, 100);
+    assert.equal(S.sizeFactor(100), 0.7, "100% now draws what the old 70% drew");
     assert.equal(d.fontWeight, "400");
     assert.equal(d.strokeStyle, "glow");
     assert.equal(d.offset, 1);
@@ -572,14 +573,19 @@ test("kiểu mặc định: cỡ 90%, độ đậm 400, viền quầng mờ, l�
 test("chuyển kiểu đã lưu một lần: mục còn giá trị mặc định cũ -> mặc định mới; mục đã tự chỉnh giữ nguyên", async () => {
     const E = bgEnv(async () => reply({}), cfg({ subStyle: { fontSize: 130, fontWeight: "500", strokeStyle: "thick", offset: 3, fontColor: "#ffee00" } }));
     const s = E.syncStore.subStyle;
-    assert.equal(s.fontSize, 90);
+    // 1.1.8 moved 130 -> 90, then 1.7.0 rescales 90 -> 130 (same look on the new scale)
+    assert.equal(s.fontSize, 130);
     assert.equal(s.fontWeight, "400");
     assert.equal(s.strokeStyle, "thick", "viền đã tự chọn phải giữ");
     assert.equal(s.offset, 1);
     assert.equal(s.fontColor, "#ffee00");
     assert.equal(E.syncStore.styleDefaults118, true);
-    const again = bgEnv(async () => reply({}), cfg({ subStyle: { fontSize: 130 }, styleDefaults118: true }));
+    const again = bgEnv(async () => reply({}), cfg({ subStyle: { fontSize: 130 }, styleDefaults118: true, fontScale170: true }));
     assert.equal(again.syncStore.subStyle.fontSize, 130, "chỉ chuyển một lần");
+    // the user's 70% becomes 100%, once
+    const u = bgEnv(async () => reply({}), cfg({ subStyle: { fontSize: 70 }, styleDefaults118: true }));
+    assert.equal(u.syncStore.subStyle.fontSize, 100);
+    assert.equal(u.syncStore.fontScale170, true);
 });
 
 function playerMock({ height = 540, autohide = false, barHeight = 0 }) {
@@ -1177,8 +1183,11 @@ test("giọng VieNeu mặc định: Mỹ Duyên + Thái Sơn (miền Nam), model
     const A = bgEnv(async () => reply({}), cfg({ dubLocalVoice: "Thùy Dung", dubLocalVoice2: "Minh Triết" }));
     assert.equal(A.syncStore.dubLocalVoice, "Mỹ Duyên");
     assert.equal(A.syncStore.dubLocalVoice2, "Thái Sơn");
+    // 1.7.0: the user asked for Mỹ Duyên as the voice, set once over any earlier choice
     const B = bgEnv(async () => reply({}), cfg({ dubLocalVoice: "Kim Thanh", dubLocalVoice2: "Đức Trí" }));
-    assert.equal(B.syncStore.dubLocalVoice, "Kim Thanh");
+    assert.equal(B.syncStore.dubLocalVoice, "Mỹ Duyên");
+    const C = bgEnv(async () => reply({}), cfg({ dubLocalVoice: "Kim Thanh", voiceMyDuyen170: true }));
+    assert.equal(C.syncStore.dubLocalVoice, "Kim Thanh", "a choice made after 1.7.0 is kept");
     assert.equal(B.syncStore.dubLocalVoice2, "Đức Trí");
 });
 

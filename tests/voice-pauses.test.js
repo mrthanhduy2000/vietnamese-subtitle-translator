@@ -104,7 +104,7 @@ test("wiring: 48 kHz, shaping and gate on the VieNeu path, engine joins groups f
     const eng = read("dub-engine.js");
     assert.match(eng, /speakerState, \.\.\.\(free \? FREE_SEGMENTS : \{\}\) \}/);
     assert.match(eng, /const FREE_SEGMENTS = \{ joinGroups: true, segSoft: 8, segHard: 11 \};/);
-    assert.match(eng, /const LOCAL_STYLE_VERSION = 5;/);
+    assert.match(eng, /const LOCAL_STYLE_VERSION = 6;/);
     assert.match(eng, /const natural = ph\.breakKind === "opener";/);
 });
 

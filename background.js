@@ -675,7 +675,10 @@ async function cachedParts(parts) {
 // the voice makes elsewhere are closed; opts.gate: pull the hiss between words down (gateNoise)
 function splitTtsAudio(b64OrBytes, mime, sr, parts, opts = {}) {
     const bytes = typeof b64OrBytes === "string" ? base64ToBytesBg(b64OrBytes) : b64OrBytes;
-    const samples = /wav/i.test(mime || "") ? AUDIO.decodeWav(bytes).samples : AUDIO.pcm16leToFloat(bytes);
+    let samples = /wav/i.test(mime || "") ? AUDIO.decodeWav(bytes).samples : AUDIO.pcm16leToFloat(bytes);
+    // Stationary hiss (1.7.0): learnt from the whole take, so before it is cut into pieces.
+    // A clean voice is detected and left untouched (AUDIO.denoise returns applied: false)
+    if (opts.gate && AUDIO.denoise) samples = AUDIO.denoise(samples, sr).samples;
     const split = AUDIO.splitBySilence(samples, sr, parts.map(p => p.weight || 1));
     if (parts.length > 1 && split.confidence < 0.5) return null;
     return parts.map((p, k) => {
@@ -1172,6 +1175,15 @@ try {
     });
 } catch (e) { /* chạy ngoài extension */ }
 
+// ---- 1.7.0: the user asked for Mỹ Duyên as THE voice. Set it once, whatever was chosen before
+// (they had been trying Thục Đoan); a later choice in Settings is kept, the flag stops a repeat.
+try {
+    chrome.storage.sync.get({ voiceMyDuyen170: false }, cfg => {
+        if (cfg.voiceMyDuyen170) return;
+        chrome.storage.sync.set({ voiceMyDuyen170: true, dubLocalVoice: COST.LOCAL_TTS.defaultVoice });
+    });
+} catch (e) { /* chạy ngoài extension */ }
+
 // ---- Tải lại / cập nhật tiện ích: nạp lại mã vào các tab YouTube / Coursera ĐANG MỞ ----
 // Chrome không tự làm việc này: tab mở từ trước giữ mã cũ đã mất kết nối (không dịch, không lồng
 // tiếng, phụ đề biến mất) cho tới khi người dùng F5. Mã cũ tự tắt (xem ytTuTatKhiMatKetNoi), mã
@@ -1255,7 +1267,7 @@ try {
 // Chỉ đổi những mục NGƯỜI DÙNG CHƯA TỰ CHỈNH (còn đúng giá trị mặc định cũ); một lần.
 try {
     chrome.storage.sync.get({ subStyle: null, styleDefaults118: false }, cfg => {
-        if (cfg.styleDefaults118) return;
+        if (cfg.styleDefaults118) { migrateFontScale170(); return; }
         const s = cfg.subStyle;
         const patch = { styleDefaults118: true };
         if (s && typeof s === "object") {
@@ -1265,9 +1277,26 @@ try {
             for (const k of Object.keys(old)) if (String(s[k]) === String(old[k])) ns[k] = next[k];
             patch.subStyle = ns;
         }
-        chrome.storage.sync.set(patch);
+        chrome.storage.sync.set(patch, () => migrateFontScale170());
     });
 } catch (e) { /* chạy ngoài extension */ }
+
+// ---- Subtitle size scale (1.7.0): the old 70% is now called 100% (CST_STYLE.SIZE_UNIT = 0.7) ----
+// A stored size keeps its look: new = old / 0.7, rounded to 5 (70 -> 100, 90 -> 130, 130 -> 185).
+// Runs after the 1.1.8 migration above (chained), once.
+function migrateFontScale170() {
+    try {
+        chrome.storage.sync.get({ subStyle: null, fontScale170: false }, cfg => {
+            if (cfg.fontScale170) return;
+            const patch = { fontScale170: true };
+            const s = cfg.subStyle;
+            if (s && typeof s === "object" && Number(s.fontSize) > 0) {
+                patch.subStyle = { ...s, fontSize: Math.max(50, Math.min(300, Math.round(Number(s.fontSize) / 0.7 / 5) * 5)) };
+            }
+            chrome.storage.sync.set(patch);
+        });
+    } catch (e) { /* chạy ngoài extension */ }
+}
 
 // The only YouTube bridge is yt-bridge.js. When the page predates the extension (reload) and the
 // manifest injection never ran, the content script asks for it here: executeScript in the MAIN

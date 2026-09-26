@@ -4,6 +4,16 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.7.1", luc: "23:32 26/09/2026", ten: "Cỡ chữ 100% mới, Mỹ Duyên mặc định, khử tiếng xì, phụ đề dễ đọc hơn",
+            y: [
+                "Cỡ chữ đổi thang: mức 70% cũ (dễ đọc nhất) nay gọi là 100% và là mức khuyên dùng; mọi mức khác quy đổi theo cùng tỉ lệ. Cỡ chữ bạn đang dùng được tự đổi sang con số mới, chữ trên màn hình giữ nguyên độ lớn.",
+                "Mỹ Duyên là giọng đọc mặc định (được đặt lại một lần; sau đó bạn vẫn đổi giọng khác được).",
+                "Khử tiếng xì nền theo phổ tần số cho giọng VieNeu: tiếng xì của Mỹ Duyên giảm khoảng 10 dB cả lúc đang nói, giọng không đổi. Giọng vốn sạch (như Thục Đoan) được tự nhận ra và giữ nguyên.",
+                "Phụ đề nán lại tối đa 0,7 giây trong khoảng lặng sau câu (không đè dòng sau) để đọc kịp; giọng đọc vẫn theo đúng nhịp phụ đề.",
+                "Ngắt nghỉ thông minh: đo trên 8 câu có đủ loại dấu, cả 14 dấu câu đều có chỗ ngừng đúng, 6 chỗ ngừng sai được nối liền."
+            ]
+        },
+        {
             v: "1.7.0", luc: "21:05 26/09/2026", ten: "Không chồng giọng lên bản lồng tiếng AI tiếng Việt của YouTube",
             y: [
                 "Video nước ngoài mà YouTube đang phát bằng giọng lồng tiếng AI tiếng Việt: tiện ích không hiện phụ đề dịch và không lồng tiếng thêm, vì bạn đã nghe tiếng Việt, tránh hai giọng đè nhau.",

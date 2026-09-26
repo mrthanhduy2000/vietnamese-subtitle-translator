@@ -144,7 +144,7 @@ async function ytGhiCache(videoId) {
                 cues: yt.cues.map(c => [r(c.start), r(c.end), c.text]),
                 // the machine translation, never the viewer's edits: those live in subtitle-edits.js
                 // and are laid over it on load, so a revert made in Settings really reverts
-                vi: yt.viCues.map(c => [r(c.start), r(c.end), (c.cstOrig ? c.cstOrig.lines : c.lines).join("\n")]),
+                vi: yt.viCues.map(c => [r(c.start), r(c.baseEnd != null ? c.baseEnd : c.end), (c.cstOrig ? c.cstOrig.lines : c.lines).join("\n")]),
                 // Nhóm câu + bản dịch có ngữ cảnh: lồng tiếng xem lại không phải dịch lại
                 g: yt.groups.filter(g => g.translated && g.viText).map(g => [
                     r(g.start), r(g.end), g.cstOrigViText != null ? g.cstOrigViText : g.viText,
@@ -422,7 +422,7 @@ function ytCapNhatKichThuoc(player, overlay) {
     if (!player || !overlay) return;
     const rong = player.clientWidth || 640;
     const baseCo = Math.max(14, Math.min(rong * 0.026, 40));
-    const scale = (ytSubStyle.fontSize || 130) / 100;
+    const scale = window.CST_STYLE ? window.CST_STYLE.sizeFactor(ytSubStyle.fontSize) : 0.7;
     overlay.style.fontSize = `${(baseCo * scale).toFixed(1)}px`;
     yt.renderKey = "";
 }
@@ -609,7 +609,9 @@ function ytGhepViCues() {
     for (let i = 1; i < all.length; i++) {
         if (all[i].start < all[i - 1].end) all[i - 1].end = Math.max(all[i - 1].start + 0.05, all[i].start);
     }
-    yt.viCues = all;
+    // display copies that linger into the gap after them (CST_STYLE.lingerCues); the group cues
+    // keep the subtitle timing the voice plans from. Edits reach both (ytApplyEdits walks both).
+    yt.viCues = window.CST_STYLE && window.CST_STYLE.lingerCues ? window.CST_STYLE.lingerCues(all.map(c => ({ ...c }))) : all;
     ytApplyEdits();
 }
 
@@ -1000,6 +1002,7 @@ function ytHienThiNguyenTiengViet(viCues) {
         start: c.start, end: c.end, text: c.text,
         lines: seg ? seg.breakLines(c.text) : [c.text]
     }));
+    if (window.CST_STYLE && window.CST_STYLE.lingerCues) window.CST_STYLE.lingerCues(yt.viCues);
     yt.dubGroups = viCues.map(c => ({ start: c.start, end: c.end, viText: c.text, srcCues: [{ start: c.start, end: c.end, text: c.text }], viCues: [{ start: c.start, end: c.end, text: c.text }] }));
     yt.daDichXong = true;
     ytApplyEdits();
@@ -1208,6 +1211,7 @@ async function ytBatDauDich(opts = {}) {
                 const lines = String(c[2] || "").split("\n");
                 return { start: c[0], end: c[1], text: lines.join(" "), lines };
             });
+            if (window.CST_STYLE && window.CST_STYLE.lingerCues) window.CST_STYLE.lingerCues(yt.viCues);
             yt.dubGroups = (cache.g || []).map(g => ({
                 start: g[0], end: g[1], viText: g[2],
                 srcCues: g[3].map(c => ({ start: c[0], end: c[1], text: c[2] })),
@@ -1612,7 +1616,7 @@ function ytMoMenuNhanh(player, btn) {
     menu.appendChild(modeBox);
 
     const size = CST_UI_KIT().buildStepper(document, {
-        label: "Cỡ chữ", min: 50, max: 250, step: 10,
+        label: "Cỡ chữ", min: 50, max: 300, step: 10,
         get: () => ytChuanHoaKieu(ytSubStyle).fontSize,
         set: n => { ytSubStyle = ytChuanHoaKieu({ ...ytSubStyle, fontSize: n }); return chrome.storage.sync.set({ subStyle: ytSubStyle }); },
         format: n => `${n}%`
