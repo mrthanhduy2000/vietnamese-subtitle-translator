@@ -1,6 +1,6 @@
 // Prepares tests/harness/smooth.html: plans the first `SEC` seconds of the fixture lecture with the
 // real VieNeu provider, has the local VieNeu server read every plan, runs the same processing as
-// background.js (shapePauses, gateNoise, prepareSpeech) and writes one wav per plan plus a
+// background.js (cleanTake, shapePauses, prepareSpeech) and writes one wav per plan plus a
 // manifest. Needs the server (127.0.0.1:8000) and, from Claude's sandbox, loopback allowed.
 //   node tests/harness/smooth-prep.js [voice] [seconds]
 const fs = require("fs");
@@ -29,8 +29,11 @@ const L = COST.LOCAL_TTS;
         const res = await fetch(L.url + "/v1/audio/speech", { method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ model: L.model, voice: VOICE, input: text, response_format: "pcm", sample_rate: L.sampleRate, temperature: L.temperature }) });
         const raw = A.pcm16leToFloat(new Uint8Array(await res.arrayBuffer()));
-        let x = A.shapePauses(raw, L.sampleRate, text, { maxPause: L.maxPause }).samples;
-        x = A.prepareSpeech(A.gateNoise(x, L.sampleRate), L.sampleRate);
+        const v = L.voices.find(q => q.id === VOICE);
+        const hpHz = v && v.gender === "Nữ" ? L.highPassHz.female : L.highPassHz.male;
+        let x = A.cleanTake(raw, L.sampleRate, { hpHz }).samples;
+        x = A.shapePauses(x, L.sampleRate, text, { maxPause: L.maxPause }).samples;
+        x = A.prepareSpeech(x, L.sampleRate);
         const file = `${p.id}.wav`;
         fs.writeFileSync(path.join(OUT, file), A.encodeWav(x, L.sampleRate));
         manifest.plans.push({ id: p.id, text, file, duration: x.length / L.sampleRate });

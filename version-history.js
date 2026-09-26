@@ -4,6 +4,23 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.7.2", luc: "00:32 27/09/2026", ten: "Giọng sạch hơn, hết tiếng ù trầm, ngắt nghỉ theo mệnh đề",
+            y: [
+                "Lọc tiếng ù trầm (dưới 80 Hz với giọng nữ, 60 Hz với giọng nam): bản thu mẫu của Mỹ Duyên có tiếng ù trầm nằm dưới cả lời nói, giọng cô ấy lại không có âm nào thấp như vậy, nên cắt đi không làm mỏng giọng.",
+                "Sửa bộ khử tiếng xì: bản trước ước lượng tiếng nền thấp hơn thực tế khoảng 4,5 dB, nên tiếng xì ở vùng 1 đến 5 kHz (vùng tai nghe rõ nhất) giữa các từ chỉ giảm khoảng 2 dB. Nay giảm khoảng 8 đến 10 dB, phụ âm gió (s, x, ch) giữ nguyên, ít tiếng lấp lánh nhân tạo hơn.",
+                "Bỏ bộ chặn khoảng lặng chạy sau bộ khử tiếng xì: nó chỉ bớt thêm khoảng 1,5 dB mà làm tiếng nền phập phồng theo nhịp nói.",
+                "Ngắt nghỉ theo mệnh đề: câu dài không có dấu phẩy, giọng tự ngừng trước \"nhưng, thì, vì, để, khi, nếu...\" thì nay được giữ một nhịp ngắn (0,14 đến 0,2 giây) thay vì bị nối liền một mạch; chỗ ngừng lưng chừng giữa cụm từ vẫn được nối lại. Câu ngắn không bị chèn nhịp nghỉ.",
+                "Nghỉ ở dấu chấm theo độ dài câu (câu 2 chữ nghỉ ngắn hơn câu dài), câu hỏi và câu cảm nghỉ lâu hơn một chút. Câu dài bị chia hai lượt đọc ở dấu phẩy nay có nhịp nghỉ của dấu phẩy ở chỗ nối.",
+                "Giọng bắt đầu ngay bằng tiếng (Thái Sơn, đôi khi Thục Đoan) được vào tiếng mềm hơn, không \"bật\" ở chữ đầu. Audio VieNeu đã lưu được tạo lại một lần (miễn phí)."
+            ],
+            bang: { cot: ["Đo trên 17 câu thử, Mỹ Duyên", "Trước", "Nay"], hang: [
+                ["Tiếng ù 20 đến 60 Hz so với giọng", "−45 dB", "−61 dB"],
+                ["Tiếng xì giữa các từ, vùng 1 đến 4 kHz", "giảm 2 dB", "giảm 8,5 dB"],
+                ["Chỗ giọng ngừng ở ranh giới mệnh đề (câu dài không dấu phẩy)", "nối liền 0,09 giây", "giữ 0,14 đến 0,2 giây"],
+                ["Độ lệch độ to giữa các câu", "0,2 đến 0,3 dB", "0,2 đến 0,3 dB"]
+            ] }
+        },
+        {
             v: "1.7.1", luc: "23:32 26/09/2026", ten: "Cỡ chữ 100% mới, Mỹ Duyên mặc định, khử tiếng xì, phụ đề dễ đọc hơn",
             y: [
                 "Cỡ chữ đổi thang: mức 70% cũ (dễ đọc nhất) nay gọi là 100% và là mức khuyên dùng; mọi mức khác quy đổi theo cùng tỉ lệ. Cỡ chữ bạn đang dùng được tự đổi sang con số mới, chữ trên màn hình giữ nguyên độ lớn.",

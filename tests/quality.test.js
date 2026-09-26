@@ -69,9 +69,9 @@ test("fft round trip is exact", () => {
     assert.ok(orig.every((v, i) => Math.abs(v - re[i]) < 1e-9));
 });
 
-test("wiring: VieNeu takes are denoised before they are cut, style version 6, Mỹ Duyên set once", () => {
+test("wiring: VieNeu takes are cleaned before they are cut, Mỹ Duyên set once", () => {
     const bg = read("background.js");
-    assert.match(bg, /if \(opts\.gate && AUDIO\.denoise\) samples = AUDIO\.denoise\(samples, sr\)\.samples;/);
-    assert.ok(bg.indexOf("AUDIO.denoise(samples, sr)") < bg.indexOf("AUDIO.splitBySilence(samples, sr"));
+    assert.match(bg, /if \(opts\.clean && AUDIO\.cleanTake\) samples = AUDIO\.cleanTake\(samples, sr, \{ hpHz: opts\.hpHz \}\)\.samples;/);
+    assert.ok(bg.indexOf("AUDIO.cleanTake(samples, sr") < bg.indexOf("AUDIO.splitBySilence(samples, sr"));
     assert.match(bg, /voiceMyDuyen170: true, dubLocalVoice: COST\.LOCAL_TTS\.defaultVoice/);
 });

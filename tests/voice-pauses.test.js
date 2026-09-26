@@ -95,16 +95,16 @@ test("a sentence split across two groups is one segment for the free voice, two 
     assert.equal(gap.length, 2);
 });
 
-test("wiring: 48 kHz, shaping and gate on the VieNeu path, engine joins groups for free voices only", () => {
+test("wiring: 48 kHz, shaping and cleanup on the VieNeu path, engine joins groups for free voices only", () => {
     const COST = require("../cost-policy.js");
     assert.equal(COST.LOCAL_TTS.sampleRate, 48000);
     const bg = read("background.js");
-    assert.match(bg, /splitTtsAudio\(bytes, mime, sr, parts, \{ maxPause, text, gate: true \}\)/);
+    assert.match(bg, /splitTtsAudio\(bytes, mime, sr, parts, \{ maxPause, text, clean: true, hpHz: localHighPass\(req\.voice\) \}\)/);
     assert.match(bg, /AUDIO\.shapePauses\(piece, sr, opts\.text/);
     const eng = read("dub-engine.js");
     assert.match(eng, /speakerState, \.\.\.\(free \? FREE_SEGMENTS : \{\}\) \}/);
     assert.match(eng, /const FREE_SEGMENTS = \{ joinGroups: true, segSoft: 8, segHard: 11 \};/);
-    assert.match(eng, /const LOCAL_STYLE_VERSION = 6;/);
+    assert.match(eng, /const LOCAL_STYLE_VERSION = 7;/);
     assert.match(eng, /const natural = ph\.breakKind === "opener";/);
 });
 
@@ -116,7 +116,9 @@ test("pause v2: a short lead-in comma is light, a comma before a joining word le
     assert.ok(lead.cap < 0.18, `lead-in comma ${lead.cap}`);
     assert.ok(joiner.cap < 0.28 && joiner.cap >= 0.12, `comma before "và" ${joiner.cap}`);
     assert.equal(stop.cap, 0.4);
-    assert.equal(question.cap, 0.4, "a question rests longer, but never beyond maxPause");
+    // v3 (1.7.2): a sentence rests by its length, so the two-word "Thật sao?" rests less than the
+    // 17-word sentence before it, and the question mark still adds a little
+    assert.ok(question.cap > 0.3 && question.cap < 0.4, `short question ${question.cap}`);
 });
 
 test("gate v2 follows the take's own noise floor and leaves soft word tails alone", () => {

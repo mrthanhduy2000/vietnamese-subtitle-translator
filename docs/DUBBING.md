@@ -142,7 +142,7 @@ Selected by the `dubProvider` setting. `createVieneuProvider` / `createGeminiPro
 ### VieNeu local (default, free)
 
 Config is centralized in `cost-policy.js` `LOCAL_TTS`: `http://127.0.0.1:8000`, model
-`vieneu-v3-turbo`, 24kHz, temperature 0.6, plus a 25-voice table with each voice's measured
+`vieneu-v3-turbo`, 48 kHz (native), temperature 0.6, plus a 25-voice table with each voice's measured
 syllables per second. The server is a user-run process outside this repo (`~/VieNeu-TTS`, started
 with `cst-start.command`).
 
@@ -194,6 +194,37 @@ A take with speech/floor over 50 dB is left alone (Thục Đoan ~58 to 60 dB: sk
 energy change under 0.1 dB, harmonicity unchanged; ~140 ms per 10 s take in the service worker.
 Pause shaping measured on 8 Mỹ Duyên sentences with , ; : ? ! : 14/14 punctuation marks matched a
 pause, 6 unpunctuated stops closed. `LOCAL_STYLE_VERSION` 6.
+
+**Cleanup and pauses v3 (1.7.2).** Measured on 17 test sentences x 4 takes (Mỹ Duyên x2, Thục
+Đoan, Thái Sơn). What the VieNeu path now does, in `splitTtsAudio` order:
+`AUDIO.cleanTake` = `highPass` (4th-order Butterworth, `LOCAL_TTS.highPassHz` 80 Hz female / 60 Hz
+male, picked by `localHighPass(voice)`) then `denoise`; per piece `shapePauses` then `prepareSpeech`.
+- Rumble: Mỹ Duyên's reference carries 20 to 150 Hz noise at almost the same level under the words
+  as in the pauses; her voice has nothing under ~130 Hz. 20-60 Hz vs 200-1000 Hz: -45 -> -61 dB.
+  Speech bands above 125 Hz unchanged; Thái Sơn loses 0.09 dB at 80-100 Hz.
+- Hiss estimate: 1.7.1's 20th percentile x 1.6 per bin sat ~4.5 dB under the true noise, so the
+  1-4 kHz hiss between words came down only ~2 dB (4-12 kHz ~4 dB). Now the mean over frames that
+  are pure hiss (>= 20 dB under speech, within 6 dB of their median), bias 1.3: gaps -8.5 dB at
+  1-4 kHz, -9.6 dB at 4-12 kHz; fricatives 0.0 dB, loud speech -0.1 dB, weak word tails -1.2 dB
+  (was -0.7). Flaring-bin index in the gaps 14.6 -> 10.6 (raw 9.7). 97 -> 75 ms per take.
+- The gate (`gateNoise`) is off the path: after the fix it took only ~1.5 dB more off the gaps and
+  made the floor rise and fall with the words. The function stays exported.
+- Pauses: `textBreaks` adds soft breaks before clause openings (`STARTERS2`, `STARTERS1`, weak "và"
+  / "hoặc") when the clause before has >= 5 words (6 for weak) and >= 3 (4) follow. Only a real
+  stop of the voice (>= 0.12 s) near one keeps 0.1 + 0.008 per word (max 0.2); the voice stopped
+  there on every clause opening of the test set, and 1.7.1 closed those stops to 0.09 s, the
+  run-on reading. A full stop rests 0.28 + 0.01 per word of its sentence (cap 0.4), ? +0.05, !
+  +0.03, never past `maxPause`. Positions count spoken syllables (`spokenWeight`) from the first to
+  the last sound (the lead silence used to push a first-word comma out of tolerance). Breaths only
+  at stops >= 0.2 s. Durations: -2.3% total on the 130 s lecture (shorter sentence pauses).
+- Onset: a take whose first 5 ms is already voiced (Thái Sơn 14/17, Thục Đoan 5/17, Mỹ Duyên 0/34)
+  gets a 20 ms fade-in instead of 8 ms.
+- Engine: `gapAfter(plan)`: a part of a running sentence that ended on , ; : is followed after
+  `SYNC.joinGapClause` 0.15 s (was 0: the comma's rest was trimmed away with the take's tail).
+- Not changed, measured fine: loudness per take (LUFS sd 0.2 to 0.3 dB within a voice, -20.3 avg
+  for all four), the soft clipper (10/68 takes touch it, added distortion under -56 dB), DC
+  (< 1e-3), sample rate (48 kHz native, no resampling). No EQ: Mỹ Duyên's 2-8 kHz balance is within
+  1.5 dB of Thục Đoan's. `LOCAL_STYLE_VERSION` 7.
 
 ### Gemini TTS (paid)
 

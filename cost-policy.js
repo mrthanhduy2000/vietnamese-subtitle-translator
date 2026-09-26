@@ -48,6 +48,9 @@
         // Nhiệt độ lấy mẫu: đo 4 lần/câu trên máy Đàm, độ dài dao động 8 đến 12% ở 0,8 (mặc định
         // của VieNeu) còn 4 đến 6% ở 0,6 -> nhịp nói đều hơn giữa các câu, giọng vẫn tự nhiên
         temperature: 0.6,
+        // Rumble cut before the hiss removal (1.7.2, AUDIO.highPass): female voices have nothing
+        // under ~130 Hz, male ones reach ~85 Hz (Thái Sơn)
+        highPassHz: { female: 80, male: 60 },
         maxPause: 0.4, 
         tightPause: 0.15,                  // câu dày chữ (người nói nhanh): khoảng nghỉ trong câu tối đa 0,15 giây
                     // khoảng lặng trong câu dài hơn mức này thì rút ngắn lại

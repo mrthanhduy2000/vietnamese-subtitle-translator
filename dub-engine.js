@@ -51,6 +51,11 @@
         rateStepDown: 0.06,       // ... và chậm lại từ từ, tối đa 0,06 mỗi câu
         sentenceGap: 0.18,        // câu trước kết thúc bằng dấu chấm: nghỉ tối thiểu trước câu sau (như người thật)
         joinGap: 0,               // câu trước còn nối tiếp (chưa hết ý): nói liền, không nghỉ
+        // ... unless that part ended on a comma, semicolon or colon (1.7.2): a long sentence is cut
+        // into two requests at a comma (segSoft), each take is trimmed to 25 ms of silence, and the
+        // second part followed after ~0.05 s, where the same comma inside one take rests 0.14 to
+        // 0.28 s. This keeps the join as long as a comma after a long clause.
+        joinGapClause: 0.15,
         chainLead: 0.8,           // câu CHƯA HẾT (đoạn trước không kết thúc bằng dấu chấm): đoạn sau được
                                   // nói sớm tối đa bấy nhiêu giây ngay sau đoạn trước, không đứng im chờ phụ đề.
                                   // Trước 1.3.2 là 2,0 giây: phụ đề người dịch (TED) ngắn hơn lời gốc, độ sớm
@@ -232,7 +237,8 @@
     // 4 (1.6.7): no comma at source pauses, punctuation-aware pause shaping, 48 kHz
     // 5 (1.6.8): pause shaping v2 (comma pause follows the clause), gentler gate, longer segments
     // 6 (1.7.0): spectral hiss removal (AUDIO.denoise) before shaping
-    const LOCAL_STYLE_VERSION = 6;
+    // 7 (1.7.2): rumble cut, corrected hiss estimate, no gate, pauses at clause openings, 20 ms onset
+    const LOCAL_STYLE_VERSION = 7;
     // Free voice segmenting: whole sentences across translation groups, and a segment may run to
     // 11 s (paid: 8) before it is cut at a subtitle line. Every cut restarts the voice's intonation;
     // the free server renders ~4x faster than real time, so a longer segment costs ~3 s ahead.
@@ -300,6 +306,13 @@
     //   - thêm dấu phẩy chỉ sau cụm mở đầu ("Bây giờ, ...") vì đó là chỗ ngừng tự nhiên
     //   - câu còn NỐI sang phụ đề sau: không ép ngữ điệu kết câu (không thêm dấu chấm)
     //   - bỏ ký hiệu không đọc được: ¦, [nhạc], (cười), ♪, >>, dấu gạch đầu lời thoại
+    // The rest the voice takes after a segment before the next one: a sentence gap after a finished
+    // sentence, none inside a running one, a comma's worth when the part ended on , ; : (1.7.2)
+    function gapAfter(plan) {
+        if (!plan || !plan.continuesNext) return SYNC.sentenceGap;
+        return /[,;:]["”')\]]*$/.test(plainScript(plan)) ? SYNC.joinGapClause : SYNC.joinGap;
+    }
+
     function plainScript(plan) {
         const parts = plan.phrases.map((ph, k) => {
             let t = ph.text.replace(/¦/g, "").replace(/\[[^\]]*\]|\([^)]*\)|[♪♫*_#]|>>/g, " ").replace(/^\s*[-–]\s+/, "").trim();
@@ -668,6 +681,7 @@
                 const done = this.planById.get(S.id);
                 this.lastSpeechEnd = t;
                 this.lastSpeechJoined = !!(done && done.continuesNext);
+                this.lastSpeechGap = gapAfter(done);
                 this.speech = S = null;
             }
             const next = this.nextSpeech(t);
@@ -803,7 +817,7 @@
             let floor = joined ? (early > 0.3 ? SYNC.minSpeechRate : Math.max(SYNC.minSpeechRate, this.floorRate(p) - 0.08)) : this.floorRate(p);
             // a fast-speaking stretch: keep the pace up evenly, unless we are ahead of the subtitle
             if (early <= 0.3) floor = Math.max(floor, lim.floor);
-            let endAt = joined ? next.start - SYNC.joinGap : p.start + (p.targetDuration || 0) + SYNC.fitSlack;
+            let endAt = joined ? next.start - gapAfter(p) : p.start + (p.targetDuration || 0) + SYNC.fitSlack;
             if (next && !joined) endAt = Math.min(endAt, next.start - 0.12);
             const win = Math.max(0.5, endAt - t);
             let want = (r.duration - offset) / win;
@@ -916,9 +930,10 @@
                 return { p, r, offset, lag: 0 };
             }
             // Câu trước vừa nói xong (đang trễ, câu sau đã tới giờ): nghỉ một nhịp như người thật
-            if (this.lastSpeechEnd != null && t < this.lastSpeechEnd + (this.lastSpeechJoined ? SYNC.joinGap : SYNC.sentenceGap)) {
+            const restAfter = this.lastSpeechGap != null ? this.lastSpeechGap : (this.lastSpeechJoined ? SYNC.joinGap : SYNC.sentenceGap);
+            if (this.lastSpeechEnd != null && t < this.lastSpeechEnd + restAfter) {
                 // Hẹn đúng lúc hết nhịp nghỉ (không chờ vòng đếm giờ kế, có thể tới 1 giây khi cửa sổ bị che)
-                const wait = this.lastSpeechEnd + (this.lastSpeechJoined ? SYNC.joinGap : SYNC.sentenceGap) - t;
+                const wait = this.lastSpeechEnd + restAfter - t;
                 if (this.d.setTimeout && !this.gapTimer) this.gapTimer = this.d.setTimeout(() => { this.gapTimer = null; if (this.running) this.tick(); }, Math.max(10, wait * 1000 / Math.max(0.25, this.d.video.playbackRate || 1)));
                 return null;
             }
@@ -1541,7 +1556,7 @@
         }
     }
 
-    const api = { DubEngine, createWebSpeechProvider, createGeminiProvider, createVieneuProvider, geminiScript, plainScript, SYNC, TTS_STYLE_VERSION, DEFAULT_TTS_MODEL };
+    const api = { DubEngine, createWebSpeechProvider, createGeminiProvider, createVieneuProvider, geminiScript, plainScript, gapAfter, SYNC, TTS_STYLE_VERSION, DEFAULT_TTS_MODEL };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_DUB_ENGINE = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

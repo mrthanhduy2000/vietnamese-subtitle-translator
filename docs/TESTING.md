@@ -30,6 +30,7 @@ sense of weight, not an assertion.
 | `voice-pauses.test.js` | 10 | `shapePauses` (unpunctuated stops closed, punctuation kept, breath in long runs, tight cap), `gateNoise`, `joinGroups` segmenting, 48 kHz wiring |
 | `spoken-lang.test.js` | 8 | `spokenLanguage` (audio > ASR > title, AI dubs, Vietsub titles), `ytChonTrack` with AI-dub ASR tracks, the gate before the cache |
 | `quality.test.js` | 6 | Size scale (100% = old 70%), `lingerCues`, `denoise` (hiss down, voice kept, clean take skipped), FFT round trip, wiring |
+| `voice-clean.test.js` | 10 | `highPass` (rumble cut, voice band kept), the corrected hiss estimate, `spokenWeight`, `textBreaks` soft clause breaks and sentence pauses by length, `shapePauses` keeping a clause-opening stop, lead silence skipped, the 20 ms voiced onset, engine `gapAfter`, wiring (no gate) |
 | `ui.test.js` | 13 | Shortcuts (Alt+S / Alt+D / Alt+Shift+V), no blocking `alert`/`confirm` on the user's page, focus rings and reduced-motion, `role=status` toasts, the YouTube quick menu built on a mini-DOM, light/dark theme wiring, the VieNeu autostart script, auto-switch back to VieNeu when the server appears, and the release-history data |
 
 ## The two harnesses that make offline testing possible
@@ -66,7 +67,9 @@ Start the server with `open ~/VieNeu-TTS/cst-start.command`, check it with
 `smooth.html` + `smooth-prep.js`: real `DubEngine` in Chrome playing real VieNeu audio (prep
 calls the local server, output in the git-ignored `smooth/`), counting `playbackRate` changes and
 seeks on playing voices. The clock is a silent `<audio>`: Chrome pauses a muted `<video>` in a
-hidden pane. Scripts load with a cache-busting query; `runSmooth(120)` then poll `summary()`.
+hidden pane. Scripts load with a cache-busting query; `runSmooth(120)` then poll `summary()`. Prep
+runs the VieNeu path of `background.js` (`cleanTake`, `shapePauses`, `prepareSpeech`); keep it in
+step when that path changes. The browser tool times out at 45 s: poll `H.done`, do not await it.
 
 `generic.html` (+ `generic.vtt`): a bare `<video controls>` in an article, canned translations in
 place of the service worker. Default: a `<track>` element; `?mode=script`: `addTextTrack` only.

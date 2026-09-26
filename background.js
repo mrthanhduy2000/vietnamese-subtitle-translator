@@ -671,21 +671,21 @@ async function cachedParts(parts) {
 
 // Audio nhiều đoạn gộp trong một lượt TTS -> cắt lại theo khoảng lặng, làm sạch từng đoạn
 // opts.maxPause: rút ngắn khoảng lặng dài bên trong từng đoạn (giọng VieNeu)
-// opts.text (VieNeu, one part): pauses follow the punctuation of the text (AUDIO.shapePauses), stops
-// the voice makes elsewhere are closed; opts.gate: pull the hiss between words down (gateNoise)
+// opts.text (VieNeu, one part): pauses follow the text (AUDIO.shapePauses): kept at punctuation and
+// at clause openings of long sentences, closed elsewhere; opts.clean (VieNeu): rumble cut at
+// opts.hpHz and hiss removal (AUDIO.cleanTake)
 function splitTtsAudio(b64OrBytes, mime, sr, parts, opts = {}) {
     const bytes = typeof b64OrBytes === "string" ? base64ToBytesBg(b64OrBytes) : b64OrBytes;
     let samples = /wav/i.test(mime || "") ? AUDIO.decodeWav(bytes).samples : AUDIO.pcm16leToFloat(bytes);
-    // Stationary hiss (1.7.0): learnt from the whole take, so before it is cut into pieces.
-    // A clean voice is detected and left untouched (AUDIO.denoise returns applied: false)
-    if (opts.gate && AUDIO.denoise) samples = AUDIO.denoise(samples, sr).samples;
+    // Rumble and steady hiss are learnt from the whole take, so before it is cut into pieces.
+    // A clean voice is detected and left untouched by the hiss removal
+    if (opts.clean && AUDIO.cleanTake) samples = AUDIO.cleanTake(samples, sr, { hpHz: opts.hpHz }).samples;
     const split = AUDIO.splitBySilence(samples, sr, parts.map(p => p.weight || 1));
     if (parts.length > 1 && split.confidence < 0.5) return null;
     return parts.map((p, k) => {
         let piece = AUDIO.slice(samples, sr, split.parts[k].start, split.parts[k].end);
         if (opts.text && parts.length === 1 && AUDIO.shapePauses) piece = AUDIO.shapePauses(piece, sr, opts.text, { maxPause: opts.maxPause }).samples;
         else if (opts.maxPause) piece = AUDIO.compressPauses(piece, sr, { maxPause: opts.maxPause });
-        if (opts.gate && AUDIO.gateNoise) piece = AUDIO.gateNoise(piece, sr);
         const clean = AUDIO.prepareSpeech(piece, sr);
         return { key: p.key, wav: AUDIO.encodeWav(clean, sr), duration: clean.length / sr, sampleRate: sr };
     });
@@ -933,6 +933,13 @@ async function waitLocalIdle(signal, maxMs = 20000) {
     }
 }
 
+// Rumble cut for a VieNeu voice (AUDIO.highPass): higher for a female voice, whose pitch never
+// reaches that low, than for a male one
+function localHighPass(voice) {
+    const v = LOCAL.voices.find(x => x.id === (voice || LOCAL.defaultVoice));
+    return v && v.gender === "Nữ" ? LOCAL.highPassHz.female : LOCAL.highPassHz.male;
+}
+
 async function synthesizeLocalOnce(req, text, parts, signal) {
     const controller = new AbortController();
     let timedOut = false;
@@ -972,12 +979,12 @@ async function synthesizeLocalOnce(req, text, parts, signal) {
         const mime = `audio/L16;rate=${sr}`;
         if (!parts) {
             // Nghe thử trong Cài đặt: cùng cách xử lý như khi lồng tiếng (rút khoảng lặng dài)
-            const one = splitTtsAudio(bytes, mime, sr, [{ key: "_", weight: 1 }], { maxPause: LOCAL.maxPause, text, gate: true });
+            const one = splitTtsAudio(bytes, mime, sr, [{ key: "_", weight: 1 }], { maxPause: LOCAL.maxPause, text, clean: true, hpHz: localHighPass(req.voice) });
             return { ok: true, audio: bytesToBase64(one[0].wav), mimeType: "audio/wav", sampleRate: sr, model: LOCAL.model };
         }
         // Câu dày chữ: engine xin khoảng nghỉ ngắn hơn (không bỏ chữ); giới hạn trong [0,1 ; mặc định]
         const maxPause = req.maxPause ? Math.max(0.1, Math.min(LOCAL.maxPause, Number(req.maxPause) || LOCAL.maxPause)) : LOCAL.maxPause;
-        const pieces = splitTtsAudio(bytes, mime, sr, parts, { maxPause, text, gate: true });
+        const pieces = splitTtsAudio(bytes, mime, sr, parts, { maxPause, text, clean: true, hpHz: localHighPass(req.voice) });
         if (!pieces) return { ok: false, errorType: "split", error: "Không cắt được audio theo từng đoạn" };
         for (const p of pieces) await caches.audio.set(p.key, { wav: p.wav, duration: p.duration, sampleRate: p.sampleRate });
         return partsReply(pieces, { model: LOCAL.model });

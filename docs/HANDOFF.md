@@ -6,39 +6,40 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-26 · lanes A + B + C + D · `1.7.1`. User: rename the old 70% subtitle size to 100% and
-rescale the rest; Mỹ Duyên as default voice; better pausing, less noise and roughness, better
-audio and subtitles.
+2026-09-27 · lane B (+ `background.js`, `cost-policy.js`) · `1.7.2`. User: Mỹ Duyên cleaner and
+steadier (noise, rumble, clicks, loudness) and smarter pauses (clauses, sentence length, joins).
 
 ## What changed
 
-- 1.7.1: `CST_STYLE.sizeFactor` (x0.7) everywhere a size becomes pixels, picker list and steppers
-  on the new scale, `fontScale170` migration (chained after `styleDefaults118`). `voiceMyDuyen170`
-  sets Mỹ Duyên once. `AUDIO.denoise` (STFT Wiener, skips clean takes) before cutting VieNeu audio,
-  `LOCAL_STYLE_VERSION` 6. `CST_STYLE.lingerCues` gives display lines up to 0.7 s of reading time.
-  Pause shaping re-measured: 14/14 punctuation matched on 8 Mỹ Duyên sentences (unchanged code).
-- Earlier today: 1.7.0 / 1.6.9 Vietnamese-video and AI-dub detection, 1.6.8 no stutter,
-  1.6.7 pauses / 48 kHz, 1.6.6 backup, 1.6.5 generic sites.
+- 1.7.2 (details and numbers: `DUBBING.md` "Cleanup and pauses v3"): `AUDIO.cleanTake` = 4th-order
+  high-pass (`LOCAL_TTS.highPassHz` 80 female / 60 male via `localHighPass`) + `denoise` with a
+  corrected noise estimate (mean over pure-hiss frames, bias 1.3); `gateNoise` off the VieNeu path;
+  `textBreaks` soft breaks before clause openings of long sentences, sentence pause by length;
+  positions in spoken syllables from first to last sound; 20 ms onset for voiced starts;
+  engine `gapAfter` / `SYNC.joinGapClause` 0.15 after a part ending on , ; :. Style version 7.
+- Measured, left alone: per-take loudness (LUFS sd 0.2 to 0.3 dB), soft clipper, DC, 48 kHz, EQ.
 
 ## State
 
-- `npm test`: 398 tests, 397 pass, 0 fail, 1 skip · Reload: **yes** + F5 YouTube tabs (1.7.1 not loaded)
+- `npm test`: 408 tests, 407 pass, 0 fail, 1 skip · Reload: **yes** + F5 video tabs (not loaded)
+- Harness `smooth.html`, same takes, 120 s Mỹ Duyên, old -> new: 24/24 spoken, 0 rate changes,
+  0 overlaps both; median rate 1.11 -> 1.08; start lag p50 -0.04 both, max 0.68 -> 0.81 s.
 
 ## Unfinished / in progress
 
-- "Truyền cảm" (expressiveness) is not solved: VieNeu takes no prosody control and ignores `speed`;
-  temperature 0.4 to 0.8 measured no roughness difference, expressiveness was not measured.
-  Options to discuss with the user: per-voice temperature, Gemini TTS for expressive passages.
-- No English video with a Vietnamese AI dub found to test 1.7.0 end to end. Denoise A/B sent.
-- Not verified in real Chrome with the extension loaded: backup download, generic injection,
-  `ensureYtBridge` after Reload, 1.6.7/1.6.8 end to end on a real video.
-- Udemy / edX sources: `BACKLOG.md` 9. Long-video jank unmeasured. Leak on 4eY5DuqASQc ~8:40.
+- The user has not listened yet: A/B files `MyDuyen-1.7.1.wav` / `MyDuyen-1.7.2.wav` were sent.
+- A subordinate clause with no comma and no connective ("Khi ... lên | mô hình ...") still has its
+  stop closed; only connectives in `STARTERS*` are detected. Watch for false soft breaks.
+- "Truyền cảm" (expressiveness) not solved: VieNeu takes no prosody control, ignores `speed`.
+- Not verified in real Chrome with the extension loaded: 1.7.2 end to end, backup download,
+  generic injection, `ensureYtBridge` after Reload, 1.7.0 AI-dub case (no sample video found).
+- Udemy / edX: `BACKLOG.md` 9. Long-video jank unmeasured. Leak on 4eY5DuqASQc ~8:40.
 
 ## Traps hit this session
 
-- The static server lets Chrome cache scripts: harness pages must load them with `?t=Date.now()`.
-- Chrome pauses a muted `<video>` in the hidden pane; use a silent `<audio>` as the clock.
-- YouTube player audio-track objects have minified keys: read them by value shape, never by name.
+- The sandbox blocks loopback: `curl 127.0.0.1:8000` exits 7 while VieNeu is up. Retry unsandboxed.
+- `npm test` runs an explicit file list in `package.json`: a new test file must be added there.
+- The browser JS tool times out after 45 s: poll `H.done` in the harness, never await the run.
 
 ## Suggested next step
-- Reload; check the subtitle looks the same size as before (now labelled 100%), listen to Mỹ Duyên.
+- Reload; listen to a long Mỹ Duyên lecture: clause pauses natural? any pause in a wrong place?
