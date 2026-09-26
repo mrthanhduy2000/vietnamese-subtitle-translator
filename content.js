@@ -1489,8 +1489,7 @@ function csOpenMenu(btn) {
         label: "Cỡ chữ", min: 50, max: 250, step: 10,
         get: () => (S ? S.normalizeStyle(state.subStyle).fontSize : 90),
         set: n => {
-            // carry the current display mode: the storage listener reads subStyle.mode back into
-            // dualMode, and a stale mode here would silently flip bilingual off (BACKLOG item 2)
+            // keep the subStyle.mode mirror in step with dualMode, the real source
             state.subStyle = { ...(state.subStyle || {}), fontSize: n, mode: state.dualMode ? "dual" : "single" };
             csRestyle();
             try { return chrome.storage.sync.set({ subStyle: state.subStyle }); } catch (e) { return null; }
@@ -1516,7 +1515,8 @@ function csOpenMenu(btn) {
     const datKieuHienThi = async dual => {
         state.dualMode = dual;
         cs.renderKey = "";
-        try { await chrome.storage.sync.set({ dualMode: dual }); } catch (e) { /* bỏ qua */ }
+        if (state.subStyle) state.subStyle = { ...state.subStyle, mode: dual ? "dual" : "single" };
+        try { await chrome.storage.sync.set(state.subStyle ? { dualMode: dual, subStyle: state.subStyle } : { dualMode: dual }); } catch (e) { /* bỏ qua */ }
         capNhat();
     };
     btnSingle.addEventListener("click", () => datKieuHienThi(false));
@@ -1719,7 +1719,7 @@ async function loadGlossary() {
 async function loadSettings() {
     try {
         const saved = await chrome.storage.sync.get({
-            dualMode: false, perCueMode: false, styleOriginal: false, originalFirst: false,
+            dualMode: null, perCueMode: false, styleOriginal: false, originalFirst: false,
             dubVoiceName: "", dubDuck: 0.12, dubAutoRate: true,
             subStyle: null, costMode: "balanced", autoTranslate: true, dubEnabled: true,
             uiTheme: "auto"
@@ -1727,7 +1727,7 @@ async function loadSettings() {
         state.dubEnabled = saved.dubEnabled !== false;
         state.costMode = saved.costMode;
         state.autoTranslate = saved.autoTranslate !== false;
-        state.dualMode = saved.dualMode;
+        state.dualMode = window.CST_STYLE ? window.CST_STYLE.resolveDual(saved) : !!saved.dualMode;
         state.uiTheme = saved.uiTheme || "auto";
         state.perCueMode = saved.perCueMode;
         state.styleOriginal = saved.styleOriginal;
@@ -1735,12 +1735,7 @@ async function loadSettings() {
         state.dubVoiceName = saved.dubVoiceName;
         state.dubDuck = saved.dubDuck;
         state.dubAutoRate = saved.dubAutoRate;
-        if (saved.subStyle) {
-            state.subStyle = saved.subStyle;
-            if (saved.subStyle.mode) {
-                state.dualMode = saved.subStyle.mode === "dual";
-            }
-        }
+        if (saved.subStyle) state.subStyle = saved.subStyle;
         await loadGlossary();
     } catch (err) {
         console.warn("Khong doc duoc tuy chon da luu:", err.message);
@@ -1763,16 +1758,14 @@ async function init() {
         chrome.storage.onChanged.addListener((changes, area) => {
             if (area === "sync") {
                 if (changes.subStyle) {
+                    // subStyle.mode is only a mirror: dualMode decides (CST_STYLE.resolveDual)
                     state.subStyle = changes.subStyle.newValue;
-                    if (changes.subStyle.newValue?.mode) {
-                        state.dualMode = changes.subStyle.newValue.mode === "dual";
-                    }
                     injectCueStyle();
                     repositionCues();
                     csRestyle();
                 }
                 if (changes.dualMode) {
-                    state.dualMode = changes.dualMode.newValue;
+                    state.dualMode = !!changes.dualMode.newValue;
                     cs.renderKey = "";            // repaint now, not at the next cue
                 }
                 if (changes.costMode) state.costMode = changes.costMode.newValue;
@@ -1805,10 +1798,15 @@ async function init() {
     injectCueStyle();
     csCreateButton();
 
+    // Coursera rebuilds its control bar on navigation; put the button back when it does. Checked
+    // at most once per 150 ms (leading edge + one trailing check) instead of on every body mutation.
+    let lastCheck = -Infinity, trailing = null;
+    const checkButton = () => { if (!state.dead && !document.querySelector(CS_BTN)) csCreateButton(); };
     const observer = new MutationObserver(() => {
-        if (state.dead) return;
-        // Coursera rebuilds its control bar on navigation; put the button back when it does
-        if (!document.querySelector(CS_BTN)) csCreateButton();
+        if (state.dead || trailing) return;
+        const now = Date.now();
+        if (now - lastCheck >= 150) { lastCheck = now; checkButton(); return; }
+        trailing = setTimeout(() => { trailing = null; lastCheck = Date.now(); checkButton(); }, 150 - (now - lastCheck));
     });
     observer.observe(document.body, { childList: true, subtree: true });
     state.observers.push(observer);

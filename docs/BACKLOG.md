@@ -8,34 +8,14 @@ Add to this file whenever you find something out of scope for your task. Delete 
 
 ## Defects
 
-**1. `dubCondense` has four contradictory sources and no control.** There is no `#dubCondense`
-element in `options.html`, yet `options.js` looks it up, defaults it to `true`, and would restore it
-(all unreachable), while also hard-coding `dubCondense: false` in `collectSettings`. Separately
-`dubbing.js` hard-codes `false` and `cost-policy.js` `MODES` sets `condense` per mode. The setting is
-therefore permanently off via four independent mechanisms. Given the "never condense" rule this is
-the *correct* behaviour reached the wrong way. Cleanup: pick one source, delete the other three.
-
-**2. `dualMode` is written in two places.** Both as a top-level `storage.sync` key and as
-`subStyle.mode`, by the same `collectSettings` call, and read back from both. Two writers for one
-piece of state, so they can disagree.
-
-**3. The two bridge copies can drift.** See `DANGER.md` item 2. The inline fallback in `youtube.js`
-lacks the XHR/fetch `pot` capture that the real `yt-bridge.js` has. Unify them or make the
-difference explicit and tested.
-
-**4. `glossary.js` exports on `window.` only.** Every other module in its group also exports via
-`globalThis` and `module.exports`. The consequence is that the service worker and Node tests cannot
-load the glossary at all, and its two consumers guard with `typeof ... !== "undefined"`. Adding the
-two standard export lines would make it testable.
+none open (items 1 to 4 fixed in 1.6.4: condense switch, `dualMode` source of truth, single
+bridge, glossary exports).
 
 ## Cosmetic / housekeeping
 
 **5. The folder name says `v1.0.4`, the extension is many versions past that.** Renaming the folder means
 re-running Load unpacked in Chrome, which creates a new extension id and **loses the stored API key
 and settings**, so this is deliberately not done. Just do not trust the folder name.
-
-**6. `vi-segmenter.js` `explain()` has no callers**, not even in tests, though it is in the public
-api. It is a debugging aid; either use it in a test or drop it.
 
 **7. Two stylesheets, same design tokens.** `options.html` carries ~810 lines of inline CSS while
 `popup.css` is a separate 923-line file, and they duplicate the same tokens with nothing shared.

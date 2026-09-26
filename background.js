@@ -1244,7 +1244,19 @@ try {
     });
 } catch (e) { /* chạy ngoài extension */ }
 
+// The only YouTube bridge is yt-bridge.js. When the page predates the extension (reload) and the
+// manifest injection never ran, the content script asks for it here: executeScript in the MAIN
+// world bypasses the page CSP and Trusted Types, which an inline <script> copy did not.
+// yt-bridge.js guards itself (__cst_bridge_v2), so a second injection is a no-op.
+async function handleEnsureYtBridge(req, sender) {
+    const tabId = sender && sender.tab && sender.tab.id;
+    if (tabId == null || !chrome.scripting) return { ok: false, error: "no-tab" };
+    await chrome.scripting.executeScript({ target: { tabId, frameIds: [sender.frameId || 0] }, world: "MAIN", files: ["yt-bridge.js"] });
+    return { ok: true };
+}
+
 const ROUTES = {
+    ensureYtBridge: handleEnsureYtBridge,
     translateUnit: handleTranslateUnit,
     translateUnitStore: handleTranslateUnitStore,
     synthesizeSpeech: handleSynthesizeSpeech,
@@ -1269,6 +1281,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     const route = ROUTES[request.action];
     if (!route) return false;
-    route(request).then(sendResponse).catch(err => sendResponse({ ok: false, errorType: err.type || "unknown", error: err.message }));
+    route(request, sender).then(sendResponse).catch(err => sendResponse({ ok: false, errorType: err.type || "unknown", error: err.message }));
     return true;
 });

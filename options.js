@@ -593,14 +593,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const localStatusEl = document.getElementById("localTtsStatus");
     const gVoiceSel = document.getElementById("dubGeminiVoice");
     const gVoice2Sel = document.getElementById("dubGeminiVoice2");
-    const condenseBox = document.getElementById("dubCondense");
     const ttsModelInput = document.getElementById("dubTtsModel");
     const testBtn = document.getElementById("testVoice");
     const testStatus = document.getElementById("testVoiceStatus");
 
     const dubSaved = await chrome.storage.sync.get({
         dubVoiceName: "", dubDuck: 0.2, dubVolume: 1, dubProvider: "vieneu", dubPrepareWait: true, dubSecondVoice: false,
-        dubGeminiVoice: "Kore", dubGeminiVoice2: "Charon", dubCondense: true, dubTtsModel: "",
+        dubGeminiVoice: "Kore", dubGeminiVoice2: "Charon", dubTtsModel: "",
         dubLocalVoice: "", dubLocalVoice2: ""
     });
 
@@ -671,7 +670,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (prepareWaitBox) prepareWaitBox.checked = dubSaved.dubPrepareWait !== false;
     if (gVoiceSel) gVoiceSel.value = dubSaved.dubGeminiVoice;
     if (gVoice2Sel) gVoice2Sel.value = dubSaved.dubGeminiVoice2;
-    if (condenseBox) condenseBox.checked = dubSaved.dubCondense !== false;
     if (ttsModelInput) {
         ttsModelInput.value = dubSaved.dubTtsModel || "";
         ttsModelInput.placeholder = COST.DEFAULT_MODELS.tts;
@@ -801,7 +799,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             dubSecondVoice: document.getElementById("dubSecondVoice") ? document.getElementById("dubSecondVoice").checked : false,
             dubGeminiVoice: gVoiceSel ? gVoiceSel.value : "Kore",
             dubGeminiVoice2: gVoice2Sel ? gVoice2Sel.value : "Charon",
-            dubCondense: false,   // Đàm: KHÔNG rút gọn lời thoại (mất nội dung người nói)
             dubTtsModel: ttsModelInput ? ttsModelInput.value.trim() : "",
             dubLocalVoice: localVoiceSel ? localVoiceSel.value : "",
             dubLocalVoice2: localVoice2Sel ? localVoice2Sel.value : ""

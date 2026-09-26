@@ -128,8 +128,8 @@ also mirrored into `localStorage` as `cstUiTheme` so the page can paint before s
 
 Dubbing: `dubEnabled`, `dubProvider`, `dubTtsModel`, `dubVoiceName`, `dubGeminiVoice`,
 `dubGeminiVoice2`, `dubLocalVoice`, `dubLocalVoice2`, `dubSecondVoice` (off by default: every speaker is S1,
-see `DubEngine.oneVoice`), `dubDuck`, `dubVolume`, `dubPrepareWait`,
-`dubCondense`
+see `DubEngine.oneVoice`), `dubDuck`, `dubVolume`, `dubPrepareWait`.
+`dubCondense` is retired (condensing is permanently off, see `DUBBING.md`); old stored values are ignored
 
 One-shot migration flags (do not reuse the names): `modelsVersion`, `costMigration113`,
 `localVoices1111`, `dubProvider1113`, `styleDefaults118`
@@ -164,4 +164,4 @@ database, which is separate (see `DUBBING.md`).
 4. If the content script must react live, handle it in the `storage.onChanged` listener.
 
 Miss step 2 and the setting silently never saves. Miss step 1 and you get a dead key, which is
-exactly how `dubCondense` ended up broken; see `BACKLOG.md`.
+exactly how the retired `dubCondense` key ended up with four contradictory sources.

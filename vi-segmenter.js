@@ -168,6 +168,9 @@ mạng nơ-ron tích chập|mạng nơ ron tích chập|mạng nơron tích ch�
     const TERMS = buildPhraseSet(TERM_LIST);
     const OPENER_MAX = Math.max(...Object.keys(OPENERS).map(k => k.split(" ").length));
     const LEFT_MAX = Math.max(...Object.keys(LEFT_BIND).map(k => k.split(" ").length));
+    // multi-word openers / left binders, built once instead of on every analyze()
+    const OPENER_PHRASES = new Set(Object.keys(OPENERS).filter(k => k.includes(" ")));
+    const LEFT_PHRASES = new Set(Object.keys(LEFT_BIND).filter(k => k.includes(" ")));
 
     // ---------------- TIỆN ÍCH CHUỖI ----------------
     const TOKEN_RE = /(?:\[\[\s*(?:\\?_){2}\s*T\s*\d+\s*(?:\\?_){2}\s*\]\]|(?:\\?_){2}T\s*\d+(?:\\?_){2}|Z\s*Q\s*\d+\s*Q\s*Z)/gi;
@@ -201,10 +204,18 @@ mạng nơ-ron tích chập|mạng nơ ron tích chập|mạng nơron tích ch�
     const VI_SYLLABLE = /^(?:ngh|ng|nh|ch|gh|gi|kh|ph|qu|th|tr|[bcdđghklmnprstvx])?[aăâeêioôơuưy]{1,3}(?:ch|ng|nh|[cmnpt])?$/;
     const VI_GI = /^gi(?:ch|ng|nh|[cmnpt])?$/;
 
+    // Memoised: the planner and the segmenter ask about the same few thousand syllables over and
+    // over, and the NFD/NFC round trip in stripTones was the top self-time in a dubbing profile.
+    const sylMemo = new Map();
     function isVietSyllable(core) {
         if (!core) return false;
+        let r = sylMemo.get(core);
+        if (r !== undefined) return r;
         const s = stripTones(core.toLowerCase());
-        return VI_SYLLABLE.test(s) || VI_GI.test(s);
+        r = VI_SYLLABLE.test(s) || VI_GI.test(s);
+        if (sylMemo.size >= 20000) sylMemo.clear();
+        sylMemo.set(core, r);
+        return r;
     }
 
     function isVietWord(core) {
@@ -286,16 +297,22 @@ mạng nơ-ron tích chập|mạng nơ ron tích chập|mạng nơron tích ch�
 
     // Đánh dấu mọi khe nằm trong một cụm của từ điển; ghi lại token kết thúc
     // cụm (wordEnd) để biết "quá" trong "vượt quá" là hết từ, không phải phó từ.
+    // Same result as trying phraseAt for every length from longest down (longest match wins), but
+    // each phrase is grown one token at a time instead of rebuilt from scratch for every length.
     function markSpans(tokens, inside, phraseSet, maxLen, cost, wordEnd) {
         const n = tokens.length;
         for (let i = 0; i < n; i++) {
-            for (let len = Math.min(maxLen, n - i); len >= 2; len--) {
-                const p = phraseAt(tokens, i, len);
-                if (p && phraseSet.has(p)) {
-                    for (let g = i + 1; g < i + len; g++) inside[g] = Math.max(inside[g], cost);
-                    if (wordEnd) wordEnd[i + len - 1] = true;
-                    break;
-                }
+            const top = Math.min(maxLen, n - i);
+            let s = tokens[i].core, best = 0;
+            for (let len = 2; len <= top; len++) {
+                // a phrase never spans punctuation: same rule as phraseAt
+                if (tokens[i + len - 2].trail || tokens[i + len - 1].lead) break;
+                s += " " + tokens[i + len - 1].core;
+                if (phraseSet.has(s)) best = len;
+            }
+            if (best) {
+                for (let g = i + 1; g < i + best; g++) inside[g] = Math.max(inside[g], cost);
+                if (wordEnd) wordEnd[i + best - 1] = true;
             }
         }
     }
@@ -311,10 +328,8 @@ mạng nơ-ron tích chập|mạng nơ ron tích chập|mạng nơron tích ch�
         markSpans(tokens, inside, TERMS.set, TERMS.maxLen, 100, wordEnd);
 
         // Cụm liên từ/giới từ nhiều âm tiết cũng không được tách đôi
-        const openerSet = new Set(Object.keys(OPENERS).filter(k => k.includes(" ")));
-        markSpans(tokens, inside, openerSet, OPENER_MAX, 85);
-        const leftSet = new Set(Object.keys(LEFT_BIND).filter(k => k.includes(" ")));
-        markSpans(tokens, inside, leftSet, LEFT_MAX, 80);
+        markSpans(tokens, inside, OPENER_PHRASES, OPENER_MAX, 85);
+        markSpans(tokens, inside, LEFT_PHRASES, LEFT_MAX, 80);
 
         // Thuật ngữ do người dùng/từ điển cung cấp (dạng hiển thị cuối cùng)
         if (userTerms.length) {

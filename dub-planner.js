@@ -74,7 +74,20 @@
         return Math.max(1, groups);
     }
 
+    // Pure function of the word, asked for the same words on every plan rebuild: memoised
+    const sylCountMemo = new Map();
     function tokenSyllables(raw) {
+        const key = String(raw);
+        let n = sylCountMemo.get(key);
+        if (n === undefined) {
+            n = countTokenSyllables(key);
+            if (sylCountMemo.size >= 20000) sylCountMemo.clear();
+            sylCountMemo.set(key, n);
+        }
+        return n;
+    }
+
+    function countTokenSyllables(raw) {
         const t = String(raw).replace(/^[^\p{L}\p{N}%]+|[^\p{L}\p{N}%]+$/gu, "");
         if (!t) return 0;
         if (/^\d+(?:[.,]\d+)?%?$/.test(t)) {
@@ -258,7 +271,21 @@
 
     // Chia đoạn nói thành cụm (phrase) tại dấu câu, gợi ý ¦ của Gemini, khoảng
     // ngừng thật trong lời gốc, và "chỗ lấy hơi" khi cụm quá dài.
+    // Memoised on (text, source pauses): every plan rebuild asks again for the same segments, and the
+    // tokenize + analyze inside was most of a rebuild's cost. Callers get fresh copies to mutate.
+    const phraseMemo = new Map();
     function buildPhrases(speechText, opts = {}) {
+        const key = speechText + "\u0001" + JSON.stringify(opts.sourcePauses || []);
+        let hit = phraseMemo.get(key);
+        if (!hit) {
+            hit = buildPhrasesUncached(speechText, opts);
+            if (phraseMemo.size >= 3000) phraseMemo.clear();
+            phraseMemo.set(key, hit);
+        }
+        return hit.map(ph => ({ ...ph }));
+    }
+
+    function buildPhrasesUncached(speechText, opts = {}) {
         if (!SEG) return [{ text: speechText, syl: countSyllables(speechText), pauseAfter: 0 }];
         const tokens = SEG.tokenize(speechText);
         if (!tokens.length) return [];

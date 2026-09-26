@@ -24,7 +24,6 @@
         dubVoiceName: "",
         dubDuck: 0.2,                 // mức tiếng gốc khi có lời Việt (giữ nhạc nền nghe được)
         dubVolume: 1,
-        dubCondense: false,           // KHÔNG rút gọn lời thoại (Đàm: làm mất nội dung người nói truyền đạt)
         dubSecondVoice: false,        // a second voice for a second speaker: off unless the viewer asks
         dubPrepareWait: true,         // mở video mới / tua tới đoạn mới: tạm dừng tối đa 5 giây chờ phụ đề + giọng
         useAi: true,
@@ -172,7 +171,7 @@
             : (window.CST_UI && window.CST_UI.toast ? window.CST_UI.toast(msg, { warn: true, ...act }) : console.warn("[Lồng tiếng] " + msg)));
         const s = await readSettings();
         if (outdated()) return false;
-        const mode = window.CST_COST ? window.CST_COST.getMode(s.costMode) : { tts: "gemini", prefetch: 18, condense: true };
+        const mode = window.CST_COST ? window.CST_COST.getMode(s.costMode) : { tts: "gemini", prefetch: 18 };
         if (mode.tts === "none") {
             alert("Đang ở chế độ \"Chỉ phụ đề\" nên lồng tiếng đã tắt. Đổi chế độ sử dụng trong Cài đặt để bật lồng tiếng.",
                 { actionLabel: "Mở Cài đặt", onAction: () => sendMessage({ action: "openOptions" }) });

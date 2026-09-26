@@ -249,8 +249,17 @@
         return seg.breakLines(text, { maxLineChars: maxChars, maxLines: opts.maxLines || 4 });
     }
 
+    // Bilingual display has one source of truth: the top-level `dualMode` storage key, which the
+    // popup, Settings and both in-page menus all write. `subStyle.mode` is only a mirror and is
+    // read back solely when `dualMode` was never stored (settings from before the key existed).
+    function resolveDual(saved) {
+        if (!saved) return false;
+        if (saved.dualMode !== undefined && saved.dualMode !== null) return !!saved.dualMode;
+        return !!(saved.subStyle && saved.subStyle.mode === "dual");
+    }
+
     const api = {
-        FONTS, STROKES, DEFAULT_STYLE,
+        FONTS, STROKES, DEFAULT_STYLE, resolveDual,
         getFont, normalizeStyle, fontStack, ensureFont, isLocalFontAvailable,
         textShadow, backgroundColor, hexToRgba, googleFontsUrl,
         fitLines, textWidth

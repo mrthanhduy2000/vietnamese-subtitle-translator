@@ -4,6 +4,20 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.6.4", luc: "19:37 26/09/2026", ten: "Dọn các lỗi tồn đọng; lồng tiếng và phụ đề nhẹ máy hơn",
+            y: [
+                "Sửa lỗi chế độ song ngữ tự tắt: bật song ngữ trong cửa sổ nhỏ rồi mở lại trang Coursera có thể quay về một ngôn ngữ, và trên YouTube tắt song ngữ trong cửa sổ nhỏ có thể không có tác dụng. Nay chỉ còn một chỗ quyết định chế độ hiển thị.",
+                "Chỉ còn một cầu nối đọc phụ đề YouTube. Sau khi bấm Tải lại tiện ích, trang đang mở dùng đúng cầu nối đầy đủ (có mã xác thực của trình phát), không còn bản sao thiếu chức năng.",
+                "Dựng kịch bản lồng tiếng nhanh gấp khoảng 3 lần (13 xuống 4 mili giây cho mỗi lần có câu mới), kết quả giống hệt từng đoạn trên bài giảng 60 phút.",
+                "Nút trên thanh điều khiển không còn bị kiểm tra lại mỗi lần YouTube thay đổi trang (bình luận, đề xuất, trò chuyện trực tiếp), chỉ tối đa khoảng 7 lần mỗi giây.",
+                "Dọn cài đặt rút gọn lời thoại vốn đã tắt: giờ chỉ còn một công tắc, luôn tắt. Lời thoại không bao giờ bị rút gọn."
+            ],
+            bang: { cot: ["Đo trên máy", "Trước", "Nay"], hang: [
+                ["Dựng kịch bản cho 80 nhóm câu", "13,1 mili giây", "3,9 mili giây"],
+                ["Tách dòng 22 câu mẫu", "2,2 mili giây", "1,8 mili giây"]
+            ] }
+        },
+        {
             v: "1.6.3", luc: "23:06 23/09/2026", ten: "Mượt hơn với video dài; thực đơn và bản chép lời mở, đóng có chuyển động",
             y: [
                 "Sửa nguyên nhân giật hình khi dịch video dài: mỗi lần thêm một nhóm câu dịch xong, bộ lồng tiếng dựng lại kịch bản cho toàn bộ video, tốn khoảng 90 mili giây (bằng 5 khung hình) với bài giảng 60 phút, và lặp lại hàng trăm lần trong lúc dịch. Nay chỉ dựng cho khoảng quanh chỗ đang xem: còn khoảng 15 mili giây, nhịp nặng nhất từ 97 xuống 16 mili giây. Kịch bản thu được giống hệt cách cũ (đã kiểm chứng từng đoạn, kể cả khi bật giọng thứ hai).",

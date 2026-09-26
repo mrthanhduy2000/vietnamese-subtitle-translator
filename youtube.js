@@ -77,7 +77,10 @@ async function ytNapCaiDatKieu() {
         // Chưa từng chọn (cài mới, kho cài đặt bị tạo lại) -> bật: người dùng muốn nghe giọng Việt ngay
         ytSettings.dubEnabled = res.dubEnabled !== false;
         ytSubStyle = ytChuanHoaKieu(res.subStyle);
-        if (res.dualMode !== undefined) ytSubStyle.mode = res.dualMode ? "dual" : "single";
+        // dualMode is the one source of truth; subStyle.mode mirrors it (CST_STYLE.resolveDual)
+        const dual = window.CST_STYLE ? window.CST_STYLE.resolveDual(res) : !!res.dualMode;
+        ytSubStyle.mode = dual ? "dual" : "single";
+        state.dualMode = dual;
         if (res.skipSameLang !== undefined) ytSettings.skipSameLang = !!res.skipSameLang;
         ytSettings.smartSentenceBreak = true;
     } catch (e) {
@@ -173,83 +176,15 @@ async function ytDonCache() {
     } catch (e) { /* bo qua */ }
 }
 
-// Đảm bảo mã cầu nối MAIN world luôn chạy trên trang YouTube
+// Make sure the one bridge (yt-bridge.js, MAIN world) runs in this page. The manifest injects it at
+// document_start; after an extension reload the service worker injects the same file. Asked once
+// per page: the bridge ignores a second copy on its own.
+let ytBridgeAsked = false;
 function ytDamBaoBridge() {
-    if (document.getElementById("cst-yt-bridge-injected")) return;
+    if (ytBridgeAsked) return;
+    ytBridgeAsked = true;
     try {
-        const s = document.createElement("script");
-        s.id = "cst-yt-bridge-injected";
-        s.textContent = `(${function () {
-            if (window.__cst_bridge_listener_ready) return;
-            window.__cst_bridge_listener_ready = true;
-
-            function layDanhSachPhuDe() {
-                let response = null;
-                try {
-                    const player = document.querySelector("#movie_player");
-                    if (player && typeof player.getPlayerResponse === "function") {
-                        response = player.getPlayerResponse();
-                    }
-                } catch (e) {}
-
-                if (!response && window.ytInitialPlayerResponse) {
-                    response = window.ytInitialPlayerResponse;
-                }
-
-                if (!response) {
-                    try {
-                        if (window.ytcfg && typeof window.ytcfg.get === "function") {
-                            const pdata = window.ytcfg.get("PLAYER_VARS");
-                            if (pdata && pdata.embedded_player_response) {
-                                response = typeof pdata.embedded_player_response === "string" 
-                                    ? JSON.parse(pdata.embedded_player_response)
-                                    : pdata.embedded_player_response;
-                            }
-                        }
-                    } catch (e) {}
-                }
-
-                if (!response) return { error: "Chưa đọc được dữ liệu trình phát YouTube" };
-
-                const list =
-                    response.captions &&
-                    response.captions.playerCaptionsTracklistRenderer &&
-                    response.captions.playerCaptionsTracklistRenderer.captionTracks;
-
-                if (!list || list.length === 0) {
-                    return { tracks: [], videoId: (response.videoDetails || {}).videoId || "" };
-                }
-
-                return {
-                    tracks: list.map(t => ({
-                        baseUrl: t.baseUrl,
-                        languageCode: t.languageCode || "",
-                        kind: t.kind || "",
-                        name: (t.name && (t.name.simpleText || (t.name.runs && t.name.runs[0] && t.name.runs[0].text))) || ""
-                    })),
-                    videoId: (response.videoDetails || {}).videoId || "",
-                    title: (response.videoDetails || {}).title || "",
-                    author: (response.videoDetails || {}).author || "",
-                    channelId: (response.videoDetails || {}).channelId || "",
-                    description: String((response.videoDetails || {}).shortDescription || "").slice(0, 400),
-                    keywords: ((response.videoDetails || {}).keywords || []).slice(0, 12)
-                };
-            }
-
-            window.addEventListener("message", event => {
-                if (event.source !== window) return;
-                const data = event.data;
-                if (!data || data.cstType !== "YEU_CAU_PHU_DE") return;
-                let ketQua;
-                try {
-                    ketQua = layDanhSachPhuDe();
-                } catch (err) {
-                    ketQua = { error: String(err && err.message ? err.message : err) };
-                }
-                window.postMessage({ cstType: "TRA_LOI_PHU_DE", requestId: data.requestId, ...ketQua }, "*");
-            });
-        }.toString()})();`;
-        (document.head || document.documentElement).appendChild(s);
+        chrome.runtime.sendMessage({ action: "ensureYtBridge" }, () => { void chrome.runtime.lastError; });
     } catch (e) {
         console.warn("Chưa thể chèn bridge script:", e);
     }
@@ -267,17 +202,22 @@ function ytHoiDanhSachPhuDe(timeoutMs = 4500) {
             if (!d || d.cstType !== "TRA_LOI_PHU_DE" || d.requestId !== requestId) return;
             window.removeEventListener("message", onMessage);
             clearTimeout(timer);
+            clearInterval(resend);
             if (d.error) reject(new Error(d.error));
             else resolve(d);
         };
 
         const timer = setTimeout(() => {
             window.removeEventListener("message", onMessage);
+            clearInterval(resend);
             reject(new Error("Trình phát YouTube chưa phản hồi. Hãy thử bấm lại hoặc phát video."));
         }, timeoutMs);
 
         window.addEventListener("message", onMessage);
-        window.postMessage({ cstType: "YEU_CAU_PHU_DE", requestId }, "*");
+        const ask = () => window.postMessage({ cstType: "YEU_CAU_PHU_DE", requestId }, "*");
+        ask();
+        // a bridge injected after an extension reload arrives a moment later: ask again until it answers
+        const resend = setInterval(ask, 600);
     });
 }
 
@@ -1876,10 +1816,21 @@ function ytTheoDoi() {
     window.addEventListener("yt-navigate-finish", kiemTra);
     window.addEventListener("popstate", kiemTra);
 
-    const observer = new MutationObserver(() => {
+    // YouTube mutates the body many times a second (comments, recommendations, live chat, the
+    // progress bar), and every check queries the whole document. Run at most once per 150 ms:
+    // at once on the leading edge, then once more after the burst, so a removed button still
+    // comes back within a moment.
+    const checkButton = () => {
         if (yt.dead) return;
         if (!document.querySelector(YT_BTN)) ytTaoNutThanhDieuKhien();
         else ytAnCuaMaKhac(document, ".cst-ytp-btn");
+    };
+    let lastCheck = -Infinity, trailing = null;
+    const observer = new MutationObserver(() => {
+        if (yt.dead || trailing) return;
+        const now = Date.now();
+        if (now - lastCheck >= 150) { lastCheck = now; checkButton(); return; }
+        trailing = setTimeout(() => { trailing = null; lastCheck = Date.now(); checkButton(); }, 150 - (now - lastCheck));
     });
     observer.observe(document.body, { childList: true, subtree: true });
     yt.btnObserver = observer;
@@ -1925,6 +1876,8 @@ async function ytKhoiDong() {
             if (area === "sync") {
                 if (changes.subStyle) {
                     ytSubStyle = ytChuanHoaKieu({ ...ytSubStyle, ...changes.subStyle.newValue });
+                    // a stale mirror must not override dualMode (popup writes dualMode alone)
+                    ytSubStyle.mode = state.dualMode ? "dual" : "single";
                     const player = document.querySelector("#movie_player") || document.querySelector(".html5-video-player");
                     const overlay = document.querySelector(YT_OVERLAY);
                     if (player && overlay) {
@@ -1935,7 +1888,8 @@ async function ytKhoiDong() {
                     }
                 }
                 if (changes.dualMode) {
-                    state.dualMode = changes.dualMode.newValue;
+                    state.dualMode = !!changes.dualMode.newValue;
+                    ytSubStyle.mode = state.dualMode ? "dual" : "single";
                     yt.renderKey = "";
                 }
                 if (changes.uiTheme) {

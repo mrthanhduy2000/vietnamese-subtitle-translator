@@ -24,17 +24,15 @@ is capped at 12 entries.
 If YouTube captions go empty again, **measure the real page first** (browser pane, look at what
 parameters the player's own `timedtext` request carries) before changing any code.
 
-## 2. There are TWO bridge implementations
+## 2. There is ONE bridge, injected two ways
 
-`manifest.json` injects `yt-bridge.js` into the MAIN world at `document_start`. Separately,
-`youtube.js` `ytDamBaoBridge` injects an **inline duplicate** for the case where the extension was
-reloaded and the real bridge never ran in this page.
-
-Both key off `window.__cst_bridge_listener_ready`. The inline copy does **not** have the XHR/fetch
-`pot` capture. So if you fix a bridge bug in one copy and not the other, `pot` fetching degrades
-silently and only in the reload case, which is exactly the case nobody tests by hand.
-
-Mirror every bridge change into both, or unify them. See `BACKLOG.md`.
+`manifest.json` injects `yt-bridge.js` into the MAIN world at `document_start`. When the page predates
+the extension (reload), `youtube.js` `ytDamBaoBridge` asks the service worker (`ensureYtBridge`) to
+`executeScript` the **same file** into the MAIN world; `reinjectOpenTabs` also does it on update.
+Never bring back an inline `<script>` copy: it drifted (it lacked the `pot` capture) and an inline
+script on YouTube runs into Trusted Types. `yt-bridge.js` guards itself with `__cst_bridge_v2`, and
+`ytHoiDanhSachPhuDe` re-posts its request every 600 ms, because a freshly injected bridge answers a
+moment after the first ask.
 
 ## 3. The three-legged reload guard
 

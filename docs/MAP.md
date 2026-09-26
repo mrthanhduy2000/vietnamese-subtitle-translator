@@ -31,7 +31,7 @@ dub-engine.js -> dubbing.js -> content.js -> youtube.js
 | `options.js` | 871 | Settings logic. No Save button: debounced autosave every 350ms, flushed on `pagehide` | n/a |
 | `vi-segmenter.js` | 864 | Vietnamese cue segmentation + line breaking, two-stage dynamic programming over syllable gaps | `CST_VI_SEG` |
 | `dub-planner.js` | 734 | Pure function: text -> speech script -> prosody and timing. No I/O | `CST_DUB_PLAN` |
-| `glossary.js` | 665 | Pure data: 17 domain term groups, normalize rules, proper nouns never to translate | `window.CST_GLOSSARY_GROUPS` and friends |
+| `glossary.js` | 665 | Pure data: 17 domain term groups, normalize rules, proper nouns never to translate | `CST_GLOSSARY_GROUPS` and friends (globalThis + module.exports) |
 | `dubbing.js` | 392 | Thin page-level dubbing controller: settings, provider pick, badge, hold-video-while-preparing | `window.CST_DUB` |
 | `context-engine.js` | 378 | Domain detection + per-video sliding-window context sent with each translation | `CST_CONTEXT` |
 | `cst-cache.js` | 319 | Two-tier LRU cache (RAM -> IndexedDB) for translations and audio | `CST_CACHE` |
@@ -63,8 +63,7 @@ dub-engine.js -> dubbing.js -> content.js -> youtube.js
 - `CST_STYLE` -> `content.js`, `youtube.js`, `options.js`
 - `CST_LANG` -> `content.js`, `youtube.js`
 - `CST_THEME` -> `options.js` (the theme buttons)
-- `glossary.js` exports on `window.` only, so the service worker and Node tests cannot load it.
-  Its two consumers guard with `typeof ... !== "undefined"`. See `BACKLOG.md`.
+- `glossary.js` exports like the others (globalThis, window, module.exports); `tests/backlog.test.js` loads it.
 
 ## Tests and tooling (22 files, 5,456 lines)
 

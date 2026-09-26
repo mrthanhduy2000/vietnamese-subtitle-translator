@@ -656,10 +656,14 @@ const GLOSSARY_GROUPS = {
 
 const DEFAULT_ENABLED_GROUPS = Object.keys(GLOSSARY_GROUPS);
 
-if (typeof window !== "undefined") {
-    window.CST_GLOSSARY_GROUPS = GLOSSARY_GROUPS;
-    window.CST_DEFAULT_NORMALIZE = DEFAULT_NORMALIZE;
-    window.CST_DEFAULT_ENABLED_GROUPS = DEFAULT_ENABLED_GROUPS;
-    window.CST_RISKY_PROPER = RISKY_PROPER;
-    window.CST_CONTEXTUAL_TERMS = CONTEXTUAL_TERMS;
-}
+// Same three-way export as the other modules: page (window), service worker (globalThis), Node tests
+const CST_GLOSSARY_API = {
+    CST_GLOSSARY_GROUPS: GLOSSARY_GROUPS,
+    CST_DEFAULT_NORMALIZE: DEFAULT_NORMALIZE,
+    CST_DEFAULT_ENABLED_GROUPS: DEFAULT_ENABLED_GROUPS,
+    CST_RISKY_PROPER: RISKY_PROPER,
+    CST_CONTEXTUAL_TERMS: CONTEXTUAL_TERMS
+};
+if (typeof globalThis !== "undefined") Object.assign(globalThis, CST_GLOSSARY_API);
+if (typeof window !== "undefined" && window !== globalThis) Object.assign(window, CST_GLOSSARY_API);
+if (typeof module === "object" && module.exports) module.exports = CST_GLOSSARY_API;

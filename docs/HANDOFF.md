@@ -6,39 +6,43 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-23 · lanes A + B, `player-ui.js` · `1.6.3`. User: find and fix limitations and bugs, make the
-system smoother, make the UX nicer and smoother. Setup: **Kim Thanh, dark theme**.
+2026-09-26 · lanes A + B + D (touched `background.js`, `options.js`, `cost-policy.js`) · `1.6.4`.
+User: fix the backlog, then find and optimise more in audio + subtitles.
 
 ## What changed
 
-- Jank: `refresh` planned the whole video on every new group (~90 ms main thread on 60 min). Now a
-  planning window (`SYNC.planStep/planBehind/planAhead`), speaker parity via
-  `PLAN.speakerStateBefore`. Worst tick 97 -> 16 ms, plans 668 -> 96. Test proves windowed plans equal
-  whole-video plans (ids, text, speaker, continuesNext) with the second voice on.
-- Leak: `releaseOld` skipped audio whose plan vanished; now frees it (test).
-- `hardReset` clears `this.pace`.
-- Motion: `kit.dismiss(el)` (exit animation, instant under reduced motion or without matchMedia);
-  menu pop-in, panel slide-in, overlay transform/max-width transitions. Menu lookups skip an element
-  marked `data-cst-leaving`, so a quick re-click opens a new menu.
-- `CST_TRANSCRIPT.mergeLines` is memoised on (arrays, lengths, rev); `invalidate()` and an in-panel
-  save bump rev.
+- Backlog 1: condensing has one switch (`condense: null` in `dubbing.js`); `dubCondense` key and
+  `MODES[*].condense` are gone. Backlog 2: `dualMode` is the source of truth,
+  `CST_STYLE.resolveDual` reads it (subStyle.mode only as fallback). Real bug it fixed: popup wrote
+  `dualMode` alone, Coursera then let a stale `subStyle.mode` win; YouTube OR-ed the two, so turning
+  bilingual off in the popup did nothing. Backlog 3: inline bridge copy deleted; `ensureYtBridge`
+  route executeScripts `yt-bridge.js` in MAIN; the list request re-posts every 600 ms. Backlog 4:
+  glossary exports to globalThis/module. Backlog 6: `explain()` now has a test.
+- Perf (measured, `planAll` output byte-identical on a 60-min lecture): plan rebuild of 80 groups
+  13.1 -> 3.9 ms via memo of `isVietSyllable`, `tokenSyllables`, `buildPhrases` (copies out),
+  incremental `markSpans`, opener/left phrase sets hoisted. Body-wide button observers in
+  `youtube.js`/`content.js` throttled to 150 ms (leading + trailing).
+- New `tests/backlog.test.js` (9 tests).
 
 ## State
 
-- `npm test`: 354 tests, 353 pass, 0 fail, 1 skip · Reload: **yes** (1.6.3 not yet loaded)
+- `npm test`: 363 tests, 362 pass, 0 fail, 1 skip · Reload: **yes** (1.6.4 not yet loaded)
 
 ## Unfinished / in progress
 
+- Not verified live: `ensureYtBridge` after a Reload on an already-open YouTube tab (open a video,
+  Reload the extension, translate without F5; captions must load).
 - Not yet measured live: jank with a long video while it translates (PerformanceObserver
-  `longtask` on a real page would show it). Needs a new, long video, so it costs a little Gemini.
+  `longtask`). Needs a new, long video, so it costs a little Gemini.
 - A paraphrased leak on 4eY5DuqASQc (~8:40) still adds speech there.
-- Plan stages 3 to 5 on hold. `docs/BACKLOG.md`: 8 open items.
+- Plan stages 3 to 5 on hold. `docs/BACKLOG.md`: items 5, 7, 8 left (all deliberate / cosmetic).
 
 ## Traps hit this session
 
-- A memo keyed on array identity goes stale when cues are edited in place: every in-place edit
-  path must call `CST_TRANSCRIPT.invalidate()` (CST_EDITS.notify does).
-- Old tests with regex spans around `menu.remove()` break when the removal line changes; widen them.
+- `git stash` to diff old vs new is fine, but a `git worktree add $TMPDIR/base HEAD` lets you run a
+  benchmark against both at once; remove it afterwards.
+- `reload-fight.test.js` stubs `setTimeout`/`requestAnimationFrame` as no-ops: any throttle on the
+  button observer must run on the leading edge or that test never sees the work.
 
 ## Suggested next step
-- After reload: long-task measurement on a long lecture while translating, and a console error sweep.
+- After reload: the bridge check above, then the long-task measurement on a long lecture.
