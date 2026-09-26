@@ -201,7 +201,7 @@
     //   refine   : "strong" dịch lại bằng model mạnh | "cheap" chỉ khi lỗi nặng | "none"
     //   tts      : "gemini" | "system" | "none"
     //   prefetch : số giây tạo audio trước tối đa (thích ứng theo độ trễ)
-    // Dubbing never condenses speech: the only switch is `condense: null` in dubbing.js.
+    // Dubbing never condenses speech: there is no condense code (CLAUDE.md rule 1).
     //   translateAhead: YouTube chỉ dịch trước bấy nhiêu giây quanh vị trí xem
     const MODES = {
         premium: {

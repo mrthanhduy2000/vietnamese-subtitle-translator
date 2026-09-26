@@ -163,8 +163,19 @@
     async function start(opts) {
         stop();
         const seq = ++startSeq;
-        const outdated = () => seq !== startSeq;
         dub.starting = true;
+        try {
+            return await startEngine(opts, seq);
+        } finally {
+            // Every way out hands the flag back: "Chỉ phụ đề" mode, no voice at all, an error. Left
+            // set, the YouTube auto-dub (ytTuBatLongTieng checks it) skipped every later video on the
+            // page, e.g. after the VieNeu server was started. A newer start owns it, so not then.
+            if (seq === startSeq) dub.starting = false;
+        }
+    }
+
+    async function startEngine(opts, seq) {
+        const outdated = () => seq !== startSeq;
         // Tự bật (opts.quiet): không bật hộp thoại chặn trang, chỉ ghi ra console
         // Không dùng hộp thoại chặn trang: báo bằng thẻ nhỏ trên trình phát (tự ẩn)
         const alert = (msg, act) => (opts && opts.quiet

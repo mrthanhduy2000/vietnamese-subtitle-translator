@@ -153,8 +153,8 @@ and calls the OpenAI-compatible
 `POST /v1/audio/speech` with `{ model, voice, input, response_format: "pcm", sample_rate,
 temperature }`.
 
-**The server serves one request at a time.** `background.js` keeps a global priority queue
-(`localSerial` / `localPump`) with an adaptive timeout and one retry. Its caps are
+**The server serves one request at a time.** `background.js` keeps a global first-in-first-out
+queue (`localSerial` / `localPump`) with an adaptive timeout and one retry. Its caps are
 `{ serial: true, maxBatch: 1, free: true }`. Do not parallelize it.
 
 First stop when there is no voice at all: `curl 127.0.0.1:8000/health`.
@@ -254,6 +254,14 @@ LRU plus version-mismatch victims, down to 85% of the cap. A single item larger 
 is not stored. Reads time out at 1500ms and writes at 3000ms, degrading to a cache miss rather than
 blocking playback. `dubbing.js` keeps a small page-side mirror; per-video purge goes through
 `audioKeysForVideo`.
+
+Lookups before paying (1.7.4). `schedule` looks up the segments a batch may take past the prefetch
+window (`SYNC.batchSpill`) before it builds the batch, and never puts a segment that was not looked
+up into a paid batch: a revisit used to pay again for a stored segment sitting right after an
+unheard stretch. Only for a batching provider; VieNeu (`maxBatch: 1`) sets `tightPauses`, part of
+its key, when a segment enters the window. The translation store is looked up for the chain's first
+model and every later model priced at or above it (`handleTranslateUnit`): when the first model is
+rate-limited the next one translates and saves under its own key.
 
 ## Testing dubbing without a video
 

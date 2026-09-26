@@ -19,6 +19,22 @@ the unit in a cross-origin iframe and its player's `data-metadata` holds `transc
 Both need a logged-in sample page to build against. The generic path (`SUBTITLE.md`) covers any
 player that exposes standard text tracks.
 
+## Found by the 1.7.4 audit, deliberately not fixed
+
+**10. A late refine misses YouTube's per-video copy.** `ytGhiCache` saves once the last group is
+translated; a background refine (`onRefined`) that lands after that is not in `ytcache4_`, so the
+next visit shows the pre-refine line (no cost: the refined line is in the IndexedDB store). Rare.
+
+**11. A refined line is voiced twice.** When a refine replaces a line whose Gemini TTS audio was
+already made, the engine re-renders it (the words changed, so this is correct, but it pays twice for
+that line). Holding TTS until a refine settles would delay the voice; not measured as worth it.
+
+**12. Unmeasured: the first cache write after each service-worker wake lists every meta record**
+(`TieredCache.ensureTotals`). Cheap for a small store; no IndexedDB in Node to measure a full one.
+
+**13. The Gemini voice preview in Settings is not cached**: each click pays ~5 s of audio, about
+0.1 to 0.3 US cents at the catalog's estimated prices. VieNeu previews are free.
+
 ## Cosmetic / housekeeping
 
 **5. The folder name says `v1.0.4`, the extension is many versions past that.** Renaming the folder means

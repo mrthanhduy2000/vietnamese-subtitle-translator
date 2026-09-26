@@ -1098,7 +1098,11 @@ async function ytNhanDienNgonNgu(info) {
 
 async function ytTuDongDich() {
     const ma = ytLayMaVideo();
-    if (yt.dead || !ytSettings.autoTranslate || !ma || yt.active || yt.busy || yt.autoTried === ma) return null;
+    if (yt.dead || !ytSettings.autoTranslate || !ma || yt.active || yt.autoTried === ma) return null;
+    // The video just left may still be loading (ytBatDauDich stops at its next wait): wait for it
+    // rather than skip this video for good, which is what returning on `busy` did
+    for (let i = 0; i < 40 && yt.busy && ytLayMaVideo() === ma; i++) await new Promise(r => setTimeout(r, 250));
+    if (yt.busy || yt.active || yt.autoTried === ma || ytLayMaVideo() !== ma) return null;
     yt.autoTried = ma;
     // Chờ chuẩn bị (Cài đặt > Lồng tiếng): giữ video mới ở trạng thái dừng tối đa 5 giây trong
     // lúc tải phụ đề + dịch + tạo giọng cho đoạn đầu, rồi phát -> có tiếng Việt ngay từ câu đầu
@@ -1161,9 +1165,16 @@ async function ytBatDauDich(opts = {}) {
     yt.busy = true;
     yt.huyDich = false;
     ytDatTrangThaiNut("loading");
+    // The viewer can open another video while this one loads (caption list, captions, saved copy:
+    // 1 to 3 s). ytTheoDoi then turns this run off (ytTatDich sets huyDich). Only the last wait was
+    // checked before: after any other one, the old run drew its captions over the new video and sent
+    // its lines to Gemini, while its `busy` made the new video's auto-translate give up.
+    const ma0 = ytLayMaVideo();
+    const stale = () => yt.huyDich || yt.dead || ytLayMaVideo() !== ma0;
 
     try {
         const info = await ytHoiDanhSachPhuDe();
+        if (stale()) return false;
 
         // A video spoken in Vietnamese is not subtitled (checked before the cache: a translation
         // saved by an older version must not come back). Asked by hand: say why, offer to go on.
@@ -1197,6 +1208,7 @@ async function ytBatDauDich(opts = {}) {
         if (chon.daCoTiengViet && ytSettings.skipSameLang) {
             console.log("Video đã có phụ đề tiếng Việt sẵn, áp dụng tùy chọn 'Bỏ qua dịch khi cùng ngôn ngữ'");
             const viCues = await ytTaiBanChepLoi(chon.track.baseUrl);
+            if (stale()) return false;
             if (viCues.length > 0) {
                 ytHienThiNguyenTiengViet(viCues);
                 return true;
@@ -1205,6 +1217,7 @@ async function ytBatDauDich(opts = {}) {
 
         // Xem lai video da dich thi lay ngay tu bo nho dem
         const cache = await ytDocCache(yt.currentVideoId);
+        if (stale()) return false;
         if (cache) {
             yt.cues = cache.cues.map(c => ({ start: c[0], end: c[1], text: c[2] }));
             yt.groups = [];
@@ -1233,6 +1246,7 @@ async function ytBatDauDich(opts = {}) {
         console.log(`Dung ban chep loi: ${track.languageCode}${track.kind === "asr" ? " (tu dong)" : ""}`);
 
         const cues = await ytTaiBanChepLoi(track.baseUrl);
+        if (stale()) return false;
         if (cues.length === 0) {
             baoLoi("YouTube chưa trả nội dung phụ đề. Hãy phát video vài giây rồi bấm dịch lại; nếu vẫn lỗi, tải lại trang (F5).");
             return false;
@@ -1266,7 +1280,7 @@ async function ytBatDauDich(opts = {}) {
             keywords: info.keywords || []
         }, info.channelId ? `yt_${info.channelId}` : (info.author ? `yt_${info.author}` : ""));
         if (yt.session) yt.session.setUnits(groups.map(g => g.text));
-        if (yt.groups !== groups) return false;
+        if (yt.groups !== groups || stale()) return false;
 
         console.log(`Đã nạp ${cues.length} dòng thành ${groups.length} nhóm câu. Lĩnh vực: ${yt.session ? yt.session.domain.primary : "?"}. Kích hoạt phụ đề Real-time.`);
 

@@ -8,9 +8,10 @@
 //                        hiệu, ngoặc) mà KHÔNG đổi nghĩa
 //   -> PROSODY PLAN    : cụm ngắt nghỉ, khoảng dừng, nhấn giọng, cao độ, tốc độ,
 //                        ý định câu (hỏi, cảnh báo, kết luận...)
-//   -> TIMING FIT      : so thời lượng ước tính với thời lượng lời gốc, chọn
-//                        chiến lược (tốc độ, nén khoảng dừng, kéo vào khoảng
-//                        lặng, co giãn audio, rút gọn câu chữ)
+//   -> TIMING FIT      : estimated vs original duration; strategies are rate, pause
+//                        compression, running into the silence after, audio stretch.
+//                        The words are never shortened ("needs-condense" only marks
+//                        an overflow the engine absorbs by chaining).
 // Module thuần, không đụng DOM: chạy được trong trình duyệt và Node (kiểm thử).
 // ============================================================
 (function (root) {
@@ -637,7 +638,7 @@
     const LIMITS = {
         minSps: 3.3,           // chậm hơn nữa nghe lê thê
         comfortSps: 5.0,       // nhanh nhưng vẫn tự nhiên
-        maxSps: 5.9,           // trần: nhanh hơn nữa khó nghe -> phải rút gọn câu chữ
+        maxSps: 5.9,           // ceiling: faster is hard to follow; any overflow chains on, never shortened
         maxStretch: 1.15,      // co giãn audio giữ cao độ (chỉ với audio có sẵn)
         minPauseScale: 0.55,
         maxPauseScale: 1.5

@@ -1140,9 +1140,16 @@
                 for (const p of todo) if (p.tightPauses == null) p.tightPauses = this.denseRatio(p) > SYNC.denseRatio;
             }
 
-            // 1. KHO AUDIO (RAM -> IndexedDB): đoạn đã từng tạo thì không gọi TTS nữa
-            const unchecked = todo.filter(p => !this.cacheChecked.has(p.id)).slice(0, 8);
-            if (unchecked.length && this.d.audioCache && this.provider.audioKey) {
+            // 1. KHO AUDIO (RAM -> IndexedDB): đoạn đã từng tạo thì không gọi TTS nữa.
+            // A batch may also take segments just past the window (SYNC.batchSpill), so those are
+            // looked up too. Before, a revisit re-rendered and paid for a stored segment that sat
+            // right after an unheard stretch. Only for a provider that batches: VieNeu renders one
+            // segment per call and sets tightPauses, part of its key, when a segment enters the window.
+            const maxPlans = this.provider.caps.maxBatch || SYNC.maxBatchPlans;
+            const cached = !!(this.d.audioCache && this.provider.audioKey);
+            const spill = p => p.start > to && p.start <= to + SYNC.batchSpill && !this.rendered.has(p.id) && !this.pending.has(p.id);
+            const unchecked = todo.concat(maxPlans > 1 ? this.plans.filter(spill) : []).filter(p => !this.cacheChecked.has(p.id)).slice(0, 8);
+            if (unchecked.length && cached) {
                 this.lookupCache(unchecked);
                 return;
             }
@@ -1160,12 +1167,11 @@
             const batch = [first];
             if (starving) { this.warmup = false; this.renderBatch(batch); return; }
             let syl = first.phrases.reduce((a, ph) => a + ph.syl, 0);
-            const maxPlans = this.provider.caps.maxBatch || SYNC.maxBatchPlans;
             for (let i = this.plans.indexOf(first) + 1; i < this.plans.length && batch.length < maxPlans; i++) {
                 const p = this.plans[i];
                 const s = p.phrases.reduce((a, ph) => a + ph.syl, 0);
-                const inSpill = p.start <= to + SYNC.batchSpill && !this.rendered.has(p.id) && !this.pending.has(p.id);
-                if (!(inWindow(p) || inSpill) || p.speaker !== first.speaker || syl + s > maxSyl || (this.failed.get(p.id) || 0) > 0) break;
+                if (!(inWindow(p) || spill(p)) || p.speaker !== first.speaker || syl + s > maxSyl || (this.failed.get(p.id) || 0) > 0) break;
+                if (cached && !this.cacheChecked.has(p.id)) break;       // never pay for audio not yet looked up
                 if (p.start - batch[batch.length - 1].end > 3) break;
                 batch.push(p);
                 syl += s;
@@ -1283,7 +1289,7 @@
                     this.measureVoice(p, o.duration);
                     // Hiệu chỉnh mô hình thời lượng theo thời lượng PHÁT (đã tính nhịp nền)
                     this.calibrateFromAudio(p, o.duration / this.baseTempo(p));
-                    // Kết quả về muộn nhưng lời thoại đã đổi (rút gọn / dựng lại): KHÔNG phát nhầm
+                    // A late result whose line has changed since (re-cut, edited): never play it
                     const cur = this.planById.get(o.planId);
                     if (cur && cur.text === p.text && !this.rendered.has(cur.id)) this.addRendered(cur, o.wav, o.duration);
                 }
@@ -1335,8 +1341,8 @@
             this.voiceSps.set(p.speaker, cur ? cur + (sps - cur) * 0.25 : sps);
         }
 
-        // Tốc độ nói thật của giọng AI đo từ audio đã nhận -> ước lượng thời lượng
-        // (và quyết định có cần rút gọn) chính xác hơn, tránh gọi rút gọn thừa.
+        // The AI voice's real speaking rate, measured from the audio received -> better duration
+        // estimates for the plans still ahead.
         calibrateFromAudio(p, duration) {
             const m = this.provider.voiceModel;
             if (!m || duration < 0.8) return;

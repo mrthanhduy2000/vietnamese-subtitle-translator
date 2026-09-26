@@ -1,4 +1,4 @@
-// 1.7.3 codebase audit: behaviour that changed or was removed, pinned so it cannot come back.
+// Codebase audits (1.7.3, 1.7.4): behaviour that changed or was removed, pinned so it cannot come back.
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
@@ -15,22 +15,29 @@ function pageEnv(opts = {}) {
     const changeListeners = [];
     const el = () => ({ style: {}, dataset: {}, appendChild: noop, addEventListener: noop, setAttribute: noop, remove: noop });
     const store = { ...(opts.local || {}) };
+    const intervals = [];
     const sandbox = {
         console: { log: noop, warn: noop, error: console.error },
-        setTimeout: () => 0, clearTimeout: noop, setInterval: () => 0, clearInterval: noop,
+        // opts.timers: real timers, 100x faster (a 1500 ms wait takes 15 ms); intervals are recorded
+        // and never fire on their own (E.intervals)
+        setTimeout: opts.timers ? (f, ms) => setTimeout(f, (ms || 0) / 100) : () => 0, clearTimeout: opts.timers ? clearTimeout : noop,
+        setInterval: f => { intervals.push(f); return intervals.length; }, clearInterval: noop,
+        ...(opts.timers ? { requestAnimationFrame: () => 0, URL } : {}),
         Promise, Map, Set, Math, JSON, Date, RegExp, Array, Object, String, Number,
         performance: { now: () => opts.now ? opts.now() : 0 },
         location: opts.location || { href: "https://www.youtube.com/watch?v=abc", hostname: "www.youtube.com", pathname: "/watch" },
         document: {
             readyState: "complete", title: "t", body: el(), head: el(), documentElement: el(), getElementById: () => null,
             querySelector: s => { calls.selector++; return opts.querySelector ? opts.querySelector(s) : null; },
-            querySelectorAll: () => [], getElementsByTagName: () => [], createElement: el, addEventListener: noop
+            querySelectorAll: () => [], getElementsByTagName: t => (t === "track" && opts.tracks ? opts.tracks() : []),
+            createElement: el, addEventListener: noop
         },
+        VTTCue: class { constructor(start, end, text) { Object.assign(this, { startTime: start, endTime: end, text }); } },
         addEventListener: noop, postMessage: noop,
         MutationObserver: class { observe() {} disconnect() {} },
         chrome: {
             storage: {
-                sync: { get: async d => ({ ...d, autoTranslate: false }), set: async () => {} },
+                sync: { get: async d => ({ ...d, autoTranslate: false, ...(opts.sync || {}) }), set: async () => {} },
                 local: {
                     get: async k => { calls.localGet.push(k); return k === null ? { ...store } : typeof k === "object" && k ? { ...k, ...store } : store; },
                     set: async o => { calls.localSet.push(o); Object.assign(store, o); },
@@ -38,14 +45,14 @@ function pageEnv(opts = {}) {
                 },
                 onChanged: { addListener: fn => changeListeners.push(fn) }
             },
-            runtime: { id: "ext", lastError: null, onMessage: { addListener: noop }, sendMessage: noop }
+            runtime: { id: "ext", lastError: null, onMessage: { addListener: noop }, sendMessage: opts.sendMessage || noop }
         }
     };
     sandbox.window = sandbox;
     sandbox.globalThis = sandbox;
     vm.createContext(sandbox);
-    for (const f of ["glossary.js", "subtitle-style.js", "vi-segmenter.js", "content.js", ...(opts.youtube ? ["youtube.js"] : [])]) vm.runInContext(read(f), sandbox);
-    return { sandbox, calls, changeListeners, store, run: code => vm.runInContext(code, sandbox) };
+    for (const f of ["glossary.js", "subtitle-style.js", "vi-segmenter.js", ...(opts.files || []), "content.js", ...(opts.youtube ? ["youtube.js"] : [])]) vm.runInContext(read(f), sandbox);
+    return { sandbox, calls, changeListeners, store, intervals, run: code => vm.runInContext(code, sandbox) };
 }
 
 test("popup 'Tiếng Anh ở trên' applies while watching, not only after the next Translate click", async () => {
@@ -131,4 +138,78 @@ test("removed dead code stays removed", () => {
     assert.doesNotMatch(read("dub-audio.js"), /function gateNoise/);
     assert.doesNotMatch(read("background.js"), /localTtsWarm|handleLocalTtsWarm/);
     assert.equal(require("../cost-policy.js").DEFAULT_MODELS.universal, undefined);
+});
+
+// ---- 1.7.4 ----
+
+test("Coursera: leaving a lecture mid-translation stops its Gemini calls, never paints it over the next lecture, and the next one still auto-translates", async () => {
+    const lecture = (name, n) => Array.from({ length: n }, (_, i) => ({ startTime: i * 3, endTime: i * 3 + 2.5, text: `In ${name}, sentence ${i} explains how the gradient moves the weights.` }));
+    const trackOf = cues => ({ srclang: "en", kind: "subtitles", label: "English", track: { mode: "disabled", cues, addCue() {}, removeCue() {} } });
+    let tracks = [trackOf(lecture("lecture one", 60))];
+    const sent = [], held = [];
+    const E = pageEnv({
+        timers: true, files: ["lang-detect.js", "context-engine.js"], sync: { autoTranslate: true },
+        location: { href: "https://www.coursera.org/learn/ml/lecture/a", hostname: "www.coursera.org", pathname: "/learn/ml/lecture/a" },
+        tracks: () => tracks,
+        sendMessage: (msg, cb) => {
+            if (msg.action !== "translateUnit") return cb && cb({ ok: true });
+            sent.push(msg);
+            held.push(() => cb({ ok: true, engine: "gemini", model: "m", translations: msg.sentences.map(s => `Bản dịch: ${s}`) }));
+        }
+    });
+    const tick = ms => new Promise(r => setTimeout(r, ms));
+    for (let i = 0; i < 50 && !sent.length; i++) await tick(5);       // lecture one auto-translates
+    const inFlight = sent.length;
+    assert.ok(inFlight >= 1 && inFlight <= 2, `${inFlight} windows in flight`);
+    // the viewer moves on to the next lecture while those windows are still out
+    Object.assign(E.sandbox.location, { href: "https://www.coursera.org/learn/ml/lecture/b", pathname: "/learn/ml/lecture/b" });
+    tracks = [trackOf(lecture("lecture two", 12))];
+    E.intervals.forEach(f => f());
+    await tick(40);                                                    // lecture two's auto-translate is waiting
+    held.splice(0).forEach(f => f());
+    for (let i = 0; i < 100 && sent.length === inFlight; i++) await tick(5);
+    const old = sent.slice(inFlight).filter(m => m.sentences.some(s => s.includes("lecture one")));
+    assert.deepEqual(old, [], "windows of the lecture left behind were still sent to Gemini");
+    assert.ok(sent.slice(inFlight).some(m => m.sentences.some(s => s.includes("lecture two"))), "the next lecture never auto-translated");
+    for (let i = 0; i < 100 && !E.run("state.active"); i++) { held.splice(0).forEach(f => f()); await tick(5); }
+    const shown = E.run("cs.viCues.map(c => c.text).join(' ')");
+    assert.match(shown, /lecture two/);
+    assert.doesNotMatch(shown, /lecture one/, "the old lecture's Vietnamese is on the new video");
+});
+
+test("YouTube: opening another video while the first one loads never puts the first one's captions on it, and the new one still auto-translates", async () => {
+    const held = [], sent = [];
+    const E = pageEnv({
+        youtube: true, timers: true, files: ["lang-detect.js", "context-engine.js"], sync: { autoTranslate: true },
+        location: { href: "https://www.youtube.com/watch?v=aaa", hostname: "www.youtube.com", pathname: "/watch" },
+        sendMessage: (msg, cb) => {
+            if (msg.action !== "translateUnit") return cb && cb({ ok: true });
+            sent.push(msg);
+            cb({ ok: true, engine: "gemini", model: "m", translations: msg.sentences.map(s => `Bản dịch: ${s}`) });
+        }
+    });
+    E.sandbox.__held = held;
+    // the bridge and the network, stubbed: the caption fetch waits until the test lets it go
+    E.run(`
+        ytHoiDanhSachPhuDe = async () => { const v = ytLayMaVideo(); return { videoId: v, title: "Video " + v, author: "ch", tracks: [{ baseUrl: "cap-" + v, languageCode: "en", kind: "" }] }; };
+        ytTaiBanChepLoi = url => new Promise(r => __held.push(() => r(Array.from({ length: 8 }, (_, i) => ({ start: i * 3, end: i * 3 + 2.5, text: url + " line " + i + " explains the gradient." }))))); 
+        ytDocCache = async () => null;
+        ytNhanDienNgonNgu = async () => ({ lang: "en", confidence: 1, source: "test", action: "translate" });
+    `);
+    const tick = ms => new Promise(r => setTimeout(r, ms));
+    for (let i = 0; i < 100 && !held.length; i++) await tick(5);      // video aaa is fetching its captions
+    assert.equal(held.length, 1);
+    Object.assign(E.sandbox.location, { href: "https://www.youtube.com/watch?v=bbb" });
+    E.intervals.forEach(f => f());                                    // ytTheoDoi notices the new video
+    await tick(20);
+    held.shift()();                                                   // aaa's captions arrive late
+    for (let i = 0; i < 100 && !held.length; i++) await tick(5);
+    assert.equal(held.length, 1, "the new video never asked for its captions");
+    held.shift()();
+    for (let i = 0; i < 100 && !sent.length; i++) await tick(5);
+    const lines = sent.flatMap(m => m.sentences).join(" ");
+    assert.doesNotMatch(lines, /cap-aaa/, "the video left behind was sent to Gemini");
+    assert.match(lines, /cap-bbb/);
+    assert.equal(E.run("yt.currentVideoId"), "bbb");
+    assert.ok(E.run("yt.cues.every(c => c.text.startsWith('cap-bbb'))"), "the old video's captions are on the new one");
 });

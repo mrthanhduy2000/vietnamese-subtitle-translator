@@ -32,6 +32,10 @@ runs in the same world, reading `content.js`'s `state` and `CST_UI` directly (no
    re-applies the style when the player box changes size, so before 1.5.6 a new font size waited for
    a resize. Both quick menus carry a subtitle-size stepper (`buildStepper` in `player-ui.js`).
 8. `disableTranslation` tears it down. `CS_GEN` tags every node this script instance created.
+9. Page changes (1.7.4): `watchNavigation` bumps `state.navGen`. A `translateTrackSite` run started
+   under an older value sends no further window, never applies its result, and returns false; the
+   new lecture's `courseraAutoTranslate` waits (up to 20 s) for that run's `busy` instead of giving
+   up. Before, the old run paid for every remaining window and then painted over the new lecture.
 
 **On-player layout (1.5.9).** Both quick menus are two sections built with `kit.buildSection`
 ("Phụ đề": switch, display mode, size, skip; "Giọng đọc": switch with `describeHealth`, voice,
@@ -103,7 +107,10 @@ a Reload the viewer clicks Translate again).
 
 ## YouTube flow (`youtube.js` + `yt-bridge.js`)
 
-`ytKhoiDong` -> `ytTheoDoi` (watches SPA navigation) -> `ytTuDongDich` -> `ytBatDauDich`:
+`ytKhoiDong` -> `ytTheoDoi` (watches SPA navigation) -> `ytTuDongDich` -> `ytBatDauDich`.
+`ytBatDauDich` checks `stale()` (`yt.huyDich`, `yt.dead`, or the URL's video id changed) after
+**every** await and returns false (1.7.4); a new await there needs the same check. `ytTuDongDich`
+waits (up to 10 s) for a run left over from the previous video instead of skipping on `yt.busy`:
 
 1. `ytDamBaoBridge` makes sure the MAIN-world bridge is alive (one file, `yt-bridge.js`, injected by
    the manifest or on request by the service worker; see `DANGER.md` item 2).

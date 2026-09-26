@@ -118,3 +118,15 @@ provider does retry. Keep that asymmetry: it is intentional.
 In the web-demo path (opening `popup.html` or `options.html` outside the extension),
 `storage.local` and `storage.sync` are **the same object**. Code that relies on the two areas being
 separate will behave differently there than in the real extension.
+
+## 12. Async runs that outlive their page
+
+Coursera and YouTube are single-page apps: the viewer changes lecture or video while a run is still
+awaiting. Each start flow therefore carries a validity check and must re-test it after **every**
+await: `translateTrackSite` (`state.navGen`, bumped by `watchNavigation`), `ytBatDauDich`
+(`stale()`: `yt.huyDich` / `yt.dead` / the video id), `dubbing.js` `start` (`startSeq`). A missing
+check after one await was enough (1.7.4) for the old page's run to paint its subtitles over the new
+page, keep sending its lines to Gemini, and hold `busy` so the new page's auto-translate gave up.
+The auto-translate paths wait for a leftover `busy` instead of returning. `dub.starting` is handed
+back in a `finally` for the same reason: left set by an early return, YouTube's auto-dub skipped
+every later video on the page.

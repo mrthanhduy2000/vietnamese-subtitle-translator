@@ -429,6 +429,27 @@ test("mở lại video (engine mới, cùng kho audio): KHÔNG gọi TTS lần n
     assert.ok([...B.eng.rendered.keys()].length > 0, "audio từ kho phải được phát");
 });
 
+test("revisit: a stored segment just past an unheard stretch is not paid for again (batch spill)", async () => {
+    const store = audioStore();
+    const A = await dubRun({ store });
+    A.video.play();
+    await A.run(20000);
+    A.video.seek(44);                        // skip a few seconds: the next stored segment sits right after the gap
+    await A.run(25000);
+    A.eng.stop();
+    const B = await dubRun({ store, groups: A.groups });
+    const again = [];
+    const render = B.prov.render.bind(B.prov);
+    B.prov.render = async (plans, ctx) => {
+        for (const p of plans) if (store.m.has(await B.prov.audioKey(p))) again.push(p.start.toFixed(1));
+        return render(plans, ctx);
+    };
+    B.video.play();
+    await B.run(85000);
+    assert.ok(B.prov.calls.length > 0, "the unheard stretch is rendered");
+    assert.deepEqual(again, [], "segments already in the audio store were rendered again");
+});
+
 test("tạo trước thích ứng: không tạo audio xa hơn trần của chế độ (+ phần gộp nhỏ)", async () => {
     for (const cap of [18, 30]) {
         const S = await dubRun({ store: audioStore(), prefetchMax: cap });
@@ -508,6 +529,36 @@ test("429 (giới hạn tốc độ): không thử lại dồn dập; tạm ngư
     }, { ...cfgK, costMode: "economy" });
     assert.equal((await E2.send({ ...REQ, sentences: ["Cheap."] })).engine, "google_fallback");
     assert.deepEqual(seenE, ["gemini-2.5-flash-lite"], "Tiết kiệm: never a pricier model");
+});
+
+test("a line the next model translated (first one rate-limited) is a cache hit on the revisit, not a new call", async () => {
+    const backend = CACHE.memoryBackend();
+    const seen = [];
+    const limited = u => u.includes("2.5-flash-lite") ? gErr(429, "RESOURCE_EXHAUSTED", "Resource has been exhausted", []) : null;
+    const f = rateLimited => async u => {
+        if (!u.includes("generativelanguage")) return GOOGLE_OK;
+        seen.push(u.match(/models\/([^:]+)/)[1]);
+        return (rateLimited && limited(u)) || reply({ t: [`Bản của ${u.match(/models\/([^:]+)/)[1]}.`] });
+    };
+    const E1 = bgEnv(f(true), cfgK, { backend });
+    const r1 = await E1.send(REQ);
+    assert.equal(r1.model, "gemini-3.1-flash-lite");
+    seen.length = 0;
+    // same service worker, first model still paused: the stored line answers
+    assert.equal((await E1.send(REQ)).fromCache, true);
+    assert.deepEqual(seen, []);
+    // new service worker (the pause is gone, 2.5 would answer now): the stored line still answers
+    const E2 = bgEnv(f(false), cfgK, { backend });
+    const r2 = await E2.send(REQ);
+    assert.equal(r2.fromCache, true, "paid Gemini again for a line it had translated");
+    assert.equal(r2.translations[0], "Bản của gemini-3.1-flash-lite.");
+    assert.deepEqual(seen, []);
+    // a request meant for the strong model is never answered by a cheaper model's line
+    await E2.send({ ...REQ, sentences: ["Cheap line."] });
+    seen.length = 0;
+    const strong = await bgEnv(f(false), { ...cfgK, costMode: "premium" }, { backend }).send({ ...REQ, sentences: ["Cheap line."], tier: "strong" });
+    assert.equal(strong.fromCache, undefined);
+    assert.deepEqual(seen, ["gemini-3.5-flash-lite"]);
 });
 
 test("400 yêu cầu sai: gọi đúng 1 lần, không thử lại, không ghi gì vào kho", async () => {
@@ -722,6 +773,16 @@ test("chế độ Chỉ phụ đề: không bật lồng tiếng, báo bằng th
     assert.equal(await env.CST_DUB.start({ video: new FakeVideo(), getGroups: () => lectureGroups() }), false);
     assert.ok(msgs.some(m => m.alert));
     assert.equal(msgs.filter(m => m.action).length, 0);
+});
+
+test("a dubbing start that gives up (Chỉ phụ đề mode, an error) hands back dub.starting, so a later auto-dub is not skipped", async () => {
+    const env = dubbingEnv("subtitles", []);
+    assert.equal(await env.CST_DUB.start({ video: new FakeVideo(), getGroups: () => lectureGroups() }), false);
+    assert.equal(env.CST_DUB.dub.starting, false, "ytTuBatLongTieng would skip every later video");
+    const env2 = dubbingEnv("balanced", []);
+    env2.CST_DUB_ENGINE.DubEngine = function () { throw new Error("boom"); };
+    await assert.rejects(env2.CST_DUB.start({ video: new FakeVideo(), getGroups: () => lectureGroups() }));
+    assert.equal(env2.CST_DUB.dub.starting, false);
 });
 
 test("cùng câu dịch ở VIDEO KHÁC (mốc thời gian khác), cùng giọng & kiểu đọc: dùng lại audio, 0 lượt TTS", async () => {

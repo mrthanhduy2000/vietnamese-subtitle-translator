@@ -4,6 +4,16 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.7.4", luc: "04:55 27/09/2026", ten: "Chuyển bài giữa chừng không còn lẫn phụ đề, bớt trả tiền trùng",
+            y: [
+                "Coursera: chuyển sang bài giảng khác khi bài cũ còn đang dịch thì bài cũ dừng gửi Gemini ngay (trước đây vẫn dịch nốt cả bài, tốn tiền), phụ đề của bài cũ không còn bị vẽ đè lên video bài mới, và bài mới vẫn tự dịch (trước đây bị bỏ qua).",
+                "YouTube: mở video khác trong vài giây đầu khi video cũ đang tải phụ đề cũng được xử lý như vậy: không hiện phụ đề của video cũ trên video mới, không gửi câu của video cũ đi dịch, video mới vẫn tự dịch.",
+                "Mở lại video có đoạn từng được model kế tiếp dịch thay (khi model rẻ nhất bị giới hạn tốc độ): nay lấy từ bộ nhớ đệm, không trả tiền dịch lại. Yêu cầu dịch bằng model mạnh không bao giờ nhận bản của model rẻ hơn.",
+                "Giọng Gemini: xem lại video đã nghe dở, câu nằm ngay sau đoạn bị bỏ qua không còn bị tạo giọng lại (trả tiền hai lần) khi đã có trong kho.",
+                "Lồng tiếng: nếu lần bật đầu tiên không thành (chế độ Chỉ phụ đề, chưa có giọng đọc), các video sau trong cùng trang vẫn tự bật lồng tiếng như bình thường (trước đây bị kẹt tới khi tải lại trang)."
+            ]
+        },
+        {
             v: "1.7.3", luc: "01:17 27/09/2026", ten: "Rà soát toàn bộ: ít gọi API hơn, sửa lỗi sau khi Tải lại, gọn mã",
             y: [
                 "YouTube: mở lại một video đã xem dở không còn phải trả tiền dịch lại. Trước đây cách gom câu để gửi Gemini phụ thuộc vị trí đang xem, nên lần mở sau (YouTube tự tiếp tục ở chỗ cũ) gửi câu theo cách khác và bộ nhớ đệm không nhận ra. Nay mỗi câu luôn thuộc đúng một nhóm cố định.",

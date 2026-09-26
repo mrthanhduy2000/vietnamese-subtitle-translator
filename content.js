@@ -37,7 +37,10 @@ const state = {
     intervals: [],
     observers: [],
     currentUrl: location.href,
-    busy: false
+    busy: false,
+    // Bumped on every page change (watchNavigation). A track translation started under another
+    // value is obsolete: it stops taking windows and never applies its result (translateTrackSite)
+    navGen: 0
 };
 
 function sleep(ms) {
@@ -570,7 +573,9 @@ function groupEndsSentence(g) {
 
 // Dich toan bo nhom (Coursera): chia thanh cac cua so lien tiep 600-1200 ky tu,
 // uu tien ket thuc cua so o cuoi cau de moi lan goi la mot doan tron y.
-async function translateAllGroups(session, groups, onProgress) {
+// alive(): false once the viewer has left the page; no further window is sent (the one in flight
+// finishes and is cached by the service worker, so coming back costs nothing).
+async function translateAllGroups(session, groups, onProgress, alive = () => true) {
     const results = new Array(groups.length).fill("");
     const windows = [];
     let cur = [];
@@ -588,7 +593,7 @@ async function translateAllGroups(session, groups, onProgress) {
     let done = 0;
     let next = 0;
     const worker = async () => {
-        while (next < windows.length) {
+        while (next < windows.length && alive()) {
             const idxs = windows[next++];
             try {
                 const r = await translateWindow(session, idxs, { realtime: false });
@@ -596,6 +601,7 @@ async function translateAllGroups(session, groups, onProgress) {
             } catch (err) {
                 console.warn("Loi dich cua so, dich tung nhom:", err.message);
                 for (const gi of idxs) {
+                    if (!alive()) break;
                     try {
                         const r = await translateWindow(session, [gi], { realtime: false });
                         results[gi] = r.translations[0] || "";
@@ -605,7 +611,7 @@ async function translateAllGroups(session, groups, onProgress) {
                 }
             }
             done += idxs.length;
-            if (onProgress) onProgress(done, groups.length);
+            if (onProgress && alive()) onProgress(done, groups.length);
         }
     };
     await Promise.all([worker(), worker()]);
@@ -965,8 +971,15 @@ async function translateTrackSite() {
 
     const trackEl = picked.track;
     trackEl.track.mode = "showing";
+    // Coursera is a single-page app: the viewer can move to the next lecture while this one is still
+    // being translated (a whole lecture takes ~20 s). Before, the old run went on paying Gemini for
+    // every remaining window, then drew the old lecture's Vietnamese over the new video, and its
+    // `busy` flag made the new lecture's auto-translate give up.
+    const gen = state.navGen;
+    const alive = () => !state.dead && state.navGen === gen;
 
     const cues = await waitForCues(trackEl.track);
+    if (!alive()) return false;
     if (!cues) {
         cstToast("Phụ đề chưa nạp xong. Hãy phát video vài giây rồi bấm dịch lại.", { warn: true });
         return false;
@@ -987,6 +1000,7 @@ async function translateTrackSite() {
     // Ngu canh bai giang: tieu de, ten khoa hoc (tu duong dan), thuat ngu da dung o cac bai truoc
     const meta = generic ? genericMeta() : courseraMeta();
     const session = await createContextSession(meta, meta.courseKey);
+    if (!alive()) return false;
     session.setUnits(groups.map(g => g.text));
     state.contextSession = session;
     console.log(`Linh vuc nhan dien: ${session.domain.primary}${session.domain.secondary ? " + " + session.domain.secondary : ""}`);
@@ -997,8 +1011,13 @@ async function translateTrackSite() {
         (done, total) => {
             const btn = document.querySelector(CS_BTN);
             if (btn) btn.setAttribute("title", `Đang dịch ${done}/${total} nhóm…`);
-        }
+        },
+        alive
     );
+    if (!alive()) {
+        console.log("[AI Subtitle] Đã chuyển trang trong lúc dịch: bỏ bản dịch của trang cũ");
+        return false;
+    }
 
     applyTranslation(trackEl.track, groups, translations);
     return true;
@@ -1786,6 +1805,7 @@ function watchNavigation() {
         if (location.href !== state.currentUrl) {
             console.log("Da chuyen bai giang, dat lai trang thai");
             state.currentUrl = location.href;
+            state.navGen++;
             if (window.CST_DUB && window.CST_DUB.dub.enabled) window.CST_DUB.stop();
             state.active = false;
             state.originalCueTexts = null;
@@ -1993,9 +2013,13 @@ async function init() {
 async function courseraAutoTranslate() {
     // generic pages: the viewer just asked for a translation, nothing to decide automatically
     if (getCurrentSite() !== "coursera") return null;
-    if (!state.autoTranslate || state.active || state.busy) return null;
+    if (!state.autoTranslate || state.active) return null;
     const url = location.href;
     if (state.autoTriedUrl === url) return null;
+    // The lecture just left may still be finishing its window in flight (up to Gemini's 15 s
+    // timeout): wait for it instead of giving up on this lecture for good
+    for (let i = 0; i < 80 && state.busy && location.href === url; i++) await sleep(250);
+    if (state.busy) return null;
     let picked = null;
     for (let i = 0; i < 30 && !(picked = pickBestTrack()); i++) await sleep(500);   // chờ trình phát nạp track
     if (location.href !== url || state.active || state.busy) return null;
@@ -2018,7 +2042,7 @@ async function courseraAutoTranslate() {
     console.log(`[AI Subtitle] Ngôn ngữ phụ đề: ${decision.lang} (${Math.round(decision.confidence * 100)}%, theo ${decision.source}) -> ${decision.action === "translate" ? "tự động dịch" : decision.action === "skip" ? "đã là tiếng Việt, không dịch" : "chưa chắc chắn, không tự dịch"}`);
     if (decision.action === "translate") {
         await enableTranslation();
-        if (state.active) await courseraAutoDub();
+        if (state.active && location.href === url) await courseraAutoDub();
     }
     return decision;
 }

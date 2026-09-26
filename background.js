@@ -558,12 +558,23 @@ async function handleTranslateUnit(request) {
     const req = { ...request, sentences };
     // 1-2. CACHE (RAM -> IndexedDB) theo ĐÚNG model sẽ được gọi (model đầu chuỗi, đã bỏ
     // các model key không gọi được). Lượt dịch lại (refine) thì bỏ qua cache.
+    // The later models of the chain are looked up too, but only those priced at or above the first:
+    // when the first model was rate-limited, the next one translated and saved under its own key, and
+    // a revisit that looked up the first model alone paid Gemini again for the same lines. A cheaper
+    // model's translation never answers a request meant for a stronger one (tier "strong").
     if (caches && !request.refine && chain.length) {
-        let key = null;
-        try { key = await unitCacheKey(req, chain[0]); } catch (e) { key = null; }
+        const floor = COST.costRank(chain[0]);
+        const models = chain.filter((m, i) => i === 0 || COST.costRank(m) >= floor);
+        const keys = await Promise.all(models.map(m => unitCacheKey(req, m).catch(() => null)));
+        const key = keys[0];
         if (key) {
-            const hit = await caches.tr.get(key);
-            if (hit) { track(meta, { hitsTr: 1, avoided: 1 }); return { ok: true, ...hit, fromCache: true, latency: 0, cacheKey: key }; }
+            // the first model alone first (the usual hit), then the rest at once: a slow store
+            // costs at most two read timeouts before Gemini is asked
+            const first = await caches.tr.get(key);
+            const rest = first ? [] : await Promise.all(keys.slice(1).map(k => (k ? caches.tr.get(k) : null)));
+            const at = first ? 0 : rest.findIndex(Boolean) + 1;
+            const hit = first || rest[at - 1];
+            if (hit) { track(meta, { hitsTr: 1, avoided: 1 }); return { ok: true, ...hit, fromCache: true, latency: 0, cacheKey: keys[at] }; }
             const flightKey = `${key}|${tier}|${!!request.wantTerms}`;
             if (unitInFlight.has(flightKey)) { track(meta, { avoided: 1 }); return unitInFlight.get(flightKey); }
             const p = translateUnitMiss(req, sentences, cfg, tier, meta, budget).finally(() => unitInFlight.delete(flightKey));
@@ -650,7 +661,7 @@ async function handleTranslateUnitStore(req) {
 }
 
 // ============================================================
-// LỒNG TIẾNG: GEMINI TTS (+ kho audio bền vững) + RÚT GỌN LỜI NÓI (có cache)
+// DUBBING: GEMINI TTS + VIENEU (local) + the persistent audio store
 // ============================================================
 // Danh mục TTS (cost-policy.js), rẻ nhất trước; model sau chỉ dùng khi model trước
 // không còn (404). Model Pro TTS không có trong danh mục nên không bao giờ tự động dùng.
@@ -856,14 +867,13 @@ async function handleLocalTtsStatus() {
 }
 
 // Máy chủ VieNeu trên CPU chỉ tạo MỘT luồng mỗi lúc: mọi yêu cầu (mọi tab, trang Cài đặt)
-// xếp hàng TẠI ĐÂY, gửi lần lượt -> không tự gây lỗi 429 "máy chủ bận". A lower priority number
-// goes first.
+// xếp hàng TẠI ĐÂY, gửi lần lượt -> không tự gây lỗi 429 "máy chủ bận". First in, first out (the
+// priority lane served only the voice warm-up, removed in 1.7.3).
 const localQueue = [];
 let localBusy = false;
-function localSerial(fn, signal, priority = 0) {
+function localSerial(fn, signal) {
     return new Promise(resolve => {
-        localQueue.push({ fn, signal, priority, resolve });
-        localQueue.sort((a, b) => a.priority - b.priority);
+        localQueue.push({ fn, signal, resolve });
         localPump();
     });
 }
