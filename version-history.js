@@ -4,6 +4,20 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.6.7", luc: "20:22 26/09/2026", ten: "Giọng VieNeu chỉ ngừng ở dấu câu, bớt rè, bớt tiếng xì",
+            y: [
+                "Giọng đọc không còn ngừng giữa câu ở chỗ không có dấu câu. Trước đây có ba nguyên nhân: tiện ích tự thêm dấu phẩy ở chỗ người nói gốc ngừng, máy chủ giọng tự ngừng giữa câu, và một câu bị chia làm hai lượt đọc khi nằm ở ranh giới hai nhóm dịch. Nay chỉ dấu phẩy, dấu chấm, dấu chấm phẩy... mới tạo khoảng ngừng; câu dài không có dấu câu vẫn có một chỗ lấy hơi rất ngắn.",
+                "Giọng Thục Đoan bớt rè ở đoạn đọc nhanh: tiện ích lấy âm thanh 48 kHz (tần số gốc của giọng) thay vì 24 kHz. Đo trong Chrome, cùng một câu đọc nhanh 1,4 lần, độ sạch của giọng giảm ít hơn khoảng 4 lần so với trước.",
+                "Giọng Mỹ Duyên bớt tiếng xì nền giữa các từ (khoảng lặng từ -53 xuống -65 dB).",
+                "Audio VieNeu đã lưu sẽ được tạo lại một lần theo cách mới (miễn phí, chỉ tốn thời gian máy chủ ở lần xem đầu)."
+            ],
+            bang: { cot: ["Đo trên máy", "Trước", "Nay"], hang: [
+                ["Chỗ ngắt giữa câu khi nhóm dịch cắt ngang câu (22 câu mẫu)", "7", "1"],
+                ["Độ sạch Thục Đoan ở 1,4 lần (10% đoạn kém nhất)", "giảm 0,087", "giảm 0,020"],
+                ["Tiếng xì giữa các từ, Mỹ Duyên", "-53 dB", "-65 dB"]
+            ] }
+        },
+        {
             v: "1.6.6", luc: "20:06 26/09/2026", ten: "Sao lưu cài đặt, giới hạn tốc độ đọc, tùy chọn dùng phụ đề Việt có sẵn",
             y: [
                 "Thẻ mới \"Sao lưu cài đặt\": xuất toàn bộ cài đặt, danh sách thuật ngữ và các dòng phụ đề đã sửa ra một tệp, nhập lại bất cứ lúc nào. Có thể chọn kèm hoặc không kèm Gemini API Key. Bản dịch và audio đã lưu không nằm trong tệp (tự tạo lại được).",

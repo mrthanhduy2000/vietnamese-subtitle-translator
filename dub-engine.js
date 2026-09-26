@@ -220,7 +220,8 @@
     // Không nhận lời chỉ dẫn ngữ điệu: nhịp ngắt nghỉ thể hiện bằng dấu câu.
     // 2: nhiệt độ 0,6 + rút khoảng lặng dài + dấu câu mới -> audio cũ không dùng lẫn
     // 3: giữ khoảng ngừng tự nhiên (tới 0,4 giây) + dấu phẩy ở chỗ người nói gốc ngừng
-    const LOCAL_STYLE_VERSION = 3;
+    // 4 (1.6.7): no comma at source pauses, punctuation-aware pause shaping, 48 kHz
+    const LOCAL_STYLE_VERSION = 4;
     function createVieneuProvider(env, settings) {
         const L = COST.LOCAL_TTS;
         const provider = {
@@ -288,9 +289,10 @@
         const parts = plan.phrases.map((ph, k) => {
             let t = ph.text.replace(/¦/g, "").replace(/\[[^\]]*\]|\([^)]*\)|[♪♫*_#]|>>/g, " ").replace(/^\s*[-–]\s+/, "").trim();
             const last = k === plan.phrases.length - 1;
-            // Chỗ người nói gốc NGỪNG thật (đo từ phụ đề nguồn) cũng là chỗ ngừng tự nhiên trong
-            // câu Việt: thêm dấu phẩy để VieNeu ngắt hơi (phụ đề tự động không có dấu câu)
-            const natural = ph.breakKind === "opener" || (ph.breakKind === "source" && ph.pauseAfter >= 0.25 && ph.syl >= 4);
+            // Only an opener ("Bây giờ, ...") earns a comma the text does not have. 1.6.7 dropped the
+            // comma at the source speaker's pauses: they are mapped onto the Vietnamese by position,
+            // often landed mid-phrase, and the voice stopped where the sentence has no break
+            const natural = ph.breakKind === "opener";
             if (!last && natural && t && !/[.,;:!?…]$/.test(t)) t += ",";
             return t;
         }).filter(Boolean);
@@ -442,7 +444,7 @@
             const free = !!(this.provider && this.provider.caps && this.provider.caps.free);
             const first = groups.reduce((m, g) => Math.min(m, g.start), Infinity);
             const speakerState = this.settings.secondVoice && isFinite(first) ? PLAN.speakerStateBefore(all, first) : null;
-            const script = this.oneVoice(PLAN.buildDubScript(groups, { headAt: free ? this.headAt : null, speakerState }));
+            const script = this.oneVoice(PLAN.buildDubScript(groups, { headAt: free ? this.headAt : null, speakerState, joinGroups: free }));
             const opts = { voiceModel: this.provider.voiceModel };
             const plans = PLAN.planAll(script, opts);
             // Giữ đoạn đã rút gọn / đã render (khóa theo id + nội dung)
@@ -1412,7 +1414,12 @@
             const groups = (this.d.getGroups() || []).filter(g => g && g.viText && g.viCues && g.viCues.length);
             const plans = [...this.plans];
             const heads = new Set([this.headAt, 0, null, Math.round((this.d.video && this.d.video.currentTime) || 0)]);
-            for (const h of heads) plans.push(...PLAN.planAll(this.oneVoice(PLAN.buildDubScript(groups, { headAt: h })), { voiceModel: this.provider.voiceModel }));
+            const free = !!(this.provider.caps && this.provider.caps.free);
+            for (const h of heads) {
+                for (const joinGroups of free ? [true, false] : [false]) {
+                    plans.push(...PLAN.planAll(this.oneVoice(PLAN.buildDubScript(groups, { headAt: h, joinGroups })), { voiceModel: this.provider.voiceModel }));
+                }
+            }
             const keys = new Set();
             for (const p of plans) {
                 if (p.audioKey) keys.add(p.audioKey);

@@ -431,6 +431,15 @@
 
         const list = (groups || []).filter(g => g && g.viText && g.viCues && g.viCues.length);
         list.sort((a, b) => a.start - b.start);
+        // opts.joinGroups (free voice only, 1.6.7): a sentence that runs across two translation groups
+        // is read in ONE request when nothing separates them (same speaker, no sentence end, no real
+        // pause). Split, the voice closed the first half with a falling tone, stopped, and started
+        // the rest as a new utterance: the break the viewer heard mid-sentence. Paid voices keep the
+        // per-group cut, because a group translated later would change an already billed segment.
+        const JOIN = !!opts.joinGroups;
+        const endsSentence = t => /[.!?…]["”')\]]*\s*$/.test(String(t || "").replace(/¦/g, "").trim());
+        let cur = null;
+        const flush = () => { if (cur) { segments.push(cur); cur = null; } };
 
         for (let gi = 0; gi < list.length; gi++) {
             const g = list[gi];
@@ -469,8 +478,6 @@
             // lời thành MỘT lượt tạo giọng -> VieNeu mất 6 đến 8 giây mới có audio đầu tiên, video
             // đã trôi qua đoạn đó. Nay cắt ở ranh giới dòng phụ đề khi đoạn đã dài: ưu tiên chỗ
             // có dấu câu (từ SEG_SOFT giây), bắt buộc cắt khi tới SEG_HARD giây.
-            let cur = null;
-            const flush = () => { if (cur) { segments.push(cur); cur = null; } };
             const endsWithPunct = t => /[,.;:!?…]["”')\]]*\s*$/.test(String(t || "").replace(/¦/g, "").trim());
             // Quanh điểm bắt đầu xem: khung phụ đề dài (2 dòng ~5 giây) được chia theo từ thành các
             // phần ~HEAD_HARD giây (ưu tiên cắt sau dấu câu, thời gian chia theo số âm tiết) để đoạn
@@ -525,9 +532,20 @@
                 });
             });
             const open = c => ({ start: c.start, end: c.end, texts: [], parts: [], cueCount: 0, groupIndex: gi, speaker, srcCues: g.srcCues || [], group: g });
-            const add = c => { cur.texts.push(c.text); cur.parts.push(c); cur.end = c.end; cur.cueCount++; };
+            const add = c => {
+                // a segment carried over from the previous group takes this group's source lines too
+                if (cur.group !== g) { cur.srcCues = [...cur.srcCues, ...(g.srcCues || [])]; cur.group = g; }
+                cur.texts.push(c.text); cur.parts.push(c); cur.end = c.end; cur.cueCount++;
+            };
             // Khung chỉ có chú thích âm thanh ("(Vỗ tay)"): không đọc, để thành khoảng lặng
             for (let k = pieces.length - 1; k >= 0; k--) if (!hasWords(pieces[k].text)) pieces.splice(k, 1);
+            // Carry the open segment into this group only when the sentence plainly continues
+            if (cur) {
+                const first = pieces[0];
+                const carry = JOIN && first && !mark && cur.speaker === speaker &&
+                    !endsSentence(cur.texts[cur.texts.length - 1]) && first.start - cur.end < PAUSE_SPLIT;
+                if (!carry) flush();
+            }
             pieces.forEach(c => {
                 const gapBefore = cur ? c.start - cur.end : 0;
                 const len = cur ? c.end - cur.start : 0;
@@ -557,8 +575,9 @@
                 if (!cur) cur = open(c);
                 add(c);
             });
-            flush();
+            if (!JOIN) flush();
         }
+        flush();
 
         // Đoạn quá ngắn (<= 2 âm tiết, ví dụ "Và", "Thế là") mà câu còn tiếp ngay sau: gộp vào đoạn
         // sau. Đo thật (TED, phụ đề người dịch): đoạn 1 âm tiết trong khung 1,6 giây -> audio 0,4 giây,

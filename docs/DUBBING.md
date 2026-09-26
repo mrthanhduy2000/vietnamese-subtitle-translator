@@ -156,6 +156,20 @@ syllables over voiced 20 ms frames (energy within 38 dB of the peak), scale by 0
 voices measured earlier are reproduced (they were, within 4%). Needs the sandbox off for loopback.
 `CST_COST.voiceLabel(v)` shows the pace (chậm < 4.4 <= vừa <= 5.2 < nhanh) in all three pickers.
 
+**Pauses, hiss, sample rate (1.6.7).** Three causes of the voice stopping where the text has no
+break, all fixed: `plainScript` no longer adds a comma at the source speaker's pauses (only after an
+opener); `background.js` runs `AUDIO.shapePauses(piece, sr, text)` instead of `compressPauses`, which
+matches every internal silence to the text's punctuation by position in voiced time, keeps
+sentence 0.4 / clause 0.32 / comma 0.26 s (capped by `maxPause`, so tight mode still works), closes
+every other stop to 0.09 s, and leaves one 0.16 s breath per 4.5 s of unpunctuated speech; and
+`buildDubScript({ joinGroups })` (free voice only) reads a sentence that spans two translation groups
+as one segment (a split made the model end the first half with a falling tone, then stop). Then
+`AUDIO.gateNoise` pulls the gaps down 18 dB (Mỹ Duyên's reference hiss: gaps -52.8 -> -64.7 dB).
+Requests are 48 kHz: Chrome's pitch-preserving time-stretch roughened a 24 kHz Thục Đoan copy much
+more (roughest-decile harmonicity 0.700 -> 0.613 at 1.4x vs 0.669 -> 0.649 at 48 kHz). The server
+ignores `speed`, so the browser stretch cannot be avoided. `LOCAL_STYLE_VERSION` 4: all VieNeu audio
+re-renders once (free). Temperature 0.4 / 0.6 / 0.8 made no measurable difference to roughness.
+
 ### Gemini TTS (paid)
 
 `POST` to `GEMINI_BASE` with `responseModalities: ["AUDIO"]` and a prebuilt voice name; the reply

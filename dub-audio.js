@@ -227,6 +227,136 @@
         return out;
     }
 
+    // Shorten each listed silence { start, end, keep } (seconds) to `keep`, cutting out its middle so
+    // the breath and word tails on both sides survive; 8 ms fades at every cut (no clicks).
+    function shrinkSilences(samples, sr, list) {
+        const fadeN = Math.max(1, Math.round(sr * 0.008));
+        const pieces = [];
+        let pos = 0, removed = 0;
+        for (const x of list.slice().sort((a, b) => a.start - b.start)) {
+            const a = Math.round(x.start * sr), b = Math.round(x.end * sr);
+            const keep = Math.round(Math.max(0, x.keep) * sr);
+            const cutFrom = a + Math.floor(keep / 2), cutTo = b - Math.ceil(keep / 2);
+            if (cutFrom < pos || cutTo - cutFrom <= fadeN * 2) continue;
+            pieces.push(samples.slice(pos, cutFrom));
+            pos = cutTo;
+            removed += cutTo - cutFrom;
+        }
+        if (!removed) return samples;
+        pieces.push(samples.slice(pos));
+        const out = new Float32Array(samples.length - removed);
+        let o = 0;
+        pieces.forEach((pc, k) => {
+            const c = Float32Array.from(pc);
+            if (k > 0) for (let i = 0; i < Math.min(fadeN, c.length); i++) c[i] *= i / fadeN;
+            if (k < pieces.length - 1) for (let i = 0; i < Math.min(fadeN, c.length); i++) c[c.length - 1 - i] *= i / fadeN;
+            out.set(c, o);
+            o += c.length;
+        });
+        return out;
+    }
+
+    // Where the text itself asks for a pause: one entry per word that ends in punctuation (the last
+    // word excluded), with its position as a share of the words spoken so far and the pause it earns.
+    function punctuationBreaks(text, caps) {
+        const words = String(text || "").split(/\s+/).filter(Boolean);
+        const out = [];
+        for (let i = 0; i < words.length - 1; i++) {
+            const m = words[i].match(/([.!?…]|[;:]|,)["”')\]]*$/);
+            if (!m) continue;
+            const kind = /[.!?…]/.test(m[1]) ? "sentence" : /[;:]/.test(m[1]) ? "clause" : "comma";
+            out.push({ frac: (i + 1) / words.length, kind, cap: caps[kind] });
+        }
+        return out;
+    }
+
+    // Punctuation-aware pause shaping (1.6.7). The voice model also stops where the text has no
+    // punctuation at all (mid-phrase hesitations of 0.15 to 0.4 s), and the old compressPauses only
+    // touched silences longer than maxPause, so those stops stayed and broke the phrase apart.
+    // Now every internal silence is matched to the punctuation of the text by its position in
+    // voiced time: a matched one keeps up to its punctuation's pause, every other one is closed to
+    // a joint (joinPause), so the voice runs on until the text itself asks for a pause.
+    function shapePauses(samples, sr, text, opts = {}) {
+        const maxPause = opts.maxPause != null ? opts.maxPause : 0.4;
+        const caps = {
+            sentence: Math.min(maxPause, opts.sentencePause != null ? opts.sentencePause : 0.4),
+            clause: Math.min(maxPause, opts.clausePause != null ? opts.clausePause : 0.32),
+            comma: Math.min(maxPause, opts.commaPause != null ? opts.commaPause : 0.26)
+        };
+        const joinPause = opts.joinPause != null ? opts.joinPause : 0.09;
+        const dur = samples.length / sr;
+        const sil = findSilences(samples, sr, { minMs: opts.minMs || 90 })
+            .filter(x => x.start > 0.05 && x.end < dur - 0.05);
+        if (!sil.length) return { samples, matched: 0, joined: 0, breaths: 0 };
+        // voiced time before each silence: speech rate varies, pauses do not count as progress
+        let quiet = 0;
+        for (const x of sil) { x.vt = x.start - quiet; quiet += x.end - x.start; }
+        const voiced = Math.max(0.1, dur - quiet);
+        const breaks = punctuationBreaks(text, caps);
+        const used = new Set();
+        let from = 0;
+        for (const b of breaks) {
+            const want = b.frac * voiced;
+            const tol = Math.max(0.6, voiced * 0.12);
+            let best = -1, bestScore = -Infinity;
+            for (let j = from; j < sil.length; j++) {
+                const d = Math.abs(sil[j].vt - want);
+                if (d > tol) { if (sil[j].vt > want) break; continue; }
+                const score = Math.min(0.6, sil[j].dur) - d * 0.8;
+                if (score > bestScore) { bestScore = score; best = j; }
+            }
+            if (best < 0) continue;
+            used.add(best);
+            sil[best].keep = b.cap;
+            from = best + 1;
+        }
+        // A long run with no punctuation still needs somewhere to breathe: after breathEvery seconds
+        // of voiced speech since the last kept pause, the next real stop keeps a short breath
+        const breathEvery = opts.breathEvery != null ? opts.breathEvery : 4.5;
+        const breathPause = Math.min(maxPause, opts.breathPause != null ? opts.breathPause : 0.16);
+        const list = [];
+        let joined = 0, breaths = 0, lastKept = 0;
+        sil.forEach((x, j) => {
+            let keep;
+            if (used.has(j)) keep = Math.min(x.dur, x.keep);
+            else if (x.vt - lastKept >= breathEvery && x.dur >= 0.15) { keep = Math.min(x.dur, breathPause); breaths++; }
+            else { keep = Math.min(x.dur, joinPause); if (x.dur > joinPause + 0.02) joined++; }
+            if (keep > joinPause) lastKept = x.vt;
+            if (x.dur - keep > 0.02) list.push({ start: x.start, end: x.end, keep });
+        });
+        return { samples: shrinkSilences(samples, sr, list), matched: used.size, joined, breaths };
+    }
+
+    // Downward expander for the gaps between words. Some VieNeu voices carry a hiss from their
+    // reference recording (measured: Mỹ Duyên's silence sits at -51 dB against -75 dB for Thục Đoan
+    // and Kim Thanh); speech masks it, the gaps do not. Frames under the silence threshold are
+    // pulled down by up to `depthDb`, with a smoothed gain so no word onset is clipped.
+    function gateNoise(samples, sr, opts = {}) {
+        const depth = dbToLin(-(opts.depthDb != null ? opts.depthDb : 18));
+        const { frames, size } = frameRms(samples, sr, 10);
+        const th = silenceThreshold(frames);
+        // a frame is "open" when it or a neighbour within 30 ms is voiced (lookahead for onsets)
+        const open = new Uint8Array(frames.length);
+        for (let f = 0; f < frames.length; f++) if (frames[f] >= th) for (let k = Math.max(0, f - 3); k <= Math.min(frames.length - 1, f + 3); k++) open[k] = 1;
+        const target = Array.from(open, o => (o ? 1 : depth));
+        // smooth: fast open (1 frame), slow close (~40 ms)
+        const g = new Float32Array(frames.length);
+        let cur = 1;
+        for (let f = 0; f < frames.length; f++) {
+            const t = target[f];
+            cur = t > cur ? t : cur + (t - cur) * 0.25;
+            g[f] = cur;
+        }
+        const out = new Float32Array(samples.length);
+        for (let i = 0; i < samples.length; i++) {
+            const f = Math.min(frames.length - 1, Math.floor(i / size));
+            const nx = Math.min(frames.length - 1, f + 1);
+            const w = (i - f * size) / size;
+            out[i] = samples[i] * (g[f] * (1 - w) + g[nx] * w);
+        }
+        return out;
+    }
+
     function prepareSpeech(samples, sr, opts = {}) {
         const trimmed = trimSilence(samples, sr, opts.keepMs || 25);
         const norm = normalize(trimmed, sr, opts);
@@ -302,7 +432,8 @@
 
     const api = {
         base64ToBytes, pcm16leToFloat, decodeWav, encodeWav, analyze, findSilences, trimSilence,
-        normalize, fade, edgeJump, prepareSpeech, compressPauses, splitBySilence, slice, dbToLin, linToDb
+        normalize, fade, edgeJump, prepareSpeech, compressPauses, splitBySilence, slice, dbToLin, linToDb,
+        shrinkSilences, punctuationBreaks, shapePauses, gateNoise
     };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_DUB_AUDIO = api;

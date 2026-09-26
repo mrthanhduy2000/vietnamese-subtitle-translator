@@ -734,7 +734,7 @@ test("VieNeu: service worker gọi máy chủ trên máy (127.0.0.1) đúng đ�
     const r = await E.send(req);
     assert.equal(r.ok, true);
     assert.equal(calls.length, 1);
-    assert.deepEqual({ ...calls[0] }, { model: "vieneu-v3-turbo", voice: "Thùy Dung", input: "Xin chào các bạn.", response_format: "pcm", sample_rate: 24000, temperature: 0.6 });
+    assert.deepEqual({ ...calls[0] }, { model: "vieneu-v3-turbo", voice: "Thùy Dung", input: "Xin chào các bạn.", response_format: "pcm", sample_rate: 48000, temperature: 0.6 });
     assert.ok(r.parts[0].duration > 1);
     assert.equal((await E.send(req)).fromCache, true);
     assert.equal(calls.length, 1);
@@ -880,9 +880,10 @@ test("lời thoại cho VieNeu: chỉ giữ dấu câu thật (+ sau cụm mở 
     assert.equal(plainScript({ continuesNext: true, phrases: [{ text: "[Nhạc] >> Tôi cũng thích vừa đi bộ", breakKind: "hint" }, { text: "vừa làm việc", breakKind: "end" }] }),
         "Tôi cũng thích vừa đi bộ vừa làm việc");
     assert.equal(plainScript({ continuesNext: false, phrases: [{ text: "- Thật sao?", breakKind: "end" }] }), "Thật sao?");
-    // Chỗ người nói gốc ngừng thật (phụ đề tự động không có dấu câu) -> dấu phẩy để ngắt hơi
+    // 1.6.7: the source speaker's pause earns no comma any more (it landed mid-phrase and the voice
+    // stopped where the Vietnamese has no break); only the text's own punctuation makes a pause
     assert.equal(plainScript({ continuesNext: false, phrases: [{ text: "hôm nay chúng ta sẽ học", breakKind: "source", pauseAfter: 0.4, syl: 6 }, { text: "cách huấn luyện mô hình", breakKind: "end" }] }),
-        "hôm nay chúng ta sẽ học, cách huấn luyện mô hình.");
+        "hôm nay chúng ta sẽ học cách huấn luyện mô hình.");
     // Ngừng rất ngắn hoặc cụm quá ngắn: không thêm dấu phẩy
     assert.equal(plainScript({ continuesNext: false, phrases: [{ text: "và rồi", breakKind: "source", pauseAfter: 0.4, syl: 2 }, { text: "chúng ta đi tiếp", breakKind: "end" }] }),
         "và rồi chúng ta đi tiếp.");

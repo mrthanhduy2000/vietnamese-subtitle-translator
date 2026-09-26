@@ -671,6 +671,8 @@ async function cachedParts(parts) {
 
 // Audio nhiều đoạn gộp trong một lượt TTS -> cắt lại theo khoảng lặng, làm sạch từng đoạn
 // opts.maxPause: rút ngắn khoảng lặng dài bên trong từng đoạn (giọng VieNeu)
+// opts.text (VieNeu, one part): pauses follow the punctuation of the text (AUDIO.shapePauses), stops
+// the voice makes elsewhere are closed; opts.gate: pull the hiss between words down (gateNoise)
 function splitTtsAudio(b64OrBytes, mime, sr, parts, opts = {}) {
     const bytes = typeof b64OrBytes === "string" ? base64ToBytesBg(b64OrBytes) : b64OrBytes;
     const samples = /wav/i.test(mime || "") ? AUDIO.decodeWav(bytes).samples : AUDIO.pcm16leToFloat(bytes);
@@ -678,7 +680,9 @@ function splitTtsAudio(b64OrBytes, mime, sr, parts, opts = {}) {
     if (parts.length > 1 && split.confidence < 0.5) return null;
     return parts.map((p, k) => {
         let piece = AUDIO.slice(samples, sr, split.parts[k].start, split.parts[k].end);
-        if (opts.maxPause) piece = AUDIO.compressPauses(piece, sr, { maxPause: opts.maxPause });
+        if (opts.text && parts.length === 1 && AUDIO.shapePauses) piece = AUDIO.shapePauses(piece, sr, opts.text, { maxPause: opts.maxPause }).samples;
+        else if (opts.maxPause) piece = AUDIO.compressPauses(piece, sr, { maxPause: opts.maxPause });
+        if (opts.gate && AUDIO.gateNoise) piece = AUDIO.gateNoise(piece, sr);
         const clean = AUDIO.prepareSpeech(piece, sr);
         return { key: p.key, wav: AUDIO.encodeWav(clean, sr), duration: clean.length / sr, sampleRate: sr };
     });
@@ -965,12 +969,12 @@ async function synthesizeLocalOnce(req, text, parts, signal) {
         const mime = `audio/L16;rate=${sr}`;
         if (!parts) {
             // Nghe thử trong Cài đặt: cùng cách xử lý như khi lồng tiếng (rút khoảng lặng dài)
-            const one = splitTtsAudio(bytes, mime, sr, [{ key: "_", weight: 1 }], { maxPause: LOCAL.maxPause });
+            const one = splitTtsAudio(bytes, mime, sr, [{ key: "_", weight: 1 }], { maxPause: LOCAL.maxPause, text, gate: true });
             return { ok: true, audio: bytesToBase64(one[0].wav), mimeType: "audio/wav", sampleRate: sr, model: LOCAL.model };
         }
         // Câu dày chữ: engine xin khoảng nghỉ ngắn hơn (không bỏ chữ); giới hạn trong [0,1 ; mặc định]
         const maxPause = req.maxPause ? Math.max(0.1, Math.min(LOCAL.maxPause, Number(req.maxPause) || LOCAL.maxPause)) : LOCAL.maxPause;
-        const pieces = splitTtsAudio(bytes, mime, sr, parts, { maxPause });
+        const pieces = splitTtsAudio(bytes, mime, sr, parts, { maxPause, text, gate: true });
         if (!pieces) return { ok: false, errorType: "split", error: "Không cắt được audio theo từng đoạn" };
         for (const p of pieces) await caches.audio.set(p.key, { wav: p.wav, duration: p.duration, sampleRate: p.sampleRate });
         return partsReply(pieces, { model: LOCAL.model });

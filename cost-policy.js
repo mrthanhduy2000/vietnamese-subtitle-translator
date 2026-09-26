@@ -40,7 +40,11 @@
         model: "vieneu-v3-turbo",
         url: "http://127.0.0.1:8000",
         modelLabel: "VieNeu-TTS v3 Turbo",
-        sampleRate: 24000,                 // yêu cầu 24 kHz (máy chủ tự đổi từ 48 kHz), nhẹ bằng nửa
+        // 48 kHz, the model's native rate (1.6.7; was 24 kHz). Measured in Chrome on one Thục Đoan
+        // take played with preservesPitch: harmonicity of the roughest 10% of voiced frames fell
+        // 0.700 -> 0.613 at 1.4x from a 24 kHz copy, but only 0.669 -> 0.649 from the 48 kHz
+        // original. The time-stretch on the lower rate is what made fast passages sound rough.
+        sampleRate: 48000,
         // Nhiệt độ lấy mẫu: đo 4 lần/câu trên máy Đàm, độ dài dao động 8 đến 12% ở 0,8 (mặc định
         // của VieNeu) còn 4 đến 6% ở 0,6 -> nhịp nói đều hơn giữa các câu, giọng vẫn tự nhiên
         temperature: 0.6,
