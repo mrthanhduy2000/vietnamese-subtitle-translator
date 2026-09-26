@@ -99,7 +99,14 @@ a Reload the viewer clicks Translate again).
 
 1. `ytDamBaoBridge` makes sure the MAIN-world bridge is alive (one file, `yt-bridge.js`, injected by
    the manifest or on request by the service worker; see `DANGER.md` item 2).
-2. `ytHoiDanhSachPhuDe` asks the bridge for the caption track list.
+2. `ytHoiDanhSachPhuDe` asks the bridge for the caption track list, plus `audio` (1.6.9:
+   `docAmThanh` in `yt-bridge.js`: original vs AI-dubbed audio tracks, read from the player by value
+   shape since its property names are minified, falling back to the response's `audioTracks`).
+   `ytNgonNguNoi` -> `CST_LANG.spokenLanguage` decides the spoken language (original audio > the one
+   non-dub ASR track > title, "Vietsub"-style titles ignored). **Spoken Vietnamese is never
+   subtitled** (auto: silent; by hand: a toast with "Vẫn dịch" = `ytBatDauDich({ force: true })`),
+   and the check runs before the translation cache. `ytChonTrack(tracks, skip, { spoken, audio })`
+   drops ASR tracks in an AI-dubbed audio language and prefers the spoken language's tracks.
 3. `ytHoiNoiDungPhuDe` asks the bridge to fetch the track; `ytDocNoiDungPhuDe` parses it.
    Auto-generated tracks carry per-word timings, which the segmenter uses.
 4. `ytChayTienTrinhPrefetch` runs a 2-worker sliding-window pool over `ytDichNhom`, staying

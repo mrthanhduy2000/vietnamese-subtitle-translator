@@ -78,6 +78,48 @@
         };
     } catch (e) { /* bo qua */ }
 
+    // Which language is actually spoken. YouTube now AI-dubs videos into other languages (measured
+    // 2026-09-26 on 3lY0eRQhYkY, a Vietnamese news clip: audio tracks "vi.4" original and
+    // "en-US.10" auto-dubbed, and an English ASR track made from the dub, listed FIRST). Returns
+    // { original, current, currentDubbed, tracks:[{ lang, isDefault, isAutoDubbed }] } from what
+    // the player exposes: the response's audioTracks, and the player's own audio-track objects,
+    // read by value shape because their property names are minified.
+    function langOfTrackId(id) {
+        const m = String(id || "").match(/^([a-z]{2,3}(?:-[A-Za-z]{2,4})?)\.\d+$/);
+        return m ? m[1] : "";
+    }
+    function describeAudioTrack(t) {
+        if (!t || typeof t !== "object") return null;
+        for (const v of Object.values(t)) {
+            if (v && typeof v === "object" && typeof v.id === "string" && langOfTrackId(v.id) && "isAutoDubbed" in v) {
+                return { lang: langOfTrackId(v.id), isDefault: !!v.isDefault, isAutoDubbed: !!v.isAutoDubbed };
+            }
+        }
+        return null;
+    }
+    function docAmThanh(response) {
+        const out = { original: "", current: "", currentDubbed: false, tracks: [] };
+        try {
+            const player = document.querySelector("#movie_player");
+            if (player && typeof player.getAvailableAudioTracks === "function") {
+                out.tracks = (player.getAvailableAudioTracks() || []).map(describeAudioTrack).filter(Boolean);
+            }
+            const cur = player && typeof player.getAudioTrack === "function" ? describeAudioTrack(player.getAudioTrack()) : null;
+            if (cur) { out.current = cur.lang; out.currentDubbed = cur.isAutoDubbed; }
+        } catch (e) { /* player API changed: fall back to the response below */ }
+        const orig = out.tracks.find(t => t.isDefault && !t.isAutoDubbed) || out.tracks.find(t => !t.isAutoDubbed);
+        if (orig) out.original = orig.lang;
+        if (!out.original) {
+            try {
+                const r = response.captions.playerCaptionsTracklistRenderer;
+                const list = r.audioTracks || [];
+                const def = list[r.defaultAudioTrackIndex || 0];
+                if (def) out.original = langOfTrackId(def.audioTrackId);
+            } catch (e) { /* no audio track info: a single-audio video */ }
+        }
+        return out;
+    }
+
     function layDanhSachPhuDe() {
         let response = null;
 
@@ -119,7 +161,8 @@
             author: (response.videoDetails || {}).author || "",
             channelId: (response.videoDetails || {}).channelId || "",
             description: String((response.videoDetails || {}).shortDescription || "").slice(0, 400),
-            keywords: ((response.videoDetails || {}).keywords || []).slice(0, 12)
+            keywords: ((response.videoDetails || {}).keywords || []).slice(0, 12),
+            audio: docAmThanh(response)
         };
     }
 

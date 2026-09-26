@@ -87,7 +87,38 @@
         return { lang, confidence, source, action };
     }
 
-    const api = { normCode, detectText, decide };
+    // The language actually SPOKEN in a YouTube video, from the strongest signal available:
+    //   1. the original (not auto-dubbed) audio track the player reports       -> "audio"
+    //   2. the one auto-caption (ASR) track = YouTube's own reading of speech   -> "asr"
+    //      several ASR tracks (one per AI-dubbed audio): the one whose language is not a dub,
+    //      else the one matching the title's language                             -> "asr+title"
+    //   3. no ASR at all: a title + description written in Vietnamese, unless it says the video is
+    //      a translation ("Vietsub", "thuyết minh", ...)                           -> "title"
+    // Measured 2026-09-26 on 3lY0eRQhYkY (Vietnamese news): audio "vi.4" original + "en-US.10"
+    // auto-dubbed, and the English ASR of the dub listed FIRST, which made the old "first ASR track"
+    // rule call the video English and translate YouTube's English dub back into Vietnamese.
+    const TRANSLATED_MARK = /vietsub|viet\s*sub|thuy[eế]t\s*minh|l[oồ]ng\s*ti[eế]ng|ph[uụ]\s*đ[eề]\s*vi[eệ]t|engsub|eng\s*sub/i;
+    function spokenLanguage({ audio, tracks, title, description } = {}) {
+        const a = audio || {};
+        if (a.original) return { lang: normCode(a.original), confidence: 0.97, source: "audio" };
+        const list = tracks || [];
+        const dubbed = new Set((a.tracks || []).filter(t => t.isAutoDubbed).map(t => normCode(t.lang)));
+        const asr = list.filter(t => t.kind === "asr");
+        const meta = [title, description].filter(Boolean).join(" ");
+        const titleDet = meta && !TRANSLATED_MARK.test(meta) ? detectText(meta) : { lang: "unknown", confidence: 0 };
+        if (asr.length === 1) return { lang: normCode(asr[0].languageCode), confidence: 0.95, source: "asr" };
+        if (asr.length > 1) {
+            const notDub = asr.filter(t => !dubbed.has(normCode(t.languageCode)));
+            if (notDub.length === 1 && dubbed.size) return { lang: normCode(notDub[0].languageCode), confidence: 0.93, source: "asr" };
+            const byTitle = titleDet.confidence >= 0.8 && asr.find(t => normCode(t.languageCode) === titleDet.lang);
+            if (byTitle) return { lang: titleDet.lang, confidence: 0.85, source: "asr+title" };
+            return { lang: normCode(asr[0].languageCode), confidence: 0.5, source: "asr" };
+        }
+        if (titleDet.lang === "vi" && titleDet.confidence >= 0.9) return { lang: "vi", confidence: 0.8, source: "title" };
+        return { lang: "unknown", confidence: 0, source: "none" };
+    }
+
+    const api = { normCode, detectText, decide, spokenLanguage, TRANSLATED_MARK };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_LANG = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

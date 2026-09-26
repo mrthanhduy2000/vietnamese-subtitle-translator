@@ -222,8 +222,17 @@ function ytHoiDanhSachPhuDe(timeoutMs = 4500) {
 }
 
 // ---------- Chon ban chep loi phu hop ----------
-function ytChonTrack(tracks, skipSameLang = true) {
+// ctx.spoken: the language spoken (ytNgonNguNoi); ctx.audio: the player's audio tracks. An ASR
+// track in the language of an AI-dubbed audio track transcribes the dub, never the speaker: it is
+// only a last resort. The spoken language's own tracks come first.
+function ytChonTrack(tracks, skipSameLang = true, ctx = {}) {
     if (!tracks || tracks.length === 0) return null;
+    const norm = c => String(c || "").toLowerCase().split(/[-_]/)[0];
+    const dubbed = new Set(((ctx.audio && ctx.audio.tracks) || []).filter(t => t.isAutoDubbed).map(t => norm(t.lang)));
+    if (dubbed.size) {
+        const real = tracks.filter(t => !(t.kind === "asr" && dubbed.has(norm(t.languageCode))));
+        if (real.length) tracks = real;
+    }
 
     // Neu video da co phu de tieng Viet
     const viTrack = tracks.find(t => t.languageCode.startsWith("vi"));
@@ -236,9 +245,12 @@ function ytChonTrack(tracks, skipSameLang = true) {
         };
     }
 
-    // Uu tien: tieng Anh thu cong > tieng Anh tu dong > bat ky thu cong > bat ky
+    // Uu tien: ngon ngu dang noi (thu cong > tu dong) > tieng Anh thu cong > tieng Anh tu dong > bat ky thu cong > bat ky
+    const sp = ctx.spoken && ctx.spoken !== "vi" ? ctx.spoken : "";
     return {
         track:
+            (sp && tracks.find(t => norm(t.languageCode) === sp && t.kind !== "asr")) ||
+            (sp && tracks.find(t => norm(t.languageCode) === sp)) ||
             tracks.find(t => t.languageCode.startsWith("en") && t.kind !== "asr") ||
             tracks.find(t => t.languageCode.startsWith("en")) ||
             tracks.find(t => t.kind !== "asr") ||
@@ -997,9 +1009,21 @@ function ytHienThiNguyenTiengViet(viCues) {
 // ---------- Tự động dịch khi mở video ----------
 // Ngôn ngữ nguồn: track phụ đề tự động (= ngôn ngữ đang nói) > track duy nhất > mẫu nội dung.
 // Nhận diện ngay trên máy, không gọi Gemini. Tiếng Việt / không chắc chắn -> không tự dịch.
+// The language spoken in the video (CST_LANG.spokenLanguage: original audio track, then ASR, then
+// title). Confident enough -> decides alone; a spoken-Vietnamese video is never subtitled.
+function ytNgonNguNoi(info) {
+    const LANG = window.CST_LANG;
+    if (!LANG || !LANG.spokenLanguage || !info) return { lang: "unknown", confidence: 0, source: "none" };
+    return LANG.spokenLanguage({ audio: info.audio, tracks: info.tracks, title: info.title, description: info.description });
+}
+
 async function ytNhanDienNgonNgu(info) {
     const LANG = window.CST_LANG;
     const tracks = (info && info.tracks) || [];
+    const sp = ytNgonNguNoi(info);
+    if (sp.lang !== "unknown" && sp.confidence >= 0.7) {
+        return { lang: sp.lang, confidence: sp.confidence, source: sp.source, action: sp.lang === "vi" ? "skip" : "translate" };
+    }
     if (!LANG || !tracks.length) return { lang: "unknown", confidence: 0, source: "none", action: "unsure" };
     const asr = tracks.find(t => t.kind === "asr");
     const meta = asr ? asr.languageCode : (tracks.length === 1 ? tracks[0].languageCode : "");
@@ -1047,7 +1071,7 @@ async function ytTuDongDichSau(ma) {
     if (!info || yt.active || yt.busy) return null;
     const q = await ytNhanDienNgonNgu(info);
     yt.langDecision = q;
-    console.log(`[AI Subtitle] Ngôn ngữ phụ đề: ${q.lang} (${Math.round(q.confidence * 100)}%, theo ${q.source}) -> ${q.action === "translate" ? "tự động dịch" : q.action === "skip" ? "đã là tiếng Việt, không dịch" : "chưa chắc chắn, không tự dịch"}`);
+    console.log(`[AI Subtitle] Ngôn ngữ video: ${q.lang} (${Math.round(q.confidence * 100)}%, theo ${q.source}) -> ${q.action === "translate" ? "tự động dịch" : q.action === "skip" ? "đã là tiếng Việt, không dịch" : "chưa chắc chắn, không tự dịch"}`);
     if (q.action !== "translate") return q;
     const ok = await ytBatDauDich({ auto: true });
     ytDatTrangThaiNut(ok ? "on" : "idle");
@@ -1082,6 +1106,18 @@ async function ytBatDauDich(opts = {}) {
     try {
         const info = await ytHoiDanhSachPhuDe();
 
+        // A video spoken in Vietnamese is not subtitled (checked before the cache: a translation
+        // saved by an older version must not come back). Asked by hand: say why, offer to go on.
+        const sp = ytNgonNguNoi(info);
+        if (!opts.force && sp.lang === "vi" && sp.confidence >= 0.7) {
+            console.log(`[AI Subtitle] Video nói tiếng Việt (theo ${sp.source}), không dịch phụ đề`);
+            if (!opts.auto) {
+                ytBao("Video này nói tiếng Việt nên tiện ích không dịch phụ đề.",
+                    { actionLabel: "Vẫn dịch", onAction: () => { ytBatDauDich({ force: true }).then(ok => ytDatTrangThaiNut(ok ? "on" : "idle")); } });
+            }
+            return false;
+        }
+
         if (!info.tracks || info.tracks.length === 0) {
             baoLoi("Video này không có phụ đề để dịch. Hãy kiểm tra xem video có hỗ trợ phụ đề hoặc phụ đề tự động (CC) không.");
             return false;
@@ -1091,7 +1127,7 @@ async function ytBatDauDich(opts = {}) {
         ytLoadEdits();
         yt.videoEl = document.querySelector("#movie_player video") || document.querySelector("video");
 
-        const chon = ytChonTrack(info.tracks, ytSettings.skipSameLang);
+        const chon = ytChonTrack(info.tracks, ytSettings.skipSameLang, { spoken: sp.confidence >= 0.7 ? sp.lang : "", audio: info.audio });
         if (chon.daCoTiengViet && ytSettings.skipSameLang) {
             console.log("Video đã có phụ đề tiếng Việt sẵn, áp dụng tùy chọn 'Bỏ qua dịch khi cùng ngôn ngữ'");
             const viCues = await ytTaiBanChepLoi(chon.track.baseUrl);

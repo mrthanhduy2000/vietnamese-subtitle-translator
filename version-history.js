@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.6.9", luc: "21:00 26/09/2026", ten: "Nhận diện đúng video tiếng Việt, không phụ đề video tiếng Việt",
+            y: [
+                "Sửa lỗi dịch nhầm video tiếng Việt: YouTube nay tự lồng tiếng AI cho nhiều video (ví dụ bản tin tiếng Việt có thêm đường tiếng Anh tự động), kèm phụ đề tự động tiếng Anh của bản lồng tiếng đó. Tiện ích từng lấy phụ đề tiếng Anh này, tưởng video nói tiếng Anh, rồi dịch ngược sang tiếng Việt.",
+                "Nay tiện ích hỏi trình phát đường tiếng nào là tiếng GỐC, bỏ qua phụ đề của bản lồng tiếng AI, và khi không có thông tin đó thì xem tiêu đề, mô tả (bỏ qua video ghi \"Vietsub\", \"thuyết minh\", \"lồng tiếng\").",
+                "Video nói tiếng Việt không còn bị hiện phụ đề dịch hay lồng tiếng, kể cả bản dịch đã lưu từ trước. Nếu bạn tự bấm dịch, tiện ích báo lý do và có nút \"Vẫn dịch\"."
+            ]
+        },
+        {
             v: "1.6.8", luc: "20:54 26/09/2026", ten: "Giọng đọc mượt, hết khựng như robot; ngắt nghỉ thông minh hơn",
             y: [
                 "Tìm ra nguyên nhân giọng bị khựng như robot (đo trên Chrome thật, 2 phút lồng tiếng): tiện ích đổi tốc độ phát của giọng 510 lần trong lúc đang đọc, khoảng 21 lần mỗi câu, vì đuổi theo độ trễ vài chục mili giây lúc audio bắt đầu phát. Mỗi lần đổi, Chrome phải khởi động lại bộ co giãn giọng và tạo tiếng vấp. Nay: 0 lần, giọng vẫn khớp phụ đề.",

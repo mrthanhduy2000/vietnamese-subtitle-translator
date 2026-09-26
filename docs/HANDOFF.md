@@ -6,21 +6,23 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-26 · lane B (`dub-engine.js`, `dub-audio.js`) · `1.6.8`. User: 1.6.7 was better; all
-southern voices at 48 kHz (already true for every VieNeu voice); voice still stutters like a robot,
-make it smoother and more expressive, smarter pausing v2.
+2026-09-26 · lane A (`youtube.js`, `yt-bridge.js`, `lang-detect.js`) · `1.6.9`. User (screenshot of
+3lY0eRQhYkY, a Vietnamese news clip showing our translated line): recognise Vietnamese videos
+better and do not subtitle them.
 
 ## What changed
 
-- 1.6.8: `driveSpeech` absorbs start-up latency, smooths drift, nudges with hysteresis: playbackRate
-  changes on playing voices 510 -> 0 in 120 s (real Chrome, `tests/harness/smooth.html`).
-  `snapToNatural`: 21/24 Thục Đoan sentences at exactly 1.0. Pause v2 in `punctuationBreaks`,
-  floor-adaptive `gateNoise`, `FREE_SEGMENTS` (11 s), `LOCAL_STYLE_VERSION` 5. See `docs/DUBBING.md`.
-- Earlier today: 1.6.7 punctuation pauses / 48 kHz, 1.6.6 settings backup, 1.6.5 generic sites.
+- 1.6.9: cause measured on the live page: YouTube AI-dubbed the clip into English (audio "vi.4"
+  original + "en-US.10" dubbed) and listed the dub's English ASR first; "first ASR" called it
+  English. Bridge now reports audio tracks (`docAmThanh`), `CST_LANG.spokenLanguage` decides,
+  spoken Vietnamese is never subtitled (gate before the cache, "Vẫn dịch" by hand), `ytChonTrack`
+  skips AI-dub ASR tracks. Verified the audio read on the real page and on an English TEDx talk.
+- Earlier today: 1.6.8 no robotic stutter (510 -> 0 rate changes), 1.6.7 pauses / 48 kHz,
+  1.6.6 settings backup, 1.6.5 generic sites, 1.6.4 backlog.
 
 ## State
 
-- `npm test`: 384 tests, 383 pass, 0 fail, 1 skip · Reload: **yes** (1.6.8 not yet loaded)
+- `npm test`: 390 tests, 389 pass, 0 fail, 1 skip · Reload: **yes** (1.6.9 not yet loaded)
 
 ## Unfinished / in progress
 
@@ -37,8 +39,7 @@ make it smoother and more expressive, smarter pausing v2.
 
 - The static server lets Chrome cache scripts: harness pages must load them with `?t=Date.now()`.
 - Chrome pauses a muted `<video>` in the hidden pane; use a silent `<audio>` as the clock.
-- Never put a "before" number in release notes that was not measured (Mỹ Duyên was only measured
-  after the fix).
+- YouTube player audio-track objects have minified keys: read them by value shape, never by name.
 
 ## Suggested next step
-- Reload, play a lecture with Thục Đoan and with Mỹ Duyên, listen for stutter and pause placement.
+- Reload, open 3lY0eRQhYkY (must stay unsubtitled), then an English lecture (must translate).
