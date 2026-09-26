@@ -30,8 +30,7 @@ User: fix the backlog, then find and optimise more in audio + subtitles.
 ## Unfinished / in progress
 
 - Not verified live: `ensureYtBridge` (open a video, Reload the extension, translate without F5).
-- Not yet measured live: jank with a long video while it translates (PerformanceObserver
-  `longtask`). Needs a new, long video, so it costs a little Gemini.
+- Not measured live: jank on a long video while translating (`longtask`; costs a little Gemini).
 - A paraphrased leak on 4eY5DuqASQc (~8:40) still adds speech there.
 - Plan stages 3 to 5 on hold (`~/.claude/plans/jiggly-sparking-milner.md`; stage 4 needs no new
   permission any more, `activeTab` + `scripting` are already in the manifest). BACKLOG: items 5, 7, 8 left (deliberate / cosmetic).
