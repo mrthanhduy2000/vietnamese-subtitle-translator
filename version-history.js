@@ -4,6 +4,20 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.7.5", luc: "05:26 27/09/2026", ten: "Coursera hiện phụ đề ngay từ đoạn đầu, giọng nghỉ đúng chỗ hơn",
+            y: [
+                "Coursera: phụ đề tiếng Việt hiện ngay khi đoạn đầu dịch xong, không còn chờ dịch hết cả bài. Đoạn đang xem được dịch trước (kể cả khi bài được mở tiếp ở giữa), đoạn chưa dịch vẫn hiện câu tiếng Anh. Lồng tiếng tự bật cũng bắt đầu từ đoạn đầu.",
+                "Sửa lỗi nút trên trình phát Coursera cứ quay \"Đang dịch phụ đề…\" sau khi đã dịch xong. Trong lúc còn dịch phần sau, nút ở trạng thái bật và ghi rõ đang dịch tiếp.",
+                "Bảng điều khiển: thanh \"Đã dịch x/y đoạn\" chạy theo thời gian thực khi đang mở, và trên Coursera đếm đúng tổng số đoạn của bài (trước đây luôn báo đã xong).",
+                "Tắt phụ đề giữa chừng thì bài đang dịch dừng gửi đi ngay; chuyển bài thì bảng lời thoại và bảng điều khiển không còn giữ câu của bài cũ.",
+                "Giọng VieNeu: giữ chỗ ngừng tự nhiên trước \"bằng cách\", \"thông qua\", \"dựa trên\"... trong câu dài (trước đây bị ép liền, nghe như nói dồn). Câu ngắn và khi các từ này là động từ thì không ngắt. Audio VieNeu đã lưu được tạo lại một lần (miễn phí)."
+            ],
+            bang: { cot: ["Đo", "Trước", "Nay"], hang: [
+                ["Số lượt dịch phải chờ trước câu tiếng Việt đầu tiên (bài 10 phút mô phỏng)", "25", "1"],
+                ["Chỗ ngừng trước \"thông qua\" / \"bằng cách\" được giữ (10 bản ghi Mỹ Duyên)", "0/10", "10/10"]
+            ] }
+        },
+        {
             v: "1.7.4", luc: "04:55 27/09/2026", ten: "Chuyển bài giữa chừng không còn lẫn phụ đề, bớt trả tiền trùng",
             y: [
                 "Coursera: chuyển sang bài giảng khác khi bài cũ còn đang dịch thì bài cũ dừng gửi Gemini ngay (trước đây vẫn dịch nốt cả bài, tốn tiền), phụ đề của bài cũ không còn bị vẽ đè lên video bài mới, và bài mới vẫn tự dịch (trước đây bị bỏ qua).",

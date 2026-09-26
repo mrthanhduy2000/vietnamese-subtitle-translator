@@ -18,14 +18,14 @@ dub-engine.js -> dubbing.js -> content.js -> youtube.js
 `background.js` is the MV3 service worker; it pulls in `cst-cache.js`, `cost-policy.js` and
 `dub-audio.js` on its own. If you add a file, add it to `manifest.json` in dependency order.
 
-## Source (30 files, 18,637 lines)
+## Source (30 files, 18,764 lines)
 
 | File | Lines | Role | Global export |
 |---|---|---|---|
 | `youtube.js` | 1948 | YouTube engine: bridge handshake, track pick, timedtext parse, self-drawn overlay, prefetch pool, controls + quick menu | none (same-world sibling of `content.js`, reads its `state`) |
-| `content.js` | 2161 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
+| `content.js` | 2254 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
 | `options.html` | 1560 | Settings page, 4 tabs. ~810 lines are inline `<style>`; markup is only the rest | n/a |
-| `dub-engine.js` | 1521 | TTS providers + scheduler + video-clock sync + audio ducking | `CST_DUB_ENGINE` |
+| `dub-engine.js` | 1522 | TTS providers + scheduler + video-clock sync + audio ducking | `CST_DUB_ENGINE` |
 | `background.js` | 1308 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access | n/a (message router) |
 | `popup.css` | 995 | Popup styling only | n/a |
 | `options.js` | 1155 | Settings logic. No Save button: debounced autosave every 350ms, flushed on `pagehide` | n/a |
@@ -36,9 +36,9 @@ dub-engine.js -> dubbing.js -> content.js -> youtube.js
 | `dubbing.js` | 481 | Thin page-level dubbing controller: settings, provider pick, badge, hold-video-while-preparing | `window.CST_DUB` |
 | `context-engine.js` | 378 | Domain detection + per-video sliding-window context sent with each translation | `CST_CONTEXT` |
 | `cst-cache.js` | 319 | Two-tier LRU cache (RAM -> IndexedDB) for translations and audio | `CST_CACHE` |
-| `dub-audio.js` | 673 | Pure WAV/PCM work: decode, rumble cut, hiss removal, normalize, silence, split, pause shaping | `CST_DUB_AUDIO` |
+| `dub-audio.js` | 680 | Pure WAV/PCM work: decode, rumble cut, hiss removal, normalize, silence, split, pause shaping | `CST_DUB_AUDIO` |
 | `cost-policy.js` | 294 | **Single source of truth** for the model catalog, cost modes, budgets, difficulty routing, local-TTS config | `CST_COST` |
-| `popup.js` | 283 | Popup logic; re-injects content scripts if they are missing | n/a |
+| `popup.js` | 295 | Popup logic; re-injects content scripts if they are missing | n/a |
 | `yt-bridge.js` | 299 | MAIN-world page bridge: reads YouTube's internal player response, fetches timedtext with the player's `pot` token | none (postMessage protocol only) |
 | `subtitle-style.js` | 293 | Shared subtitle font/stroke/position styling and its defaults | `CST_STYLE` |
 | `player-ui.js` | 424 | The product mark, the control-bar button and the quick-menu stylesheet, shared by both players | `CST_PLAYER_UI` |
@@ -48,7 +48,7 @@ dub-engine.js -> dubbing.js -> content.js -> youtube.js
 | `popup.html` | 164 | Popup markup | n/a |
 | `vi-quality.js` | 213 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
 | `lang-detect.js` | 130 | Source-language decision without an API call | `CST_LANG` |
-| `version-history.js` | 747 | Release history data (66 entries, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
+| `version-history.js` | 761 | Release history data (67 entries, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
 | `version-check.js` | 55 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
 | `theme.js` | 42 | Light/Dark theme for the popup and settings page. Applies instantly from `localStorage` to avoid a flash, then syncs from `storage.sync`. Loaded by `popup.html` and `options.html` only, not a content script | `window.CST_THEME` |
 | `build-info.js` | 6 | **Generated** by `tools/bump-version.js`. Never edit | `CST_BUILD` |
@@ -68,7 +68,7 @@ dub-engine.js -> dubbing.js -> content.js -> youtube.js
 
 ## Tests and tooling (22 files, 5,456 lines)
 
-See `TESTING.md`. Short version: 18 files in `npm test` (listed in `package.json`), all offline; 3 manual scripts;
+See `TESTING.md`. Short version: 18 files in `npm test` (listed in `package.json`), all offline; 4 manual scripts;
 5 browser harness pages under `tests/harness/`; `tools/bump-version.js` owns the version number.
 
 `tools/vieneu-autostart.command` (63 lines, zsh, executable) installs a macOS LaunchAgent

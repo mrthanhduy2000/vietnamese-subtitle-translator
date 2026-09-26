@@ -275,6 +275,12 @@
     const STARTERS2 = new Set(["nhưng mà", "tuy nhiên", "thế nhưng", "vì vậy", "vì thế", "do đó", "do vậy", "cho nên",
         "vậy nên", "bởi vì", "sau khi", "trước khi", "trong khi", "cho đến", "mặc dù", "tuy vậy", "nếu như", "ngoài ra",
         "đồng thời", "thay vì", "trong đó", "nhờ đó", "từ đó", "hơn nữa", "sao cho", "chẳng hạn"]);
+    // 1.7.5: adjunct phrases that open the second half of a long lecture sentence with no comma.
+    // Measured on real Mỹ Duyên takes: a 27-syllable "... dựa trên ..." sentence came out with no pause
+    // in 3 of 4 takes. They are also verbs ("chúng ta dựa vào kết quả"), so never after a pronoun,
+    // and only with a real phrase after them (3 more words), so a short sentence stays whole
+    const ADJUNCTS2 = new Set(["dựa trên", "dựa vào", "bằng cách", "thông qua", "nhờ vào", "theo đó"]);
+    const PRONOUNS = new Set(["ta", "tôi", "nó", "họ", "bạn", "mình", "chúng", "anh", "chị", "em", "ông", "bà", "ai", "đó", "này", "ấy"]);
     const STARTERS1 = new Set(["nhưng", "còn", "thì", "vì", "để", "khi", "nếu", "song", "tuy", "dù", "bởi", "nhờ", "nhằm"]);
     const WEAK_STARTERS = new Set(["và", "hoặc"]);
     // a starter right after one of these is part of a phrase ("đôi khi", "vẫn còn", "sau khi"...)
@@ -332,10 +338,11 @@
             if (!opts.soft) continue;
             const nx = bare(words[i + 1]), nx2 = bare(words[i + 2]), prev = bare(words[i]);
             const two = STARTERS2.has(nx + " " + nx2);
-            const one = !two && STARTERS1.has(nx) && !NOT_AFTER.has(prev) && !(NOT_BEFORE[nx] || []).includes(nx2);
-            const weak = !two && !one && WEAK_STARTERS.has(nx) && !NOT_AFTER.has(prev);
-            if (!(two || one || weak)) continue;
-            if (clause < (weak ? 6 : 5) || ahead < (weak ? 4 : 3)) continue;
+            const adj = !two && ADJUNCTS2.has(nx + " " + nx2) && !PRONOUNS.has(prev) && !NOT_AFTER.has(prev);
+            const one = !two && !adj && STARTERS1.has(nx) && !NOT_AFTER.has(prev) && !(NOT_BEFORE[nx] || []).includes(nx2);
+            const weak = !two && !adj && !one && WEAK_STARTERS.has(nx) && !NOT_AFTER.has(prev);
+            if (!(two || adj || one || weak)) continue;
+            if (clause < (weak ? 6 : 5) || ahead < (weak ? 4 : adj ? 5 : 3)) continue;
             const cap = Math.min(caps.comma, 0.2, 0.1 + 0.008 * Math.min(clause, 12));
             out.push({ at: acc / total, frac: acc / total, kind: "soft", cap: Math.round(cap * 1000) / 1000 });
             clause = 0;

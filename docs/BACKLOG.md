@@ -35,6 +35,16 @@ that line). Holding TTS until a refine settles would delay the voice; not measur
 **13. The Gemini voice preview in Settings is not cached**: each click pays ~5 s of audio, about
 0.1 to 0.3 US cents at the catalog's estimated prices. VieNeu previews are free.
 
+**14. Coursera waits for a retranslation before showing a window** (`translateWindow` with
+`realtime: false`): when the quality check asks for one (Cân bằng: severe issues only), that window
+shows one Gemini round trip later. Kept: showing first and replacing later (as YouTube does) makes
+the voice read the line twice, and Gemini TTS bills both.
+
+**15. A long sentence with no clause or adjunct opener is read in one run** (a 22-syllable one: no
+pause in 3 of 3 takes; the voice's own stops come before the 4.5 s breath point). A breath at the stop
+nearest the middle would fix it but may keep a mid-phrase hesitation; decide after listening
+(`tests/speech-bench.live.js`, sentence `ky-thuat`).
+
 ## Cosmetic / housekeeping
 
 **5. The folder name says `v1.0.4`, the extension is many versions past that.** Renaming the folder means

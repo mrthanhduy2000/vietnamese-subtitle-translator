@@ -93,6 +93,17 @@ test("clause openings of a long sentence are soft breaks, short sentences and ph
     assert.deepEqual(A.punctuationBreaks(long, CAPS), []);
 });
 
+test("adjunct openers (bằng cách, thông qua, dựa trên...) are soft breaks in a long sentence, not in a short one or as a verb (1.7.5)", () => {
+    // A/B on the same real Mỹ Duyên takes: the voice stopped 0.26 to 0.43 s before "thông qua" and
+    // "bằng cách" in 10 of 10 takes, and the old shaping squeezed every one of them to a 0.09 s joint
+    assert.equal(soft("Chúng ta có thể cải thiện độ chính xác của mô hình thông qua việc tăng thêm dữ liệu huấn luyện.").length, 1);
+    assert.equal(soft("Mạng học được biểu diễn tốt hơn bằng cách giảm dần tốc độ học sau mỗi vòng lặp.").length, 1);
+    assert.equal(soft("Mô hình này học cách dự đoán từ tiếp theo dựa trên toàn bộ ngữ cảnh mà nó đã nhìn thấy trước đó.").length, 1);
+    assert.equal(soft("Chúng ta xây dựng mô hình dựa trên dữ liệu.").length, 0, "short: two words after the opener");
+    assert.equal(soft("Điều này phụ thuộc vào cách chúng ta dựa vào kết quả trước đó của mô hình.").length, 0, "a verb after a pronoun");
+    assert.equal(soft("Kết quả được tính bằng cách lấy trung bình các giá trị.").length, 0, "a lead-in under five words");
+});
+
 test("a full stop rests by the length of its sentence, ? and ! a little longer, never past maxPause", () => {
     const b = A.textBreaks("Đúng vậy! Đây là một ví dụ rất quen thuộc. Tại sao? Câu trả lời nằm ở tốc độ học của mô hình khi huấn luyện trên dữ liệu lớn. Hết", CAPS);
     const [exclaim, stop, question, long] = b.map(x => x.cap);

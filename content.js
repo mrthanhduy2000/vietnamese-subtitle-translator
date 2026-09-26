@@ -38,10 +38,19 @@ const state = {
     observers: [],
     currentUrl: location.href,
     busy: false,
-    // Bumped on every page change (watchNavigation). A track translation started under another
-    // value is obsolete: it stops taking windows and never applies its result (translateTrackSite)
-    navGen: 0
+    // Bumped on every page change (watchNavigation) and when the viewer turns translation off. A
+    // track translation started under another value is obsolete: it stops taking windows and never
+    // applies its result (translateTrackSite)
+    navGen: 0,
+    busyGen: -1,            // navGen of the translation run holding `busy`
+    groupTotal: 0           // groups of the current track translation (popup progress)
 };
+
+// A translation run is going on for what is on screen now (not one left behind by a page change
+// or a switch-off, which only finishes its window in flight)
+function csTranslating() {
+    return state.busy && state.busyGen === state.navGen;
+}
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -575,7 +584,8 @@ function groupEndsSentence(g) {
 // uu tien ket thuc cua so o cuoi cau de moi lan goi la mot doan tron y.
 // alive(): false once the viewer has left the page; no further window is sent (the one in flight
 // finishes and is cached by the service worker, so coming back costs nothing).
-async function translateAllGroups(session, groups, onProgress, alive = () => true) {
+// opts.startAt: the playhead; its window goes first. opts.onWindow(results): after every window.
+async function translateAllGroups(session, groups, onProgress, alive = () => true, opts = {}) {
     const results = new Array(groups.length).fill("");
     const windows = [];
     let cur = [];
@@ -589,6 +599,12 @@ async function translateAllGroups(session, groups, onProgress, alive = () => tru
         if (full || soft) { windows.push(cur); cur = []; chars = 0; }
     }
     if (cur.length) windows.push(cur);
+    // The window under the playhead first, then on from there, the ones before it last: Coursera
+    // resumes a lecture where the viewer left off, and in text order that line came last
+    if (opts.startAt > 0) {
+        const k = windows.findIndex(w => groups[w[w.length - 1]].end >= opts.startAt);
+        if (k > 0) windows.push(...windows.splice(0, k));
+    }
 
     let done = 0;
     let next = 0;
@@ -612,6 +628,7 @@ async function translateAllGroups(session, groups, onProgress, alive = () => tru
             }
             done += idxs.length;
             if (onProgress && alive()) onProgress(done, groups.length);
+            if (opts.onWindow && alive()) opts.onWindow(results);
         }
     };
     await Promise.all([worker(), worker()]);
@@ -765,7 +782,7 @@ function groupCuesIntoSentences(cues, perCueMode) {
 // ============================================================
 // A translation that carries the next units' content too (see CST_QUALITY.trimContextLeak) shows
 // that content twice and makes the voice read it twice. Compare each unit with the next two.
-function trimTranslationLeaks(translations) {
+function trimTranslationLeaks(translations, quiet) {
     const Q = window.CST_QUALITY;
     if (!Q || !Q.trimContextLeak) return { list: translations, trimmed: 0 };
     let trimmed = 0;
@@ -777,7 +794,7 @@ function trimTranslationLeaks(translations) {
         if (out !== t) trimmed++;
         return out;
     });
-    if (trimmed) console.warn(`[AI Subtitle] Bỏ phần dịch lấn sang câu sau ở ${trimmed} nhóm`);
+    if (trimmed && !quiet) console.warn(`[AI Subtitle] Bỏ phần dịch lấn sang câu sau ở ${trimmed} nhóm`);
     return { list, trimmed };
 }
 
@@ -838,6 +855,56 @@ function repositionCues() {
     for (const cue of Array.from(track.cues)) placeCue(cue, /^cst-vi-/.test(cue.id) ? "vi" : "orig");
 }
 
+// The Vietnamese cues of one group, cut once per translation (the progressive display and the final
+// pass ask for the same group again). Copies: the viewer's edits are laid over the cues in place.
+function csGroupCues(groups, gi, vi) {
+    const group = groups[gi];
+    if (!group.cstSeg || group.cstSeg.vi !== vi) {
+        const nextStart = groups[gi + 1] ? groups[gi + 1].start : undefined;
+        group.cstSeg = { vi, segs: segmentGroupVi(group, vi, nextStart) };
+    }
+    return group.cstSeg.segs.map(s => ({ ...s, lines: (s.lines || [s.text]).slice() }));
+}
+
+// While the rest of the lecture is still being translated: what is done goes on screen and to the
+// voice now (the overlay shows the English line where there is no Vietnamese yet). The track's own
+// cues are rewritten once, by applyTranslation, at the end.
+function csShowTranslated(track, groups, translations) {
+    const list = trimTranslationLeaks(translations, true).list;
+    const dub = [];
+    groups.forEach((group, gi) => {
+        if (list[gi]) dub.push({ start: group.start, end: group.end, srcCues: group.srcCues, viText: list[gi], viCues: csGroupCues(groups, gi, list[gi]) });
+    });
+    state.dubGroups = dub;
+    csShowGroups(track);
+    csApplyEdits();
+}
+
+// Our overlay paints from here on (cs.viCues from state.dubGroups, cs.origCues from the source).
+// The track keeps its cues (the "restore original" path reads them) but goes to "hidden", so the
+// browser draws nothing: its cue boxes and Coursera's own caption box used to land on top of each other.
+function csShowGroups(track) {
+    const originals = state.originalCues || [];
+    cs.viCues = [];
+    cs.origCues = [];
+    for (const g of state.dubGroups) for (const c of (g.viCues || [])) {
+        cs.viCues.push({ start: c.start, end: c.end, lines: c.lines || [c.text], text: c.text || (c.lines || []).join(" ") });
+    }
+    cs.viCues.sort((a, b) => a.start - b.start);
+    for (let i = 1; i < cs.viCues.length; i++) {
+        if (cs.viCues[i].start < cs.viCues[i - 1].end) cs.viCues[i - 1].end = Math.max(cs.viCues[i - 1].start + 0.05, cs.viCues[i].start);
+    }
+    if (window.CST_STYLE && window.CST_STYLE.lingerCues) window.CST_STYLE.lingerCues(cs.viCues);   // reading time
+    originals.forEach((cue, i) => {
+        const text = plainCueText({ text: state.originalCueTexts.get(i) });
+        if (text) cs.origCues.push({ start: cue.startTime, end: cue.endTime, text });
+    });
+    cs.origCues.sort((a, b) => a.start - b.start);
+    try { track.mode = "hidden"; } catch (e) { /* bỏ qua */ }
+    cs.renderKey = "";
+    csStartRender();
+}
+
 function applyTranslation(track, groups, translations) {
     translations = trimTranslationLeaks(translations).list;
     const originals = state.originalCues || [];
@@ -855,8 +922,7 @@ function applyTranslation(track, groups, translations) {
             group.cueIndexes.forEach(ci => { if (originals[ci]) track.addCue(originals[ci]); });
             return;
         }
-        const nextStart = groups[gi + 1] ? groups[gi + 1].start : undefined;
-        const segs = segmentGroupVi(group, vi, nextStart);
+        const segs = csGroupCues(groups, gi, vi);
         // Nguồn cho lồng tiếng: nhóm câu + bản dịch có ngữ cảnh + mốc thời gian
         state.dubGroups.push({ start: group.start, end: group.end, srcCues: group.srcCues, viText: vi, viCues: segs });
         segs.forEach((s, k) => {
@@ -880,27 +946,7 @@ function applyTranslation(track, groups, translations) {
         });
     }
 
-    // Our own overlay paints from here on. The track keeps the cues (the dubbing engine and the
-    // "restore original" path read them) but goes to "hidden", so the browser draws nothing:
-    // its cue boxes and Coursera's own caption box used to land on top of each other.
-    cs.viCues = [];
-    cs.origCues = [];
-    for (const g of state.dubGroups) for (const c of (g.viCues || [])) {
-        cs.viCues.push({ start: c.start, end: c.end, lines: c.lines || [c.text], text: c.text || (c.lines || []).join(" ") });
-    }
-    cs.viCues.sort((a, b) => a.start - b.start);
-    for (let i = 1; i < cs.viCues.length; i++) {
-        if (cs.viCues[i].start < cs.viCues[i - 1].end) cs.viCues[i - 1].end = Math.max(cs.viCues[i - 1].start + 0.05, cs.viCues[i].start);
-    }
-    if (window.CST_STYLE && window.CST_STYLE.lingerCues) window.CST_STYLE.lingerCues(cs.viCues);   // reading time
-    originals.forEach((cue, i) => {
-        const text = plainCueText({ text: state.originalCueTexts.get(i) });
-        if (text) cs.origCues.push({ start: cue.startTime, end: cue.endTime, text });
-    });
-    cs.origCues.sort((a, b) => a.start - b.start);
-    try { track.mode = "hidden"; } catch (e) { /* bỏ qua */ }
-    cs.renderKey = "";
-    csStartRender();
+    csShowGroups(track);
     csLoadEdits();
 
     console.log(`Da ap ban dich: ${originals.length} cue goc -> ${viCount} cue tieng Viet, dong dai nhat ${longestLine} ky tu`);
@@ -948,8 +994,9 @@ function genericMeta() {
     return { title, course: "", channel: host, courseKey: `generic_${host}_${first}` };
 }
 
-// Coursera and generic pages: translate the video's own text track
-async function translateTrackSite() {
+// Coursera and generic pages: translate the video's own text track.
+// opts.onShown(): once, when the first translated lines are on screen (the voice can start then)
+async function translateTrackSite(opts = {}) {
     const generic = getCurrentSite() === "generic";
     if (generic && !csVideo()) {
         cstToast("Trang này không có video nào để dịch phụ đề.", { warn: true });
@@ -1003,8 +1050,23 @@ async function translateTrackSite() {
     if (!alive()) return false;
     session.setUnits(groups.map(g => g.text));
     state.contextSession = session;
+    state.groupTotal = groups.length;
     console.log(`Linh vuc nhan dien: ${session.domain.primary}${session.domain.secondary ? " + " + session.domain.secondary : ""}`);
 
+    // Lines go on screen window by window (1.7.5). Before, nothing showed until the last window of the
+    // whole lecture was back: one Gemini round trip per two windows, a dozen windows in a lecture.
+    let shown = false;
+    const showSoFar = results => {
+        csShowTranslated(trackEl.track, groups, results);
+        if (shown) return;
+        shown = true;
+        state.active = true;
+        setIconState("on");
+        cs.edits = null;                  // the last page's edits must not touch these lines meanwhile
+        csLoadEdits();
+        if (opts.onShown) { try { opts.onShown(); } catch (e) { /* bỏ qua */ } }
+    };
+    const v = csVideo();
     const translations = await translateAllGroups(
         session,
         groups,
@@ -1012,7 +1074,8 @@ async function translateTrackSite() {
             const btn = document.querySelector(CS_BTN);
             if (btn) btn.setAttribute("title", `Đang dịch ${done}/${total} nhóm…`);
         },
-        alive
+        alive,
+        { startAt: v ? v.currentTime : 0, onWindow: showSoFar }
     );
     if (!alive()) {
         console.log("[AI Subtitle] Đã chuyển trang trong lúc dịch: bỏ bản dịch của trang cũ");
@@ -1023,10 +1086,16 @@ async function translateTrackSite() {
     return true;
 }
 
-async function enableTranslation() {
+// opts.onShown: see translateTrackSite
+async function enableTranslation(opts = {}) {
+    // A run the viewer just turned off (or left) may still be finishing its window in flight. It will
+    // not apply anything: wait for it rather than ignore this click
+    for (let i = 0; i < 80 && state.busy && !csTranslating(); i++) await sleep(250);
     if (state.busy) return;
     state.busy = true;
+    state.busyGen = state.navGen;
     state.glossaryMisses = 0;
+    let failed = false;
     injectCueStyle();
     setIconState("loading");
 
@@ -1034,7 +1103,7 @@ async function enableTranslation() {
         const site = getCurrentSite();
         let success = false;
         if (isTrackSite(site)) {
-            success = await translateTrackSite();
+            success = await translateTrackSite(opts);
         } else if (site === "youtube") {
             if (typeof ytBatDauDich === "function") {
                 success = await ytBatDauDich();
@@ -1046,15 +1115,22 @@ async function enableTranslation() {
             cstToast("Trang web này chưa được hỗ trợ.", { warn: true });
         }
 
-        state.active = success;
-        setIconState(success ? "on" : "idle");
+        // a run turned off or left behind says nothing about what is on screen now
+        if (state.busyGen === state.navGen) {
+            state.active = success;
+            setIconState(success ? "on" : "idle");
+        }
     } catch (err) {
+        failed = true;
         console.error("Dịch thất bại:", err);
         state.active = false;
         setIconState("error");
         cstToast(`Dịch thất bại: ${err.message}\nHãy kiểm tra kết nối mạng rồi thử lại.`, { warn: true });
     } finally {
         state.busy = false;
+        // The state above was drawn while `busy` still held: the button kept spinning with
+        // "Đang dịch phụ đề…" after the translation had finished (seen in 1.7.4). An error keeps its own.
+        if (!failed) csUpdateButton();
     }
 }
 
@@ -1069,6 +1145,8 @@ function disableTranslation() {
         return;
     }
 
+    state.navGen++;                           // a translation still running stops and applies nothing
+    state.groupTotal = 0;
     // Tat long tieng truoc vi no doc tu phu de da dich
     if (window.CST_DUB && window.CST_DUB.dub.enabled) {
         window.CST_DUB.stop();
@@ -1280,17 +1358,19 @@ function csUpdateButton(status) {
     const btn = document.querySelector(CS_BTN);
     if (!kit || !btn) return;
     const isDub = !!(window.CST_DUB && window.CST_DUB.dub && window.CST_DUB.dub.enabled);
-    const busy = status === "loading" || state.busy;
+    // lines on screen while the rest is still translated: "on", not a spinner (1.7.5)
+    const busy = !state.active && (status === "loading" || csTranslating());
     const on = status === "on" || state.active || isDub;
     kit.datTrangThai(btn, {
         busy,
         on: on && !busy,
         title: busy ? "Đang dịch phụ đề…"
             : status === "error" ? "Dịch thất bại. Bấm để thử lại"
-                : state.active && isDub ? "Đang bật phụ đề Việt và lồng tiếng"
-                    : state.active ? "Đang bật phụ đề tiếng Việt"
-                        : isDub ? "Đang lồng tiếng Việt"
-                            : "Dịch phụ đề & lồng tiếng tiếng Việt"
+                : state.active && csTranslating() ? "Đang bật phụ đề tiếng Việt, đang dịch tiếp phần sau"
+                    : state.active && isDub ? "Đang bật phụ đề Việt và lồng tiếng"
+                        : state.active ? "Đang bật phụ đề tiếng Việt"
+                            : isDub ? "Đang lồng tiếng Việt"
+                                : "Dịch phụ đề & lồng tiếng tiếng Việt"
     });
 }
 
@@ -1695,7 +1775,7 @@ function csOpenMenu(btn) {
         rowSub.setAttribute("aria-checked", String(!!state.active));
         const nguon = csSubtitleSource();
         const hauTo = state.active && nguon ? ` · ${nguon.nhan.toLowerCase()}` : "";
-        rowSub.cstSub.textContent = (state.busy ? "Đang dịch…" : state.active ? "Đang bật" : "Đang tắt") + hauTo;
+        rowSub.cstSub.textContent = (state.active && csTranslating() ? "Đang bật, đang dịch tiếp" : csTranslating() ? "Đang dịch…" : state.active ? "Đang bật" : "Đang tắt") + hauTo;
         rowSub.cstSub.style.color = state.active && nguon && nguon.canhBao ? "var(--cst-warn)" : "";
         rowDub.setAttribute("aria-checked", String(isDub));
         const st = dubApi && dubApi.dub ? dubApi.dub.lastStatus : null;
@@ -1762,18 +1842,23 @@ async function toggleDubbing(container) {
         return;
     }
 
+    const startVoice = async () => {
+        if (api.dub.enabled || api.dub.starting) return;
+        const videoEl = csVideo() || container.querySelector("video");
+        const ok = await api.start({ video: videoEl, container, getGroups: () => state.dubGroups || [] });
+        csUpdateButton();
+        if (ok) rememberDub(true);
+    };
+
     // Long tieng doc tu ban dich co ngu canh, nen phai dich truoc
     if (!state.active) {
         // Không hỏi bằng hộp thoại chặn trang: người dùng vừa bấm lồng tiếng nghĩa là đồng ý dịch
         cstToast("Đang dịch phụ đề để lồng tiếng…");
-        await enableTranslation();
+        // the voice starts with the first translated lines (the engine takes the rest as it comes)
+        await enableTranslation({ onShown: () => { startVoice(); } });
         if (!state.active) return;
     }
-
-    const videoEl = csVideo() || container.querySelector("video");
-    const ok = await api.start({ video: videoEl, container, getGroups: () => state.dubGroups || [] });
-    csUpdateButton();
-    if (ok) rememberDub(true);
+    await startVoice();
 }
 
 // Nhớ bật/tắt lồng tiếng (cùng khóa với ô trong popup) để bài sau tự bật
@@ -1806,7 +1891,12 @@ function watchNavigation() {
             console.log("Da chuyen bai giang, dat lai trang thai");
             state.currentUrl = location.href;
             state.navGen++;
+            state.groupTotal = 0;
             if (window.CST_DUB && window.CST_DUB.dub.enabled) window.CST_DUB.stop();
+            // the old lecture's lines must not linger in the popup count or the transcript panel
+            state.dubGroups = [];
+            cs.viCues = [];
+            cs.origCues = [];
             state.active = false;
             state.originalCueTexts = null;
             state.activeTrack = null;
@@ -2041,7 +2131,8 @@ async function courseraAutoTranslate() {
     state.langDecision = decision;
     console.log(`[AI Subtitle] Ngôn ngữ phụ đề: ${decision.lang} (${Math.round(decision.confidence * 100)}%, theo ${decision.source}) -> ${decision.action === "translate" ? "tự động dịch" : decision.action === "skip" ? "đã là tiếng Việt, không dịch" : "chưa chắc chắn, không tự dịch"}`);
     if (decision.action === "translate") {
-        await enableTranslation();
+        // the voice starts with the first translated lines, not after the whole lecture
+        await enableTranslation({ onShown: () => { if (location.href === url) courseraAutoDub(); } });
         if (state.active && location.href === url) await courseraAutoDub();
     }
     return decision;
@@ -2117,7 +2208,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
 
         if (!state.active) {
-            enableTranslation().then(() => { if (state.active && site === "generic") courseraAutoDub(); });
+            const dub = () => { if (state.active && site === "generic") courseraAutoDub(); };
+            enableTranslation({ onShown: dub }).then(dub);
         }
         sendResponse({ method: "translate", status: "success" });
         return true;
@@ -2149,7 +2241,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             return true;
         }
         const gs = state.dubGroups || [];
-        sendResponse({ site, title, active: state.active, busy: state.busy, dub, xong: demXong(gs), tong: gs.length, host: location.hostname.replace(/^www\./, "") });
+        // tong: every group of the lecture (it was the translated ones, so the popup said "done" at once)
+        sendResponse({ site, title, active: state.active, busy: csTranslating(), dub, xong: demXong(gs), tong: Math.max(gs.length, state.groupTotal || 0), host: location.hostname.replace(/^www\./, "") });
         return true;
     }
 });

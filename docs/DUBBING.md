@@ -226,6 +226,13 @@ male, picked by `localHighPass(voice)`) then `denoise`; per piece `shapePauses` 
   for all four), the soft clipper (10/68 takes touch it, added distortion under -56 dB), DC
   (< 1e-3), sample rate (48 kHz native, no resampling). No EQ: Mỹ Duyên's 2-8 kHz balance is within
   1.5 dB of Thục Đoan's. `LOCAL_STYLE_VERSION` 7.
+- 1.7.5: adjunct openers `ADJUNCTS2` ("dựa trên", "dựa vào", "bằng cách", "thông qua", "nhờ vào",
+  "theo đó") are soft breaks too, but never after a pronoun (they are also verbs: "chúng ta dựa vào")
+  and only with 3 more words after them. A/B on the same real Mỹ Duyên takes (5 each): the voice
+  stopped 0.26 to 0.43 s before "thông qua" and "bằng cách" every time; kept 0/10 before, 10/10 now
+  (0.16 to 0.2 s). A long sentence with no opener at all still reads in one run (a 22-syllable one,
+  0 of 3 takes paused): not changed, it needs listening first. `LOCAL_STYLE_VERSION` 8.
+  `tests/speech-bench.live.js` re-measures the 12-sentence set on the live server.
 
 ### Gemini TTS (paid)
 

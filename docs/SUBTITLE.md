@@ -36,6 +36,15 @@ runs in the same world, reading `content.js`'s `state` and `CST_UI` directly (no
    under an older value sends no further window, never applies its result, and returns false; the
    new lecture's `courseraAutoTranslate` waits (up to 20 s) for that run's `busy` instead of giving
    up. Before, the old run paid for every remaining window and then painted over the new lecture.
+10. Progressive (1.7.5): `translateAllGroups` takes the window under the playhead first
+   (`opts.startAt`) and calls `opts.onWindow` after each one; `csShowTranslated` puts what is done on
+   screen and into `state.dubGroups` (untranslated lines show the English), `state.active` turns on
+   with the first window and `opts.onShown` starts the voice then. `applyTranslation` still rewrites
+   the track once at the end; `csGroupCues` memoises the segmentation per group so that pass does
+   not cut again. "Translating" in the UI is `csTranslating()` (the run holding `busy` belongs to the
+   current `navGen`); `disableTranslation` bumps `navGen` too. The popup's total is
+   `state.groupTotal`. Measured on a simulated 10-minute lecture (25 windows): Gemini replies waited
+   for before the first Vietnamese line 25 -> 1.
 
 **On-player layout (1.5.9).** Both quick menus are two sections built with `kit.buildSection`
 ("Phụ đề": switch, display mode, size, skip; "Giọng đọc": switch with `describeHealth`, voice,

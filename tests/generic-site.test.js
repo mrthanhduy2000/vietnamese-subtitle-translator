@@ -48,7 +48,7 @@ test("no broad host permission: other sites only through activeTab", () => {
 test("content.js serves generic pages through the Coursera track path", () => {
     const cs = read("content.js");
     assert.match(cs, /return "generic";/);
-    assert.match(cs, /if \(isTrackSite\(site\)\) \{\s*success = await translateTrackSite\(\);/);
+    assert.match(cs, /if \(isTrackSite\(site\)\) \{\s*success = await translateTrackSite\((?:opts)?\);/);
     // tracks added with addTextTrack() (no <track> element) are picked up, metadata/chapters are not
     assert.match(cs, /Array\.from\(v\.textTracks \|\| \[\]\)/);
     assert.match(cs, /tt\.kind !== "metadata" && tt\.kind !== "chapters"/);

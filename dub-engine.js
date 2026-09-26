@@ -234,7 +234,8 @@
     // 5 (1.6.8): pause shaping v2 (comma pause follows the clause), gentler gate, longer segments
     // 6 (1.7.0): spectral hiss removal (AUDIO.denoise) before shaping
     // 7 (1.7.2): rumble cut, corrected hiss estimate, no gate, pauses at clause openings, 20 ms onset
-    const LOCAL_STYLE_VERSION = 7;
+    // 8 (1.7.5): pauses kept before adjunct openers (bằng cách, thông qua, dựa trên...)
+    const LOCAL_STYLE_VERSION = 8;
     // Free voice segmenting: whole sentences across translation groups, and a segment may run to
     // 11 s (paid: 8) before it is cut at a subtitle line. Every cut restarts the voice's intonation;
     // the free server renders ~4x faster than real time, so a longer segment costs ~3 s ahead.

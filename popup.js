@@ -124,7 +124,19 @@ document.addEventListener("DOMContentLoaded", async () => {
                 liveStatusText.textContent = "Coursera & YouTube";
             }
         }
-        veTrangThai(await docTrangThaiTrang(tab));
+        const st = await docTrangThaiTrang(tab);
+        veTrangThai(st);
+        // Read again while the translation is still going: the "Đã dịch x/y đoạn" bar was a snapshot
+        // taken when the popup opened and never moved (nor reached "Đã dịch xong"). Not awaited, so
+        // the rest of the popup is wired at once; the popup's own lifetime ends the loop.
+        const moving = x => !!x && (x.busy || (x.active && x.tong > 0 && x.xong < x.tong));
+        (async (cur) => {
+            for (let i = 0; i < 300 && moving(cur); i++) {
+                await new Promise(r => setTimeout(r, 1000));
+                cur = await docTrangThaiTrang(tab);
+                veTrangThai(cur);
+            }
+        })(st);
     } catch (e) {
         // Fallback gracefully
         liveStatusText.textContent = "Coursera & YouTube";

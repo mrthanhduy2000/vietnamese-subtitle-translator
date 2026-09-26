@@ -213,3 +213,128 @@ test("YouTube: opening another video while the first one loads never puts the fi
     assert.equal(E.run("yt.currentVideoId"), "bbb");
     assert.ok(E.run("yt.cues.every(c => c.text.startsWith('cap-bbb'))"), "the old video's captions are on the new one");
 });
+
+// ---- 1.7.5 ----
+
+// A 10-minute Coursera lecture (200 lines of ~60 characters) translated with the Gemini replies
+// released one at a time, so what the viewer sees can be checked after each reply
+async function courseraLecture(startAt) {
+    const cues = Array.from({ length: 200 }, (_, i) => ({ startTime: i * 3, endTime: i * 3 + 2.8, text: `Line ${i} says the gradient moves the weights a bit.` }));
+    const track = { srclang: "en", kind: "subtitles", label: "English", track: { mode: "disabled", cues, addCue() {}, removeCue() {} } };
+    const video = { currentTime: startAt, duration: 600, parentElement: null, getBoundingClientRect: () => ({ width: 0, height: 0 }) };
+    const sent = [], held = [];
+    const E = pageEnv({
+        timers: true, files: ["lang-detect.js", "context-engine.js"],
+        location: { href: "https://www.coursera.org/learn/ml/lecture/a", hostname: "www.coursera.org", pathname: "/learn/ml/lecture/a" },
+        tracks: () => [track],
+        querySelector: s => (s === "video" ? video : null),
+        sendMessage: (msg, cb) => {
+            if (msg.action !== "translateUnit") return cb && cb({ ok: true });
+            sent.push(msg);
+            held.push(() => cb({ ok: true, engine: "gemini", model: "m", translations: msg.sentences.map(s => `Dịch: ${s}`) }));
+        }
+    });
+    const tick = ms => new Promise(r => setTimeout(r, ms));
+    await tick(20);
+    const done = E.run("enableTranslation()");
+    return { E, sent, held, tick, done };
+}
+
+test("Coursera: the first translated lines show after the first Gemini reply, not after the whole lecture (1.7.5)", async () => {
+    const { E, sent, held, tick, done } = await courseraLecture(0);
+    let replies = 0, firstShown = 0;
+    while (true) {
+        for (let i = 0; i < 50 && !held.length; i++) await tick(2);
+        if (!held.length) break;
+        held.shift()();
+        replies++;
+        await tick(5);
+        if (!firstShown && E.run("cs.viCues.length") > 0) {
+            firstShown = replies;
+            assert.equal(E.run("state.active"), true, "the button says on while the rest is translated");
+            assert.equal(E.run("csTranslating()"), true);
+            assert.equal(E.run("state.groupTotal"), E.run("state.contextSession.units.length"), "the popup gets the lecture's real total");
+        }
+    }
+    await done;
+    assert.ok(replies >= 8, `${replies} windows`);
+    assert.equal(firstShown, 1, `the first line showed after ${firstShown} of ${replies} replies`);
+    assert.equal(E.run("csTranslating()"), false);
+    assert.equal(E.run("cs.viCues.length") > 150, true, "the whole lecture at the end");
+    assert.equal(sent.length, replies, "no window sent twice");
+});
+
+test("Coursera: a lecture resumed at 5:00 translates the lines at 5:00 first (1.7.5)", async () => {
+    const { E, sent, held, tick } = await courseraLecture(300);
+    for (let i = 0; i < 50 && !sent.length; i++) await tick(2);
+    assert.match(sent[0].sentences.join(" "), /Line 10\d /, "the first window sent is the one under the playhead");
+    held.shift()();
+    await tick(5);
+    assert.ok(E.run("cs.viCues.some(c => c.start <= 300 && c.end >= 300)"), "the line on screen now is Vietnamese");
+    E.run("disableTranslation()");                                   // turned off mid-lecture
+    const before = sent.length;
+    held.splice(0).forEach(f => f());
+    await tick(30);
+    assert.ok(sent.length - before <= 1, "a switched-off lecture kept sending windows");
+    assert.equal(E.run("state.active"), false);
+    assert.equal(E.run("csTranslating()"), false, "the button would still spin for a run turned off");
+});
+
+test("Coursera: the button is redrawn once the translation is over, not left spinning (1.7.5, seen in 1.7.4)", async () => {
+    const { E, held, tick, done } = await courseraLecture(0);
+    E.sandbox.__draws = [];
+    E.run("csUpdateButton = status => __draws.push({ status, busy: state.busy, active: state.active })");
+    for (let n = 0; n < 60; n++) { for (let i = 0; i < 20 && !held.length; i++) await tick(2); if (!held.length) break; held.shift()(); }
+    await done;
+    const last = E.sandbox.__draws[E.sandbox.__draws.length - 1];
+    assert.equal(last.busy, false, "the last draw of the button happened while `busy` still held");
+    assert.equal(last.active, true);
+});
+
+test("popup: the translation progress keeps moving while the popup is open, and the buttons are wired at once (1.7.5)", async () => {
+    const els = new Map();
+    const el = id => {
+        if (!els.has(id)) {
+            const handlers = {};
+            els.set(id, {
+                id, hidden: false, textContent: "", innerHTML: "", checked: false, disabled: false, style: {}, dataset: {}, className: "",
+                classList: { add() {}, remove() {}, toggle() {}, contains: () => false },
+                addEventListener: (t, f) => { handlers[t] = f; }, handlers, setAttribute() {}, getAttribute: () => null,
+                querySelector: () => el(`${id} >`), querySelectorAll: () => [], appendChild() {}
+            });
+        }
+        return els.get(id);
+    };
+    let xong = 10;
+    const ready = [];
+    const sandbox = {
+        console: { log() {}, warn() {}, error: console.error },
+        setTimeout: (f, ms) => setTimeout(f, (ms || 0) / 100), clearTimeout, setInterval: () => 0, clearInterval() {},
+        Promise, Math, JSON, Date, URLSearchParams,
+        document: {
+            addEventListener: (t, f) => { if (t === "DOMContentLoaded") ready.push(f); },
+            getElementById: el, querySelector: s => el(s), querySelectorAll: () => [], createElement: () => el(`new${Math.random()}`), body: el("body")
+        },
+        chrome: {
+            storage: { sync: { get: async d => d, set: async () => {} }, onChanged: { addListener() {} } },
+            tabs: {
+                query: async () => [{ id: 7, url: "https://www.coursera.org/learn/ml/lecture/a" }],
+                sendMessage: async (id, m) => (m.method === "getStatus"
+                    ? { site: "coursera", title: "Bài 1", active: true, busy: xong < 100, dub: { on: false }, xong: Math.min(100, xong += 30), tong: 100 }
+                    : { ok: true })
+            },
+            runtime: { lastError: null, sendMessage: (m, cb) => cb && cb({ ok: false }), getManifest: () => ({ version: "x" }), openOptionsPage() {}, getURL: p => p }
+        }
+    };
+    sandbox.window = sandbox;
+    vm.createContext(sandbox);
+    vm.runInContext(read("popup.js"), sandbox);
+    const run = ready[0]();
+    const first = await Promise.race([run.then(() => "done"), new Promise(r => setTimeout(() => r("stuck"), 200))]);
+    assert.equal(first, "done", "the popup's setup waited for the progress loop");
+    assert.ok(el("translateBtn").handlers.click, "the translate button is wired");
+    const seen = new Set([el("nowCount").textContent]);
+    for (let i = 0; i < 40 && el("nowCount").textContent !== "Đã dịch xong"; i++) { await new Promise(r => setTimeout(r, 10)); seen.add(el("nowCount").textContent); }
+    assert.equal(el("nowCount").textContent, "Đã dịch xong", [...seen].join(" | "));
+    assert.ok(seen.size >= 3, `the bar moved through ${[...seen].join(" | ")}`);
+});

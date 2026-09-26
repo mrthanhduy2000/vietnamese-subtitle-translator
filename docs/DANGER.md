@@ -127,6 +127,8 @@ await: `translateTrackSite` (`state.navGen`, bumped by `watchNavigation`), `ytBa
 (`stale()`: `yt.huyDich` / `yt.dead` / the video id), `dubbing.js` `start` (`startSeq`). A missing
 check after one await was enough (1.7.4) for the old page's run to paint its subtitles over the new
 page, keep sending its lines to Gemini, and hold `busy` so the new page's auto-translate gave up.
-The auto-translate paths wait for a leftover `busy` instead of returning. `dub.starting` is handed
+The auto-translate paths wait for a leftover `busy` instead of returning. What the UI calls
+"translating" is `csTranslating()` (1.7.5): `busy` held by a run of the current `navGen`, never a run
+that was turned off or left behind; and the button is redrawn after `busy` clears. `dub.starting` is handed
 back in a `finally` for the same reason: left set by an early return, YouTube's auto-dub skipped
 every later video on the page.
