@@ -107,6 +107,12 @@ a Reload the viewer clicks Translate again).
    subtitled** (auto: silent; by hand: a toast with "Vẫn dịch" = `ytBatDauDich({ force: true })`),
    and the check runs before the translation cache. `ytChonTrack(tracks, skip, { spoken, audio })`
    drops ASR tracks in an AI-dubbed audio language and prefers the spoken language's tracks.
+   **YouTube's Vietnamese AI dub (1.7.0):** `CST_LANG.hearsVietnameseDub(audio)` (current track is an
+   auto-dub in Vietnamese, original is not) stops `ytBatDauDich` too, with a toast whose action
+   `ytChonAmThanhGoc` asks the bridge (`CHON_AM_THANH_GOC` -> `player.setAudioTrack`) for the original
+   audio, then translates and dubs. The bridge polls `getAudioTrack` once a second and posts
+   `AM_THANH_DOI` on a switch; `ytKhiDoiAmThanh` stops our subtitles and voice when the viewer moves
+   onto the Vietnamese dub, and re-runs the opening checks when they move off it.
 3. `ytHoiNoiDungPhuDe` asks the bridge to fetch the track; `ytDocNoiDungPhuDe` parses it.
    Auto-generated tracks carry per-word timings, which the segmenter uses.
 4. `ytChayTienTrinhPrefetch` runs a 2-worker sliding-window pool over `ytDichNhom`, staying

@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.7.0", luc: "21:05 26/09/2026", ten: "Không chồng giọng lên bản lồng tiếng AI tiếng Việt của YouTube",
+            y: [
+                "Video nước ngoài mà YouTube đang phát bằng giọng lồng tiếng AI tiếng Việt: tiện ích không hiện phụ đề dịch và không lồng tiếng thêm, vì bạn đã nghe tiếng Việt, tránh hai giọng đè nhau.",
+                "Thông báo nhỏ có nút \"Dùng tiếng gốc + giọng tiện ích\": bấm là trình phát chuyển về tiếng gốc, rồi tiện ích dịch phụ đề và lồng tiếng như bình thường.",
+                "Đổi đường tiếng giữa chừng cũng được theo dõi: chuyển sang lồng tiếng AI tiếng Việt thì phụ đề và giọng của tiện ích tự tắt; chuyển về tiếng gốc thì tiện ích tự dịch lại (nếu đang bật Tự động dịch)."
+            ]
+        },
+        {
             v: "1.6.9", luc: "21:00 26/09/2026", ten: "Nhận diện đúng video tiếng Việt, không phụ đề video tiếng Việt",
             y: [
                 "Sửa lỗi dịch nhầm video tiếng Việt: YouTube nay tự lồng tiếng AI cho nhiều video (ví dụ bản tin tiếng Việt có thêm đường tiếng Anh tự động), kèm phụ đề tự động tiếng Anh của bản lồng tiếng đó. Tiện ích từng lấy phụ đề tiếng Anh này, tưởng video nói tiếng Anh, rồi dịch ngược sang tiếng Việt.",

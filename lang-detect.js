@@ -118,7 +118,13 @@
         return { lang: "unknown", confidence: 0, source: "none" };
     }
 
-    const api = { normCode, detectText, decide, spokenLanguage, TRANSLATED_MARK };
+    // The viewer is listening to YouTube's own AI dub in Vietnamese (the original is another
+    // language): they already hear Vietnamese, so our subtitles and our voice would only double it.
+    function hearsVietnameseDub(audio) {
+        return !!(audio && audio.currentDubbed && normCode(audio.current) === "vi" && normCode(audio.original) !== "vi");
+    }
+
+    const api = { normCode, detectText, decide, spokenLanguage, hearsVietnameseDub, TRANSLATED_MARK };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_LANG = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

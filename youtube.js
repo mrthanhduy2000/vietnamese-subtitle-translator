@@ -1009,6 +1009,61 @@ function ytHienThiNguyenTiengViet(viCues) {
 // ---------- Tự động dịch khi mở video ----------
 // Ngôn ngữ nguồn: track phụ đề tự động (= ngôn ngữ đang nói) > track duy nhất > mẫu nội dung.
 // Nhận diện ngay trên máy, không gọi Gemini. Tiếng Việt / không chắc chắn -> không tự dịch.
+// ---------- YouTube's own AI dub in Vietnamese ----------
+// Ask the bridge to switch the player back to the original audio track (true when it did).
+function ytChonAmThanhGoc(timeoutMs = 2500) {
+    return new Promise(resolve => {
+        const requestId = `cstam_${Date.now()}_${yt.requestSeq++}`;
+        const onMessage = event => {
+            if (event.source !== window) return;
+            const d = event.data;
+            if (!d || d.cstType !== "TRA_LOI_AM_THANH_GOC" || d.requestId !== requestId) return;
+            window.removeEventListener("message", onMessage);
+            clearTimeout(timer);
+            resolve(!!d.ok);
+        };
+        const timer = setTimeout(() => { window.removeEventListener("message", onMessage); resolve(false); }, timeoutMs);
+        window.addEventListener("message", onMessage);
+        window.postMessage({ cstType: "CHON_AM_THANH_GOC", requestId }, "*");
+    });
+}
+
+// Say it once per video when it happened on its own, every time when the viewer asked. The action
+// switches to the original audio, then translates and dubs as usual.
+function ytBaoLongTiengYouTube(videoId, always) {
+    if (!always && yt.dubNoticeFor === videoId) return;
+    yt.dubNoticeFor = videoId;
+    ytBao("Video đang phát bằng giọng lồng tiếng AI tiếng Việt của YouTube, nên tiện ích không hiện phụ đề và không lồng tiếng thêm.", {
+        actionLabel: "Dùng tiếng gốc + giọng tiện ích",
+        onAction: async () => {
+            if (!(await ytChonAmThanhGoc())) { ytBao("Chưa đổi được sang tiếng gốc. Hãy chọn tiếng gốc trong Cài đặt của trình phát (biểu tượng bánh răng > Âm thanh).", { warn: true }); return; }
+            const ok = await ytBatDauDich({ force: true });
+            ytDatTrangThaiNut(ok ? "on" : "idle");
+            if (ok) await ytTuBatLongTieng();
+        }
+    });
+}
+
+// The bridge reports an audio-track switch. Onto the Vietnamese AI dub: our subtitles and voice
+// step aside. Off it: translate as on opening the video (the language checks run again).
+function ytKhiDoiAmThanh(msg) {
+    const LANG = window.CST_LANG;
+    if (yt.dead || !LANG || !LANG.hearsVietnameseDub || (msg.videoId && msg.videoId !== ytLayMaVideo())) return;
+    const api = window.CST_DUB;
+    if (LANG.hearsVietnameseDub(msg.audio)) {
+        const dubbing = !!(api && api.dub && api.dub.enabled);
+        if (!yt.active && !dubbing) return;
+        if (dubbing) { api.stop(); ytDatTrangThaiNutLongTieng(false); }
+        if (yt.active) { ytTatDich(); ytDatTrangThaiNut("idle"); }
+        ytBaoLongTiengYouTube(msg.videoId || ytLayMaVideo(), true);
+        return;
+    }
+    if (!yt.active && !yt.busy && ytSettings.autoTranslate) {
+        yt.autoTried = null;
+        ytTuDongDich();
+    }
+}
+
 // The language spoken in the video (CST_LANG.spokenLanguage: original audio track, then ASR, then
 // title). Confident enough -> decides alone; a spoken-Vietnamese video is never subtitled.
 function ytNgonNguNoi(info) {
@@ -1115,6 +1170,13 @@ async function ytBatDauDich(opts = {}) {
                 ytBao("Video này nói tiếng Việt nên tiện ích không dịch phụ đề.",
                     { actionLabel: "Vẫn dịch", onAction: () => { ytBatDauDich({ force: true }).then(ok => ytDatTrangThaiNut(ok ? "on" : "idle")); } });
             }
+            return false;
+        }
+        // The viewer is listening to YouTube's own Vietnamese AI dub: they already hear Vietnamese.
+        // Our subtitles and our voice would only double it; offer to switch to the original audio.
+        if (!opts.force && window.CST_LANG && window.CST_LANG.hearsVietnameseDub && window.CST_LANG.hearsVietnameseDub(info.audio)) {
+            console.log("[AI Subtitle] Đang phát giọng lồng tiếng AI tiếng Việt của YouTube, không dịch, không lồng tiếng thêm");
+            ytBaoLongTiengYouTube(info.videoId, !opts.auto);
             return false;
         }
 
@@ -1957,6 +2019,9 @@ async function ytKhoiDong() {
     ytTheoDoi();
     // Tự dịch sớm; ytTuDongDich tự chờ trình phát có danh sách phụ đề
     setTimeout(ytTuDongDich, 400);
+    window.addEventListener("message", event => {
+        if (event.source === window && event.data && event.data.cstType === "AM_THANH_DOI") ytKhiDoiAmThanh(event.data);
+    });
     ytDonCache(); // xoa cache phien ban cu (co the chua ma giu cho bi lot)
     console.log("Da san sang dich phu de YouTube");
 }

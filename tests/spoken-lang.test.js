@@ -70,3 +70,25 @@ test("wiring: the bridge reports audio tracks, a spoken-Vietnamese video stops b
     assert.match(yt, /actionLabel: "Vẫn dịch", onAction: \(\) => \{ ytBatDauDich\(\{ force: true \}\)/);
     assert.match(yt, /action: sp\.lang === "vi" \? "skip" : "translate"/);
 });
+
+// 1.7.0: an English video played with YouTube's own Vietnamese AI dub
+test("hearing YouTube's Vietnamese AI dub is recognised; the original Vietnamese or another dub is not", () => {
+    assert.equal(L.hearsVietnameseDub({ original: "en", current: "vi", currentDubbed: true }), true);
+    assert.equal(L.hearsVietnameseDub({ original: "", current: "vi", currentDubbed: true }), true, "original unknown");
+    assert.equal(L.hearsVietnameseDub({ original: "en", current: "en", currentDubbed: false }), false);
+    assert.equal(L.hearsVietnameseDub({ original: "vi", current: "vi", currentDubbed: false }), false, "a Vietnamese video is the other rule");
+    assert.equal(L.hearsVietnameseDub({ original: "vi", current: "en-US", currentDubbed: true }), false);
+    assert.equal(L.hearsVietnameseDub(undefined), false);
+});
+
+test("wiring: gate, audio-switch messages and the switch back to the original audio", () => {
+    const yt = read("youtube.js"), bridge = read("yt-bridge.js");
+    const gate = yt.indexOf("window.CST_LANG.hearsVietnameseDub(info.audio)");
+    assert.ok(gate > 0 && gate < yt.indexOf("const cache = await ytDocCache(yt.currentVideoId);"), "dub gate must run before the cache");
+    assert.match(yt, /actionLabel: "Dùng tiếng gốc \+ giọng tiện ích"/);
+    assert.match(yt, /cstType === "AM_THANH_DOI"\) ytKhiDoiAmThanh\(event\.data\)/);
+    assert.match(yt, /if \(dubbing\) \{ api\.stop\(\); ytDatTrangThaiNutLongTieng\(false\); \}/);
+    assert.match(bridge, /cstType: "AM_THANH_DOI"/);
+    assert.match(bridge, /data\.cstType === "CHON_AM_THANH_GOC"/);
+    assert.match(bridge, /player\.setAudioTrack\(orig\)/);
+});

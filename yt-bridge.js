@@ -237,10 +237,47 @@
         return { text, via: "pot", reason: text ? "" : "empty-with-pot" };
     }
 
+    // Switch the player back to the original (not AI-dubbed) audio track. Measured on 3lY0eRQhYkY:
+    // setAudioTrack(track object from getAvailableAudioTracks()) returns true and takes effect.
+    function chonAmThanhGoc() {
+        try {
+            const player = document.querySelector("#movie_player");
+            if (!player || typeof player.getAvailableAudioTracks !== "function" || typeof player.setAudioTrack !== "function") return false;
+            const list = player.getAvailableAudioTracks() || [];
+            const orig = list.find(t => { const d = describeAudioTrack(t); return d && d.isDefault && !d.isAutoDubbed; }) ||
+                list.find(t => { const d = describeAudioTrack(t); return d && !d.isAutoDubbed; });
+            return orig ? !!player.setAudioTrack(orig) : false;
+        } catch (e) { return false; }
+    }
+
+    // Tell the content script when the viewer switches audio track (to or from an AI dub): once a
+    // second, a read of the current track, a message only on change. Cheap, and there is no public
+    // player event for it.
+    let lastAudioKey = null;
+    if (typeof setInterval === "function") setInterval(() => {
+        try {
+            const player = document.querySelector("#movie_player");
+            if (!player || typeof player.getAudioTrack !== "function") return;
+            const cur = describeAudioTrack(player.getAudioTrack());
+            const key = cur ? `${cur.lang}|${cur.isAutoDubbed}` : "";
+            if (key === lastAudioKey) return;
+            const first = lastAudioKey === null;
+            lastAudioKey = key;
+            if (first || !cur) return;
+            const vid = (typeof player.getVideoData === "function" && player.getVideoData() || {}).video_id || "";
+            window.postMessage({ cstType: "AM_THANH_DOI", videoId: vid, audio: docAmThanh(player.getPlayerResponse ? player.getPlayerResponse() : null) }, "*");
+        } catch (e) { /* player not ready */ }
+    }, 1000);
+
     window.addEventListener("message", event => {
         if (event.source !== window) return;
         const data = event.data;
         if (!data) return;
+
+        if (data.cstType === "CHON_AM_THANH_GOC") {
+            window.postMessage({ cstType: "TRA_LOI_AM_THANH_GOC", requestId: data.requestId, ok: chonAmThanhGoc() }, "*");
+            return;
+        }
 
         if (data.cstType === "YEU_CAU_PHU_DE") {
             let ketQua;
