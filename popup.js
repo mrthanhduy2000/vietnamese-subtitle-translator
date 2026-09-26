@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!card) return false;
         if (!st || !(st.active || st.busy || (st.dub && st.dub.on))) { card.hidden = true; return false; }
         const $ = id => document.getElementById(id);
-        $("nowSite").textContent = st.site === "youtube" ? "YouTube" : "Coursera";
+        $("nowSite").textContent = st.site === "youtube" ? "YouTube" : st.site === "coursera" ? "Coursera" : (st.host || "Trang video");
         $("nowTitle").textContent = st.title || "";
         $("nowTitle").hidden = !st.title;
         const hasProgress = st.tong > 0 && (st.active || st.busy);
@@ -126,6 +126,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 liveStatusText.textContent = "YouTube video";
                 const fb = document.getElementById("forgetAudio");
                 if (fb) fb.hidden = false;
+            } else if (/^https?:/.test(tab.url)) {
+                liveStatusText.textContent = "Trang video khác";
             } else {
                 liveStatusText.textContent = "Coursera & YouTube";
             }
@@ -226,8 +228,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         try {
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-            if (!tab || !/coursera\.org|youtube\.com/.test(tab.url || "")) {
-                showStatus("Hãy mở bài giảng Coursera hoặc video YouTube trước khi dịch.", "error");
+            // Any http(s) page: clicking here grants activeTab, which is what lets the scripts be
+            // injected into a site the manifest does not list (see injectGenericPage in background.js)
+            if (!tab || !/^https?:/.test(tab.url || "")) {
+                showStatus("Hãy mở một trang có video (Coursera, YouTube hoặc trang video khác) trước khi dịch.", "error");
                 return;
             }
 
@@ -259,7 +263,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
                 // Nạp ĐỦ các tệp theo đúng thứ tự trong manifest (trước đây chỉ 4 tệp -> thiếu
                 // kiểu phụ đề, bộ lập lịch, ... : lỗi CST_STYLE / ytSettings, mất phụ đề và giọng)
-                const iso = (chrome.runtime.getManifest().content_scripts || []).find(g => g.world !== "MAIN" && (g.matches || []).some(m => m.includes(tab.url.includes("coursera.org") ? "coursera.org" : "youtube.com")));
+                const iso = (chrome.runtime.getManifest().content_scripts || []).find(g => g.world !== "MAIN" && (g.js || []).includes("content.js"));
                 await chrome.scripting.executeScript({
                     target: { tabId: tab.id },
                     files: iso ? iso.js : ["glossary.js", "dubbing.js", "content.js", "youtube.js"]

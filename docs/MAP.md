@@ -23,7 +23,7 @@ dub-engine.js -> dubbing.js -> content.js -> youtube.js
 | File | Lines | Role | Global export |
 |---|---|---|---|
 | `youtube.js` | 1924 | YouTube engine: bridge handshake, track pick, timedtext parse, self-drawn overlay, prefetch pool, controls + quick menu | none (same-world sibling of `content.js`, reads its `state`) |
-| `content.js` | 1454 | Coursera engine **plus** the shared toast/messaging layer both sites use | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
+| `content.js` | 2090 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
 | `options.html` | 1405 | Settings page, 4 tabs. ~810 lines are inline `<style>`; markup is only the rest | n/a |
 | `dub-engine.js` | 1269 | TTS providers + scheduler + video-clock sync + audio ducking | `CST_DUB_ENGINE` |
 | `background.js` | 1256 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access | n/a (message router) |

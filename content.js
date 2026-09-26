@@ -106,7 +106,14 @@ function getCurrentSite() {
     if (url.includes("coursera.org")) return "coursera";
     // YouTube do youtube.js lo, vi phu de o do hoat dong theo co che khac han
     if (url.includes("youtube.com")) return "youtube";
-    return null;
+    // Any other page: the scripts only get here when the viewer asked for it (popup button or a
+    // shortcut injects them through activeTab), and the page is served by the shared <video> path
+    return "generic";
+}
+
+// Coursera and every other page share one pipeline: a <video> with standard text tracks
+function isTrackSite(site) {
+    return site === "coursera" || site === "generic";
 }
 
 // ---------- Chen CSS gioi han kich thuoc phu de ----------
@@ -389,7 +396,8 @@ function logEngine(response, n) {
 // opts: { tier: "cheap" | "strong", wantTerms, refine: { draft:[], issues:[] } }
 // Video đang xem (để tính chi phí ước tính theo từng video, chỉ lưu trên máy)
 function currentVideoMeta() {
-    let key = location.pathname;
+    // generic pages: host + path, so "/watch" on two different sites is not one video
+    let key = getCurrentSite() === "generic" ? location.hostname + location.pathname : location.pathname;
     try { const v = new URL(location.href).searchParams.get("v"); if (v) key = "yt:" + v; } catch (e) { /* bỏ qua */ }
     const video = document.querySelector("video");
     return { videoKey: key, videoSec: video && isFinite(video.duration) ? Math.round(video.duration) : 0, videoTitle: String(document.title || "").slice(0, 80) };
@@ -609,8 +617,27 @@ async function translateAllGroups(session, groups, onProgress) {
 }
 
 // ---------- Chon track phu de ----------
+// A caption track as the rest of this file reads it: { track: TextTrack, srclang, kind, label }.
+// <track> elements already have that shape. Players such as video.js, Plyr or hls.js often add
+// tracks with addTextTrack() and no element, so on generic pages those are wrapped the same way.
+function trackWrap(tt) {
+    return { track: tt, srclang: tt.language || "", kind: tt.kind || "", label: tt.label || "" };
+}
+
+function pageTracks() {
+    const els = Array.from(document.getElementsByTagName("track"));
+    if (getCurrentSite() !== "generic") return els;          // Coursera: exactly as before
+    const v = csVideo();
+    if (!v) return [];
+    const own = els.filter(t => v.contains(t));
+    const seen = new Set(own.map(t => t.track));
+    const extra = Array.from(v.textTracks || []).filter(tt => !seen.has(tt) && !/^cst/i.test(tt.label || "")
+        && tt.kind !== "metadata" && tt.kind !== "chapters" && tt.kind !== "descriptions");
+    return own.concat(extra.map(trackWrap));
+}
+
 function pickBestTrack() {
-    const tracks = Array.from(document.getElementsByTagName("track"));
+    const tracks = pageTracks();
     if (tracks.length === 0) return null;
 
     const usable = tracks.filter(t => {
@@ -903,14 +930,34 @@ function courseraMeta() {
     };
 }
 
-async function translateCoursera() {
+// Title and context for a page that is neither Coursera nor YouTube
+function genericMeta() {
+    const og = document.querySelector('meta[property="og:title"]');
+    const h1 = document.querySelector("h1");
+    const title = ((og && og.content) || (h1 && h1.textContent) || document.title || "").trim().slice(0, 160);
+    const host = location.hostname.replace(/^www\./, "");
+    const first = (location.pathname.split("/").filter(Boolean)[0] || "").slice(0, 60);
+    return { title, course: "", channel: host, courseKey: `generic_${host}_${first}` };
+}
+
+// Coursera and generic pages: translate the video's own text track
+async function translateTrackSite() {
+    const generic = getCurrentSite() === "generic";
+    if (generic && !csVideo()) {
+        cstToast("Trang này không có video nào để dịch phụ đề.", { warn: true });
+        return false;
+    }
     const picked = pickBestTrack();
     if (!picked) {
-        cstToast("Không tìm thấy phụ đề cho video này. Hãy bật phụ đề (CC) trên trình phát rồi bấm dịch lại.", { warn: true });
+        cstToast(generic
+            ? "Video trên trang này không có phụ đề chuẩn mà tiện ích đọc được. Hãy bật phụ đề (CC) trên trình phát rồi thử lại; nếu trang tự vẽ phụ đề riêng hoặc đặt video trong khung nhúng thì tiện ích chưa hỗ trợ."
+            : "Không tìm thấy phụ đề cho video này. Hãy bật phụ đề (CC) trên trình phát rồi bấm dịch lại.", { warn: true });
         return false;
     }
     if (picked.alreadyVietnamese) {
-        cstToast("Khóa học này đã có phụ đề tiếng Việt chính thức, chất lượng tốt hơn dịch máy. Hãy chọn Vietnamese trong menu phụ đề của trình phát.");
+        cstToast(generic
+            ? "Video này đã có phụ đề tiếng Việt. Hãy chọn tiếng Việt trong menu phụ đề của trình phát."
+            : "Khóa học này đã có phụ đề tiếng Việt chính thức, chất lượng tốt hơn dịch máy. Hãy chọn Vietnamese trong menu phụ đề của trình phát.");
         return false;
     }
 
@@ -936,7 +983,7 @@ async function translateCoursera() {
     console.log(`Da gom ${cues.length} dong phu de thanh ${groups.length} nhom dich`);
 
     // Ngu canh bai giang: tieu de, ten khoa hoc (tu duong dan), thuat ngu da dung o cac bai truoc
-    const meta = courseraMeta();
+    const meta = generic ? genericMeta() : courseraMeta();
     const session = await createContextSession(meta, meta.courseKey);
     session.setUnits(groups.map(g => g.text));
     state.contextSession = session;
@@ -965,8 +1012,8 @@ async function enableTranslation() {
     try {
         const site = getCurrentSite();
         let success = false;
-        if (site === "coursera") {
-            success = await translateCoursera();
+        if (isTrackSite(site)) {
+            success = await translateTrackSite();
         } else if (site === "youtube") {
             if (typeof ytBatDauDich === "function") {
                 success = await ytBatDauDich();
@@ -1031,7 +1078,18 @@ const CS_OVERLAY = `.cst-cs-overlay[data-cst-gen="${CS_GEN}"]`;
 const cs = { viCues: [], origCues: [], renderKey: "", raf: 0, timer: 0, styleKey: "", panelOpen: false, menuOpen: false, edits: null };
 
 function csVideo() {
-    return document.querySelector("video");
+    if (getCurrentSite() !== "generic") return document.querySelector("video");
+    // Generic pages can hold several videos (previews, ads, a muted hero loop): take the biggest
+    // one on screen, a playing one first
+    let best = null, bestScore = 0;
+    for (const v of document.querySelectorAll("video")) {
+        const r = v.getBoundingClientRect();
+        const area = Math.max(0, r.width) * Math.max(0, r.height);
+        if (area < 120 * 68) continue;
+        const score = area * (v.paused ? 1 : 2);
+        if (score > bestScore) { bestScore = score; best = v; }
+    }
+    return best;
 }
 
 // Coursera's class names are hashed and change between deploys, so the control bar is found by
@@ -1075,7 +1133,38 @@ function csPlayerBox() {
     const parts = csPlayerParts();
     if (parts) return parts.box;
     const v = csVideo();
-    return v ? v.parentElement : null;
+    if (!v) return null;
+    return getCurrentSite() === "generic" ? csFrame(v) : v.parentElement;
+}
+
+// Generic page, no control bar found: the video's parent can be much bigger than the picture
+// (an article column), so the overlay, the button and the menu live in a transparent frame laid
+// exactly over the video. csRender keeps it aligned when the page reflows.
+function csFrame(v) {
+    const parent = v.parentElement;
+    if (!parent) return null;
+    let f = parent.querySelector(`.cst-cs-frame[data-cst-gen="${CS_GEN}"]`);
+    if (!f) {
+        csHideOlderGen(parent, ".cst-cs-frame");
+        if (getComputedStyle(parent).position === "static") parent.style.position = "relative";
+        f = document.createElement("div");
+        f.className = "cst-cs-frame";
+        f.dataset.cstGen = CS_GEN;
+        f.style.cssText = "position:absolute;pointer-events:none;z-index:2147483000;overflow:visible;";
+        parent.appendChild(f);
+    }
+    csAlignFrame(f, v);
+    return f;
+}
+
+function csAlignFrame(f, v) {
+    const pr = f.parentElement.getBoundingClientRect();
+    const vr = v.getBoundingClientRect();
+    const box = `${Math.round(vr.left - pr.left + f.parentElement.scrollLeft)},${Math.round(vr.top - pr.top + f.parentElement.scrollTop)},${Math.round(vr.width)},${Math.round(vr.height)}`;
+    if (f.dataset.box === box) return;
+    f.dataset.box = box;
+    const [x, y, w, h] = box.split(",");
+    f.style.left = `${x}px`; f.style.top = `${y}px`; f.style.width = `${w}px`; f.style.height = `${h}px`;
 }
 
 // Elements from an older generation of this script (after Reload) cannot work any more. Hide them,
@@ -1090,6 +1179,7 @@ function csHideOlderGen(root, selector) {
 function csCreateButton() {
     const kit = window.CST_PLAYER_UI;
     const ctl = csControlGroup();
+    if (kit && !ctl && getCurrentSite() === "generic") return csCreateFloatingButton(kit);
     if (!kit || !ctl) return null;
     csHideOlderGen(document, ".cst-translate-icon, .cst-dub-icon, .cst-cs-btn");
     const existing = document.querySelector(CS_BTN);
@@ -1114,6 +1204,32 @@ function csCreateButton() {
     wrap.style.cssText = "display:flex;align-items:center;justify-content:center;";
     wrap.appendChild(btn);
     ctl.group.insertBefore(wrap, ctl.before);
+    csUpdateButton();
+    return btn;
+}
+
+// Generic page without a control bar we can recognise (a bare <video controls>, a custom player):
+// the same button, floating in the top-right corner of the picture.
+function csCreateFloatingButton(kit) {
+    const box = csPlayerBox();
+    if (!box) return null;
+    csHideOlderGen(document, ".cst-cs-btn");
+    const existing = document.querySelector(CS_BTN);
+    if (existing && existing.isConnected) { csUpdateButton(); return existing; }
+    const btn = kit.taoNut(document, {
+        size: 28,
+        title: "Dịch phụ đề & lồng tiếng tiếng Việt",
+        className: "cst-cs-btn",
+        onClick: () => csOpenMenu(btn),
+        onDblClick: () => { if (state.active) disableTranslation(); else enableTranslation(); }
+    });
+    btn.dataset.cstGen = CS_GEN;
+    btn.dataset.cstFloat = "1";
+    btn.style.cssText += ";position:absolute;top:10px;right:10px;width:40px;height:40px;border-radius:10px;" +
+        "background:rgba(0,0,0,.55);pointer-events:auto;opacity:.75;transition:opacity .15s ease;z-index:3;";
+    btn.addEventListener("mouseenter", () => { btn.style.opacity = "1"; });
+    btn.addEventListener("mouseleave", () => { btn.style.opacity = ".75"; });
+    box.appendChild(btn);
     csUpdateButton();
     return btn;
 }
@@ -1272,9 +1388,16 @@ function csRender() {
     const v = csVideo();
     const ov = document.querySelector(CS_OVERLAY);
     if (!v || !ov) return;
-    // Coursera can switch its own captions back on; only one of us should be painting
+    // Coursera can switch its own captions back on; only one of us should be painting.
+    // Exception: a bare <video> in native fullscreen shows nothing but itself, so there the
+    // browser draws the Vietnamese cues (the track holds them) and our overlay steps aside.
     const track = state.activeTrack && state.activeTrack.track;
-    if (track && track.mode !== "hidden") track.mode = "hidden";
+    const nativeFull = typeof document !== "undefined" && document.fullscreenElement === v;
+    if (track) {
+        const want = nativeFull ? "showing" : "hidden";
+        if (track.mode !== want) track.mode = want;
+    }
+    ov.style.visibility = nativeFull ? "hidden" : "";
     const box = csPlayerBox();
     if (box && cs.styleKey && !cs.styleKey.startsWith(`${box.clientWidth}x${box.clientHeight}|`)) csApplyOverlayStyle(ov);
     const t = v.currentTime;
@@ -1368,7 +1491,7 @@ function csSubtitleSource() {
     if (!el) return null;
     const label = `${el.label || ""} ${el.srclang || ""}`.toLowerCase();
     if (/auto/.test(label)) return { nhan: "Phụ đề máy nghe tự động", canhBao: true };
-    return { nhan: "Phụ đề của khoá học", canhBao: false };
+    return { nhan: getCurrentSite() === "generic" ? "Phụ đề của trình phát" : "Phụ đề của khoá học", canhBao: false };
 }
 
 // ---- The quick menu, the same panel YouTube shows ----
@@ -1606,7 +1729,7 @@ async function toggleDubbing(container) {
         if (!state.active) return;
     }
 
-    const videoEl = container.querySelector("video") || document.querySelector("video");
+    const videoEl = csVideo() || container.querySelector("video");
     const ok = await api.start({ video: videoEl, container, getGroups: () => state.dubGroups || [] });
     csUpdateButton();
     if (ok) rememberDub(true);
@@ -1621,8 +1744,8 @@ function rememberDub(on) {
 // Coursera: đã dịch xong và lồng tiếng đang được bật -> tự bật, không hộp thoại
 async function courseraAutoDub() {
     const api = window.CST_DUB;
-    if (getCurrentSite() !== "coursera" || !state.dubEnabled || !api || api.dub.enabled || state.dubStarting || !state.active) return false;
-    const videoEl = document.querySelector("video");
+    if (!isTrackSite(getCurrentSite()) || !state.dubEnabled || !api || api.dub.enabled || state.dubStarting || !state.active) return false;
+    const videoEl = csVideo();
     if (!videoEl) return false;
     const icon = document.querySelector(`.cst-dub-icon[data-cst-gen="${CS_GEN}"]`);
     const container = (icon && icon.parentElement) || videoEl.parentElement;
@@ -1780,7 +1903,7 @@ async function init() {
                 if (changes.dubAutoRate) state.dubAutoRate = changes.dubAutoRate.newValue;
                 if (changes.dubEnabled) {
                     state.dubEnabled = changes.dubEnabled.newValue !== false;
-                    if (getCurrentSite() === "coursera") {
+                    if (isTrackSite(getCurrentSite())) {
                         if (state.dubEnabled) courseraAutoDub();
                         else if (window.CST_DUB && window.CST_DUB.dub.enabled) { window.CST_DUB.stop(); csUpdateButton(); }
                     }
@@ -1797,6 +1920,16 @@ async function init() {
     }
     injectCueStyle();
     csCreateButton();
+    if (getCurrentSite() === "generic") {
+        // a player often sizes its <video> only after metadata loads, and a quiet page may not
+        // mutate again: keep trying for a while instead of waiting for the body observer
+        let tries = 0;
+        const again = setInterval(() => {
+            if (state.dead || document.querySelector(CS_BTN) || ++tries > 30) { clearInterval(again); return; }
+            csCreateButton();
+        }, 1000);
+        state.intervals.push(again);
+    }
 
     // Coursera rebuilds its control bar on navigation; put the button back when it does. Checked
     // at most once per 150 ms (leading edge + one trailing check) instead of on every body mutation.
@@ -1832,6 +1965,8 @@ async function init() {
 // Chỉ khi phụ đề KHÔNG phải tiếng Việt và nhận diện đủ chắc (nhận diện trên máy,
 // không gọi Gemini). Tắt "Tự động dịch" thì vẫn bấm nút dịch tay được.
 async function courseraAutoTranslate() {
+    // generic pages: the viewer just asked for a translation, nothing to decide automatically
+    if (getCurrentSite() !== "coursera") return null;
     if (!state.autoTranslate || state.active || state.busy) return null;
     const url = location.href;
     if (state.autoTriedUrl === url) return null;
@@ -1896,7 +2031,7 @@ async function xuLyPhimTat(command, site) {
         if (!dubApi) { cstToast("Trang này chưa bật được lồng tiếng."); return { ok: false }; }
         if (dubApi.dub.enabled) { dubApi.stop(); rememberDub(false); cstToast("Đã tắt lồng tiếng Việt."); return { ok: true, on: false }; }
         cstToast("Đang chuẩn bị lồng tiếng Việt…");
-        const videoEl = document.querySelector("video");
+        const videoEl = csVideo();
         await toggleDubbing((videoEl && videoEl.parentElement) || document.body);
         const on = !!(window.CST_DUB && window.CST_DUB.dub.enabled);
         cstToast(on ? "Đã bật lồng tiếng Việt." : "Chưa bật được lồng tiếng trên trang này.", { warn: !on });
@@ -1932,7 +2067,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             }
         }
 
-        if (!state.active) enableTranslation();
+        if (!state.active) {
+            enableTranslation().then(() => { if (state.active && site === "generic") courseraAutoDub(); });
+        }
         sendResponse({ method: "translate", status: "success" });
         return true;
     }
@@ -1954,6 +2091,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const dub = { on: !!(dubApi && dubApi.dub && dubApi.dub.enabled), voice: (st && st.voice) || "", label: (st && st.label) || "", health: health ? health.text : "", warn: !!(health && health.warn) };
         const title = site === "youtube"
             ? document.title.replace(/^\(\d+\)\s*/, "").replace(/\s*-\s*YouTube\s*$/i, "").trim()
+            : site === "generic" ? genericMeta().title
             : ((document.querySelector("h1") || {}).textContent || document.title.replace(/\s*\|\s*Coursera.*$/i, "")).trim();
         const demXong = gs => (gs || []).filter(g => g && g.viText).length;
         if (site === "youtube" && typeof yt !== "undefined") {
@@ -1962,7 +2100,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             return true;
         }
         const gs = state.dubGroups || [];
-        sendResponse({ site, title, active: state.active, busy: state.busy, dub, xong: demXong(gs), tong: gs.length });
+        sendResponse({ site, title, active: state.active, busy: state.busy, dub, xong: demXong(gs), tong: gs.length, host: location.hostname.replace(/^www\./, "") });
         return true;
     }
 });

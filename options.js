@@ -973,7 +973,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             head.className = "ver-head";
             const site = document.createElement("span");
             site.className = "ver-num";
-            site.textContent = r.videoKey.startsWith("yt:") ? "YouTube" : "Coursera";
+            // keys: "yt:<id>", a Coursera path ("/learn/..."), or "<host>/<path>" for other sites
+            site.textContent = r.videoKey.startsWith("yt:") ? "YouTube" : r.videoKey.startsWith("/") ? "Coursera" : r.videoKey.split("/")[0].replace(/^www\./, "");
             const title = document.createElement(r.url ? "a" : "span");
             title.className = "ver-name ed-video-title";
             title.textContent = r.title || r.videoKey;

@@ -68,12 +68,37 @@ talk, export `.srt` (bilingual when the display mode is bilingual). Both quick m
 source track is in use (`ytNguonPhuDe` / `csSubtitleSource`): machine-heard captions are the usual
 reason a translated line is wrong, and the label turns warning-coloured for them.
 
+## Generic video pages (`content.js`, 1.6.5)
+
+Any http(s) page that is not YouTube or Coursera: `getCurrentSite()` returns `"generic"` and
+`isTrackSite()` sends it down the Coursera path (`translateTrackSite`). Nothing is injected until the
+viewer asks: the popup's Translate button and the shortcuts grant `activeTab`, and
+`background.js` `injectGenericPage` probes for `CST_UI`, then injects the ISOLATED group from the
+manifest. There is no broad host permission, and `reinjectOpenTabs` does not touch these tabs (after
+a Reload the viewer clicks Translate again).
+
+- `csVideo()` takes the biggest visible `<video>` (playing ones count double); Coursera still takes the first.
+- `pageTracks()` adds the video's `textTracks` that have no `<track>` element (video.js, Plyr,
+  hls.js add them with `addTextTrack`), wrapped by `trackWrap` into the `{ track, srclang, kind, label }`
+  shape of a `<track>` element; metadata, chapters, descriptions are skipped.
+- No control bar found by `csPlayerParts`: `csPlayerBox()` returns `csFrame(v)`, a transparent
+  absolutely-positioned frame over the picture (re-aligned by `csAlignFrame` on every render), and
+  `csCreateFloatingButton` puts the button in its top-right corner. `init` retries the button for 30 s
+  because players size the video after metadata loads.
+- Native fullscreen of a bare `<video>` shows only the element, so `csRender` sets the track (which
+  holds the Vietnamese cues) to `showing` there and hides the overlay.
+- `genericMeta()` gives the translation context (og:title / h1, host as channel). Cost and edit keys
+  are `host + path` (`currentVideoMeta`, `dubbing.js` `videoMeta`).
+- Not supported, by design of this path: players inside a cross-origin `<iframe>` (Vimeo embeds,
+  edX units) and sites that draw captions in their own DOM with no text track (Udemy). Each needs a
+  site-specific source; see `BACKLOG.md`.
+
 ## YouTube flow (`youtube.js` + `yt-bridge.js`)
 
 `ytKhoiDong` -> `ytTheoDoi` (watches SPA navigation) -> `ytTuDongDich` -> `ytBatDauDich`:
 
-1. `ytDamBaoBridge` makes sure the MAIN-world bridge is alive (see `DANGER.md`: there are **two**
-   bridge implementations).
+1. `ytDamBaoBridge` makes sure the MAIN-world bridge is alive (one file, `yt-bridge.js`, injected by
+   the manifest or on request by the service worker; see `DANGER.md` item 2).
 2. `ytHoiDanhSachPhuDe` asks the bridge for the caption track list.
 3. `ytHoiNoiDungPhuDe` asks the bridge to fetch the track; `ytDocNoiDungPhuDe` parses it.
    Auto-generated tracks carry per-word timings, which the segmenter uses.

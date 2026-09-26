@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Generic video page harness</title>
+<meta property="og:title" content="Neural networks, a short lesson">
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; background: #f4f1ea; color: #222; }
+  article { max-width: 900px; margin: 24px auto; padding: 0 16px; }
+  video { width: 100%; max-width: 760px; display: block; background: #000; border-radius: 8px; }
+  .log { font: 12px ui-monospace, monospace; white-space: pre-wrap; background: #fff; padding: 8px; }
+</style>
+</head>
+<body>
+<!-- A page the manifest does not list: a bare <video controls> inside an article column, one
+     <track> element (case A) or a track added by script with no element (case B, ?mode=script).
+     Run with the "static" server in .claude/launch.json: /tests/harness/generic.html -->
+<article>
+  <h1>Neural networks, a short lesson</h1>
+  <p>Some text above the player, as on a blog or a course page.</p>
+  <video id="v" controls muted crossorigin="anonymous" playsinline
+         src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"></video>
+  <p>Some text below the player.</p>
+  <div class="log" id="log"></div>
+</article>
+<script>
+  const v = document.getElementById("v");
+  if (new URLSearchParams(location.search).get("mode") === "script") {
+    // case B: a player library adds the track with addTextTrack(), no <track> element
+    fetch("generic.vtt").then(r => r.text()).then(txt => {
+      const t = v.addTextTrack("captions", "English", "en");
+      const re = /(\d\d:\d\d:\d\d\.\d{3}) --> (\d\d:\d\d:\d\d\.\d{3})\n([^\n]+)/g;
+      const sec = s => { const [h, m, x] = s.split(":"); return +h * 3600 + +m * 60 + +x; };
+      let m; while ((m = re.exec(txt))) t.addCue(new VTTCue(sec(m[1]), sec(m[2]), m[3]));
+      t.mode = "hidden";
+    });
+  } else {
+    const tr = document.createElement("track");
+    Object.assign(tr, { kind: "subtitles", srclang: "en", label: "English", src: "generic.vtt", default: true });
+    v.appendChild(tr);
+  }
+</script>
+<script src="../../chrome-shim.js"></script>
+<script>
+  // the liveness poller treats a missing runtime id as "extension reloaded" and shuts down
+  chrome.runtime.id = "harness";
+  // Stand-in for the service worker: canned Vietnamese for the four sentences
+  const VI = {
+    "Welcome": "Chào mừng bạn đến với bài học ngắn về mạng nơ-ron.",
+    "Today": "Hôm nay chúng ta sẽ tìm hiểu cách huấn luyện một mô hình",
+    "and why": "và vì sao tốc độ học lại quan trọng đến vậy.",
+    "Let's": "Hãy bắt đầu với một ví dụ đơn giản."
+  };
+  chrome.runtime.onMessage.addListener((msg, sender, reply) => {
+    if (msg.action !== "translateUnit") return false;
+    const out = msg.sentences.map(s => Object.keys(VI).filter(k => s.includes(k)).map(k => VI[k]).join(" ") || s);
+    setTimeout(() => reply({ ok: true, engine: "gemini", model: "harness", latency: 1, translations: out, terms: [] }), 20);
+    return true;
+  });
+</script>
+<script src="../../glossary.js"></script>
+<script src="../../cst-cache.js"></script>
+<script src="../../cost-policy.js"></script>
+<script src="../../lang-detect.js"></script>
+<script src="../../vi-segmenter.js"></script>
+<script src="../../subtitle-style.js"></script>
+<script src="../../subtitle-edits.js"></script>
+<script src="../../player-ui.js"></script>
+<script src="../../transcript.js"></script>
+<script src="../../context-engine.js"></script>
+<script src="../../vi-quality.js"></script>
+<script src="../../dub-planner.js"></script>
+<script src="../../dub-audio.js"></script>
+<script src="../../dub-engine.js"></script>
+<script src="../../dubbing.js"></script>
+<script src="../../content.js"></script>
+<script src="../../youtube.js"></script>
+</body>
+</html>

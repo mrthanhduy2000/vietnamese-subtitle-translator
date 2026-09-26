@@ -1,0 +1,17 @@
+WEBVTT
+
+1
+00:00:00.200 --> 00:00:01.400
+Welcome to this short lesson about neural networks.
+
+2
+00:00:01.400 --> 00:00:02.600
+Today we will learn how a model is trained
+
+3
+00:00:02.600 --> 00:00:03.800
+and why the learning rate matters so much.
+
+4
+00:00:03.900 --> 00:00:05.000
+Let's start with a simple example.

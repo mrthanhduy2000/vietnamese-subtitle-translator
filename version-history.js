@@ -4,6 +4,15 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.6.5", luc: "19:58 26/09/2026", ten: "Dịch phụ đề và lồng tiếng trên các trang video khác",
+            y: [
+                "Ngoài YouTube và Coursera, giờ dịch được phụ đề trên mọi trang có video dùng phụ đề chuẩn của trình duyệt (trang khoá học, blog, trang trường, trình phát video.js, Plyr...). Mở trang, bấm nút tiện ích rồi bấm Dịch, hoặc dùng phím tắt Alt+S / Alt+D.",
+                "Tiện ích chỉ chạy trên trang đó khi bạn bấm, không xin quyền đọc mọi trang web.",
+                "Trang không có thanh điều khiển mà tiện ích nhận ra được: nút dịch nổi ở góc trên bên phải video, phụ đề Việt nằm đúng trong khung hình. Khi xem toàn màn hình, trình duyệt tự hiện phụ đề Việt.",
+                "Chưa hỗ trợ: video nằm trong khung nhúng của trang khác (ví dụ Vimeo nhúng, edX) và trang tự vẽ phụ đề riêng (ví dụ Udemy). Tiện ích sẽ báo rõ khi gặp trường hợp này."
+            ]
+        },
+        {
             v: "1.6.4", luc: "19:37 26/09/2026", ten: "Dọn các lỗi tồn đọng; lồng tiếng và phụ đề nhẹ máy hơn",
             y: [
                 "Sửa lỗi chế độ song ngữ tự tắt: bật song ngữ trong cửa sổ nhỏ rồi mở lại trang Coursera có thể quay về một ngôn ngữ, và trên YouTube tắt song ngữ trong cửa sổ nhỏ có thể không có tác dụng. Nay chỉ còn một chỗ quyết định chế độ hiển thị.",

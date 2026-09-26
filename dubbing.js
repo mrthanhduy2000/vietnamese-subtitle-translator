@@ -104,7 +104,8 @@
     // tạo theo cùng giao diện trong dub-engine.js.
     // Video đang xem (chi phí ước tính theo video, chỉ lưu trên máy)
     function videoMeta(video) {
-        let key = location.pathname;
+        // same key as content.js currentVideoMeta: other sites get the host in front
+        let key = /(^|\.)(youtube\.com|coursera\.org)$/.test(location.hostname) ? location.pathname : location.hostname + location.pathname;
         try { const v = new URL(location.href).searchParams.get("v"); if (v) key = "yt:" + v; } catch (e) { /* bỏ qua */ }
         return { videoKey: key, videoSec: video && isFinite(video.duration) ? Math.round(video.duration) : 0, videoTitle: String(document.title || "").slice(0, 80) };
     }

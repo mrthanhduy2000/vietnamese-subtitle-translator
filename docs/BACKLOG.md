@@ -11,6 +11,14 @@ Add to this file whenever you find something out of scope for your task. Delete 
 none open (items 1 to 4 fixed in 1.6.4: condense switch, `dualMode` source of truth, single
 bridge, glossary exports).
 
+## Not built yet
+
+**9. Site-specific caption sources for generic pages.** Udemy draws captions in its own DOM (no
+text track; the public previews have no captions at all, so it could not be inspected); edX puts
+the unit in a cross-origin iframe and its player's `data-metadata` holds `transcriptTranslationUrl`.
+Both need a logged-in sample page to build against. The generic path (`SUBTITLE.md`) covers any
+player that exposes standard text tracks.
+
 ## Cosmetic / housekeeping
 
 **5. The folder name says `v1.0.4`, the extension is many versions past that.** Renaming the folder means

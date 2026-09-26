@@ -25,6 +25,7 @@ sense of weight, not an assertion.
 | `bridge.test.js` | 4 | `yt-bridge.js` recovering empty captions that are missing the `pot` token, and restoring the viewer's original caption track |
 | `reload-fight.test.js` | 2 | Old and new content scripts coexisting after a reload must not loop forever recreating buttons. **The second case needs `OLD_YT=<path>` and skips without it** |
 | `backlog.test.js` | 9 | Settings with one source of truth (condense switch, `dualMode` via `CST_STYLE.resolveDual`), the single YouTube bridge, glossary loads in Node, segmenter `explain()`, the `buildPhrases` memo, throttled body observers |
+| `generic-site.test.js` | 5 | Unlisted sites: shortcut injects the ISOLATED group once through `activeTab` then delivers the command, `chrome://` left alone, no all-sites permission, generic track path, host-prefixed keys |
 | `ui.test.js` | 13 | Shortcuts (Alt+S / Alt+D / Alt+Shift+V), no blocking `alert`/`confirm` on the user's page, focus rings and reduced-motion, `role=status` toasts, the YouTube quick menu built on a mini-DOM, light/dark theme wiring, the VieNeu autostart script, auto-switch back to VieNeu when the server appears, and the release-history data |
 
 ## The two harnesses that make offline testing possible
@@ -57,6 +58,11 @@ Start the server with `open ~/VieNeu-TTS/cst-start.command`, check it with
 `curl 127.0.0.1:8000/health`.
 
 ## Browser harness pages (`tests/harness/`)
+
+`generic.html` (+ `generic.vtt`): a bare `<video controls>` in an article, canned translations in
+place of the service worker. Default: a `<track>` element; `?mode=script`: `addTextTrack` only.
+Serve with the `static` launch config. The pane's rAF stops while it is hidden: call `csRender()`
+by hand after a seek.
 
 For the things Node cannot fake. Open in a real Chrome tab; `.claude/launch.json` defines a static
 server on port 8765 for this.
