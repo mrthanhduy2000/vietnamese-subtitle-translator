@@ -31,8 +31,7 @@ optimise Thục Đoan and Mỹ Duyên; make pausing smart.
   dubbing on a generic page, native fullscreen, and 1.6.7 end to end on a video.
 - Udemy (DOM captions) and edX (cross-origin iframe) need site sources: `BACKLOG.md` item 9.
 - Not measured live: jank on a long video while translating (`longtask`; costs a little Gemini).
-- A paraphrased leak on 4eY5DuqASQc (~8:40) still adds speech there.
-- Plan stages 3 and 4 on hold (`~/.claude/plans/jiggly-sparking-milner.md`).
+- A paraphrased leak on 4eY5DuqASQc (~8:40) still adds speech. Plan stages 3-4 on hold.
 
 ## Traps hit this session
 
