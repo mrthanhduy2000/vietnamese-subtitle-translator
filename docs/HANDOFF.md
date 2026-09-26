@@ -21,8 +21,7 @@ User: fix the backlog, then find and optimise more in audio + subtitles.
 - Perf (measured, `planAll` output byte-identical on a 60-min lecture): plan rebuild of 80 groups
   13.1 -> 3.9 ms via memo of `isVietSyllable`, `tokenSyllables`, `buildPhrases` (copies out),
   incremental `markSpans`, opener/left phrase sets hoisted. Body-wide button observers in
-  `youtube.js`/`content.js` throttled to 150 ms (leading + trailing).
-- New `tests/backlog.test.js` (9 tests).
+  `youtube.js`/`content.js` throttled to 150 ms (leading + trailing). New `tests/backlog.test.js`.
 
 ## State
 
@@ -30,17 +29,16 @@ User: fix the backlog, then find and optimise more in audio + subtitles.
 
 ## Unfinished / in progress
 
-- Not verified live: `ensureYtBridge` after a Reload on an already-open YouTube tab (open a video,
-  Reload the extension, translate without F5; captions must load).
+- Not verified live: `ensureYtBridge` (open a video, Reload the extension, translate without F5).
 - Not yet measured live: jank with a long video while it translates (PerformanceObserver
   `longtask`). Needs a new, long video, so it costs a little Gemini.
 - A paraphrased leak on 4eY5DuqASQc (~8:40) still adds speech there.
-- Plan stages 3 to 5 on hold. `docs/BACKLOG.md`: items 5, 7, 8 left (all deliberate / cosmetic).
+- Plan stages 3 to 5 on hold (`~/.claude/plans/jiggly-sparking-milner.md`; stage 4 needs no new
+  permission any more, `activeTab` + `scripting` are already in the manifest). BACKLOG: items 5, 7, 8 left (deliberate / cosmetic).
 
 ## Traps hit this session
 
-- `git stash` to diff old vs new is fine, but a `git worktree add $TMPDIR/base HEAD` lets you run a
-  benchmark against both at once; remove it afterwards.
+- Benchmark old vs new with `git worktree add $TMPDIR/base HEAD`; remove it afterwards.
 - `reload-fight.test.js` stubs `setTimeout`/`requestAnimationFrame` as no-ops: any throttle on the
   button observer must run on the leading edge or that test never sees the work.
 
