@@ -258,14 +258,27 @@
 
     // Where the text itself asks for a pause: one entry per word that ends in punctuation (the last
     // word excluded), with its position as a share of the words spoken so far and the pause it earns.
+    // v2 (1.6.8): the pause also follows the phrase. A comma after a short lead-in ("Vâng," "Trước
+    // hết,") is a light touch, after a long clause a real breath; a comma followed by a joining word
+    // (và, nhưng, còn, rồi, mà...) leans on into the next clause; ? and ! rest a little longer.
+    const JOINERS = /^(và|nhưng|còn|rồi|mà|hay|hoặc|nên|vì|thì|để|khi|nếu|song|tuy)$/i;
     function punctuationBreaks(text, caps) {
         const words = String(text || "").split(/\s+/).filter(Boolean);
         const out = [];
+        let since = 0;
         for (let i = 0; i < words.length - 1; i++) {
+            since++;
             const m = words[i].match(/([.!?…]|[;:]|,)["”')\]]*$/);
             if (!m) continue;
             const kind = /[.!?…]/.test(m[1]) ? "sentence" : /[;:]/.test(m[1]) ? "clause" : "comma";
-            out.push({ frac: (i + 1) / words.length, kind, cap: caps[kind] });
+            let cap = caps[kind];
+            if (kind === "comma") {
+                const next = String(words[i + 1] || "").replace(/[^\p{L}]/gu, "");
+                cap = Math.min(caps.comma, 0.14 + 0.012 * Math.min(since, 12));
+                if (JOINERS.test(next)) cap = Math.max(0.12, cap - 0.04);
+            } else if (kind === "sentence" && /[?!]/.test(m[1])) cap = Math.min(caps.sentence + 0.05, caps.max);
+            out.push({ frac: (i + 1) / words.length, kind, cap });
+            since = 0;
         }
         return out;
     }
@@ -279,9 +292,10 @@
     function shapePauses(samples, sr, text, opts = {}) {
         const maxPause = opts.maxPause != null ? opts.maxPause : 0.4;
         const caps = {
+            max: maxPause,
             sentence: Math.min(maxPause, opts.sentencePause != null ? opts.sentencePause : 0.4),
             clause: Math.min(maxPause, opts.clausePause != null ? opts.clausePause : 0.32),
-            comma: Math.min(maxPause, opts.commaPause != null ? opts.commaPause : 0.26)
+            comma: Math.min(maxPause, opts.commaPause != null ? opts.commaPause : 0.28)
         };
         const joinPause = opts.joinPause != null ? opts.joinPause : 0.09;
         const dur = samples.length / sr;
@@ -332,19 +346,27 @@
     // and Kim Thanh); speech masks it, the gaps do not. Frames under the silence threshold are
     // pulled down by up to `depthDb`, with a smoothed gain so no word onset is clipped.
     function gateNoise(samples, sr, opts = {}) {
-        const depth = dbToLin(-(opts.depthDb != null ? opts.depthDb : 18));
+        // 1.6.8: gentler than 1.6.7 (was 18 dB below a fixed -30 dB-under-speech threshold, 30 ms
+        // hold), which also caught the soft decay of words and made word ends sound clipped. The
+        // threshold now follows the take's own noise floor: only frames within 6 dB of it count as a
+        // gap (Mỹ Duyên: floor ~-53 dB, gate under ~-47), never above 30 dB under speech. The gate
+        // holds 60 ms after a word, opens 40 ms before one, and releases over ~50 ms.
+        const depth = dbToLin(-(opts.depthDb != null ? opts.depthDb : 14));
         const { frames, size } = frameRms(samples, sr, 10);
-        const th = silenceThreshold(frames);
-        // a frame is "open" when it or a neighbour within 30 ms is voiced (lookahead for onsets)
+        const sorted = Array.from(frames).filter(x => x > 1e-6).sort((a, b) => a - b);
+        if (!sorted.length) return samples;
+        const speechLevel = sorted[Math.floor(sorted.length * 0.9)];
+        const floor = sorted[Math.floor(sorted.length * 0.1)];
+        const th = Math.min(speechLevel * dbToLin(-30), Math.max(floor * dbToLin(6), dbToLin(-72)));
         const open = new Uint8Array(frames.length);
-        for (let f = 0; f < frames.length; f++) if (frames[f] >= th) for (let k = Math.max(0, f - 3); k <= Math.min(frames.length - 1, f + 3); k++) open[k] = 1;
+        for (let f = 0; f < frames.length; f++) if (frames[f] >= th) for (let k = Math.max(0, f - 4); k <= Math.min(frames.length - 1, f + 6); k++) open[k] = 1;
         const target = Array.from(open, o => (o ? 1 : depth));
-        // smooth: fast open (1 frame), slow close (~40 ms)
+        // smooth: open within 2 frames, close slowly
         const g = new Float32Array(frames.length);
         let cur = 1;
         for (let f = 0; f < frames.length; f++) {
             const t = target[f];
-            cur = t > cur ? t : cur + (t - cur) * 0.25;
+            cur = t > cur ? cur + (t - cur) * 0.6 : cur + (t - cur) * 0.2;
             g[f] = cur;
         }
         const out = new Float32Array(samples.length);

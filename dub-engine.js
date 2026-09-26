@@ -28,8 +28,17 @@
         tickMs: 50,
         startTolerance: 0.04,     // bắt đầu cụm sớm tối đa (giây media)
         driftCorrect: 0.15,       // lệch audio vượt ngưỡng này thì tua lại
-        driftNudge: 0.035,        // lệch nhỏ hơn ngưỡng tua: chỉnh nhẹ tốc độ để khớp dần (không nghe ra)
-        nudgeMax: 0.05,           // chỉnh tốc độ tối đa ±5% (đã giữ cao độ)
+        // Drift handling (1.6.8). Measured in real Chrome on 120 s of VieNeu dubbing: the old
+        // per-tick nudge (threshold 0.035 s, rate re-set every 50 ms) changed playbackRate 510 times
+        // on playing voices, about 21 per sentence. Every change restarts Chrome's pitch-preserving
+        // time-stretch, which is the audible stutter. Now: the audio's start-up latency is absorbed
+        // once (driftAnchor), drift is smoothed, and a nudge has hysteresis and a minimum spacing.
+        driftNudge: 0.08,         // smoothed drift beyond this starts a nudge ...
+        driftNudgeOff: 0.02,      // ... which ends once the drift is back within this
+        nudgeMax: 0.03,           // a nudge is one fixed step of 3% (pitch kept)
+        nudgeSpacing: 0.8,        // seconds (media) between two rate changes on one voice
+        driftAnchor: 0.12,        // start-up offset up to this is absorbed into the timeline, not chased
+        snapToNatural: 0.05,      // a sentence rate within 5% of 1.0 plays at exactly 1.0 (no stretch at all)
         maxLagBoost: 0.25,        // tăng tốc tối đa để đuổi kịp khi trễ
         maxSpeechRate: 1.3,       // tốc độ phát audio tối đa (giữ cao độ) kể cả khi đuổi kịp
         endGrace: 0.4,            // chờ audio tự kết thúc thêm tối đa bấy nhiêu giây sau mốc dự kiến
@@ -221,7 +230,12 @@
     // 2: nhiệt độ 0,6 + rút khoảng lặng dài + dấu câu mới -> audio cũ không dùng lẫn
     // 3: giữ khoảng ngừng tự nhiên (tới 0,4 giây) + dấu phẩy ở chỗ người nói gốc ngừng
     // 4 (1.6.7): no comma at source pauses, punctuation-aware pause shaping, 48 kHz
-    const LOCAL_STYLE_VERSION = 4;
+    // 5 (1.6.8): pause shaping v2 (comma pause follows the clause), gentler gate, longer segments
+    const LOCAL_STYLE_VERSION = 5;
+    // Free voice segmenting: whole sentences across translation groups, and a segment may run to
+    // 11 s (paid: 8) before it is cut at a subtitle line. Every cut restarts the voice's intonation;
+    // the free server renders ~4x faster than real time, so a longer segment costs ~3 s ahead.
+    const FREE_SEGMENTS = { joinGroups: true, segSoft: 8, segHard: 11 };
     function createVieneuProvider(env, settings) {
         const L = COST.LOCAL_TTS;
         const provider = {
@@ -444,7 +458,7 @@
             const free = !!(this.provider && this.provider.caps && this.provider.caps.free);
             const first = groups.reduce((m, g) => Math.min(m, g.start), Infinity);
             const speakerState = this.settings.secondVoice && isFinite(first) ? PLAN.speakerStateBefore(all, first) : null;
-            const script = this.oneVoice(PLAN.buildDubScript(groups, { headAt: free ? this.headAt : null, speakerState, joinGroups: free }));
+            const script = this.oneVoice(PLAN.buildDubScript(groups, { headAt: free ? this.headAt : null, speakerState, ...(free ? FREE_SEGMENTS : {}) }));
             const opts = { voiceModel: this.provider.voiceModel };
             const plans = PLAN.planAll(script, opts);
             // Giữ đoạn đã rút gọn / đã render (khóa theo id + nội dung)
@@ -825,6 +839,17 @@
             let rate = Math.max(floor, Math.min(ceiling, want));
             // Tốc độ sàn vừa được hiệu chỉnh lại (đo giọng thật) không được làm nhịp nhảy quá bước cho phép
             if (this.lastRate && t - this.lastRateEnd < SYNC.rateMemory) rate = Math.min(rate, this.lastRate + SYNC.rateStepUp);
+            // Close to natural speed and not behind: play at exactly 1.0. Any other rate goes through
+            // Chrome's time-stretch, which roughens the voice (1.6.7 measurements); finishing up to 5%
+            // early leaves a natural gap, and 5% late stays inside fitSlack.
+            // (not for a slow voice whose floor rate is above 1: it is sped up on purpose)
+            const natural = this.floorRate(p) <= 1 ? 1 : 0;
+            const recent = this.lastRate && t - this.lastRateEnd < SYNC.rateMemory;
+            const smoothOk = !recent || (1 >= this.lastRate - SYNC.rateStepDown - 1e-9 && 1 <= this.lastRate + SYNC.rateStepUp + 1e-9);
+            if (natural === 1 && lag < 0.3 && smoothOk && Math.abs(rate - 1) <= SYNC.snapToNatural + 1e-6) {
+                const over = rate > 1 ? (r.duration - offset) * (1 - 1 / rate) : 0;
+                if (over <= SYNC.fitSlack) rate = 1;
+            }
             const cap = this.userMaxRate();
             if (cap) rate = Math.min(rate, cap);          // above even a slow voice's floor rate
             this.lastRate = rate;
@@ -1026,17 +1051,38 @@
                 }
                 return;
             }
-            const drift = el.currentTime - expected;                  // dương: audio đi trước
+            let drift = el.currentTime - expected;                    // dương: audio đi trước
+            // The first reading after the voice really started: the element's start-up latency (tens
+            // of ms) is not drift. Shift this sentence's timeline by it once instead of chasing it.
+            if (!S.anchored && el.currentTime > 0.03) {
+                S.anchored = true;
+                if (Math.abs(drift) <= SYNC.driftAnchor) {
+                    S.mediaStart -= drift / S.rate;
+                    S.end -= drift / S.rate;
+                    drift = 0;
+                }
+            }
             if (Math.abs(drift) > SYNC.driftCorrect) {
                 el.currentTime = expected;                            // lệch lớn: đặt lại đúng chỗ
                 if (Math.abs(el.playbackRate - baseRate) > 0.001) el.playbackRate = baseRate;
+                S.nudge = 0; S.driftEma = 0;
                 this.stats.corrections++;
-            } else {
-                // lệch nhỏ: nhích tốc độ vài phần trăm để khớp dần, không có chỗ vấp
-                let rate = baseRate;
-                if (Math.abs(drift) > SYNC.driftNudge) rate = baseRate * (1 - Math.max(-SYNC.nudgeMax, Math.min(SYNC.nudgeMax, drift * 0.6)));
-                if (Math.abs(el.playbackRate - rate) > 0.002) el.playbackRate = rate;
-                if (rate !== baseRate) this.stats.nudges = (this.stats.nudges || 0) + 1;
+                return;
+            }
+            // currentTime of a media element moves in steps: smooth before deciding anything
+            S.driftEma = S.driftEma == null ? drift : S.driftEma * 0.8 + drift * 0.2;
+            const ema = S.driftEma;
+            let nudge = S.nudge || 0;                                 // -1 slow down, 0 none, +1 speed up
+            if (!nudge && Math.abs(ema) > SYNC.driftNudge) nudge = ema > 0 ? -1 : 1;
+            else if (nudge && Math.abs(ema) < SYNC.driftNudgeOff) nudge = 0;
+            const want = baseRate * (1 + nudge * SYNC.nudgeMax);
+            const since = t - (S.lastRateAt != null ? S.lastRateAt : -Infinity);
+            const baseChanged = Math.abs(el.playbackRate - baseRate * (1 + (S.nudge || 0) * SYNC.nudgeMax)) > 0.002;
+            if (Math.abs(el.playbackRate - want) > 0.002 && (since >= SYNC.nudgeSpacing || baseChanged)) {
+                el.playbackRate = want;
+                S.lastRateAt = t;
+                S.nudge = nudge;
+                if (nudge) this.stats.nudges = (this.stats.nudges || 0) + 1;
             }
         }
 
@@ -1417,7 +1463,7 @@
             const free = !!(this.provider.caps && this.provider.caps.free);
             for (const h of heads) {
                 for (const joinGroups of free ? [true, false] : [false]) {
-                    plans.push(...PLAN.planAll(this.oneVoice(PLAN.buildDubScript(groups, { headAt: h, joinGroups })), { voiceModel: this.provider.voiceModel }));
+                    plans.push(...PLAN.planAll(this.oneVoice(PLAN.buildDubScript(groups, { headAt: h, ...(joinGroups ? FREE_SEGMENTS : {}) })), { voiceModel: this.provider.voiceModel }));
                 }
             }
             const keys = new Set();

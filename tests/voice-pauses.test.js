@@ -41,7 +41,8 @@ test("a stop the text does not ask for is closed; the comma and the full stop ke
     assert.equal(r.joined, 2);
     // order: stop at word 8 (no punct) closed, comma kept ~0.26, full stop kept ~0.4, word 32 closed
     assert.ok(got[0] <= 0.12 && got[3] <= 0.12, `unpunctuated stops closed: ${got}`);
-    assert.ok(Math.abs(got[1] - 0.26) < 0.04, `comma pause ${got[1]}`);
+    // v2: a comma after a 16-word clause earns the full comma pause (0.14 + 0.012 x 12, capped 0.28)
+    assert.ok(Math.abs(got[1] - 0.28) < 0.04, `comma pause ${got[1]}`);
     assert.ok(Math.abs(got[2] - 0.4) < 0.04, `full stop pause ${got[2]}`);
 });
 
@@ -101,7 +102,60 @@ test("wiring: 48 kHz, shaping and gate on the VieNeu path, engine joins groups f
     assert.match(bg, /splitTtsAudio\(bytes, mime, sr, parts, \{ maxPause, text, gate: true \}\)/);
     assert.match(bg, /AUDIO\.shapePauses\(piece, sr, opts\.text/);
     const eng = read("dub-engine.js");
-    assert.match(eng, /speakerState, joinGroups: free \}/);
-    assert.match(eng, /const LOCAL_STYLE_VERSION = 4;/);
+    assert.match(eng, /speakerState, \.\.\.\(free \? FREE_SEGMENTS : \{\}\) \}/);
+    assert.match(eng, /const FREE_SEGMENTS = \{ joinGroups: true, segSoft: 8, segHard: 11 \};/);
+    assert.match(eng, /const LOCAL_STYLE_VERSION = 5;/);
     assert.match(eng, /const natural = ph\.breakKind === "opener";/);
+});
+
+// ---- 1.6.8: smoothness ----
+test("pause v2: a short lead-in comma is light, a comma before a joining word leans on", () => {
+    const caps = { max: 0.4, sentence: 0.4, clause: 0.32, comma: 0.28 };
+    const b = A.punctuationBreaks("Vâng, hôm nay chúng ta học một điều rất quan trọng về dữ liệu, và mô hình. Thật sao? Đúng vậy", caps);
+    const [lead, joiner, stop, question] = b;
+    assert.ok(lead.cap < 0.18, `lead-in comma ${lead.cap}`);
+    assert.ok(joiner.cap < 0.28 && joiner.cap >= 0.12, `comma before "và" ${joiner.cap}`);
+    assert.equal(stop.cap, 0.4);
+    assert.equal(question.cap, 0.4, "a question rests longer, but never beyond maxPause");
+});
+
+test("gate v2 follows the take's own noise floor and leaves soft word tails alone", () => {
+    // a word with a long soft decay (down to ~-44 dB), then hiss at -52 dB
+    const n = SR * 2;
+    const x = new Float32Array(n);
+    let seed = 3;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647 - 0.5) * 2;
+    for (let i = 0; i < n; i++) {
+        const t = i / SR;
+        const env = t < 0.5 ? 0.3 : t < 0.9 ? 0.3 * Math.exp(-(t - 0.5) * 12) : 0;
+        x[i] = env * Math.sin(2 * Math.PI * 180 * t) + 0.0025 * rnd();
+    }
+    const g = A.gateNoise(x, SR);
+    const lvl = (y, a, b) => { let q = 0; for (let i = Math.round(a * SR); i < Math.round(b * SR); i++) q += y[i] * y[i]; return 10 * Math.log10(q / ((b - a) * SR)); };
+    assert.ok(Math.abs(lvl(g, 0.5, 0.75) - lvl(x, 0.5, 0.75)) < 0.5, "the decay of the word was cut");
+    assert.ok(lvl(g, 1.3, 1.9) < lvl(x, 1.3, 1.9) - 8, "the hiss was not pulled down");
+});
+
+test("a voice that starts late is not chased: no playbackRate churn while it plays", () => {
+    const { DubEngine } = require("../dub-engine.js");
+    const eng = Object.create(DubEngine.prototype);
+    eng.settings = { volume: 1 };
+    eng.stats = { corrections: 0 };
+    let sets = 0, rate = 1;
+    const el = { paused: false, currentTime: 0, volume: 1, get playbackRate() { return rate; }, set playbackRate(v) { rate = v; sets++; } };
+    const S = { mediaStart: 10, offset: 0, rate: 1, end: 15 };
+    // Chrome-like: the element starts 70 ms late and reports its time in ~20 ms steps
+    for (let k = 1; k <= 100; k++) {
+        const t = 10 + k * 0.05;
+        el.currentTime = Math.max(0, Math.floor((t - 10 - 0.07) / 0.02) * 0.02);
+        eng.driveSpeech(S, { el }, t, 1);
+    }
+    assert.equal(sets, 0, `playbackRate changed ${sets} times (1.6.7 measured ~21 per sentence)`);
+    assert.equal(eng.stats.corrections, 0);
+});
+
+test("a sentence close to natural speed plays at exactly 1.0", () => {
+    const eng = require("../dub-engine.js");
+    assert.equal(eng.SYNC.snapToNatural, 0.05);
+    assert.match(read("dub-engine.js"), /if \(natural === 1 && lag < 0\.3 && smoothOk && Math\.abs\(rate - 1\) <= SYNC\.snapToNatural/);
 });

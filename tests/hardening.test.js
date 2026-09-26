@@ -1083,7 +1083,8 @@ test("phụ đề tự động (dòng nối liền, không dấu câu): đoạn 
     const S = asrRun(300);
     await S.run(100);
     const longest = Math.max(...S.eng.plans.map(p => p.end - p.start));
-    assert.ok(longest <= 8.01, `đoạn đọc dài ${longest.toFixed(1)} giây (trước đây cả nhóm 20 giây)`);
+    // 1.6.8: the free voice may run a segment to 11 s (FREE_SEGMENTS in dub-engine.js); paid stays 8
+    assert.ok(longest <= 11.01, `đoạn đọc dài ${longest.toFixed(1)} giây (trước đây cả nhóm 20 giây)`);
     S.video.play();
     await S.run(30000);
     const st = S.eng.stats.started;

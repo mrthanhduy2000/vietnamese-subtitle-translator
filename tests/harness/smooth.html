@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Dubbing smoothness</title></head>
+<body>
+<!-- Real Chrome, real DubEngine, real VieNeu audio (prepared by smooth-prep.js), silent picture.
+     Counts what makes the voice sound robotic: playbackRate changes on a playing voice (each one
+     restarts Chrome's time-stretch), seeks inside a playing voice (an audible jump), and silences
+     inside a sentence. Serve with the "static" launch config, then call runSmooth() and read H. -->
+<video id="v" muted playsinline></video>
+<script>
+  // load the extension files fresh every time (the static server lets Chrome cache them)
+  window.ready = (async () => {
+    for (const f of ["vi-segmenter.js", "cost-policy.js", "dub-planner.js", "dub-audio.js", "dub-engine.js"]) {
+      await new Promise((res, rej) => { const s = document.createElement("script"); s.src = `../../${f}?t=${Date.now()}`; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+    }
+  })();
+</script>
+<script>
+  let E;
+  window.H = { log: [], done: false };
+  function silentWav(sec, sr = 8000) {
+    const n = sec * sr, b = new ArrayBuffer(44 + n * 2), d = new DataView(b);
+    const w = (o, s) => [...s].forEach((c, i) => d.setUint8(o + i, c.charCodeAt(0)));
+    w(0, "RIFF"); d.setUint32(4, 36 + n * 2, true); w(8, "WAVE"); w(12, "fmt "); d.setUint32(16, 16, true);
+    d.setUint16(20, 1, true); d.setUint16(22, 1, true); d.setUint32(24, sr, true); d.setUint32(28, sr * 2, true);
+    d.setUint16(32, 2, true); d.setUint16(34, 16, true); w(36, "data"); d.setUint32(40, n * 2, true);
+    return URL.createObjectURL(new Blob([b], { type: "audio/wav" }));
+  }
+  window.runSmooth = async (seconds = 120) => {
+    await window.ready;
+    E = window.CST_DUB_ENGINE;
+    const m = await (await fetch("smooth/manifest.json")).json();
+    const byId = new Map(m.plans.map(p => [p.id, p]));
+    // the clock is a silent <audio>: Chrome pauses a muted <video> while the page is not visible
+    const video = new Audio(); video.volume = 0.01; window.CLOCK = video;
+    video.src = silentWav(seconds + 10);
+    await new Promise(r => video.addEventListener("loadedmetadata", r, { once: true }));
+    const prov = E.createVieneuProvider({ sendMessage: async () => ({ running: true }) }, { localVoice: m.voice });
+    prov.init = async () => true;
+    prov.audioKey = async p => p.id;
+    prov.render = async plans => Promise.all(plans.map(async p => {
+      const e = byId.get(p.id);
+      if (!e) { H.log.push(["missing", p.id]); throw new Error("missing " + p.id); }
+      const wav = new Uint8Array(await (await fetch("smooth/" + e.file)).arrayBuffer());
+      return { planId: p.id, wav, duration: e.duration, sampleRate: 48000 };
+    }));
+    H.audio = [];
+    const createAudio = url => {
+      const a = new Audio(url); a.preload = "auto";
+      const rec = { rates: [], seeks: [], plays: [], k: H.audio.length };
+      H.audio.push(rec);
+      const pr = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, "playbackRate");
+      const ct = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, "currentTime");
+      Object.defineProperty(a, "playbackRate", { get() { return pr.get.call(a); }, set(v) { if (!a.paused) rec.rates.push([+video.currentTime.toFixed(2), +v.toFixed(3)]); pr.set.call(a, v); } });
+      Object.defineProperty(a, "currentTime", { get() { return ct.get.call(a); }, set(v) { if (!a.paused) rec.seeks.push([+video.currentTime.toFixed(2), +(v - ct.get.call(a)).toFixed(3)]); ct.set.call(a, v); } });
+      a.addEventListener("playing", () => rec.plays.push(["play", +video.currentTime.toFixed(2)]));
+      a.addEventListener("pause", () => rec.plays.push(["pause", +video.currentTime.toFixed(2)]));
+      a.addEventListener("ended", () => rec.plays.push(["ended", +video.currentTime.toFixed(2)]));
+      return a;
+    };
+    let last = performance.now(); H.ticks = [];
+    const eng = new E.DubEngine({ video, getGroups: () => m.groups, providers: { primary: prov },
+      now: () => performance.now(), setInterval: (f, ms) => setInterval(() => { const n = performance.now(); H.ticks.push(n - last); last = n; f(); }, ms),
+      setTimeout: (f, ms) => setTimeout(f, ms), clearInterval: id => clearInterval(id),
+      createObjectURL: b => URL.createObjectURL(new Blob([b], { type: "audio/wav" })), revokeObjectURL: u => URL.revokeObjectURL(u),
+      createAudio, log: (...a) => H.log.push(a) }, { duck: 1, volume: 1 });
+    H.engine = eng;
+    eng.start();
+    await new Promise(r => setTimeout(r, 1500));
+    await video.play();
+    setTimeout(() => { video.pause(); eng.stop(); H.done = true; }, seconds * 1000);
+    return "started";
+  };
+  window.summary = () => {
+    const eng = H.engine, st = eng.stats;
+    const rateChanges = H.audio.reduce((s, a) => s + a.rates.length, 0);
+    const seeks = H.audio.reduce((s, a) => s + a.seeks.length, 0);
+    const t = [...H.ticks].sort((a, b) => a - b);
+    return { done: H.done, videoT: +window.CLOCK.currentTime.toFixed(1), spoken: st.started.length,
+      rateChangesWhilePlaying: rateChanges, seeksWhilePlaying: seeks, corrections: st.corrections, nudges: st.nudges || 0,
+      tickP50: +t[t.length >> 1]?.toFixed(0), tickP95: +t[Math.floor(t.length * .95)]?.toFixed(0),
+      lagMax: +(st.lagMax || 0).toFixed(2), missing: H.log.filter(l => l[0] === "missing").length,
+      started: st.started.map(x => [x.id, +x.t.toFixed(2), +x.rate.toFixed(2), +(x.speechEnd || 0).toFixed(2)]) };
+  };
+</script>
+</body></html>

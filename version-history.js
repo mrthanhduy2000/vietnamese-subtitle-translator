@@ -4,6 +4,21 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.6.8", luc: "20:54 26/09/2026", ten: "Giọng đọc mượt, hết khựng như robot; ngắt nghỉ thông minh hơn",
+            y: [
+                "Tìm ra nguyên nhân giọng bị khựng như robot (đo trên Chrome thật, 2 phút lồng tiếng): tiện ích đổi tốc độ phát của giọng 510 lần trong lúc đang đọc, khoảng 21 lần mỗi câu, vì đuổi theo độ trễ vài chục mili giây lúc audio bắt đầu phát. Mỗi lần đổi, Chrome phải khởi động lại bộ co giãn giọng và tạo tiếng vấp. Nay: 0 lần, giọng vẫn khớp phụ đề.",
+                "Câu có tốc độ gần tự nhiên được phát đúng 1 lần, không qua bộ co giãn, nên giọng giữ nguyên chất: 21 trên 24 câu với Thục Đoan. Mỹ Duyên (giọng chậm) vẫn được tăng tốc đều 1,07 đến 1,1 lần như trước.",
+                "Ngắt nghỉ thông minh bản 2: dấu phẩy sau vế ngắn (\"Vâng,\") nghỉ rất nhẹ, sau vế dài nghỉ đủ hơi; dấu phẩy trước \"và, nhưng, còn...\" nghỉ ngắn hơn để nối ý; câu hỏi, câu cảm nghỉ lâu hơn một chút.",
+                "Giảm tiếng xì nhẹ tay hơn, không còn làm cụt đuôi chữ (trước làm thay đổi 2 đến 4% phần giọng của Thục Đoan, nay gần như 0).",
+                "Giọng VieNeu đọc liền mạch câu dài hơn (tối đa 11 giây một lượt thay vì 8), bớt chỗ một câu bị chia hai lượt đọc với ngữ điệu bị ngắt. Mọi giọng VieNeu (cả miền Nam, Bắc, Trung) dùng 48 kHz."
+            ],
+            bang: { cot: ["Đo trên Chrome thật, 120 giây", "Trước", "Nay"], hang: [
+                ["Số lần đổi tốc độ giọng khi đang đọc (Thục Đoan)", "510", "0"],
+                ["Câu phát đúng tốc độ gốc (Thục Đoan)", "0/24", "21/24"],
+                ["Số lần đổi tốc độ khi đang đọc (Mỹ Duyên, chỉ đo sau khi sửa)", "chưa đo", "0"]
+            ] }
+        },
+        {
             v: "1.6.7", luc: "20:22 26/09/2026", ten: "Giọng VieNeu chỉ ngừng ở dấu câu, bớt rè, bớt tiếng xì",
             y: [
                 "Giọng đọc không còn ngừng giữa câu ở chỗ không có dấu câu. Trước đây có ba nguyên nhân: tiện ích tự thêm dấu phẩy ở chỗ người nói gốc ngừng, máy chủ giọng tự ngừng giữa câu, và một câu bị chia làm hai lượt đọc khi nằm ở ranh giới hai nhóm dịch. Nay chỉ dấu phẩy, dấu chấm, dấu chấm phẩy... mới tạo khoảng ngừng; câu dài không có dấu câu vẫn có một chỗ lấy hơi rất ngắn.",

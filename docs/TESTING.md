@@ -27,7 +27,7 @@ sense of weight, not an assertion.
 | `backlog.test.js` | 9 | Settings with one source of truth (condense switch, `dualMode` via `CST_STYLE.resolveDual`), the single YouTube bridge, glossary loads in Node, segmenter `explain()`, the `buildPhrases` memo, throttled body observers |
 | `generic-site.test.js` | 5 | Unlisted sites: shortcut injects the ISOLATED group once through `activeTab` then delivers the command, `chrome://` left alone, no all-sites permission, generic track path, host-prefixed keys |
 | `settings.test.js` | 6 | Backup build/parse (key optional, caches excluded, foreign files refused), the Settings wiring, `dubMaxRate` capping every rate, `skipSameLang` on all three sites |
-| `voice-pauses.test.js` | 6 | `shapePauses` (unpunctuated stops closed, punctuation kept, breath in long runs, tight cap), `gateNoise`, `joinGroups` segmenting, 48 kHz wiring |
+| `voice-pauses.test.js` | 10 | `shapePauses` (unpunctuated stops closed, punctuation kept, breath in long runs, tight cap), `gateNoise`, `joinGroups` segmenting, 48 kHz wiring |
 | `ui.test.js` | 13 | Shortcuts (Alt+S / Alt+D / Alt+Shift+V), no blocking `alert`/`confirm` on the user's page, focus rings and reduced-motion, `role=status` toasts, the YouTube quick menu built on a mini-DOM, light/dark theme wiring, the VieNeu autostart script, auto-switch back to VieNeu when the server appears, and the release-history data |
 
 ## The two harnesses that make offline testing possible
@@ -60,6 +60,11 @@ Start the server with `open ~/VieNeu-TTS/cst-start.command`, check it with
 `curl 127.0.0.1:8000/health`.
 
 ## Browser harness pages (`tests/harness/`)
+
+`smooth.html` + `smooth-prep.js`: real `DubEngine` in Chrome playing real VieNeu audio (prep
+calls the local server, output in the git-ignored `smooth/`), counting `playbackRate` changes and
+seeks on playing voices. The clock is a silent `<audio>`: Chrome pauses a muted `<video>` in a
+hidden pane. Scripts load with a cache-busting query; `runSmooth(120)` then poll `summary()`.
 
 `generic.html` (+ `generic.vtt`): a bare `<video controls>` in an article, canned translations in
 place of the service worker. Default: a `<track>` element; `?mode=script`: `addTextTrack` only.

@@ -60,8 +60,16 @@ The comments in it record why each value is what it is; read them before changin
 
 Knobs you will actually reach for:
 
-- **Drift**: `driftCorrect` 0.15s re-seeks the audio. `driftNudge` 0.035 / `nudgeMax` 0.05 apply an
-  inaudible rate nudge for small drift instead of a jump.
+- **Drift (1.6.8)**: `driftCorrect` 0.15s re-seeks the audio. Below that, `driveSpeech` first absorbs
+  the element's start-up latency into the sentence's timeline (`driftAnchor` 0.12, once per
+  sentence), smooths the drift (EMA), and nudges by one fixed 3% step with hysteresis
+  (`driftNudge` 0.08 on, `driftNudgeOff` 0.02 off, `nudgeSpacing` 0.8 s). Measured in real Chrome
+  (`tests/harness/smooth.html`, 120 s of real VieNeu audio): the old per-tick nudge changed
+  `playbackRate` 510 times on playing voices (~21 per sentence), each one restarting Chrome's
+  time-stretch = the "robotic stutter" (Thục Đoan); after the fix 0 for Thục Đoan and for Mỹ Duyên
+  (Mỹ Duyên measured only after), lag still 0.
+  `chooseRate` also plays a sentence within `snapToNatural` (5%) of 1.0 at exactly 1.0 when the
+  voice is not a sped-up slow one and the step limits allow (21/24 Thục Đoan sentences, no stretch).
 - **Rate**: `chooseRate` clamps per sentence to `[floorRate(), maxSpeechRate 1.3]`, rising to
   `lagMaxSpeechRate` 1.4 once lag passes `lagBoostAt` 1.0. Between sentences the change is smoothed
   (`rateStepUp` 0.1, `rateStepDown` 0.06) because the user's complaint was uneven pace, not
@@ -169,6 +177,14 @@ Requests are 48 kHz: Chrome's pitch-preserving time-stretch roughened a 24 kHz T
 more (roughest-decile harmonicity 0.700 -> 0.613 at 1.4x vs 0.669 -> 0.649 at 48 kHz). The server
 ignores `speed`, so the browser stretch cannot be avoided. `LOCAL_STYLE_VERSION` 4: all VieNeu audio
 re-renders once (free). Temperature 0.4 / 0.6 / 0.8 made no measurable difference to roughness.
+
+**1.6.8 refinements.** Pause shaping v2: a comma's pause grows with the clause before it
+(0.14 + 0.012 per word, capped 0.28), is 0.04 shorter before a joining word (và, nhưng, còn...),
+and ? / ! rest a little longer (capped by `maxPause`). `gateNoise` now gates only frames within 6 dB
+of the take's own noise floor (never above 30 dB under speech) with 60 ms hold: 1.6.7's fixed
+threshold altered 2 to 4% of Thục Đoan's speech samples (clipped word tails), now 0 to 0.3%; Mỹ
+Duyên's hiss drops 4 to 9 dB instead of 12. Free voices segment with `FREE_SEGMENTS` (`joinGroups`,
+`segSoft` 8, `segHard` 11) so fewer sentences are cut into two utterances. `LOCAL_STYLE_VERSION` 5.
 
 ### Gemini TTS (paid)
 
