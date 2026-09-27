@@ -964,3 +964,16 @@ test("chế độ Tiết kiệm tôn trọng lựa chọn: câu khó vẫn gửi
     await bgEnv(byModel(seen), { ...cfgK, geminiModel: "gemini-2.5-flash-lite", costMode: "economy", modelsVersion: COST.MODELS_VERSION }).send({ ...REQ, tier: "cheap" });
     assert.deepEqual(seen, ["gemini-2.5-flash-lite"]);
 });
+
+// 1.8.8: a page lookup of several keys on a wedged IndexedDB. Each read waits up to 1.5 s; read one
+// after another, 8 keys held the dubbing scheduler 12 s. Read together: one 1.5 s wait.
+test("audio store lookup: keys are read together, a wedged store costs one read timeout, bad keys are ignored", async () => {
+    const hanging = new Proxy({}, { get: () => () => new Promise(() => {}) });
+    const E = bgEnv(async () => ({ ok: true, status: 200, json: async () => ({}) }), cfgK, { backend: hanging });
+    const t0 = Date.now();
+    const r = await E.send({ action: "audioCacheGet", keys: ["a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", null, 42, "", "x".repeat(300)] });
+    const ms = Date.now() - t0;
+    assert.equal(r.ok, true);
+    assert.equal(Object.keys(r.hits).length, 0);
+    assert.ok(ms < 3500, `lookup took ${ms} ms`);
+});

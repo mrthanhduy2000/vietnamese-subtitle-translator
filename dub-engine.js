@@ -125,6 +125,19 @@
         // given up when even this cannot bring its audio in time (healthy VieNeu measured ~0.24)
         reachOverheadMin: 0.2,
         reachRtfMin: 0.2,
+        // Resilience (1.8.8). The service worker can fail to answer at all (evicted mid-reply,
+        // IndexedDB wedged): Chrome then closes the port only after ~5 min. A store lookup waits at
+        // most lookupTimeout (the worker's own read limit is 1.5 s a key; waking it ~1 s), then counts
+        // as a miss; a TTS job silent for jobStallMs is let go. Its retry joins the same request in
+        // the worker (ttsInFlight), so nothing is generated twice. background.js worst legit case:
+        // idle wait 20 s + cold limit 60 s.
+        lookupTimeout: 4000,
+        jobStallMs: 90000,
+        orphanStallMs: 20000,     // a job left behind (seek, line passed) stops counting toward maxJobs
+                                  // this long after it was left: three silent ones used to block for good
+        // A take is accepted only with a real length (a NaN duration made every later rate NaN)
+        minAudio: 0.05,
+        maxAudio: 600,
         duckRampPerTick: 0.09,    // tốc độ hạ/nâng âm lượng video mỗi nhịp (mượt ~200 ms)
         duckHold: 0.35            // giữ mức hạ thêm chút sau khi nói xong (tránh "bơm" âm lượng giữa các cụm)
     };
@@ -312,13 +325,16 @@
                         maxPause: p.tightPauses ? L.tightPause : undefined
                     });
                     if (res && (res.aborted || res.errorType === "aborted")) { const err = new Error("Đã hủy"); err.aborted = true; throw err; }
-                    if (!res || !res.ok || !Array.isArray(res.parts)) {
-                        const err = new Error(res ? res.error : "Không có phản hồi từ VieNeu");
-                        err.type = res && res.errorType;
+                    if (!res || !res.ok || !Array.isArray(res.parts) || !res.parts[0] || typeof res.parts[0].wav !== "string") {
+                        const err = new Error(res ? res.error || "VieNeu trả dữ liệu không hợp lệ" : "Không có phản hồi từ VieNeu");
+                        // no reply at all (worker evicted, port closed) vs an answer without audio
+                        err.type = !res ? "no_response" : res.ok ? "invalid" : (res.errorType || "local_error");
                         throw err;
                     }
                     const sp = res.parts[0];
-                    out.push({ planId: p.id, wav: AUDIO.base64ToBytes(sp.wav), duration: sp.duration, sampleRate: sp.sampleRate });
+                    let wav;
+                    try { wav = AUDIO.base64ToBytes(sp.wav); } catch (e) { const err = new Error("Audio VieNeu hỏng (base64)"); err.type = "invalid"; throw err; }
+                    out.push({ planId: p.id, wav, duration: sp.duration, sampleRate: sp.sampleRate });
                 }
                 return out;
             }
@@ -412,7 +428,7 @@
             this.planById = new Map();
             this.sourceSig = "";
             this.rendered = new Map();      // planId -> { url, duration, stretch, el }
-            this.pending = new Set();
+            this.pending = new Map();       // planId -> jobId that is making it (only that job clears it)
             this.failed = new Map();        // planId -> số lần lỗi
             this.cacheChecked = new Set();  // planId đã tra kho audio (tránh tra lại)
             this.jobs = new Map();          // jobId -> { planIds, t0, orphan }
@@ -490,6 +506,7 @@
             // video's first line waiting (background.js lets a request the server started finish)
             for (const [jobId, job] of this.jobs) {
                 job.orphan = true;
+                job.orphanAt = this.d.now();
                 if (this.provider.abort) { try { this.provider.abort(jobId); } catch (e) { /* bỏ qua */ } }
             }
             for (const r of this.rendered.values()) {
@@ -1332,26 +1349,66 @@
             return (syl / Math.max(1, sps)) / win;
         }
 
+        // Store lookup. Never holds the scheduler longer than SYNC.lookupTimeout: past it the plans
+        // count as misses and scheduling goes on; hits that still arrive later are used if they fit.
+        // A hit is kept only while the engine runs and only for the plan now holding that id with the
+        // same text (the line may have been re-cut or re-translated while the lookup was out).
         async lookupCache(plans) {
+            const seq = this.lookupSeq = (this.lookupSeq || 0) + 1;
             this.busyLookup = true;
+            let timer = null;
+            const giveUp = () => {
+                if (this.lookupSeq !== seq || !this.busyLookup) return;
+                this.countError("lookup_timeout");
+                plans.forEach(p => this.cacheChecked.add(p.id));
+                this.busyLookup = false;
+            };
+            if (this.d.setTimeout) timer = this.d.setTimeout(giveUp, SYNC.lookupTimeout);
             try {
                 const keys = await Promise.all(plans.map(p => this.provider.audioKey(p)));
                 const hits = await this.d.audioCache.get(keys);
+                if (!this.running) return;
                 plans.forEach((p, i) => {
                     this.cacheChecked.add(p.id);
                     p.audioKey = keys[i];
                     const h = hits && hits[keys[i]];
-                    if (h && h.wav && !this.rendered.has(p.id)) {
-                        this.stats.cacheHits++;
-                        this.addRendered(p, h.wav, h.duration);
-                    }
+                    if (!h) return;
+                    const cur = this.planById.get(p.id);
+                    if (!cur || cur.text !== p.text || this.rendered.has(p.id)) return;
+                    const duration = this.audioLength(h.wav, h.duration);
+                    if (duration == null) { this.countError("bad_audio"); return; }
+                    cur.audioKey = keys[i];
+                    this.stats.cacheHits++;
+                    this.addRendered(cur, h.wav, duration);
                 });
             } catch (e) {
+                this.countError("lookup_failed");
                 plans.forEach(p => this.cacheChecked.add(p.id));
             } finally {
-                this.busyLookup = false;
-                this.status();
+                if (timer != null && this.d.clearTimeout) this.d.clearTimeout(timer);
+                if (this.lookupSeq === seq) this.busyLookup = false;
+                if (this.running) this.status();
             }
+        }
+
+        // The length of a take in seconds, or null when it is not usable: bytes must be there, and
+        // the reported duration finite and plausible; a missing one is read from the WAV header.
+        audioLength(wav, duration) {
+            if (!wav || typeof wav.length !== "number" || wav.length < 1) return null;
+            let d = Number(duration);
+            if (!(isFinite(d) && d >= SYNC.minAudio && d <= SYNC.maxAudio)) {
+                try { const w = AUDIO.decodeWav(wav); d = w.samples.length / w.sampleRate; } catch (e) { return null; }
+            }
+            return isFinite(d) && d >= SYNC.minAudio && d <= SYNC.maxAudio ? d : null;
+        }
+
+        // Diagnostics: errors by kind (debugSnapshot().delivery.errorTypes). Kinds: the service
+        // worker's errorType (timeout, local_unavailable, local_error, rate_limit, quota, budget,
+        // split, no_audio, disabled, invalid), plus the engine's own: aborted, no_response,
+        // lookup_timeout, lookup_failed, bad_audio, job_stalled, unknown.
+        countError(kind) {
+            const m = this.stats.errorTypes || (this.stats.errorTypes = {});
+            m[kind] = (m[kind] || 0) + 1;
         }
 
         addRendered(p, wav, duration) {
@@ -1393,7 +1450,7 @@
 
         async renderBatch(batch) {
             const jobId = `tts${++this.jobSeq}_${Date.now()}`;
-            batch.forEach(p => this.pending.add(p.id));
+            batch.forEach(p => this.pending.set(p.id, jobId));
             const job = { planIds: batch.map(p => p.id), t0: this.d.now(), orphan: false };
             this.jobs.set(jobId, job);
             this.stats.requests++;
@@ -1430,15 +1487,20 @@
                         this.d.audioCache.put(key, { wav: o.wav, duration: o.duration, sampleRate: o.sampleRate });
                     }
                     if (!this.running || this.provider !== provider) continue;
-                    this.measureVoice(p, o.duration);
-                    // Hiệu chỉnh mô hình thời lượng theo thời lượng PHÁT (đã tính nhịp nền)
-                    this.calibrateFromAudio(p, o.duration / this.baseTempo(p));
+                    if (this.audioLength(o.wav, o.duration) === Number(o.duration)) {
+                        this.measureVoice(p, o.duration);
+                        // Hiệu chỉnh mô hình thời lượng theo thời lượng PHÁT (đã tính nhịp nền)
+                        this.calibrateFromAudio(p, o.duration / this.baseTempo(p));
+                    }
                     // A late result whose line has changed since (re-cut, edited): never play it
                     const cur = this.planById.get(o.planId);
-                    if (cur && cur.text === p.text && !this.rendered.has(cur.id)) this.addRendered(cur, o.wav, o.duration);
+                    const duration = this.audioLength(o.wav, o.duration);
+                    if (duration == null) { this.countError("bad_audio"); this.failed.set(p.id, (this.failed.get(p.id) || 0) + 1); continue; }
+                    if (cur && cur.text === p.text && !this.rendered.has(cur.id)) this.addRendered(cur, o.wav, duration);
                 }
                 this.consecutiveErrors = 0;
             } catch (e) {
+                this.countError(e && e.aborted ? "aborted" : (e && e.type) || "unknown");
                 if (e && e.aborted) {
                     this.stats.aborted++;                       // hủy chủ động khi tua: không tính lỗi
                 } else if (e && e.splitFailed && batch.length > 1) {
@@ -1469,7 +1531,8 @@
                     this.onProviderError(e);
                 }
             } finally {
-                batch.forEach(p => this.pending.delete(p.id));
+                // only this job's claim: a job let go by the watchdog must not clear its retry's
+                batch.forEach(p => { if (this.pending.get(p.id) === jobId) this.pending.delete(p.id); });
                 this.jobs.delete(jobId);
                 this.status();
             }
@@ -1515,6 +1578,20 @@
             const now = this.d.now();
             const usual = (this.renderLatency != null ? this.renderLatency : 4) * 1000;
             for (const [jobId, job] of this.jobs) {
+                // No answer for jobStallMs: the reply is lost. Forget the job (it counted toward
+                // maxJobs forever: three of them silenced the voice for good) and free its lines;
+                // a retry joins the worker's request if that is still running.
+                if (now - job.t0 > SYNC.jobStallMs || (job.orphan && now - (job.orphanAt || job.t0) > SYNC.orphanStallMs)) {
+                    this.jobs.delete(jobId);
+                    job.orphan = true;
+                    for (const id of job.planIds) {
+                        if (this.pending.get(id) !== jobId) continue;
+                        this.pending.delete(id);
+                        this.failed.set(id, (this.failed.get(id) || 0) + 1);
+                    }
+                    this.countError("job_stalled");
+                    continue;
+                }
                 if (job.orphan) continue;
                 const relevant = job.planIds.some(id => {
                     const p = this.planById.get(id);
@@ -1522,6 +1599,7 @@
                 });
                 if (relevant) continue;
                 job.orphan = true;
+                job.orphanAt = now;
                 if (now - job.t0 >= usual * SYNC.keepIfDone || !this.provider.abort) {
                     this.stats.detached = (this.stats.detached || 0) + 1;
                 } else {

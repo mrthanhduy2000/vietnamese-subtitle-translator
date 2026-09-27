@@ -690,14 +690,12 @@ function base64ToBytesBg(b64) {
 }
 
 // Đọc từ kho: đủ MỌI đoạn thì trả luôn (không gọi TTS), thiếu thì null
+// Reads run together (1.8.8): each waits up to 1.5 s on a slow IndexedDB, one after another they
+// added up. Order of the reply follows parts.
 async function cachedParts(parts) {
-    const out = [];
-    for (const p of parts) {
-        const rec = await caches.audio.get(p.key);
-        if (!rec || !rec.wav) return null;
-        out.push({ key: p.key, wav: rec.wav, duration: rec.duration, sampleRate: rec.sampleRate });
-    }
-    return out;
+    const recs = await Promise.all(parts.map(p => caches.audio.get(p.key)));
+    if (recs.some(rec => !rec || !rec.wav)) return null;
+    return parts.map((p, i) => ({ key: p.key, wav: recs[i].wav, duration: recs[i].duration, sampleRate: recs[i].sampleRate }));
 }
 
 // Audio nhiều đoạn gộp trong một lượt TTS -> cắt lại theo khoảng lặng, làm sạch từng đoạn
@@ -1060,10 +1058,13 @@ async function handleAudioCacheDelete(req) {
 async function handleAudioCacheGet(req) {
     if (!caches) return { ok: true, hits: {} };
     const hits = {};
-    for (const k of (req.keys || []).slice(0, 12)) {
-        const rec = await caches.audio.get(k);
-        if (rec && rec.wav) hits[k] = { wav: bytesToBase64(rec.wav), duration: rec.duration, sampleRate: rec.sampleRate };
-    }
+    // Validated and read together: a page lookup of 8 keys on a wedged store took 8 x 1.5 s
+    const keys = [...new Set((Array.isArray(req.keys) ? req.keys : []).filter(k => typeof k === "string" && k.length > 0 && k.length <= 256))].slice(0, 12);
+    const recs = await Promise.all(keys.map(k => caches.audio.get(k).catch(() => null)));
+    keys.forEach((k, i) => {
+        const rec = recs[i];
+        if (rec && rec.wav && rec.wav.length) hits[k] = { wav: bytesToBase64(rec.wav), duration: rec.duration, sampleRate: rec.sampleRate };
+    });
     const n = Object.keys(hits).length;
     if (n) track(metaOf(req), { hitsAudio: n, avoided: n });
     return { ok: true, hits };

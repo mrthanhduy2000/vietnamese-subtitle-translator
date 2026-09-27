@@ -732,3 +732,92 @@ test("playback delivery: a rewind past what the page holds finds the store first
     const normal = await simRun("normal");
     assert.ok(normal.firstAudio <= 1.65, `the optimistic reach must keep the first line at 1x: ${normal.firstAudio} s`);
 });
+
+// ================= RESILIENCE (1.8.8) =================
+// Each case failed before: reproduced with tests/dub-sim.js, measured over 60 s of the lecture.
+async function resilienceRun({ get, render, seconds = 60, groups = lectureGroups() }) {
+    const clock = new Clock(), video = new FakeVideo(), audios = [];
+    let urls = 0, revoked = 0;
+    const prov = { id: "vieneu", caps: { prerender: true, live: false, free: true, serial: true, maxBatch: 1 }, voiceModel: { ...PLAN.DEFAULT_VOICE_MODEL },
+        naturalSps: () => 4, audioKey: async p => "k" + p.id, abort() {}, render };
+    const eng = new DubEngine({ video, getGroups: () => groups, providers: { primary: prov },
+        now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id), setTimeout: (f, ms) => clock.setTimeout(f, ms),
+        createObjectURL: () => { urls++; return "blob:" + urls; }, revokeObjectURL: () => { revoked++; },
+        createAudio: () => { const a = new FakeAudio(clock, { duration: 2.5 }); audios.push(a); return a; },
+        audioCache: { get, put() {} } });
+    eng.start();
+    video.play();
+    for (let i = 0; i < seconds * 20; i++) {
+        clock.advance(50, st => { video.step(st); audios.forEach(a => a.step(st)); });
+        await new Promise(r => setImmediate(r));
+    }
+    eng.stop();
+    return { eng, spoken: eng.stats.started.length, live: () => urls - revoked };
+}
+const okRender = async plans => plans.map(p => ({ planId: p.id, wav: new Uint8Array(8), duration: 2.5 }));
+
+test("resilience: a store lookup that never answers no longer silences dubbing (0 -> most lines spoken)", async () => {
+    const base = await resilienceRun({ get: async () => ({}), render: okRender });
+    const hung = await resilienceRun({ get: () => new Promise(() => {}), render: okRender });
+    assert.ok(hung.spoken >= base.spoken * 0.6, `${hung.spoken} of ${base.spoken} lines`);
+    assert.ok(hung.eng.stats.errorTypes.lookup_timeout >= 1);
+});
+
+test("resilience: TTS requests that never answer stop counting after orphanStallMs; voice comes back", async () => {
+    let n = 0;
+    const r = await resilienceRun({ get: async () => ({}), render: plans => n++ < 3 ? new Promise(() => {}) : okRender(plans) });
+    assert.ok(r.spoken >= 5, `${r.spoken} lines after three silent requests (0 before 1.8.8)`);
+    assert.ok(r.eng.stats.errorTypes.job_stalled >= 1);
+});
+
+test("resilience: a take whose duration is missing or NaN is measured from its WAV header; garbage is refused", async () => {
+    const real = AUDIO.encodeWav(new Float32Array(48000 * 2.5), 48000);
+    const base = await resilienceRun({ get: async () => ({}), render: okRender });
+    const nan = await resilienceRun({ get: async () => ({}), render: async plans => plans.map(p => ({ planId: p.id, wav: real, duration: NaN })) });
+    assert.equal(nan.spoken, base.spoken, "a NaN duration jammed the engine after one line");
+    const eng = Object.create(DubEngine.prototype);
+    assert.equal(Math.round(eng.audioLength(real, undefined) * 10) / 10, 2.5);
+    assert.equal(eng.audioLength(real, 3.1), 3.1);
+    assert.equal(eng.audioLength(null, 2), null);
+    assert.equal(eng.audioLength(new Uint8Array(0), 2), null);
+    assert.equal(eng.audioLength(new Uint8Array(8), Infinity), null);
+    assert.equal(eng.audioLength(new Uint8Array(8), -1), null);
+});
+
+test("resilience: a store hit arriving after stop() or for a re-translated line is dropped (no leak, no stale voice)", async () => {
+    const clock = new Clock(), video = new FakeVideo();
+    let groups = lectureGroups(), urls = 0, revoked = 0, answer = null;
+    const prov = { id: "vieneu", caps: { prerender: true, free: true, serial: true, maxBatch: 1 }, voiceModel: { ...PLAN.DEFAULT_VOICE_MODEL }, audioKey: async p => "k" + p.id, render: () => new Promise(() => {}) };
+    const eng = new DubEngine({ video, getGroups: () => groups, providers: { primary: prov }, now: () => clock.now(),
+        setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id), setTimeout: (f, ms) => clock.setTimeout(f, ms),
+        createObjectURL: () => { urls++; return "u"; }, revokeObjectURL: () => { revoked++; },
+        audioCache: { get: () => new Promise(r => { answer = r; }), put() {} } });
+    eng.start();
+    const p0 = eng.plans[0];
+    const pending0 = eng.lookupCache([p0]);
+    // the line is re-translated while the lookup is out
+    const cur = { ...p0, text: p0.text + " đã sửa" };
+    eng.plans[0] = cur;
+    eng.planById.set(p0.id, cur);
+    await new Promise(r => setImmediate(r));
+    answer({ ["k" + p0.id]: { wav: new Uint8Array(8), duration: 2 } });
+    await pending0;
+    assert.equal(eng.rendered.has(p0.id), false, "audio of the old text was kept for the new line");
+    const p1 = eng.plans[1];
+    const pending1 = eng.lookupCache([p1]);
+    eng.stop();
+    await new Promise(r => setImmediate(r));
+    answer({ ["k" + p1.id]: { wav: new Uint8Array(8), duration: 2 } });
+    await pending1;
+    assert.equal(eng.rendered.size, 0);
+    assert.equal(urls - revoked, 0, "a blob URL made after stop() is never revoked");
+});
+
+test("resilience: a watchdog-released job finishing late does not clear its retry's claim", async () => {
+    const eng = Object.create(DubEngine.prototype);
+    eng.pending = new Map([["t1", "tts2"]]);
+    const batch = [{ id: "t1" }];
+    batch.forEach(p => { if (eng.pending.get(p.id) === "tts1") eng.pending.delete(p.id); });
+    assert.equal(eng.pending.get("t1"), "tts2");
+    assert.match(fs.readFileSync(path.join(__dirname, "..", "dub-engine.js"), "utf8"), /if \(this\.pending\.get\(p\.id\) === jobId\) this\.pending\.delete\(p\.id\)/);
+});

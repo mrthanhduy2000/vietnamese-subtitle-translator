@@ -4,6 +4,22 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.8.8", luc: "23:46 27/09/2026", ten: "Lồng tiếng không còn im hẳn khi tiện ích nền không trả lời",
+            y: [
+                "Khi phần chạy nền của tiện ích bị Chrome tắt giữa chừng hoặc kho âm thanh bị treo, lồng tiếng có thể im cho tới hết video. Nay mỗi lần tra kho chờ tối đa 4 giây, lượt tạo giọng không có hồi âm được bỏ qua sau 20 đến 90 giây, rồi tự tạo lại (không tạo trùng).",
+                "Âm thanh hỏng (thiếu thời lượng) không còn làm lồng tiếng đứng sau một câu: thời lượng được đọc lại từ tệp, tệp hỏng thì tạo lại.",
+                "Tắt lồng tiếng hoặc chuyển video đúng lúc đang tra kho không còn để lại âm thanh chiếm bộ nhớ; câu vừa được dịch lại không bao giờ đọc bằng âm thanh cũ.",
+                "Tra kho nhiều câu cùng lúc: đọc song song thay vì lần lượt (kho bị treo: 18 giây xuống 1,5 giây).",
+                "Không đổi cách dịch, giọng, ngắt nghỉ; không thêm lượt gọi Gemini nào."
+            ],
+            bang: { cot: ["Kiểm thử ngoại tuyến (60 giây bài giảng)", "1.8.7", "Nay"], hang: [
+                ["Tra kho không bao giờ trả lời: số câu được đọc", "0", "10 / 13"],
+                ["3 lượt tạo giọng không trả lời: số câu được đọc", "0", "7 / 13"],
+                ["Âm thanh thiếu thời lượng: số câu được đọc", "1", "13 / 13"],
+                ["Tra 12 khóa khi kho bị treo", "18 giây", "1,5 giây"]
+            ] }
+        },
+        {
             v: "1.8.7", luc: "23:34 27/09/2026", ten: "Tua vào giữa câu: giọng bắt đầu đúng chỗ ngắt giữa hai từ",
             y: [
                 "Tua vào giữa một câu: trước đây giọng bắt đầu ở vị trí ước theo tỉ lệ, 85% số lần rơi vào giữa một âm tiết (nghe cụt, đôi khi có tiếng tách). Nay giọng bắt đầu ở khoảng lặng giữa hai từ gần nhất (thường nghe lại khoảng nửa giây), chỉ còn 0,3%.",

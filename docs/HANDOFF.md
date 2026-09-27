@@ -6,31 +6,30 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-27 · lane B (`dub-engine.js`) + D (`tools/playback-sim.js`, `tests/dub.test.js`) · `1.8.7`.
-User asked: go deeper on speech delivery after 1.8.6 (no paid API, no prosody/pronunciation work).
+2026-09-27 · lane B (`dub-engine.js`) + D (`background.js`, tests) · `1.8.8`. User asked: harden
+(errors, timeouts, races, validation), then performance, then an adversarial review; no API change.
 
 ## What changed
-- Clean entry after a seek: `findStops` (gaps >= `SYNC.entryStopMs` 40 ms, at `addRendered`) and
-  `entryPoint` (back <= 1.2 s, else ahead <= 0.8 s). 25 real takes, 1,509 landings: inside a
-  syllable 1,277 -> 4. Real Chrome: 3 of 3 seeks entered at a gap.
-- Store before re-cut: `headProbe` / `resolveHeadProbe` look the landing lines up under the current
-  cut before the head cut. Simulated 3-min rewind 0.95 -> 0.1 s.
-- `unreachable` has an optimistic prior before any measurement (`reachOverheadMin`, `reachRtfMin`):
-  first voice at 2x 2.75 -> 1.75 s, 1x unchanged.
-- 1.8.6 (previous turn): VieNeu request not cut once started (`background.js`), seek onto held audio
-  keeps the cut, pause keeps work, elements released. All in `DUBBING.md` "Delivery".
+- 1.8.8 resilience, each reproduced first (`dub.test.js` "resilience", fail on 1.8.7): lookup
+  timeout (`SYNC.lookupTimeout`), job watchdog (`orphanStallMs`, `jobStallMs`, `pending` Map owned
+  by jobId), hits dropped after `stop()` or for a re-translated line, `audioLength` validation,
+  `countError` kinds, VieNeu provider `no_response` / `invalid`. `background.js` store reads run
+  together (wedged IndexedDB, 12 keys: 18 s -> 1.5 s). Details: `DUBBING.md` "1.8.8 resilience".
+- Perf measured, not changed: tick 17 us on a 60-min lecture, max 6 ms on a plan rebuild.
+- 1.8.6/1.8.7 (earlier today): seek entry at a word gap, store before re-cut, VieNeu request not
+  cut once started, pause keeps work, elements released. `DUBBING.md` "Delivery".
 
 ## State
-- Tests: 522 pass, 0 fail, 1 skip (run `scripts.test` directly; `npm test` in the sandbox pings the
-  registry). Reload: **yes** + F5 video tabs. No cache key changed.
+- Tests: 528 pass, 0 fail, 1 skip (run `scripts.test` directly; `npm test` in the sandbox pings the
+  registry). Reload: **yes** + F5 video tabs. No cache key changed. Simulator: happy paths identical.
 
 ## Unfinished / in progress
-- 1.8.6 / 1.8.7 not watched on a real YouTube video: seek back and forth, pause/resume, 2x.
+- 1.8.6 to 1.8.8 not watched on a real YouTube video: seek back and forth, pause/resume, 2x.
   `localStorage.cstDubDebug = "1"` shows `delivery` in `<html data-cst-dub>`.
 - `BACKLOG.md` 33 (server near real time still chases) is open; 32 and 34 are fixed.
 - Carried over: glossary keep-English vs Vietnamese per term not yet watched in Chrome (ask the user
   after a lecture or two); nobody compared real Gemini output before/after 1.8.3/1.8.4;
-  `BACKLOG.md` 30, 31, 14, 15, 16, 18, 19, 20, 21-24, 26-28; 1.7.2 to 1.8.7 not verified end to end
+  `BACKLOG.md` 30, 31, 14, 15, 16, 18, 19, 20, 21-24, 26-28; 1.7.2 to 1.8.8 not verified end to end
   in real Chrome; 1.7.9 duck fix not confirmed; Udemy / edX (`BACKLOG.md` 9).
 
 ## Traps hit this session

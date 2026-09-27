@@ -372,6 +372,24 @@ gap at 1.5x / 2x), rate choice, drift, ducking, prosody, the paid-voice cache ke
 - **Optimistic reach before a measurement** (`SYNC.reachOverheadMin` 0.2 + `reachRtfMin` 0.2 x
   length): first voice at 2x 2.75 -> 1.75 s, at 1.5x 2.3 -> 1.75 s (one late start -> 0); 1x unchanged.
 
+**1.8.8 resilience.** Each case reproduced first (`tests/dub.test.js` "resilience", all fail on 1.8.7):
+- A store lookup the worker never answers kept `busyLookup` set: 0 lines in 60 s. Now
+  `SYNC.lookupTimeout` 4 s, then misses (late hits still used if they fit).
+- TTS jobs that never answer counted toward `maxJobs` forever: 3 of them = silence for good. Now an
+  orphan stops counting `orphanStallMs` 20 s after it was left, any job after `jobStallMs` 90 s; a
+  retry joins the worker's flight (`ttsInFlight`), so nothing is generated twice. `pending` is a Map
+  planId -> jobId: only the owning job clears it.
+- A hit landing after `stop()` made a blob URL nobody revoked; a hit for a line re-translated while
+  the lookup was out was kept under the new text. Both dropped (`running`, same id and text).
+- A take with a NaN / missing duration: rates went NaN, 1 line of 13. `audioLength` validates and
+  reads the WAV header; garbage = `bad_audio`, retried like an error.
+- Errors by kind in `debugSnapshot().delivery.errorTypes` (`countError`; kinds listed there). The
+  VieNeu provider tells `no_response` (port closed) from `invalid` and the worker's `errorType`.
+- `background.js` reads store keys together (`cachedParts`, `handleAudioCacheGet`, keys validated and
+  deduped): 12 keys on a wedged IndexedDB 18 s -> 1.5 s.
+Measured and left alone: the tick is 17 us on a 60-min lecture (max 6 ms on a plan rebuild, 5 per
+200 s), `base64ToBytes` 0.7 ms per take, `audioKey` 0.02 ms per plan (memoised).
+
 ## Prosody model (1.7.6, `dub-prosody.js`)
 
 Where the dubbed speech may pause, how strongly, and which of the voice's own stops to keep. Pure,
