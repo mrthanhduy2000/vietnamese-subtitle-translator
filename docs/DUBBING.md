@@ -449,6 +449,20 @@ lecture's: 5 lines read over a 15 s mid-roll, the ad ducked, those lines rendere
 engine resets once (`hardReset("ad")`, `lastT` cleared). The subtitle loop has the same gate
 (`youtube.js` `ytAdShowing`), which also stops Gemini calls for the ad's clock.
 
+**1.9.5 prosody and names (BACKLOG 30, 21), judged on real takes.** Rules in `dub-prosody.js`:
+comparative "như" after a gradable word joins it (as "bằng"); a result "nên" ends a fronted "Vì ..."
+clause, so a pronoun after a time word inside it is not a main clause; rule C covers a time clause
+("gặp lỗi | khi cài đặt"); a subject under `K.subjectLong` (8) syllables in a clause under
+`K.subjectClauseMin` (20) is closed, not after a list. Measured with each version in its own process
+(an `OLD=` dub-audio loaded next to the new one shares the new prosody module: that A/B shows no
+difference whatever changed). `tools/prosody-eval.js`, 1.9.4 -> 1.9.5: syntax3 wrong stops kept
+13 -> 1 (65 takes); corpus, holdouts, syntax, syntaxval, syntax2 unchanged on WRONG / MISSED / RAN-ON,
+a few optional stops closed (corpus kept 328 -> 323). A closed stop is shortened to the voice's
+minimum, not removed: "công ty | đã" 0.15 -> 0.09 s. Names: RESPELL gains long, pi, ray, mae and the
+identity entries may, bin, son, do (tagged only); LEX gains Long Beach, Long Island, Bay Area.
+`tools/pron-eval.js` dev 114 -> 120 of 123 (new items included), validation 39/42 unchanged, blind 2
+79 -> 81 of 82. Proxy to watch: level jumps in the 12 changed takes 19 -> 23 (`speech-ab.js`).
+
 ## Prosody model (1.7.6, `dub-prosody.js`)
 
 Where the dubbed speech may pause, how strongly, and which of the voice's own stops to keep. Pure,

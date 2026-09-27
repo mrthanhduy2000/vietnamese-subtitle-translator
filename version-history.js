@@ -4,6 +4,20 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.9.5", luc: "01:30 28/09/2026", ten: "Giọng VieNeu: bớt ngắt sai chỗ, đọc đúng thêm tên tiếng Anh (kiểm bằng bản thu thật)",
+            y: [
+                "Bớt ngắt sai giữa chủ ngữ ngắn và vị ngữ (\"Số nhân viên của công ty | đã tăng\"), trước \"như\" so sánh (\"dễ dàng như nhiều người nghĩ\"), trước \"khi\" trong vế ngắn (\"gặp lỗi khi cài đặt\").",
+                "Đo trên 65 bản thu thật: số khoảng dừng sai được giữ lại giảm từ 13 xuống 1; các bộ câu khác không tệ đi.",
+                "Đọc đúng kiểu Anh: Long Beach, Long Island, Raspberry Pi, Ray, Theresa May, Bin, Son (trong tên tiếng Anh). Tên người Việt như chị May, anh Sơn, Trần Văn Long giữ nguyên.",
+                "Không bỏ chữ nào, không rút gọn câu; không gọi Gemini."
+            ],
+            bang: { cot: ["Đo ngoại tuyến", "1.9.4", "Nay"], hang: [
+                ["Khoảng dừng sai được giữ (65 bản thu thật)", "13", "1"],
+                ["Phát âm đúng, bộ câu kiểm tra mù 2", "79 / 82", "81 / 82"],
+                ["Phát âm đúng, bộ câu phát triển", "114 / 123", "120 / 123"]
+            ] }
+        },
+        {
             v: "1.9.4", luc: "01:08 28/09/2026", ten: "Dọn nợ: bản dịch tinh chỉnh được lưu, kho âm thanh bớt quét thừa, giải phóng âm thanh khi tắt",
             y: [
                 "YouTube: câu được dịch lại tự nhiên hơn sau khi cả video đã dịch xong trước đây không được lưu, lần sau mở lại vẫn thấy bản cũ. Nay được lưu (một lần, sau khi các bản dịch lại đến xong).",

@@ -30,6 +30,9 @@
         voiceWeight: 0.5,             // a long stop is the voice's own phrasing: it adds up to this
         minStop: 0.12,                // a shorter stop is never kept as a pause
         minValue: 0,                  // below this a gap is inside a phrase: never a pause, however long the run
+        // A subject boundary is invited when the subject has subjectLong syllables or the clause
+        // subjectClauseMin (1.9.5): ~4.3 s at sps, one breath
+        subjectClauseMin: 20, subjectLong: 8,
         sps: 4.6                      // text-only estimate of voiced syllables per second
     };
 
@@ -192,7 +195,8 @@
     // Gradable adjectives: "chỉ tốt | bằng dữ liệu" is "only as good as", not "by means of"
     const GRADABLE = new Set(["tốt", "hay", "giỏi", "cao", "thấp", "lớn", "nhỏ", "to", "nhanh", "chậm", "mạnh", "yếu", "rẻ", "đắt",
         "dài", "ngắn", "đẹp", "xấu", "nặng", "nhẹ", "xa", "gần", "sớm", "muộn", "dễ", "khó", "giàu", "nghèo", "già", "trẻ", "kém",
-        "tệ", "đúng", "chính xác", "hiệu quả", "quan trọng", "phổ biến", "nhiều", "ít", "rộng", "hẹp", "sâu", "nông"]);
+        "tệ", "đúng", "chính xác", "hiệu quả", "quan trọng", "phổ biến", "nhiều", "ít", "rộng", "hẹp", "sâu", "nông",
+        "dễ dàng", "khó khăn", "đơn giản", "phức tạp", "nhanh chóng", "thuận tiện", "tốn kém"]);
     // Relative "mà": after these heads, or before a pronoun subject, it opens a clause that modifies
     // the noun before it ("dữ liệu | mà nó được huấn luyện"). Contrastive "mà" ("không chỉ ... mà
     // còn") is followed by an adverb, not a subject.
@@ -222,6 +226,8 @@
             }
             return n;
         };
+        // Syllables of the clause starting at word a, to the next punctuation
+        const clauseSyl = a => { let n = 0; for (let k = a; k < words.length; k++) { n += words[k].syl; if (words[k].punct) break; } return n; };
         const subjectBefore = g => {
             let subj = 0;
             for (let k = g.i; k >= zone; k--) {
@@ -284,8 +290,12 @@
                 // Without a predicate marker (degree adverb, preverbal word, "bị" / "được", a verb of
                 // change) or a fronted "vì" / "do", "nên" may be "should" ("Doanh nghiệp nhỏ nên tập
                 // trung", "Tôi nghĩ công ty nên"): a legal but uninvited boundary
-                if (isResultClause(zone, g.i)) g.cost = Math.min(g.cost, -12);
-                else g.cost = Math.max(g.cost, 0);
+                if (isResultClause(zone, g.i)) {
+                    g.cost = Math.min(g.cost, -12);
+                    // the fronted "Vì ..." clause ends here: a pronoun after a time word inside the
+                    // result clause is its subject, not a main clause ("nên sáng nay | tôi", 1.9.5)
+                    fronted = false;
+                } else g.cost = Math.max(g.cost, 0);
             } else if (fronted && !commaYet && g.cost < 40 && PRONOUN_SUBJECT.has(next.bare) && sylSince(sentStart, g.i) >= 6) {
                 // "Khi dữ liệu bị thiếu | chúng ta phải...": the main clause after a fronted clause
                 // written without its comma (once: a later pronoun is an object, "loại bỏ chúng")
@@ -303,8 +313,9 @@
                 // "tăng | từ 72,5% lên 91%": the from-to complement of a verb of change;
                 // "dự đoán | từ tiếp theo": the noun "word"
                 g.cost = Math.max(g.cost, 20);
-            } else if (next.bare === "bằng" && (GRADABLE.has(words[g.i].bare) || GRADABLE.has(at(g.i - 1, 2)))) {
-                // "chỉ tốt | bằng dữ liệu": comparative "as good as"
+            } else if ((next.bare === "bằng" || next.bare === "như") && (GRADABLE.has(words[g.i].bare) || GRADABLE.has(at(g.i - 1, 2)))) {
+                // "chỉ tốt | bằng dữ liệu": comparative "as good as"; 1.9.5 the same with "như":
+                // "không hề dễ dàng | như nhiều người nghĩ" (after a noun "như" still opens examples)
                 g.cost = Math.max(g.cost, 20);
             } else if (next.bare === "so" && words[g.i + 2] && words[g.i + 2].bare === "với" &&
                 (words.slice(Math.max(zone, g.i - 2), g.i + 1).some(w => w.bare === "hơn") ||
@@ -338,6 +349,16 @@
             } else if ((PREVERBAL.has(next.bare) || (next.bare === "có" && words[g.i + 2] && words[g.i + 2].bare === "thể")) && g.cost > 0 && g.cost < 40) {
                 // subject length: back to punctuation, a clause opener, "là" or "rằng"
                 if (subjectBefore(g) < 5) continue;
+                // A short subject in a clause that fits one breath is read with its predicate (1.9.5,
+                // BACKLOG 30: "Số nhân viên của công ty | đã tăng từ 10 lên 20 người", a 6-syllable
+                // subject). A long subject keeps its boundary however short the clause ("Những người
+                // thường xuyên tập thể dục vào buổi sáng | thường có ...").
+                // Closed (just below 0): real takes of tests/prosody-corpus.js syntax3 kept 13 wrong
+                // stops with 1.9.4, 4 with a legal-but-uninvited 0, 1 closed. After a list ("CPU, bộ nhớ,
+                // tốc độ mạng và độ trễ | đều") the subject is the whole list: left alone
+                if (!listed && subjectBefore(g) < K.subjectLong && clauseSyl(zone) < K.subjectClauseMin) {
+                    g.cost = Math.max(g.cost, K.valueAt + 1); g.subjectEnd = true; g.value = valueOf(g.cost); continue;
+                }
                 g.cost -= 12;
                 g.subjectEnd = true;
             } else continue;
@@ -455,7 +476,8 @@
         // stays a legal but uninvited boundary (soft); two long sides keep their clause boundary
         const sylOf = (a, b) => { let n = 0; for (let k = a; k <= b; k++) n += words[k].syl; return n; };
         clauses.forEach((c, j) => {
-            if (c.role !== "purpose" || j === 0 || !gaps[c.start - 1] || gaps[c.start - 1].punct) return;
+            // 1.9.5: a time clause the same ("gặp lỗi | khi cài đặt", "Hãy lưu lại tệp | khi bạn làm xong")
+            if ((c.role !== "purpose" && c.role !== "time") || j === 0 || !gaps[c.start - 1] || gaps[c.start - 1].punct) return;
             let end = c.start;
             while (end < n - 1 && !words[end].punct) end++;
             const main = sylOf(clauses[j - 1].start, c.start - 1), purpose = sylOf(c.start, end);

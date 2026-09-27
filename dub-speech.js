@@ -127,12 +127,13 @@
     // Vietnamese-syllable spellings of English name words -> a spelling VieNeu's English engine reads the
     // English way ("tom" -> tˈɑːm). Used only inside an English span ("Tom Hanks", "San Francisco").
     const RESPELL = {
-        an: "ann", bay: "bayh", be: "bhe", ben: "benn", bo: "boh", bon: "bonn", ca: "cah", can: "cann",
-        chan: "chann", co: "coh", con: "conn", da: "dah", dan: "dann", di: "dih", don: "donn", go: "goh",
-        he: "heah", ho: "hoh", hon: "hahn", in: "inn", kim: "kym", king: "kingh", la: "lah", lan: "lann",
-        lee: "leeh", leo: "lleo", lin: "linn", lo: "loh", ma: "mah", man: "mann", me: "meah", min: "minn",
-        mo: "moh", mon: "mahn", na: "nah", nan: "nanne", no: "noh", pa: "pah", ron: "ronn", sam: "samh",
-        san: "sanne", so: "soh", sue: "sueh", ta: "tah", tan: "tann", tim: "timm", tom: "tahm", ton: "tonne",
+        an: "ann", bay: "bayh", be: "bhe", ben: "benn", bin: "bin", bo: "boh", bon: "bonn", ca: "cah",
+        can: "cann", chan: "chann", co: "coh", con: "conn", da: "dah", dan: "dann", di: "dih", do: "do",
+        don: "donn", go: "goh", he: "heah", ho: "hoh", hon: "hahn", in: "inn", kim: "kym", king: "kingh",
+        la: "lah", lan: "lann", lee: "leeh", leo: "lleo", lin: "linn", lo: "loh", long: "laung", ma: "mah",
+        mae: "mey", man: "mann", may: "may", me: "meah", min: "minn", mo: "moh", mon: "mahn", na: "nah",
+        nan: "nanne", no: "noh", pa: "pah", pi: "pie", ray: "rae", ron: "ronn", sam: "samh", san: "sanne",
+        so: "soh", son: "son", sue: "sueh", ta: "tah", tan: "tann", tim: "timm", tom: "tahm", ton: "tonne",
         van: "vann", vic: "vicc"
     };
     // @generated speech-tables end
@@ -161,6 +162,8 @@
         // places
         ["New York", "place"], ["Los Angeles", "place"], ["San Francisco", "place"], ["San Diego", "place"], ["San Jose", "place"],
         ["Las Vegas", "place"], ["Silicon Valley", "place"], ["Hollywood", "place"], ["London", "place"],
+        // 1.9.5: a first word that is also a Vietnamese syllable, read Vietnamese unless known (RESPELL)
+        ["Long Beach", "place"], ["Long Island", "place"], ["Bay Area", "place"],
         // titles
         ["La La Land", "title", "<en>lah lah land</en>"], ["Oppenheimer", "title"],
         // terms said as one unit

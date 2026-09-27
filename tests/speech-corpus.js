@@ -116,7 +116,16 @@ module.exports = {
         { id: "d93", text: "Nam diễn viên Leo DiCaprio / đoạt giải Oscar.", ents: [["Leo DiCaprio", "en"]] },
         { id: "d94", text: "Chị Kim / phụ trách nhóm thiết kế.", ents: [["Kim", "vi"]] },
         { id: "d95", text: "Cuối tuần này / chúng tôi đi leo núi.", ents: [["leo", "vi"]] },
-        { id: "d96", text: "Ben nói rằng / anh ấy sẽ quay lại.", ents: [["Ben", "hold"]] }
+        { id: "d96", text: "Ben nói rằng / anh ấy sẽ quay lại.", ents: [["Ben", "hold"]] },
+        // 1.9.5 (BACKLOG 30): blind split 2 s6 and s56, moved here; the Vietnamese "Long" beside them
+        { id: "d97", text: "Hàng nghìn container đang chờ dỡ hàng ở cảng Long Beach.", ents: [["Long Beach", "en"]] },
+        { id: "d98", text: "Phòng lab vừa được tài trợ thêm Raspberry Pi 5 bộ để sinh viên thực hành.", ents: [["Raspberry Pi", "en"]] },
+        { id: "d99", text: "Kỹ sư Trần Văn Long phụ trách toàn bộ phần điện.", ents: [["Trần Văn Long", "vi"]] },
+        { id: "d100", text: "Anh Long vừa chuyển về quê ở Long An.", ents: [["Long An", "vi"]] },
+        // 1.9.5 (BACKLOG 21): names now respelled or tagged, and the same syllables in Vietnamese
+        { id: "d101", text: "Diễn viên Ray Liotta nổi tiếng với vai diễn trong phim Goodfellas.", ents: [["Ray Liotta", "en"]] },
+        { id: "d102", text: "Ca sĩ Theresa May từng là thủ tướng Anh.", src: "Theresa May was the UK prime minister.", ents: [["Theresa May", "en"]] },
+        { id: "d103", text: "Chị May và anh Sơn vừa đi Đà Lạt về.", ents: [["May", "vi"], ["Sơn", "vi"]] }
     ],
     validation: [
         { id: "v1", text: "Tôi dùng Microsoft Excel / để làm báo cáo tài chính.", ents: [["Microsoft Excel", "en"]] },

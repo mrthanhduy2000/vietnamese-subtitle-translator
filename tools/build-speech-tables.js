@@ -55,7 +55,10 @@ holmes watson`.split(/\s+/).filter(w => w && !UNSEEN_HOLDOUT.has(w));
 // Spellings found by hand where the search below finds none; verified the same way. "ben" has no
 // English-only phoneme (bɛn), so it is kept when the voice says it differently from the plain word in a
 // Vietnamese sentence (there "bˈen"; inside <en> "ben" becomes "bɛnz")
-const MANUAL = { san: "sanne", la: "lah", kim: "kym", ben: "benn" };
+// 1.9.5 (BACKLOG 30): "long" ("Long Beach") and "pi" ("Raspberry Pi"): VieNeu reads "long's" lˈɔŋz,
+// so the search finds no English target; "laung" is lˈɔːŋ, "pie" pˈaɪ
+// "ray" and "mae" have no vowel variant ("ay", "ae" are one vowel group): "rae" ɹˈeɪ, "mey" mˈeɪ
+const MANUAL = { san: "sanne", la: "lah", kim: "kym", ben: "benn", long: "laung", pi: "pie", ray: "rae", mae: "mey" };
 const cands = [...new Set(NAMES)].filter(w => SEG.isVietWord(w));
 const bare = p => p.replace(/[ˈˌ.]/g, "");
 const EN_RE = /æ|ɑ|ɪ|ʊ|ʌ|ɚ|ɝ|ɜ|ɹ|θ|ð|ʒ|ᵻ|ɐ|eɪ|aɪ|oʊ|aʊ|ɔɪ|iː|uː|ɔː|ɡ|(?<!t)ʃ|dʒ/;
@@ -94,6 +97,21 @@ Object.keys(MANUAL).forEach((w, i) => {
     const words = manual[i].ph.join(" ").split(/\s+/), vi = plain[i].ph.join(" ").split(/\s+/);
     if (words.length === 5 && (EN_RE.test(words[2]) || bare(words[2]) !== bare(vi[2] || "")) && !respell[w]) respell[w] = MANUAL[w];
 });
+
+// The word itself inside <en> (1.9.5): its English engine reads some of them right once tagged ("may"
+// mˈeɪ, "bin" bˈɪn, "son" sˈʌn, all Vietnamese untagged). Kept as an identity entry, so render only tags
+// it; only where nothing above was found and the untagged word is not already read the English way
+const alreadyEnglish = [];
+{
+    const open = Object.keys(targets).filter(w => !respell[w]);
+    const tagged = front(open.map(carrier));
+    const untagged = front(open.map(w => `Tôi gặp ${w[0].toUpperCase() + w.slice(1)} hôm qua.`));
+    open.forEach((w, i) => {
+        const t = tagged[i].ph.join(" ").split(/\s+/), u = untagged[i].ph.join(" ").split(/\s+/);
+        if (bare(u[2] || "") === targets[w]) alreadyEnglish.push(w);
+        else if (t.length === 5 && bare(t[2]) === targets[w]) respell[w] = w;
+    });
+}
 
 // ---- write ----
 const G2P_VERSION = execFileSync(PY, ["-c", "import importlib.metadata as m; print(m.version('sea_g2p'))"]).toString().trim();
@@ -138,7 +156,7 @@ const file = path.join(REPO, "dub-speech.js");
 const src = fs.readFileSync(file, "utf8");
 const re = /    \/\/ @generated speech-tables begin[\s\S]*?\/\/ @generated speech-tables end/;
 console.log(`caps: ${classes.en.length} English, ${classes.vi.length} Vietnamese expansions, ${classes.word.length} words, ${spelled} spelled with Vietnamese letter names`);
-console.log(`respell: ${Object.keys(respell).length} of ${Object.keys(targets).length} (missing: ${Object.keys(targets).filter(w => !respell[w]).join(" ")})`);
+console.log(`respell: ${Object.keys(respell).length} of ${Object.keys(targets).length}; read English untagged already: ${alreadyEnglish.join(" ") || "none"}; missing: ${Object.keys(targets).filter(w => !respell[w] && !alreadyEnglish.includes(w)).join(" ") || "none"}`);
 if (process.argv.includes("--dry")) { console.log(block); process.exit(0); }
 if (!re.test(src)) { console.error("markers not found in dub-speech.js"); process.exit(1); }
 fs.writeFileSync(file, src.replace(re, block));

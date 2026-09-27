@@ -181,5 +181,23 @@ module.exports = {
     ["P1", "purpose-short", "Chúng tôi dùng Adobe Premiere Pro / để dựng toàn bộ video."],
     ["P2", "purpose-short", "Mình ghé qua đây / để mua ít cà phê thôi."],
     ["P3", "purpose-long", "Nhóm nghiên cứu đã thu thập hơn mười nghìn bức ảnh / để huấn luyện một mô hình nhận diện bệnh trên lá lúa."]
+    ],
+    // 1.9.5 (BACKLOG 30): the four prosody failures of blind split 2 (b2-*, moved here, so that set is
+    // no longer blind for them) plus sentences written with them, before the code, to hold the rules
+    // to their limits: the long counterpart of each keeps its boundary.
+    syntax3: [
+    ["b2-p3", "compare-nhu", "Việc học một ngôn ngữ mới khi đã ngoài bốn mươi tuổi / không hề dễ dàng như nhiều người nghĩ."],
+    ["b2-p26", "subject-short", "Số nhân viên của công ty đã tăng từ 10 lên 20 người / chỉ trong sáu tháng."],
+    ["b2-p29", "cause-result", "Vì hôm qua thức khuya / nên sáng nay tôi dậy muộn."],
+    ["b2-p31", "time-nested", "Nếu bạn gặp lỗi khi cài đặt, | hãy khởi động lại máy rồi thử lại."],
+    ["X1", "compare-nhu", "Kết quả thử nghiệm tốt như chúng tôi mong đợi."],
+    ["X2", "compare-nhu", "Bài toán này không đơn giản như vẻ ngoài của nó."],
+    ["X3", "nhu-example", "Các loại trái cây nhiệt đới / như xoài, / sầu riêng và chôm chôm / đều rất được ưa chuộng."],
+    ["X4", "subject-short", "Giá vàng trong nước đã giảm mạnh vào sáng nay."],
+    ["X5", "subject-long", "Toàn bộ dữ liệu khách hàng thu thập trong ba năm qua | đã được mã hóa và lưu trữ trên một máy chủ riêng."],
+    ["X6", "cause-result", "Vì trời mưa rất to / nên chiều nay chúng tôi phải hủy buổi dã ngoại."],
+    ["X7", "fronted-pronoun", "Khi dữ liệu huấn luyện bị thiếu nhãn | chúng ta phải gán nhãn lại bằng tay."],
+    ["X8", "time-nested", "Hãy lưu lại tệp khi bạn làm xong."],
+    ["X9", "time-long", "Mô hình thường bị tràn bộ nhớ / khi xử lý những tập dữ liệu có hơn một triệu dòng."]
     ]
 };

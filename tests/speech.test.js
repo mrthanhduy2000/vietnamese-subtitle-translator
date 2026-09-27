@@ -264,11 +264,12 @@ test("performance: 2,000 mixed sentences analysed and rendered in well under a s
 });
 
 test("custom entries: a local lexicon entry is used at once, without a reload", () => {
-    // "ray" has no respelling of its own (1.8.2 gave one to "kim", the name this test used before)
-    assert.equal(say("Tôi thích xem Ray Donovan."), "Tôi thích xem Ray Donovan.");
-    SPEECH.addEntry("Ray Donovan", "title", "<en>rey</en> Donovan");
-    assert.equal(say("Tôi thích xem Ray Donovan."), "Tôi thích xem <en>rey</en> Donovan.");
-    SPEECH.LEX.delete("ray donovan");
+    // "hang" has no respelling of its own (1.8.2 gave one to "kim", 1.9.5 to "ray": the names this
+    // test used before)
+    assert.equal(say("Chỉ số Hang Seng giảm mạnh."), "Chỉ số Hang Seng giảm mạnh.");
+    SPEECH.addEntry("Hang Seng", "brand", "<en>hahng</en> Seng");
+    assert.equal(say("Chỉ số Hang Seng giảm mạnh."), "Chỉ số <en>hahng</en> Seng giảm mạnh.");
+    SPEECH.LEX.delete("hang seng");
 });
 
 test("corpus: the unseen split is untouched since it was written (it is scored once, never tuned on)", () => {
