@@ -4,6 +4,24 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.8.0", luc: "19:02 27/09/2026", ten: "Giọng VieNeu phân biệt tên Việt và tên Anh theo ngữ cảnh, ngắt nghỉ theo thành phần câu",
+            y: [
+                "Tên trùng chữ tiếng Việt (Tom, Sam, Tim, Don, Dan...) chỉ đọc kiểu Anh khi đủ chắc: có họ tiếng Anh đi kèm (Sam Altman, Tim Cook, cả khi đứng đầu câu), hoặc câu tiếng Anh gốc gọi đúng tên đó (\"Tom said\" -> \"Tom kể\"). Đứng một mình không có ngữ cảnh thì giữ nguyên. Tên người Việt (chị Kim, Nguyễn Văn Dan, cô Kim Anh) không bao giờ bị đọc kiểu Anh.",
+                "Mã viết hoa dài (5 chữ trở lên) không có nguyên âm như SMTPS chỉ đọc chữ cái tiếng Anh khi có bằng chứng; mã tiếng Việt (THPTQG, CHXHCN, UBMTTQ) giữ nguyên. NVIDIA đọc đúng \"en-vi-đi-a\" (trước đây mất hai chữ I).",
+                "Số có đơn vị đọc là số lượng: \"CPU 3.5 GHz\" là \"ba phẩy năm\" (trước đây \"ba chấm năm\"); số phiên bản vẫn đọc \"chấm\" (Python 3.12, iOS 18.2).",
+                "Ngắt nghỉ theo thành phần câu: không ngắt giữa chủ ngữ dài và cụm giới từ của nó (\"một công ty ở California trong quý vừa qua | đã...\"), không tách vị ngữ ngắn khỏi bổ ngữ (\"tăng mạnh nhờ vào\", \"chạy Google Ads cho...\"); mệnh đề mục đích (\"để...\") vẫn là chỗ ngắt hợp lệ.",
+                "Giọng miễn phí không cắt câu ở ranh giới phụ đề khi chỗ đó nằm giữa một cụm (Christopher | Nolan, 3,5 | GHz) và người nói chỉ ngừng ngắn (dưới 1,2 giây).",
+                "Không thêm lệnh gọi API nào. Giọng Gemini trả phí và kho bản dịch không đổi khóa (đã kiểm bằng mã băm cố định), nên không phải trả tiền tạo lại. Audio VieNeu đã lưu được tạo lại một lần (miễn phí, trên máy)."
+            ],
+            bang: { cot: ["Đo (tự động, chưa ai nghe thử)", "Trước", "Nay"], hang: [
+                ["Tên, viết tắt, số đọc đúng (âm vị VieNeu), bộ câu phát triển / kiểm định", "97/107 · 35/42", "104/107 · 39/42"],
+                ["Như trên, bộ câu mù do tác tử khác viết, chấm một lần", "62/70", "65/70"],
+                ["Đọc nhầm tên/từ tiếng Việt thành tiếng Anh (bộ mù)", "0", "0"],
+                ["Chỗ nghỉ sai trên bản ghi thật, câu thành phần mới (phát triển / kiểm định)", "5 · 1", "0 · 0"],
+                ["Cắt câu sai ở ranh giới phụ đề (bộ mù, người nói ngừng 0,7 giây)", "10", "1"]
+            ] }
+        },
+        {
             v: "1.7.9", luc: "15:07 27/09/2026", ten: "Tiếng gốc trên YouTube hạ nhỏ đúng mức khi giọng Việt đang đọc",
             y: [
                 "Sửa lỗi tiếng gốc không hạ xuống mức đã chọn (ví dụ 10%) khi giọng Việt đang nói trên YouTube. Nguyên nhân: trình phát YouTube tự đặt lại âm lượng video (tính năng Âm lượng ổn định, sau khi tua...), tiện ích tưởng là người xem tự chỉnh nên thôi hạ nhỏ cho tới lúc giọng Việt ngừng.",

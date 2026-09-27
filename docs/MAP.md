@@ -42,8 +42,8 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `context-engine.js` | 378 | Domain detection + per-video sliding-window context sent with each translation | `CST_CONTEXT` |
 | `cst-cache.js` | 319 | Two-tier LRU cache (RAM -> IndexedDB) for translations and audio | `CST_CACHE` |
 | `dub-audio.js` | 594 | Pure WAV/PCM work: decode, rumble cut, hiss removal, normalize, silence, split; pause shaping (`alignStops` places the voice's stops on the text, `shapePauses` applies the prosody model's decisions) | `CST_DUB_AUDIO` |
-| `dub-prosody.js` | 442 | Pure prosody model (1.7.6): boundary value of every gap between words, pause roles and lengths, which of a take's stops to keep (dynamic program), breathing commas, the value of a segment cut. See `DUBBING.md` "Prosody model" | `CST_DUB_PROSODY` |
-| `dub-speech.js` | 454 | Pure (1.7.8): English spans inside Vietnamese speech (lexicon, token shapes, evidence) and the text VieNeu is sent for them (`render`: `<en>` tags, respellings, model numbers, at most 8 tags); `spanGaps` for the prosody model. Holds a generated block (`tools/build-speech-tables.js`). See `DUBBING.md` "English inside Vietnamese speech" | `CST_DUB_SPEECH` |
+| `dub-prosody.js` | 664 | Pure prosody model (1.7.6): boundary value of every gap between words, pause roles and lengths, which of a take's stops to keep (dynamic program), breathing commas, the value of a segment cut; 1.8.0 clause frames (`constituents`), gap tiers, `signature` (VieNeu cache key), `tokenMap`. See `DUBBING.md` "Prosody model" | `CST_DUB_PROSODY` |
+| `dub-speech.js` | 550 | Pure (1.7.8): English spans inside Vietnamese speech (lexicon, token shapes, evidence; 1.8.0 a three-state confidence score, 5+ letter codes) and the text VieNeu is sent for them (`render`: `<en>` tags, respellings, model numbers, at most 8 tags); `spanGaps` for the prosody model. Holds a generated block (`tools/build-speech-tables.js`). See `DUBBING.md` "English inside Vietnamese speech" | `CST_DUB_SPEECH` |
 | `cost-policy.js` | 294 | **Single source of truth** for the model catalog, cost modes, budgets, difficulty routing, local-TTS config | `CST_COST` |
 | `popup.js` | 295 | Popup logic; re-injects content scripts if they are missing | n/a |
 | `yt-bridge.js` | 299 | MAIN-world page bridge: reads YouTube's internal player response, fetches timedtext with the player's `pot` token | none (postMessage protocol only) |
@@ -95,6 +95,10 @@ front end (chunks, phonemes; `{"words"}` / `{"normalize"}` modes), run with its 
 server needed). `tools/speech-ab.js` renders the same corpus with the real voice for an old and the
 current version and measures pauses, spans, duration, clicks (sandbox off). `tools/build-speech-tables.js`
 regenerates the data block of `dub-speech.js` (rerun after a VieNeu / sea_g2p update).
+`tools/syntax-eval.js` (1.8.0) scores the prosody model's text-only decisions against the marks, and
+where the free voice's segments are cut for sentences given as subtitle lines; no server.
+`tests/blind-corpus.js` (1.8.0) is the unseen split, written by a separate agent that never read the
+rules: scored once per release (`pron-eval --corpus=`, `syntax-eval --corpus=`), never tuned on.
 
 ## Not source
 

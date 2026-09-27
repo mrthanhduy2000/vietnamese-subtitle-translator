@@ -59,7 +59,10 @@ test("a Vietnamese-syllable word is respelled only with evidence: not at the sta
     // the English source line is evidence: "Tom Hanks" there, the same pair here
     assert.equal(say("Tom Hanks đóng vai chính.", { source: "Tom Hanks plays the lead." }), "<en>tahm</en> Hanks đóng vai chính.");
     assert.equal(say("Dan Brown viết cuốn này.", { source: "Dan Brown wrote this one." }), "<en>dann</en> Brown viết cuốn này.");
-    assert.equal(say("Dan Brown viết cuốn này."), "Dan Brown viết cuốn này.");
+    // 1.8.0: a first name opening the sentence before an English surname that is not a brand is a
+    // name ("Dan Brown ..."); a Vietnamese word there stays Vietnamese ("So Google", "Con Labrador")
+    assert.equal(say("Dan Brown viết cuốn này."), "<en>dann</en> Brown viết cuốn này.");
+    for (const s of ["Con Labrador này rất ngoan.", "So Google với Bing thì sao.", "Can Marketing thì sao."]) assert.equal(say(s), s, s);
 });
 
 test("model numbers: a letter + digit code in a product name, a four-digit number after a code", () => {
@@ -252,7 +255,9 @@ test("performance: 2,000 mixed sentences analysed and rendered in well under a s
     for (const s of lines) SPEECH.render(s);
     const first = Number(process.hrtime.bigint() - t) / 1e6;
     t = process.hrtime.bigint();
-    for (const s of lines.slice(-500)) SPEECH.render(s);
+    // the memo holds 600 lines and starts over when full: after 2,000 only the last 200 are in it
+    // (1.8.0: the old slice of 500 timed 300 fresh analyses and failed under a loaded test run)
+    for (const s of lines.slice(-150)) SPEECH.render(s);
     const again = Number(process.hrtime.bigint() - t) / 1e6;
     assert.ok(first < 1500, `first pass ${first.toFixed(0)} ms`);
     assert.ok(again < 20, `memoised pass ${again.toFixed(1)} ms`);
@@ -275,7 +280,8 @@ test("corpus: the unseen split is untouched since it was written (it is scored o
 test("the generated tables are in place and match their builder's markers", () => {
     const src = fs.readFileSync(path.join(__dirname, "..", "dub-speech.js"), "utf8");
     assert.match(src, /@generated speech-tables begin: tools\/build-speech-tables\.js/);
-    assert.ok(SPEECH.RESPELL.tom && !SPEECH.RESPELL.sam, "sam is held out while the unseen split names Sam Altman");
+    // "sam" was held out while the 1.7.8 unseen split named Sam Altman; released in 1.8.0
+    assert.ok(SPEECH.RESPELL.tom && SPEECH.RESPELL.sam);
 });
 
 // ---- across subtitle lines ----

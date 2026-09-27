@@ -51,7 +51,7 @@ if (arg("worker")) {
             });
             return { id: it.id, split: it.split, words, gold, text, speak, ents };
         });
-        process.stdout.write(JSON.stringify(out));
+        fs.writeSync(1, JSON.stringify(out));   // sync: a pipe write after 64 KB was cut by exit (1.8.0)
         process.exit(0);
     }
     if (arg("job") === "score") {
@@ -118,7 +118,7 @@ if (arg("worker")) {
                 fs.writeFileSync(path.join(job.wav, t.wavName), Buffer.from(A.encodeWav(out, SR)));
             }
         }
-        process.stdout.write(JSON.stringify(res));
+        fs.writeSync(1, JSON.stringify(res));
         process.exit(0);
     }
     throw new Error("unknown job");

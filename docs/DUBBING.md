@@ -122,6 +122,73 @@ module fixes:
   What it does not measure: how a respelling *sounds* (only its phonemes), and anything the server's
   own G2P reads wrong in a word it already treats as English.
 
+## Context, constituents and cache identity (1.8.0)
+
+**Pronunciation: three states** (`dub-speech.js` `CONF`). A word VieNeu reads Vietnamese (an "ambig"
+shape: Tom, San, Dan...) gets a score; only `HIGH_EN` (>= 3) is rewritten, `AMBIGUOUS` and `HIGH_VI`
+(<= -3) are left alone. Clues: lexicon unit or the source line's same pair (decisive, +10); a
+capitalised English neighbour mid-sentence, a name word (`NAME_WORDS`) opening a sentence before an
+English non-brand surname ("Sam Altman ...", not "So Google", "Con Labrador"), a lone given name the
+English source line names (`EN_GIVEN`: not Lan, An, Dan, Van, Tan, Kim) (strong, +5); a Vietnamese
+name word beside it ("Nguyễn Văn Dan", decisive -10); a title before it ("chị Kim", weak -2); a line
+in capitals (decisive). A lone "Tom" with no source line stays as is. Every token also carries
+`lang`, `entity`, `conf`, `score`.
+**Codes of 5+ letters**: English letters only for a code with **no vowel** and English evidence (the
+source line has it; or an English neighbour plus F/J/W/Z). VieNeu spells all of them Vietnamese
+("SMTPS", "THPTQG"); a code with a vowel ("CRISPR", "NGINX") may be a word, so it is left to the voice.
+**Version or quantity**: `dub-planner.js` `numberRole(before, after)`, used by `adaptForSpeech` and
+the model-number rule: a measure unit after the number wins ("CPU 3.5 GHz" -> "3 phẩy 5", "RAM 4096
+MB"), then a section word or product name before it ("Python 3.12 năm ngoái" -> "chấm").
+
+**Constituents** (`dub-prosody.js` `constituents`, run after `adjustJoins`): clauses start at
+punctuation and openers of weight >= 20 (+ "rằng"), each with a role (purpose, cause, condition,
+contrast, time, result, complement, relative, main). A subject is a personal pronoun, or the words
+before the first predicate marker (preverbal word, "là", "được"/"bị", a verb of change; not inside a
+compound, not "vừa qua"; the scan stops at a degree adverb and never starts at a preposition). Then
+only prohibitions: **A** no pause inside a subject (<= 22 syllables) before a preposition; **B** a
+short predicate keeps its first adjunct (<= 3 syllables before an adjunct opener, <= 5 before a
+plain preposition). A purpose clause is a clause: "Tôi dùng ChatGPT / để phân tích" stays a legal
+boundary. Every gap gets a `tier`: punct, hard (unit or value < 0), soft, open.
+**Token map**: `PROSODY.tokenMap(text, ctx)` joins both analyses per token (id, surface, language,
+spanId, entityType, pronunciationMode, pronunciationConfidence, boundaryBefore/After). Both modules
+read one `SEG.tokenize`, memoised; analysis is ~0.2 to 0.6 ms a line uncached.
+**Across subtitle lines** (free voice only, `buildDubScript`): a silence under `BRIDGE_MAX` 1.2 s at a
+line boundary the model forbids ("Christopher / Nolan", "3,5 / GHz", a subject's PP) no longer cuts
+the segment; `prosodicCut` takes any legal line boundary over an illegal "here". Paid voices keep
+their per-group cuts (a moved cut re-bills stored audio).
+
+**Cache identity.** Paid (Gemini) key: unchanged, pinned by golden hashes in
+`tests/speech-context.test.js`; nothing of `dub-speech.js` or `dub-prosody.js` reaches it (it keys
+`plan.text`, the `adaptForSpeech` output; only a "PRODUCT N.N unit" line changes, where it said
+"chấm" for a quantity). Free (VieNeu) key: `LOCAL_STYLE_VERSION` 11 (shaping code) + voice + the
+rendered text (`speakScript`: that *is* the pronunciation fingerprint, so a lexicon or policy change
+re-renders exactly the lines whose text changed) + `PROSODY.signature(plainScript)` (per-gap values,
+units, punctuation pauses: an analysis change re-renders only the lines it touches). 1.8.0 itself
+re-renders every VieNeu line once (free, local). Translation key: no input from either module
+(asserted). `PRONUNCIATION_VERSION` names the data version and is deliberately not in a key.
+
+**Measured** (same takes old vs new; the marks are one reader's; proxies, nobody has listened):
+- Phonemes (`pron-eval`, 1.7.9 -> 1.8.0): dev 97 -> 104 of 107, validation 35 -> 39 of 42, old
+  unseen 28 -> 29 of 29 (dev/validation grew by 45 / 16 items written before the code). Misses left:
+  Kim Kardashian (no respelling), MMORPG (vowel, left), "So" (VieNeu's own reading), RAM (label), Dan
+  with source (by design), TPM (scorer artefact next to "chip").
+- Real takes (`prosody-eval`, WRONG kept pauses): syntax (dev) 5 -> 0, syntaxval 1 -> 0, holdout3
+  1 -> 0 ("công ty | trong quý"), corpus 1 -> 1, holdout1 3 -> 3, holdout2 0 -> 0; MISSED / RAN-ON
+  unchanged. Cost: in 2 of 5 takes of S1 no stop is left (the voice did not stop before "đã"): longest
+  run max 14 -> 21 syllables on that set.
+- Real takes of the speech corpus (`speech-ab`, 8 of 128 texts differ; no source lines there): dev
+  WRONG 5 -> 3, pauses at a language edge 2 -> 0, inside a span 0 -> 0, clicks / clipping / runaway 0,
+  level jumps 490 -> 485, duration -0.3%; longest run max 20 -> 22.
+- **Blind split** (`tests/blind-corpus.js`, 55 + 40 + 13 items by a separate agent, frozen at commit
+  2b6b2db before the rules were written, scored once): phonemes 62 -> 65 of 70 (en 30 -> 33 of 38;
+  vi 9/9, hold 6/6, vletters 3/3 in both: **no new false positive**). Fixed: "Sam Altman" opening a
+  sentence, lone "Tom" / "Sam" named by the source line. Left: Kim, Ken, Ben (no respelling; "Ben" is
+  not a candidate). Prosody text decisions: WRONG 2 -> 2 (one fixed, "mây | trong quý ba"; one moved
+  to "phần trăm | so với" in the same 25-syllable run), MISSED 2 -> 2, BLOCKED 1 -> 1. Subtitle lines
+  with a 0.7 s gap: segment cuts at an unmarked gap 10 -> 1 (the one left is a purpose clause, "đây |
+  để", which 1.8.0 treats as a legal boundary and the blind marks do not). The blind split is seen now:
+  its failures are next round's dev cases (`BACKLOG.md` 29).
+
 ## The SYNC block is the tuning bible
 
 `dub-engine.js` lines 27 to 76, one object named `SYNC`. **Every timing constant lives there.** If

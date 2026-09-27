@@ -7,6 +7,8 @@
 //   model     no "phẩy", "gạch ngang", "dash", "dot"; numbers in Vietnamese; names not Vietnamised
 //   num       a quantity: Vietnamese numerals ("phẩy" allowed), the unit as the voice reads it
 //   vi        nothing English; vletters: Vietnamese letter names
+//   hold      the language cannot be told from the sentence: the extension must leave the word as
+//             it is (no respelling, no <en> tag), whatever the voice then does with it
 // A span's phonemes are found by rendering the sentence a second time with the span replaced by
 // "cái" and diffing the two phoneme strings. Consistency: the same span in several sentences must
 // get the same phonemes. The phonemes are what the model reads; how well it voices them is not
@@ -27,18 +29,21 @@ if (renderArg) {
     let SPEECH = null;
     try { SPEECH = require(path.join(dir, "dub-speech.js")); } catch (e) { /* before 1.7.7 */ }
     const texts = JSON.parse(fs.readFileSync(0, "utf8"));
-    const out = texts.map(raw => {
+    // an item is a text, or [text, English source line] (evidence for a name's language)
+    const out = texts.map(item => {
+        const [raw, source] = Array.isArray(item) ? item : [item, ""];
         let s = PLAN.adaptForSpeech(raw);
         if (s && !/[.!?…]$/.test(s)) s += ".";
-        return SPEECH && SPEECH.vieneuText ? SPEECH.vieneuText(s) : PROS.breathText(s);
+        return SPEECH && SPEECH.vieneuText ? SPEECH.vieneuText(s, { source }) : PROS.breathText(s);
     });
     process.stdout.write(JSON.stringify(out));
     process.exit(0);
 }
 
 const arg = name => (process.argv.find(a => a.startsWith(`--${name}=`)) || "").split("=").slice(1).join("=");
-const SETS = require(path.join(REPO, "tests", "speech-corpus.js"));
-const splits = (arg("split") || "dev,validation").split(",");
+// --corpus=tests/blind-corpus.js scores that file's "speech" list as the split "blind"
+const SETS = arg("corpus") ? { blind: require(path.resolve(REPO, arg("corpus"))).speech } : require(path.join(REPO, "tests", "speech-corpus.js"));
+const splits = (arg("split") || (arg("corpus") ? "blind" : "dev,validation")).split(",");
 const detail = process.argv.includes("--detail");
 const PY = process.env.VIENEU_PY || path.join(os.homedir(), "VieNeu-TTS", ".venv", "bin", "python");
 
@@ -59,7 +64,9 @@ const g2p = texts => JSON.parse(execFileSync(PY, [path.join(__dirname, "vieneu-g
 const words = ph => ph.split(/\s+/).map(w => w.replace(/^[.,!?;:…"'()]+|[.,!?;:…"'()]+$/g, "")).filter(Boolean);
 const bare = w => w.replace(/[ˈˌ]/g, "");
 const VI_RE = /[0-9]|t̪|ɗ|ɣ|ɲ|aː|ɤ|ɯ|y/;
-const EN_RE = /æ|ɑ|ɪ|ʊ|ʌ|ɚ|ɝ|ɜ|ɹ|θ|ð|ʒ|ᵻ|ɐ|eɪ|aɪ|oʊ|aʊ|ɔɪ|iː|uː|ɔː|ɡ|(?<!t)ʃ|dʒ/;
+// "ɜ" alone is VieNeu's sắc tone ("ích" ˈiɜc, "quốc" kˈuəɜc); English has "ɜː" (1.8.0 fix: Vietnamese
+// abbreviations were scored "read as English")
+const EN_RE = /æ|ɑ|ɪ|ʊ|ʌ|ɚ|ɝ|ɜː|ɹ|θ|ð|ʒ|ᵻ|ɐ|eɪ|aɪ|oʊ|aʊ|ɔɪ|iː|uː|ɔː|ɡ|(?<!t)ʃ|dʒ/;
 // Every Vietnamese syllable the segmenter accepts (onset x rime x tone), as VieNeu reads it: a word
 // in this set is a Vietnamese reading even without a tone digit ("zˈi" is "di"). Cached per machine.
 function vietReadings() {
@@ -104,7 +111,8 @@ function region(full, probe) {
     return { got: full.slice(a, full.length - b), rest: probe.slice(a, probe.length - b) };
 }
 
-function judge(kind, surface, got) {
+function judge(kind, surface, got, sent) {
+    if (kind === "hold") return new RegExp(`(^|[^\\p{L}<>])${surface.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^\\p{L}<]|$)`, "u").test(sent) ? null : "rewritten";
     const langs = got.map(langOf);
     const joined = got.map(bare).join("");
     if (!got.length) return "not found";
@@ -113,7 +121,9 @@ function judge(kind, surface, got) {
         return joined === want ? null : "not English letter names";
     }
     if (kind === "vi" || kind === "vletters") return langs.includes("en") ? "read as English" : null;
-    if (kind === "num") return got.map(bare).some(w => EN_NUMBERS.test(w) || FORBIDDEN.slice(1).includes(w)) ? "English numerals or dash/dot" : null;
+    // a quantity's decimal point is "phẩy", never the version's "chấm" (tʃəɜm)
+    if (kind === "num") return got.map(bare).some(w => EN_NUMBERS.test(w) || FORBIDDEN.slice(1).includes(w)) ? "English numerals or dash/dot" :
+        got.map(bare).includes("tʃəɜm") ? "decimal read as a version (chấm)" : null;
     const forb = got.map(bare).filter(w => FORBIDDEN.includes(w));
     if (forb.length) return `says ${forb.join(" ")}`;
     if (kind === "model") {
@@ -141,7 +151,7 @@ function evaluate(dir, label) {
         items.push({ split, it, plain, probes: it.ents.map(([surface]) => plain.replace(surface, "cái")) });
     }
     const texts = [];
-    items.forEach(x => { x.at = texts.length; texts.push(x.plain, ...x.probes); });
+    items.forEach(x => { x.at = texts.length; texts.push([x.plain, x.it.src || ""], ...x.probes.map(p => [p, x.it.src || ""])); });
     const rendered = render(dir, texts);
     const ph = g2p(rendered);
     const res = [];
@@ -153,7 +163,7 @@ function evaluate(dir, label) {
         x.it.ents.forEach(([surface, kind], k) => {
             const probe = words(ph[x.at + 1 + k].ph.join(" "));
             const r = region(full, probe);
-            const fault = judge(kind, surface, r.got);
+            const fault = judge(kind, surface, r.got, rendered[x.at]);
             res.push({ split: x.split, id: x.it.id, surface, kind, got: r.got.join(" "), fault, sent: rendered[x.at] });
         });
     });
@@ -166,7 +176,7 @@ function evaluate(dir, label) {
 }
 
 function report(e) {
-    const kinds = ["en", "letters", "model", "num", "vi", "vletters"];
+    const kinds = ["en", "letters", "model", "num", "vi", "vletters", "hold"];
     console.log(`\n== ${e.label}`);
     for (const split of splits) {
         const rs = e.res.filter(r => r.split === split);

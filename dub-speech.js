@@ -33,6 +33,8 @@
         (typeof require === "function" ? (() => { try { return require("./vi-segmenter.js"); } catch (e) { return null; } })() : null);
 
     const TAG_MAX = 8;
+    const planner = () => (root && root.CST_DUB_PLAN) ||
+        (typeof require === "function" ? (() => { try { return require("./dub-planner.js"); } catch (e) { return null; } })() : null);
     const isViet = w => !!(SEG && SEG.isVietWord(String(w).toLowerCase()));
     const DIACRITIC = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i;
 
@@ -129,8 +131,8 @@
         co: "coh", con: "conn", da: "dah", dan: "dann", di: "dih", don: "donn", go: "goh", he: "heah",
         ho: "hoh", hon: "hahn", in: "inn", king: "kingh", la: "lah", lan: "lann", lee: "leeh", lin: "linn",
         lo: "loh", ma: "mah", man: "mann", me: "meah", min: "minn", mo: "moh", mon: "mahn", na: "nah",
-        no: "noh", pa: "pah", ron: "ronn", san: "sanne", so: "soh", sue: "sueh", ta: "tah", tan: "tann",
-        tim: "timm", tom: "tahm", van: "vann", vic: "vicc"
+        no: "noh", pa: "pah", ron: "ronn", sam: "samh", san: "sanne", so: "soh", sue: "sueh", ta: "tah",
+        tan: "tann", tim: "timm", tom: "tahm", van: "vann", vic: "vicc"
     };
     // @generated speech-tables end
 
@@ -167,6 +169,7 @@
         ["landing page", "term"], ["call to action", "term"], ["search engine optimization", "term"], ["cost per click", "term"],
         ["return on investment", "term"], ["gradient descent", "term"],
         // all-caps said as a word, or said differently from its letters
+        ["NVIDIA", "brand", "<en>nvidia</en>"],   // VieNeu drops both I's of the capitals: "n v d a"
         ["IKEA", "acronym"], ["NASA", "acronym"], ["NATO", "acronym"], ["FIFA", "acronym"], ["UEFA", "acronym"],
         ["UNESCO", "acronym"], ["UNICEF", "acronym"], ["ASEAN", "acronym"], ["OPEC", "acronym"], ["COVID", "acronym"],
         ["JPEG", "acronym", "<en>jay peg</en>"]
@@ -199,6 +202,27 @@
     // English initialisms said letter by letter even where VieNeu reads a word, or where its table
     // stops (5 letters)
     const INITIALISMS = new Set("HTTPS HR PR CPC CPM CPA ROI TPM SEM AWS GCP ETL CSV".split(" "));
+
+    // ---- How sure we are that a word is English (1.8.0) ----
+    // A word VieNeu would read Vietnamese is rewritten only at HIGH_EN. Evidence adds up; a Vietnamese
+    // name read the English way is heard at once, a missed English reading much less, so one decisive
+    // Vietnamese clue outweighs any English one and a lone clue of either kind is not enough.
+    const CONF = { decisive: 10, strong: 5, weak: 2, high: 3 };
+    const HIGH_EN = "high-en", AMBIGUOUS = "ambiguous", HIGH_VI = "high-vi";
+    const confState = score => score >= CONF.high ? HIGH_EN : score <= -CONF.high ? HIGH_VI : AMBIGUOUS;
+    // Vietnamese titles before a name ("chị Kim", "ông Dan"): weak, a translator adds them to foreign
+    // names too ("anh Tom" for "Tom")
+    const TITLES = new Set("anh chị ông bà cô chú bác em cậu thầy dì mợ thím".split(" "));
+    // Respelled words that are mostly a first name or a name particle, not a Vietnamese function word
+    // ("Con", "So", "In", "Ca" at the start of a sentence are Vietnamese): only these are a name at the
+    // start of a sentence, before an English surname ("Sam Altman ...", "Don Norman ...")
+    const NAME_WORDS = new Set("dan don lee lin ron sam san sue tim tom van vic".split(" "));
+    // English given names no Vietnamese person carries unaccented: a lone one is English when the
+    // English source line names them ("Tom said ..."). Not Lan, An, Kim, Dan (Dân), Van (Văn), Tan
+    // (Tân): an English video about a Vietnamese person writes those the same way
+    const EN_GIVEN = new Set("tom tim ron don sue vic lee sam".split(" "));
+    const ENGLISH_LINE = /(^|[^\p{L}])(the|a|an|is|are|was|were|and|to|of|he|she|it|i|you|we|they|said|says|told|me|my|his|her|just|has|had|have)(?![\p{L}])/iu;
+    const VOWEL_CAPS = /[AEIOUY]/;
 
     const possessive = s => s.replace(/['’]s$/i, "");
     const capitalised = s => /^\p{Lu}/u.test(s);
@@ -251,7 +275,7 @@
         const tokens = toks.map((t, i) => {
             const lead = t.lead || "", trail = t.trail || "";
             const s = t.raw.slice(lead.length, t.raw.length - trail.length);
-            return { i, raw: t.raw, lead, trail, s, shape: shapeOf(s), unit: -1, span: -1, strong: false };
+            return { i, raw: t.raw, lead, trail, s, shape: shapeOf(s), unit: -1, span: -1, strong: false, score: 0, conf: null };
         });
         const joined = (a, b) => !tokens[a].trail && !tokens[b].lead;
         // A line in capitals ("ĐỪNG BAO GIỜ"): its capital words are Vietnamese
@@ -326,23 +350,86 @@
             i = j + 1;
         }
 
-        // 3. how sure we are that a word is English where VieNeu would read it Vietnamese: inside a
-        //    lexicon unit; or capitalised mid-sentence next to a capitalised English word ("của Tom
-        //    Cruise"); or the English source line has it next to the same word ("Dan Brown")
+        // 3. how sure we are that a word is English where VieNeu would read it Vietnamese (1.8.0: a
+        //    score, see CONF). English clues: inside a lexicon unit; the English source line has it next
+        //    to the same word ("Dan Brown"); capitalised mid-sentence next to a capitalised English word
+        //    ("của Tom Cruise"); a first name opening the sentence before an English surname that is not a
+        //    brand ("Sam Altman ...", not "So Google"); a lone given name the English source line names
+        //    ("Tom said" -> "Tom kể"). Vietnamese clues: a Vietnamese name word beside it ("Nguyễn Văn
+        //    Dan", decisive), a title before it ("chị Kim", weak), a line in capitals (decisive).
+        const englishSource = !!source && ENGLISH_LINE.test(source);
+        const pair = (x, y) => source && new RegExp(`(^|[^\\p{L}])${esc(x.s)}\\s+${esc(y.s)}([^\\p{L}]|$)`, "u").test(source);
+        const named = x => englishSource && new RegExp(`(^|[^\\p{L}])${esc(possessive(x.s))}(?![\\p{L}])`, "u").test(source);
+        // a capitalised Vietnamese word that is part of a name: not a title, not just the sentence's first word
+        const viName = x => x && capitalised(x.s) && x.shape === "vi" && !TITLES.has(x.s.toLowerCase()) && !startsSentence(x.i);
+        const ambigScore = (k, sp) => {
+            const t = tokens[k];
+            if (t.unit >= 0) return CONF.decisive;
+            if (shouting) return -CONF.decisive;
+            const w = possessive(t.s).toLowerCase();
+            const before = k > 0 && joined(k - 1, k) ? tokens[k - 1] : null, after = k + 1 < tokens.length && joined(k, k + 1) ? tokens[k + 1] : null;
+            const prev = sp && k > sp.a ? tokens[k - 1] : null, next = sp && k < sp.b ? tokens[k + 1] : null;
+            const nameBeside = x => x && capitalised(x.s) && x.shape !== "ambig" && english(x);
+            let score = 0;
+            if (viName(before) || viName(after)) score -= CONF.decisive;
+            if ((next && pair(t, next)) || (prev && pair(prev, t))) score += CONF.decisive;
+            else if (!startsSentence(k) && (nameBeside(prev) || nameBeside(next))) score += CONF.strong;
+            else if (startsSentence(k) && NAME_WORDS.has(w) && next && next.shape === "en" && next.unit < 0 && capitalised(next.s)) score += CONF.strong;
+            else if (!sp && EN_GIVEN.has(w) && capitalised(t.s) && named(t)) score += CONF.strong;
+            if (before && TITLES.has(before.s.toLowerCase())) score -= CONF.weak;
+            return score;
+        };
         for (const sp of spans) {
             for (let k = sp.a; k <= sp.b; k++) {
                 const t = tokens[k];
-                if (t.unit >= 0) { t.strong = true; continue; }
+                if (t.unit >= 0) { t.strong = true; t.score = CONF.decisive; t.conf = HIGH_EN; continue; }
                 if (t.shape === "ambig") {
-                    const prev = k > sp.a ? tokens[k - 1] : null, next = k < sp.b ? tokens[k + 1] : null;
-                    const nameBeside = x => x && capitalised(x.s) && x.shape !== "ambig" && english(x);
-                    const pair = (x, y) => source && new RegExp(`(^|[^\\p{L}])${esc(x.s)}\\s+${esc(y.s)}([^\\p{L}]|$)`, "u").test(source);
-                    t.strong = (!startsSentence(k) && (nameBeside(prev) || nameBeside(next))) || (next && pair(t, next)) || (prev && pair(prev, t)) || false;
+                    t.score = ambigScore(k, sp);
+                    t.conf = confState(t.score);
+                    t.strong = t.conf === HIGH_EN;
                 } else if (t.shape === "code") {
                     // "MacBook Pro M3", "Galaxy S25": a product name around it; "giấy A4", "U23" stay Vietnamese
                     t.strong = tokens.slice(sp.a, sp.b + 1).some(x => x !== t && capitalised(x.s) && !num(x) && x.shape !== "code" && english(x));
-                }
+                    t.conf = t.strong ? HIGH_EN : AMBIGUOUS;
+                } else if (english(t)) t.conf = HIGH_EN;
             }
+        }
+        // a lone capitalised word outside any span ("Tom kể rằng ..."): English only on the source line's word
+        for (const t of tokens) {
+            if (t.shape !== "ambig" || t.span >= 0 || !capitalised(t.s)) continue;
+            t.score = ambigScore(t.i, null);
+            t.conf = confState(t.score);
+            if (t.conf !== HIGH_EN) continue;
+            t.strong = true;
+            t.span = spans.length;
+            spans.push({ id: t.span, a: t.i, b: t.i, cat: "name", text: t.s });
+        }
+        // An all-caps code of 5+ letters with no vowel (Y counts) can only be letters, and VieNeu spells
+        // it with Vietnamese letter names unless its own table knows it ("THPTQG" tê hát phê..., but
+        // "SMTPS" too). Whether it is English or a Vietnamese abbreviation cannot be told from its
+        // letters, so English letters only on evidence: the English source line has the code (strong),
+        // an English word beside it or a letter Vietnamese never starts a word with, F J W Z (weak
+        // each). A code with a vowel may be said as a word ("CRISPR" is "crisper", "NGINX" "engine x";
+        // VieNeu spells both Vietnamese): its reading is unknown, so it is left to the voice.
+        for (const t of tokens) {
+            if (t.shape !== "caps" || t.span < 0) continue;
+            const p = possessive(t.s);
+            if (p.length < 5 || INITIALISMS.has(p) || capsClass(p) === "vi" || VOWEL_CAPS.test(p)) continue;
+            const sp = spans[t.span];
+            let score = 0;
+            if (englishSource && new RegExp(`(^|[^\\p{L}])${esc(p)}(?![\\p{L}])`, "u").test(source)) score += CONF.strong;
+            if (tokens.slice(sp.a, sp.b + 1).some(x => x !== t && (x.shape === "en" || x.shape === "camel" || x.unit >= 0))) score += CONF.weak;
+            if (/[FJWZ]/.test(p)) score += CONF.weak;
+            t.score = score;
+            t.conf = confState(score);
+            t.letters = t.conf === HIGH_EN;
+        }
+        // what each token is for both readers of this analysis (pronunciation and prosody, 1.8.0):
+        // lang en / vi / num / other, the span's entity kind, and how the voice is to say it
+        for (const t of tokens) {
+            t.lang = t.shape === "num" || t.shape === "code" ? "num" : t.shape === "other" ? "other" :
+                t.span >= 0 && (t.shape !== "ambig" || t.strong) ? "en" : t.shape === "ambig" && t.conf !== HIGH_VI ? (t.span >= 0 ? "en?" : "vi") : t.shape === "en" || t.shape === "camel" ? "en" : "vi";
+            t.entity = t.span >= 0 ? spans[t.span].cat : null;
         }
         return { text, tokens, spans, units };
     }
@@ -353,6 +440,7 @@
         const s = t.s, p = possessive(s), ps = s.slice(p.length).toLowerCase();
         switch (t.shape) {
             case "caps": {
+                if (t.letters) return { say: `<en>${p.toLowerCase().split("").join(" ")}${ps}</en>`, pri: 2 };
                 if (t.span < 0 || capsClass(p) !== "spelled") return null;
                 const e = LEX.get(p.toLowerCase());
                 if (e && e.cat === "acronym") return { say: `<en>${p.toLowerCase()}${ps}</en>`, pri: 3 };
@@ -402,9 +490,12 @@
             const r = sayToken(o.t);
             if (r) { o.say = r.say; o.pri = r.pri; }
         }
-        // a model number after a code: "RTX 5090" is "năm không chín không", not a quantity
+        // a model number after a code: "RTX 5090" is "năm không chín không", not a quantity; "RAM 4096
+        // MB" is (the planner's numberRole: a unit after it wins)
+        const P = planner();
         for (let k = 1; k < a.tokens.length; k++) {
-            const t = a.tokens[k], prev = a.tokens[k - 1];
+            const t = a.tokens[k], prev = a.tokens[k - 1], next = a.tokens[k + 1];
+            if (P && P.numberRole && P.numberRole(prev.s, next ? next.s : "") === "quantity" && next && !t.trail) continue;
             if (t.span >= 0 && t.span === prev.span && out[k].say === null && /^\d{4}$/.test(t.s) && /^[A-Z]{2,5}$/.test(prev.s)) {
                 out[k].say = t.s.split("").join(" "); out[k].pri = 2;
             }
@@ -448,7 +539,12 @@
         return inside;
     }
 
-    const api = { analyze, render, vieneuText, spanGaps, shapeOf, capsClass, addEntry, RESPELL, LEX, TAG_MAX };
+    // Version of the pronunciation data and policy (lexicon, tables, CONF). Not part of any cache key:
+    // the free voice's audio key holds the rendered text itself, so a policy change re-renders exactly
+    // the lines whose rendered text changed, and nothing reaches the paid voice or the translation cache.
+    const PRONUNCIATION_VERSION = "1.8.0";
+    const api = { analyze, render, vieneuText, spanGaps, shapeOf, capsClass, addEntry, RESPELL, LEX, TAG_MAX, CONF,
+        HIGH_EN, AMBIGUOUS, HIGH_VI, PRONUNCIATION_VERSION };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_DUB_SPEECH = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

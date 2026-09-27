@@ -6,38 +6,39 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-27 · lane B (`dub-engine.js`, `dubbing.js`) + D (tests) · `1.7.9`.
-User report: on YouTube the original track was not ducked to 10% while VieNeu spoke.
+2026-09-27 · lane B (`dub-speech.js`, `dub-prosody.js`, `dub-planner.js`, `dub-engine.js` key) + D
+(tests, tools) · `1.8.0`. User brief: context-aware pronunciation, constituent prosody, cache identity.
 
 ## What changed
-- Root cause: `onVolume` treated any foreign volume write as a user change, set
-  `baseVolume = v.volume / duckFactor` (0.75 / 0.1 -> clamped 1) and `updateDuck` returned early
-  because `duckFactor` already sat at its target, so nothing re-ducked until the voice paused.
-  YouTube's player writes its own level itself (Stable Volume; measured in the in-app browser: after
-  a seek 0.1 -> 0.893, player `getVolume()` stays 100). Continuous speech never paused -> never ducked.
-- Fix: `duckDirty` forces `updateDuck` to re-apply next tick after any foreign write.
-  `settings.playerOwnsVolume` (YouTube, from `dubbing.js`) takes the written value as the base
-  as is; other sites keep the divide-by-duck-factor rule. `DUBBING.md` Ducking bullet updated.
-- New test in `tests/dub.test.js` ("YouTube re-applying its own volume..."): fails on 1.7.8 (0.75).
+- Three-state name confidence (`CONF`), 5+ letter codes (no vowel + evidence only), `numberRole`
+  (unit after a number wins), `constituents` (subject PP, short predicate + adjunct), gap tiers,
+  `tokenMap`, cross-subtitle bridging (free voice, < 1.2 s), `PROSODY.signature` in the VieNeu key
+  (`LOCAL_STYLE_VERSION` 11). Paid key unchanged (golden hashes). All in `DUBBING.md` "Context,
+  constituents and cache identity (1.8.0)", with every number.
+- New: `tests/speech-context.test.js`, `tools/syntax-eval.js`, `tests/blind-corpus.js` (unseen split
+  written by a separate agent, frozen at 2b6b2db, scored once). pron-eval: `src`, `hold`, `--corpus`,
+  ɜ-tone scorer fix. speech-ab: 64 KB pipe truncation fixed. "sam" respelled ("samh").
 
 ## State
-- `npm test`: 466 tests, 465 pass, 0 fail, 1 skip · Reload: **yes** + F5 video tabs
-- Not verified in the user's real Chrome (Claude in Chrome was not connected). Which YouTube event
-  wrote the volume in the user's session is not known; only the seek case was reproduced.
+- `npm test`: 477 pass, 0 fail, 1 skip · Reload: **yes** + F5 video tabs. VieNeu re-renders once.
+- Nobody has listened to 1.8.0; all numbers are proxies (phonemes, marks, same-take A/B).
 
 ## Unfinished / in progress
-- Carried over from 1.7.8: `BACKLOG.md` 21-25 (respellings 44/66, phonemes not sound, RAM label,
-  caps default, "để" pauses); "sam" held out of RESPELL until a new unseen split exists.
-- Not heard by the user: 1.7.8 A/B WAVs, 1.7.6, 1.7.5, 1.7.2 audio.
-- Carried over: `BACKLOG.md` 14, 15, 16 (PP inside a long subject), 18, 19, 20 (keep VieNeu resident).
-- Not verified in real Chrome with the extension: 1.7.2 to 1.7.9 end to end, backup download,
-  `ensureYtBridge`, 1.7.0 case. Prompts / context NOT trimmed. Udemy / edX (`BACKLOG.md` 9).
+- `BACKLOG.md` 29: blind failures (Kim/Ken/Ben names, "phần trăm | so với", list "ảnh thẻ | và",
+  "sáng | nên", short purpose clause length). Move into dev next round, then a NEW blind split by a
+  separate agent. The current blind file is seen now.
+- `BACKLOG.md` 26-28 (conservative misses, "So" read English by VieNeu, paid voice keeps group cuts).
+- Carried over: `BACKLOG.md` 14, 15, 16 (subject without a marker), 18, 19, 20, 21-24; not heard by
+  the user: 1.8.0, 1.7.8, 1.7.6, 1.7.5, 1.7.2 audio; 1.7.2 to 1.8.0 not verified end to end in real
+  Chrome; 1.7.9 duck fix not confirmed by the user; Udemy / edX (`BACKLOG.md` 9).
 
 ## Traps hit this session
-- If YouTube ever writes its volume continuously, the engine will re-duck every 50 ms tick: a
-  short blip each time. Not seen in 30 s of playback; watch for "pumping" reports.
-- The scratchpad take folders can vanish between runs (`tools/prosody-eval.js` re-renders ~10 min).
-- A comment naming a Gemini model id fails `cost.test.js` (only `cost-policy.js` may).
+- Bash sandbox: `curl 127.0.0.1:8000` returns nothing and `$TMPDIR` differs from the unsandboxed
+  one. Renders and git worktrees for A/B: sandbox off, absolute paths in the scratchpad.
+- `~/.cache/cst-prosody-takes` had lost 4 of 6 sets: `prosody-eval` re-rendered 350 takes (~25 min).
+- Never grep `tests/` with content output while a blind split is live (`--exclude=blind-corpus.js`).
+- A test that times a "memo" pass must fit the memo (600 lines, cleared when full).
 
 ## Suggested next step
-- Reload; dub a YouTube video at "Tiếng gốc khi đọc" 10%, seek a few times, confirm the duck holds.
+- Reload, dub an English video with names (Sam Altman, Tim Cook) and a talk with long subjects;
+  listen for wrong English names on Vietnamese people first.

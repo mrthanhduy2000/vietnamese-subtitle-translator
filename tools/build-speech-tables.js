@@ -40,10 +40,11 @@ for (const k of codes) {
 
 // ---- 2. respellings ----
 // Common English given names, surnames and place words; a name is a candidate only if it is also a
-// Vietnamese syllable. Names in the unseen split of tests/speech-corpus.js are left out ("sam"), so
-// that split measures what the rules do on names they were not built from.
-const UNSEEN_HOLDOUT = new Set(["sam"]);
-const NAMES = `tom tim kim dan ben don ron jon ann anne lin lee van long san la le de del da di do du bo mo lo co ho
+// Vietnamese syllable. A name in a split still to be scored can be held out here so that split measures
+// the fallback; "sam" was held out for the 1.7.8 unseen split, released in 1.8.0 (tests/blind-corpus.js,
+// written by a separate agent, is the unseen split now and does not steer this list).
+const UNSEEN_HOLDOUT = new Set([]);
+const NAMES = `tom tim sam kim dan ben don ron jon ann anne lin lee van long san la le de del da di do du bo mo lo co ho
 hang man con bin tan min nan lan hon ton son bon mon phan chan an in on can to me go so no be he we ma pa na ca ta
 mia leo max ray roy guy kay may mae sue lou joe jo cody toby tony cole dale gale hale kyle lyle nick rick mick vic
 pam nina tina lena dana gina kate dave steve pete mike luke jake nate adam ethan mason logan noah liam lucas owen

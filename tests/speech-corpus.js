@@ -9,7 +9,8 @@
 //          vi        Vietnamese, however English it looks ("Ban giám đốc", "to con", "Long An")
 //          vletters  a Vietnamese acronym, Vietnamese letter names (UBND)
 //   text   pause marks as in prosody-corpus.js: | a pause is expected, / a light one is fine,
-//          unmarked a pause is wrong
+//          unmarked a pause is wrong. 1.8.0: d3 and d4 got "/" before "để": the user judged
+//          "[Tôi dùng ChatGPT] [để phân tích dữ liệu]" the right split (2026-09-27)
 // Splits: "dev" is what the rules were built and tuned on; "validation" is checked after a change
 // and may point at a fault, but rules are not fitted to its sentences; "unseen" was written before
 // any code of 1.7.8 and is scored once, at the end. Its names are deliberately NOT in the built-in
@@ -19,8 +20,8 @@ module.exports = {
     dev: [
         { id: "d1", text: "Tôi mua bàn làm việc ở IKEA / vì giá khá rẻ.", ents: [["IKEA", "en"]] },
         { id: "d2", text: "Claude của Anthropic / viết code khá tốt.", ents: [["Claude", "en"], ["Anthropic", "en"], ["code", "en"]] },
-        { id: "d3", text: "Tôi dùng ChatGPT để phân tích dữ liệu / mỗi sáng.", ents: [["ChatGPT", "en"]] },
-        { id: "d4", text: "Tôi đang chạy Google Ads cho một Performance Max campaign / và dùng ChatGPT để phân tích dữ liệu.", ents: [["Google Ads", "en"], ["Performance Max campaign", "en"], ["ChatGPT", "en"]] },
+        { id: "d3", text: "Tôi dùng ChatGPT / để phân tích dữ liệu / mỗi sáng.", ents: [["ChatGPT", "en"]] },
+        { id: "d4", text: "Tôi đang chạy Google Ads cho một Performance Max campaign / và dùng ChatGPT / để phân tích dữ liệu.", ents: [["Google Ads", "en"], ["Performance Max campaign", "en"], ["ChatGPT", "en"]] },
         { id: "d5", text: "Kênh YouTube này / có hơn một triệu người đăng ký.", ents: [["YouTube", "en"]] },
         { id: "d6", text: "OpenAI vừa công bố một mô hình mới / tên là GPT-5.6.", ents: [["OpenAI", "en"], ["GPT-5.6", "model"]] },
         { id: "d7", text: "Machine Learning / là một nhánh của trí tuệ nhân tạo.", ents: [["Machine Learning", "en"]] },
@@ -78,7 +79,35 @@ module.exports = {
         { id: "d59", text: "Hội nghị Google Cloud Next / được tổ chức tại San Francisco.", ents: [["Google Cloud Next", "en"], ["San Francisco", "en"]] },
         { id: "d60", text: "Tom Hanks / từng đoạt hai giải Oscar liên tiếp.", ents: [["Tom Hanks", "en"], ["Oscar", "en"]] },
         { id: "d61", text: "Bộ phim của Christopher Nolan và Emma Thomas / thu về hơn một tỷ đô la.", ents: [["Christopher Nolan", "en"], ["Emma Thomas", "en"]] },
-        { id: "d62", text: "Đội ngũ marketing / đang chạy thử một campaign mới trên Facebook.", ents: [["marketing", "en"], ["campaign", "en"], ["Facebook", "en"]] }
+        { id: "d62", text: "Đội ngũ marketing / đang chạy thử một campaign mới trên Facebook.", ents: [["marketing", "en"], ["campaign", "en"], ["Facebook", "en"]] },
+        // 1.8.0 (written before the 1.8.0 code): names whose language only context decides, codes of
+        // 5+ letters, and numbers that are a version or a quantity
+        { id: "d63", text: "Sam Altman / vừa công bố kế hoạch mới của OpenAI.", ents: [["Sam Altman", "en"], ["OpenAI", "en"]] },
+        { id: "d64", text: "Kim Kardashian / mở thêm một thương hiệu mỹ phẩm.", ents: [["Kim Kardashian", "en"]] },
+        { id: "d65", text: "Chị Kim / là trưởng phòng kinh doanh.", ents: [["Kim", "vi"]] },
+        { id: "d66", text: "Tom kể rằng / anh ấy đã bỏ việc.", src: "Tom said he had quit his job.", ents: [["Tom", "en"]] },
+        { id: "d67", text: "Tom / đang đợi ở ngoài.", ents: [["Tom", "hold"]] },
+        { id: "d68", text: "Hôm qua tôi gặp Dan / ở quán cà phê.", ents: [["Dan", "hold"]] },
+        { id: "d69", text: "Nhà văn Dan Brown / sắp ra mắt tiểu thuyết mới.", ents: [["Dan Brown", "en"]] },
+        { id: "d70", text: "Tôi sống ở San Mateo / gần hai năm.", ents: [["San Mateo", "en"]] },
+        { id: "d71", text: "Cô Kim Anh / dạy môn toán.", ents: [["Kim Anh", "vi"]] },
+        { id: "d72", text: "Nguyễn Văn Dan / là sinh viên năm cuối.", ents: [["Dan", "vi"]] },
+        { id: "d73", text: "Tim Cook / giới thiệu iPhone mới tại sự kiện.", ents: [["Tim Cook", "en"], ["iPhone", "en"]] },
+        { id: "d74", text: "Ron nói rằng / dự án đã hoàn tất.", src: "Ron said the project is done.", ents: [["Ron", "en"]] },
+        { id: "d75", text: "Lan nói rằng / dự án đã hoàn tất.", src: "Lan said the project is done.", ents: [["Lan", "hold"]] },
+        { id: "d76", text: "Don Norman / viết một cuốn sách nổi tiếng về thiết kế.", ents: [["Don Norman", "en"]] },
+        { id: "d77", text: "So Google với Bing, | tôi thích Google hơn.", ents: [["So", "vi"]] },
+        { id: "d78", text: "Con AI này / trả lời khá nhanh.", ents: [["Con", "vi"]] },
+        { id: "d79", text: "Tôi đang chơi một game MMORPG / trên máy tính.", src: "I'm playing an MMORPG on my PC.", ents: [["MMORPG", "letters"]] },
+        { id: "d80", text: "Máy chủ gửi thư qua SMTPS.", src: "The server sends mail over SMTPS.", ents: [["SMTPS", "letters"]] },
+        { id: "d81", text: "Học sinh đang ôn thi THPTQG.", ents: [["THPTQG", "vletters"]] },
+        { id: "d82", text: "Cổ phiếu NVIDIA / tăng mạnh hôm qua.", ents: [["NVIDIA", "en"]] },
+        { id: "d83", text: "Hiến pháp nước CHXHCN Việt Nam / được sửa đổi.", ents: [["CHXHCN", "vletters"]] },
+        { id: "d84", text: "Xung nhịp CPU 3.5 GHz / khá cao.", ents: [["3.5 GHz", "num"]] },
+        { id: "d85", text: "Máy có RAM 16 GB.", ents: [["16 GB", "num"]] },
+        { id: "d86", text: "Bản macOS 15.1 / sửa lỗi hao pin.", ents: [["macOS 15.1", "model"]] },
+        { id: "d87", text: "Llama 3.1 / hỗ trợ tám ngôn ngữ.", ents: [["Llama 3.1", "model"]] },
+        { id: "d88", text: "Ống kính chỉ dày 0.5 mm.", ents: [["0.5 mm", "num"]] }
     ],
     validation: [
         { id: "v1", text: "Tôi dùng Microsoft Excel / để làm báo cáo tài chính.", ents: [["Microsoft Excel", "en"]] },
@@ -104,7 +133,24 @@ module.exports = {
         { id: "v21", text: "Người phụ nữ mà bạn gặp hôm qua / là giám đốc của tôi.", ents: [] },
         { id: "v22", text: "Buổi sáng thì tôi thường uống cà phê.", ents: [] },
         { id: "v23", text: "Tôi thích xem phim của Tom Cruise / vào cuối tuần.", ents: [["Tom Cruise", "en"]] },
-        { id: "v24", text: "Cô ấy làm việc cho một công ty / ở San Diego.", ents: [["San Diego", "en"]] }
+        { id: "v24", text: "Cô ấy làm việc cho một công ty / ở San Diego.", ents: [["San Diego", "en"]] },
+        // 1.8.0, written before the 1.8.0 code; measured, not tuned on
+        { id: "v25", text: "Tom Holland / đóng vai Người Nhện.", ents: [["Tom Holland", "en"]] },
+        { id: "v26", text: "Bà Kim / bán hàng ở chợ Bến Thành.", ents: [["Kim", "vi"]] },
+        { id: "v27", text: "Chị Lan kể / con gái mới vào lớp một.", ents: [["Lan", "vi"]] },
+        { id: "v28", text: "Tom / vừa gọi điện cho tôi.", ents: [["Tom", "hold"]] },
+        { id: "v29", text: "Tom / vừa gọi điện cho tôi.", src: "Tom just called me.", ents: [["Tom", "en"]] },
+        { id: "v30", text: "Ông Van Gogh / vẽ bức tranh này năm 1889.", ents: [["Van Gogh", "en"]] },
+        { id: "v31", text: "Dan / hỏi tôi về kế hoạch.", src: "Dan asked me about the plan.", ents: [["Dan", "en"]] },
+        { id: "v32", text: "Mạng lưới UBMTTQ / hoạt động ở mọi xã.", ents: [["UBMTTQ", "vletters"]] },
+        { id: "v33", text: "Bộ xử lý đạt 4.2 GHz / khi ép xung.", ents: [["4.2 GHz", "num"]] },
+        { id: "v34", text: "Card RTX 4090 / có 24 GB VRAM.", ents: [["RTX 4090", "model"], ["24 GB", "num"]] },
+        { id: "v35", text: "Windows 11 / yêu cầu chip TPM.", ents: [["Windows 11", "model"], ["TPM", "letters"]] },
+        { id: "v36", text: "Bộ nhớ GPU 2.5 GB / là không đủ.", ents: [["2.5 GB", "num"]] },
+        { id: "v37", text: "Tim / sẽ đến muộn một chút.", ents: [["Tim", "hold"]] },
+        { id: "v38", text: "Chị Kim Oanh / làm kế toán.", ents: [["Kim Oanh", "vi"]] },
+        { id: "v39", text: "Tim Berners-Lee / phát minh ra web.", ents: [["Tim Berners-Lee", "en"]] },
+        { id: "v40", text: "Ứng dụng này chạy trên giao thức WebRTC / và HTTPS.", ents: [["HTTPS", "letters"]] }
     ],
     unseen: [
         { id: "u1", text: "Tôi đặt phòng qua Airbnb / cho chuyến đi Đà Lạt.", ents: [["Airbnb", "en"]] },

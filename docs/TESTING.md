@@ -33,6 +33,7 @@ sense of weight, not an assertion.
 | `audit.test.js` | 13 | 1.7.3 audit: popup "Tiếng Anh ở trên" live, dead popup switch gone, Coursera render-loop memo, YouTube does not save a Google-fallback video, daily storage sweep, parallel Google fallback, removed dead code. 1.7.4: leaving a Coursera lecture / a YouTube video mid-load (the only **flow** tests of the two start paths; `pageEnv({ timers, tracks, sendMessage, files, sync })` runs the real `content.js` + `youtube.js` with stubbed bridge and network). 1.7.5: Coursera progressive display (first line after 1 reply), playhead-first order, switch-off mid-run, button redrawn after `busy`, popup progress loop (runs the real `popup.js` on a stub DOM) |
 | `voice-clean.test.js` | 9 | `highPass` (rumble cut, voice band kept), the corrected hiss estimate, clause openings as the strongest boundaries and sentence pauses by length (on `dub-prosody.js` since 1.7.6), `shapePauses` keeping a clause-opening stop, lead silence skipped, the 20 ms voiced onset, engine `gapAfter` wiring, no gate |
 | `prosody.test.js` | 21 | 1.7.6 prosody model: syllables, graded levels and roles (lead, list, comma before a contrast, fronted clause, question, transition), no pause inside units / after "rằng" / before modal "nên", openers and long subjects as boundaries, the selection (budget, choppy and long runs, floor, tight), memo and determinism, breathing commas, cut values, `prosodicCut` for free voices only, engine `gapAfter` and `plainScript`, three real Mỹ Duyên takes in `tests/audio`, and two guards over the whole marked corpus (`prosody-corpus.js`): commas only at marked gaps, no unit ever chosen |
+| `speech-context.test.js` | 12 | 1.8.0: the three-state name confidence (sentence start, titles, Vietnamese name words, the source line, names Vietnamese people carry), 5+ letter codes, `numberRole`, constituents (subject PP, short predicate, purpose clause), token map, subtitle lines bridged inside a phrase, golden paid-voice keys, translation key free of speech/prosody, speed |
 | `speech.test.js` | 22 | 1.7.8 English in speech (`dub-speech.js`): what VieNeu is sent for unknown codes, word acronyms, camelCase and Vietnamese-syllable names, model numbers; what stays untouched (VieNeu's own tables, Vietnamese codes, A4, U23, shouting, "Con AI", a lone "Tom"); evidence from the English source; unchanged text = same string; 8-tag cap; consistency; the user's adversarial list; the version reading of `adaptForSpeech`; spans as prosody units; the backlog-16 pause rules; engine `speakScript` + the `speak` field; no network; speed; custom entries; the unseen split's fingerprint; three subtitle lines read as one take |
 | `ui.test.js` | 13 | Shortcuts (Alt+S / Alt+D / Alt+Shift+V), no blocking `alert`/`confirm` on the user's page, focus rings and reduced-motion, `role=status` toasts, the YouTube quick menu built on a mini-DOM, light/dark theme wiring, the VieNeu autostart script, auto-switch back to VieNeu when the server appears, and the release-history data |
 
@@ -66,11 +67,16 @@ vs new shaping on the **same** take).
 an older `dub-audio.js` on the same takes. The marks are one reader's judgment: read WRONG as
 "worth listening to", not as ground truth.
 
-English in speech (1.7.8), corpus `tests/speech-corpus.js` (dev 62 / validation 24 / unseen 24; the
-unseen split is scored once per release and its fingerprint is pinned in `speech.test.js`):
+English in speech (1.7.8), corpus `tests/speech-corpus.js` (dev 88 / validation 40 / old unseen 24,
+now seen; its fingerprint is pinned in `speech.test.js`). The unseen split since 1.8.0 is
+`tests/blind-corpus.js`, written by a separate agent: **do not open it while changing rules**; score it
+once at the end, record the result, add its failures as new dev cases for the next round. `hold` =
+the word must be left as is (`pron-eval` kind).
 
 ```bash
 node tools/pron-eval.js --split=dev,validation --old=HEAD --detail   # VieNeu phonemes, no server
+node tools/syntax-eval.js --old=HEAD --detail                         # prosody text decisions, no server
+node tools/pron-eval.js --corpus=tests/blind-corpus.js --old=<rev>    # blind split: once, at the end
 node tools/speech-ab.js --split=dev,validation --wav=$TMPDIR/ab        # real takes, sandbox off
 node tools/build-speech-tables.js                                     # regenerate dub-speech.js data
 ```

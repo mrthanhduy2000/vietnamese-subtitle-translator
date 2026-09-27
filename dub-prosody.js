@@ -121,7 +121,7 @@
             const op = !words[i].punct && !(LEFT_BIND[words[i].bare] >= 40) && !(inside && inside[i + 1] >= 80) && openerAt(words, i + 1);
             if (op && op.phrase.includes(" ") && op.weight <= 14) c = Math.min(c, 10 - op.weight);
             gaps.push({ i, pos, punct: words[i].punct, mark: words[i].mark, cost: c, value: valueOf(c),
-                unit: !!tokens && !words[i].punct && isUnit(tokens, inside, i) });
+                unit: !!tokens && !words[i].punct && isUnit(tokens, inside, i), inWord: !!(inside && inside[i + 1] >= 80) });
         }
         const total = pos + (words.length ? words[words.length - 1].syl : 0);
         // Inside an English name, term or model ("Google Ads API", "Christopher Nolan", "GPT 5 chấm
@@ -136,8 +136,10 @@
         markConnectives(words, gaps);
         assignRoles(words, gaps);
         adjustJoins(words, gaps);
+        const clauses = constituents(words, gaps);
         for (const g of gaps) if (!g.punct) labelPhrase(g);
-        return { text, words, gaps, total };
+        for (const g of gaps) g.tier = g.punct ? "punct" : g.unit || g.value < K.minValue ? "hard" : g.value < 0.5 ? "soft" : "open";
+        return { text, words, gaps, total, clauses };
     }
     const valueOf = c => Math.max(-4, Math.min(2, (K.valueAt - c) / K.valueScale));
     // Inside one word, term, name or number: the voice does not stop there for long
@@ -315,6 +317,101 @@
                 if (op && op.weight <= 14 && h.cost < 12) { h.cost = 12; h.value = valueOf(h.cost); }
             }
         }
+    }
+
+    // ---- Constituents (1.8.0) ----
+    // A light clause frame, enough to keep a phrase whole: where each clause starts, what opens it (its
+    // role), where its subject ends and its predicate starts. The predicate markers are words the model
+    // already knows (preverbal words, "là", "được" / "bị", verbs of change); a personal pronoun is a
+    // subject of its own. Nothing here creates a pause; it only forbids one inside a constituent:
+    //   A. a prepositional phrase inside the subject modifies its noun: "Một công ty ... ở California |
+    //      trong quý vừa qua | đã ..." has one boundary, before the predicate (up to 22 syllables of
+    //      subject; a longer one keeps its inner boundaries for breath)
+    //   B. a short predicate keeps its first adjunct: "tăng mạnh nhờ vào ...", "làm việc với ...",
+    //      "đang chạy Google Ads cho ..." (<= 3 syllables before an adjunct opener, <= 5 before a plain
+    //      preposition). A purpose, cause or condition clause is not an adjunct: "Tôi dùng ChatGPT / để
+    //      phân tích" keeps its boundary
+    // A clause that starts with a preposition (a fronted adjunct: "Ở Việt Nam các công ty ...") gets no
+    // subject. Where no marker is found ("Độ chính xác trên tập kiểm tra đạt ...") nothing changes.
+    const PREPOSITIONS = new Set(["trong", "ở", "tại", "trên", "dưới", "của", "từ", "với", "về", "cho", "theo", "giữa",
+        "ngoài", "sau", "trước", "qua", "bằng", "nhờ", "đến", "tới", "vào", "cùng"]);
+    const CLAUSE_ROLE = [
+        [/^(để|để mà|nhằm|nhằm mục đích)$/, "purpose"], [/^(vì|bởi vì|tại vì|bởi lẽ|do)$/, "cause"],
+        [/^(nếu|nếu như|giả sử|giả như|trừ khi|miễn là)$/, "condition"],
+        [/^(nhưng|nhưng mà|tuy nhiên|tuy vậy|mặc dù|dù|dù cho|cho dù|song|trái lại|ngược lại)$/, "contrast"],
+        [/^(khi|khi mà|trong khi|sau khi|trước khi|cho đến khi|ngay khi|mỗi khi|một khi|đến khi)$/, "time"],
+        [/^(vì vậy|vì thế|do đó|do vậy|cho nên|thế nên|vậy nên|nên)$/, "result"], [/^rằng$/, "complement"], [/^mà$/, "relative"]
+    ];
+    const DEGREE = new Set(["rất", "khá", "hơi", "quá", "cực", "vô cùng", "hết sức"]);
+    const SUBJECT_PRONOUN = /^(tôi|ta|mình|bạn|họ|nó|chúng tôi|chúng ta|các bạn|mọi người|người ta|(anh|chị|em|ông|bà|cô|cậu) ấy)$/;
+    function constituents(words, gaps) {
+        const n = words.length;
+        const at = (i, len) => words.slice(i, i + len).map(w => w.bare).join(" ");
+        const clauses = [];
+        // clause starts: sentence start, after punctuation, before a clause opener
+        let start = 0;
+        const close = end => { if (end >= start) clauses.push({ start, end }); start = end + 1; };
+        for (let i = 0; i < n - 1; i++) {
+            if (gaps[i].punct) { close(i); continue; }
+            const op = openerAt(words, i + 1);
+            if (op && (op.weight >= 20 || op.phrase === "rằng") && !JOINERS.has(op.phrase) && op.phrase !== "là" && !gaps[i].unit && gaps[i].value >= K.minValue) close(i);
+        }
+        close(n - 1);
+        for (const c of clauses) {
+            const op = openerAt(words, c.start);
+            const role = op ? (CLAUSE_ROLE.find(([re]) => re.test(op.phrase)) || [null, null])[1] : null;
+            c.role = role || "main";
+            let s = c.start + (op && role ? op.phrase.split(" ").length : 0);
+            if (s > c.end) continue;
+            if (c.start > 0) gaps[c.start - 1].clauseRole = c.role;
+            // subject: a pronoun, or the words before the first predicate marker
+            const pro = [3, 2, 1].find(len => s + len - 1 <= c.end && SUBJECT_PRONOUN.test(at(s, len)));
+            if (pro) { c.subject = [s, s + pro - 1]; c.pred = s + pro; }
+            else if (!PREPOSITIONS.has(words[s].bare) && !OPENERS[words[s].bare]) {
+                for (let v = s + 1; v <= c.end; v++) {
+                    const w = words[v].bare, gBefore = gaps[v - 1];
+                    // a degree adverb means the predicate already started at a verb the model does not
+                    // know ("Mô hình học | rất nhanh"): no subject to find
+                    if (gBefore.punct || DEGREE.has(w)) break;
+                    if ((gBefore.inWord || (gaps[v] && gaps[v].inWord)) && w !== "có") continue;   // "không gian", "chỉ số": a noun
+                    if (w === "vừa" && TIME_END.includes(at(v, 2))) continue;      // "quý vừa qua"
+                    const marker = PREVERBAL.has(w) || w === "là" || w === "được" || w === "bị" || CHANGE_VERBS.has(w) ||
+                        (w === "có" && words[v + 1] && words[v + 1].bare === "thể");
+                    if (!marker) continue;
+                    if (v - s >= 2) { c.subject = [s, v - 1]; c.pred = v; }
+                    break;
+                }
+            }
+            if (!c.subject) continue;
+            // A. no pause inside the subject before one of its prepositional phrases
+            const [a, b] = c.subject;
+            let subjSyl = 0;
+            for (let k = a; k <= b; k++) subjSyl += words[k].syl;
+            if (b > a && subjSyl <= 22) {
+                for (let i = a; i < b; i++) {
+                    const g = gaps[i];
+                    if (g.punct || g.unit || !PREPOSITIONS.has(words[i + 1].bare) || LEFT_BIND[words[i].bare] >= 40) continue;
+                    if (g.cost < 25) { g.cost = 25; g.value = valueOf(g.cost); }
+                    g.inSubject = true;
+                }
+            }
+            // B. a short predicate keeps its first adjunct
+            let syl = 0;
+            for (let i = c.pred; i < c.end; i++) {
+                syl += words[i].syl;
+                const g = gaps[i];
+                if (g.punct || syl > 5) break;
+                const op = openerAt(words, i + 1);
+                if (!op || op.weight > 14) continue;
+                const plain = PREPOSITIONS.has(op.phrase.split(" ")[0]) && op.weight <= 9;
+                if (syl <= 3 || plain) {
+                    if (!g.unit && g.cost < 12) { g.cost = 12; g.value = valueOf(g.cost); }
+                    g.predicateAdjunct = true;
+                }
+                break;
+            }
+        }
+        return clauses;
     }
 
     // Roles and target pause lengths at punctuation, continuous in the lengths around it.
@@ -532,7 +629,36 @@
         return g ? g.value : 0;
     }
 
-    const api = { analyze, choose, breathGroups, breathText, boundaryValue, selectBoundaries, spokenWeight, syllables, runPenalty, K };
+    // What the text analysis decided for a line, as a short string (1.8.0): per gap the value, whether
+    // it is a unit, and a punctuation pause. The free voice's audio key carries it, because its cached
+    // audio is shaped by these decisions: a change to the analysis re-renders exactly the lines whose
+    // decisions changed, instead of a version bump re-rendering every line. The shaping code itself
+    // (choose, the alignment) is still versioned by LOCAL_STYLE_VERSION in dub-engine.js.
+    function signature(text) {
+        return analyze(text).gaps.map(g => g.punct ? `p${g.pause}` : `${g.unit ? "u" : ""}${Math.round(g.value * 20)}`).join(",");
+    }
+
+    // One token map for both readers (1.8.0): what dub-speech.js decided about each word (language,
+    // entity, how sure, how it is said) and what this model decided about the gaps around it.
+    // Neither parses the text on its own: both read the same tokenisation (vi-segmenter), memoised.
+    function tokenMap(text, ctx = {}) {
+        const a = analyze(text), S = speech();
+        const st = S ? S.analyze(text, ctx).tokens : null;
+        const same = st && st.length === a.words.length;
+        return a.words.map((w, i) => {
+            const t = same ? st[i] : null;
+            const before = i > 0 ? a.gaps[i - 1] : null, after = a.gaps[i] || null;
+            return {
+                id: i, surface: w.raw, normalized: w.bare,
+                language: t ? t.lang : null, spanId: t ? t.span : -1, entityType: t ? t.entity : null,
+                pronunciationMode: t ? (t.letters ? "letters" : t.strong && t.shape === "ambig" ? "respell" : t.shape === "caps" ? "voice" : "as-is") : "as-is",
+                pronunciationConfidence: t ? t.conf : null,
+                boundaryBefore: before ? before.tier : "start", boundaryAfter: after ? after.tier : "end"
+            };
+        });
+    }
+
+    const api = { analyze, choose, breathGroups, breathText, boundaryValue, selectBoundaries, spokenWeight, syllables, runPenalty, signature, tokenMap, K };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_DUB_PROSODY = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

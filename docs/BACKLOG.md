@@ -53,8 +53,10 @@ keeps "phi tuyến | giữa đầu vào".
 **16. Mild pause placements the model still keeps.** 1.7.8 fixed "tăng | từ 72,5%", "tăng mạnh |
 nhờ vào", "chỉ tốt | bằng", "tập thể dục | vào buổi sáng", relative "mà", topic "thì", "thấp hơn
 nhiều | so với" (`adjustJoins`, see `DUBBING.md` "1.7.8 additions"; WRONG on the four old sets 18 ->
-3). Left: a prepositional phrase inside a long subject ("độ chính xác | trên tập kiểm tra", "công ty
-| trong quý vừa qua"): needs a parser, not another keyword. "Điều này | có nghĩa là" untouched. The
+3). 1.8.0 (`constituents`): a prepositional phrase inside a subject is no longer a boundary when the
+predicate has a marker the model knows (đã, sẽ, là, được, a verb of change...: "công ty ... ở California
+| trong quý vừa qua | đã" now has one boundary, before "đã"). Left: a subject whose verb has no marker
+("Độ chính xác trên tập kiểm tra | đạt 95%"): the model has no verb lexicon and does not guess. "Điều này | có nghĩa là" untouched. The
 relative-"mà" and topic-"thì" limits (6 syllables) were set on seen sentences: check them on new ones.
 
 **17. (fixed 1.7.8)** Versions in model names are read with "chấm" ("GPT 5 chấm 6", "gemini 2 chấm 5
@@ -78,12 +80,11 @@ simulation (tests/hardening) does not reproduce the 7 dropped lines; the fix is 
 
 ## Found by the 1.7.8 English-in-speech work, not fixed
 
-**21. Respellings cover 44 of 66 candidate names.** No spelling was found that VieNeu's English
+**21. Respellings cover 45 of 67 candidate names** (1.8.0 added "sam": "samh"). No spelling was found that VieNeu's English
 engine reads the English way for kim, do, du, hang, bin, nan, ton, son, phan, leo, ray, roy, guy,
 kay, may, mae, lou, pam, liam, ian, beach, queen: inside an English name they are still read as
-Vietnamese syllables ("Liam" is fine only because "liam" is not one). "sam" is held out of the table
-while the unseen split contains "Sam Altman" (`tools/build-speech-tables.js` `UNSEEN_HOLDOUT`); drop
-the holdout once a new unseen split exists. Some targets are only near ("shalamay" is two words).
+Vietnamese syllables ("Liam" is fine only because "liam" is not one). The "sam" holdout was dropped in 1.8.0 (a new
+blind split exists, `tests/blind-corpus.js`). Some targets are only near ("shalamay" is two words).
 
 **22. What is checked is phonemes, not sound.** `tools/pron-eval.js` reads VieNeu's phonemes; nobody
 has listened to the renders blind, and no speech recogniser runs here (none installed; downloading one
@@ -91,10 +92,14 @@ needs the user's permission). `tools/speech-ab.js` numbers for clicks and level 
 
 **23. Label debate: "RAM" in validation v12 is marked English**; VieNeu reads it ɹˈaːm (English r,
 Vietnamese vowel), which many Vietnamese speakers say too. Left as marked so the validation score is
-not edited to look better. The same goes for all-caps codes of 5+ letters: VieNeu's table was probed
-for 2-4 letters only; a longer unknown code is left to VieNeu unless it is in `INITIALISMS`.
+not edited to look better. 1.8.0: a 5+ letter code with **no vowel** gets English letters only on
+English evidence (the source line has it); VieNeu spells every such code Vietnamese. A code with a
+vowel is left to VieNeu even though it spells "CRISPR", "NGINX", "MMORPG" with Vietnamese letter
+names: whether it is said as a word or as letters is unknown, and a wrong English guess is worse.
 
-**25. A short main clause before "để" / "cho" keeps the voice's stop** ("Tôi dùng ChatGPT | để phân
+**25. (judgment changed 1.8.0)** The user ruled "[Tôi dùng ChatGPT] [để phân tích dữ liệu]" the right
+split: a purpose clause is a clause boundary. `speech-corpus.js` d3/d4 now mark it "/". "chạy Google
+Ads | cho ..." is closed by the short-predicate rule. Old text: A short main clause before "để" / "cho" keeps the voice's stop ("Tôi dùng ChatGPT | để phân
 tích dữ liệu", "chạy Google Ads | cho một ... campaign"; `tools/speech-ab.js` dev, same in 1.7.7 and
 1.7.8). Not a language-boundary rule: "để" (purpose, opener weight 22) after 4-5 syllables is a
 strong boundary for every sentence. A fix needs new marked sentences with "để" first.
@@ -103,6 +108,30 @@ strong boundary for every sentence. A fix needs new marked sentences with "để
 ("CPC") becomes `<en>c p c</en>` unless it is in `VI_CAPS` or VieNeu's own table. A Vietnamese code
 not in either (a new bank or firm) would be read English. With an English source line present the
 evidence rules still do not check caps against it: a possible refinement.
+
+## Found by the 1.8.0 context / constituent work, not fixed
+
+**26. Conservative misses, on purpose.** A lone "Dan", "Lan", "An", "Van", "Tan" stays Vietnamese
+even when the English source line names them (an English video about a Vietnamese person writes them
+the same way); "anh Dan" with source "Dan says" is not rewritten. "Kim", "Leo", "Ray" and the other 22
+names without a respelling are read Vietnamese inside any English name. At the start of a sentence
+only name words (`NAME_WORDS`) count before an English surname.
+
+**27. "So Google với Bing" is read "sˈoʊ" by VieNeu itself** (its chunker, not a rewrite of ours).
+Found in dev d77; not addressed.
+
+**28. Cross-subtitle bridging only for the free voice.** A paid voice keeps a cut at every
+translation group, so "Christopher | Nolan" split over two groups is still two takes there: moving
+that cut would re-bill stored audio. A silence of 1.2 s or more between lines is always followed.
+
+**29. Blind split failures (1.8.0, scored once, not tuned on).** Kim Kardashian, Ken Griffin, Ben
+Affleck, lone Ben / Kim with an English source line (no respelling; add "ben" / "ken" to
+`build-speech-tables.js` NAMES and search). Prosody: "phần trăm | so với cùng kỳ" kept by the text-only
+choice in a 25-syllable run once the subject's PP was closed; "hộ chiếu, ảnh thẻ | và" (a list item
+the model blocks); "sáng | nên" (cause "nên" after a clause without a comma, missed); "Adobe Premiere
+Pro | để" and "đây | để": the blind author marks a short purpose clause attached, the user ruled the
+opposite for "Tôi dùng ChatGPT / để": needs a decision on length. Move these into dev next round and
+write a new blind split with a separate agent.
 
 ## Cosmetic / housekeeping
 

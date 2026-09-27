@@ -243,7 +243,10 @@
     // 9 (1.7.6): prosody model (dub-prosody.js) picks the pauses, breathing commas in long stretches
     // 10 (1.7.8): English spans rendered for the voice (dub-speech.js), no pause inside a span, the
     //    backlog-16 pause rules: the cached audio is shaped, so every line re-renders once (free)
-    const LOCAL_STYLE_VERSION = 10;
+    // 11 (1.8.0): the key also carries the prosody signature of the line (PROSODY.signature): from
+    //    now on a change to the text analysis re-renders only the lines it changes. The pronunciation
+    //    is keyed by the rendered text itself (speakScript). Neither touches the paid voice's key
+    const LOCAL_STYLE_VERSION = 11;
     // Free voice segmenting: whole sentences across translation groups, and a segment may run to
     // 11 s (paid: 8) before it is cut at a subtitle line. Every cut restarts the voice's intonation;
     // the free server renders ~4x faster than real time, so a longer segment costs ~3 s ahead.
@@ -274,8 +277,10 @@
                 return !!(r && r.running);
             },
             audioKey(plan) {
+                const plain = plainScript(plan);
                 const base = ["audio-local", LOCAL_STYLE_VERSION, L.model, L.sampleRate,
-                    provider.voices[plan.speaker] || provider.voices.S1, CACHE.normalizeText(speakScript(plan)).toLowerCase()];
+                    provider.voices[plan.speaker] || provider.voices.S1, CACHE.normalizeText(speakScript(plan)).toLowerCase(),
+                    PROSODY && PROSODY.signature ? PROSODY.signature(plain) : ""];
                 // Câu dày chữ tạo với khoảng nghỉ ngắn hơn: khóa kho riêng (không dùng lẫn audio thường)
                 return CACHE.hashKey(plan.tightPauses ? [...base, "tight"] : base);
             },

@@ -114,6 +114,25 @@
         return String(text || "").split(/\s+/).filter(Boolean).reduce((a, w) => a + tokenSyllables(w), 0);
     }
 
+    // ---------------- A number: version or quantity (1.8.0) ----------------
+    // One parser for every place that must tell them apart (adaptForSpeech here, the model-number
+    // rule in dub-speech.js), not a rule per model. What follows wins over what precedes: a unit of
+    // measure after the number makes it an amount ("CPU 3.5 GHz", "GPU 2.5 GB", "RAM 4096 MB"); then a
+    // section word or a product name before it makes it a version ("phiên bản 3.5", "Python 3.12",
+    // "iOS 18.2"); anything else is an amount ("Trong 3.5 giây", "2,5 kg"). Only units that never start
+    // a phrase of their own count: "Python 3.12 năm ngoái" is still a version.
+    const MEASURE_UNITS = new Set(("% gb mb kb tb pb gib mib ghz mhz khz hz ms km cm mm nm kg mg ml kw kwh mah fps px dpi bpm " +
+        "kcal °c °f inch lít mét giây tflops gbps mbps w v").split(" "));
+    const SECTION_WORDS = /^(?:phiên bản|version|mục|chương|phần|bài|điều|khoản)$/i;
+    function numberRole(before, after) {
+        const unit = String(after || "").trim().split(/\s+/)[0].toLowerCase().replace(/[.,;:!?…)"”]+$/, "");
+        if (unit && MEASURE_UNITS.has(unit)) return "quantity";
+        const w = String(before || "").trim();
+        if (SECTION_WORDS.test(w)) return "version";
+        if (/^(?=[a-z]*[A-Z])[A-Za-z]+$/.test(w) && !(SEG && SEG.isVietWord && SEG.isVietWord(w.toLowerCase()))) return "version";
+        return "quantity";
+    }
+
     // ---------------- Chuyển văn bản sang dạng dễ đọc thành tiếng ----------------
     // Chỉ đổi CÁCH VIẾT, không đổi nghĩa: ký hiệu, số thập phân, ngoặc đơn.
     function adaptForSpeech(text) {
@@ -146,12 +165,9 @@
         // 127.0.0.1, 1.2.3: three or more parts is never a decimal
         t = t.replace(/\b\d+(?:\.\d+){2,}\b/g, m => m.split(".").join(" chấm "));
         // A capitalised word counts only if it is not Vietnamese: "Trong 3.5 giây" is a decimal
-        t = t.replace(/(?<![\p{L}\p{N}])([A-Za-zÀ-ỹĐđ]+(?: bản)?)(\s)(\d+)\.(\d+)(?![.,]?\d)/gu, (m0, w, sp, a, b) => {
-            const lw = w.toLowerCase();
-            const section = /^(?:phiên bản|version|mục|chương|phần|bài|điều|khoản)$/.test(lw);
-            const product = /^(?=[a-z]*[A-Z])[A-Za-z]+$/.test(w) && !(SEG && SEG.isVietWord && SEG.isVietWord(lw));
-            return section || product ? `${w}${sp}${a} chấm ${b}` : m0;
-        });
+        // (1.8.0: through numberRole, so a unit after it keeps it an amount: "CPU 3.5 GHz")
+        t = t.replace(/(?<![\p{L}\p{N}])([A-Za-zÀ-ỹĐđ]+(?: bản)?)(\s)(\d+)\.(\d+)(?![.,]?\d)/gu, (m0, w, sp, a, b, at, all) =>
+            numberRole(w, all.slice(at + m0.length)) === "version" ? `${w}${sp}${a} chấm ${b}` : m0);
         // 2x, 1,3x -> "2 lần", "1,3 lần" ("hai ích" otherwise). Algebra like 2x - 1 or 2x = 4 is left alone
         t = t.replace(/\b(\d+(?:[.,]\d+)?)[x×](?![\p{L}\d])(?!\s*[-+*/=^<>])/gu, "$1 lần");
         // 1,4 / 3.5 -> "1 phẩy 4" (thập phân 1 đến 2 chữ số)
@@ -443,6 +459,13 @@
         // the rest as a new utterance: the break the viewer heard mid-sentence. Paid voices keep the
         // per-group cut, because a group translated later would change an already billed segment.
         const JOIN = !!opts.joinGroups;
+        // A line boundary inside a phrase (the prosody model forbids a pause there) is bridged over a
+        // silence up to this long; a longer one is a real break in the video and is followed
+        const BRIDGE_MAX = 1.2;
+        const insidePhrase = (seg, next) => {
+            const P = prosody();
+            return !!(P && SEG) && P.boundaryValue(SEG.cleanText(seg.texts[seg.texts.length - 1]), SEG.cleanText(next.text)) < P.K.minValue;
+        };
         const endsSentence = t => /[.!?…]["”')\]]*\s*$/.test(String(t || "").replace(/¦/g, "").trim());
         let cur = null;
         const flush = () => { if (cur) { segments.push(cur); cur = null; } };
@@ -548,8 +571,9 @@
             // Carry the open segment into this group only when the sentence plainly continues
             if (cur) {
                 const first = pieces[0];
+                const gap = first ? first.start - cur.end : Infinity;
                 const carry = JOIN && first && !mark && cur.speaker === speaker &&
-                    !endsSentence(cur.texts[cur.texts.length - 1]) && first.start - cur.end < PAUSE_SPLIT;
+                    !endsSentence(cur.texts[cur.texts.length - 1]) && (gap < PAUSE_SPLIT || (gap < BRIDGE_MAX && insidePhrase(cur, first)));
                 if (!carry) flush();
             }
             pieces.forEach(c => {
@@ -582,7 +606,11 @@
                 }
                 const len2 = cur ? c.end - cur.start : 0;
                 const tooLong = cur && (len2 > hardFor(cur.start) || (cur.end - cur.start >= SEG_SOFT && endsWithPunct(cur.texts[cur.texts.length - 1])));
-                if (cur && (gapBefore >= PAUSE_SPLIT || sourcePauseAt(cur.end) || tooLong)) flush();
+                // 1.8.0, free voice: a pause of the source speaker inside a phrase of the Vietnamese
+                // ("Christopher | Nolan", "3,5 | GHz", "ở California | trong quý") is not a speech
+                // boundary: the segment runs on (up to BRIDGE_MAX of silence), only length forces a cut
+                const bridge = JOIN && cur && !tooLong && gapBefore < BRIDGE_MAX && insidePhrase(cur, c);
+                if (cur && !bridge && (gapBefore >= PAUSE_SPLIT || sourcePauseAt(cur.end) || tooLong)) flush();
                 if (!cur) cur = open(c);
                 add(c);
             });
@@ -657,7 +685,10 @@
         const ends = texts.map(t => (n += SEG.tokenize(t).length) - 1);
         if (n !== a.words.length) return -1;
         const value = k => (a.gaps[ends[k]] ? a.gaps[ends[k]].value : -4);
-        let best = -1, bestValue = Math.max(0.3, value(parts.length - 1) + 0.3);
+        // 1.8.0: when cutting here would split a phrase (a name, a number and its unit, a subject's
+        // prepositional phrase), any line boundary that is not inside one is better
+        const here = value(parts.length - 1);
+        let best = -1, bestValue = here < P.K.minValue ? P.K.minValue - 1e-9 : Math.max(0.3, here + 0.3);
         for (let i = parts.length - 2; i >= 0; i--) {
             if (parts[i].end - seg.start < 2 || next.end - parts[i + 1].start > hard) continue;
             if (value(i) > bestValue) { bestValue = value(i); best = i; }
@@ -860,7 +891,7 @@
     }
 
     const api = {
-        numberToVietnamese, countSyllables, adaptForSpeech, classifyIntent, buildPhrases, speakerStateBefore,
+        numberToVietnamese, countSyllables, adaptForSpeech, numberRole, classifyIntent, buildPhrases, speakerStateBefore,
         buildDubScript, stripSoundNotes, planSegment, planAll, smoothRates, speechSeconds, pauseSeconds, rateForSps, rateForSpeedup, speedMultiplier,
         DEFAULT_VOICE_MODEL, LIMITS, INTENT_PROSODY, PAUSE
     };

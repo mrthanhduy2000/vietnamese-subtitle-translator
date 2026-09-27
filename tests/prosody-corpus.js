@@ -134,5 +134,35 @@ module.exports = {
     ["F14", "cross", "Thị trường đã phục hồi. | Tuy vậy, / nhiều nhà đầu tư vẫn còn thận trọng."],
     ["F15", "subject", "Những người thường xuyên tập thể dục vào buổi sáng / thường có giấc ngủ sâu hơn / vào ban đêm."],
     ["F16", "short", "Cảm ơn bạn rất nhiều."]
+    ],
+    // 1.8.0, written before the constituent code: "syntax" tunes it (dev), "syntaxval" is only measured.
+    // Long subjects with a prepositional phrase inside, purpose / means / cause adjuncts, from-to
+    // complements, English entities inside Vietnamese syntax. The unseen check for 1.8.0 is
+    // tests/blind-corpus.js, written by a separate agent.
+    syntax: [
+    ["S1", "subject-pp", "Một công ty công nghệ lớn ở California trong quý vừa qua / đã tăng doanh thu gấp đôi."],
+    ["S2", "subject-pp", "Những sinh viên ở ký túc xá trong học kỳ này / sẽ được giảm học phí."],
+    ["S3", "subject-pp", "Nhóm nghiên cứu của một trường đại học ở Tokyo / đã công bố kết quả mới."],
+    ["S4", "purpose", "Tôi dùng ChatGPT / để phân tích dữ liệu."],
+    ["S5", "entity", "Tôi đang chạy Google Ads cho Performance Max / để tăng doanh số."],
+    ["S6", "range", "Doanh thu tăng từ 10 lên 20 tỷ / trong năm nay."],
+    ["S7", "cause", "Lợi nhuận tăng mạnh nhờ vào dữ liệu khách hàng."],
+    ["S8", "adjunct", "Anh ấy làm việc với khách hàng / từ sáng đến tối."],
+    ["S9", "adjunct", "Chúng tôi gửi báo cáo cho ban giám đốc / sau mỗi cuộc họp."],
+    ["S10", "subject-pp", "Độ chính xác của mô hình trên tập kiểm tra / đã tăng đáng kể."],
+    ["S11", "means", "Họ thanh toán bằng thẻ tín dụng / thay vì tiền mặt."],
+    ["S12", "entity", "Chúng tôi dùng Microsoft Excel / để theo dõi chi phí hằng tháng."]
+    ],
+    syntaxval: [
+    ["V1", "subject-pp", "Chiếc điện thoại mới của Samsung ở thị trường châu Âu / sẽ có giá cao hơn."],
+    ["V2", "subject-pp", "Các kỹ sư trong nhóm phát triển / đã sửa lỗi này từ tuần trước."],
+    ["V3", "purpose", "Cô ấy học tiếng Anh / để xin việc ở nước ngoài."],
+    ["V4", "range", "Giá cổ phiếu giảm từ 50 xuống 30 đô la / chỉ trong một tháng."],
+    ["V5", "means", "Tôi viết code bằng Python / cho dự án này."],
+    ["V6", "subject-pp", "Số người dùng ở khu vực nông thôn trong năm ngoái / đã tăng gấp ba lần."],
+    ["V7", "adjunct", "Mô hình này được huấn luyện trên dữ liệu / từ nhiều nguồn khác nhau."],
+    ["V8", "entity", "Bạn có thể dùng Canva / để thiết kế ảnh bìa."],
+    ["V9", "cause", "Doanh số giảm nhẹ / vì thời tiết xấu."],
+    ["V10", "subject-pp", "Những khách hàng của chúng tôi tại Hà Nội / đều rất hài lòng."]
     ]
 };
