@@ -21,18 +21,16 @@ player that exposes standard text tracks.
 
 ## Found by the 1.7.4 audit, deliberately not fixed
 
-**10. A late refine misses YouTube's per-video copy.** `ytGhiCache` saves once the last group is
-translated; a background refine (`onRefined`) that lands after that is not in `ytcache4_`, so the
-next visit shows the pre-refine line (no cost: the refined line is in the IndexedDB store). Rare.
+(10, a late refine missing YouTube's per-video copy, fixed 1.9.4 `ytSaveAfterRefine`; 12, the store
+scan after a wake, measured 1.9.4 in real Chrome IndexedDB: 1.9 ms for 300 records, 5.4 ms for
+1,000, 17 ms for 3,000; the audio store holds ~200 to 1,000, and eviction and delete no longer scan
+twice.)
 
-**11. A refined line is voiced twice.** When a refine replaces a line whose Gemini TTS audio was
+**11. A refined line is voiced twice.** Paid voice only (Gemini TTS, off since 1.8.1 `PAID_TTS`). When a refine replaces a line whose Gemini TTS audio was
 already made, the engine re-renders it (the words changed, so this is correct, but it pays twice for
 that line). Holding TTS until a refine settles would delay the voice; not measured as worth it.
 
-**12. Unmeasured: the first cache write after each service-worker wake lists every meta record**
-(`TieredCache.ensureTotals`). Cheap for a small store; no IndexedDB in Node to measure a full one.
-
-**13. The Gemini voice preview in Settings is not cached**: each click pays ~5 s of audio, about
+**13. The Gemini voice preview in Settings is not cached** (moot while `PAID_TTS` is off, 1.8.1): each click pays ~5 s of audio, about
 0.1 to 0.3 US cents at the catalog's estimated prices. VieNeu previews are free.
 
 **14. Coursera waits for a retranslation before showing a window** (`translateWindow` with
@@ -58,9 +56,6 @@ predicate has a marker the model knows (đã, sẽ, là, được, a verb of cha
 | trong quý vừa qua | đã" now has one boundary, before "đã"). Left: a subject whose verb has no marker
 ("Độ chính xác trên tập kiểm tra | đạt 95%"): the model has no verb lexicon and does not guess. "Điều này | có nghĩa là" untouched. The
 relative-"mà" and topic-"thì" limits (6 syllables) were set on seen sentences: check them on new ones.
-
-**17. (fixed 1.7.8)** Versions in model names are read with "chấm" ("GPT 5 chấm 6", "gemini 2 chấm 5
-flash lite"), for every voice (`adaptForSpeech`).
 
 **18. Alignment limits.** A stop's place in the text is its share of voiced time (mean error 0.33
 syllables on punctuation, 4 of 220 off by more than 1). If the voice skips or repeats a word, or two
@@ -121,7 +116,7 @@ only name words (`NAME_WORDS`) count before an English surname.
 **27. "So Google với Bing" is read "sˈoʊ" by VieNeu itself** (its chunker, not a rewrite of ours).
 Found in dev d77; not addressed.
 
-**28. Cross-subtitle bridging only for the free voice.** A paid voice keeps a cut at every
+**28. Cross-subtitle bridging only for the free voice.** Paid voice only (off since 1.8.1). A paid voice keeps a cut at every
 translation group, so "Christopher | Nolan" split over two groups is still two takes there: moving
 that cut would re-bill stored audio. A silence of 1.2 s or more between lines is always followed.
 
@@ -150,21 +145,10 @@ split right; the dev marks were always "/" (either way). If the user wants the s
 
 ## Found by the 1.8.6 delivery work, not fixed
 
-**32. (fixed 1.8.7, optimistic reach)** First line at 2x, or on a slow server, before any render is measured. `unreachable` needs a
-measured `renderRtf`; the 0.5 guess would skip the first line on a healthy server. So right after
-dubbing starts at 2x the engine still renders the line under the playhead, then skips it
-(`playback-sim.js` rate2: first voice 2.75 s). The service worker knows the server speed
-(`localTtsStatus` returns `rtf`); seeding the engine with it would fix this. Not done: small gain.
-
 **33. A server near real time (RTF ~0.9) still chases.** One request at a time, each take lands as
 its line ends; after a seek the engine now skips what it cannot reach (13.6 -> 7.7 s to voice) but a
 line can then start 3.5 s late. Only a faster server (int8, GPU) really fixes it; `describeHealth`
 already tells the viewer.
-
-**34. (fixed 1.8.7, `entryPoint`: 85% -> 0.3% inside a syllable)** Entering a line after a seek starts at a proportional offset, not at a word or pause: the
-audio position is `into x (audio length / slot)`, which can land mid-syllable with no fade-in. Old
-behaviour (the head cut did the same whenever a seek landed > 0.3 s into a piece); 1.8.6 uses it for
-held audio too. A fix would snap to a silence found in the take (`dub-audio.js`) at `addRendered`.
 
 ## Cosmetic / housekeeping
 

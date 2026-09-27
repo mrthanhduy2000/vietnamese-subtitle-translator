@@ -988,3 +988,27 @@ test("audio store delete: a non-array is refused, bad and repeated keys are drop
     const r = await E.send({ action: "audioCacheDelete", keys: ["a", "a", 7, "", "x".repeat(300), null, "b"] });
     assert.equal(r.ok, true);
 });
+
+// BACKLOG 12 (1.9.4): every full scan of the store's meta records is a cursor over the whole
+// IndexedDB store. An eviction scanned twice (once to pick victims, once more for the totals it had
+// just computed), and removing one video's audio threw the totals away, so the next write scanned
+// again. Totals now follow from what was scanned.
+test("audio store: an eviction or a video delete scans the meta records once, and totals stay right", async () => {
+    const backend = CACHE.memoryBackend();
+    let scans = 0;
+    const list = backend.listMeta.bind(backend);
+    backend.listMeta = s => { scans++; return list(s); };
+    const au = new CACHE.TieredCache(backend, "audio", { version: 1, maxBytes: 100000 });
+    for (let i = 0; i < 12; i++) await au.set("a" + i, { wav: new Uint8Array(10000) });
+    const truth = async () => { const l = await list("audio"); return { bytes: l.reduce((a, m) => a + m.size, 0), count: l.length }; };
+    scans = 0;
+    await au.set("a12", { wav: new Uint8Array(10000) });          // over the cap: evicts
+    assert.ok(au.stats.evicted > 0);
+    assert.equal(scans, 1, `${scans} scans for one eviction`);
+    assert.deepEqual(au.totals, await truth());
+    scans = 0;
+    await au.remove(["a12", "a11", "nope"]);
+    await au.set("b0", { wav: new Uint8Array(100) });
+    assert.equal(scans, 1, `${scans} scans for a delete then a write`);
+    assert.deepEqual(au.totals, await truth());
+});

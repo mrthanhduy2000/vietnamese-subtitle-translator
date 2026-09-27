@@ -4,6 +4,16 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.9.4", luc: "01:08 28/09/2026", ten: "Dọn nợ: bản dịch tinh chỉnh được lưu, kho âm thanh bớt quét thừa, giải phóng âm thanh khi tắt",
+            y: [
+                "YouTube: câu được dịch lại tự nhiên hơn sau khi cả video đã dịch xong trước đây không được lưu, lần sau mở lại vẫn thấy bản cũ. Nay được lưu (một lần, sau khi các bản dịch lại đến xong).",
+                "Kho âm thanh: khi dọn bớt hoặc xóa âm thanh của một video, trước đây đọc lại toàn bộ kho hai lần; nay một lần. Đo trên Chrome thật: đọc 1.000 bản ghi mất 5,4 ms.",
+                "Tắt lồng tiếng hoặc xóa âm thanh đã lưu: các trình phát âm thanh được giải phóng hẳn thay vì chỉ tạm dừng.",
+                "Tài liệu cho người bảo trì được cập nhật đúng kích thước tệp; thêm công cụ tự kiểm tra.",
+                "Không đổi cách dịch, giọng, ngắt nghỉ; không thêm lượt gọi Gemini nào."
+            ]
+        },
+        {
             v: "1.9.3", luc: "01:00 28/09/2026", ten: "Quảng cáo YouTube: không còn đọc lồng tiếng và hiện phụ đề đè lên quảng cáo",
             y: [
                 "Quảng cáo YouTube phát ngay trong khung video của bài giảng, nên tiện ích tưởng đó là đầu bài giảng: đọc lồng tiếng các câu đầu đè lên quảng cáo, hạ nhỏ tiếng quảng cáo, và hiện phụ đề đầu bài lên đó.",

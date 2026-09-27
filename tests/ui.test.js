@@ -865,3 +865,30 @@ test("YouTube ad: no lecture subtitle drawn over it and no translation sent for 
     assert.ok(sent.includes(0), "the lecture's line was not translated after the ad");
     assert.ok(drawn.includes("Welcome to the course."));
 });
+
+// BACKLOG 10 (fixed 1.9.4): a background refine landing after the whole video was translated and
+// saved was never written to YouTube's per-video copy, so the next visit showed the pre-refine line.
+test("YouTube: a refine that lands after the video was saved is written to the per-video copy", async t => {
+    const dom = miniDom();
+    const sb = loadYouTube(dom);
+    t.after(() => sb.donTimers());
+    let refine = null;
+    const saved = [];
+    sb.translateWindow = async (session, idxs, opts) => { refine = opts.onRefined; return { translations: ["bản đầu"], engine: "m" }; };
+    sb.ytChonCuaSo = () => [0];
+    sb.ytGanBanDich = () => {};
+    sb.ytGhiCache = id => { saved.push(id); };
+    vm.runInContext(`yt.session = {}; yt.groups = [{ start: 0, end: 3, translated: true }]; yt.currentVideoId = "abc123";`, sb);
+    assert.equal(await sb.ytDichNhom(0), true);
+    vm.runInContext(`yt.daDichXong = true;`, sb);        // the video finished and was saved meanwhile
+    refine({ translations: ["bản tự nhiên hơn"], engine: "m" });
+    refine({ translations: ["bản tự nhiên hơn nữa"], engine: "m" });
+    await new Promise(r => setTimeout(r, 700));
+    assert.deepEqual(saved, ["abc123"], "refines after the save must be saved once, for this video");
+    // a refine arriving after the viewer moved to another video writes nothing
+    saved.length = 0;
+    refine({ translations: ["x"], engine: "m" });
+    vm.runInContext(`yt.currentVideoId = "other";`, sb);
+    await new Promise(r => setTimeout(r, 700));
+    assert.deepEqual(saved, []);
+});

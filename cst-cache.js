@@ -271,8 +271,9 @@
                 for (const k of victims) this.mem.delete(k);
                 this.stats.evicted += victims.length;
             }
-            this.totals = null;
-            await this.ensureTotals();
+            // The totals follow from the scan above (BACKLOG 12, 1.9.4): a second full scan of the
+            // store here only counted what had just been counted
+            this.totals = { bytes: Math.max(0, bytes), count: list.length - victims.length };
         }
 
         async info() {
@@ -289,11 +290,13 @@
             let n = 0;
             try {
                 const list = await withTimeout(this.b.listMeta(this.store), WRITE_TIMEOUT_MS);
-                const hit = list.filter(m => want.has(m.k)).map(m => m.k);
-                if (hit.length) await withTimeout(this.b.del(this.store, hit), WRITE_TIMEOUT_MS);
+                const hit = list.filter(m => want.has(m.k));
+                if (hit.length) await withTimeout(this.b.del(this.store, hit.map(m => m.k)), WRITE_TIMEOUT_MS);
                 n = hit.length;
-            } catch (e) { this.stats.errors++; }
-            this.totals = null;
+                // the scan gave the whole store: totals without another one (BACKLOG 12, 1.9.4)
+                const left = list.filter(m => !want.has(m.k));
+                this.totals = { bytes: left.reduce((a, m) => a + (m.size || 0), 0), count: left.length };
+            } catch (e) { this.stats.errors++; this.totals = null; }
             return n;
         }
 

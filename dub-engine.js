@@ -524,8 +524,9 @@
                 job.orphanAt = this.d.now();
                 if (this.provider.abort) { try { this.provider.abort(jobId); } catch (e) { /* bỏ qua */ } }
             }
+            // released, not just paused (1.9.4): a paused element keeps its media player until GC
             for (const r of this.rendered.values()) {
-                if (r.el) { try { r.el.pause(); } catch (e) { /* bỏ qua */ } }
+                if (r.el) this.releaseAudio(r);
                 if (r.url && this.d.revokeObjectURL) this.d.revokeObjectURL(r.url);
             }
             this.rendered.clear();
@@ -1782,7 +1783,7 @@
         // Bỏ audio đang giữ trong trang (sau khi xóa kho): tạo lại từ vị trí đang xem
         forgetRendered() {
             for (const [, r] of this.rendered) {
-                if (r.el) { try { r.el.pause(); } catch (e) { /* bỏ qua */ } }
+                if (r.el) this.releaseAudio(r);
                 if (r.url && this.d.revokeObjectURL) this.d.revokeObjectURL(r.url);
             }
             this.rendered.clear();

@@ -246,6 +246,24 @@ function overlaps(log) {
     return n;
 }
 
+// 1.9.4: stop() and forgetRendered() paused the elements they dropped but left their src set, so
+// Chrome kept each one's media player and decoded audio until garbage collection. Every other path
+// (a line finished, a seek, releaseOld) already let go with releaseAudio.
+test("stop() and forgetRendered() release every audio element (src removed, load() called)", async () => {
+    for (const how of ["stop", "forget"]) {
+        const released = [];
+        class TrackedAudio extends FakeAudio {
+            removeAttribute(n) { if (n === "src") released.push(this); }
+            load() {}
+        }
+        const r = await resilienceRun({ get: async () => ({}), render: okRender, seconds: 12,
+            makeAudio: clock => new TrackedAudio(clock, { duration: 2.5 }),
+            each: (ms, eng) => { if (ms === 11000 && how === "forget") eng.forgetRendered(); } });
+        const live = r.audios.filter(a => !released.includes(a));
+        assert.equal(live.length, 0, `${how}: ${live.length} of ${r.audios.length} elements kept their src`);
+    }
+});
+
 // 1.9.3: a YouTube ad plays in the lecture's own <video>. The engine took the ad's clock for the
 // lecture's: it read the first lines of the lecture over the ad, ducked the ad, and rendered them.
 test("YouTube ad in the same <video>: no voice, no duck, no render during the ad; the lecture resumes after it", async () => {

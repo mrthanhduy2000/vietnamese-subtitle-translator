@@ -4,8 +4,8 @@ Chrome MV3 extension: translates Coursera/YouTube subtitles into Vietnamese with
 dubbing. **`manifest.json` holds the real version** (the folder name `v1.0.4` is stale, and so is
 any version number written into a doc: never hardcode one here). No bundler, no
 dependencies, no build step: these source files *are* the extension, loaded unpacked in Chrome
-"Profile 42", id `lpknjhmnlocilmkmooomffknibghibao`. All source sits flat in the repo root. Code
-comments, UI strings and test names are Vietnamese.
+"Profile 42", id `lpknjhmnlocilmkmooomffknibghibao`. All source sits flat in the repo root. Most
+existing comments and test names are Vietnamese; what new ones use is in **Language** below.
 
 ## Session start, in this order
 
@@ -65,11 +65,14 @@ Reading all source is ~500KB, roughly 145k tokens. Don't. A normal task should l
 
 - Never `Read` a file over ~400 lines whole. `grep -n <symbol>` first, then read with offset/limit.
 - Line numbers in `docs/` are anchors and they drift. Confirm with grep before editing.
-- **Grep only, never read whole:** `options.html` (1405, ~810 of them inline CSS),
-  `youtube.js` (1924), `content.js` (1454), `dub-engine.js` (1269), `background.js` (1256),
-  `glossary.js` (665, pure data), `dub-speech.js` (454, a third of it a generated table), `tests/hardening.test.js` (1489), `tests/cost.test.js` (924).
-- Safe to read whole when you need them: `cost-policy.js` (278), `popup.js` (267), `yt-bridge.js`
-  (219), `subtitle-style.js` (213), `vi-quality.js` (165), `lang-detect.js` (93), any `docs/` file.
+- **Grep only, never read whole:** `options.html` (~1600, ~810 of them inline CSS),
+  `youtube.js` (~2000), `content.js` (~2300), `dub-engine.js` (~1950), `background.js` (~1450),
+  `glossary.js` (~1340, pure data), `dub-speech.js` (~550, a third of it a generated table),
+  `tests/hardening.test.js` (~1800), `tests/cost.test.js` (~1000).
+- Safe to read whole when you need them: `cost-policy.js` (~300), `popup.js` (~300), `yt-bridge.js`
+  (~300), `subtitle-style.js` (~300), `vi-quality.js` (~210), `lang-detect.js` (~130), any `docs/` file.
+- These sizes drift. `node tools/doc-sizes.js` rewrites the table in `docs/MAP.md` and lists any
+  size quoted here that is off by more than 15%.
 
 ## Routing table: task -> open exactly this
 
@@ -80,7 +83,7 @@ Reading all source is ~500KB, roughly 145k tokens. Don't. A normal task should l
 | Coursera subtitles | `docs/SUBTITLE.md` §Coursera, then grep `content.js` |
 | Vietnamese line breaking / cue splitting | `vi-segmenter.js` (`segmentGroupSafe`), `tests/fixtures.js` |
 | Translation quality, wrong term, English left in | `context-engine.js`, `vi-quality.js`, grep the term in `glossary.js` |
-| Dubbing out of sync, late, drifting, too fast or slow | `docs/DUBBING.md` §SYNC, then `dub-engine.js` `SYNC` block (lines 27-76) |
+| Dubbing out of sync, late, drifting, too fast or slow | `docs/DUBBING.md` §SYNC, then `dub-engine.js` `SYNC` block (`grep -n "const SYNC"`, ~120 lines) |
 | No voice at all | `docs/DUBBING.md` §providers. Check the server first: `curl 127.0.0.1:8000/health` |
 | Voice pacing, pauses, prosody | `dub-planner.js` (`buildDubScript`, `planSegment`) + `docs/DUBBING.md` |
 | Voice says an English name, brand, acronym or model number wrong | `docs/DUBBING.md` §English inside Vietnamese speech, then `dub-speech.js`; measure with `tools/pron-eval.js` |
@@ -106,9 +109,9 @@ harnesses · `BACKLOG.md` known defects and leftovers.
 
 | Lane | Files |
 |---|---|
-| A. Subtitle | `content.js` `youtube.js` `yt-bridge.js` `vi-segmenter.js` `vi-quality.js` `context-engine.js` `glossary.js` `lang-detect.js` `subtitle-style.js` |
+| A. Subtitle | `content.js` `youtube.js` `yt-bridge.js` `vi-segmenter.js` `vi-quality.js` `context-engine.js` `glossary.js` `lang-detect.js` `subtitle-style.js` `subtitle-edits.js` `transcript.js` `player-ui.js` |
 | B. Dubbing | `dubbing.js` `dub-engine.js` `dub-planner.js` `dub-prosody.js` `dub-speech.js` `dub-audio.js` `cst-cache.js` |
-| C. UI | `popup.*` `options.*` `version-check.js` `chrome-shim.js` |
+| C. UI | `popup.*` `options.*` `version-check.js` `version-history.js` `chrome-shim.js` `theme.js` `settings-backup.js` |
 | D. Core | `background.js` `cost-policy.js` `manifest.json` `tools/` `tests/` |
 
 `background.js` and `manifest.json` are hot: lane B and C both reach into them. If you must edit
@@ -118,7 +121,7 @@ outside your lane, say so in the commit message. `build-info.js` is generated; n
 
 ```bash
 npm test                       # fully offline, ~14s. The bar is 0 fail. 1 skip is normal
-                               # (316 tests / 315 pass on 2026-09-23; the count grows as tests are added)
+                               # (the count grows as tests are added: never compare it to a number in a doc)
 npm run compare                # old vs new segmenter over the fixtures
 node tools/bump-version.js     # run at the end of every code change
 git push                       # after every commit: private repo on GitHub (see Definition of done)

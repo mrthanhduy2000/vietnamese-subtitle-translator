@@ -760,6 +760,19 @@ function ytGanBanDich(groups, idxs, translations, engine) {
     yt.renderKey = "";
 }
 
+// A refine landing after the video was translated and saved (ytGhiCache) used to stay out of the
+// per-video copy, so the next visit showed the pre-refine line (BACKLOG 10, fixed 1.9.4). Refines
+// come in bursts: one save 500 ms after the last, and only for the video they belong to.
+function ytSaveAfterRefine(groups) {
+    const videoId = yt.currentVideoId;
+    clearTimeout(yt.refineSaveTimer);
+    yt.refineSaveTimer = setTimeout(() => {
+        yt.refineSaveTimer = null;
+        if (yt.huyDich || yt.groups !== groups || !yt.daDichXong || !videoId || yt.currentVideoId !== videoId) return;
+        ytGhiCache(videoId);
+    }, 500);
+}
+
 async function ytDichNhom(gIdx) {
     const groups = yt.groups;
     const session = yt.session;
@@ -776,6 +789,7 @@ async function ytDichNhom(gIdx) {
                 if (yt.huyDich || yt.groups !== groups) return;
                 ytGanBanDich(groups, idxs, better.translations, better.engine);
                 console.log(`[AI Subtitle] Đã dịch lại tự nhiên hơn cho nhóm ${idxs.join(", ")}`);
+                ytSaveAfterRefine(groups);
             }
         });
         // Nguoi dung da tat dich hoac chuyen video trong luc cho
@@ -1346,6 +1360,8 @@ async function ytBatDauDich(opts = {}) {
 function ytTatDich() {
     yt.active = false;
     yt.huyDich = true;
+    clearTimeout(yt.refineSaveTimer);
+    yt.refineSaveTimer = null;
     ytDungDongBo();
     ytAnPhuDeGoc(false);
     ytXoaLopPhuDe();
