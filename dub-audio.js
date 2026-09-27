@@ -35,24 +35,37 @@
         return out;
     }
 
+    // Errors from decodeWav carry code "wav_invalid", so callers can tell them from a bug
+    function wavError(message) {
+        const e = new Error(message);
+        e.code = "wav_invalid";
+        return e;
+    }
+
     function decodeWav(input) {
         const bytes = input instanceof Uint8Array ? input : new Uint8Array(input);
         const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
         const tag = (o) => String.fromCharCode(bytes[o], bytes[o + 1], bytes[o + 2], bytes[o + 3]);
-        if (tag(0) !== "RIFF" || tag(8) !== "WAVE") throw new Error("Không phải file WAV");
+        if (bytes.length < 12 || tag(0) !== "RIFF" || tag(8) !== "WAVE") throw wavError("Không phải file WAV");
         let pos = 12, fmt = null, data = null;
         while (pos + 8 <= bytes.length) {
             const id = tag(pos);
             const size = dv.getUint32(pos + 4, true);
             if (id === "fmt ") {
+                if (size < 16 || pos + 24 > bytes.length) throw wavError("WAV có khối fmt bị cắt");
                 fmt = { format: dv.getUint16(pos + 8, true), channels: dv.getUint16(pos + 10, true), sampleRate: dv.getUint32(pos + 12, true), bits: dv.getUint16(pos + 22, true) };
             } else if (id === "data") {
                 data = bytes.subarray(pos + 8, pos + 8 + Math.min(size, bytes.length - pos - 8));
             }
             pos += 8 + size + (size % 2);
         }
-        if (!fmt || !data) throw new Error("WAV thiếu fmt/data");
-        if (fmt.bits !== 16) throw new Error("Chỉ hỗ trợ PCM 16-bit");
+        if (!fmt || !data) throw wavError("WAV thiếu fmt/data");
+        // A header this code cannot read is refused, not decoded into noise (1.9.0): sample rate 0
+        // or 4 GHz passed and made durations Infinity downstream, float data was read as 16-bit
+        if (fmt.format !== 1 && fmt.format !== 0xFFFE) throw wavError(`WAV không phải PCM (định dạng ${fmt.format})`);
+        if (fmt.bits !== 16) throw wavError("Chỉ hỗ trợ PCM 16-bit");
+        if (!(fmt.channels >= 1 && fmt.channels <= 8)) throw wavError(`WAV có ${fmt.channels} kênh`);
+        if (!(fmt.sampleRate >= 4000 && fmt.sampleRate <= 192000)) throw wavError(`WAV có tần số lấy mẫu ${fmt.sampleRate}`);
         const inter = pcm16leToFloat(data);
         if (fmt.channels === 1) return { sampleRate: fmt.sampleRate, samples: inter };
         const n = Math.floor(inter.length / fmt.channels);

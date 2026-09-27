@@ -426,6 +426,7 @@
         let text, warn = false;
         if (!st) text = "Lồng tiếng Việt";
         else if (st.budgetBlocked) { text = "Lồng tiếng: đã chạm ngân sách chi phí, ngừng tạo giọng AI"; warn = true; }
+        else if (st.playBlocked) { text = "Lồng tiếng: Chrome đang chặn phát âm thanh, bấm vào trang video một lần để nghe"; warn = true; }
         else if (st.fallback) { text = `Lồng tiếng: đã chuyển sang giọng hệ thống (${st.reason === "budget" ? "chạm ngân sách giọng AI" : "giọng AI tạm không dùng được"})`; warn = true; }
         else text = `Lồng tiếng: ${st.voice || st.label}`;
         if (badge.textContent === text && badge.dataset.warn === String(warn)) return;

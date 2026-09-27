@@ -4,6 +4,21 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.9.0", luc: "00:12 28/09/2026", ten: "Trình duyệt chặn hoặc không phát được âm thanh: xử lý đúng từng trường hợp",
+            y: [
+                "Chrome chặn tự phát âm thanh: trước đây tiện ích thử phát lại 20 lần mỗi giây và im lặng không báo gì. Nay thử lại mỗi giây một lần, và thẻ lồng tiếng báo \"bấm vào trang video một lần để nghe\".",
+                "Tua hoặc tạm dừng đúng lúc câu vừa bắt đầu không còn bị tính là lỗi giọng đọc (trước đây 3 lần liên tiếp có thể chuyển cả video sang giọng hệ thống khi dùng giọng trả phí).",
+                "Một bản âm thanh trình duyệt không phát được: bỏ đi và tạo lại câu đó, thay vì thử phát bản hỏng liên tục.",
+                "Tệp âm thanh có phần đầu sai (tần số lấy mẫu 0, số kênh 0, định dạng lạ) bị từ chối rõ ràng thay vì đọc thành tiếng rè.",
+                "Không đổi cách dịch, giọng, ngắt nghỉ; không thêm lượt gọi Gemini nào."
+            ],
+            bang: { cot: ["Kiểm thử ngoại tuyến", "1.8.9", "Nay"], hang: [
+                ["Số lần thử phát khi bị chặn 20 giây", "282", "25"],
+                ["Tua/dừng lúc câu vừa bắt đầu bị tính lỗi (30 giây)", "8", "0"],
+                ["Số lần thử phát một bản hỏng", "51", "1 (rồi tạo lại)"]
+            ] }
+        },
+        {
             v: "1.8.9", luc: "00:01 28/09/2026", ten: "Tua đi rồi tua lại ngay: câu không còn bị bỏ, không phải chờ",
             y: [
                 "Tua đi rồi tua lại ngay về chỗ cũ: câu đang chờ tạo giọng trước đây bị từ chối, phải đợi lượt sau. Nay câu đó được tạo đúng một lần, hoặc dùng luôn bản máy chủ vừa tạo xong.",

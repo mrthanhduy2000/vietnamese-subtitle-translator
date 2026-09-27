@@ -410,6 +410,19 @@ Measured and left alone: the tick is 17 us on a 60-min lecture (max 6 ms on a pl
 - Page cache (`dubbing.js`): one corrupt record threw away every hit of the lookup; now a miss for
   its line. A hit moves to the newest end, so a take replayed on each rewind is not evicted first.
 
+**1.9.0 play() refusals and WAV headers.** Reproduced first (`tests/dub.test.js`, fail on 1.8.9).
+`driveSpeech` used to send every `play()` rejection to `onProviderError` and ask the paused element
+again on every tick. `onPlayFailed` sorts them by the browser's error name:
+- `AbortError` (a pause or seek cut the start): `play_interrupted`, not a provider error. 8 of them in
+  30 s counted before; three in a row switch a paid voice to the system voice.
+- `NotAllowedError` (autoplay policy): `play_blocked`, asked again after `SYNC.playRetryMs` (1 s):
+  282 -> 25 calls in 20 s. `status().playBlocked` puts a warning on the badge until a play starts.
+- anything else (`NotSupportedError`): `play_failed`, the take is dropped and the line goes back to
+  the schedule (`S.prevSpokenStart`/`prevSpokenId` restored): 51 calls on a broken take -> 1, and
+  the line is made again.
+`decodeWav` refuses non-PCM, channels outside 1-8, rates outside 4-192 kHz and a cut `fmt` chunk
+with `e.code === "wav_invalid"`; rate 0 or 4 GHz used to decode into Infinity durations.
+
 ## Prosody model (1.7.6, `dub-prosody.js`)
 
 Where the dubbed speech may pause, how strongly, and which of the voice's own stops to keep. Pure,

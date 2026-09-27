@@ -735,26 +735,98 @@ test("playback delivery: a rewind past what the page holds finds the store first
 
 // ================= RESILIENCE (1.8.8) =================
 // Each case failed before: reproduced with tests/dub-sim.js, measured over 60 s of the lecture.
-async function resilienceRun({ get, render, seconds = 60, groups = lectureGroups() }) {
+async function resilienceRun({ get, render, seconds = 60, groups = lectureGroups(), makeAudio = null, each = null }) {
     const clock = new Clock(), video = new FakeVideo(), audios = [];
     let urls = 0, revoked = 0;
     const prov = { id: "vieneu", caps: { prerender: true, live: false, free: true, serial: true, maxBatch: 1 }, voiceModel: { ...PLAN.DEFAULT_VOICE_MODEL },
         naturalSps: () => 4, audioKey: async p => "k" + p.id, abort() {}, render };
     const eng = new DubEngine({ video, getGroups: () => groups, providers: { primary: prov },
         now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id), setTimeout: (f, ms) => clock.setTimeout(f, ms),
-        createObjectURL: () => { urls++; return "blob:" + urls; }, revokeObjectURL: () => { revoked++; },
-        createAudio: () => { const a = new FakeAudio(clock, { duration: 2.5 }); audios.push(a); return a; },
+        createObjectURL: b => { urls++; return (b && b[0] === 9 ? "blob:bad:" : "blob:") + urls; }, revokeObjectURL: () => { revoked++; },
+        createAudio: url => { const a = makeAudio ? makeAudio(clock, url) : new FakeAudio(clock, { duration: 2.5 }); audios.push(a); return a; },
         audioCache: { get, put() {} } });
     eng.start();
     video.play();
     for (let i = 0; i < seconds * 20; i++) {
         clock.advance(50, st => { video.step(st); audios.forEach(a => a.step(st)); });
+        if (each) each(i * 50, eng);
         await new Promise(r => setImmediate(r));
     }
     eng.stop();
-    return { eng, spoken: eng.stats.started.length, live: () => urls - revoked };
+    return { eng, spoken: eng.stats.started.length, live: () => urls - revoked, audios };
 }
 const okRender = async plans => plans.map(p => ({ planId: p.id, wav: new Uint8Array(8), duration: 2.5 }));
+
+test("decodeWav refuses a header it cannot read (rate 0 or 4 GHz, 0 channels, float, cut fmt) with code wav_invalid", () => {
+    const A = require("../dub-audio.js");
+    const good = A.encodeWav(new Float32Array(4800).map((_, i) => Math.sin(i / 5) * 0.3), 48000);
+    const mut = f => { const b = new Uint8Array(good); f(new DataView(b.buffer)); return b; };
+    assert.equal(A.decodeWav(good).sampleRate, 48000);
+    const bad = {
+        rate0: mut(dv => dv.setUint32(24, 0, true)), rateHuge: mut(dv => dv.setUint32(24, 4e9, true)),
+        channels0: mut(dv => dv.setUint16(22, 0, true)), float: mut(dv => dv.setUint16(20, 3, true)),
+        fmtCut: mut(dv => dv.setUint32(16, 8, true)), short: good.slice(0, 8), truncated: good.slice(0, 30)
+    };
+    for (const [k, b] of Object.entries(bad)) {
+        assert.throws(() => A.decodeWav(b), e => e.code === "wav_invalid", k);
+    }
+});
+
+// 1.9.0: what the page does when the browser refuses to play a take. Before, every refusal went to
+// onProviderError and the paused element was asked to play again on every 50 ms tick.
+const playError = name => { const e = new Error(name); e.name = name; return e; };
+class RefusingAudio extends FakeAudio {
+    constructor(clock, meta, refuse) { super(clock, meta); this.refuse = refuse; this.plays = 0; }
+    play() {
+        this.plays++;
+        const name = this.refuse(this);
+        if (!name) return super.play();
+        this.paused = true;
+        return Promise.reject(playError(name));
+    }
+}
+
+test("play refused by the autoplay policy: asked again once a second, not every tick; voice comes back when allowed", async () => {
+    let blocked = true, sawBlocked = false;
+    const r = await resilienceRun({ get: async () => ({}), render: okRender, seconds: 40,
+        makeAudio: clock => new RefusingAudio(clock, { duration: 2.5 }, () => blocked ? "NotAllowedError" : null),
+        each: (ms, eng) => { if (eng.playBlocked) sawBlocked = true; if (ms === 20000) blocked = false; } });
+    const plays = r.audios.reduce((a, x) => a + x.plays, 0);
+    assert.ok(plays < 80, `${plays} play() calls in 20 s of refusals`);
+    assert.ok(r.eng.stats.errorTypes.play_blocked >= 1);
+    assert.ok(sawBlocked, "the badge was never told the sound is blocked");
+    assert.equal(r.eng.playBlocked, false, "still flagged blocked after playback resumed");
+    assert.ok(r.audios.some(a => a.plays > 0 && !a.refuse(a) && a.currentTime > 0), "no voice after the block lifted");
+});
+
+test("play interrupted by a pause or seek (AbortError) is not an error: never counted toward switching the voice", async () => {
+    const first = new Set();
+    const r = await resilienceRun({ get: async () => ({}), render: okRender, seconds: 30,
+        makeAudio: clock => new RefusingAudio(clock, { duration: 2.5 }, a => { if (first.has(a)) return null; first.add(a); return "AbortError"; }) });
+    assert.ok(r.spoken >= 5);
+    assert.equal(r.eng.stats.errors, 0, "AbortError counted as a provider error");
+    assert.ok(r.eng.stats.errorTypes.play_interrupted >= 1);
+});
+
+test("a take the browser cannot play (NotSupportedError) is dropped and made again, not retried every tick", async () => {
+    let badPlan = null;
+    const renders = new Map();
+    const render = async plans => plans.map(p => {
+        renders.set(p.id, (renders.get(p.id) || 0) + 1);
+        if (badPlan == null && renders.size === 3) badPlan = p.id;
+        const wav = new Uint8Array(8);
+        if (p.id === badPlan && renders.get(p.id) === 1) wav[0] = 9;          // only the first take is broken
+        return { planId: p.id, wav, duration: 2.5 };
+    });
+    const r = await resilienceRun({ get: async () => ({}), render, seconds: 40,
+        makeAudio: (clock, url) => new RefusingAudio(clock, { duration: 2.5 }, () => /bad/.test(url) ? "NotSupportedError" : null) });
+    const bad = r.audios.filter(a => a.refuse(a));
+    const badPlays = bad.reduce((a, x) => a + x.plays, 0);
+    assert.ok(bad.length >= 1, "the broken take was never tried");
+    assert.ok(badPlays <= 3, `${badPlays} play() calls on a take that cannot play`);
+    assert.ok(renders.get(badPlan) >= 2, "the broken take was not made again");
+    assert.ok(r.eng.stats.errorTypes.play_failed >= 1);
+});
 
 test("resilience: a store lookup that never answers no longer silences dubbing (0 -> most lines spoken)", async () => {
     const base = await resilienceRun({ get: async () => ({}), render: okRender });

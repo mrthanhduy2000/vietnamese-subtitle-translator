@@ -137,6 +137,9 @@
                                   // this long after it was left: three silent ones used to block for good
         // A take is accepted only with a real length (a NaN duration made every later rate NaN)
         minAudio: 0.05,
+        // A play() the browser refused (autoplay policy, NotAllowedError) is asked again after this
+        // long, not on every 50 ms tick: 282 calls in 20 s of refusals before (1.9.0)
+        playRetryMs: 1000,
         maxAudio: 600,
         duckRampPerTick: 0.09,    // tốc độ hạ/nâng âm lượng video mỗi nhịp (mượt ~200 ms)
         duckHold: 0.35            // giữ mức hạ thêm chút sau khi nói xong (tránh "bơm" âm lượng giữa các cụm)
@@ -754,7 +757,8 @@
             const { p, r, offset, lag } = next;
             this.meterStart(p, t, lag);
             const rate = this.chooseRate(p, r, t, offset, lag);
-            this.speech = S = { id: p.id, mediaStart: t, offset, rate, end: t + (r.duration - offset) / rate };
+            // prev*: what was spoken before, given back if this take turns out unplayable (onPlayFailed)
+            this.speech = S = { id: p.id, mediaStart: t, offset, rate, end: t + (r.duration - offset) / rate, prevSpokenStart: this.lastSpokenStart, prevSpokenId: this.lastSpokenId };
             this.lastSpokenStart = p.start;
             this.lastSpokenId = p.id;
             this.stats.started.push({ id: p.id, t, due: p.start, lag, rate, speechEnd: S.end, cueEnd: p.end });
@@ -762,6 +766,45 @@
             if (!r.el) r.el = this.makeAudio(r.url);
             this.driveSpeech(S, r, t, videoRate, true);
             this.speakingUntilMedia = S.end + SYNC.duckHold;
+        }
+
+        // A play() that started: a block reported earlier (playBlocked) is over
+        onPlayStarted() {
+            if (!this.playBlocked) return;
+            this.playBlocked = false;
+            this.status();
+        }
+
+        // A play() the element refused, by the browser's error name (1.9.0). Every refusal used to be
+        // a provider error and the paused element was asked again on every tick:
+        //   AbortError: a pause or seek cut the start short. Normal, asked again when due, and never
+        //     counted toward switching to the system voice (three during fast seeks did that).
+        //   NotAllowedError: the autoplay policy. Asked again after SYNC.playRetryMs; the badge says
+        //     so (status playBlocked) until a play starts.
+        //   anything else (NotSupportedError: a take the browser cannot decode): the take is dropped
+        //     and made again like a failed render, instead of being fed to the element 20 times a second.
+        onPlayFailed(S, el, e) {
+            const name = (e && e.name) || "";
+            if (name === "AbortError") { this.countError("play_interrupted"); return; }
+            this.onProviderError(e);
+            if (name === "NotAllowedError") {
+                this.countError("play_blocked");
+                S.retryAt = this.d.now() + SYNC.playRetryMs;
+                if (!this.playBlocked) { this.playBlocked = true; this.status(); }
+                return;
+            }
+            this.countError("play_failed");
+            const r = this.rendered.get(S.id);
+            if (!this.running || !r || r.el !== el) return;
+            this.releaseAudio(r);
+            if (r.url && this.d.revokeObjectURL) this.d.revokeObjectURL(r.url);
+            this.rendered.delete(S.id);
+            this.failed.set(S.id, (this.failed.get(S.id) || 0) + 1);
+            if (this.speech !== S) return;
+            // the line was never heard: it goes back to the schedule, which makes it again while it
+            // can still be reached (unreachable) and skips it otherwise
+            this.speech = null;
+            if (this.lastSpokenId === S.id) { this.lastSpokenStart = S.prevSpokenStart; this.lastSpokenId = S.prevSpokenId; }
         }
 
         releaseAudio(r) {
@@ -1161,11 +1204,12 @@
             try { el.preservesPitch = true; } catch (e) { /* bỏ qua */ }
             el.volume = this.settings.volume;
             if (el.paused || starting) {
+                if (el.paused && !starting && S.retryAt && this.d.now() < S.retryAt) return;
                 if (Math.abs(el.playbackRate - baseRate) > 0.001) el.playbackRate = baseRate;
                 el.currentTime = Math.max(0, expected);
                 if (el.paused) {
                     const pr = el.play();
-                    if (pr && pr.catch) pr.catch(e => this.onProviderError(e));
+                    if (pr && pr.then) pr.then(() => this.onPlayStarted(), e => this.onPlayFailed(S, el, e));
                 }
                 return;
             }
@@ -1405,7 +1449,8 @@
         // Diagnostics: errors by kind (debugSnapshot().delivery.errorTypes). Kinds: the service
         // worker's errorType (timeout, local_unavailable, local_error, rate_limit, quota, budget,
         // split, no_audio, disabled, invalid, dropped), plus the engine's own: aborted, no_response,
-        // lookup_timeout, lookup_failed, bad_audio, job_stalled, unknown.
+        // lookup_timeout, lookup_failed, bad_audio, job_stalled, play_interrupted, play_blocked,
+        // play_failed, unknown.
         countError(kind) {
             const m = this.stats.errorTypes || (this.stats.errorTypes = {});
             m[kind] = (m[kind] || 0) + 1;
@@ -1780,7 +1825,8 @@
                 ready,
                 fallback: kind === "fallback" || (this.fallback && this.provider === this.fallback && this.d.providers.primary !== this.fallback),
                 reason: this.fallbackReason || "",
-                budgetBlocked: !!this.budgetBlocked
+                budgetBlocked: !!this.budgetBlocked,
+                playBlocked: !!this.playBlocked
             });
         }
     }
