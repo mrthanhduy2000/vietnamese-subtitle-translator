@@ -91,6 +91,13 @@ test("no pause around rằng, after a short subject, or before a modal nên", ()
     assert.ok(!eligible(gapAfter("Mô hình chỉ đang ghi nhớ dữ liệu chứ không hiểu nó.", "chứ")), "inside chứ không");
 });
 
+test("a long subject before an unmarked predicate verb is a boundary; the verb inside a noun and a short subject are not", () => {
+    assert.ok(eligible(gapAfter("Doanh thu của công ty trong quý ba đạt mức cao nhất từ trước đến nay.", "ba")), "subject | đạt");
+    assert.ok(eligible(gapAfter("Kết quả nghiên cứu của nhóm cho thấy mô hình học rất nhanh.", "nhóm")), "subject | cho thấy");
+    assert.ok(!eligible(gapAfter("Tỷ lệ chiếm dụng phòng của khách sạn đã tăng mạnh trong mùa hè.", "lệ")), "chiếm dụng is a noun");
+    assert.ok(!eligible(gapAfter("Sản phẩm mới giúp khách hàng tiết kiệm thời gian.", "mới")), "short subject | giúp");
+});
+
 test("clause openings, adjuncts and a long subject are boundaries, weighted by the segmenter's scoring", () => {
     const pairs = [
         ["Vì máy chủ quá tải nên yêu cầu bị chuyển sang một mô hình khác.", "tải"],

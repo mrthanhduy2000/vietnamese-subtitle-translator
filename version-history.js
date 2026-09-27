@@ -4,6 +4,19 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.9.6", luc: "01:39 28/09/2026", ten: "Giọng VieNeu: ngắt đúng sau chủ ngữ dài trước động từ như \"đạt\", \"cho thấy\", \"mang lại\"",
+            y: [
+                "Câu kiểu \"Doanh thu của công ty trong quý ba | đạt mức cao nhất\" nay nghỉ đúng chỗ trước động từ, thay vì nghỉ lạc giữa chủ ngữ.",
+                "Giữ nguyên khi động từ nằm trong một danh từ (\"tỷ lệ chiếm dụng\") hoặc khi chủ ngữ ngắn.",
+                "Đo trên 40 bản thu thật: khoảng dừng sai được giữ giảm từ 9 xuống 3, chỗ cần ngắt bị bỏ sót từ 6/20 xuống 0/20; tám bộ câu khác không đổi.",
+                "Không bỏ chữ nào, không rút gọn câu; không gọi Gemini."
+            ],
+            bang: { cot: ["Đo ngoại tuyến", "1.9.5", "Nay"], hang: [
+                ["Khoảng dừng sai được giữ (40 bản thu thật)", "9", "3"],
+                ["Chỗ cần ngắt bị bỏ sót", "6 / 20", "0 / 20"]
+            ] }
+        },
+        {
             v: "1.9.5", luc: "01:30 28/09/2026", ten: "Giọng VieNeu: bớt ngắt sai chỗ, đọc đúng thêm tên tiếng Anh (kiểm bằng bản thu thật)",
             y: [
                 "Bớt ngắt sai giữa chủ ngữ ngắn và vị ngữ (\"Số nhân viên của công ty | đã tăng\"), trước \"như\" so sánh (\"dễ dàng như nhiều người nghĩ\"), trước \"khi\" trong vế ngắn (\"gặp lỗi khi cài đặt\").",

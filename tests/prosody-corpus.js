@@ -199,5 +199,17 @@ module.exports = {
     ["X7", "fronted-pronoun", "Khi dữ liệu huấn luyện bị thiếu nhãn | chúng ta phải gán nhãn lại bằng tay."],
     ["X8", "time-nested", "Hãy lưu lại tệp khi bạn làm xong."],
     ["X9", "time-long", "Mô hình thường bị tràn bộ nhớ / khi xử lý những tập dữ liệu có hơn một triệu dòng."]
+    ],
+    // 1.9.6 (BACKLOG 16): a subject whose verb carries no predicate marker the model knew. Written
+    // before the code; V6 and V7 hold the rule back ("chiếm" inside a noun, a short subject).
+    syntax4: [
+    ["V1", "verb-dat", "Độ chính xác trên tập kiểm tra | đạt 95% sau mười lần huấn luyện."],
+    ["V2", "verb-dat", "Doanh thu của công ty trong quý ba / đạt mức cao nhất từ trước đến nay."],
+    ["V3", "verb-cho-thay", "Kết quả nghiên cứu của nhóm / cho thấy mô hình học rất nhanh."],
+    ["V4", "verb-chiem", "Chi phí quảng cáo trên mạng xã hội | chiếm phần lớn ngân sách của doanh nghiệp."],
+    ["V5", "verb-mang-lai", "Những thay đổi nhỏ trong thói quen hằng ngày | mang lại hiệu quả lớn cho sức khỏe."],
+    ["V6", "noun-chiem", "Tỷ lệ chiếm dụng phòng của khách sạn / đã tăng mạnh trong mùa hè."],
+    ["V7", "subject-short", "Sản phẩm mới giúp khách hàng tiết kiệm thời gian."],
+    ["V8", "verb-gay-ra", "Việc sử dụng kháng sinh bừa bãi ở trẻ nhỏ | gây ra tình trạng kháng thuốc."]
     ]
 };

@@ -53,8 +53,10 @@ nhờ vào", "chỉ tốt | bằng", "tập thể dục | vào buổi sáng", re
 nhiều | so với" (`adjustJoins`, see `DUBBING.md` "1.7.8 additions"; WRONG on the four old sets 18 ->
 3). 1.8.0 (`constituents`): a prepositional phrase inside a subject is no longer a boundary when the
 predicate has a marker the model knows (đã, sẽ, là, được, a verb of change...: "công ty ... ở California
-| trong quý vừa qua | đã" now has one boundary, before "đã"). Left: a subject whose verb has no marker
-("Độ chính xác trên tập kiểm tra | đạt 95%"): the model has no verb lexicon and does not guess. "Điều này | có nghĩa là" untouched. The
+| trong quý vừa qua | đã" now has one boundary, before "đã"). 1.9.6: a small lexicon of predicate verbs
+(`PRED_VERBS`: đạt, chiếm, cho thấy, mang lại, gây ra...) marks "Độ chính xác trên tập kiểm tra | đạt
+95%" too (syntax4 real takes: wrong stops kept 9 -> 3, missed 6/20 -> 0/20). Left: verbs outside that
+list still unmarked; a short subject before one is legal but not invited (readers disagree there). "Điều này | có nghĩa là" untouched. The
 relative-"mà" and topic-"thì" limits (6 syllables) were set on seen sentences: check them on new ones.
 
 **18. Alignment limits.** A stop's place in the text is its share of voiced time (mean error 0.33
@@ -113,7 +115,9 @@ names without a respelling are read Vietnamese inside any English name. At the s
 only name words (`NAME_WORDS`) count before an English surname.
 
 **27. "So Google với Bing" is read "sˈoʊ" by VieNeu itself** (its chunker, not a rewrite of ours).
-Found in dev d77; not addressed.
+Found in dev d77. 1.9.6 probed 8 separators on the real voice (zero-width space, NBSP, comma, dash,
+parentheses, `<en>` on "Google", `<vi>` on "So"): none changes it. Only a different word does, which
+rule 1 forbids. A VieNeu limitation; leave it unless the server's chunker changes.
 
 **28. Cross-subtitle bridging only for the free voice.** Paid voice only (off since 1.8.1). A paid voice keeps a cut at every
 translation group, so "Christopher | Nolan" split over two groups is still two takes there: moving

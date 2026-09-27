@@ -449,6 +449,15 @@ lecture's: 5 lines read over a 15 s mid-roll, the ad ducked, those lines rendere
 engine resets once (`hardReset("ad")`, `lastT` cleared). The subtitle loop has the same gate
 (`youtube.js` `ytAdShowing`), which also stops Gemini calls for the ad's clock.
 
+**1.9.6 predicate verbs (BACKLOG 16).** `PRED_VERBS` in `dub-prosody.js` (đạt, chiếm, vượt, gồm, cho
+thấy, mang lại, gây ra, dẫn đến, tạo ra, bao gồm, đòi hỏi, trở thành, đóng vai trò, phụ thuộc, giúp) and
+`predVerbAt`: a 2 or 3 word verb matches whole, a one-word verb only when it is not inside a compound
+("chiếm dụng" stays a noun). In `adjustJoins`, a subject of 5+ syllables before such a verb becomes a
+boundary: invited (value above `minValue`) when long, legal but uninvited when short (same
+`subjectLong` / `subjectClauseMin` test as 1.9.5). `constituents` counts the verb as a predicate
+marker. Real takes (`prosody-eval.js`, syntax4, 40 takes): WRONG 9 -> 3, MISSED 6/20 -> 0/20, RAN-ON
+14 -> 13 of 20; the other eight sets identical on every count.
+
 **1.9.5 prosody and names (BACKLOG 30, 21), judged on real takes.** Rules in `dub-prosody.js`:
 comparative "như" after a gradable word joins it (as "bằng"); a result "nên" ends a fronted "Vì ..."
 clause, so a pronoun after a time word inside it is not a main clause; rule C covers a time clause

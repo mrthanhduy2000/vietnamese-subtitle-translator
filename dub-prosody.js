@@ -190,6 +190,21 @@
     const PRONOUN_SUBJECT = new Set(["chúng", "tôi", "bạn", "họ", "nó", "các", "người", "mình", "ta"]);
     // Verbs of change: "tăng | từ 72,5%" is the verb's from-to complement, not an adjunct
     const CHANGE_VERBS = new Set(["tăng", "giảm", "lên", "xuống", "hạ", "rơi", "sụt", "tụt", "vọt", "nhảy", "chuyển", "đổi", "dao động", "kéo dài"]);
+    // Verbs that open the predicate after a nominal subject in expository speech, with no preverbal
+    // word before them (1.9.6, BACKLOG 16: "Độ chính xác trên tập kiểm tra | đạt 95%"). The segmenter
+    // rates a noun -> verb gap as inside a phrase (value -0.95): the voice's own stop there was closed
+    // while one inside the subject ("chính xác | trên tập") was invited. Two-word ones are matched
+    // whole; a word that is part of a compound ("chiếm dụng") is not a verb here
+    const PRED_VERBS = new Set(["đạt", "chiếm", "vượt", "gồm", "cho thấy", "mang lại", "gây ra", "dẫn đến", "tạo ra",
+        "bao gồm", "đòi hỏi", "trở thành", "đóng vai trò", "phụ thuộc", "giúp"]);
+    const predVerbAt = (words, gaps, i) => {
+        const two = words[i + 1] ? `${words[i].bare} ${words[i + 1].bare}` : "";
+        const three = words[i + 2] ? `${two} ${words[i + 2].bare}` : "";
+        if (PRED_VERBS.has(three)) return 3;
+        if (PRED_VERBS.has(two)) return 2;
+        if (PRED_VERBS.has(words[i].bare) && !(gaps[i] && gaps[i].inWord)) return 1;
+        return 0;
+    };
     // "từ" as the noun "word": "dự đoán | từ tiếp theo" is "predict the next word"
     const WORD_NOUN_AFTER = new Set(["tiếp", "kế", "khóa", "khoá", "vựng", "loại", "gốc", "lạ", "đơn", "ghép"]);
     // Gradable adjectives: "chỉ tốt | bằng dữ liệu" is "only as good as", not "by means of"
@@ -346,6 +361,16 @@
                 // a temporal modifier closing a long subject: "doanh thu ... trong quý vừa qua | tăng"
                 g.cost = Math.min(g.cost, -2);
                 g.subjectEnd = true;
+            } else if (predVerbAt(words, gaps, g.i + 1) && !listed && g.cost > 0 && g.cost < 40 && !g.inWord) {
+                // a predicate verb after its subject (PRED_VERBS): invited like "đã" after a long subject
+                // (value 0.35); after a short one in a short clause legal but not invited (value 0): the
+                // voice decides. Readers disagree there (blind split 2 marked "Số nhân viên của công ty |
+                // đã" wrong, syntax4 V1 marks "Độ chính xác trên tập kiểm tra | đạt" right); it was closed
+                const subj = subjectBefore(g);
+                if (subj < 5) continue;
+                const short = subj < K.subjectLong && clauseSyl(zone) < K.subjectClauseMin;
+                g.cost = Math.min(g.cost, short ? K.valueAt : K.valueAt - 7);
+                g.subjectEnd = true;
             } else if ((PREVERBAL.has(next.bare) || (next.bare === "có" && words[g.i + 2] && words[g.i + 2].bare === "thể")) && g.cost > 0 && g.cost < 40) {
                 // subject length: back to punctuation, a clause opener, "là" or "rằng"
                 if (subjectBefore(g) < 5) continue;
@@ -435,7 +460,7 @@
                     if ((gBefore.inWord || (gaps[v] && gaps[v].inWord)) && w !== "có") continue;   // "không gian", "chỉ số": a noun
                     if (w === "vừa" && TIME_END.includes(at(v, 2))) continue;      // "quý vừa qua"
                     const marker = PREVERBAL.has(w) || w === "là" || w === "được" || w === "bị" || CHANGE_VERBS.has(w) ||
-                        (w === "có" && words[v + 1] && words[v + 1].bare === "thể");
+                        (w === "có" && words[v + 1] && words[v + 1].bare === "thể") || predVerbAt(words, gaps, v) > 0;
                     if (!marker) continue;
                     if (v - s >= 2) { c.subject = [s, v - 1]; c.pred = v; }
                     break;
