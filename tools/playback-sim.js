@@ -41,6 +41,7 @@ function hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) h 
 const SLOT_HOLD = 4.5;      // s the server keeps its slot after the client left mid-request
 const POLL = 0.25;          // waitLocalIdle poll interval
 const OVERHEAD = 0.15;      // s per request outside generation
+const KEEP_RUNNING = 4;     // background.js LOCAL_KEEP_RUNNING_S
 
 function run(engineMod, sc) {
     const { DubEngine, createVieneuProvider } = engineMod;
@@ -87,7 +88,7 @@ function run(engineMod, sc) {
             m.serverRuns++;
             f.sent = clock.now();
             const dur = audioSecs(f.speak);
-            const gen = (OVERHEAD + dur * rtf()) * 1000;
+            const gen = f.gen = (OVERHEAD + dur * rtf()) * 1000;
             f.finish = () => {
                 if (running !== f) return;
                 running = null;
@@ -123,7 +124,8 @@ function run(engineMod, sc) {
             if (!f) return { ok: true };
             f.jobs.delete(msg.jobId);
             if (f.jobs.size) return { ok: true };
-            if (sc.bgAbort === "running" || f.sent == null) cut(f);
+            // "queued" (1.8.6): a request the server has started is kept unless far from done
+            if (sc.bgAbort === "running" || f.sent == null || f.sent + f.gen - clock.now() > KEEP_RUNNING * 1000) cut(f);
             return { ok: true };
         }
         if (msg.action === "synthesizeSpeech") {
@@ -175,15 +177,15 @@ function run(engineMod, sc) {
     const starts = [];                 // { wall, media, id } audio actually starting
     let overlapTicks = 0, maxRendered = 0, maxEls = 0;
     const seeks = [];                  // { wall } waiting for the next start
-    let lastPlayingSet = new Set();
+    let lastPlayingSet = new Set(), seenStarts = 0;
     function observe() {
         const playing = audios.filter(a => !a.paused);
         if (playing.length > 1) overlapTicks++;
-        for (const a of playing) if (!lastPlayingSet.has(a) && (!a.resumable || a.currentTime < 0.2)) {
-            a.resumable = true;
-            const S = eng.speech;
-            starts.push({ wall: clock.now(), media: video.currentTime, id: S && S.id, offset: S ? S.offset : 0 });
-            const pl = S && eng.planById.get(S.id);
+        // a line starts when the engine starts one (stats.started), whatever its offset
+        while (seenStarts < eng.stats.started.length) {
+            const x = eng.stats.started[seenStarts++];
+            starts.push({ wall: clock.now(), media: video.currentTime, id: x.id });
+            const pl = eng.planById.get(x.id);
             if (pl) pendingKeys.push(provider.audioKey(pl).then(k => m.playedKeys.add(k)));
             for (const s of seeks) if (s.recovered == null && !s.paused) s.recovered = clock.now() - s.wall;
         }
@@ -223,7 +225,7 @@ function run(engineMod, sc) {
         let gapSum = 0, gapN = 0, gapMax = 0;
         for (let i = 1; i < st.length; i++) {
             const a = st[i - 1], b = st[i];
-            if (b.t < a.t) continue;                                   // a seek in between
+            if (seeks.some(x => !x.first && x.wall > starts[i - 1].wall && x.wall <= starts[i].wall)) continue;   // a seek in between
             const ready = Math.max(a.speechEnd + 0.18, b.due - 0.04);
             const g = b.t - ready;
             if (g > 0.12 && g < 30) { gapSum += g; gapN++; gapMax = Math.max(gapMax, g); }

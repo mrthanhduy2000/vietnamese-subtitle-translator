@@ -148,6 +148,24 @@ is now read in one breath unless the voice stops long on its own. The 1.8.0 note
 split right; the dev marks were always "/" (either way). If the user wants the stop back, raise the
 `purposeAttached` cost in `dub-prosody.js` `constituents` (part C).
 
+## Found by the 1.8.6 delivery work, not fixed
+
+**32. First line at 2x, or on a slow server, before any render is measured.** `unreachable` needs a
+measured `renderRtf`; the 0.5 guess would skip the first line on a healthy server. So right after
+dubbing starts at 2x the engine still renders the line under the playhead, then skips it
+(`playback-sim.js` rate2: first voice 2.75 s). The service worker knows the server speed
+(`localTtsStatus` returns `rtf`); seeding the engine with it would fix this. Not done: small gain.
+
+**33. A server near real time (RTF ~0.9) still chases.** One request at a time, each take lands as
+its line ends; after a seek the engine now skips what it cannot reach (13.6 -> 7.7 s to voice) but a
+line can then start 3.5 s late. Only a faster server (int8, GPU) really fixes it; `describeHealth`
+already tells the viewer.
+
+**34. Entering a line after a seek starts at a proportional offset**, not at a word or pause: the
+audio position is `into x (audio length / slot)`, which can land mid-syllable with no fade-in. Old
+behaviour (the head cut did the same whenever a seek landed > 0.3 s into a piece); 1.8.6 uses it for
+held audio too. A fix would snap to a silence found in the take (`dub-audio.js`) at `addRendered`.
+
 ## Cosmetic / housekeeping
 
 **5. The folder name says `v1.0.4`, the extension is many versions past that.** Renaming the folder means

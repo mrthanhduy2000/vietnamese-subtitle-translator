@@ -6,36 +6,40 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-27 · docs only (`README.md`, `images/extension.png` removed, `CLAUDE.md`, `docs/MAP.md`,
-`docs/BACKLOG.md`) · version stays `1.8.5`. User asked: rewrite the GitHub description and README,
-cut every trace of the upstream project (bombap/coursera-translator).
+2026-09-27 · lane B (`dub-engine.js`) + D (`background.js`, `tools/playback-sim.js`, tests) · `1.8.6`.
+User asked: speech delivery / playback intelligence (seek, pause, gaps, reuse), no paid API, no
+prosody or pronunciation work.
 
 ## What changed
-- `README.md` rewritten from scratch in Vietnamese: features (subtitles, dubbing, cost), install
-  from this repo, update via `git pull` + Reload, VieNeu setup, usage, known limits, dev pointers.
-  The old 25-release changelog is gone (stale since 1.4.3); history lives in `version-history.js`,
-  the old text in `git show d0c46d5:README.md`. No licence section: there is no LICENSE file.
-- `images/extension.png` (upstream popup screenshot, used only by the old README) deleted.
-  `images/example-image.png` stays: `options.html` preview background uses it.
-- GitHub repo "About" description rewritten via `gh repo edit` (not in git).
+- `background.js` `synthesizeLocalOnce`: a page abort no longer cuts a VieNeu request the server has
+  started (`LOCAL_KEEP_RUNNING_S` 4; cold server still cut). VieNeu holds its only slot ~4-5 s after a
+  client leaves; `server.log` showed 11 of 23 aborts blocking the seek target 3-5 s. `DANGER.md` 15.
+- `dub-engine.js`: `hardReset` keeps the cut when audio at the landing point is held
+  (`audioReadyAt`, `headPinned`); `unreachable` skips lines that cannot arrive in time after a
+  start/seek (measured rtf only); pause no longer cancels (`prefetchAhead(true)`); `releaseAudio`
+  frees elements after a line and on reset; `stop()` aborts queued jobs; `debugSnapshot().delivery`
+  scorecard. Details and numbers: `DUBBING.md` "Delivery".
+- `tools/playback-sim.js`: offline delivery simulator (real engine + provider, modelled SW + server).
 
 ## State
-- `npm test`: 514 pass, 0 fail, 1 skip · Reload: no (no runtime file changed).
+- Tests: 520 pass, 0 fail, 1 skip (run the `scripts.test` command directly; `npm test` in the sandbox
+  pings the registry). Reload: **yes** + F5 video tabs. No cache key changed, nothing re-renders.
+- Real Chrome (`tests/harness/smooth.html` on the other session's :8765 server): voice 15-27 ms after
+  seeks onto held audio, 0 overlap, <= 2 elements with a source.
 
 ## Unfinished / in progress
-- The keep-English vs Vietnamese choice per term is a judgment call; not yet watched in real
-  Chrome. Marketing metrics deliberately stay English. Ask the user after a lecture or two.
-- Carried over: nobody compared real Gemini output before/after 1.8.3/1.8.4 (console line shows
-  context); `BACKLOG.md` 30, 31, 14, 15, 16, 18, 19, 20, 21-24, 26-28; 1.7.2 to 1.8.5 not verified
-  end to end in real Chrome; 1.7.9 duck fix not confirmed; Udemy / edX (`BACKLOG.md` 9).
+- Not watched on a real YouTube video yet: seek back, seek into prefetched audio, pause/resume.
+  `localStorage.cstDubDebug = "1"` shows `delivery` in `<html data-cst-dub>`.
+- New backlog 32-34 (first line at 2x before rtf is known, RTF ~0.9 chase, proportional mid-line entry).
+- Carried over: glossary keep-English vs Vietnamese per term not yet watched in Chrome (ask the user
+  after a lecture or two); nobody compared real Gemini output before/after 1.8.3/1.8.4;
+  `BACKLOG.md` 30, 31, 14, 15, 16, 18, 19, 20, 21-24, 26-28; 1.7.2 to 1.8.6 not verified end to end
+  in real Chrome; 1.7.9 duck fix not confirmed; Udemy / edX (`BACKLOG.md` 9).
 
 ## Traps hit this session
-- `npm test` inside the sandbox tries registry.npmjs.org; run the `scripts.test` command directly.
-- `protectGlossary` runs the exact-case pass before the lowercase pass: placeholder ids follow
-  pass order, not text order. Tests must not assume text order.
-- `state` in content.js is a top-level `const`: read it with `vm.runInContext("state", sb)`.
-- A glossary key with an everyday second sense gets the rendering blindly ("exact match").
+- Another session worked in this folder at the same time and its `git add -A` swept this session's
+  half-written `tools/playback-sim.js` into b51c446. Commit your own paths.
+- The simulator's gap metric must skip line pairs with a seek between them, or recoveries look like gaps.
 
 ## Suggested next step
-- Watch a statistics or economics lecture: terms like "độ lệch chuẩn", "lãi suất" should appear
-  in Vietnamese; flag any rendering the user dislikes and move it out of `GLOSSARY_VI`.
+- Watch one video with dubbing on and seek back and forth a few times; check `delivery.recoverMs`.

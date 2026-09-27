@@ -1203,6 +1203,35 @@ test("VieNeu: mọi yêu cầu (nhiều tab, nghe thử trong Cài đặt) xếp
     assert.doesNotMatch(require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "background.js"), "utf8"), /localTtsWarm/);
 });
 
+// 1.8.6: VieNeu keeps its only stream slot ~4-5 s after a client leaves mid-request, so cutting a
+// request the server has started made the line the viewer seeked to wait for it. Such a request is
+// let finish (its take is stored); one still waiting in the service worker's queue is dropped unsent.
+test("VieNeu: a dropped request the server has started finishes and is stored; a queued one is never sent", async () => {
+    const calls = [];
+    const inner = vieneuServer(calls);
+    let release = null;
+    const E = bgEnv(async (u, o) => {
+        if (!String(u).endsWith("/v1/audio/speech")) return inner(u, o);
+        if (calls.length === 0) await new Promise(r => { release = r; });
+        return inner(u, o);
+    }, cfg());
+    const req = key => ({ action: "synthesizeSpeech", engine: "vieneu", text: "Câu này đang được máy chủ tạo.", voice: "Mỹ Duyên", jobId: "job-" + key, parts: [{ key, weight: 7 }] });
+    const running = E.send(req("run1"));
+    const queued = E.send({ ...req("wait1"), text: "Câu này còn chờ trong hàng." });
+    for (let i = 0; i < 200 && !release; i++) await new Promise(r => setTimeout(r, 5));
+    assert.ok(release, "the first request never reached the server");
+    await E.send({ action: "ttsAbort", jobId: "job-run1" });
+    await E.send({ action: "ttsAbort", jobId: "job-wait1" });
+    release();
+    const [a, b] = await Promise.all([running, queued]);
+    assert.equal(a.ok, true, `started request was cut: ${a.error}`);
+    assert.equal(b.ok, false);
+    assert.equal(b.errorType, "aborted");
+    assert.equal(calls.length, 1, "the queued request reached the server");
+    assert.equal((await E.send(req("run1"))).fromCache, true, "the finished take was not stored");
+    assert.match(read("background.js"), /LOCAL_KEEP_RUNNING_S = 4;/);
+});
+
 test("VieNeu bị kẹt (log thật: 6 giây audio mất 45 giây): hủy theo độ dài câu rồi tạo lại, câu vẫn có audio", async () => {
     const calls = [];
     const inner = vieneuServer(calls);

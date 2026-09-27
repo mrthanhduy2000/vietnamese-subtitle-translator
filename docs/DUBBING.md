@@ -303,11 +303,60 @@ talk; now ~15 ms. `releaseOld` frees audio whose plan left the window (it used t
 (prerendered timeline). A seek is detected in `tick` as `t < lastT - 0.3 || t > lastT + 2.5` and
 calls `hardReset`, which drops queued speech, renders a tiny first batch (`warmup`), and re-anchors.
 `cancelObsoleteJobs` deliberately lets jobs that are nearly done finish, because aborting a Gemini
-call still bills for it.
+call still bills for it. For VieNeu the service worker also keeps any request the server has started
+(1.8.6, see "Delivery"), so a VieNeu abort only drops what is still queued.
 
 **Viewer cap (1.6.6).** `settings.maxRate` (storage `dubMaxRate`) is the one user override of this
 block: when set, `userMaxRate()` clamps `ceiling`, `lagCeiling` and the final rate, even below a
 slow voice's floor rate. The voice then falls behind instead of rushing; it never drops words.
+
+## Delivery: getting made audio to the ear on time (1.8.6)
+
+Pipeline, per line: group translated -> `refresh` plans the window -> `schedule` looks the line up
+(page L1, then the service worker's store) -> one request at a time to VieNeu (`maxBatch` 1, `serial`)
+-> `background.js` queue (`localSerial`), same-key requests join one flight (`ttsInFlight`), store
+checked first, take written to the store before the reply -> `addRendered` (blob URL, no element)
+-> `prepareNext` builds the next line's element while the current one plays -> `nextSpeech` /
+`tickBuffer` start it on the video clock (`ended` event re-ticks at once; `gapTimer` for the rest)
+-> `releaseAudio` when it ends. Priority is implicit and recomputed every tick: `todo` is sorted by
+start from the current time, so the line about to play always goes first; no queue framework.
+
+Measured with `tools/playback-sim.js` (real engine + provider, modelled service worker and server,
+old = 1.8.5 engine with the old abort policy; all local, no API):
+
+| Scenario | voice after seek (s) | requests | audio elements alive |
+|---|---|---|---|
+| seek back to held audio | 0.8 -> 0.05 | 19 -> 16 | 12 -> 2 |
+| seek forward (1.5 s is translation) | 3.05 -> 3.05, 3 s of it server-blocked -> 0 | 25 -> 24 | 14 -> 2 |
+| 5 seeks in 7 s | mean 3.7 -> 1.4, worst 7.1 -> 2.5 | 28 -> 31 (23 lines spoken, was 20) | 16 -> 2 |
+| server at RTF 0.9, 2 seeks | 13.6 -> 7.7 (lines 15 -> 17) | 21 -> 19 | 9 -> 2 |
+| steady play, pause, 1.5x, 2x, all cached | unchanged (no gap before either) | equal or -1 | 20-21 -> 2 |
+
+The slow-server run has one more delivery gap (2 -> 3, 3.4 -> 7.1 s): a line now starts 3.5 s late
+where the old code was still silent. Late starts and gaps in steady play were 0 before and after:
+the gains are all around seeks, pauses and slow servers.
+Real Chrome (`tests/harness/smooth.html`, real VieNeu takes): voice 15 to 27 ms after a seek back
+and a seek into prefetched audio, 0 overlap in 2,854 samples, at most 2 elements holding a source.
+What changed, each for a measured cause:
+- **A request VieNeu has started is not cut** (`background.js` `LOCAL_KEEP_RUNNING_S` 4). The server
+  keeps its one stream slot ~4-5 s after a client leaves (`apps/openai_speech.py` `_Lease`), and
+  `waitLocalIdle` made the next request (the seek target) wait: `server.log` had 23 such releases,
+  11 of them followed by 12-21 `/health` polls. The take now finishes (~1 s) into the store; a
+  request still in the service worker queue is dropped unsent. Cold server: still cut.
+- **A seek onto held audio keeps the cut** (`hardReset` -> `audioReadyAt`, `headPinned`). The short
+  head cut re-rendered a line that sat ready; now it plays from its offset (the same mid-line entry
+  the head cut used whenever the seek landed >0.3 s into a piece).
+- **Unreachable lines are not rendered after a start/seek** (`unreachable`, only with a measured rtf):
+  at RTF 0.9 or 2x the engine rendered the line under the playhead, then skipped it as too late.
+  `waitAudio` counts an orphan job on a serial server as busy (it now runs to the end).
+- **Pause does not cancel** (`cancelObsoleteJobs` uses `prefetchAhead(true)`, the playing horizon).
+- **Elements are let go**: `releaseAudio` after a line ends and on `hardReset` (the blob URL stays;
+  a rewind makes a new element). `stop()` aborts its queued jobs (next video not held behind them).
+- **Scorecard** (debug only): `debugSnapshot().delivery` = `recoverMs` (start/seek -> first voice),
+  `late` (lag > `SYNC.lateStart`), `gaps` / `gapSec` (silence beyond the intended rest, `SYNC.gapMin`),
+  requests, cache hits, aborted, detached, lines held, live elements. Intended pauses never count.
+Not changed on purpose: prefetch horizon (`prefetchAhead` already scales with latency and rate: no
+gap at 1.5x / 2x), rate choice, drift, ducking, prosody, the paid-voice cache keys.
 
 ## Prosody model (1.7.6, `dub-prosody.js`)
 

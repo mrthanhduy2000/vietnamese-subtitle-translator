@@ -109,6 +109,10 @@
         maxSpokenSps: 5.8,        // no rate makes the voice say more than this many syllables/s
         lookAhead: 3,             // sentences ahead that may pull the rate up early (see chooseRate)
         lookAheadEarly: 0.5,      // ... and how much sooner than its subtitle a sentence may end for it
+        // Delivery scorecard (debugSnapshot only, 1.8.6): a line starting this late counts as a late
+        // start; a silence this long beyond the rest the engine means to keep counts as a delivery gap
+        lateStart: 0.5,
+        gapMin: 0.12,
         duckRampPerTick: 0.09,    // tốc độ hạ/nâng âm lượng video mỗi nhịp (mượt ~200 ms)
         duckHold: 0.35            // giữ mức hạ thêm chút sau khi nói xong (tránh "bơm" âm lượng giữa các cụm)
     };
@@ -452,6 +456,7 @@
             v.addEventListener("timeupdate", this.onTimeUpdate);
             this.timer = this.d.setInterval(() => this.tick(), SYNC.tickMs);
             this.headAt = Math.round(v.currentTime || 0);   // đoạn đầu ngắn quanh chỗ bắt đầu xem
+            this.resetWall = this.d.now();
             this.refresh();
             this.status();
         }
@@ -469,6 +474,12 @@
             v.removeEventListener("seeked", this.onPlaying);
             v.removeEventListener("timeupdate", this.onTimeUpdate);
             this.silence();
+            // Another video, dubbing off: requests still queued for this one must not keep the next
+            // video's first line waiting (background.js lets a request the server started finish)
+            for (const [jobId, job] of this.jobs) {
+                job.orphan = true;
+                if (this.provider.abort) { try { this.provider.abort(jobId); } catch (e) { /* bỏ qua */ } }
+            }
             for (const r of this.rendered.values()) {
                 if (r.el) { try { r.el.pause(); } catch (e) { /* bỏ qua */ } }
                 if (r.url && this.d.revokeObjectURL) this.d.revokeObjectURL(r.url);
@@ -553,7 +564,7 @@
             this.lastT = t;
             // Chưa nói câu nào mà vị trí đã khác xa điểm bắt đầu (YouTube khôi phục vị trí xem sau
             // khi bật): dời điểm cắt đoạn ngắn tới vị trí thật
-            if (this.lastSpokenStart == null && !this.speech && Math.abs(t - (this.headAt || 0)) > 10) this.headAt = Math.round(t);
+            if (this.lastSpokenStart == null && !this.speech && !this.headPinned && Math.abs(t - (this.headAt || 0)) > 10) this.headAt = Math.round(t);
             this.refresh();
 
             const playing = !v.paused && !v.ended && (v.readyState === undefined || v.readyState >= 3) && !this.waiting && !stalled;
@@ -700,7 +711,9 @@
                     this.prepareNext(S.id);
                     return;
                 }
-                if (r && r.el && !r.el.paused) r.el.pause();
+                // The line is over: its element (and Chrome's media player and decoded audio behind it)
+                // is let go; the blob URL stays, so a rewind builds a new element in a few ms
+                if (r && r.el) this.releaseAudio(r);
                 const done = this.planById.get(S.id);
                 this.lastSpeechEnd = t;
                 this.lastSpeechJoined = !!(done && done.continuesNext);
@@ -710,6 +723,7 @@
             const next = this.nextSpeech(t);
             if (!next) return;
             const { p, r, offset, lag } = next;
+            this.meterStart(p, t, lag);
             const rate = this.chooseRate(p, r, t, offset, lag);
             this.speech = S = { id: p.id, mediaStart: t, offset, rate, end: t + (r.duration - offset) / rate };
             this.lastSpokenStart = p.start;
@@ -719,6 +733,30 @@
             if (!r.el) r.el = this.makeAudio(r.url);
             this.driveSpeech(S, r, t, videoRate, true);
             this.speakingUntilMedia = S.end + SYNC.duckHold;
+        }
+
+        releaseAudio(r) {
+            const el = r.el;
+            r.el = null;
+            try { el.pause(); if (el.removeAttribute) el.removeAttribute("src"); if (el.load) el.load(); } catch (e) { /* bỏ qua */ }
+        }
+
+        // Scorecard (debug only): time from start / seek to the first voice, late starts, and silences
+        // the pipeline caused, i.e. beyond the rest after the previous line (gapAfter) and before
+        // which the line's subtitle had already begun. An intended pause is never counted.
+        meterStart(p, t, lag) {
+            const st = this.stats;
+            if (this.resetWall != null) {
+                (st.recoverMs || (st.recoverMs = [])).push(Math.round(this.d.now() - this.resetWall));
+                if (st.recoverMs.length > 20) st.recoverMs.shift();
+                this.resetWall = null;
+            }
+            if (lag > SYNC.lateStart) st.late = (st.late || 0) + 1;
+            if (this.lastSpeechEnd != null && this.lastSpokenStart != null) {
+                const rest = this.lastSpeechGap != null ? this.lastSpeechGap : SYNC.sentenceGap;
+                const gap = t - Math.max(this.lastSpeechEnd + rest, p.start - SYNC.startTolerance);
+                if (gap > SYNC.gapMin && gap < 60) { st.gaps = (st.gaps || 0) + 1; st.gapSec = (st.gapSec || 0) + gap; }
+            }
         }
 
         // Audio của một đoạn. Khi phát XONG thì chạy vòng xử lý ngay (không chờ nhịp 50 ms): đoạn kế
@@ -915,7 +953,7 @@
                 // no plan any more: outside the planning window (far from playback) or re-cut. Kept
                 // forever before, which leaked an object URL and its audio per plan that went away.
                 if (!p || p.start + (r.duration / (r.stretch || 1)) < t - SYNC.keepBehind || p.start > t + SYNC.keepAhead) {
-                    if (r.el) { try { r.el.pause(); r.el.removeAttribute && r.el.removeAttribute("src"); } catch (e) { /* bỏ qua */ } }
+                    if (r.el) this.releaseAudio(r);
                     if (r.url && this.d.revokeObjectURL) this.d.revokeObjectURL(r.url);
                     this.rendered.delete(id);
                     this.cacheChecked.delete(id);
@@ -1016,8 +1054,11 @@
                 return Math.max(0.3, need - (this.d.now() - job.t0) / 1000);
             };
             for (const j of this.jobs.values()) if (!j.orphan && j.planIds.indexOf(p.id) >= 0) return remain(j) * vr;
+            // A serial server (VieNeu) finishes a job left behind by a seek before the next one: that
+            // job is let run (background.js keeps a request the server has started), so it counts
             let busy = 0;
-            for (const j of this.jobs.values()) if (!j.orphan) busy = Math.max(busy, remain(j));
+            const serial = !!(this.provider.caps && this.provider.caps.serial);
+            for (const j of this.jobs.values()) if (!j.orphan || serial) busy = Math.max(busy, remain(j));
             return (busy + (p.estDuration || 2) * rtf + over) * vr;
         }
 
@@ -1073,6 +1114,7 @@
                 t: r2(t), provider: this.provider.id, gate: this.stats.gate || null, waiting: !!this.waiting, rs: this.d.video.readyState,
                 lastSpoken: this.lastSpokenStart, headAt: this.headAt, speech: this.speech ? { id: this.speech.id, end: r2(this.speech.end), rate: r2(this.speech.rate) } : null,
                 ahead: r2(this.prefetchAhead()), jobs: this.jobs.size, dropped: this.stats.dropped, errors: this.stats.errors, chained: this.stats.chained || 0,
+                delivery: { recoverMs: (this.stats.recoverMs || []).slice(-5), late: this.stats.late || 0, gaps: this.stats.gaps || 0, gapSec: r2(this.stats.gapSec || 0), requests: this.stats.requests, cacheHits: this.stats.cacheHits, aborted: this.stats.aborted, detached: this.stats.detached || 0, held: this.rendered.size, elements: [...this.rendered.values()].filter(x => x.el).length },
                 plans: this.plans.filter(p => p.end > t - 15 && p.start < t + 30).map(p => ({
                     id: p.id, s: r2(p.start), e: r2(p.end), cont: !!p.continuesNext, syl: p.phrases.reduce((a, ph) => a + ph.syl, 0),
                     st: this.rendered.has(p.id) ? "ok" : this.pending.has(p.id) ? "tao" : (this.failed.get(p.id) || 0) >= 2 ? "loi" : "chua",
@@ -1136,18 +1178,21 @@
         // ---------------- Lập lịch tạo audio quanh vị trí đang phát ----------------
         // Tầm nhìn tạo trước THÍCH ỨNG: đủ để kịp phát (theo độ trễ TTS đo được và
         // tốc độ phát), nhưng không xa hơn trần của chế độ; người dùng hay tua thì thu hẹp.
-        prefetchAhead() {
+        // ignorePause: the horizon while playing, for deciding what is obsolete. Pausing lowers how far
+        // ahead new work goes, but it must not cancel the next lines already being made (1.8.6)
+        prefetchAhead(ignorePause) {
             const v = this.d.video;
+            const paused = v.paused && !ignorePause;
             const max = Math.min(SYNC.prefetchMax, this.settings.prefetchMax != null ? this.settings.prefetchMax : SYNC.prefetchMax);
             const lat = this.renderLatency != null ? this.renderLatency : 4;
             let ahead = (lat * 2.5 + 4) * Math.max(1, v.playbackRate || 1);
             const now = this.d.now();
             this.seekTimes = this.seekTimes.filter(x => now - x < 60000);
             if (this.seekTimes.length >= 2) ahead *= 0.6;           // hay tua: audio xa dễ bị bỏ phí
-            if (v.paused) ahead = Math.min(ahead, SYNC.prefetchPaused);
+            if (paused) ahead = Math.min(ahead, SYNC.prefetchPaused);
             // Giọng trên máy (miễn phí, tạo nhanh gấp ~4 lần thời gian thực): tạo trước xa hơn
             // (tối thiểu 20 giây) để một lượt tạo chậm hay một câu bị kẹt không làm giọng im
-            if (this.provider.caps && this.provider.caps.free && !v.paused) {
+            if (this.provider.caps && this.provider.caps.free && !paused) {
                 return Math.max(SYNC.freeAheadMin, Math.min(SYNC.freeAheadMax, ahead));
             }
             return Math.max(Math.min(SYNC.prefetchMin, max), Math.min(max, ahead));
@@ -1172,7 +1217,7 @@
             // A segment at or behind the speech queue mark (spoken, or dropped for lag) will never
             // be spoken: rendering it steals a server slot from the segment that is about to play
             const spoken = this.lastSpokenStart;
-            const inWindow = p => p.start + p.estDuration >= t - 1 && (spoken == null || p.start > spoken) && !(fresh && p.end < t + 0.3) && p.start <= to && !this.rendered.has(p.id) && !this.pending.has(p.id) && (this.failed.get(p.id) || 0) < 2;
+            const inWindow = p => p.start + p.estDuration >= t - 1 && (spoken == null || p.start > spoken) && !(fresh && p.end < t + 0.3) && p.start <= to && !this.rendered.has(p.id) && !this.pending.has(p.id) && (this.failed.get(p.id) || 0) < 2 && !(fresh && this.unreachable(p, t));
             let todo = this.plans.filter(inWindow).sort((a, b) => a.start - b.start);
             if (!todo.length) return;
 
@@ -1221,6 +1266,16 @@
             }
             this.warmup = false;
             this.renderBatch(batch);
+        }
+
+        // Just started or seeked, video running: a line whose audio cannot exist before its subtitle
+        // is nearly over (the point where nextSpeech gives up on entering it) would be generated only
+        // to be skipped, and on a serial server it pushes back the next line, the one that can still
+        // be heard. Simulated with a server at RTF 0.9: voice 13.5 s after a seek. Only once the
+        // generation speed is measured: the 0.5 guess would skip the first line on a healthy server.
+        unreachable(p, t) {
+            if (this.renderRtf == null || this.d.video.paused) return false;
+            return t + this.waitAudio(p) > p.end - Math.min(0.8, (p.end - p.start) * 0.5);
         }
 
         // What the viewer should know about the voice right now, for the quick menu: how much audio
@@ -1417,7 +1472,7 @@
         //     vì hủy lúc này gần như chắc chắn vẫn bị tính tiền mà không nhận được gì
         // Cả hai trường hợp đều không còn chặn việc tạo audio cho vị trí mới.
         cancelObsoleteJobs(t) {
-            const to = t + this.prefetchAhead();
+            const to = t + this.prefetchAhead(true);
             const now = this.d.now();
             const usual = (this.renderLatency != null ? this.renderLatency : 4) * 1000;
             for (const [jobId, job] of this.jobs) {
@@ -1515,17 +1570,36 @@
             this.pace = null;                   // the pace of where we were says nothing about where we are
             this.silence();
             this.speech = null;                 // lời đang nói không còn đúng vị trí: bỏ
+            // elements made for where we were (the line cut off, the one prepared after it) go too
+            for (const r of this.rendered.values()) if (r.el) this.releaseAudio(r);
             this.lastSpokenStart = null;
             this.lastRate = null;               // vị trí mới: không nối nhịp với câu cũ
             this.lastSpeechEnd = null;
             this.lastSpokenId = null;
             this.warmup = true;                 // lượt TTS kế tiếp nhỏ để có tiếng ngay ở vị trí mới
-            this.headAt = Math.round(this.d.video.currentTime || 0);   // cắt đoạn ngắn quanh vị trí mới
+            // A short head cut around the new position gets voice sooner when nothing is ready there.
+            // When the audio at the landing point is already in the page (a rewind, a seek into what
+            // was prefetched) the cut stays: that audio plays at once from its offset, where a new cut
+            // re-rendered the line (0.8 s on a warm server, one wasted request, more when slow)
+            const at = this.d.video.currentTime || 0;
+            this.headPinned = this.audioReadyAt(at);
+            if (!this.headPinned) this.headAt = Math.round(at);
+            this.resetWall = this.d.now();
             this.live = null;
             this.lastT = null;
             this.seekTimes.push(this.d.now());
             this.cancelObsoleteJobs(this.d.video.currentTime);
             if (this.d.onReset) { try { this.d.onReset(reason); } catch (e) { /* bỏ qua */ } }
+        }
+
+        // The line under t (or, in a silence, the next one within 2 s) has audio, and if t is near its
+        // end (where nextSpeech skips it) the line after it has audio too
+        audioReadyAt(t) {
+            const i = this.planAt(t + SYNC.startTolerance);
+            const p = i >= 0 ? this.plans[i] : null;
+            const next = this.plans[i + 1];
+            if (p && t < p.end) return this.rendered.has(p.id) && (p.end - t > 1 || !next || this.rendered.has(next.id));
+            return !!(next && next.start - t < 2 && this.rendered.has(next.id));
         }
 
         // ---------------- Hạ nhỏ tiếng gốc (ducking) mượt ----------------

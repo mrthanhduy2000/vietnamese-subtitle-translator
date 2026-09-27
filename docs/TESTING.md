@@ -48,7 +48,9 @@ can test "extension reloaded, data intact"), share a fake IndexedDB backend, and
 
 **`tests/dub-sim.js`** gives a virtual `Clock` plus `FakeVideo`, `FakeAudio` and `makeFakeSpeech`, so
 a 20-minute video simulates deterministically in milliseconds. Used by `dub.test.js` and
-`cost.test.js`.
+`cost.test.js`. `tools/playback-sim.js` builds on it with a model of the service worker and the
+serial VieNeu server (slot held after an abort, translation arriving late) for delivery scenarios
+(seek, rapid seek, pause, rate, cached); `dub.test.js` "playback delivery" asserts on its numbers.
 
 Other helpers: `fixtures.js` real subtitle cases carrying `forbid` / `noLineEnd` / `noLineStart`
 constraints · `quality.js` the shared violation scorer and `greedyWrap`, `LINE_MAX` 42 ·

@@ -157,3 +157,13 @@ works around, both measured: more than 10 `<en>` tags in one normalizer call cor
 (`TAG_MAX` 8), and a word that is a Vietnamese syllable stays Vietnamese even inside `<en>`. The data
 block of `dub-speech.js` describes sea_g2p 0.9.1: after a VieNeu update, rerun
 `node tools/build-speech-tables.js`, then `node tools/pron-eval.js --old=HEAD`.
+
+## 15. Cutting a VieNeu request costs the next one 4-5 s (1.8.6)
+
+`background.js` `synthesizeLocalOnce` ignores a page abort once the POST is sent (unless the take
+still needs more than `LOCAL_KEEP_RUNNING_S`, or the server is cold). The VieNeu server frees its
+single stream slot only when its `_Lease` watchdog sees 4 s without progress, and `waitLocalIdle`
+holds every later request until then. Forwarding the abort again looks harmless in tests (the fake
+server frees at once) and brings back 3-5 s of silence after every seek. The engine side
+(`hardReset` keeping the cut via `audioReadyAt`/`headPinned`) is the other half: a new head cut after
+a seek re-renders audio the page already holds.

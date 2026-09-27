@@ -4,6 +4,24 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.8.6", luc: "20:33 27/09/2026", ten: "Lồng tiếng có tiếng lại gần như ngay sau khi tua, không tạo lại đoạn đã có",
+            y: [
+                "Tua trong lúc VieNeu đang tạo một câu: trước đây tiện ích cắt ngang câu đó, máy chủ VieNeu vẫn giữ chỗ thêm khoảng 4 giây, và câu ở vị trí mới phải chờ (nhật ký máy chủ hôm nay: 11 lần, mỗi lần 3 đến 5 giây im lặng). Nay câu đang tạo được làm nốt (khoảng 1 giây) và lưu vào kho, câu ở vị trí mới đi ngay sau.",
+                "Tua lùi (hoặc tua tới đoạn đã chuẩn bị sẵn): phát ngay âm thanh đã có thay vì cắt lại câu và tạo giọng lại.",
+                "Máy chủ chậm hoặc xem ở tốc độ cao: sau khi tua không tạo giọng cho câu chắc chắn không kịp phát nữa, dành máy chủ cho câu kế tiếp.",
+                "Tạm dừng không còn hủy câu sắp tới đang được tạo; tắt lồng tiếng hoặc chuyển video thì bỏ các câu còn đang chờ để video mới có tiếng sớm hơn.",
+                "Giải phóng trình phát âm thanh của câu đã đọc xong: trang giữ tối đa 2 thay vì khoảng 20.",
+                "Không đổi cách dịch, giọng, ngắt nghỉ; không thêm lượt gọi Gemini nào."
+            ],
+            bang: { cot: ["Mô phỏng ngoại tuyến (không gọi API)", "1.8.5", "Nay"], hang: [
+                ["Có tiếng sau khi tua lùi về đoạn đã nghe", "0,8 giây", "0,05 giây"],
+                ["Tua liên tục 5 lần: chờ trung bình / lâu nhất", "3,7 / 7,1 giây", "1,4 / 2,5 giây"],
+                ["Máy chủ chậm (gần thời gian thực), có tiếng sau khi tua", "13,6 giây", "7,7 giây"],
+                ["Trình phát âm thanh giữ cùng lúc", "12 đến 21", "2"],
+                ["Chrome thật: có tiếng sau khi tua vào đoạn đã có", "chưa đo", "15 đến 27 ms"]
+            ] }
+        },
+        {
             v: "1.8.5", luc: "20:11 27/09/2026", ten: "Từ điển thuật ngữ: 526 thuật ngữ có cách dịch tiếng Việt chuẩn, thêm 2 nhóm ngành",
             y: [
                 "Trước đây mọi thuật ngữ trong từ điển đều bị giữ nguyên tiếng Anh, kể cả những cụm đã có tên tiếng Việt chuẩn: phụ đề và giọng lồng tiếng ra \"standard deviation\", \"interest rate\", \"side effect\". Nay 526 cụm như vậy luôn hiện đúng một cách dịch tiếng Việt (độ lệch chuẩn, lãi suất, tác dụng phụ) trong suốt bài giảng.",

@@ -968,6 +968,13 @@ function localHighPass(voice) {
     return v && v.gender === "Nữ" ? LOCAL.highPassHz.female : LOCAL.highPassHz.male;
 }
 
+// A request the server has started is let finish when the page drops it (a seek, a pause) unless it
+// still needs longer than this. VieNeu keeps its only stream slot ~4-5 s after the client leaves
+// (apps/openai_speech.py _Lease: 4 s idle, 1 s watchdog) and the next request waits for it
+// (waitLocalIdle): server.log showed 11 of 23 aborts holding the next line, the one the viewer
+// seeked to, 3 to 5 s, for a take that needed ~1 s more. A finished take goes to the store.
+const LOCAL_KEEP_RUNNING_S = 4;
+
 async function synthesizeLocalOnce(req, text, parts, signal) {
     const controller = new AbortController();
     let timedOut = false;
@@ -975,7 +982,15 @@ async function synthesizeLocalOnce(req, text, parts, signal) {
     const cold = await localIsCold();
     const limit = cold ? Math.max(localTimeoutMs(text), LOCAL_COLD_TIMEOUT_MS) : localTimeoutMs(text);
     let timer = null;
-    const onAbort = () => controller.abort();
+    let sentAt = 0;                     // the server holds this request (its slot is taken)
+    const words = String(text || "").split(/\s+/).filter(Boolean).length;
+    const onAbort = () => {
+        if (sentAt && !cold) {
+            const left = 0.3 + (words / 3.2) * (tocDoTaoGiong() || 0.3) - (Date.now() - sentAt) / 1000;
+            if (left <= LOCAL_KEEP_RUNNING_S) return;
+        }
+        controller.abort();
+    };
     if (signal) signal.addEventListener("abort", onAbort, { once: true });
     try {
         await waitLocalIdle(signal);
@@ -990,7 +1005,10 @@ async function synthesizeLocalOnce(req, text, parts, signal) {
         for (let attempt = 0; ; attempt++) {
             clearTimeout(timer);
             timer = setTimeout(() => { timedOut = true; controller.abort(); }, limit);
+            if (signal && signal.aborted) controller.abort();       // dropped while waiting: never sent
+            sentAt = Date.now();
             res = await fetch(LOCAL.url + "/v1/audio/speech", { method: "POST", headers: { "Content-Type": "application/json" }, body, signal: controller.signal });
+            if (res.status === 429) sentAt = 0;                      // the server did not take it
             if (res.status !== 429 || Date.now() - t0 > 15000) break;
             clearTimeout(timer);
             const wait = Math.min(3000, (Number(res.headers && res.headers.get && res.headers.get("Retry-After")) || 1) * 1000);

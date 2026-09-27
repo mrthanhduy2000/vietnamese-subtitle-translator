@@ -95,6 +95,10 @@ front end (chunks, phonemes; `{"words"}` / `{"normalize"}` modes), run with its 
 server needed). `tools/speech-ab.js` renders the same corpus with the real voice for an old and the
 current version and measures pauses, spans, duration, clicks (sandbox off). `tools/build-speech-tables.js`
 regenerates the data block of `dub-speech.js` (rerun after a VieNeu / sea_g2p update).
+`tools/playback-sim.js` (1.8.6) runs the real dubbing engine and VieNeu provider against a model of
+the service worker queue and the serial VieNeu server on a virtual clock: seeks, pauses, rates,
+slow translation or TTS, cached / mixed stores; `OLD=<engine.js>` compares; also used by
+`dub.test.js`. No server, no API. See `DUBBING.md` "Delivery".
 `tools/context-eval.js` (1.8.3) prints, offline, the average size of every part of the translation
 request over `tests/context-corpus.js`. `tools/syntax-eval.js` (1.8.0) scores the prosody model's text-only decisions against the marks, and
 where the free voice's segments are cut for sentences given as subtitle lines; no server.

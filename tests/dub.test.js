@@ -634,3 +634,62 @@ test("audio of a plan that left the window is released, not kept forever", () =>
     assert.equal(eng.rendered.size, 0, "rendered audio of vanished plans must be freed");
     assert.equal(revoked.length, 5);
 });
+
+// ================= PLAYBACK DELIVERY (1.8.6) =================
+// tools/playback-sim.js runs the real engine and VieNeu provider against a model of the service
+// worker and the serial VieNeu server (slot held ~4.5 s after a client leaves). Old engine vs new on
+// the same scenarios: seek back 0.8 -> 0.05 s to voice, rapid seeks 3.7 -> 1.4 s (max 7.1 -> 2.5),
+// slow server 13.6 -> 7.7 s, audio elements alive 21 -> 2.
+const SIM = require("../tools/playback-sim.js");
+const simRun = (name, extra = {}) => SIM.run(require("../dub-engine.js"), { ...SIM.SCENARIOS[name], bgAbort: "queued", ...extra });
+
+test("playback delivery: a seek back onto audio already in the page plays it at once, with no new request", async () => {
+    const r = await simRun("seekBackward");
+    assert.ok(r.seekRecover != null && r.seekRecover < 0.3, `voice ${r.seekRecover} s after the seek`);
+    assert.ok(r.serverRuns <= 17, `${r.serverRuns} requests (a re-cut head line re-rendered held audio: 19)`);
+});
+
+test("playback delivery: rapid seeks get voice back within 3 s each; a slow server within 9 s", async () => {
+    const r = await simRun("rapidSeek");
+    assert.ok(r.seekRecoverMax <= 3, `worst ${r.seekRecoverMax} s`);
+    const slow = await simRun("seekWhileSlow");
+    assert.ok(slow.seekRecover <= 9, `slow server: ${slow.seekRecover} s`);
+});
+
+test("playback delivery: pausing never cancels the request for the lines just ahead", async () => {
+    // "running": the old service worker, which cut a started request. Any cancel would show here.
+    const r = await simRun("pauseResume", { bgAbort: "running" });
+    assert.equal(r.cutRunning, 0);
+    assert.equal(r.droppedQueued, 0);
+});
+
+test("playback delivery: in every scenario no two voices overlap, no line is generated twice, at most 3 audio elements live", async () => {
+    for (const name of Object.keys(SIM.SCENARIOS)) {
+        const r = await simRun(name);
+        assert.equal(r.overlapTicks, 0, `${name}: overlap`);
+        assert.equal(r.duplicateGen, 0, `${name}: duplicate generation`);
+        assert.ok(r.maxEls <= 3, `${name}: ${r.maxEls} audio elements alive`);
+        assert.ok(r.maxRendered <= 30, `${name}: ${r.maxRendered} lines held`);
+    }
+});
+
+test("playback delivery: stopping the engine (another video, dubbing off) drops its queued requests", async () => {
+    const clock = new Clock(), video = new FakeVideo();
+    const aborted = [];
+    const prov = {
+        id: "vieneu", caps: { prerender: true, live: false, free: true, serial: true, maxBatch: 1 },
+        voiceModel: PLAN.DEFAULT_VOICE_MODEL, audioKey: async p => "k" + p.id,
+        abort: id => aborted.push(id), render: () => new Promise(() => {})
+    };
+    const eng = new DubEngine({ video, getGroups: () => lectureGroups(), providers: { primary: prov },
+        now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id),
+        setTimeout: (f, ms) => clock.setTimeout(f, ms), createObjectURL: () => "blob:x", revokeObjectURL() {},
+        audioCache: { get: async () => ({}), put() {} } });
+    eng.start();
+    video.play();
+    for (let i = 0; i < 20 && !eng.jobs.size; i++) { clock.advance(50, st => video.step(st)); await new Promise(r => setImmediate(r)); }
+    assert.ok(eng.jobs.size >= 1, "no request was made");
+    const ids = [...eng.jobs.keys()];
+    eng.stop();
+    assert.deepEqual(aborted, ids);
+});
