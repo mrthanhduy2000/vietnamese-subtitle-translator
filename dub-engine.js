@@ -1404,7 +1404,7 @@
 
         // Diagnostics: errors by kind (debugSnapshot().delivery.errorTypes). Kinds: the service
         // worker's errorType (timeout, local_unavailable, local_error, rate_limit, quota, budget,
-        // split, no_audio, disabled, invalid), plus the engine's own: aborted, no_response,
+        // split, no_audio, disabled, invalid, dropped), plus the engine's own: aborted, no_response,
         // lookup_timeout, lookup_failed, bad_audio, job_stalled, unknown.
         countError(kind) {
             const m = this.stats.errorTypes || (this.stats.errorTypes = {});

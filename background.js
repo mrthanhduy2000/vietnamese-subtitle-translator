@@ -675,7 +675,30 @@ const TTS_MODELS = COST.TTS_MODELS.map(m => m.id);
 // sau lỗi): chỉ gọi Gemini MỘT lần. Chỉ hủy thật khi không còn ai chờ.
 const ttsInFlight = new Map();      // khóa yêu cầu -> { promise, controller, jobs:Set }
 const ttsJobs = new Map();          // jobId -> khóa yêu cầu
+// jobId -> stopped? for a request between its arrival and its registration in ttsJobs (the request
+// key is hashed first, an await): a stop landing in that gap used to find nothing and be lost, and
+// the dropped line was then generated anyway, holding the serial server (1.8.9)
+const ttsRegistering = new Map();
 let ttsJobSeq = 0;
+// Engine batches hold at most SYNC.maxBatchPlans (4) lines; 12 leaves room without letting a bad
+// message fan out into hundreds of store reads
+const TTS_MAX_PARTS = 12;
+const TTS_KEY_MAX = 256;
+const ttsAborted = () => ({ ok: false, errorType: "aborted", aborted: true, error: "Đã hủy" });
+
+// Why a synthesizeSpeech message is refused before any store read or request, or null when it is
+// fine. Parts go straight into store keys and the split weights, so each one is checked
+function ttsRequestProblem(req) {
+    if (req.jobId !== undefined && (typeof req.jobId !== "string" || !req.jobId || req.jobId.length > 128)) return "jobId";
+    if (req.parts === undefined || req.parts === null) return null;
+    if (!Array.isArray(req.parts) || req.parts.length > TTS_MAX_PARTS) return "parts";
+    for (const p of req.parts) {
+        if (!p || typeof p !== "object") return "part";
+        if (typeof p.key !== "string" || !p.key || p.key.length > TTS_KEY_MAX) return "part key";
+        if (p.weight !== undefined && !(Number.isFinite(p.weight) && p.weight > 0)) return "part weight";
+    }
+    return null;
+}
 
 function bytesToBase64(bytes) {
     let s = "";
@@ -693,7 +716,7 @@ function base64ToBytesBg(b64) {
 // Reads run together (1.8.8): each waits up to 1.5 s on a slow IndexedDB, one after another they
 // added up. Order of the reply follows parts.
 async function cachedParts(parts) {
-    const recs = await Promise.all(parts.map(p => caches.audio.get(p.key)));
+    const recs = await Promise.all(parts.map(p => caches.audio.get(p.key).catch(() => null)));
     if (recs.some(rec => !rec || !rec.wav)) return null;
     return parts.map((p, i) => ({ key: p.key, wav: recs[i].wav, duration: recs[i].duration, sampleRate: recs[i].sampleRate }));
 }
@@ -730,18 +753,40 @@ function partsReply(parts, extra) {
 async function handleSynthesizeSpeech(req) {
     const text = String(req.text || "").slice(0, 6000);
     if (!text.trim()) return { ok: false, errorType: "invalid", error: "Không có lời thoại" };
+    const problem = ttsRequestProblem(req);
+    if (problem) return { ok: false, errorType: "invalid", error: `Yêu cầu tạo giọng không hợp lệ (${problem})` };
     const parts = caches && AUDIO && Array.isArray(req.parts) && req.parts.length ? req.parts : null;
     const engine = req.engine === LOCAL.id ? LOCAL.id : "gemini";
     // Paid voice switched off (cost-policy PAID_TTS): never call Gemini TTS, from any page
     if (engine !== LOCAL.id && !COST.PAID_TTS) return { ok: false, errorType: "disabled", error: "Giọng Gemini trả phí đã tắt, chỉ dùng giọng VieNeu" };
-    const reqKey = await CST_CACHE.hashKey(["ttsreq", AUDIO_CACHE_VERSION, engine, req.model || "", req.voice || "", text, req.speak || "", parts ? parts.map(p => p.key) : null]);
     const jobId = req.jobId || `_bg${++ttsJobSeq}`;
+    // Known to handleTtsAbort from the first moment: the hash below is an await
+    const earlyOwner = !ttsRegistering.has(jobId);
+    if (earlyOwner) ttsRegistering.set(jobId, false);
+    let reqKey, stoppedEarly = false;
+    try {
+        reqKey = await CST_CACHE.hashKey(["ttsreq", AUDIO_CACHE_VERSION, engine, req.model || "", req.voice || "", text, req.speak || "", parts ? parts.map(p => p.key) : null]);
+    } finally {
+        stoppedEarly = ttsRegistering.get(jobId) === true;
+        if (earlyOwner) ttsRegistering.delete(jobId);
+    }
+    if (stoppedEarly) return ttsAborted();
     // Đăng ký lượt NGAY (trước mọi bước chờ) -> yêu cầu giống hệt đến sau luôn nhập chung
     let flight = ttsInFlight.get(reqKey);
-    if (!flight) {
+    // A flight every job has dropped is still settling (a queued take answers at once, a take the
+    // server has started may be kept running, LOCAL_KEEP_RUNNING_S). Joining it handed the new job an
+    // "aborted" reply: a seek away and straight back refused the line. The new flight waits for it
+    // and uses its take when it finished, so the line is never made twice either (1.8.9)
+    if (!flight || flight.controller.signal.aborted) {
+        const prev = flight || null;
         const controller = new AbortController();
-        flight = { controller, jobs: new Set() };
+        const f = { controller, jobs: new Set() };
         const run = async () => {
+            if (prev) {
+                const before = await prev.promise.catch(() => null);
+                if (before && before.ok) return before;
+                if (controller.signal.aborted) return ttsAborted();
+            }
             // Kho audio: đủ mọi đoạn thì trả luôn, không gọi TTS
             if (parts) {
                 const hit = await cachedParts(parts);
@@ -749,12 +794,13 @@ async function handleSynthesizeSpeech(req) {
             }
             return engine === LOCAL.id ? synthesizeLocal(req, text, parts, controller.signal) : synthesize(req, text, parts, controller.signal);
         };
-        const f = flight;
         f.promise = run().finally(() => {
-            ttsInFlight.delete(reqKey);
-            for (const j of f.jobs) ttsJobs.delete(j);
+            // only this flight's entry: a newer one may have taken the key over
+            if (ttsInFlight.get(reqKey) === f) ttsInFlight.delete(reqKey);
+            for (const j of f.jobs) if (ttsJobs.get(j) === reqKey) ttsJobs.delete(j);
         });
-        ttsInFlight.set(reqKey, flight);
+        ttsInFlight.set(reqKey, f);
+        flight = f;
     }
     flight.jobs.add(jobId);
     ttsJobs.set(jobId, reqKey);
@@ -762,6 +808,9 @@ async function handleSynthesizeSpeech(req) {
 }
 
 function handleTtsAbort(req) {
+    if (typeof req.jobId !== "string" || !req.jobId) return { ok: true, aborted: false };
+    // arrived while the request is still being registered: it is refused as soon as it is
+    if (ttsRegistering.has(req.jobId)) { ttsRegistering.set(req.jobId, true); return { ok: true, aborted: true }; }
     const reqKey = ttsJobs.get(req.jobId);
     const flight = reqKey && ttsInFlight.get(reqKey);
     ttsJobs.delete(req.jobId);
@@ -897,9 +946,21 @@ async function handleLocalTtsStatus() {
 // priority lane served only the voice warm-up, removed in 1.7.3).
 const localQueue = [];
 let localBusy = false;
+// A job dropped while it waits leaves the queue and answers at once (1.8.9): before, it answered
+// only when the queue reached it, so the flight stayed half-dead behind the take being made
 function localSerial(fn, signal) {
     return new Promise(resolve => {
-        localQueue.push({ fn, signal, resolve });
+        const job = { fn, signal, resolve, onAbort: null };
+        if (signal && !signal.aborted) {
+            job.onAbort = () => {
+                const i = localQueue.indexOf(job);
+                if (i < 0) return;                      // already taken by the pump
+                localQueue.splice(i, 1);
+                resolve(ttsAborted());
+            };
+            signal.addEventListener("abort", job.onAbort, { once: true });
+        }
+        localQueue.push(job);
         localPump();
     });
 }
@@ -909,8 +970,9 @@ async function localPump() {
     try {
         while (localQueue.length) {
             const job = localQueue.shift();
+            if (job.onAbort) job.signal.removeEventListener("abort", job.onAbort);
             let r;
-            if (job.signal && job.signal.aborted) r = { ok: false, errorType: "aborted", aborted: true, error: "Đã hủy" };
+            if (job.signal && job.signal.aborted) r = ttsAborted();
             else { try { r = await job.fn(); } catch (e) { r = { ok: false, errorType: "local_error", error: String(e && e.message || e) }; } }
             job.resolve(r);
         }
@@ -933,7 +995,8 @@ async function synthesizeLocal(req, text, parts, signal) {
     // Kẹt / audio bất thường: thử lại một lần (lấy mẫu ngẫu nhiên nên lần sau thường bình thường)
     for (let attempt = 0; attempt < 2; attempt++) {
         last = await localSerial(() => synthesizeLocalOnce(req, text, parts, signal), signal);
-        if (last.ok || !(last.errorType === "timeout" || last.errorType === "runaway")) return last;
+        // a dropped connection mid-body is as passing as a stuck take: free, so tried once more
+        if (last.ok || !(last.errorType === "timeout" || last.errorType === "runaway" || last.errorType === "dropped")) return last;
         if (signal && signal.aborted) break;
         console.warn(`[VieNeu] ${last.error}; tạo lại lần ${attempt + 2}`);
     }
@@ -948,13 +1011,23 @@ async function waitLocalIdle(signal, maxMs = 20000) {
     const t0 = Date.now();
     while (Date.now() - t0 < maxMs) {
         if (signal && signal.aborted) return;
+        // The poll follows the job's signal and its 1.5 s limit covers the body too (1.8.9): a hung
+        // /health held a line the viewer had already left for 1.5 s, and a body that never ended
+        // held the whole queue
+        const controller = new AbortController();
+        const stop = () => controller.abort();
+        const timer = setTimeout(stop, 1500);
+        if (signal) signal.addEventListener("abort", stop, { once: true });
         try {
-            const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), 1500);
-            const r = await fetch(LOCAL.url + "/health", { signal: controller.signal }).finally(() => clearTimeout(timer));
+            const r = await fetch(LOCAL.url + "/health", { signal: controller.signal });
             const h = await r.json();
             if (!h || typeof h.active !== "number" || h.active < (h.max_streams || 1)) return;
-        } catch (e) { return; }
+        } catch (e) {
+            return;
+        } finally {
+            clearTimeout(timer);
+            if (signal) signal.removeEventListener("abort", stop);
+        }
         await sleep(250, signal).catch(() => {});
     }
 }
@@ -981,6 +1054,11 @@ async function synthesizeLocalOnce(req, text, parts, signal) {
     const limit = cold ? Math.max(localTimeoutMs(text), LOCAL_COLD_TIMEOUT_MS) : localTimeoutMs(text);
     let timer = null;
     let sentAt = 0;                     // the server holds this request (its slot is taken)
+    // How far the take got, for the error code (1.8.9): a failure before any reply is a server that
+    // is not running (the engine may switch to the system voice), one while the body streams is a
+    // dropped connection, one after it is audio this code could not process. All three used to read
+    // "server not running"
+    let stage = "connect";
     const words = String(text || "").split(/\s+/).filter(Boolean).length;
     const onAbort = () => {
         if (sentAt && !cold) {
@@ -1003,7 +1081,7 @@ async function synthesizeLocalOnce(req, text, parts, signal) {
         for (let attempt = 0; ; attempt++) {
             clearTimeout(timer);
             timer = setTimeout(() => { timedOut = true; controller.abort(); }, limit);
-            if (signal && signal.aborted) controller.abort();       // dropped while waiting: never sent
+            if (signal && signal.aborted) return ttsAborted();      // dropped while waiting: never sent
             sentAt = Date.now();
             res = await fetch(LOCAL.url + "/v1/audio/speech", { method: "POST", headers: { "Content-Type": "application/json" }, body, signal: controller.signal });
             if (res.status === 429) sentAt = 0;                      // the server did not take it
@@ -1016,7 +1094,9 @@ async function synthesizeLocalOnce(req, text, parts, signal) {
             const detail = (await res.text().catch(() => "")).slice(0, 200);
             return { ok: false, errorType: res.status === 429 ? "rate_limit" : "local_error", error: `VieNeu HTTP ${res.status}: ${detail}` };
         }
+        stage = "body";
         const bytes = new Uint8Array(await res.arrayBuffer());
+        stage = "process";
         if (bytes.length < 2000) return { ok: false, errorType: "no_audio", error: "VieNeu không trả audio" };
         const sr = LOCAL.sampleRate;
         const audioSec = bytes.length / 2 / sr;
@@ -1036,11 +1116,14 @@ async function synthesizeLocalOnce(req, text, parts, signal) {
         const maxPause = req.maxPause ? Math.max(0.1, Math.min(LOCAL.maxPause, Number(req.maxPause) || LOCAL.maxPause)) : LOCAL.maxPause;
         const pieces = splitTtsAudio(bytes, mime, sr, parts, { maxPause, text, clean: true, hpHz: localHighPass(req.voice) });
         if (!pieces) return { ok: false, errorType: "split", error: "Không cắt được audio theo từng đoạn" };
-        for (const p of pieces) await caches.audio.set(p.key, { wav: p.wav, duration: p.duration, sampleRate: p.sampleRate });
+        // stored together; a write never throws and is capped (cst-cache WRITE_TIMEOUT_MS)
+        await Promise.all(pieces.map(p => caches.audio.set(p.key, { wav: p.wav, duration: p.duration, sampleRate: p.sampleRate })));
         return partsReply(pieces, { model: LOCAL.model });
     } catch (e) {
         if (timedOut) return { ok: false, errorType: "timeout", error: `VieNeu quá ${Math.round(limit / 1000)} giây chưa tạo xong` };
-        if (signal && signal.aborted) return { ok: false, errorType: "aborted", aborted: true, error: "Đã hủy" };
+        if (signal && signal.aborted) return ttsAborted();
+        if (stage === "body") return { ok: false, errorType: "dropped", error: `VieNeu ngắt kết nối giữa chừng: ${String(e && e.message || e).slice(0, 120)}` };
+        if (stage === "process") return { ok: false, errorType: "invalid", error: `Không xử lý được audio VieNeu: ${String(e && e.message || e).slice(0, 120)}` };
         return { ok: false, errorType: "local_unavailable", error: `Máy chủ VieNeu chưa chạy (nhấp đúp ${LOCAL.startScript})` };
     } finally {
         clearTimeout(timer);

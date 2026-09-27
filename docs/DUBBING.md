@@ -390,6 +390,26 @@ gap at 1.5x / 2x), rate choice, drift, ducking, prosody, the paid-voice cache ke
 Measured and left alone: the tick is 17 us on a 60-min lecture (max 6 ms on a plan rebuild, 5 per
 200 s), `base64ToBytes` 0.7 ms per take, `audioKey` 0.02 ms per plan (memoised).
 
+**1.8.9 service-worker races and error codes.** Each reproduced first (`tests/hardening.test.js`,
+"1.8.9", all fail on 1.8.8):
+- A job dropped while queued in `localSerial` answered only when the queue reached it; it now leaves
+  the queue at once (abort listener, removed when the pump takes it).
+- A line dropped and asked for again (seek away and back) joined the dropped flight and got
+  "aborted". A new flight now waits for the old one and uses its take when it finished (kept running,
+  `LOCAL_KEEP_RUNNING_S`), else makes it: never refused, never made twice. Flight cleanup is
+  owner-checked (`ttsInFlight.get(reqKey) === f`).
+- A `ttsAbort` landing while the request key is still hashed was lost and the line generated anyway:
+  `ttsRegistering` holds jobs between arrival and registration.
+- `synthesizeLocalOnce` error by stage: before a reply `local_unavailable` (the only one that may
+  switch the video to the system voice), mid-body `dropped` (retried once, like `timeout`), after it
+  `invalid`. All three read "server not running" before.
+- `waitLocalIdle` follows the job's signal and times the body too: a hung `/health` held a dropped
+  line 1.7 s, now ~5 ms. A dropped job is never sent (was: sent with an aborted signal).
+- `ttsRequestProblem` refuses bad `jobId` / `parts` (key 1-256 chars, weight > 0, <= 12 parts) as
+  `invalid` before any read; a numeric key was stored before.
+- Page cache (`dubbing.js`): one corrupt record threw away every hit of the lookup; now a miss for
+  its line. A hit moves to the newest end, so a take replayed on each rewind is not evicted first.
+
 ## Prosody model (1.7.6, `dub-prosody.js`)
 
 Where the dubbed speech may pause, how strongly, and which of the voice's own stops to keep. Pure,

@@ -1232,6 +1232,116 @@ test("VieNeu: a dropped request the server has started finishes and is stored; a
     assert.match(read("background.js"), /LOCAL_KEEP_RUNNING_S = 4;/);
 });
 
+// 1.8.9: races and error codes in the service worker's VieNeu path, each reproduced on 1.8.8 first.
+const tick = ms => new Promise(r => setTimeout(r, ms));
+const vnReq = (key, extra = {}) => ({ action: "synthesizeSpeech", engine: "vieneu", text: "Câu này dùng để thử hàng đợi.", voice: "Mỹ Duyên", jobId: "job-" + key, parts: [{ key, weight: 7 }], ...extra });
+function heldServer(calls) {
+    const inner = vieneuServer(calls);
+    const gate = { release: null };
+    const fetchImpl = async (u, o) => {
+        if (!String(u).endsWith("/v1/audio/speech")) return inner(u, o);
+        if (calls.length === 0) await new Promise(r => { gate.release = r; });
+        return inner(u, o);
+    };
+    return { gate, fetchImpl };
+}
+
+test("VieNeu: a queued request dropped by a seek answers at once, not when the queue reaches it", async () => {
+    const calls = [];
+    const { gate, fetchImpl } = heldServer(calls);
+    const E = bgEnv(fetchImpl, cfg());
+    const running = E.send(vnReq("q-run"));
+    for (let i = 0; i < 200 && !gate.release; i++) await tick(5);
+    let answered = null;
+    E.send(vnReq("q-wait", { text: "Câu này còn chờ trong hàng." })).then(r => { answered = r; });
+    await tick(20);
+    await E.send({ action: "ttsAbort", jobId: "job-q-wait" });
+    await tick(20);
+    assert.ok(answered, "the dropped request waited for the one ahead of it");
+    assert.equal(answered.errorType, "aborted");
+    gate.release();
+    assert.equal((await running).ok, true);
+    assert.equal(calls.length, 1);
+});
+
+test("VieNeu: a line dropped while queued and asked for again (seek away and back) is made once, not refused", async () => {
+    const calls = [];
+    const { gate, fetchImpl } = heldServer(calls);
+    const E = bgEnv(fetchImpl, cfg());
+    const running = E.send(vnReq("b-run"));
+    for (let i = 0; i < 200 && !gate.release; i++) await tick(5);
+    const line = { text: "Câu người xem tua đi rồi tua lại." };
+    const first = E.send(vnReq("b-line", line));
+    await tick(20);
+    await E.send({ action: "ttsAbort", jobId: "job-b-line" });
+    const again = E.send({ ...vnReq("b-line", line), jobId: "job-b-line-2" });
+    await tick(20);
+    gate.release();
+    const [, a, b] = await Promise.all([running, first, again]);
+    assert.equal(a.errorType, "aborted");
+    assert.equal(b.ok, true, `the line asked for again was refused: ${b.errorType}`);
+    assert.equal(calls.length, 2, "the line was generated twice or not at all");
+});
+
+test("VieNeu: a stop sent before the service worker has registered the request still cancels it", async () => {
+    const calls = [];
+    const E = bgEnv(vieneuServer(calls), cfg());
+    const r = E.send(vnReq("early"));
+    E.send({ action: "ttsAbort", jobId: "job-early" });
+    const out = await r;
+    assert.equal(out.errorType, "aborted");
+    assert.equal(calls.length, 0, "a request stopped before it was registered reached the server");
+    // the stop is used once: the same job id asked for later is served
+    assert.equal((await E.send({ ...vnReq("early"), jobId: "job-early-2" })).ok, true);
+});
+
+test("VieNeu: a take whose connection drops mid-body is retried and never reported as 'server not running'", async () => {
+    const calls = [];
+    const inner = vieneuServer(calls);
+    let n = 0;
+    const E = bgEnv(async (u, o) => {
+        const r = await inner(u, o);
+        if (String(u).endsWith("/v1/audio/speech") && n++ === 0) return { ok: true, status: 200, arrayBuffer: async () => { throw new TypeError("network error"); } };
+        return r;
+    }, cfg());
+    const out = await E.send(vnReq("drop1"));
+    assert.equal(out.ok, true, `${out.errorType}: ${out.error}`);
+    assert.equal(n, 2);
+    // dropped on every try: its own code, which does not switch the video to the system voice
+    const E2 = bgEnv(async (u, o) => String(u).endsWith("/v1/audio/speech")
+        ? { ok: true, status: 200, arrayBuffer: async () => { throw new TypeError("network error"); } }
+        : vieneuServer([])(u, o), cfg());
+    const out2 = await E2.send(vnReq("drop2"));
+    assert.equal(out2.errorType, "dropped");
+});
+
+test("VieNeu: a hung /health does not hold a dropped request", async () => {
+    const calls = [];
+    const inner = vieneuServer(calls);
+    const E = bgEnv(async (u, o) => String(u).endsWith("/health")
+        ? new Promise((_, rej) => o.signal.addEventListener("abort", () => rej(new Error("aborted"))))
+        : inner(u, o), cfg());
+    const t0 = Date.now();
+    const r = E.send(vnReq("hh"));
+    await tick(50);
+    E.send({ action: "ttsAbort", jobId: "job-hh" });
+    const out = await r;
+    assert.equal(out.errorType, "aborted");
+    assert.ok(Date.now() - t0 < 600, `took ${Date.now() - t0} ms`);
+    assert.equal(calls.length, 0);
+});
+
+test("VieNeu: malformed parts are refused before any read or request", async () => {
+    const calls = [];
+    const E = bgEnv(vieneuServer(calls), cfg());
+    for (const parts of [[{ key: 5 }], [{ key: "" }], [{ key: "x".repeat(300) }], [{ key: "a", weight: -1 }], [null], Array.from({ length: 40 }, (_, i) => ({ key: "k" + i }))]) {
+        const out = await E.send(vnReq("bad", { parts }));
+        assert.equal(out.errorType, "invalid", JSON.stringify(parts).slice(0, 60));
+    }
+    assert.equal((await E.send(vnReq("bad", { jobId: { x: 1 } }))).errorType, "invalid");
+    assert.equal(calls.length, 0);
+});
+
 test("VieNeu bị kẹt (log thật: 6 giây audio mất 45 giây): hủy theo độ dài câu rồi tạo lại, câu vẫn có audio", async () => {
     const calls = [];
     const inner = vieneuServer(calls);
@@ -1668,5 +1778,29 @@ test("page audio cache is capped by bytes: 48 kHz takes cannot pile up tens of M
     // small takes still reach the entry cap of 40, not the byte cap
     for (let i = 0; i < 40; i++) cache.put(`s${i}`, { wav: new Uint8Array(1000), duration: 0.1, sampleRate: 48000 });
     assert.ok((await cache.get(["s0"])).s0);
+    env.CST_DUB.stop();
+});
+
+// 1.8.9: one corrupt record in a store reply threw out the whole lookup (every hit lost, the lines
+// generated again), and a take replayed from the page cache was still the first one evicted
+test("page audio cache: a corrupt stored record is skipped, the others are used; a take read back stays longest", async () => {
+    const msgs = [];
+    const good = Buffer.from(new Uint8Array(4000)).toString("base64");
+    const env = dubbingEnvFor("balanced", "vieneu", msgs, m => (m.action === "localTtsStatus" ? { ok: true, running: true }
+        : { ok: true, hits: { a: { wav: good, duration: 1, sampleRate: 48000 }, b: { wav: "%%not base64%%", duration: 1, sampleRate: 48000 }, c: null, d: { wav: good, duration: 1, sampleRate: 48000 } } }));
+    const video = new FakeVideo();
+    assert.equal(await env.CST_DUB.start({ video, getGroups: () => [] }), true);
+    const cache = env.CST_DUB.dub.engine.d.audioCache;
+    const got = await cache.get(["a", "b", "c", "d"]);
+    assert.deepEqual(Object.keys(got).sort(), ["a", "d"]);
+    const MB = 1024 * 1024;
+    cache.put("keep", { wav: new Uint8Array(MB), duration: 10, sampleRate: 48000 });
+    for (let i = 0; i < 24; i++) {
+        cache.put(`f${i}`, { wav: new Uint8Array(MB), duration: 10, sampleRate: 48000 });
+        await cache.get(["keep"]);                          // replayed (rewind) while new takes arrive
+    }
+    msgs.length = 0;
+    assert.ok((await cache.get(["keep"])).keep, "a take read back was evicted before older unread ones");
+    assert.ok(!msgs.some(m => m.action === "audioCacheGet"));
     env.CST_DUB.stop();
 });

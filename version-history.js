@@ -4,6 +4,22 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.8.9", luc: "00:01 28/09/2026", ten: "Tua đi rồi tua lại ngay: câu không còn bị bỏ, không phải chờ",
+            y: [
+                "Tua đi rồi tua lại ngay về chỗ cũ: câu đang chờ tạo giọng trước đây bị từ chối, phải đợi lượt sau. Nay câu đó được tạo đúng một lần, hoặc dùng luôn bản máy chủ vừa tạo xong.",
+                "Câu bị bỏ khi tua không còn phải chờ tới lượt trong hàng mới được hủy; lệnh hủy gửi quá sớm không còn bị lạc (câu không cần nữa không chiếm máy chủ VieNeu).",
+                "Máy chủ VieNeu ngắt kết nối giữa chừng: tự tạo lại câu đó, không còn báo nhầm \"máy chủ chưa chạy\" và không chuyển cả video sang giọng hệ thống.",
+                "Một bản ghi âm thanh hỏng trong kho không còn làm mất mọi câu khác trong cùng lần tra; câu hay nghe lại được giữ trong bộ nhớ lâu hơn.",
+                "Không đổi cách dịch, giọng, ngắt nghỉ; không thêm lượt gọi Gemini nào."
+            ],
+            bang: { cot: ["Kiểm thử ngoại tuyến", "1.8.8", "Nay"], hang: [
+                ["Tua đi rồi tua lại khi câu đang chờ", "bị từ chối", "tạo 1 lần"],
+                ["Hủy câu khi máy chủ không trả lời /health", "1,7 giây", "~5 ms"],
+                ["Kết nối đứt giữa chừng", "báo máy chủ chưa chạy", "tạo lại"],
+                ["1 bản ghi hỏng trong lần tra 4 câu", "mất cả 4", "mất 1"]
+            ] }
+        },
+        {
             v: "1.8.8", luc: "23:46 27/09/2026", ten: "Lồng tiếng không còn im hẳn khi tiện ích nền không trả lời",
             y: [
                 "Khi phần chạy nền của tiện ích bị Chrome tắt giữa chừng hoặc kho âm thanh bị treo, lồng tiếng có thể im cho tới hết video. Nay mỗi lần tra kho chờ tối đa 4 giây, lượt tạo giọng không có hồi âm được bỏ qua sau 20 đến 90 giây, rồi tự tạo lại (không tạo trùng).",

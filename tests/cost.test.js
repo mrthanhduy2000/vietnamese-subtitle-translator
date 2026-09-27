@@ -680,7 +680,10 @@ test("TTS: nhiều yêu cầu giống hệt nhau cùng lúc chỉ tạo audio M�
     await E.send({ action: "ttsAbort", jobId: "tab1" });
     const [a, b] = await Promise.all([p1, p2]);
     assert.equal(calls, 1);
-    assert.equal(a.ok && b.ok, true, "tab 2 vẫn cần audio nên lượt chung không bị hủy");
+    assert.equal(b.ok, true, "tab 2 vẫn cần audio nên lượt chung không bị hủy");
+    // 1.8.9: tab 1's own stop may land before its request is registered; it then gets "aborted"
+    // itself (it asked to stop), otherwise the shared take. Either way one generation, tab 2 served
+    assert.ok(a.ok || a.errorType === "aborted", a.errorType);
     assert.equal((await E.send(TTS_REQ)).fromCache, true);
     assert.equal(calls, 1);
 });

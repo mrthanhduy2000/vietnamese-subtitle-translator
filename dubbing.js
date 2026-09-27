@@ -59,11 +59,20 @@
         async get(keys) {
             const out = {};
             const miss = [];
-            for (const k of keys) { if (audioL1.has(k)) out[k] = audioL1.get(k); else miss.push(k); }
+            // a hit moves to the newest end (1.8.9): a take replayed on every rewind was otherwise
+            // the first one evicted, however often it was used
+            for (const k of keys) { if (audioL1.has(k)) { out[k] = audioL1.get(k); l1Put(k, out[k]); } else miss.push(k); }
             if (miss.length) {
                 const r = await sendMessage({ action: "audioCacheGet", keys: miss });
-                for (const [k, h] of Object.entries((r && r.hits) || {})) {
-                    const rec = { wav: window.CST_DUB_AUDIO.base64ToBytes(h.wav), duration: h.duration, sampleRate: h.sampleRate };
+                const hits = r && r.hits && typeof r.hits === "object" ? r.hits : {};
+                for (const k of miss) {
+                    const h = hits[k];
+                    if (!h || typeof h.wav !== "string" || !h.wav) continue;
+                    // one corrupt record is a miss for its line; it used to throw away every hit
+                    let wav;
+                    try { wav = window.CST_DUB_AUDIO.base64ToBytes(h.wav); } catch (e) { continue; }
+                    if (!wav || !wav.length) continue;
+                    const rec = { wav, duration: h.duration, sampleRate: h.sampleRate };
                     l1Put(k, rec);
                     out[k] = rec;
                 }
