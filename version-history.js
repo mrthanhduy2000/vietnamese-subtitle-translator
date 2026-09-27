@@ -4,6 +4,22 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.8.3", luc: "19:49 27/09/2026", ten: "Gemini nhận đúng ngữ cảnh câu trước khi dịch",
+            y: [
+                "Coursera: hai luồng dịch trước đây chạy so le nên mỗi đoạn gửi đi đều thiếu bản dịch của đoạn ngay trước (xưng hô, thuật ngữ, đại từ không nối được qua ranh giới đoạn). Nay mỗi luồng dịch một nửa bài theo thứ tự, chỉ đoạn đầu của mỗi nửa còn thiếu.",
+                "YouTube: đoạn còn xa (hơn 20 giây) chờ đoạn ngay trước dịch xong rồi mới gửi, để mang theo bản dịch đó. Đoạn sắp phát vẫn gửi ngay.",
+                "Bỏ gợi ý nghĩa \"thông dụng\" gây nhầm (ví dụ \"point: ý, luận điểm\" cho \"at this point\"); chỉ gửi nghĩa do lĩnh vực quyết định, không lặp \"weight\" / \"weights\".",
+                "Câu kết ngắn (\"Thanks for watching.\") đi chung với đoạn trước thay vì tốn một lượt gọi riêng.",
+                "Không đổi lời nhắc, model, bộ nhớ đệm bản dịch; bản dịch đã lưu vẫn dùng lại được (trừ đoạn cuối của bài có câu kết ngắn)."
+            ],
+            bang: { cot: ["Đo ngoại tuyến trên bài giảng mẫu 49 nhóm câu (không gọi API)", "Trước", "Nay"], hang: [
+                ["Coursera: lượt gọi Gemini", "7", "6"],
+                ["Coursera: đoạn có câu trước nhưng thiếu bản dịch trước", "6/6", "1/5"],
+                ["YouTube: đoạn có câu trước nhưng thiếu bản dịch trước", "3", "1"],
+                ["Tổng ký tự đầu vào cả bài (Coursera)", "17.815", "16.826"]
+            ] }
+        },
+        {
             v: "1.8.2", luc: "19:29 27/09/2026", ten: "Ngắt nghỉ theo thành phần câu chính xác hơn, thêm tên Ben, Kim, Leo",
             y: [
                 "Chữ \"nên\" mang nghĩa \"cho nên\" sau một vế câu đầy đủ được ngắt như ranh giới vế câu (\"Trời mưa rất to từ sáng / nên ...\"); khi \"nên\" có thể là \"nên làm\" (\"Doanh nghiệp nhỏ nên tập trung ...\") thì không mời ngắt nữa.",

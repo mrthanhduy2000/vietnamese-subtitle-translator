@@ -95,7 +95,8 @@ front end (chunks, phonemes; `{"words"}` / `{"normalize"}` modes), run with its 
 server needed). `tools/speech-ab.js` renders the same corpus with the real voice for an old and the
 current version and measures pauses, spans, duration, clicks (sandbox off). `tools/build-speech-tables.js`
 regenerates the data block of `dub-speech.js` (rerun after a VieNeu / sea_g2p update).
-`tools/syntax-eval.js` (1.8.0) scores the prosody model's text-only decisions against the marks, and
+`tools/context-eval.js` (1.8.3) prints, offline, the average size of every part of the translation
+request over `tests/context-corpus.js`. `tools/syntax-eval.js` (1.8.0) scores the prosody model's text-only decisions against the marks, and
 where the free voice's segments are cut for sentences given as subtitle lines; no server.
 `tests/blind-corpus.js` (1.8.0) and `tests/blind-corpus-2.js` (1.8.2) are blind splits written by a
 separate agent that never read the rules, each scored once (`pron-eval --corpus=`, `syntax-eval

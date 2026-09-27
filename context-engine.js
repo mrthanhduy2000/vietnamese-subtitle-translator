@@ -207,10 +207,16 @@
         for (const p of Object.keys(PHRASES)) t = t.split(" " + p + " ").join(" ¤ ").split(" " + p + ",").join(" ¤,").split(" " + p + ".").join(" ¤.");
         const words = wordsIn(t);
         const out = [];
+        const seen = new Set();
         for (const [w, senses] of Object.entries(SENSES)) {
             if (!words.has(w)) continue;
-            const pick = senses[domain.primary] || (domain.secondary && senses[domain.secondary]) || senses.general;
+            // Only a sense the domain decides. The "general" entry is the everyday meaning the model
+            // picks anyway, and it misled: "point: ý, luận điểm" was sent for "at this point".
+            const pick = (domain.primary !== "general" && senses[domain.primary]) || (domain.secondary && senses[domain.secondary]);
             if (!pick) continue;
+            // "weights" in the text also matches "weight": one line when both say the same
+            if (seen.has(pick)) continue;
+            seen.add(pick);
             out.push(`${w}: ${pick}`);
             if (out.length >= limit) break;
         }

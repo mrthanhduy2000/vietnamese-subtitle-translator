@@ -62,6 +62,14 @@ pairs repeat the next units' translation; it runs in `applyTranslation` (Courser
 The prompt now forbids finishing the last item's sentence; `TR_PROMPT_VERSION` was deliberately
 not bumped, since that would re-bill every cached translation for an additive instruction.
 
+**Previous translation in context (1.8.3).** `ContextSession.buildRequest` sends the translation of
+the two groups before the window (`prevTranslation`), but only if they are already recorded. Coursera's
+two workers used to take windows turn about, so it was always empty; `translateAllGroups` now gives
+each worker a contiguous half. The YouTube prefetch skips a window whose previous window is in flight or
+still to do unless it starts within 20 s. A short last window (< 240 chars Coursera, < 160 YouTube)
+joins the one before. Sense hints carry no `general` fallback. Measure with `node tools/context-eval.js`
+(offline, `--root <dir>` for an old checkout). `prevTranslation`, terms and hints are not in the cache key.
+
 **Sentence straddling (1.5.8).** `segmentTokens` charges `straddleCost` (45) for a cue that starts a
 sentence and ends before it does. On 347 real cues: 38 -> 7. It exposes missing compounds in
 `COMPOUND_LIST` more often; add them rather than lowering the cost.

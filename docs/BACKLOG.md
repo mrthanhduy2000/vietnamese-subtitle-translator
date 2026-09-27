@@ -148,6 +148,16 @@ is now read in one breath unless the voice stops long on its own. The 1.8.0 note
 split right; the dev marks were always "/" (either way). If the user wants the stop back, raise the
 `purposeAttached` cost in `dub-prosody.js` `constituents` (part C).
 
+## Found by the 1.8.3 context audit, not fixed
+
+**32. Context gaps left on purpose.** (a) An antecedent more than two groups back is not in
+`prevSource` (2 groups, 480 chars); no evidence it matters, so no pronoun heuristic was added. (b) The
+YouTube realtime path (`ytDichNhom(gIdx + 1/2)` when the viewer lands on an untranslated line) still
+sends neighbouring windows together: latency wins there. (c) Filling the translate-ahead horizon is
+about 30% slower in the fake-latency test (one window at a time beyond 20 s); first line unchanged.
+(d) The system prompt was reviewed and left as is: no conflicting or redundant rule worth a change.
+(e) All 1.8.3 numbers are offline (`tools/context-eval.js`); no real Gemini output was compared.
+
 ## Cosmetic / housekeeping
 
 **5. The folder name says `v1.0.4`, the extension is many versions past that.** Renaming the folder means

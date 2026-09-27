@@ -657,6 +657,15 @@ function ytCanonicalWindows(groups) {
         if (groupEndsSentence(g) && (chars >= WIN_SOFT_CHARS || cur.length >= WIN_SOFT_GROUPS)) close();
     });
     close();
+    // A short tail (a closing "Thanks for watching.") joins the window before it when that stays under
+    // every hard limit: a request of its own paid the whole system prompt for one line
+    const size = w => w.reduce((n, i) => n + String(groups[i].text || "").length + 1, 0);
+    const tail = wins[wins.length - 1], prev = wins[wins.length - 2];
+    if (prev && size(tail) < 160 && size(prev) + size(tail) <= WIN_HARD_CHARS && prev.length + tail.length <= WIN_HARD_GROUPS &&
+        groups[tail[tail.length - 1]].end - groups[prev[0]].start <= WIN_MAX_SPAN) {
+        prev.push(...wins.pop());
+        tail.forEach(i => { of[i] = wins.length - 1; });
+    }
     return { groups, of, wins };
 }
 
@@ -917,6 +926,14 @@ async function ytChayTienTrinhPrefetch(groups) {
                 if (win.some(k => yt.inFlightGroups.has(k))) continue;        // a mate is being translated
 
                 const diff = g.start - curTime;
+                // The window before it is in flight or still to do: wait for it unless this one plays soon, so
+                // the request carries that window's translation. Two workers used to send neighbouring
+                // windows together, and the second never saw how the first one was translated.
+                const at = ytWindows(groups).of[i];
+                const before = at > 0 ? ytWindows(groups).wins[at - 1] : null;
+                const pending = k => yt.inFlightGroups.has(k) ||
+                    (!groups[k].translated && !(groups[k].retryAt > Date.now()) && groups[k].end >= curTime - 5);
+                if (before && groups[win[0]].start - curTime > 20 && before.some(pending)) continue;
 
                 // Trọng số ưu tiên: các câu sắp phát trong 0s -> 45s có điểm số cao nhất
                 let score = 0;

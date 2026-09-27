@@ -599,6 +599,15 @@ async function translateAllGroups(session, groups, onProgress, alive = () => tru
         if (full || soft) { windows.push(cur); cur = []; chars = 0; }
     }
     if (cur.length) windows.push(cur);
+    // A short tail (e.g. a closing "Thanks for watching.") rides with the window before it when that
+    // stays under the hard limits: a request of its own paid the whole system prompt for one line.
+    const winChars = w => w.reduce((n, i) => n + groups[i].text.length + 1, 0);
+    if (windows.length > 1) {
+        const tail = windows[windows.length - 1], prev = windows[windows.length - 2];
+        if (winChars(tail) < 240 && winChars(prev) + winChars(tail) < 1200 && prev.length + tail.length <= 16) {
+            prev.push(...windows.pop());
+        }
+    }
     // The window under the playhead first, then on from there, the ones before it last: Coursera
     // resumes a lecture where the viewer left off, and in text order that line came last
     if (opts.startAt > 0) {
@@ -606,11 +615,16 @@ async function translateAllGroups(session, groups, onProgress, alive = () => tru
         if (k > 0) windows.push(...windows.splice(0, k));
     }
 
+    // Two workers, each walking its own contiguous half in order. They used to take windows turn
+    // about, so window k+1 was always sent while window k was still in flight and no request ever
+    // carried the previous window's translation (measured: 6 of 6 on a 49-group lecture). Now only
+    // the first window of each half goes without it, and the total time stays about the same.
     let done = 0;
-    let next = 0;
-    const worker = async () => {
-        while (next < windows.length && alive()) {
-            const idxs = windows[next++];
+    const half = Math.ceil(windows.length / 2);
+    const chains = [windows.slice(0, half), windows.slice(half)];
+    const worker = async chain => {
+        for (const idxs of chain) {
+            if (!alive()) break;
             try {
                 const r = await translateWindow(session, idxs, { realtime: false });
                 idxs.forEach((gi, k) => { results[gi] = r.translations[k] || ""; });
@@ -631,7 +645,7 @@ async function translateAllGroups(session, groups, onProgress, alive = () => tru
             if (opts.onWindow && alive()) opts.onWindow(results);
         }
     };
-    await Promise.all([worker(), worker()]);
+    await Promise.all(chains.map(worker));
     return results;
 }
 
