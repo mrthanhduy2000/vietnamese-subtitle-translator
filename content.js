@@ -387,12 +387,21 @@ function sendMessageAsync(msg) {
     });
 }
 
-function logEngine(response, n) {
+// What context went with the request, so it can be checked in the console while watching, with no
+// extra call: previous source, previous translation, the far antecedent, agreed terms, hints.
+function contextSummary(ctx) {
+    if (!ctx) return "";
+    const yes = v => (v && (!Array.isArray(v) || v.length) ? "✓" : "✗");
+    return ` · ngữ cảnh: câu trước ${yes(ctx.prevSource)}, bản dịch trước ${yes(ctx.prevTranslation)}, nhắc lại xa ${yes(ctx.refSource)}` +
+        `, thuật ngữ ${(ctx.terms || []).length}, gợi ý ${(ctx.senseHints || []).length + (ctx.phraseHints || []).length}`;
+}
+
+function logEngine(response, n, ctx) {
     window.CST_LAST_AI_INFO = response;
     state.lastTranslationInfo = response;
     if (response.engine === "gemini") {
         const fb = response.fallbackFrom ? `, ${response.fallbackFrom} không dùng được nên lùi sang model này` : "";
-        console.log(`%c[AI Subtitle]%c 🤖 GEMINI (${response.model}) ${n} đoạn, ${response.latency}ms${response.fromCache ? " (bộ nhớ đệm)" : ""}${fb}`,
+        console.log(`%c[AI Subtitle]%c 🤖 GEMINI (${response.model}) ${n} đoạn, ${response.latency}ms${response.fromCache ? " (bộ nhớ đệm)" : ""}${fb}${contextSummary(ctx)}`,
             "background:#D97757;color:#fff;padding:2px 6px;border-radius:4px;font-weight:bold;", "color:#D97757;font-weight:bold;");
     } else if (response.engine === "google_fallback") {
         console.warn(`[AI Subtitle] ⚠️ Gemini lỗi ("${response.fallbackReason || "Không xác định"}"), dùng Google Translate (không có ngữ cảnh)`);
@@ -449,7 +458,7 @@ async function requestUnit(req, opts = {}) {
     } else {
         translations = translations.map(finalizeTranslation);
     }
-    logEngine(res, req.sentences.length);
+    logEngine(res, req.sentences.length, req.context);
     return { ...res, translations };
 }
 

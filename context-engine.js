@@ -235,6 +235,52 @@
         return out;
     }
 
+    // ---------------- Topic: the useful part of a video description ----------------
+    // A YouTube description often opens with links, social handles, sponsor lines and chapter
+    // timestamps; sent as the topic, that was up to ~250 characters of noise on every request.
+    const DESC_NOISE = /https?:\/\/|www\.|@\w|^\s*#|\b\d{1,2}:\d{2}\b|\b(?:subscrib\w*|follow (?:me|us)|sponsor\w*|patreon|merch|affiliate|discount|promo code|coupon|instagram|twitter|tiktok|discord|linkedin|facebook|newsletter|membership|join (?:this|my|our) channel)\b/i;
+    function cleanDescription(text) {
+        const lines = String(text || "").split(/\n+/).map(l => l.trim()).filter(l => l && !DESC_NOISE.test(l));
+        return clip(lines.join(" "), 200);
+    }
+
+    // ---------------- Antecedents further back than the previous two units ----------------
+    // A window that opens "He later became the CEO." after three sentences without the name, or
+    // "The company then..." long after the company was named, gets the sentence that introduced the
+    // referent. Only person pronouns and a short list of definite nouns: "it", "this", "they" point
+    // at almost anything and are nearly always resolved by the previous two units already.
+    const PERSON_PRONOUN = /\b(?:he|she|him|his|her|hers|himself|herself)\b/i;
+    const PERSON_NOUNS = ["person", "man", "woman", "guy", "author", "speaker", "professor", "teacher", "student", "founder", "ceo",
+        "researcher", "scientist", "engineer", "customer", "user", "doctor", "patient", "manager", "boss", "client"];
+    const REF_NOUNS = ["company", "model", "system", "team", "product", "algorithm", "paper", "study", "approach", "method",
+        "network", "dataset", "tool", "app", "platform", "startup", "library", "framework", "project", "device", "experiment", ...PERSON_NOUNS];
+    const DEF_NP = new RegExp(`\\bthe (${REF_NOUNS.join("|")})\\b`, "gi");
+    // Capitalised words that are not names
+    const NOT_NAMES = new Set(["I", "I'm", "I'll", "I've", "I'd", "OK", "Okay", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
+        "Saturday", "Sunday", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
+        "November", "December", "English", "God"]);
+    const REF_LOOKBACK = 15;     // units searched before the previous two
+    const REF_MAX = 2;           // sentences carried
+    const REF_TOPIC_UNITS = 3;   // a noun in this many earlier units is the topic, not a referent
+    const sentencesOf = t => String(t || "").split(/(?<=[.!?])\s+/).filter(Boolean);
+    // Words that open English sentences: a capitalised first word that is not one of these is taken
+    // as a name ("Sam joined...", "Andrew showed..."), a capitalised word anywhere else always is
+    const OPENERS = new Set(("a an the this that these those there here it its he she they we you i my our your his her their " +
+        "so and but or now then well okay ok yes no yeah also if when while after before because although though since as once " +
+        "so what why how where who which let let's first second third next finally today in on at for with by from to of into " +
+        "about over under all each every some many most more any one two three just only even still again maybe perhaps actually " +
+        "basically remember notice note think look take make go see try use imagine suppose consider say keep start stop do does did " +
+        "is are was were be have has had can could will would should may might must not never always sometimes often however " +
+        "instead otherwise meanwhile anyway thanks thank hello hi hey welcome great good right sure").split(" "));
+    function hasName(text) {
+        return sentencesOf(text).some(sen => sen.split(/\s+/).some((w, k) => {
+            const m = w.match(/^[A-Z][a-z]+(?=$|'s|[^a-z])/);
+            if (!m || NOT_NAMES.has(m[0])) return false;
+            return k > 0 || !OPENERS.has(m[0].toLowerCase());
+        }));
+    }
+    const personMention = t => hasName(t) || PERSON_NOUNS.some(n => new RegExp(`\\b(?:the|a|an|this|our|my) ${n}\\b`, "i").test(t));
+
     // ---------------- Trạng thái ngữ cảnh của một video / bài giảng ----------------
     const BUDGET = {
         topic: 320,          // tiêu đề + kênh/khóa + mô tả
@@ -274,7 +320,8 @@
             if (this.meta.title) parts.push(`Tiêu đề: ${this.meta.title}`);
             if (this.meta.course) parts.push(`Khóa học: ${this.meta.course}`);
             if (this.meta.channel) parts.push(`Kênh/giảng viên: ${this.meta.channel}`);
-            if (this.meta.description) parts.push(`Mô tả: ${this.meta.description}`);
+            const desc = cleanDescription(this.meta.description);
+            if (desc) parts.push(`Mô tả: ${desc}`);
             return clip(parts.join(" | "), BUDGET.topic);
         }
 
@@ -307,6 +354,45 @@
             return hits.slice(0, BUDGET.terms).map(x => ({ en: x.en, vi: x.vi }));
         }
 
+        // Sentences from before the previous two units that introduce who or what the window refers
+        // to, when the previous units and the window itself do not. Pure source text, so it is
+        // deterministic and may join the cache key.
+        refSourceFor(first, sentences) {
+            const near = [first - 2, first - 1].filter(i => i >= 0).map(i => this.units[i]).join(" ");
+            const needs = [];
+            let before = near;
+            for (const sen of sentences) {
+                if (PERSON_PRONOUN.test(sen) && !personMention(before) && !personMention(sen.split(PERSON_PRONOUN)[0])) needs.push({ person: true });
+                for (const m of sen.matchAll(DEF_NP)) {
+                    const noun = m[1].toLowerCase();
+                    const said = new RegExp(`\\b${noun}\\b`, "i");
+                    if (said.test(before) || said.test(sen.slice(0, m.index)) || needs.some(n => n.noun === noun)) continue;
+                    // a running topic word ("the model" all through an ML lecture) needs no antecedent
+                    let seen = 0;
+                    for (let i = first - 1; i >= Math.max(0, first - 2 - REF_LOOKBACK); i--) if (said.test(this.units[i])) seen++;
+                    if (seen < REF_TOPIC_UNITS) needs.push({ noun, said });
+                }
+                before += " " + sen;
+            }
+            if (!needs.length) return "";
+            const picked = new Map();
+            // a person: the nearest sentence naming someone, else the nearest "the CEO" / "a teacher"
+            const tests = need => (need.person ? [hasName, personMention] : [x => need.said.test(x)]);
+            for (const need of needs) {
+                for (const ok of tests(need)) {
+                    let found = false;
+                    for (let i = first - 3; i >= Math.max(0, first - 2 - REF_LOOKBACK) && !found; i--) {
+                        const list = sentencesOf(this.units[i]);
+                        const k = list.findIndex(ok);
+                        if (k >= 0) { picked.set(i * 100 + k, list[k]); found = true; }
+                    }
+                    if (found) break;
+                }
+                if (picked.size >= REF_MAX) break;
+            }
+            return [...picked.entries()].sort((a, b) => a[0] - b[0]).map(e => clip(e[1], 160)).join(" … ");
+        }
+
         // Gói ngữ cảnh cho các nhóm liên tiếp idxs (cửa sổ trượt quanh đoạn đang dịch)
         buildRequest(idxs) {
             const first = idxs[0];
@@ -325,6 +411,7 @@
                 context: {
                     topic: this.topicLine(),
                     domain: domainLabel(this.domain.primary) + (this.domain.secondary ? `; liên quan: ${domainLabel(this.domain.secondary)}` : ""),
+                    refSource: this.refSourceFor(first, sentences),
                     prevSource,
                     prevTranslation,
                     nextSource,
@@ -378,7 +465,7 @@
         }
     }
 
-    const api = { DOMAINS, SENSES, PHRASES, BUDGET, detectDomain, domainLabel, senseHintsFor, phraseHintsFor, ContextSession };
+    const api = { DOMAINS, SENSES, PHRASES, BUDGET, cleanDescription, detectDomain, domainLabel, senseHintsFor, phraseHintsFor, ContextSession };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_CONTEXT = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

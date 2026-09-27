@@ -363,6 +363,8 @@ function buildUnitPrompt(req) {
     if (ctx.terms && ctx.terms.length) parts.push(`[THUẬT NGỮ ĐÃ THỐNG NHẤT] ${ctx.terms.map(t => `${t.en} = ${t.vi}`).join("; ")}`);
     if (ctx.senseHints && ctx.senseHints.length) parts.push(`[GỢI Ý NGHĨA] ${ctx.senseHints.join("; ")}`);
     if (ctx.phraseHints && ctx.phraseHints.length) parts.push(`[CỤM TỪ, THÀNH NGỮ] ${ctx.phraseHints.join("; ")}`);
+    // Who or what a pronoun / "the company" in the window points to, from further back (1.8.4)
+    if (ctx.refSource) parts.push(`[NHẮC LẠI TỪ TRƯỚC, chỉ để hiểu đại từ] ${ctx.refSource}`);
     if (ctx.prevSource) parts.push(`[NGỮ CẢNH TRƯỚC] ${ctx.prevSource}`);
     if (ctx.prevTranslation) parts.push(`[BẢN DỊCH ĐOẠN TRƯỚC] ${ctx.prevTranslation}`);
     parts.push(`[CẦN DỊCH]\n${req.sentences.map((s, i) => `${i + 1}. ${s}`).join("\n")}`);
@@ -537,7 +539,9 @@ async function unitCacheKey(req, model) {
         "tr", TR_PROMPT_VERSION, "en", "vi", model,
         (req.sentences || []).map(N),
         (req.placeholders || []).map(p => p.term),
-        N(c.domain), N(c.topic).slice(0, 120), N(c.prevSource).slice(-200), N(c.nextSource).slice(0, 120)
+        N(c.domain), N(c.topic).slice(0, 120), N(c.prevSource).slice(-200), N(c.nextSource).slice(0, 120),
+        // source text, so deterministic; only when present, so every key without it stays as it was
+        ...(c.refSource ? [N(c.refSource).slice(0, 200)] : [])
     ]);
 }
 

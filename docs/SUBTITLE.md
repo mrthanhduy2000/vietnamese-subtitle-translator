@@ -69,6 +69,13 @@ each worker a contiguous half. The YouTube prefetch skips a window whose previou
 still to do unless it starts within 20 s. A short last window (< 240 chars Coursera, < 160 YouTube)
 joins the one before. Sense hints carry no `general` fallback. Measure with `node tools/context-eval.js`
 (offline, `--root <dir>` for an old checkout). `prevTranslation`, terms and hints are not in the cache key.
+1.8.4: `ContextSession.refSourceFor` adds `refSource` (prompt `[NHẮC LẠI TỪ TRƯỚC ...]`) when the window
+has he/she or "the <noun>" (list `REF_NOUNS`) whose referent is not in the previous two units: the nearest
+sentence naming a person (a capitalised word not in `OPENERS`) or the noun, 15 units back at most, 2
+sentences at most; a noun in 3+ earlier units is the topic and skipped; "it"/"they" never. It joins the
+cache key only when non-empty. `ytWaitForWindowBefore` is the one 20 s rule for prefetch and the
+realtime +1/+2 groups. `cleanDescription` strips links, handles, sponsor lines, timestamps from the topic.
+The console "🤖 GEMINI" line ends with `contextSummary`: what context each request carried.
 
 **Sentence straddling (1.5.8).** `segmentTokens` charges `straddleCost` (45) for a cue that starts a
 sentence and ends before it does. On 347 real cues: 38 -> 7. It exposes missing compounds in

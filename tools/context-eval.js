@@ -59,23 +59,24 @@ function contentEnv(onMsg) {
 
     const len = x => (Array.isArray(x) ? x.join("; ") : String(x || "")).length;
     const fields = {
-        current: m => len(m.sentences), prevSource: m => len(m.context.prevSource), prevTranslation: m => len(m.context.prevTranslation),
+        current: m => len(m.sentences), refSource: m => len(m.context.refSource), prevSource: m => len(m.context.prevSource), prevTranslation: m => len(m.context.prevTranslation),
         nextSource: m => len(m.context.nextSource), topic: m => len(m.context.topic), domain: m => len(m.context.domain),
         terms: m => len((m.context.terms || []).map(t => `${t.en} = ${t.vi}`)), senseHints: m => len(m.context.senseHints),
         phraseHints: m => len(m.context.phraseHints)
     };
     const sum = Object.fromEntries(Object.keys(fields).map(k => [k, 0]));
-    let sys = 0, user = 0, noPrevT = 0;
+    let sys = 0, user = 0, noPrevT = 0, withRef = 0;
     sent.forEach((m, k) => {
         for (const [f, fn] of Object.entries(fields)) sum[f] += fn(m);
         const p = buildUnitPrompt({ sentences: m.sentences, context: m.context, placeholders: m.placeholders, wantTerms: m.wantTerms });
         sys += p.sys.length; user += p.user.length;
         if (m.context.prevSource && !m.context.prevTranslation) noPrevT++;
+        if (m.context.refSource) withRef++;
         if (args.includes("--show")) console.log(`\n=== request ${k + 1} ===\n${p.user}`);
     });
     const n = sent.length;
     // ~4 characters a token for English, ~2.5 for Vietnamese with diacritics: a rough guide only
-    console.log(`${env.__groups} groups -> ${n} translation requests, ${noPrevT} with a previous window but no previous translation`);
+    console.log(`${env.__groups} groups -> ${n} translation requests, ${noPrevT} with a previous window but no previous translation, ${withRef} with a far antecedent`);
     console.log("average characters per request:");
     for (const [f, v] of Object.entries(sum)) console.log(`  ${f.padEnd(16)} ${Math.round(v / n)}`);
     console.log(`  ${"system prompt".padEnd(16)} ${Math.round(sys / n)}\n  ${"user prompt".padEnd(16)} ${Math.round(user / n)}`);

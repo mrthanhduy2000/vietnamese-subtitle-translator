@@ -674,6 +674,18 @@ function ytWindows(groups) {
     return yt.windows;
 }
 
+// True when gIdx's window should wait for the window before it: that one is in flight or still to
+// do, and gIdx's window does not play within YT_CONTEXT_WAIT_SEC. Sent together, the second request
+// never saw how the first was translated (no previous translation, no terms agreed there).
+const YT_CONTEXT_WAIT_SEC = 20;
+function ytWaitForWindowBefore(groups, gIdx, curTime) {
+    const w = ytWindows(groups);
+    const at = w.of[gIdx];
+    if (!(at > 0) || groups[w.wins[at][0]].start - curTime <= YT_CONTEXT_WAIT_SEC) return false;
+    return w.wins[at - 1].some(k => yt.inFlightGroups.has(k) ||
+        (!groups[k].translated && !(groups[k].retryAt > Date.now()) && groups[k].end >= curTime - 5));
+}
+
 // The untranslated groups of gIdx's window, or [] while any of them is being translated
 function ytChonCuaSo(gIdx) {
     const groups = yt.groups;
@@ -832,8 +844,11 @@ function ytBatDauDongBo() {
         const group = gIdx !== undefined ? yt.groups[gIdx] : null;
         if (group && !group.translated) {
             ytDichNhom(gIdx);
-            if (gIdx + 1 < yt.groups.length) ytDichNhom(gIdx + 1);
-            if (gIdx + 2 < yt.groups.length) ytDichNhom(gIdx + 2);
+            // the next two groups too, unless they sit in a later window that plays far enough ahead
+            // to wait for this one's translation (the prefetch sends it then)
+            for (const k of [gIdx + 1, gIdx + 2]) {
+                if (k < yt.groups.length && !ytWaitForWindowBefore(yt.groups, k, t)) ytDichNhom(k);
+            }
             ytVePhuDe(overlay, null, enText, { dim: true });
         } else {
             ytVePhuDe(overlay, null, "");
@@ -926,14 +941,7 @@ async function ytChayTienTrinhPrefetch(groups) {
                 if (win.some(k => yt.inFlightGroups.has(k))) continue;        // a mate is being translated
 
                 const diff = g.start - curTime;
-                // The window before it is in flight or still to do: wait for it unless this one plays soon, so
-                // the request carries that window's translation. Two workers used to send neighbouring
-                // windows together, and the second never saw how the first one was translated.
-                const at = ytWindows(groups).of[i];
-                const before = at > 0 ? ytWindows(groups).wins[at - 1] : null;
-                const pending = k => yt.inFlightGroups.has(k) ||
-                    (!groups[k].translated && !(groups[k].retryAt > Date.now()) && groups[k].end >= curTime - 5);
-                if (before && groups[win[0]].start - curTime > 20 && before.some(pending)) continue;
+                if (ytWaitForWindowBefore(groups, i, curTime)) continue;
 
                 // Trọng số ưu tiên: các câu sắp phát trong 0s -> 45s có điểm số cao nhất
                 let score = 0;

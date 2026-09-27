@@ -3,7 +3,7 @@
 // are, and carrying the cases the context package must get right: a pronoun whose antecedent is one
 // sentence back ("Sam ... He"), an ellipsis ("The first approach ... The second"), a discourse link
 // ("This is important. However"), a clause split across cues ("After we finish this step, / we can
-// move on"), a repeated entity ("The company ... The company ... It") and repeated terms ("model").
+// move on"), a pronoun whose antecedent is three sentences back ("Maria Lopez ... she"), a repeated entity ("The company ... The company ... It") and repeated terms ("model").
 const TEXT = `Welcome back to the course. In this lesson we will look at how a language model is trained.
 Sam joined the company in 2019. He later became the CEO, and he pushed the team to build its own model.
 The first approach is expensive. The second is faster, but it needs more data.
@@ -12,6 +12,8 @@ This is important. However, there is another problem that we need to talk about.
 After we finish this step, we can move on to the next one, which is evaluation.
 I think this is important because most people skip it.
 The company released the system last year. The company then opened it to developers. It quickly became popular.
+Maria Lopez leads the research group at the lab. The group has twelve members. Most of them work on computer vision.
+Last year, she moved the whole team to language models, and the results surprised everyone.
 Now let's go over the training loop in a bit more detail.
 First, we take a batch of examples from the training set. Then we run a forward pass through the network.
 We compute the loss, and we use gradient descent to update the weights.

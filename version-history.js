@@ -4,6 +4,21 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.8.4", luc: "19:59 27/09/2026", ten: "Nhắc lại chủ thể ở xa, mô tả video sạch hơn, tự kiểm tra ngữ cảnh trong console",
+            y: [
+                "Đoạn mở đầu bằng \"he\", \"she\" hay \"the company\" mà người / vật đó được nêu từ 3 câu trở lên trước đây: Gemini nhận kèm đúng câu đã nêu tên (\"Sam joined the company in 2019.\"). Từ chủ đề lặp khắp bài (\"the model\" trong bài học máy) và \"it\", \"they\" không kéo thêm gì.",
+                "Mô tả video YouTube bỏ đường dẫn, tài khoản mạng xã hội, dòng tài trợ, mốc thời gian chương trước khi gửi làm chủ đề.",
+                "Khi tua tới chỗ chưa dịch trên YouTube, đoạn kế tiếp nằm xa (hơn 20 giây) chờ đoạn hiện tại dịch xong để mang theo bản dịch đó; đoạn sắp phát vẫn gửi ngay.",
+                "Mỗi dòng \"🤖 GEMINI\" trong console ghi thêm ngữ cảnh đã gửi (câu trước, bản dịch trước, nhắc lại xa, số thuật ngữ, số gợi ý), để kiểm tra khi xem mà không tốn lượt gọi nào.",
+                "Bản dịch đã lưu vẫn dùng lại được, trừ đoạn có câu nhắc lại mới."
+            ],
+            bang: { cot: ["Đo ngoại tuyến (không gọi API)", "1.8.3", "Nay"], hang: [
+                ["Đoạn có câu nhắc lại chủ thể xa, bài mẫu 52 nhóm", "0", "1 (\"the company\")"],
+                ["Đoạn thứ 3 trở đi xong sớm nhất trước khi phát, mô phỏng trả lời 3 giây (không chậm đi)", "13 giây", "13 giây"],
+                ["Đoạn thiếu bản dịch trước, YouTube 130 giây đầu", "1", "1"]
+            ] }
+        },
+        {
             v: "1.8.3", luc: "19:49 27/09/2026", ten: "Gemini nhận đúng ngữ cảnh câu trước khi dịch",
             y: [
                 "Coursera: hai luồng dịch trước đây chạy so le nên mỗi đoạn gửi đi đều thiếu bản dịch của đoạn ngay trước (xưng hô, thuật ngữ, đại từ không nối được qua ranh giới đoạn). Nay mỗi luồng dịch một nửa bài theo thứ tự, chỉ đoạn đầu của mỗi nửa còn thiếu.",

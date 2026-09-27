@@ -14,10 +14,11 @@ const { bgEnv } = require("./bg-env.js");
 
 const read = f => fs.readFileSync(path.join(__dirname, "..", f), "utf8");
 
-function contentEnv(onMsg, mode = "balanced") {
+function contentEnv(onMsg, mode = "balanced", timeScale = 1) {
     const noop = () => {};
     const sb = {
-        console: { log: noop, warn: noop, error: console.error }, setTimeout, clearTimeout, setInterval: () => 0, clearInterval: noop,
+        console: { log: noop, warn: noop, error: console.error }, clearTimeout,
+        setTimeout: timeScale === 1 ? setTimeout : (fn, ms, ...a) => setTimeout(fn, (ms || 0) / timeScale, ...a), setInterval: () => 0, clearInterval: noop,
         Promise, Map, Set, Math, JSON, Date, RegExp, Array, Object, String, Number, TextEncoder, crypto: globalThis.crypto,
         location: { href: "https://www.youtube.com/watch?v=t", hostname: "www.youtube.com", pathname: "/watch" },
         document: { readyState: "complete", title: "t", body: {}, getElementById: () => null, querySelector: () => null, querySelectorAll: () => [],
@@ -207,4 +208,107 @@ test("cache key: source + source context + model; not the previous translation, 
     assert.notEqual(await key(base, "gemini-2.5-flash"), k0, "another model: miss");
     const extra = { ...base, context: { ...base.context, prevTranslation: "Sam vào công ty.", terms: [{ en: "CEO", vi: "giám đốc điều hành" }], senseHints: ["x"], phraseHints: ["y"] } };
     assert.equal(await key(extra), k0, "session state that varies from run to run must not split the cache");
+});
+
+// ---------- 1.8.4: antecedents further back ----------
+test("far antecedent: a pronoun or 'the company' whose referent is 3+ units back gets that sentence", () => {
+    const s = sessionOf(["Sam joined the company in 2019.", "The office was small.", "It had ten desks.", "We hired more people.",
+        "He later became the CEO.", "The company then grew fast.", "So in practice, you start small.", "He said that was the key."]);
+    assert.equal(s.buildRequest([4]).context.refSource, "Sam joined the company in 2019.");
+    assert.equal(s.buildRequest([5]).context.refSource, "Sam joined the company in 2019.", "'the company' named long before");
+    // the nearest sentence with a name wins over a nearer "the CEO"
+    assert.equal(s.buildRequest([7]).context.refSource, "Sam joined the company in 2019.");
+    // antecedent already in the previous two units or inside the window: nothing added
+    assert.equal(s.buildRequest([2]).context.refSource, "");
+    assert.equal(s.buildRequest([0, 1, 2, 3, 4]).context.refSource, "");
+});
+
+test("far antecedent: 'it' / 'they' add nothing, a running topic word adds nothing, the lookback is bounded", () => {
+    const s = sessionOf(["The dataset has images.", "Filler one.", "Filler two.", "Filler three.", "It is large and they are labelled."]);
+    assert.equal(s.buildRequest([4]).context.refSource, "", "'it' points at almost anything");
+    const ml = sessionOf(["The model is small.", "We train the model.", "The model learns.", "Filler.", "Filler again.", "Then the model converges."]);
+    assert.equal(ml.buildRequest([5]).context.refSource, "", "'the model' all through the talk is the topic");
+    const far = sessionOf(["Sam wrote it.", ...Array.from({ length: 20 }, (_, i) => `filler number ${i}.`), "He was right."]);
+    assert.equal(far.buildRequest([21]).context.refSource, "", "not beyond the lookback");
+    // a sentence opener is not a name, a name that opens a sentence is
+    const opener = sessionOf(["Maria Lopez leads the group.", "The group has twelve members.", "Most of them work on vision.", "Now we test.", "She moved the team."]);
+    assert.equal(opener.buildRequest([4]).context.refSource, "Maria Lopez leads the group.");
+});
+
+test("far antecedent: in the prompt only when present, and in the cache key only when present", async () => {
+    const bg = bgEnv(async () => { throw new Error("offline"); });
+    const base = { sentences: ["He later became the CEO."], context: { topic: "t", domain: "d", prevSource: "We hired more people.", nextSource: "" } };
+    const withRef = { ...base, context: { ...base.context, refSource: "Sam joined the company in 2019." } };
+    assert.doesNotMatch(bg.sandbox.buildUnitPrompt(base).user, /NHẮC LẠI/);
+    assert.match(bg.sandbox.buildUnitPrompt(withRef).user, /\[NHẮC LẠI TỪ TRƯỚC, chỉ để hiểu đại từ\] Sam joined/);
+    const key = r => bg.sandbox.unitCacheKey(r, "gemini-3.1-flash-lite");
+    assert.equal(await key({ ...base, context: { ...base.context, refSource: "" } }), await key(base), "keys without it unchanged");
+    assert.notEqual(await key(withRef), await key(base), "another referent, another translation");
+});
+
+test("topic: links, handles, sponsor lines and timestamps leave the video description", () => {
+    const d = C.cleanDescription("Learn transformers from scratch.\nhttps://x.com/abc\nFollow me on Twitter @abc\n0:00 Intro\n#ai #ml\nThis video is sponsored by NordVPN\nIn this video we build GPT.");
+    assert.equal(d, "Learn transformers from scratch. In this video we build GPT.");
+    const s = new C.ContextSession({ title: "GPT", description: "Use code SAVE10 for a discount\nWe build a tokenizer." });
+    assert.equal(s.topicLine(), "Tiêu đề: GPT | Mô tả: We build a tokenizer.");
+});
+
+// ---------- 1.8.4: realtime path, timeliness, console summary ----------
+test("YouTube realtime: the next group in a later window waits when that window plays far ahead", () => {
+    const env = contentEnv(() => ({ ok: true }));
+    vm.runInContext(`
+        globalThis.__g = Array.from({ length: 12 }, (_, i) => ({ text: "Sentence " + i + " is a complete sentence of some length to fill a window.", start: i * 8, end: i * 8 + 7, translated: false }));
+        yt.groups = __g; yt.inFlightGroups.clear();
+    `, env);
+    const w = JSON.parse(vm.runInContext("JSON.stringify(ytWindows(__g))", env));
+    assert.ok(w.wins.length >= 2);
+    const second = w.wins[1][0];
+    const wait = t => vm.runInContext(`ytWaitForWindowBefore(__g, ${second}, ${t})`, env);
+    assert.equal(wait(__secondStart(env, second) - 60), true, "far ahead, window before still to do: wait");
+    assert.equal(wait(__secondStart(env, second) - 10), false, "plays within 20 s: send now");
+    vm.runInContext(`ytWindows(__g).wins[0].forEach(k => { __g[k].translated = true; })`, env);
+    assert.equal(wait(__secondStart(env, second) - 60), false, "window before done: send");
+    assert.equal(vm.runInContext("ytWaitForWindowBefore(__g, 0, 0)", env), false, "the first window never waits");
+});
+function __secondStart(env, i) { return vm.runInContext(`__g[${i}].start`, env); }
+
+test("YouTube timeliness: with 3 s replies every window from the third on is ready 10 s before it plays", async () => {
+    const K = 50;                 // video seconds run 50 times faster than real ones, timers too
+    const sent = [];
+    const env = contentEnv(async m => {
+        if (m.action !== "translateUnit") return { ok: true };
+        if (m.refine) return { ok: true, engine: "gemini", model: "x", terms: [], translations: m.refine.draft };
+        sent.push(m);
+        await new Promise(r => setTimeout(r, 3000 / K));
+        return { ok: true, engine: "gemini", model: "x", latency: 1, terms: [], translations: m.sentences.map(t => ["Bản dịch", ...(t.match(/\[\[__T\d+__\]\]/g) || [])].join(" ")) };
+    }, "balanced", K);
+    await ready(env);
+    const t0 = Date.now();
+    env.__now = () => (Date.now() - t0) * K / 1000;
+    env.__cues = corpus.cues();
+    vm.runInContext(`
+        const gs = groupCuesIntoSentences(__cues, false).map(g => ({ ...g, translated: false, viCues: null }));
+        globalThis.__gs = gs;
+        yt.videoEl = { get currentTime() { return __now(); }, paused: false, addEventListener() {}, removeEventListener() {} };
+        yt.groups = gs; yt.huyDich = false; yt.inFlightGroups.clear();
+        yt.session = (() => { const s = new CST_CONTEXT.ContextSession({}); s.setUnits(gs.map(g => g.text)); return s; })();
+        ytChayTienTrinhPrefetch(gs);
+    `, env);
+    const doneAt = new Map();
+    while (env.__now() < 130) {
+        await new Promise(r => setTimeout(r, 2));
+        env.__gs.forEach((g, i) => { if (g.translated && !doneAt.has(i)) doneAt.set(i, env.__now()); });
+    }
+    vm.runInContext("yt.huyDich = true;", env);
+    const w = JSON.parse(vm.runInContext("JSON.stringify(ytWindows(__gs).wins)", env));
+    const leads = w.map(win => env.__gs[win[0]].start - (doneAt.has(win[0]) ? doneAt.get(win[0]) : Infinity)).filter((_, k) => env.__gs[w[k][0]].start < 120);
+    assert.ok(leads.length >= 4);
+    for (const [k, lead] of leads.entries()) if (k >= 2) assert.ok(lead >= 10, `window ${k} ready only ${lead.toFixed(1)} s ahead`);
+    assert.ok(sent.filter(m => m.context.prevSource && !m.context.prevTranslation).length <= 1);
+});
+
+test("console line tells what context went with the request", () => {
+    const env = contentEnv(() => ({ ok: true }));
+    const line = vm.runInContext(`contextSummary({ prevSource: "a", prevTranslation: "", refSource: "Sam.", terms: [{}], senseHints: ["x"], phraseHints: [] })`, env);
+    assert.equal(line, " · ngữ cảnh: câu trước ✓, bản dịch trước ✗, nhắc lại xa ✓, thuật ngữ 1, gợi ý 1");
 });
