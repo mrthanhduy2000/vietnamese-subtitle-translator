@@ -4,6 +4,17 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.9.1", luc: "00:30 28/09/2026", ten: "Giọng hệ thống không còn im hẳn khi Chrome làm mất tín hiệu nói xong",
+            y: [
+                "Khi dùng giọng hệ thống (giọng dự phòng của Chrome), đôi khi Chrome không báo một cụm đã nói xong. Trước đây lồng tiếng chờ tín hiệu đó mãi và im lặng tới hết video. Nay cụm quá thời gian dự kiến được bỏ qua và đọc tiếp cụm sau.",
+                "Xóa âm thanh đã lưu của video: danh sách khóa được kiểm tra trước khi xóa.",
+                "Không đổi cách dịch, giọng, ngắt nghỉ; không thêm lượt gọi Gemini nào."
+            ],
+            bang: { cot: ["Kiểm thử ngoại tuyến (bài giảng 2,5 phút)", "1.9.0", "Nay"], hang: [
+                ["Câu được đọc sau khi mất một tín hiệu nói xong", "3 / 23", "23 / 23"]
+            ] }
+        },
+        {
             v: "1.9.0", luc: "00:12 28/09/2026", ten: "Trình duyệt chặn hoặc không phát được âm thanh: xử lý đúng từng trường hợp",
             y: [
                 "Chrome chặn tự phát âm thanh: trước đây tiện ích thử phát lại 20 lần mỗi giây và im lặng không báo gì. Nay thử lại mỗi giây một lần, và thẻ lồng tiếng báo \"bấm vào trang video một lần để nghe\".",

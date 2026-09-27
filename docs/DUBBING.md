@@ -423,6 +423,15 @@ again on every tick. `onPlayFailed` sorts them by the browser's error name:
 `decodeWav` refuses non-PCM, channels outside 1-8, rates outside 4-192 kHz and a cut `fmt` chunk
 with `e.code === "wav_invalid"`; rate 0 or 4 GHz used to decode into Infinity durations.
 
+**1.9.1 system voice stall.** `tickLive` returned while `live.speaking`, so an utterance whose end
+Chrome never reports (collected with its handlers, a network voice stopping, a queue stuck pending)
+silenced the system voice for the rest of the video: 3 of 23 lines. `liveStalled` gives a phrase up
+after predicted length x `SYNC.liveStallFactor` + `liveStallPadMs` from its start (or from `sentAt`
+when no start came), counts `speech_stalled` and goes on: 23 of 23. The web-speech handle keeps
+`utterance` so it is not collected. `audioCacheDelete` refuses a non-array, drops bad and repeated
+keys. Measured, left alone: a 2 s scrub (125 `seeking` events) costs 0.4 ms of `hardReset` in total
+and sends no render.
+
 ## Prosody model (1.7.6, `dub-prosody.js`)
 
 Where the dubbed speech may pause, how strongly, and which of the voice's own stops to keep. Pure,

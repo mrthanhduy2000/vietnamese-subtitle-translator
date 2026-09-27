@@ -140,6 +140,10 @@
         // A play() the browser refused (autoplay policy, NotAllowedError) is asked again after this
         // long, not on every 50 ms tick: 282 calls in 20 s of refusals before (1.9.0)
         playRetryMs: 1000,
+        // A system-voice phrase whose end Chrome never reports is given up after its predicted length
+        // x liveStallFactor + liveStallPadMs (wall clock), then the next phrase goes on (1.9.1)
+        liveStallFactor: 2.5,
+        liveStallPadMs: 2000,
         maxAudio: 600,
         duckRampPerTick: 0.09,    // tốc độ hạ/nâng âm lượng video mỗi nhịp (mượt ~200 ms)
         duckHold: 0.35            // giữ mức hạ thêm chút sau khi nói xong (tránh "bơm" âm lượng giữa các cụm)
@@ -190,7 +194,9 @@
                 u.onend = () => { if (!done) { done = true; cb.onend && cb.onend(); } };
                 u.onerror = e => { if (!done) { done = true; cb.onerror && cb.onerror(e); } };
                 synth.speak(u);
-                return { cancel() { if (!done) { done = true; } synth.cancel(); } };
+                // The handle holds the utterance: one nothing refers to can be collected with its
+                // handlers, and its end is then never reported (a known Chrome behaviour)
+                return { utterance: u, cancel() { if (!done) { done = true; } synth.cancel(); } };
             },
             stopAll() { try { synth.cancel(); } catch (e) { /* bỏ qua */ } }
         };
@@ -631,7 +637,16 @@
         // thì bỏ phần còn lại của đoạn cũ -> không bao giờ lệch tích lũy.
         tickLive(t, videoRate) {
             const L = this.live;
-            if (L && L.speaking) return;                 // không cắt ngang một cụm đang nói
+            if (L && L.speaking) {
+                // không cắt ngang một cụm đang nói, unless its end is overdue (liveStallFactor)
+                if (!this.liveStalled(L, videoRate)) return;
+                this.countError("speech_stalled");
+                L.cancelled = true;
+                L.speaking = false;
+                try { L.handle && L.handle.cancel(); } catch (e) { /* bỏ qua */ }
+                const stuck = this.planById.get(L.planId);
+                if (!stuck || L.k >= stuck.phrases.length - 1) L.finished = true;
+            }
             let idx = this.planAt(t);
             if (idx < 0) return;
             let plan = this.plans[idx];
@@ -665,7 +680,7 @@
             const m = this.provider.voiceModel;
             const baseSpeed = PLAN.speedMultiplier(plan.rate * ph.rateMul, m);
             const rate = PLAN.rateForSpeedup(baseSpeed * boost * videoRate, m);
-            const state = { planId: plan.id, k, speaking: true, finished: false, rate, wallStart: null, predicted: ph.dur / boost, planCal: plan.calibration || 1 };
+            const state = { planId: plan.id, k, speaking: true, finished: false, rate, wallStart: null, sentAt: this.d.now(), predicted: ph.dur / boost, planCal: plan.calibration || 1 };
             this.live = state;
             this.speakingUntilMedia = due + ph.dur + SYNC.duckHold;
             if (k === 0) this.stats.started.push({ id: plan.id, t, due: plan.start, lag });
@@ -689,6 +704,15 @@
                 state.speaking = false;
                 this.onProviderError(e);
             }
+        }
+
+        // A phrase still "speaking" long past its predicted length (media seconds at videoRate), counted
+        // from its start, or from when it was sent if Chrome never reported a start either
+        liveStalled(L, videoRate) {
+            const from = L.wallStart != null ? L.wallStart : L.sentAt;
+            if (from == null) return false;
+            const limit = (L.predicted || 0) / Math.max(0.25, videoRate) * 1000 * SYNC.liveStallFactor + SYNC.liveStallPadMs;
+            return this.d.now() - from > limit;
         }
 
         // Tự hiệu chỉnh mô hình thời lượng theo thời gian nói thật đo được
@@ -1450,7 +1474,7 @@
         // worker's errorType (timeout, local_unavailable, local_error, rate_limit, quota, budget,
         // split, no_audio, disabled, invalid, dropped), plus the engine's own: aborted, no_response,
         // lookup_timeout, lookup_failed, bad_audio, job_stalled, play_interrupted, play_blocked,
-        // play_failed, unknown.
+        // play_failed, speech_stalled, unknown.
         countError(kind) {
             const m = this.stats.errorTypes || (this.stats.errorTypes = {});
             m[kind] = (m[kind] || 0) + 1;

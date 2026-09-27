@@ -1134,7 +1134,10 @@ async function synthesizeLocalOnce(req, text, parts, signal) {
 // Xóa audio đã lưu của MỘT video (trang gửi danh sách khóa audio của các đoạn trong video đó)
 async function handleAudioCacheDelete(req) {
     if (!caches) return { ok: true, removed: 0 };
-    const keys = (req.keys || []).filter(k => typeof k === "string").slice(0, 5000);
+    // keys checked like the reads (1.9.1): a non-array threw inside the handler, over-long or repeated
+    // keys were sent to IndexedDB one by one
+    if (!Array.isArray(req.keys)) return { ok: false, errorType: "invalid", error: "Danh sách khóa không hợp lệ", removed: 0 };
+    const keys = [...new Set(req.keys.filter(k => typeof k === "string" && k.length > 0 && k.length <= TTS_KEY_MAX))].slice(0, 5000);
     return { ok: true, removed: await caches.audio.remove(keys) };
 }
 

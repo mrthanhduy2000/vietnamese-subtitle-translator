@@ -246,6 +246,40 @@ function overlaps(log) {
     return n;
 }
 
+// 1.9.1: Chrome's speechSynthesis sometimes never reports the end of an utterance (an utterance the
+// page holds no reference to is collected with its handlers; network voices stop mid-way; the
+// queue sticks "pending"). tickLive waited for that end forever: the system voice went silent for
+// the rest of the video.
+for (const lost of ["onend", "both"]) {
+    test(`system voice: an utterance whose ${lost === "both" ? "start and end are" : "end is"} never reported does not silence the rest of the video`, () => {
+        const base = runLive();
+        const end = base.groups[base.groups.length - 1].end + 3;
+        base.run(end * 1000 + 1000);
+        const S = runLive();
+        const real = S.sp.speak;
+        let n = 0;
+        S.sp.speak = (text, opts, cb) => {
+            if (++n !== 5) return real(text, opts, cb);
+            // the fifth phrase: events swallowed, like a collected utterance
+            return real(text, opts, lost === "both" ? {} : { onstart: cb.onstart });
+        };
+        S.run(end * 1000 + 1000);
+        const spoken = S.eng.stats.started.length;
+        assert.ok(spoken >= base.eng.stats.started.length - 2, `${spoken} of ${base.eng.stats.started.length} lines after a lost end`);
+        assert.ok(S.eng.stats.errorTypes && S.eng.stats.errorTypes.speech_stalled >= 1);
+        assert.equal(overlaps(S.log), 0);
+    });
+}
+
+test("system voice: the handle keeps the utterance, so Chrome cannot collect it with its end handler", () => {
+    const spoken = [];
+    class Utter { constructor(text) { this.text = text; } }
+    const synth = { speak: u => spoken.push(u), cancel() {}, getVoices: () => [] };
+    const P = require("../dub-engine.js").createWebSpeechProvider({ speechSynthesis: synth, SpeechSynthesisUtterance: Utter });
+    const h = P.speak("Xin chào", { rate: 1, pitch: 1, speaker: "S1" }, {});
+    assert.equal(h.utterance, spoken[0]);
+});
+
 for (const rate of [0.75, 1, 1.25, 1.5]) {
     test(`đồng bộ ${rate}x: mọi đoạn bắt đầu đúng lúc lời gốc bắt đầu, không chồng tiếng`, () => {
         const S = runLive({ rate });

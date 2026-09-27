@@ -980,3 +980,11 @@ test("audio store lookup: keys are read together, a wedged store costs one read 
     assert.equal(Object.keys(r.hits).length, 0);
     assert.ok(ms < 3500, `lookup took ${ms} ms`);
 });
+
+test("audio store delete: a non-array is refused, bad and repeated keys are dropped before IndexedDB", async () => {
+    const E = bgEnv(async () => ({ ok: true, status: 200, json: async () => ({}) }), cfgK);
+    const bad = await E.send({ action: "audioCacheDelete", keys: "k1" });
+    assert.equal(bad.errorType, "invalid");
+    const r = await E.send({ action: "audioCacheDelete", keys: ["a", "a", 7, "", "x".repeat(300), null, "b"] });
+    assert.equal(r.ok, true);
+});
