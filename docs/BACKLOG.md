@@ -166,5 +166,5 @@ aware the lexicon exists twice and only one copy is live.
 `git init` was run on 2026-09-23 with the whole 1.4.0 tree as the first commit. Everything from
 v1.0.4 to v1.4.0 has no per-release history (`version-history.js` reconstructs it for the UI). The original v1.0.4 zip sits at
 `~/Downloads/vietnamese-subtitle-translator-v1.0.4.zip` if you ever need the true starting point.
-`README.md` is the closest thing to a changelog for that period; `grep -n '^#' README.md` gives the
-index.
+The old README changelog for that period was removed on 2026-09-27; read it with
+`git show d0c46d5:README.md`.

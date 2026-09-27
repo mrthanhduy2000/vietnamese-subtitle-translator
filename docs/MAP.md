@@ -104,6 +104,6 @@ separate agent that never read the rules, each scored once (`pron-eval --corpus=
 
 ## Not source
 
-`README.md` (354 lines, mostly a 25-release changelog, Vietnamese, user-facing) ·
+`README.md` (~110 lines, Vietnamese, user-facing: features, install, VieNeu setup, limits; no changelog, that is `version-history.js`) ·
 `images/`, `icons/` · `tests/audio/*.wav` real voice fixtures · `.claude/launch.json` a static
 file server for the harness pages.
