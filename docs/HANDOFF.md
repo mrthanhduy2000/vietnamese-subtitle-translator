@@ -6,28 +6,28 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-28 · lane B (`dub-engine.js`) + D (`background.js`, tests) · `1.9.1`. User asked again to
-go deeper; no API change.
+2026-09-28 · lane B (`dub-engine.js`) · `1.9.2`. User asked again to go deeper; no API change.
 
 ## What changed
-- 1.9.1 `liveStalled`: a system-voice phrase whose end Chrome never reports is given up after
-  predicted x `SYNC.liveStallFactor` + pad; was silence for the rest of the video (3 -> 23 of 23
-  lines). Web-speech handle keeps `utterance`. `audioCacheDelete` validates keys. "1.9.1".
-- 1.9.0 `onPlayFailed` (play() refusals by error name, badge `playBlocked`), `decodeWav` header
-  checks. 1.8.9 service-worker races. 1.8.6 to 1.8.8 delivery and resilience. All in `DUBBING.md`.
-- Measured, not changed: a 2 s scrub (125 seeking events) = 0.4 ms of `hardReset`, no render.
+- 1.9.2 duck across a Reload: old and new content scripts ducked the same `<video>` and took each
+  other's ducked level as the user's (YouTube left at 0.01 of 0.80). `<video>` attributes
+  `data-cst-duck-owner` / `-base` (`claimVolume`, `ownsVolume`, `releaseVolume`); a superseded engine
+  stops at its next tick. 4 tests fail on 1.9.1; checked in real Chrome (smooth.html page, two
+  engines, one element). `DUBBING.md` "1.9.2", `DANGER.md` §3.
+- 1.9.1 `liveStalled` (system voice), 1.9.0 `onPlayFailed` + `decodeWav` checks, 1.8.9
+  service-worker races, 1.8.6 to 1.8.8 delivery and resilience. All in `DUBBING.md`.
 
 ## State
-- Tests: 543 pass, 0 fail, 1 skip (run `scripts.test` directly; `npm test` in the sandbox pings the
+- Tests: 547 pass, 0 fail, 1 skip (run `scripts.test` directly; `npm test` in the sandbox pings the
   registry). Reload: **yes** + F5 video tabs. No cache key changed. Simulator output unchanged.
 
 ## Unfinished / in progress
-- 1.8.6 to 1.9.1 not watched on a real YouTube video: seek back and forth, pause/resume, 2x.
+- 1.8.6 to 1.9.2 not watched on a real YouTube video: seek back and forth, pause/resume, 2x.
   `localStorage.cstDubDebug = "1"` shows `delivery` in `<html data-cst-dub>`.
 - `BACKLOG.md` 33 (server near real time still chases) is open; 32 and 34 are fixed.
 - Carried over: glossary keep-English vs Vietnamese per term not yet watched in Chrome (ask the user
   after a lecture or two); nobody compared real Gemini output before/after 1.8.3/1.8.4;
-  `BACKLOG.md` 30, 31, 14, 15, 16, 18, 19, 20, 21-24, 26-28; 1.7.2 to 1.9.1 not verified end to end
+  `BACKLOG.md` 30, 31, 14, 15, 16, 18, 19, 20, 21-24, 26-28; 1.7.2 to 1.9.2 not verified end to end
   in real Chrome; 1.7.9 duck fix not confirmed; Udemy / edX (`BACKLOG.md` 9).
 
 ## Traps hit this session

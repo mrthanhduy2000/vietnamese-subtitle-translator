@@ -432,6 +432,16 @@ when no start came), counts `speech_stalled` and goes on: 23 of 23. The web-spee
 keys. Measured, left alone: a 2 s scrub (125 `seeking` events) costs 0.4 ms of `hardReset` in total
 and sends no render.
 
+**1.9.2 duck across a Reload.** The old content script runs on after Reload (DANGER.md §3) and the new
+one starts on the same `<video>`: each took the other's ducked level for the user's own. After dubbing
+stopped YouTube was at 0.01 of 0.80 (old script stopping late) or 0.16 (old script frozen); a plain
+video 0.16. Isolated worlds share only the DOM, so the element carries `data-cst-duck-owner` (the
+engine's token) and `data-cst-duck-base` (the user's level). `start()` takes the held level unless the
+element is louder (stale), and claims; `tick()` stops an engine whose token is no longer the owner
+(`stats.superseded`), so there is one voice; `setVideoVolume` never writes or restores for a
+non-owner; a restore removes both attributes. Checked in real Chrome with two engines on one element:
+old one stood down, duck 0.16, 0.80 after stop, no attribute left.
+
 ## Prosody model (1.7.6, `dub-prosody.js`)
 
 Where the dubbed speech may pause, how strongly, and which of the voice's own stops to keep. Pure,

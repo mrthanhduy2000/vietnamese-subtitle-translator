@@ -246,6 +246,46 @@ function overlaps(log) {
     return n;
 }
 
+// 1.9.2: Reload at chrome://extensions while the original track is ducked. The old content script
+// runs on until its liveness poll notices (up to 1.5 s) or never stops at all, and the new one
+// starts on the same <video>. Each took the other's ducked level for the user's own: after dubbing
+// stopped YouTube was left at 0.01 of a 0.80 volume. Isolated worlds share only the DOM, so the
+// user's level and the owner of the duck live in attributes on the element.
+class VolumeVideo extends FakeVideo {
+    constructor() { super(); this._v = 0.8; this.attrs = {}; }
+    get volume() { return this._v; }
+    set volume(x) { if (this._v === undefined) return; const ch = Math.abs(x - this._v) > 1e-9; this._v = x; if (ch) queueMicrotask(() => this.emit("volumechange")); }
+    getAttribute(n) { return n in this.attrs ? this.attrs[n] : null; }
+    setAttribute(n, v) { this.attrs[n] = String(v); }
+    removeAttribute(n) { delete this.attrs[n]; }
+}
+for (const youtube of [true, false]) for (const old of ["stops late", "never stops"]) {
+    test(`reload while ducked (${youtube ? "YouTube" : "plain video"}, old script ${old}): the user's volume comes back, one voice`, async () => {
+        const clock = new Clock(), video = new VolumeVideo(), groups = lectureGroups();
+        const mk = () => new DubEngine({ video, getGroups: () => groups, providers: { primary: makeFakeSpeech(clock, video, PLAN.DEFAULT_VOICE_MODEL, []) }, now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id), setTimeout: (f, ms) => clock.setTimeout(f, ms) }, { duck: 0.2, playerOwnsVolume: youtube });
+        const run = async ms => { for (let i = 0; i < ms / 50; i++) { clock.advance(50, st => video.step(st)); await new Promise(r => setImmediate(r)); } };
+        const A = mk();
+        A.start();
+        video.play();
+        for (let i = 0; i < 400 && A.duckFactor > 0.21; i++) await run(50);
+        assert.ok(video.volume < 0.2, "never ducked");
+        if (old === "never stops") A.d.clearInterval(A.timer);
+        const B = mk();
+        B.start();
+        await run(1500);
+        if (old === "stops late") {
+            assert.equal(A.running, false, "the old engine kept speaking over the new one");
+            A.stop();
+        }
+        await run(3000);
+        assert.ok(B.running);
+        B.stop();
+        await new Promise(r => setImmediate(r));
+        assert.ok(Math.abs(video.volume - 0.8) < 0.01, `volume left at ${video.volume.toFixed(2)}`);
+        assert.equal(video.getAttribute("data-cst-duck-owner"), null);
+    });
+}
+
 // 1.9.1: Chrome's speechSynthesis sometimes never reports the end of an utterance (an utterance the
 // page holds no reference to is collected with its handlers; network voices stop mid-way; the
 // queue sticks "pending"). tickLive waited for that end forever: the system voice went silent for

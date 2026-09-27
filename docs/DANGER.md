@@ -57,6 +57,11 @@ nodes, or the MutationObservers recreate what you just removed.
 Regression test: `tests/reload-fight.test.js`. Its second case only runs with
 `OLD_YT=<path-to-older-youtube.js>`; without it, it skips, which is the normal `npm test` result.
 
+The dubbing engine has a fourth leg of its own (1.9.2): the `<video>` attributes
+`data-cst-duck-owner` / `data-cst-duck-base` say which engine ducks the element and the user's level.
+A new engine claims them at `start()`; an old one that sees another owner stops at its next tick and
+never touches the volume again. Removing them brings back volume left at 0.01 after a Reload.
+
 ## 4. The service worker forgets everything when it sleeps
 
 In-memory only, reset on every wake: `keyBlock`, `modelCooldown`, `missingModels`,

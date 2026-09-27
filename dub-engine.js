@@ -467,7 +467,12 @@
             if (this.running) return;
             this.running = true;
             const v = this.d.video;
-            this.baseVolume = v.volume;
+            // A duck left by an engine in another script instance (the old one after a Reload) holds
+            // the user's level in the element; the element's own volume is that level ducked
+            // A held level below the element's own is stale (raised since): the element wins
+            const held = this.heldBaseVolume();
+            this.baseVolume = held != null && held >= v.volume - 0.005 ? held : v.volume;
+            this.claimVolume();
             this.onVolume = () => {
                 if (this.lastSetVolume === null || Math.abs(v.volume - this.lastSetVolume) <= 0.005) return;
                 // Someone else wrote the volume. YouTube's player writes its own full (unducked) level:
@@ -591,7 +596,10 @@
 
         // ---------------- Vòng lặp chính ----------------
         tick() {
+            // A newer engine on this <video> (the new content script after a Reload) owns the duck:
+            // this one stops, so two voices never read over each other
             if (!this.running) return;
+            if (!this.ownsVolume()) { this.stats.superseded = (this.stats.superseded || 0) + 1; this.stop(); return; }
             const v = this.d.video;
             const t = v.currentTime;
             const now = this.d.now();
@@ -1832,10 +1840,59 @@
 
         setVideoVolume(vol, restore) {
             const v = this.d.video;
+            // Another engine owns this element's volume now: never write it, never restore it (that
+            // restore would be our base, which the owner has already taken over)
+            if (!this.ownsVolume()) { this.lastSetVolume = null; return; }
             const x = Math.max(0, Math.min(1, vol));
             this.lastSetVolume = restore ? null : x;
             try { v.volume = x; } catch (e) { /* bỏ qua */ }
             if (!restore) this.lastSetVolume = v.volume;
+            if (restore) this.releaseVolume();
+            else this.markVolume("data-cst-duck-base", this.baseVolume == null ? v.volume : this.baseVolume);
+        }
+
+        // ---- Who ducks this <video> (1.9.2) ----
+        // Content scripts from before and after a Reload run in different isolated worlds and share
+        // only the DOM. Two attributes on the element say which engine ducks it and the user's own
+        // level, so a new engine starts from that level and an old one stands down. Before, each took
+        // the other's ducked level for the user's: YouTube was left at 0.01 of 0.80 after dubbing.
+        // Elements without attributes (tests' stand-ins) behave as before.
+        attrApi() {
+            const v = this.d.video;
+            return v && typeof v.getAttribute === "function" && typeof v.setAttribute === "function" ? v : null;
+        }
+        heldBaseVolume() {
+            const v = this.attrApi();
+            if (!v) return null;
+            const x = Number(v.getAttribute("data-cst-duck-base"));
+            return v.getAttribute("data-cst-duck-owner") && v.getAttribute("data-cst-duck-base") != null && isFinite(x) && x >= 0 && x <= 1 ? x : null;
+        }
+        claimVolume() {
+            this.volumeToken = this.volumeToken || `e${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+            this.volumeSuperseded = false;
+            this.markVolume("data-cst-duck-owner", this.volumeToken);
+            this.markVolume("data-cst-duck-base", this.baseVolume);
+        }
+        ownsVolume() {
+            if (this.volumeSuperseded) return false;
+            const v = this.attrApi();
+            if (!v || !this.volumeToken) return true;
+            const owner = v.getAttribute("data-cst-duck-owner");
+            if (owner && owner !== this.volumeToken) { this.volumeSuperseded = true; return false; }
+            // cleared by someone (the page, a stop elsewhere) while we run: ours again
+            if (!owner && this.running) this.markVolume("data-cst-duck-owner", this.volumeToken);
+            return true;
+        }
+        releaseVolume() {
+            const v = this.attrApi();
+            if (!v || v.getAttribute("data-cst-duck-owner") !== this.volumeToken) return;
+            try { v.removeAttribute("data-cst-duck-owner"); v.removeAttribute("data-cst-duck-base"); } catch (e) { /* bỏ qua */ }
+        }
+        markVolume(name, value) {
+            const v = this.attrApi();
+            if (!v || value == null) return;
+            const text = typeof value === "number" ? String(Math.round(value * 1000) / 1000) : String(value);
+            try { if (v.getAttribute(name) !== text) v.setAttribute(name, text); } catch (e) { /* bỏ qua */ }
         }
 
         status(kind) {

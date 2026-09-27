@@ -4,6 +4,20 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.9.2", luc: "00:38 28/09/2026", ten: "Tải lại tiện ích lúc đang lồng tiếng: tiếng gốc không còn bị kẹt ở mức nhỏ",
+            y: [
+                "Bấm Tải lại tiện ích đúng lúc giọng Việt đang đọc (tiếng gốc đang được hạ nhỏ): bản cũ và bản mới cùng chỉnh âm lượng, mỗi bên tưởng mức đã hạ của bên kia là mức bạn chọn. Sau khi tắt lồng tiếng, tiếng YouTube có thể còn 1%. Nay âm lượng bạn chọn được ghi lên chính video, bản mới dùng đúng mức đó và bản cũ tự dừng.",
+                "Không còn hai giọng đọc chồng nhau trong khoảng 1,5 giây sau khi Tải lại.",
+                "Không đổi cách dịch, giọng, ngắt nghỉ; không thêm lượt gọi Gemini nào."
+            ],
+            bang: { cot: ["Âm lượng sau khi tắt lồng tiếng (bạn để 80%)", "1.9.1", "Nay"], hang: [
+                ["YouTube, bản cũ dừng sau 1,5 giây", "1%", "80%"],
+                ["YouTube, bản cũ không dừng", "16%", "80%"],
+                ["Video thường, bản cũ không dừng", "16%", "80%"],
+                ["Chrome thật, hai bộ đọc trên một video", "chưa đo", "80%, bản cũ tự dừng"]
+            ] }
+        },
+        {
             v: "1.9.1", luc: "00:30 28/09/2026", ten: "Giọng hệ thống không còn im hẳn khi Chrome làm mất tín hiệu nói xong",
             y: [
                 "Khi dùng giọng hệ thống (giọng dự phòng của Chrome), đôi khi Chrome không báo một cụm đã nói xong. Trước đây lồng tiếng chờ tín hiệu đó mãi và im lặng tới hết video. Nay cụm quá thời gian dự kiến được bỏ qua và đọc tiếp cụm sau.",
