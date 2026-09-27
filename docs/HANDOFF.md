@@ -6,21 +6,19 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-27 · lane B (`dub-speech.js`, `dub-prosody.js`, `dub-planner.js`, `dub-engine.js` key) + D
-(tests, tools) · `1.8.0`. User brief: context-aware pronunciation, constituent prosody, cache identity.
+2026-09-27 · lane C (`options.*`) + B (`dubbing.js`) + D (`cost-policy.js`, `background.js`, tests)
+· `1.8.1`. User asked: switch off the paid Gemini voice, VieNeu only.
 
 ## What changed
-- Three-state name confidence (`CONF`), 5+ letter codes (no vowel + evidence only), `numberRole`
-  (unit after a number wins), `constituents` (subject PP, short predicate + adjunct), gap tiers,
-  `tokenMap`, cross-subtitle bridging (free voice, < 1.2 s), `PROSODY.signature` in the VieNeu key
-  (`LOCAL_STYLE_VERSION` 11). Paid key unchanged (golden hashes). All in `DUBBING.md` "Context,
-  constituents and cache identity (1.8.0)", with every number.
-- New: `tests/speech-context.test.js`, `tools/syntax-eval.js`, `tests/blind-corpus.js` (unseen split
-  written by a separate agent, frozen at 2b6b2db, scored once). pron-eval: `src`, `hold`, `--corpus`,
-  ɜ-tone scorer fix. speech-ab: 64 KB pipe truncation fixed. "sam" respelled ("samh").
+- `cost-policy.js` `PAID_TTS = false`; `dubbing.js` VieNeu only, no fallback, waits for the server;
+  service worker refuses non-local TTS (`errorType: "disabled"`); Settings lists VieNeu only;
+  `dubProvider` forced to "vieneu" once (`dubProvider181`). `DUBBING.md` "The three TTS providers".
+- Gemini TTS code and tests kept: harnesses set `PAID_TTS = true`; 2 new tests check the shipped state.
+- 1.8.0 (same day, previous commit): context-aware names, constituent pauses, see `DUBBING.md`.
 
 ## State
-- `npm test`: 477 pass, 0 fail, 1 skip · Reload: **yes** + F5 video tabs. VieNeu re-renders once.
+- `npm test`: 479 pass, 0 fail, 1 skip · Reload: **yes** + F5 video tabs. VieNeu re-renders once.
+- If the VieNeu server is down there is now no voice at all until it starts (by design).
 - Nobody has listened to 1.8.0; all numbers are proxies (phonemes, marks, same-take A/B).
 
 ## Unfinished / in progress

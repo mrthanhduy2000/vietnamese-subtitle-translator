@@ -745,6 +745,7 @@ function dubbingEnv(mode, msgs) {
     sandbox.CST_UI = { toast: m => msgs.push({ alert: m }) };
     vm.createContext(sandbox);
     for (const f of ["cst-cache.js", "cost-policy.js", "vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-speech.js", "dub-audio.js", "dub-engine.js", "dubbing.js"]) vm.runInContext(read(f), sandbox);
+    sandbox.CST_COST.PAID_TTS = true;   // 1.8.1: paid voice ships off; this suite tests its machinery
     return sandbox;
 }
 

@@ -730,6 +730,8 @@ async function handleSynthesizeSpeech(req) {
     if (!text.trim()) return { ok: false, errorType: "invalid", error: "Không có lời thoại" };
     const parts = caches && AUDIO && Array.isArray(req.parts) && req.parts.length ? req.parts : null;
     const engine = req.engine === LOCAL.id ? LOCAL.id : "gemini";
+    // Paid voice switched off (cost-policy PAID_TTS): never call Gemini TTS, from any page
+    if (engine !== LOCAL.id && !COST.PAID_TTS) return { ok: false, errorType: "disabled", error: "Giọng Gemini trả phí đã tắt, chỉ dùng giọng VieNeu" };
     const reqKey = await CST_CACHE.hashKey(["ttsreq", AUDIO_CACHE_VERSION, engine, req.model || "", req.voice || "", text, req.speak || "", parts ? parts.map(p => p.key) : null]);
     const jobId = req.jobId || `_bg${++ttsJobSeq}`;
     // Đăng ký lượt NGAY (trước mọi bước chờ) -> yêu cầu giống hệt đến sau luôn nhập chung
@@ -1258,6 +1260,11 @@ try {
         const patch = { dubProvider1113: true };
         if (!cfg.dubProvider || cfg.dubProvider === "auto") patch.dubProvider = "vieneu";
         chrome.storage.sync.set(patch);
+    });
+    // 1.8.1: the paid voice is off; a stored "gemini", "auto" or "system" becomes "vieneu", once
+    chrome.storage.sync.get({ dubProvider: "", dubProvider181: false }, cfg => {
+        if (cfg.dubProvider181 || COST.PAID_TTS) return;
+        chrome.storage.sync.set({ dubProvider181: true, dubProvider: "vieneu" });
     });
 } catch (e) { /* chạy ngoài extension */ }
 

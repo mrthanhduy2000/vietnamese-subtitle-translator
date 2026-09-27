@@ -4,6 +4,15 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.8.1", luc: "19:11 27/09/2026", ten: "Tắt giọng Gemini trả phí, chỉ dùng giọng VieNeu",
+            y: [
+                "Lồng tiếng chỉ dùng giọng VieNeu trên máy (miễn phí) ở mọi chế độ chi phí. Không còn gọi Gemini TTS từ bất kỳ đâu, kể cả nút nghe thử trong Cài đặt; không còn tự chuyển sang giọng hệ thống.",
+                "Nguồn giọng đã lưu là Gemini, Tự động hay Giọng hệ thống được tự chuyển về VieNeu một lần. Cài đặt chỉ còn lựa chọn VieNeu.",
+                "Máy chủ VieNeu chưa chạy: hiện một thông báo, rồi tự bật lồng tiếng khi máy chủ sẵn sàng (không đọc tạm bằng giọng khác).",
+                "Dịch phụ đề bằng Gemini không đổi."
+            ]
+        },
+        {
             v: "1.8.0", luc: "19:02 27/09/2026", ten: "Giọng VieNeu phân biệt tên Việt và tên Anh theo ngữ cảnh, ngắt nghỉ theo thành phần câu",
             y: [
                 "Tên trùng chữ tiếng Việt (Tom, Sam, Tim, Don, Dan...) chỉ đọc kiểu Anh khi đủ chắc: có họ tiếng Anh đi kèm (Sam Altman, Tim Cook, cả khi đứng đầu câu), hoặc câu tiếng Anh gốc gọi đúng tên đó (\"Tom said\" -> \"Tom kể\"). Đứng một mình không có ngữ cảnh thì giữ nguyên. Tên người Việt (chị Kim, Nguyễn Văn Dan, cô Kim Anh) không bao giờ bị đọc kiểu Anh.",

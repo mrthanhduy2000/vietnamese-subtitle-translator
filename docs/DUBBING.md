@@ -385,6 +385,15 @@ and write new unseen sentences for the next check. For English spans, also `node
 Selected by the `dubProvider` setting. `createVieneuProvider` / `createGeminiProvider` /
 `createWebSpeechProvider` in `dub-engine.js`.
 
+**1.8.1: the paid voice is switched off** (`cost-policy.js` `PAID_TTS = false`, the user's choice on
+2026-09-27). VieNeu is the only voice: `dubbing.js` never builds Gemini or system providers and has no
+fallback (VieNeu down: a toast, then it waits for the server and starts by itself); the service
+worker answers a non-local `synthesizeSpeech` with `errorType: "disabled"` before any request;
+Settings offers VieNeu only; a stored `dubProvider` becomes "vieneu" once (`dubProvider181`). The
+Gemini TTS code and its tests stay: the test harnesses set `PAID_TTS = true` (`bg-env.js`
+`opts.paidTts`), `hardening.test.js` "paid voice off as shipped" checks the real default. To bring it
+back: `PAID_TTS = true` and the three options in `options.html`.
+
 ### VieNeu local (default, free)
 
 Config is centralized in `cost-policy.js` `LOCAL_TTS`: `http://127.0.0.1:8000`, model

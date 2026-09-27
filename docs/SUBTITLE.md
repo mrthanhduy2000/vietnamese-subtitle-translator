@@ -206,7 +206,7 @@ Vietnamese track is used as is; off: translate from the source track; YouTube, C
 `dubCondense` is retired (condensing is permanently off, see `DUBBING.md`); old stored values are ignored
 
 One-shot migration flags (do not reuse the names): `modelsVersion`, `costMigration113`,
-`localVoices1111`, `dubProvider1113`, `styleDefaults118`, `fontScale170` (size / 0.7, chained after
+`localVoices1111`, `dubProvider1113`, `dubProvider181` (1.8.1: paid voice off, source forced to vieneu once), `styleDefaults118`, `fontScale170` (size / 0.7, chained after
 `styleDefaults118`), `voiceMyDuyen170`
 
 **`options.js` writes every key on every change**, so `storage.onChanged` fires for keys that did

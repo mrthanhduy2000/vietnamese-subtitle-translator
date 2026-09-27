@@ -84,7 +84,13 @@ function bgEnv(fetchImpl, stored = {}, opts = {}) {
     const orig = sandbox.CST_CACHE.createCaches;
     const backend = opts.backend || CACHE.memoryBackend();
     sandbox.CST_CACHE.createCaches = o => orig({ ...o, backend });
-    sandbox.importScripts = (...files) => files.filter(f => f !== "cst-cache.js").forEach(f => vm.runInContext(read(f), sandbox));
+    // 1.8.1: the paid voice ships switched off (cost-policy PAID_TTS). These suites test its machinery,
+    // kept for when it is switched back on: on here unless a test asks for the shipped state
+    // (opts.paidTts === false)
+    sandbox.importScripts = (...files) => files.filter(f => f !== "cst-cache.js").forEach(f => {
+        vm.runInContext(read(f), sandbox);
+        if (f === "cost-policy.js" && opts.paidTts !== false) sandbox.CST_COST.PAID_TTS = true;
+    });
     vm.runInContext(read("background.js"), sandbox);
     const send = msg => new Promise(resolve => { listeners[0](msg, {}, resolve); });
     return { send, sandbox, syncStore, backend, local, opened, installedListeners, injected, commandListeners, tabMessages };

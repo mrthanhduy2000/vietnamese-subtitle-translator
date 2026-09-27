@@ -852,7 +852,7 @@ for (const [mode, provider, running, expect] of [
 }
 
 // Môi trường trang cho dubbing.js (chọn nguồn giọng), phản hồi tin nhắn tùy biến
-function dubbingEnvFor(mode, dubProvider, msgs, onMsg) {
+function dubbingEnvFor(mode, dubProvider, msgs, onMsg, paid = true) {
     const noop = () => {};
     const voices = [{ name: "Linh", lang: "vi-VN", localService: true }];
     const sandbox = {
@@ -870,8 +870,46 @@ function dubbingEnvFor(mode, dubProvider, msgs, onMsg) {
     sandbox.window = sandbox; sandbox.globalThis = sandbox;
     vm.createContext(sandbox);
     for (const f of ["cst-cache.js", "cost-policy.js", "vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-speech.js", "dub-audio.js", "dub-engine.js", "dubbing.js"]) vm.runInContext(read(f), sandbox);
+    sandbox.CST_COST.PAID_TTS = paid;   // 1.8.1: paid voice ships off; this suite tests its machinery
     return sandbox;
 }
+
+// ---- 1.8.1: the paid voice is switched off; VieNeu is the only voice ----
+test("paid voice off as shipped: every mode and every stored source dubs with VieNeu only, no Gemini, no system fallback", async () => {
+    assert.equal(COST.PAID_TTS, false);
+    for (const mode of ["premium", "balanced", "economy"]) for (const provider of ["gemini", "auto", "system", "vieneu"]) {
+        const msgs = [];
+        const env = dubbingEnvFor(mode, provider, msgs, m => (m.action === "localTtsStatus" ? { ok: true, running: true } : { ok: false }), false);
+        assert.equal(await env.CST_DUB.start({ video: new FakeVideo(), getGroups: () => [] }), true, `${mode}/${provider}`);
+        assert.equal(env.CST_DUB.dub.engine.provider.id, "vieneu", `${mode}/${provider}`);
+        assert.equal(env.CST_DUB.dub.engine.fallback, null, "no system voice behind it");
+        assert.ok(!msgs.some(m => m.action === "modelStatus"), "Gemini TTS model is never asked for");
+        env.CST_DUB.stop();
+    }
+    // VieNeu server not running: no voice at all (the page says so), never Gemini
+    const msgs = [];
+    const env = dubbingEnvFor("premium", "gemini", msgs, m => (m.action === "localTtsStatus" ? { ok: true, running: false } : { ok: false }), false);
+    await env.CST_DUB.start({ video: new FakeVideo(), getGroups: () => [] });
+    assert.ok(!env.CST_DUB.dub.engine || env.CST_DUB.dub.engine.provider.id !== "gemini");
+    assert.ok(!msgs.some(m => m.action === "synthesizeSpeech" && m.engine !== COST.LOCAL_TTS.id));
+    env.CST_DUB.stop();
+});
+
+test("paid voice off as shipped: the service worker refuses Gemini TTS without a network call, and a stored Gemini source becomes VieNeu once", async () => {
+    const { bgEnv } = require("./bg-env.js");
+    const calls = [];
+    const E = bgEnv(async u => { calls.push(String(u)); return { ok: false, status: 500, json: async () => ({}), text: async () => "" }; },
+        { geminiApiKey: "k", useAi: true, dubProvider: "gemini", dubProvider1113: true }, { paidTts: false });
+    await new Promise(r => setTimeout(r, 20));
+    const r = await E.send({ action: "synthesizeSpeech", text: "Xin chào các bạn.", voice: "Kore" });
+    assert.equal(r.ok, false);
+    assert.equal(r.errorType, "disabled");
+    assert.ok(!calls.some(u => /generativelanguage/.test(u)), "no Gemini request");
+    assert.equal(E.syncStore.dubProvider, "vieneu");
+    const html = require("fs").readFileSync(require("path").join(__dirname, "..", "options.html"), "utf8");
+    const sel = html.slice(html.indexOf('<select id="dubProvider"'), html.indexOf("</select>", html.indexOf('<select id="dubProvider"')));
+    assert.deepEqual([...sel.matchAll(/<option value="(\w+)"/g)].map(m => m[1]), ["vieneu"]);
+});
 
 test("VieNeu là giọng chính (chế độ Cân bằng, có API key): KHÔNG rút gọn lời thoại, không hỏi model Gemini TTS", async () => {
     const msgs = [];

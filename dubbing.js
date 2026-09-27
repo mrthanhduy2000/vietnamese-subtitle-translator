@@ -127,11 +127,14 @@
         // Giọng Việt trên máy (VieNeu): miễn phí nên dùng được ở mọi chế độ có lồng tiếng,
         // chỉ khi máy chủ cục bộ đang chạy. Kiểm tra SONG SONG với giọng hệ thống (danh sách
         // giọng hệ thống có thể mất tới 1,5 giây mới có) -> bật lồng tiếng nhanh hơn.
-        const wantLocal = s.dubProvider === "auto" || s.dubProvider === "vieneu";
+        // Paid voice off (cost-policy PAID_TTS): VieNeu is the only voice, whatever an old setting says
+        const COSTP = window.CST_COST || {};
+        const localOnly = !COSTP.PAID_TTS;
+        const wantLocal = localOnly || s.dubProvider === "auto" || s.dubProvider === "vieneu";
         const local = wantLocal && E.createVieneuProvider ? E.createVieneuProvider(env, { localVoice: s.dubLocalVoice, localVoice2: s.dubLocalVoice2 }) : null;
         const [hasSystem, hasLocal] = await Promise.all([system.init(s.dubVoiceName), local ? local.init() : false]);
         // Chế độ "Tiết kiệm": không dùng Gemini TTS (chỉ giọng miễn phí)
-        const canGemini = !!(s.useAi && s.geminiApiKey) && mode.tts === "gemini";
+        const canGemini = !localOnly && !!(s.useAi && s.geminiApiKey) && mode.tts === "gemini";
         // Model TTS mà API key này gọi được thật (key mới không dùng được 2.5 TTS): khóa kho
         // audio theo đúng model sẽ tạo ra audio
         let ttsModel = s.dubTtsModel;
@@ -145,13 +148,14 @@
         let primary = null;
         const sys = hasSystem ? system : null;
         const loc = hasLocal ? local : null;
-        if (s.dubProvider === "system") primary = sys || loc || gemini;
+        if (localOnly) primary = loc;
+        else if (s.dubProvider === "system") primary = sys || loc || gemini;
         else if (s.dubProvider === "gemini") primary = gemini || loc || sys;
         else primary = loc || gemini || sys;                    // auto + vieneu: VieNeu trước
         // VieNeu lỗi giữa chừng (tắt máy chủ): chuyển sang giọng hệ thống miễn phí, không tự
         // chuyển sang Gemini (tránh tốn tiền ngoài ý muốn)
-        const fallback = (primary === gemini || primary === loc) && sys ? sys : null;
-        const localMissing = s.dubProvider === "vieneu" && !hasLocal;
+        const fallback = !localOnly && (primary === gemini || primary === loc) && sys ? sys : null;
+        const localMissing = (localOnly || s.dubProvider === "vieneu") && !hasLocal;
         return { primary, fallback, hasSystem, canGemini, hasLocal, localMissing };
     }
 
@@ -191,6 +195,17 @@
         }
         const { primary, fallback, hasSystem, canGemini, localMissing } = await buildProviders(s, opts.video);
         if (outdated()) return false;
+        // 1.8.1, paid voice off: VieNeu is the only voice. Its server is down: say so once, then wait
+        // for it and start by itself (no Gemini, no system voice in between)
+        if (!primary && localMissing && !(window.CST_COST && window.CST_COST.PAID_TTS)) {
+            console.warn("[Lồng tiếng] Máy chủ VieNeu chưa chạy; chờ máy chủ, không dùng giọng khác");
+            if (window.CST_UI && window.CST_UI.toast) {
+                window.CST_UI.toast("Giọng VieNeu chưa chạy. Mở ~/VieNeu-TTS/cst-start.command; lồng tiếng sẽ tự bật khi máy chủ sẵn sàng.", { warn: true });
+            }
+            dub.enabled = true;
+            doiVieNeuSanSang(opts);
+            return false;
+        }
         if (localMissing) {
             console.warn("[Lồng tiếng] Máy chủ VieNeu chưa chạy. Tạm dùng: " + (primary ? primary.label : "không có"));
             // Báo MỘT lần cho mỗi trang, rồi TỰ chờ máy chủ sẵn sàng và chuyển giọng, không bắt
@@ -338,7 +353,7 @@
             clearInterval(watchTimer);
             watchTimer = null;
             const s = await readSettings();
-            if (s.dubProvider !== "vieneu" && s.dubProvider !== "auto") return;
+            if (window.CST_COST && window.CST_COST.PAID_TTS && s.dubProvider !== "vieneu" && s.dubProvider !== "auto") return;
             if (window.CST_UI && window.CST_UI.toast) window.CST_UI.toast("Giọng VieNeu đã sẵn sàng, đang chuyển sang giọng này.");
             start(opts);
         }, nhip);

@@ -282,8 +282,14 @@
         return `${v.id} (${String(v.gender || "").toLowerCase()}, ${v.style}${pace})`;
     }
 
+    // Paid voice (Gemini TTS) switched off by the user on 2026-09-27: dubbing uses the free local
+    // VieNeu voice only. The Gemini TTS code stays (tested), but nothing reaches it: dubbing.js never
+    // creates the provider, the service worker refuses a non-local synthesizeSpeech, Settings offers
+    // VieNeu only. Set true to bring the paid voice back.
+    const PAID_TTS = false;
+
     const api = {
-        voiceLabel,
+        voiceLabel, PAID_TTS,
         TRANSLATION_MODELS, TTS_MODELS, LOCAL_TTS, DEFAULT_MODELS, RETIRED_MODELS, MODELS_VERSION, AUTO, AUTO_CANDIDATES, AUDIO_TOKENS_PER_SEC,
         findModel, modelLabel, costRank, thinkingLevelFor, modelChain, migrateModelSettings, afterShutdown, liveModel,
         estimateTextCost, estimateTtsCost, BUDGET_DEFAULTS,

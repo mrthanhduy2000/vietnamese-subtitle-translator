@@ -667,6 +667,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     speechSynthesis.addEventListener("voiceschanged", fillVoices);
 
     if (providerSel) providerSel.value = dubSaved.dubProvider;
+    // 1.8.1: only VieNeu is offered while the paid voice is off; an old "gemini" / "auto" shows VieNeu
+    if (providerSel && !providerSel.value) providerSel.value = "vieneu";
     const secondVoiceBox = document.getElementById("dubSecondVoice");
     if (secondVoiceBox) secondVoiceBox.checked = dubSaved.dubSecondVoice === true;
     const prepareWaitBox = document.getElementById("dubPrepareWait");
@@ -700,7 +702,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const plans = sample.map((s, i) => P.planSegment({ id: "t" + i, index: i, start: s.start, end: s.end, slotEnd: s.end + 0.4, speaker: "S1", subtitleText: s.vi, speechSource: s.vi, srcText: s.en, sourcePauses: s.pauses, continuesNext: false }));
             const provider = providerSel ? providerSel.value : "vieneu";
             const key = (geminiKeyInput?.value || "").trim();
-            const useGemini = provider === "gemini" || (provider === "auto" && key && (optUseAiBox ? optUseAiBox.checked : true));
+            const useGemini = !!COST.PAID_TTS && (provider === "gemini" || (provider === "auto" && key && (optUseAiBox ? optUseAiBox.checked : true)));
             speechSynthesis.cancel();
             // VieNeu (giọng Việt trên máy): chọn VieNeu, hoặc Tự động khi máy chủ đang chạy
             if ((provider === "vieneu" || provider === "auto") && await refreshLocalStatus()) {
