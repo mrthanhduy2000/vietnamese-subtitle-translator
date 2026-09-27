@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.7.7", luc: "13:36 27/09/2026", ten: "Máy chủ giọng vừa khởi động lại không còn làm bỏ câu",
+            y: [
+                "Khi máy chủ VieNeu để lâu không dùng, macOS đẩy mô hình giọng ra khỏi bộ nhớ và vài câu đầu tạo rất chậm (đo được 1 giây lời mất 3,5 giây, bình thường khoảng 0,25 giây). Trước đây chính những câu đầu đó khiến tiện ích tưởng máy chủ chậm lâu dài và bỏ câu để bắt kịp.",
+                "Nay lượt đầu sau khi nghỉ lâu (hơn 10 phút) được chờ tới 60 giây thay vì bị cắt ở 8 giây rồi tạo lại từ đầu, và không tính vào tốc độ đo. Một lượt chậm riêng lẻ không còn bị coi là máy chủ chậm; máy chủ vừa nhanh lại thì thôi bỏ câu ngay.",
+                "Thời gian cố định của mỗi lượt gọi không còn bị tính hai lần, nên câu ngắn không còn trông chậm gấp đôi thực tế."
+            ]
+        }, {
             v: "1.7.6", luc: "13:24 27/09/2026", ten: "Giọng VieNeu ngắt nghỉ theo cấu trúc câu, không còn ngắt giữa từ",
             y: [
                 "Bộ ngắt nghỉ viết lại: mỗi chỗ giữa hai từ được chấm điểm theo cấu trúc câu (mệnh đề, cụm từ, con số, tên riêng, thuật ngữ) thay vì dò danh sách từ khóa. Trong những chỗ giọng tự dừng, tiện ích giữ những chỗ đáng nghỉ nhất và khép phần còn lại, để lời đọc không vụn mà cũng không dồn một hơi quá dài.",

@@ -69,6 +69,14 @@ gap. Punctuation anchors bound the damage to one clause.
 **19. Nobody has listened to 1.7.6 blind.** The marks in `tests/prosody-corpus.js` are one reader's
 judgment and the numbers measure agreement with them. The A/B WAVs of this session were sent in chat.
 
+## Found by the 1.7.7 cold-server fix, not fixed
+
+**20. VieNeu gets swapped out on a 16 GB Mac.** After ~4 days idle the server held 24 MB of its
+1.2 GB model; the first renders ran at 3.5x real time. 1.7.7 stops the page overreacting, but the
+first seconds of a video are still silent while the model pages in. A real fix lives in
+`~/VieNeu-TTS` (outside this repo): keep the model resident, or restart it. The same-run engine
+simulation (tests/hardening) does not reproduce the 7 dropped lines; the fix is judged by reasoning.
+
 ## Cosmetic / housekeeping
 
 **5. The folder name says `v1.0.4`, the extension is many versions past that.** Renaming the folder means

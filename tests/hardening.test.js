@@ -467,6 +467,34 @@ test("slow voice server: keeps speaking, skips to a reachable segment, renders n
     assert.ok(Math.max(...lags) <= SYNC_MAX_LAG, `a segment started ${Math.max(...lags).toFixed(1)}s late`);
 });
 
+// Cold start: VieNeu idle for days had its model swapped out by macOS. The first render ran at 3.5x
+// real time, later ones at ~0.25x. Before 1.7.7 that one sample set the speed estimate and the page
+// dropped 7 sentences as unreachable; the fixed request overhead was also counted twice.
+test("render speed: first sample capped, overhead counted once, a recovered server stops drops at once", () => {
+    const E = { renderRtf: null, lastRtf: null };
+    const dropRtf = DubEngine.prototype.dropRtf;
+    assert.equal(dropRtf.call(E), 0.5, "no sample yet: the default guess");
+    // the formula renderBatch applies to one finished job (seconds spent, seconds of speech)
+    const sample = (secs, audio) => {
+        let rtf = Math.max(0.05, secs - 0.6) / audio;
+        if (E.renderRtf == null) rtf = Math.min(rtf, 1);
+        E.lastRtf = rtf;
+        E.renderRtf = E.renderRtf == null ? rtf : E.renderRtf * 0.7 + rtf * 0.3;
+    };
+    sample(0.6 + 3 * 3.5, 3);                          // cold: 3 s of speech took 11.1 s
+    assert.equal(E.renderRtf, 1, "one cold render must not read as 3.5x");
+    sample(0.6 + 3 * 0.25, 3);                         // warm again
+    assert.ok(Math.abs(dropRtf.call(E) - 0.25) < 1e-9, `recovered server still judged slow: ${dropRtf.call(E)}`);
+    sample(0.6 + 3 * 3.5, 3); sample(0.6 + 3 * 3.5, 3); // a server that stays slow still shows it
+    assert.ok(dropRtf.call(E) > 2, `slow server not seen: ${dropRtf.call(E)}`);
+    // the engine really uses these numbers
+    const src = require("fs").readFileSync(require("path").join(__dirname, "..", "dub-engine.js"), "utf8");
+    assert.match(src, /renderOverhead: 0\.6/);
+    assert.match(src, /secs - SYNC\.renderOverhead\) \/ audioSecs/);
+    assert.match(src, /if \(this\.renderRtf == null\) rtf = Math\.min\(rtf, SYNC\.firstRtfCap\)/);
+    assert.match(src, /const rtf = this\.dropRtf\(\);/);
+});
+
 // ================= 5. NGÂN SÁCH & THỐNG KÊ CHI PHÍ =================
 test("ngân sách: lượt TTS làm vượt ngân sách video -> KHÔNG gọi Gemini TTS, báo 'budget'", async () => {
     const seen = [];

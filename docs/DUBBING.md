@@ -114,6 +114,11 @@ Knobs you will actually reach for:
 - **What the viewer sees (1.5.6)**: `engine.health(t)` returns `{ live, ahead, rtf, dropped, errors }`;
   `CST_DUB.describeHealth()` turns it into the one line under "Lồng tiếng Việt" in both quick menus
   (ready N seconds ahead / server slow at RTF x / N lines skipped), warning-coloured when it matters.
+- **Render speed (1.7.7)**: `renderRtf` is an EMA of `(secs - SYNC.renderOverhead) / audioSecs`; the
+  first sample of a run is capped at `SYNC.firstRtfCap`, and drop decisions use `dropRtf()` = min(EMA,
+  latest sample). Cold server: macOS swaps VieNeu's model out after long idle (3.5x real time vs 0.23
+  warm). `background.js` `localIsCold()` (>10 min since a good render, kept in `chrome.storage.session`)
+  gives that first line a 60 s limit and keeps it out of the speed log. No warm-up line (1.2.6 test).
 - **Ducking**: voice cannot be separated from music, so the original track is ramped down
   (`duckRampPerTick` 0.09, `duckHold` 0.35) in `updateDuck`, with a guard against fighting the
   user's own volume changes.

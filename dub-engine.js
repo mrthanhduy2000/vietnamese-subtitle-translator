@@ -73,6 +73,8 @@
         skipAheadMax: 60,         // safety bound on one skip (s). Measured on a real timeline with a
                                   // slow server: capping at 6 to 14 loses MORE sentences (14/61 vs
                                   // 29/61), because a short jump lands late again and skips again
+        renderOverhead: 0.6,      // fixed seconds per TTS request (network, startup), outside the rtf
+        firstRtfCap: 1.0,         // first rtf sample of a run is capped: it carries the server's cold start
         dropLag: 4.0,             // giọng hệ thống trễ quá mức này mới bỏ phần còn lại của đoạn cũ (bớt mất lời)
         prefetchMax: 30,          // trần tạo trước audio (giây); chế độ sử dụng có thể hạ thấp hơn
         prefetchMin: 12,
@@ -383,6 +385,8 @@
             this.jobs = new Map();          // jobId -> { planIds, t0, orphan }
             this.jobSeq = 0;
             this.renderLatency = null;      // EMA thời gian một lượt TTS (giây)
+            this.renderRtf = null;          // EMA of generation speed (seconds spent / seconds of speech)
+            this.lastRtf = null;            // latest rtf sample
             this.seekTimes = [];
             this.live = null;               // { planId, k, handle, speaking, phraseStartMedia, wallStart, rate }
             this.speech = null;             // lời đang phát (audio có sẵn): { id, mediaStart, offset, rate, end }
@@ -983,8 +987,8 @@
         // A segment not sent yet also waits for the job in flight to finish.
         waitAudio(p) {
             const vr = Math.max(0.25, (this.d.video && this.d.video.playbackRate) || 1);
-            const rtf = this.renderRtf != null ? this.renderRtf : 0.5;
-            const over = 0.6;                                     // per-request overhead (network, startup)
+            const rtf = this.dropRtf();
+            const over = SYNC.renderOverhead;
             const remain = job => {
                 const need = job.planIds.reduce((a, id) => a + ((this.planById.get(id) || {}).estDuration || 0), 0) * rtf + over;
                 return Math.max(0.3, need - (this.d.now() - job.t0) / 1000);
@@ -993,6 +997,14 @@
             let busy = 0;
             for (const j of this.jobs.values()) if (!j.orphan) busy = Math.max(busy, remain(j));
             return (busy + (p.estDuration || 2) * rtf + over) * vr;
+        }
+
+        // Generation speed used to decide whether a sentence is unreachable. The lower of the smoothed
+        // value and the latest sample: a server that has just recovered (cold start over) stops
+        // costing sentences at once, while a server that stays slow still shows it in both.
+        dropRtf() {
+            if (this.renderRtf == null) return 0.5;
+            return this.lastRtf != null ? Math.min(this.renderRtf, this.lastRtf) : this.renderRtf;
         }
 
         // Server cannot keep up: drop the segments whose audio is certain to land late and move the
@@ -1281,7 +1293,14 @@
                     // A healthy local server is ~0.23; >= 1 means slower than real time.
                     const audioSecs = out.reduce((a, o) => a + (o.duration || 0), 0);
                     if (audioSecs > 0.3) {
-                        const rtf = secs / audioSecs;
+                        // Overhead is taken out here because waitAudio adds it back per request;
+                        // counting it twice made short single-sentence jobs look 2x slower.
+                        let rtf = Math.max(0.05, secs - SYNC.renderOverhead) / audioSecs;
+                        // The first job pays the server's cold start: VieNeu idle for days had its
+                        // model swapped out by macOS and the first render measured 3.5x real time
+                        // (0.23 warm), which then dropped 7 sentences. One sample never says "slow".
+                        if (this.renderRtf == null) rtf = Math.min(rtf, SYNC.firstRtfCap);
+                        this.lastRtf = rtf;
                         this.renderRtf = this.renderRtf == null ? rtf : this.renderRtf * 0.7 + rtf * 0.3;
                     }
                 }

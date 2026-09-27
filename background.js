@@ -848,6 +848,27 @@ function tocDoTaoGiong() {
     return localSpeed.gan.reduce((a, b) => a + b, 0) / localSpeed.gan.length;
 }
 
+// Cold server: VieNeu left idle for hours gets its model swapped out by macOS (seen: 24 MB resident
+// of 1.2 GB after four days). The first renders then run at ~3.5x real time instead of ~0.23 while
+// the weights page back in; with the normal 8 s limit they were cut off and rendered again from
+// scratch, and their speed made the page drop sentences. After a long idle the first line gets a long
+// limit and stays out of the speed log. No warm-up line: it was removed in 1.2.6 because it delays
+// the first sentence on a warm server, and on a cold one it only moves the same page-in earlier.
+const LOCAL_COLD_MS = 10 * 60 * 1000;
+const LOCAL_COLD_TIMEOUT_MS = 60000;
+const LOCAL_LAST_OK_KEY = "localTtsLastOk";
+let localLastOk = 0;
+async function localIsCold() {
+    if (!localLastOk && sessionArea) {
+        // The service worker sleeps after 30 s idle and forgets; session storage does not
+        try { localLastOk = Number((await sessionArea.get(LOCAL_LAST_OK_KEY))[LOCAL_LAST_OK_KEY]) || 0; } catch (e) { /* keep 0 */ }
+    }
+    return Date.now() - localLastOk > LOCAL_COLD_MS;
+}
+function localMarkWarm() {
+    localLastOk = Date.now();
+    if (sessionArea) { try { sessionArea.set({ [LOCAL_LAST_OK_KEY]: localLastOk }); } catch (e) { /* in-memory is enough */ } }
+}
 async function handleLocalTtsStatus() {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 1500);
@@ -944,7 +965,9 @@ function localHighPass(voice) {
 async function synthesizeLocalOnce(req, text, parts, signal) {
     const controller = new AbortController();
     let timedOut = false;
-    const limit = localTimeoutMs(text);
+    // Cold: a long limit, so the page-in is not cut off and started again
+    const cold = await localIsCold();
+    const limit = cold ? Math.max(localTimeoutMs(text), LOCAL_COLD_TIMEOUT_MS) : localTimeoutMs(text);
     let timer = null;
     const onAbort = () => controller.abort();
     if (signal) signal.addEventListener("abort", onAbort, { once: true });
@@ -975,7 +998,8 @@ async function synthesizeLocalOnce(req, text, parts, signal) {
         // Audio dài bất thường so với lời thoại (mô hình lặp / kéo dài âm): không dùng
         const syl = String(text || "").split(/\s+/).filter(Boolean).length;
         if (syl >= 3 && audioSec > 2.5 + syl / 1.6) return { ok: false, errorType: "runaway", error: `audio dài bất thường (${audioSec.toFixed(1)} giây cho ${syl} âm tiết)` };
-        ghiTocDoTao((Date.now() - t0) / 1000, audioSec);
+        if (!cold) ghiTocDoTao((Date.now() - t0) / 1000, audioSec);
+        localMarkWarm();
         track(metaOf(req), { localSec: audioSec });
         const mime = `audio/L16;rate=${sr}`;
         if (!parts) {
