@@ -882,7 +882,7 @@ mạng nơ-ron tích chập|mạng nơ ron tích chập|mạng nơron tích ch�
         cleanText, tokenize, analyze, breakLines,
         buildTimeline, segmentGroup, segmentGroupSafe, validateSegments,
         isVietWord,
-        _lex: { COMPOUNDS, TERMS, OPENERS, LEFT_BIND, RIGHT_BIND }
+        _lex: { COMPOUNDS, TERMS, OPENERS, LEFT_BIND, RIGHT_BIND, UNITS }
     };
 
     if (typeof module === "object" && module.exports) module.exports = api;

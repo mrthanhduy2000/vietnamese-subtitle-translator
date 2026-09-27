@@ -559,6 +559,11 @@
                     for (let i = cur.parts.length - 2; i >= Math.floor(cur.parts.length / 2); i--) {
                         if (endsWithPunct(cur.parts[i].text)) { at = i; break; }
                     }
+                    // Free voice (1.7.6), no punctuation to fall back to: the line boundary where
+                    // speech pauses best, if it beats cutting right here ("đưa ra | quyết định"
+                    // split a verb from its object; each cut restarts the voice's intonation).
+                    // Paid voices keep their cuts: a moved cut would re-bill stored audio
+                    if (at < 0 && JOIN) at = prosodicCut(cur, c, hardFor(cur.start));
                     if (at >= 0) {
                         const rest = cur.parts.slice(at + 1);
                         cur.parts = cur.parts.slice(0, at + 1);
@@ -629,6 +634,30 @@
                 continuesNext: !!next && gapAfter < 1.5 && next.speaker === s.speaker && !/[.!?…]["”')\]]*$/.test(subtitleText)
             };
         });
+    }
+
+    // Index of the part after which segment `seg` is best cut, or -1 to cut before `next` (where it
+    // would be cut anyway). Any line boundary counts, even in the first half (with two long lines the
+    // full stop after the first used to be skipped), if the first piece lasts 2 s, the rest plus
+    // `next` fits in `hard` seconds, and it beats cutting here by 0.3 in boundary value.
+    const prosody = () => (root && root.CST_DUB_PROSODY) ||
+        (typeof require === "function" ? (() => { try { return require("./dub-prosody.js"); } catch (e) { return null; } })() : null);
+    function prosodicCut(seg, next, hard) {
+        const P = prosody();
+        const parts = seg.parts;
+        if (!P || !SEG) return -1;
+        const texts = [...parts, next].map(x => SEG.cleanText(x.text));
+        const a = P.analyze(texts.join(" "));
+        let n = 0;
+        const ends = texts.map(t => (n += SEG.tokenize(t).length) - 1);
+        if (n !== a.words.length) return -1;
+        const value = k => (a.gaps[ends[k]] ? a.gaps[ends[k]].value : -4);
+        let best = -1, bestValue = Math.max(0.3, value(parts.length - 1) + 0.3);
+        for (let i = parts.length - 2; i >= 0; i--) {
+            if (parts[i].end - seg.start < 2 || next.end - parts[i + 1].start > hard) continue;
+            if (value(i) > bestValue) { bestValue = value(i); best = i; }
+        }
+        return best;
     }
 
     // ---------------- PROSODY + TIMING PLAN ----------------

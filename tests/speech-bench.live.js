@@ -1,13 +1,14 @@
 // Speech benchmark (manual, needs the local VieNeu server; not in npm test). Twelve representative
 // sentences (short, long single idea, compound, question then answer, exclamation, list, technical,
 // mixed English, numbers, acronyms, dialogue) go through the extension's own VieNeu path:
-// adaptForSpeech -> server -> cleanTake -> shapePauses -> prepareSpeech. Prints, per sentence, the
-// silences the voice made (raw) and what is left after shaping (final, >= 60 ms, which includes
-// stop-consonant closures), the text breaks, and the speaking rate. OUT=<dir> also writes one WAV each.
+// adaptForSpeech -> breathing commas (1.7.6) -> server -> cleanTake -> shapePauses -> prepareSpeech.
+// Prints, per sentence, the silences the voice made (raw) and what is left after shaping (final,
+// >= 60 ms, which includes stop-consonant closures), each stop's decision (word before it, kind, kept
+// length) and the speaking rate. OUT=<dir> also writes one WAV each.
 // Run: node tests/speech-bench.live.js   (VOICE="Thái Sơn" to change voice, REPS=3 to repeat)
 const path = require("path"), fs = require("fs");
 const R = p => require(path.join(__dirname, "..", p));
-const AUDIO = R("dub-audio.js"), PLAN = R("dub-planner.js"), COST = R("cost-policy.js");
+const AUDIO = R("dub-audio.js"), PLAN = R("dub-planner.js"), COST = R("cost-policy.js"), PROSODY = R("dub-prosody.js");
 const OUT = process.env.OUT;
 const SAMPLES = [
     ["ngan", "Đúng vậy."],
@@ -31,7 +32,7 @@ const r2 = xs => xs.map(x => Math.round(x * 100) / 100);
     const reps = Number(process.env.REPS || 1);
     for (const [id, raw] of SAMPLES) {
         for (let k = 0; k < reps; k++) {
-            const text = PLAN.adaptForSpeech(raw);
+            const text = PROSODY.breathText(PLAN.adaptForSpeech(raw));
             const res = await fetch(L.url + "/v1/audio/speech", {
                 method: "POST", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ model: L.model, voice, input: text, response_format: "pcm", sample_rate: sr, temperature: L.temperature })
@@ -46,11 +47,11 @@ const r2 = xs => xs.map(x => Math.round(x * 100) / 100);
             const finSil = inner(AUDIO.findSilences(fin, sr, { minMs: 60 }), fin.length);
             const syl = PLAN.countSyllables(text);
             const dur = fin.length / sr;
-            const breaks = AUDIO.textBreaks(text, { max: 0.4, sentence: 0.4, clause: 0.32, comma: 0.28 }, { soft: true });
+            const words = PROSODY.analyze(text).words;
             console.log(JSON.stringify({
                 id, text, syl, raw: r2(rawSil.map(x => x.end - x.start)), final: r2(finSil.map(x => x.end - x.start)),
-                breaks: breaks.map(b => `${b.kind}@${Math.round(b.at * 100)}%<=${b.cap}`),
-                matched: shaped.matched, soft: shaped.soft, joined: shaped.joined, breaths: shaped.breaths,
+                stops: shaped.pauses.map(p => `${p.gap >= 0 ? words[p.gap].raw : "?"}|${p.kind}:${r2([p.dur])[0]}->${r2([p.keep])[0]}`),
+                matched: shaped.matched, soft: shaped.soft, joined: shaped.joined,
                 dur: Math.round(dur * 100) / 100, sps: Math.round(syl / dur * 10) / 10
             }));
             if (OUT && k === 0) fs.writeFileSync(path.join(OUT, `${id}.wav`), Buffer.from(AUDIO.encodeWav(fin, sr)));

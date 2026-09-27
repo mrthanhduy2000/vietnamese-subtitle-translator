@@ -18,6 +18,7 @@
     const AUDIO = (root && root.CST_DUB_AUDIO) || (typeof require === "function" ? require("./dub-audio.js") : null);
     const CACHE = (root && root.CST_CACHE) || (typeof require === "function" ? require("./cst-cache.js") : null);
     const COST = (root && root.CST_COST) || (typeof require === "function" ? require("./cost-policy.js") : null);
+    const PROSODY = (root && root.CST_DUB_PROSODY) || (typeof require === "function" ? require("./dub-prosody.js") : null);
 
     // Tăng khi đổi cách dựng kịch bản đọc cho Gemini TTS (hướng dẫn giọng, dấu ngắt)
     // -> audio cũ trong kho không bị phát nhầm với cấu hình mới.
@@ -56,6 +57,7 @@
         // second part followed after ~0.05 s, where the same comma inside one take rests 0.14 to
         // 0.28 s. This keeps the join as long as a comma after a long clause.
         joinGapClause: 0.15,
+        joinGapValue: 0.3,        // ... also after a cut at a clause boundary this strong (dub-prosody value)
         chainLead: 0.8,           // câu CHƯA HẾT (đoạn trước không kết thúc bằng dấu chấm): đoạn sau được
                                   // nói sớm tối đa bấy nhiêu giây ngay sau đoạn trước, không đứng im chờ phụ đề.
                                   // Trước 1.3.2 là 2,0 giây: phụ đề người dịch (TED) ngắn hơn lời gốc, độ sớm
@@ -235,7 +237,8 @@
     // 6 (1.7.0): spectral hiss removal (AUDIO.denoise) before shaping
     // 7 (1.7.2): rumble cut, corrected hiss estimate, no gate, pauses at clause openings, 20 ms onset
     // 8 (1.7.5): pauses kept before adjunct openers (bằng cách, thông qua, dựa trên...)
-    const LOCAL_STYLE_VERSION = 8;
+    // 9 (1.7.6): prosody model (dub-prosody.js) picks the pauses, breathing commas in long stretches
+    const LOCAL_STYLE_VERSION = 9;
     // Free voice segmenting: whole sentences across translation groups, and a segment may run to
     // 11 s (paid: 8) before it is cut at a subtitle line. Every cut restarts the voice's intonation;
     // the free server renders ~4x faster than real time, so a longer segment costs ~3 s ahead.
@@ -297,17 +300,21 @@
         return provider;
     }
 
-    // Lời thoại thuần cho VieNeu (không nhận chỉ dẫn ngữ điệu, ngừng theo dấu câu):
-    //   - chỉ giữ dấu câu THẬT của câu dịch; không tự thêm dấu phẩy ở chỗ lấy hơi / gợi ý
-    //     (mỗi dấu phẩy VieNeu ngừng 0,3 đến 0,45 giây -> đọc chậm, rời rạc)
-    //   - thêm dấu phẩy chỉ sau cụm mở đầu ("Bây giờ, ...") vì đó là chỗ ngừng tự nhiên
-    //   - câu còn NỐI sang phụ đề sau: không ép ngữ điệu kết câu (không thêm dấu chấm)
-    //   - bỏ ký hiệu không đọc được: ¦, [nhạc], (cười), ♪, >>, dấu gạch đầu lời thoại
+    // Plain text for VieNeu (no prosody instructions; it pauses at punctuation):
+    //   - the translation's own punctuation, plus a comma after an opener ("Bây giờ, ...") and
+    //     (1.7.6) a breathing comma in a long unpunctuated stretch (dub-prosody breathText). No
+    //     comma at every hint or source pause: VieNeu stops 0.3 to 0.45 s at each one
+    //   - a sentence that runs on into the next subtitle gets no full stop (no falling close)
+    //   - symbols it cannot read are dropped: ¦, [music], (laughs), ♪, >>, a leading dialogue dash
     // The rest the voice takes after a segment before the next one: a sentence gap after a finished
-    // sentence, none inside a running one, a comma's worth when the part ended on , ; : (1.7.2)
-    function gapAfter(plan) {
+    // sentence, none inside a running one, a comma's worth when the part ended on , ; : (1.7.2), or
+    // (1.7.6) when it was cut at a clause boundary the text has no comma for ("... tại Toronto |
+    // đã tạo ra"): one take ends and the next starts there, as a reader would breathe
+    function gapAfter(plan, next) {
         if (!plan || !plan.continuesNext) return SYNC.sentenceGap;
-        return /[,;:]["”')\]]*$/.test(plainScript(plan)) ? SYNC.joinGapClause : SYNC.joinGap;
+        const text = plainScript(plan);
+        if (/[,;:]["”')\]]*$/.test(text)) return SYNC.joinGapClause;
+        return next && PROSODY && PROSODY.boundaryValue(text, plainScript(next)) >= SYNC.joinGapValue ? SYNC.joinGapClause : SYNC.joinGap;
     }
 
     function plainScript(plan) {
@@ -323,7 +330,8 @@
         }).filter(Boolean);
         let s = parts.join(" ").replace(/\s+([,.;:!?…])/g, "$1").replace(/\s+/g, " ").trim();
         if (s && !plan.continuesNext && !/[.!?…]$/.test(s)) s += ".";
-        return s;
+        // 1.7.6: a breathing comma at the best clause boundary of a long unpunctuated stretch
+        return PROSODY ? PROSODY.breathText(s) : s;
     }
 
     // Kịch bản đọc cho Gemini TTS: hướng dẫn giọng (ngữ điệu, nhịp, nhấn) + lời thoại.
@@ -670,7 +678,7 @@
                 const done = this.planById.get(S.id);
                 this.lastSpeechEnd = t;
                 this.lastSpeechJoined = !!(done && done.continuesNext);
-                this.lastSpeechGap = gapAfter(done);
+                this.lastSpeechGap = gapAfter(done, done ? this.plans[this.plans.indexOf(done) + 1] : null);
                 this.speech = S = null;
             }
             const next = this.nextSpeech(t);
@@ -806,7 +814,7 @@
             let floor = joined ? (early > 0.3 ? SYNC.minSpeechRate : Math.max(SYNC.minSpeechRate, this.floorRate(p) - 0.08)) : this.floorRate(p);
             // a fast-speaking stretch: keep the pace up evenly, unless we are ahead of the subtitle
             if (early <= 0.3) floor = Math.max(floor, lim.floor);
-            let endAt = joined ? next.start - gapAfter(p) : p.start + (p.targetDuration || 0) + SYNC.fitSlack;
+            let endAt = joined ? next.start - gapAfter(p, next) : p.start + (p.targetDuration || 0) + SYNC.fitSlack;
             if (next && !joined) endAt = Math.min(endAt, next.start - 0.12);
             const win = Math.max(0.5, endAt - t);
             let want = (r.duration - offset) / win;

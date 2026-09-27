@@ -132,3 +132,15 @@ The auto-translate paths wait for a leftover `busy` instead of returning. What t
 that was turned off or left behind; and the button is redrawn after `busy` clears. `dub.starting` is handed
 back in a `finally` for the same reason: left set by an early return, YouTube's auto-dub skipped
 every later video on the page.
+
+## 13. The subtitle line breaker now also decides where the voice pauses (1.7.6)
+
+`dub-prosody.js` reads every gap's cost from `vi-segmenter.js` (`SEG.analyze`, `SEG._lex`
+`OPENERS` / `LEFT_BIND` / `UNITS`). A lexicon change made for subtitle line breaks (lane A) moves
+the VieNeu pauses and breathing commas too (lane B). After touching the segmenter's lexicon or
+scoring, run `tests/prosody.test.js` and `node tools/prosody-eval.js`, not only the segmenter tests.
+The VieNeu audio key is `LOCAL_STYLE_VERSION` plus the normalized `plainScript` text (now with
+`breathText` commas), and the cached audio is already shaped: after a change to what is sent or to
+the pause shaping, bump `LOCAL_STYLE_VERSION` so every cached VieNeu line re-renders once (free). Never extend
+`breathText` or a cut change (`prosodicCut`) to paid voices: a changed text or a moved cut is a new
+billed render of audio the user already paid for.

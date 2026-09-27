@@ -40,10 +40,34 @@ that line). Holding TTS until a refine settles would delay the voice; not measur
 shows one Gemini round trip later. Kept: showing first and replacing later (as YouTube does) makes
 the voice read the line twice, and Gemini TTS bills both.
 
-**15. A long sentence with no clause or adjunct opener is read in one run** (a 22-syllable one: no
-pause in 3 of 3 takes; the voice's own stops come before the 4.5 s breath point). A breath at the stop
-nearest the middle would fix it but may keep a mid-phrase hesitation; decide after listening
-(`tests/speech-bench.live.js`, sentence `ky-thuat`).
+**15. A stretch with no boundary at all is read in one run.** 1.7.6 dropped the 1.7.5 rule "a 0.16 s
+breath after 4.5 s wherever the voice stopped" on purpose: in the corpus it split units ("gấp | mười",
+"đô | la", "chuẩn | bị"). A pause now needs a gap of value >= 0 (`dub-prosody.js` `K.minValue`), and
+a breathing comma needs value >= 0.6 in a 20+ syllable stretch. A run of words with no such gap (a
+long English name, a repeated word) keeps no pause. In the corpus 6 of 140 marked "|" boundaries got
+no voice stop at all (RAN-ON), same as 1.7.5. The 1.7.5 case (`speech-bench.live.js` `ky-thuat`) now
+keeps "phi tuyến | giữa đầu vào".
+
+## Found by the 1.7.6 prosody evaluation, not fixed
+
+**16. Mild pause placements the model still keeps** (each a pause the corpus marks as wrong, none
+inside a unit): "tăng | từ 72,5%" (a verb before its from-to complement; the voice itself stopped
+0.58 s there), "tăng mạnh | nhờ vào" (maybe a missing mark), "chỉ tốt | bằng dữ liệu" (comparative
+"bằng" read as the preposition), "Điều này | có nghĩa là" (text-only choice, never a comma: 2
+syllables), "tập thể dục | vào buổi sáng" (inside a long subject), relative "mà" after a noun, "thì"
+as a topic marker. Fix one only as a cost correction in `adjustJoins` with a linguistic reason,
+then `tools/prosody-eval.js` on all four sets, and new unseen sentences (all four are seen now).
+
+**17. Versions in model names are read as decimals**: "gemini-2.5-flash-lite" is said "gemini hai
+phẩy năm flash lite". That is `adaptForSpeech` (speech text), not the pause model.
+
+**18. Alignment limits.** A stop's place in the text is its share of voiced time (mean error 0.33
+syllables on punctuation, 4 of 220 off by more than 1). If the voice skips or repeats a word, or two
+stops fall within 1.5 syllables of one boundary, the later decisions can land on the neighbouring
+gap. Punctuation anchors bound the damage to one clause.
+
+**19. Nobody has listened to 1.7.6 blind.** The marks in `tests/prosody-corpus.js` are one reader's
+judgment and the numbers measure agreement with them. The A/B WAVs of this session were sent in chat.
 
 ## Cosmetic / housekeeping
 

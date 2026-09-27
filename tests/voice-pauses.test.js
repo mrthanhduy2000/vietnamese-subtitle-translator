@@ -1,5 +1,6 @@
 // 1.6.7: the voice pauses only where the text has punctuation (the hiss gate tested here was removed
 // in 1.7.3), a sentence split across two translation groups is read in one go (free voice), 48 kHz.
+// 1.7.6: plus the stops the prosody model keeps at clause boundaries without punctuation.
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const A = require("../dub-audio.js");
@@ -46,13 +47,21 @@ test("a stop the text does not ask for is closed; the comma and the full stop ke
     assert.ok(Math.abs(got[2] - 0.4) < 0.04, `full stop pause ${got[2]}`);
 });
 
-test("a long run with no punctuation still gets one short breath", () => {
-    const words = Array.from({ length: 40 }, () => "chữ").join(" ");
-    const x = speech([2.4, 2.4, 2.4, 2.4], [0.4, 0.4, 0.4]);
-    const r = A.shapePauses(x, SR, words, { maxPause: 0.4 });
+test("a long run with no punctuation keeps the voice's stops at its clause openings, closes the one inside a phrase", () => {
+    // 1.7.5 gave any 4.5 s run a 0.16 s breath wherever the voice stopped ("gấp | mười" in the corpus).
+    // 1.7.6 keeps only stops at boundaries the text supports; the stops here fall at syllable shares.
+    const P = require("../dub-prosody.js");
+    const text = "Khi chúng ta tăng kích thước của tập dữ liệu huấn luyện lên gấp mười lần thì sai số trên tập kiểm tra giảm xuống đáng kể nhưng thời gian huấn luyện cũng tăng lên tương ứng.";
+    const an = P.analyze(text);
+    const at = w => an.gaps[an.words.findIndex(x => x.raw === w)].pos;
+    const runs = [];
+    let prev = 0;
+    for (const c of [at("tập"), at("lần"), at("kể"), an.total]) { runs.push((c - prev) * 0.22); prev = c; }
+    const x = speech(runs, [0.4, 0.4, 0.4]);
+    const r = A.shapePauses(x, SR, text, { maxPause: 0.4 });
     assert.equal(r.matched, 0);
-    assert.ok(r.breaths >= 1, "no breath at all in 10 s of speech");
-    assert.ok(pauses(r.samples).every(p => p <= 0.2), "a breath is short, not a full stop");
+    assert.deepEqual(r.pauses.map(p => [an.words[p.gap].raw, p.kind]), [["tập", "joint"], ["lần", "soft"], ["kể", "soft"]]);
+    assert.ok(r.pauses.every(p => p.keep <= 0.22), "a phrase pause is shorter than a comma");
 });
 
 test("tight mode caps every kept pause at maxPause", () => {
@@ -96,21 +105,22 @@ test("wiring: 48 kHz, shaping and cleanup on the VieNeu path, engine joins group
     const eng = read("dub-engine.js");
     assert.match(eng, /speakerState, \.\.\.\(free \? FREE_SEGMENTS : \{\}\) \}/);
     assert.match(eng, /const FREE_SEGMENTS = \{ joinGroups: true, segSoft: 8, segHard: 11 \};/);
-    assert.match(eng, /const LOCAL_STYLE_VERSION = 8;/);
+    assert.match(eng, /const LOCAL_STYLE_VERSION = 9;/);
     assert.match(eng, /const natural = ph\.breakKind === "opener";/);
 });
 
 // ---- 1.6.8: smoothness ----
 test("pause v2: a short lead-in comma is light, a comma before a joining word leans on", () => {
-    const caps = { max: 0.4, sentence: 0.4, clause: 0.32, comma: 0.28 };
-    const b = A.punctuationBreaks("Vâng, hôm nay chúng ta học một điều rất quan trọng về dữ liệu, và mô hình. Thật sao? Đúng vậy", caps);
-    const [lead, joiner, stop, question] = b;
-    assert.ok(lead.cap < 0.18, `lead-in comma ${lead.cap}`);
-    assert.ok(joiner.cap < 0.28 && joiner.cap >= 0.12, `comma before "và" ${joiner.cap}`);
-    assert.equal(stop.cap, 0.4);
+    const P = require("../dub-prosody.js");
+    const a = P.analyze("Vâng, hôm nay chúng ta học một điều rất quan trọng về dữ liệu, và mô hình. Thật sao? Đúng vậy");
+    const [lead, joiner, stop, question] = a.gaps.filter(g => g.punct);
+    assert.equal(lead.role, "lead");
+    assert.ok(lead.pause < 0.18, `lead-in comma ${lead.pause}`);
+    assert.ok(joiner.pause < 0.28 && joiner.pause >= 0.12, `comma before "và" ${joiner.pause}`);
+    assert.equal(stop.pause, 0.4);
     // v3 (1.7.2): a sentence rests by its length, so the two-word "Thật sao?" rests less than the
     // 17-word sentence before it, and the question mark still adds a little
-    assert.ok(question.cap > 0.3 && question.cap < 0.4, `short question ${question.cap}`);
+    assert.ok(question.pause > 0.3 && question.pause < 0.4, `short question ${question.pause}`);
 });
 
 test("a voice that starts late is not chased: no playbackRate churn while it plays", () => {

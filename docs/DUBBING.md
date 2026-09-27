@@ -9,11 +9,12 @@ machinery that one `condense: null` in `dubbing.js` used to keep off (`needsCond
 `condenseBeforeTts`, the `condenseSpeech` action, `condensedIsSafe`) was removed in 1.7.3, and
 `tests/backlog.test.js` fails if any of it comes back.
 
-## Four files, one direction of data
+## Five files, one direction of data
 
 ```
 dub-planner.js   pure    text -> speech script -> prosody and timing. No I/O, fully testable
-dub-audio.js     pure    WAV/PCM: decode, normalize, find silence, split, compress pauses
+dub-prosody.js   pure    where speech may pause and how long (1.7.6), see "Prosody model" below
+dub-audio.js     pure    WAV/PCM: decode, normalize, find silence, split, shape pauses
 dub-engine.js    impure  providers + scheduler + video clock + ducking. The complicated one
 dubbing.js       thin    settings, provider pick, badge, "hold the video while preparing"
 ```
@@ -135,6 +136,88 @@ call still bills for it.
 block: when set, `userMaxRate()` clamps `ceiling`, `lagCeiling` and the final rate, even below a
 slow voice's floor rate. The voice then falls behind instead of rushing; it never drops words.
 
+## Prosody model (1.7.6, `dub-prosody.js`)
+
+Where the dubbed speech may pause, how strongly, and which of the voice's own stops to keep. Pure,
+deterministic, memoised per text (600 entries). It reads the text through `vi-segmenter.js`
+(`SEG.analyze`, the subtitle line breaker's own scoring, so subtitles and speech agree on what is a
+phrase) and the planner's `countSyllables`. Loaded after `dub-planner.js`, before `dub-audio.js`.
+
+**What it can and cannot do.** VieNeu decides where it stops. The extension can shorten a silence,
+never create or lengthen one, so placing pauses is a *selection* over the voice's stops. The one way
+to create a stop is the text sent: a comma (`breathText`). Paid voices are never touched: their text
+and their segment cuts are billed audio.
+
+**1. `analyze(text)`**: per word its syllables; per gap between two words:
+- `cost` = the segmenter's gap cost; `value` = clamp((5 - cost) / 20, -4, 2). A gap with value < 0
+  (`K.minValue`) is inside a phrase and never a pause, however long the run.
+- `unit`: inside a number, a number and its unit, a name, an acronym or English run, a term. Never a
+  pause (the old 4.5 s breath split "gấp | mười", "đô | la", "chuẩn | bị").
+- Corrections on top of the segmenter, each with a linguistic reason and a corpus check (do **not**
+  grow these into keyword lists that trigger pauses; they only move a gap's cost):
+  a several-word adjunct opener after a content word ("thô | thông qua"); connectives the segmenter
+  lacks (`CONNECTIVES`: "chứ không", "hơn là", "làm thế nào để", "kể cả khi"); "và / hoặc / hay"
+  inside a list or joining short phrases is no boundary; "rằng" never more than a joint (either
+  side); modal "nên" after a subject or "quyết định" is "should", not "so"; the main clause after a
+  fronted clause written without its comma ("bị thiếu | chúng ta", once per sentence); a subject of
+  5+ syllables before a preverbal word ("tại Toronto | đã"); "trước đó / trước đây" after a word.
+- At punctuation, a `role` and a target `pause` (continuous, from the 1.6.8 / 1.7.2 measurements):
+  comma min(0.28, 0.14 + 0.012 x words) with -0.04 before và/hoặc/hay/rồi/mà/cùng, +0.02 before a
+  strong opener (nhưng, vì vậy...), +0.03 closing a fronted clause ("Nếu ..., "), -0.03 before 2 words
+  or fewer; lead-in (3 syllables or fewer) 0.12 + 0.01 x syllables; list items 0.15, the one before
+  the closing "và" 0.17; ; and : min(0.32, 0.2 + 0.012 x words); sentence 0.28 + 0.01 x words (max
+  12), ? +0.05, ! +0.03, +0.03 before a transition. `level`: sentence long, clause/comma medium,
+  lead/list short, other gaps short / micro / none by value.
+
+**2. `selectBoundaries` / `choose`** (called by `dub-audio.js` `shapePauses`): punctuation the voice
+honoured is fixed. Between fixed points a dynamic program keeps the subset of the voice's stops that
+maximises the sum of (value + 0.5 x voice evidence - `pauseCost` 0.9), minus 2 x (0.8 - run)^2 for a
+run under 0.8 voiced seconds (choppy) and 0.45 x (run - 2.6)^2 over 2.6 s (no breath). Voice evidence
+is 0 at a 0.12 s stop and 1 from 0.4 s. A stop under 0.12 s is never kept. Tight mode (`maxPause` <
+0.2, a dense sentence) raises the cost 1.8 times and allows 1 s longer runs: speculative pauses go
+first. A kept phrase pause is min(0.22, 0.1 + up to 0.05 by value + 0.025 per voiced second before
+it); the rest become 0.09 s joints; everything is capped by `maxPause`.
+
+**Alignment** (`dub-audio.js` `alignStops`): a stop's place in the text is its share of voiced time
+= share of syllables. Measured on 220 punctuation stops: mean error 0.33 syllables, 216 within 1.
+Phrase-final lengthening and energy-nucleus models were tried and were worse. Punctuation is matched
+first (1.7.5 scoring), then each other stop is placed between its matched neighbours, within 1.5
+syllables; a long stop is pulled away from units and bound pairs, never towards a chosen word.
+
+**3. `breathText(text)`** (engine `plainScript`, VieNeu only, part of the audio key through
+`LOCAL_STYLE_VERSION` 9): in an unpunctuated stretch of 20+ syllables, a comma at the text-only
+choice (`breathGroups`, 4.6 syllables per second) where value >= 0.6 and 7+ syllables are on each
+side. Only commas are added. 8 of 104 corpus sentences change, every comma at a marked boundary.
+
+**4. `boundaryValue(left, right)`**: the value of a cut between two segments. Engine `gapAfter`: a
+part that continues the sentence without , ; : rests `SYNC.joinGapClause` when the cut's value is >=
+`SYNC.joinGapValue` 0.3, else `joinGap`. Planner `prosodicCut` (free voice only, `joinGroups`): when
+a segment must be cut and there is no punctuation to cut at, the cut goes to the best line boundary
+(any half of the segment) that beats the default by 0.3.
+
+**Measured** (tools/prosody-eval.js; same takes for both engines, both placed with the new alignment;
+WRONG = a kept pause where the marks say none, severe = inside a unit or a bound pair; the marks are
+one reader's judgment, nobody has listened to a blind A/B yet):
+
+| Set (sentences x takes) | 1.7.5 kept / WRONG (severe) | 1.7.6 kept / WRONG (severe) | Longest run p90 (syllables) | Duration |
+|---|---|---|---|---|
+| corpus, tuned on (56 x 5) | 290 / 10 (4) | 341 / 7 (0) | 21 -> 16 | +0.4% |
+| holdout1, seen then fixed (16 x 5) | 85 / 8 (4) | 89 / 4 (0) | 19 -> 21 | -0.1% |
+| holdout2, seen then fixed (16 x 5) | 52 / 3 (3) | 54 / 1 (0) | 19 -> 19 | 0 |
+| holdout3, other topics, scored once (16 x 5) | 73 / 4 (0) | 77 / 6 (0) | 19 -> 19 | +0.2% |
+| corpus, tight mode | 270 / 10 (4), 11 good stops closed | 279 / 4 (0), 1 closed | 21 -> 18 | 0 |
+
+Holdout3 is the honest number for unseen text: no gain in WRONG there (4 of the 6 are "tăng mạnh |
+nhờ vào", which 1.7.5 also keeps and which may be a missing mark). What 1.7.6 fixed is the severe
+kind (pauses inside units: 11 -> 0 over all sets) and the stops before "mà", "nên", "sau mỗi" that
+1.7.5 closed. Breathing commas (7 sentences x 5 takes, new engine both sides): the voice stopped at
+35/35 inserted commas; longest run mean 16.9 -> 14.2 syllables, worst 28 -> 18; +0.35% duration.
+Segment cuts (synthetic lecture, 57 segments): mid-sentence cuts 7 -> 5, all now at commas.
+
+**To change it:** run `node tools/prosody-eval.js` before and after (all four sets), and listen to
+the takes that changed. A rule that only moves WRONG on the corpus is overfitting; check holdout3
+and write new unseen sentences for the next check.
+
 ## The three TTS providers
 
 Selected by the `dubProvider` setting. `createVieneuProvider` / `createGeminiProvider` /
@@ -170,7 +253,8 @@ break, all fixed: `plainScript` no longer adds a comma at the source speaker's p
 opener); `background.js` runs `AUDIO.shapePauses(piece, sr, text)` instead of `compressPauses`, which
 matches every internal silence to the text's punctuation by position in voiced time, keeps
 sentence 0.4 / clause 0.32 / comma 0.26 s (capped by `maxPause`, so tight mode still works), closes
-every other stop to 0.09 s, and leaves one 0.16 s breath per 4.5 s of unpunctuated speech; and
+every other stop to 0.09 s, and leaves one 0.16 s breath per 4.5 s of unpunctuated speech (1.7.6:
+the breath rule is gone, see "Prosody model"); and
 `buildDubScript({ joinGroups })` (free voice only) reads a sentence that spans two translation groups
 as one segment (a split made the model end the first half with a falling tone, then stop). Then
 `AUDIO.gateNoise` (removed in 1.7.3, see below) pulled the gaps down 18 dB (Mỹ Duyên's reference hiss: gaps -52.8 -> -64.7 dB).
@@ -210,7 +294,7 @@ male, picked by `localHighPass(voice)`) then `denoise`; per piece `shapePauses` 
   (was -0.7). Flaring-bin index in the gaps 14.6 -> 10.6 (raw 9.7). 97 -> 75 ms per take.
 - The gate (`gateNoise`) is off the path: after the fix it took only ~1.5 dB more off the gaps and
   made the floor rise and fall with the words. Removed in 1.7.3.
-- Pauses: `textBreaks` adds soft breaks before clause openings (`STARTERS2`, `STARTERS1`, weak "và"
+- Pauses (**replaced in 1.7.6** by `dub-prosody.js`, kept here as history): `textBreaks` added soft breaks before clause openings (`STARTERS2`, `STARTERS1`, weak "và"
   / "hoặc") when the clause before has >= 5 words (6 for weak) and >= 3 (4) follow. Only a real
   stop of the voice (>= 0.12 s) near one keeps 0.1 + 0.008 per word (max 0.2); the voice stopped
   there on every clause opening of the test set, and 1.7.1 closed those stops to 0.09 s, the
@@ -226,7 +310,7 @@ male, picked by `localHighPass(voice)`) then `denoise`; per piece `shapePauses` 
   for all four), the soft clipper (10/68 takes touch it, added distortion under -56 dB), DC
   (< 1e-3), sample rate (48 kHz native, no resampling). No EQ: Mỹ Duyên's 2-8 kHz balance is within
   1.5 dB of Thục Đoan's. `LOCAL_STYLE_VERSION` 7.
-- 1.7.5: adjunct openers `ADJUNCTS2` ("dựa trên", "dựa vào", "bằng cách", "thông qua", "nhờ vào",
+- 1.7.5 (history, replaced in 1.7.6): adjunct openers `ADJUNCTS2` ("dựa trên", "dựa vào", "bằng cách", "thông qua", "nhờ vào",
   "theo đó") are soft breaks too, but never after a pronoun (they are also verbs: "chúng ta dựa vào")
   and only with 3 more words after them. A/B on the same real Mỹ Duyên takes (5 each): the voice
   stopped 0.26 to 0.43 s before "thông qua" and "bằng cách" every time; kept 0/10 before, 10/10 now

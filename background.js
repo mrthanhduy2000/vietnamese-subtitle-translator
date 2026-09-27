@@ -12,7 +12,8 @@
 // ============================================================
 
 // Bộ nhớ đệm bền vững (IndexedDB) + chính sách chi phí + xử lý audio dùng chung
-try { importScripts("cst-cache.js", "cost-policy.js", "dub-audio.js"); } catch (e) { /* chạy ngoài service worker (kiểm thử) */ }
+// (1.7.6: the pause shaping reads the text's structure: segmenter, syllable count, prosody model)
+try { importScripts("cst-cache.js", "cost-policy.js", "vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-audio.js"); } catch (e) { /* chạy ngoài service worker (kiểm thử) */ }
 
 const COST = CST_COST;
 const AUDIO = typeof CST_DUB_AUDIO !== "undefined" ? CST_DUB_AUDIO : null;

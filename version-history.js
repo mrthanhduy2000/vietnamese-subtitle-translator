@@ -4,6 +4,22 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.7.6", luc: "13:24 27/09/2026", ten: "Giọng VieNeu ngắt nghỉ theo cấu trúc câu, không còn ngắt giữa từ",
+            y: [
+                "Bộ ngắt nghỉ viết lại: mỗi chỗ giữa hai từ được chấm điểm theo cấu trúc câu (mệnh đề, cụm từ, con số, tên riêng, thuật ngữ) thay vì dò danh sách từ khóa. Trong những chỗ giọng tự dừng, tiện ích giữ những chỗ đáng nghỉ nhất và khép phần còn lại, để lời đọc không vụn mà cũng không dồn một hơi quá dài.",
+                "Không còn ngắt giữa con số và đơn vị, giữa hai tiếng của một từ (\"gấp | mười\", \"chuẩn | bị\") hay ngay sau \"rằng\". Chỗ giọng tự dừng trước \"mà\", \"nên\", \"sau mỗi\" trong câu dài nay được giữ (trước đây bị ép liền).",
+                "Độ dài chỗ nghỉ theo vai trò: câu dẫn ngắn nghỉ nhẹ, các mục liệt kê nghỉ đều nhau, dấu phẩy trước \"nhưng\" nghỉ lâu hơn trước \"và\", câu hỏi và câu mở ý mới nghỉ lâu hơn một chút. Câu dày chữ (người nói nhanh) bỏ các chỗ nghỉ không bắt buộc trước.",
+                "Câu rất dài không có dấu phẩy: tiện ích thêm dấu phẩy ở chỗ chuyển ý rõ nhất để giọng lấy hơi (chỉ thêm dấu phẩy, không đổi chữ nào). Khi một câu phải cắt làm hai lượt đọc, chỗ cắt rơi vào ranh giới câu hoặc mệnh đề thay vì giữa cụm như \"đưa ra | quyết định\" (giọng miễn phí).",
+                "Audio VieNeu đã lưu được tạo lại một lần (miễn phí). Giọng Gemini trả phí không đổi, không tốn thêm lượt gọi API nào."
+            ],
+            bang: { cot: ["Đo (cùng bản ghi VieNeu, bộ câu đánh dấu tay)", "Trước", "Nay"], hang: [
+                ["Chỗ nghỉ giữa từ, số hoặc tên riêng (56 câu × 5 bản ghi)", "4", "0"],
+                ["Chỗ nghỉ đặt sai, tính cả lỗi nhẹ (cùng bộ câu)", "10", "7"],
+                ["Câu dày chữ: chỗ nghỉ đặt sai / chỗ đáng nghỉ bị ép liền", "10 / 11", "4 / 1"],
+                ["Đoạn dài nhất không nghỉ ở câu được thêm dấu phẩy thở (35 bản ghi)", "28 âm tiết", "18 âm tiết"]
+            ] }
+        },
+        {
             v: "1.7.5", luc: "05:26 27/09/2026", ten: "Coursera hiện phụ đề ngay từ đoạn đầu, giọng nghỉ đúng chỗ hơn",
             y: [
                 "Coursera: phụ đề tiếng Việt hiện ngay khi đoạn đầu dịch xong, không còn chờ dịch hết cả bài. Đoạn đang xem được dịch trước (kể cả khi bài được mở tiếp ở giữa), đoạn chưa dịch vẫn hiện câu tiếng Anh. Lồng tiếng tự bật cũng bắt đầu từ đoạn đầu.",

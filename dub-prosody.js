@@ -1,0 +1,442 @@
+// ============================================================
+// PROSODY: where Vietnamese speech may pause, how strongly, and which of a voice's own stops to keep
+//
+// The free voice (VieNeu) decides where it stops; the extension can only shorten those stops, never
+// create one. So pause placement is a selection problem over the stops the voice made:
+//   analyze(text)      every gap between two words gets a boundary value from the subtitle
+//                      segmenter's linguistic scoring (clause openers, compounds, terms, numbers +
+//                      units, names, words that need the next word...) and, at punctuation, a role
+//                      (sentence, clause, lead-in, list item, comma) and a target pause length
+//   choose(...)        punctuation the voice honoured is always kept; among its other stops a
+//                      dynamic program picks the subset that maximises boundary value minus a cost
+//                      per pause, minus a penalty for runs of speech that are too short (choppy) or
+//                      too long (no breath), measured in the take's own voiced seconds
+//   breathGroups(text) the same selection on text alone (no audio), with estimated durations
+// Pure: no DOM, no audio. Runs in the page, the service worker and Node.
+// ============================================================
+(function (root) {
+    "use strict";
+    const SEG = (root && root.CST_VI_SEG) ||
+        (typeof require === "function" ? (() => { try { return require("./vi-segmenter.js"); } catch (e) { return null; } })() : null);
+
+    // Model constants. Measured on 56 sentences x 5 real VieNeu takes (Mỹ Duyên, Thái Sơn), see
+    // docs/DUBBING.md "Prosody model (1.7.6)"; three held-out sets of 16 checked the result
+    // (tests/prosody-corpus.js, tools/prosody-eval.js).
+    const K = {
+        valueAt: 5, valueScale: 20,   // boundary value = (valueAt - segmenter cost) / valueScale
+        pauseCost: 0.9,              // every pause the text does not ask for must earn this much
+        shortRun: 0.8, shortWeight: 2,  // a run of speech under 0.8 s voiced is choppy ...
+        longRun: 2.6, longWeight: 0.45, // ... one over 2.6 s voiced needs a breath (quadratic)
+        voiceWeight: 0.5,             // a long stop is the voice's own phrasing: it adds up to this
+        minStop: 0.12,                // a shorter stop is never kept as a pause
+        minValue: 0,                  // below this a gap is inside a phrase: never a pause, however long the run
+        sps: 4.6                      // text-only estimate of voiced syllables per second
+    };
+
+    // Syllables a token takes to say. The planner's count reads it as the voice does ("GPU" 3, "72"
+    // 3, "usage" 2); the fallback counts vowel groups and digits. Positions in the text are measured
+    // in these, so a take's stops are placed right after an acronym or a number.
+    const plan = () => (root && root.CST_DUB_PLAN) ||
+        (typeof require === "function" ? (() => { try { return require("./dub-planner.js"); } catch (e) { return null; } })() : null);
+    function syllables(raw) {
+        const P = plan();
+        const n = P ? P.countSyllables(raw) : 0;
+        return n > 0 ? n : spokenWeight(raw);
+    }
+    const VOWELS = /[aeiouyàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ]+/g;
+    function spokenWeight(word) {
+        const w = String(word || "").replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();
+        if (!w) return 0;
+        if (/\d/.test(w)) return Math.max(1, w.replace(/\D/g, "").length);
+        const g = w.match(VOWELS);
+        return Math.max(1, g ? g.length : 1);
+    }
+
+    const OPENERS = (SEG && SEG._lex && SEG._lex.OPENERS) || {};
+    const LEFT_BIND = (SEG && SEG._lex && SEG._lex.LEFT_BIND) || {};
+    // A fronted subordinate clause: the comma that closes it is a real clause boundary
+    const SUBORDINATE = /^(nếu|khi|sau khi|trước khi|trong khi|mặc dù|dù|tuy|vì|bởi vì|do|để|nhờ|giả sử|một khi|mỗi khi|cho dù|ngay khi|trong trường hợp)$/;
+    // Joining words a comma leans on into (the next item follows closely)
+    const JOINERS = new Set(["và", "hoặc", "hay", "rồi", "mà", "cùng"]);
+    const bare = w => String(w || "").replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();
+    const round3 = x => Math.round(x * 1000) / 1000;
+
+    // Longest opener phrase starting at word i, and its segmenter weight
+    function openerAt(words, i) {
+        for (let len = 4; len >= 1; len--) {
+            if (i + len > words.length) continue;
+            const parts = words.slice(i, i + len);
+            if (parts.slice(0, -1).some(w => w.punct)) continue;
+            const p = parts.map(w => w.bare).join(" ");
+            if (OPENERS[p] !== undefined) return { phrase: p, weight: OPENERS[p] };
+        }
+        return null;
+    }
+
+    function tokenizeWords(text) {
+        if (SEG) return SEG.tokenize(text).map(t => t.raw);
+        return String(text || "").split(/\s+/).filter(Boolean);
+    }
+
+    function punctOf(raw) {
+        const m = String(raw).match(/([.!?…]|[;:]|,)["”')\]]*$/);
+        if (!m) return null;
+        return /[.!?…]/.test(m[1]) ? "sentence" : /[;:]/.test(m[1]) ? "clause" : "comma";
+    }
+
+    // ---- 1. Text analysis (memoised: the same segment text is analysed once) ----
+    const memo = new Map();
+    function analyze(text) {
+        const key = String(text || "");
+        let hit = memo.get(key);
+        if (hit) return hit;
+        hit = analyzeUncached(key);
+        if (memo.size >= 600) memo.clear();
+        memo.set(key, hit);
+        return hit;
+    }
+
+    function analyzeUncached(text) {
+        const raws = tokenizeWords(text);
+        const words = raws.map(raw => ({ raw, bare: bare(raw), syl: syllables(raw), punct: punctOf(raw), mark: (raw.match(/[.!?…;:,]/g) || []).pop() || null }));
+        let cost = null, inside = null, tokens = null;
+        if (SEG) {
+            tokens = SEG.tokenize(text);
+            if (tokens.length === words.length) ({ gap: cost, inside } = SEG.analyze(tokens));
+            else tokens = null;
+        }
+        const gaps = [];
+        let pos = 0;
+        for (let i = 0; i < words.length - 1; i++) {
+            pos += words[i].syl;
+            let c = cost ? cost[i + 1] : (words[i].punct ? -38 : 24);
+            // A several-word adjunct opener ("thông qua", "dựa trên", "so với") after a content word:
+            // the line-break scoring counts its first syllable as a content word and adds the
+            // content-pair cost. Not the strong ones: "ví dụ", "tiếp theo" are also nouns ("xem ví dụ")
+            // (not after a word that needs the next one: "từ | tiếp theo" is "the next word"; a weak
+            // binder like "nhiều" does not count: "thấp hơn nhiều | so với"; never inside a longer
+            // phrase: "có | nghĩa là")
+            const op = !words[i].punct && !(LEFT_BIND[words[i].bare] >= 40) && !(inside && inside[i + 1] >= 80) && openerAt(words, i + 1);
+            if (op && op.phrase.includes(" ") && op.weight <= 14) c = Math.min(c, 10 - op.weight);
+            gaps.push({ i, pos, punct: words[i].punct, mark: words[i].mark, cost: c, value: valueOf(c),
+                unit: !!tokens && !words[i].punct && isUnit(tokens, inside, i) });
+        }
+        const total = pos + (words.length ? words[words.length - 1].syl : 0);
+        markConnectives(words, gaps);
+        assignRoles(words, gaps);
+        adjustJoins(words, gaps);
+        for (const g of gaps) if (!g.punct) labelPhrase(g);
+        return { text, words, gaps, total };
+    }
+    const valueOf = c => Math.max(-4, Math.min(2, (K.valueAt - c) / K.valueScale));
+    // Inside one word, term, name or number: the voice does not stop there for long
+    const UNITS = (SEG && SEG._lex && SEG._lex.UNITS) || new Set();
+    function isUnit(tokens, inside, i) {
+        if (inside && inside[i + 1] >= 80) return true;
+        const a = tokens[i], b = tokens[i + 1], c = tokens[i + 2];
+        const num = t => t && (t.isNumber || t.isNumberWord || t.core === "phẩy");
+        return num(a) && (num(b) || UNITS.has(b.core) || (c && UNITS.has(b.core + " " + c.core)));
+    }
+    function labelPhrase(g) {
+        g.role = g.cost >= 40 ? "bound" : g.value >= 0.5 ? "open" : "phrase";
+        g.level = g.value >= 0.5 ? "short" : g.value > 0 ? "micro" : "none";
+    }
+
+    // Connectives the line-break lexicon does not have: never split inside; "chứ không" ("rather
+    // than") opens a phrase, "hơn là" weakly ("hiệu quả hơn là" is still the comparative), "kể cả
+    // khi" ("even when") like "ngay cả khi" (without it, "khi" alone made "kể cả | khi" a boundary)
+    const CONNECTIVES = { "chứ không": 18, "hơn là": 8, "làm thế nào để": 0, "như thế nào để": 0, "làm sao để": 0, "kể cả khi": 20 };
+    function markConnectives(words, gaps) {
+        for (const [phrase, weight] of Object.entries(CONNECTIVES)) {
+            const parts = phrase.split(" ");
+            for (let s = 0; s + parts.length <= words.length; s++) {
+                if (!parts.every((p, k) => words[s + k].bare === p && (k === parts.length - 1 || !words[s + k].punct))) continue;
+                for (let k = s; k < s + parts.length - 1; k++) { gaps[k].cost = Math.max(gaps[k].cost, 60); gaps[k].unit = true; gaps[k].value = valueOf(gaps[k].cost); }
+                if (weight && s > 0 && !gaps[s - 1].punct && !gaps[s - 1].unit) { gaps[s - 1].cost = Math.min(gaps[s - 1].cost, 10 - weight); gaps[s - 1].value = valueOf(gaps[s - 1].cost); }
+            }
+        }
+    }
+
+    // What the line-break scoring does not know about speech:
+    //   "và" / "hoặc" / "hay" join two clauses only when both sides are long; between short phrases
+    //   ("thử lại và kết quả tốt hơn") or the last item of a list ("Apple, Microsoft và Google")
+    //   they are not a boundary at all
+    //   "rằng" starts the complement of the verb before it: no pause on either side of it
+    //   a long subject before its predicate ("một nhóm nghiên cứu nhỏ tại Toronto | đã tạo ra") is a
+    //   phrase boundary a reader breathes at; after a short one ("hệ thống sẽ") it is not
+    const PREVERBAL = new Set(["đã", "đang", "sẽ", "vẫn", "cũng", "đều", "chưa", "không", "cần", "phải", "luôn", "thường", "sắp", "vừa", "có thể", "chỉ", "lại"]);
+    // counting the subject back stops at a clause opening, a pronoun (its own subject: "chúng ta biết
+    // | mô hình đã học"), a modal ("rất có thể | mô hình") or a verb that takes a clause
+    const SUBJECT_STOP = new Set(["là", "rằng", "thì", "mà", "tôi", "ta", "bạn", "họ", "nó", "mình", "anh", "chị", "em",
+        "thể", "rất", "cũng", "đã", "sẽ", "đang", "vẫn", "không", "chưa", "cần", "phải", "biết", "nghĩ", "thấy", "tin", "hiểu"]);
+    const MODAL_BEFORE = new Set(["định", "biết", "nghĩ", "xét", "nhắc", "hỏi"]);
+    const PRONOUN_SUBJECT = new Set(["chúng", "tôi", "bạn", "họ", "nó", "các", "người", "mình", "ta"]);
+    function adjustJoins(words, gaps) {
+        let zone = 0, listed = false, sentStart = 0, commaYet = false, fronted = false;
+        const sylSince = (a, b) => { let n = 0; for (let k = a; k <= b; k++) n += words[k].syl; return n; };
+        const startClause = i => {
+            const first = words.slice(i, i + 2).map(w => w.bare);
+            fronted = SUBORDINATE.test(first[0] || "") || SUBORDINATE.test(first.join(" "));
+        };
+        startClause(0);
+        for (const g of gaps) {
+            const next = words[g.i + 1];
+            if (g.punct) {
+                listed = g.role === "list" || (listed && g.punct === "comma"); zone = g.i + 1;
+                if (g.punct === "sentence") { sentStart = g.i + 1; commaYet = false; startClause(g.i + 1); } else commaYet = true;
+                continue;
+            }
+            if (next.bare === "và" || next.bare === "hoặc" || next.bare === "hay") {
+                let left = 0, right = 0;
+                for (let k = zone; k <= g.i; k++) left += words[k].syl;
+                for (let k = g.i + 1; k < words.length; k++) { right += words[k].syl; if (words[k].punct) break; }
+                if (listed || left < 5 || right < 6) g.cost += 30;
+            } else if (next.bare === "nên" && (SUBJECT_STOP.has(words[g.i].bare) || MODAL_BEFORE.has(words[g.i].bare))) {
+                // "chúng ta | nên", "quyết định | nên": "nên" is "should" here, not "so"
+                g.cost = Math.max(g.cost, 30);
+            } else if (fronted && !commaYet && g.cost < 40 && PRONOUN_SUBJECT.has(next.bare) && sylSince(sentStart, g.i) >= 6) {
+                // "Khi dữ liệu bị thiếu | chúng ta phải...": the main clause after a fronted clause
+                // written without its comma (once: a later pronoun is an object, "loại bỏ chúng")
+                g.cost = Math.min(g.cost, -15);
+                fronted = false;
+            } else if (next.bare === "trước" && words[g.i + 2] && (words[g.i + 2].bare === "đó" || words[g.i + 2].bare === "đây")) {
+                // "kết quả | trước đó": after a word "trước đó" means "earlier" and belongs to what
+                // precedes; as the opener "before that" it follows punctuation
+                g.cost = Math.max(g.cost, 20);
+            } else if (next.bare === "rằng") {
+                // "phát hiện ra | rằng": never more than a joint between a verb and its complement
+                g.cost = Math.max(g.cost, 20);
+            } else if ((PREVERBAL.has(next.bare) || (next.bare === "có" && words[g.i + 2] && words[g.i + 2].bare === "thể")) && g.cost > 0 && g.cost < 40) {
+                // subject length: back to punctuation, a clause opener, "là" or "rằng"
+                let subj = 0;
+                for (let k = g.i; k >= zone; k--) {
+                    const w = words[k];
+                    if (SUBJECT_STOP.has(w.bare) || ((OPENERS[w.bare] || 0) >= 14 && !JOINERS.has(w.bare))) break;
+                    subj += w.syl;
+                }
+                if (subj < 5) continue;
+                g.cost -= 12;
+            } else continue;
+            g.value = valueOf(g.cost);
+        }
+    }
+
+    // Roles and target pause lengths at punctuation, continuous in the lengths around it.
+    // Kept from the measured 1.6.8 / 1.7.2 rules: a comma rests by the clause before it
+    // (0.14 + 0.012 per word, max 0.28), a full stop by its sentence (0.28 + 0.01 per word), ? +0.05,
+    // ! +0.03, ; and : 0.2 + 0.012 per word (max 0.32), a comma before a short tag is lighter.
+    // New in 1.7.6: list items rest alike, a lead-in is light, a comma before a contrast or cause
+    // ("nhưng", "vì vậy") no longer leans on, the comma closing a fronted clause ("Nếu ..., ") and a
+    // sentence followed by a transition ("... . Tuy nhiên") rest a little longer.
+    function assignRoles(words, gaps) {
+        // syllables and words since the last punctuation / sentence start, up to the next one
+        let sinceW = 0, sinceSyl = 0, sentW = 0, sentStart = 0, zoneStart = 0;
+        const nextPunct = i => { for (let j = i + 1; j < words.length; j++) if (words[j].punct) return j; return words.length - 1; };
+        const sylBetween = (a, b) => { let s = 0; for (let k = a; k <= b; k++) s += words[k].syl; return s; };
+        // comma runs inside a clause zone: a list when the items between two commas are short
+        const commaGaps = gaps.filter(g => g.punct === "comma").map(g => g.i);
+        const isList = new Set();
+        for (let k = 0; k < commaGaps.length; k++) {
+            let e = k;
+            while (e + 1 < commaGaps.length && !words.slice(commaGaps[e] + 1, commaGaps[e + 1]).some(w => w.punct) &&
+                sylBetween(commaGaps[e] + 1, commaGaps[e + 1]) <= 6) e++;
+            if (e > k) { for (let q = k; q <= e; q++) isList.add(commaGaps[q]); k = e; continue; }
+            // one comma: "A, B và C" with short A
+            const i = commaGaps[k];
+            let start = i; while (start > 0 && !words[start - 1].punct) start--;
+            const end = nextPunct(i);
+            const after = words.slice(i + 1, Math.min(end + 1, i + 6)).map(w => w.bare);
+            if (sylBetween(start, i) <= 4 && (after.includes("và") || after.includes("hoặc")) && sylBetween(i + 1, end) <= 9) isList.add(i);
+        }
+        for (const g of gaps) {
+            const i = g.i;
+            sinceW++; sentW++;
+            sinceSyl += words[i].syl;
+            const next = words[i + 1];
+            let ahead = 0; for (let j = i + 1; j < words.length; j++) { ahead++; if (words[j].punct) break; }
+            if (!g.punct) continue;
+            const op = openerAt(words, i + 1);
+            const strongNext = op && op.weight >= 24 && !JOINERS.has(op.phrase);
+            let pause;
+            if (g.punct === "sentence") {
+                pause = 0.28 + 0.01 * Math.min(sentW, 12) + (g.mark === "?" ? 0.05 : g.mark === "!" ? 0.03 : 0);
+                if (strongNext) pause += 0.03;
+                g.role = "sentence";
+                sentW = 0; sentStart = i + 1;
+            } else if (g.punct === "clause") {
+                pause = Math.min(0.32, 0.2 + 0.012 * sinceW);
+                g.role = "clause";
+            } else {
+                const lead = sylBetween(zoneStart, i) <= 3;
+                const opening = words.slice(sentStart, Math.min(i + 1, sentStart + 3)).map(w => w.bare);
+                const fronted = SUBORDINATE.test(opening[0] || "") || SUBORDINATE.test(opening.slice(0, 2).join(" ")) || SUBORDINATE.test(opening.join(" "));
+                if (isList.has(i)) {
+                    const lastItem = next && (next.bare === "và" || next.bare === "hoặc");
+                    pause = 0.15 + (lastItem ? 0.02 : 0);
+                    g.role = "list";
+                } else if (lead) {
+                    pause = 0.12 + 0.01 * Math.min(3, sinceSyl);
+                    g.role = "lead";
+                } else {
+                    pause = Math.min(0.28, 0.14 + 0.012 * Math.min(sinceW, 12));
+                    if (next && JOINERS.has(next.bare)) pause -= 0.04;
+                    else if (strongNext) pause += 0.02;
+                    if (fronted && zoneStart === sentStart) pause += 0.03;
+                    if (ahead <= 2) pause -= 0.03;
+                    pause = Math.max(0.1, Math.min(0.28, pause));
+                    g.role = "comma";
+                }
+            }
+            g.pause = round3(pause);
+            sinceW = 0; sinceSyl = 0;
+            zoneStart = i + 1;
+        }
+        for (const g of gaps) if (g.punct) g.level = g.punct === "sentence" ? "long" : g.punct === "clause" || g.role === "comma" ? "medium" : "short";
+    }
+
+    // ---- 2. Selection ----
+    // runPenalty(sec): a run of voiced speech between two kept pauses
+    function runPenalty(sec, k) {
+        const s = Math.max(0, k.shortRun - sec), l = Math.max(0, sec - k.longRun);
+        return k.shortWeight * s * s + k.longWeight * l * l;
+    }
+    // Length of a pause the text does not punctuate: stronger boundaries and longer runs before it
+    // rest a little longer; always shorter than a comma (0.1 to 0.22 s)
+    function phrasePause(value, runBefore) {
+        return round3(Math.min(0.22, 0.1 + 0.05 * Math.max(0, Math.min(1.2, value)) / 1.2 + 0.025 * Math.min(3, Math.max(0, runBefore))));
+    }
+
+    // points: every boundary in time order: { sec, fixed, value, dur } where fixed ones (start,
+    // punctuation the voice honoured, end) are always kept. Returns the set of chosen indices.
+    function selectBoundaries(points, opts = {}) {
+        const k = { ...K, ...(opts.model || {}) };
+        const tight = !!opts.tight;
+        const cost = k.pauseCost * (tight ? 1.8 : 1);
+        const kk = tight ? { ...k, longRun: k.longRun + 1 } : k;
+        const chosen = new Set(points.map((p, j) => (p.fixed ? j : -1)).filter(j => j >= 0));
+        // independent stretches between fixed boundaries
+        const fixedIdx = [...chosen].sort((a, b) => a - b);
+        for (let f = 0; f < fixedIdx.length - 1; f++) {
+            const a = fixedIdx[f], b = fixedIdx[f + 1];
+            if (b - a < 2) continue;
+            const idx = [];
+            for (let j = a; j <= b; j++) idx.push(j);
+            const best = new Array(idx.length).fill(-Infinity), from = new Array(idx.length).fill(-1);
+            best[0] = 0;
+            for (let q = 1; q < idx.length; q++) {
+                const p = points[idx[q]];
+                const gain = q === idx.length - 1 ? 0 : p.value + k.voiceWeight * voiceEvidence(p.dur) - cost;
+                if (q < idx.length - 1 && ((p.dur != null && p.dur < k.minStop) || p.value < k.minValue)) continue;
+                for (let r = 0; r < q; r++) {
+                    if (best[r] === -Infinity) continue;
+                    const v = best[r] - runPenalty(p.sec - points[idx[r]].sec, kk) + gain;
+                    if (v > best[q]) { best[q] = v; from[q] = r; }
+                }
+            }
+            for (let q = from[idx.length - 1]; q > 0; q = from[q]) chosen.add(idx[q]);
+        }
+        return chosen;
+    }
+    // The voice's stop length as evidence of its own phrasing: 0 at 0.12 s, 1 from 0.4 s
+    function voiceEvidence(dur) {
+        if (dur == null) return 0;
+        return Math.max(0, Math.min(1, (dur - 0.12) / 0.28));
+    }
+
+    // Decide every stop of a take. stops: [{ gap, sec, dur, punct }] in time order (gap = index into
+    // analysis.gaps, -1 if none; punct = true when matched to punctuation). voiced: the take's voiced
+    // seconds. Returns [{ keep, kind }] per stop, keep being the pause length before caps.
+    function choose(analysis, stops, voiced, opts = {}) {
+        // two stops on one gap (a stop broken by a click): only the longer one is a candidate
+        const longest = new Map();
+        stops.forEach((s, j) => {
+            if (!(s.gap >= 0 && analysis.gaps[s.gap])) return;
+            if (!longest.has(s.gap) || stops[longest.get(s.gap)].dur < s.dur) longest.set(s.gap, j);
+        });
+        const points = [{ sec: 0, fixed: true, value: 0 }];
+        stops.forEach((s, j) => {
+            if (longest.get(s.gap) !== j) return;
+            points.push({ sec: s.sec, fixed: !!s.punct, value: analysis.gaps[s.gap].value, dur: s.dur, stop: j });
+        });
+        points.push({ sec: voiced, fixed: true, value: 0 });
+        const chosen = selectBoundaries(points, opts);
+        const out = stops.map(() => ({ keep: 0, kind: "joint" }));
+        let lastSec = 0;
+        points.forEach((p, q) => {
+            if (!chosen.has(q)) return;
+            if (p.stop != null) {
+                const s = stops[p.stop], g = analysis.gaps[s.gap];
+                out[p.stop] = s.punct ? { keep: g.pause, kind: g.punct } : { keep: phrasePause(g.value, p.sec - lastSec), kind: "soft" };
+            }
+            lastSec = p.sec;
+        });
+        return out;
+    }
+
+    // Text only: the breath groups a reader would use, with durations estimated from syllables.
+    // Returns [{ gap, word, pause, role }].
+    function breathGroups(text, opts = {}) {
+        const a = analyze(text);
+        const sps = opts.sps || K.sps;
+        const points = [{ sec: 0, fixed: true, value: 0 }];
+        a.gaps.forEach((g, i) => points.push({ sec: g.pos / sps, fixed: !!g.punct, value: g.value, dur: null, gap: i }));
+        points.push({ sec: a.total / sps, fixed: true, value: 0 });
+        const chosen = selectBoundaries(points, opts);
+        const out = [];
+        let lastSec = 0;
+        points.forEach((p, q) => {
+            if (!chosen.has(q)) return;
+            if (p.gap != null) {
+                const g = a.gaps[p.gap];
+                out.push({ gap: p.gap, word: a.words[p.gap].raw, role: g.punct ? g.role : "phrase", pause: g.punct ? g.pause : phrasePause(g.value, p.sec - lastSec) });
+            }
+            lastSec = p.sec;
+        });
+        return out;
+    }
+
+    // ---- 3. Text for the free voice ----
+    // A long stretch with no punctuation: the voice often reads it in one breath, or stops at a
+    // different place on every take. A comma at the best clause boundary of that stretch makes it
+    // stop there every time. Measured on 7 such sentences x 5 real takes: the voice stopped at 35
+    // of 35 inserted commas; longest run 16.9 -> 14.2 syllables on average, 28 -> 18 at worst; the
+    // 37-syllable sentence read 27/16/27/16/16 before, 16 on all five after; +0.35% duration.
+    // Only strong boundaries (clause openers, a main clause after a fronted one), only in a run of
+    // 20+ syllables, 7+ on each side: a comma in a weak place would be heard. The words never change.
+    const BREATH = { minRun: 20, minSide: 7, minValue: 0.6 };
+    const breathMemo = new Map();
+    function breathText(text) {
+        const key = String(text || "");
+        let hit = breathMemo.get(key);
+        if (hit !== undefined) return hit;
+        const a = analyze(key);
+        const add = new Set();
+        const sum = (x, y) => { let n = 0; for (let k = x; k <= y; k++) n += a.words[k].syl; return n; };
+        for (const b of breathGroups(key)) {
+            const g = a.gaps[b.gap];
+            if (b.role !== "phrase" || g.value < BREATH.minValue) continue;
+            let from = b.gap; while (from > 0 && !a.words[from - 1].punct) from--;
+            let to = b.gap + 1; while (to < a.words.length - 1 && !a.words[to].punct) to++;
+            if (sum(from, to) < BREATH.minRun || sum(from, b.gap) < BREATH.minSide || sum(b.gap + 1, to) < BREATH.minSide) continue;
+            add.add(b.gap);
+        }
+        hit = add.size ? a.words.map((w, i) => w.raw + (add.has(i) ? "," : "")).join(" ") : key;
+        if (breathMemo.size >= 600) breathMemo.clear();
+        breathMemo.set(key, hit);
+        return hit;
+    }
+
+    // Boundary value between the end of one text and the start of the next (a segment cut)
+    function boundaryValue(left, right) {
+        const l = String(left || "").trim().split(/\s+/).filter(Boolean).slice(-6);
+        const r = String(right || "").trim().split(/\s+/).filter(Boolean).slice(0, 6);
+        if (!l.length || !r.length) return 0;
+        const a = analyze(l.join(" ") + " " + r.join(" "));
+        const g = a.gaps[a.words.length - r.length - 1];
+        return g ? g.value : 0;
+    }
+
+    const api = { analyze, choose, breathGroups, breathText, boundaryValue, selectBoundaries, spokenWeight, syllables, runPenalty, K };
+    if (typeof module === "object" && module.exports) module.exports = api;
+    if (root) root.CST_DUB_PROSODY = api;
+})(typeof globalThis !== "undefined" ? globalThis : this);

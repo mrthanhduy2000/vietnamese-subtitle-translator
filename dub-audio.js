@@ -256,137 +256,42 @@
         return out;
     }
 
-    // Syllables a token takes to say: one per vowel group (a Vietnamese syllable 1, "PyTorch" 2,
-    // "network" 2), one per digit. Break positions are measured in these, not in words, because an
-    // English term is several syllables of voiced time (1.7.2).
-    const VOWELS = /[aeiouyàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ]+/g;
-    function spokenWeight(word) {
-        const w = String(word || "").replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();
-        if (!w) return 0;
-        if (/\d/.test(w)) return Math.max(1, w.replace(/\D/g, "").length);
-        const g = w.match(VOWELS);
-        return Math.max(1, g ? g.length : 1);
-    }
+    // Pause shaping (1.7.6). The voice model stops where the text asks for it and also where it
+    // does not (mid-phrase hesitations of 0.15 to 0.4 s, and real phrase breaks the text has no
+    // comma for). Nothing is ever lengthened or inserted: only the model's own silences are
+    // shortened, so a pause exists only where the voice itself made one.
+    //   1. alignStops: every internal stop is placed in the text by its position in voiced time.
+    //      Punctuation is matched first (the voice stops at nearly every mark) and those stops then
+    //      anchor the others, interpolated between them (a long sentence drifts less)
+    //   2. CST_DUB_PROSODY.choose decides which stops are pauses (see dub-prosody.js): punctuation
+    //      always, other stops when the boundary is good and the rhythm of the whole sentence needs
+    //      it; every other stop is closed to a joint (joinPause)
+    // History: 1.6.7 punctuation only; 1.7.2 keyword clause openers, a fixed breath every 4.5 s;
+    // 1.7.5 adjunct keywords. Measured on 56 sentences x 5 takes, those lists missed the voice's
+    // own stops before "nên", "mà", "sau mỗi", and the fixed breath landed mid-phrase.
+    const prosody = () => (root && root.CST_DUB_PROSODY) ||
+        (typeof require === "function" ? require("./dub-prosody.js") : null);
 
-    // Words that open a new clause (1.7.2). In a long sentence the voice often stops right before
-    // one although the text has no comma ("... học nhanh hơn | thì ...", "... tập huấn luyện | nhưng
-    // lại ..."); a reader breathes there too, so that stop keeps a short pause instead of being
-    // closed. "và" / "hoặc" also join plain nouns, so they count only between two long clauses.
-    const STARTERS2 = new Set(["nhưng mà", "tuy nhiên", "thế nhưng", "vì vậy", "vì thế", "do đó", "do vậy", "cho nên",
-        "vậy nên", "bởi vì", "sau khi", "trước khi", "trong khi", "cho đến", "mặc dù", "tuy vậy", "nếu như", "ngoài ra",
-        "đồng thời", "thay vì", "trong đó", "nhờ đó", "từ đó", "hơn nữa", "sao cho", "chẳng hạn"]);
-    // 1.7.5: adjunct phrases that open the second half of a long lecture sentence with no comma.
-    // Measured on real Mỹ Duyên takes: a 27-syllable "... dựa trên ..." sentence came out with no pause
-    // in 3 of 4 takes. They are also verbs ("chúng ta dựa vào kết quả"), so never after a pronoun,
-    // and only with a real phrase after them (3 more words), so a short sentence stays whole
-    const ADJUNCTS2 = new Set(["dựa trên", "dựa vào", "bằng cách", "thông qua", "nhờ vào", "theo đó"]);
-    const PRONOUNS = new Set(["ta", "tôi", "nó", "họ", "bạn", "mình", "chúng", "anh", "chị", "em", "ông", "bà", "ai", "đó", "này", "ấy"]);
-    const STARTERS1 = new Set(["nhưng", "còn", "thì", "vì", "để", "khi", "nếu", "song", "tuy", "dù", "bởi", "nhờ", "nhằm"]);
-    const WEAK_STARTERS = new Set(["và", "hoặc"]);
-    // a starter right after one of these is part of a phrase ("đôi khi", "vẫn còn", "sau khi"...)
-    const NOT_AFTER = new Set(["đôi", "có", "những", "một", "mỗi", "vẫn", "không", "chưa", "đang", "cũng", "chỉ", "hãy",
-        "sẽ", "đã", "rất", "của", "các", "cho", "với", "vào", "trong", "trên", "về", "từ", "là", "và", "hoặc", "hay", "mà",
-        "thì", "nếu", "khi", "để", "vì", "sau", "trước", "thay", "mặc", "bởi", "do", "tuy", "nhưng"]);
-    // ... and one followed by these is a word of its own, not a clause opening
-    const NOT_BEFORE = { còn: ["lại"], để: ["ý", "dành", "lại"], khi: ["nào"], vì: ["sao"], thì: ["là"] };
-    const bare = w => String(w || "").replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();
-
-    // Where the text asks for a pause, or allows one. One entry per word that ends in punctuation
-    // (the last word excluded), plus, with opts.soft, one per clause opening in a long sentence.
-    // `at` is the share of the spoken syllables before the break; `cap` the pause it earns.
-    // v2 (1.6.8): a comma after a short lead-in ("Vâng," "Trước hết,") is a light touch, after a
-    // long clause a real breath; before a joining word (và, nhưng...) it leans on into the next one.
-    // v3 (1.7.2): a full stop rests by the length of its sentence (0.28 + 0.01 per word: "Đúng vậy."
-    // 0.30, a 12-word sentence the full 0.4), ? and ! a little longer; a comma before a short tag
-    // (", đúng không?") is lighter; soft clause breaks (see STARTERS) are shorter than a comma.
-    const JOINERS = /^(và|nhưng|còn|rồi|mà|hay|hoặc|nên|vì|thì|để|khi|nếu|song|tuy)$/i;
-    function textBreaks(text, caps, opts = {}) {
-        const words = String(text || "").split(/\s+/).filter(Boolean);
-        const weight = words.map(spokenWeight);
-        const total = weight.reduce((a, b) => a + b, 0) || 1;
-        const punct = words.map(w => {
-            const m = w.match(/([.!?…]|[;:]|,)["”')\]]*$/);
-            return m ? (/[.!?…]/.test(m[1]) ? "sentence" : /[;:]/.test(m[1]) ? "clause" : "comma") : null;
-        });
-        const out = [];
-        let acc = 0, since = 0, sent = 0, clause = 0;          // words since: punctuation / sentence / any break
-        for (let i = 0; i < words.length - 1; i++) {
-            acc += weight[i];
-            since++; sent++; clause++;
-            let ahead = 0;
-            for (let j = i + 1; j < words.length; j++) { ahead++; if (punct[j]) break; }
-            const kind = punct[i];
-            if (kind) {
-                let cap = caps[kind];
-                if (kind === "comma") {
-                    cap = Math.min(caps.comma, 0.14 + 0.012 * Math.min(since, 12));
-                    if (JOINERS.test(bare(words[i + 1]))) cap -= 0.04;
-                    if (ahead <= 2) cap -= 0.03;
-                    cap = Math.max(0.1, cap);
-                } else if (kind === "clause") {
-                    cap = Math.min(caps.clause, 0.2 + 0.012 * since);
-                } else {
-                    const mark = words[i].match(/[.!?…]/g).pop();
-                    cap = Math.min(caps.sentence, 0.28 + 0.01 * sent) + (mark === "?" ? 0.05 : mark === "!" ? 0.03 : 0);
-                    cap = Math.min(caps.max, cap);
-                    sent = 0;
-                }
-                out.push({ at: acc / total, frac: acc / total, kind, cap: Math.round(cap * 1000) / 1000 });
-                since = 0; clause = 0;
-                continue;
-            }
-            if (!opts.soft) continue;
-            const nx = bare(words[i + 1]), nx2 = bare(words[i + 2]), prev = bare(words[i]);
-            const two = STARTERS2.has(nx + " " + nx2);
-            const adj = !two && ADJUNCTS2.has(nx + " " + nx2) && !PRONOUNS.has(prev) && !NOT_AFTER.has(prev);
-            const one = !two && !adj && STARTERS1.has(nx) && !NOT_AFTER.has(prev) && !(NOT_BEFORE[nx] || []).includes(nx2);
-            const weak = !two && !adj && !one && WEAK_STARTERS.has(nx) && !NOT_AFTER.has(prev);
-            if (!(two || adj || one || weak)) continue;
-            if (clause < (weak ? 6 : 5) || ahead < (weak ? 4 : adj ? 5 : 3)) continue;
-            const cap = Math.min(caps.comma, 0.2, 0.1 + 0.008 * Math.min(clause, 12));
-            out.push({ at: acc / total, frac: acc / total, kind: "soft", cap: Math.round(cap * 1000) / 1000 });
-            clause = 0;
-        }
-        return out;
-    }
-    const punctuationBreaks = (text, caps) => textBreaks(text, caps);
-
-    // Pause shaping. The voice model stops where the text asks for it and also where it does not
-    // (mid-phrase hesitations of 0.15 to 0.4 s). Every internal stop is matched to the breaks of the
-    // text by its position in voiced time: a stop at punctuation keeps up to that punctuation's
-    // pause (1.6.7), a stop at a clause opening of a long sentence keeps a short one (1.7.2), every
-    // other stop is closed to a joint (joinPause), and a long run with no kept pause gets one
-    // breath at a real stop. Nothing is ever lengthened or inserted: only the model's own silences
-    // are shortened, so a pause exists only where the voice itself made one.
-    // v3 (1.7.2): voiced time is counted from the first to the last sound (the take's lead and tail
-    // silence used to skew every position), and positions are in spoken syllables.
-    function shapePauses(samples, sr, text, opts = {}) {
-        const maxPause = opts.maxPause != null ? opts.maxPause : 0.4;
-        const caps = {
-            max: maxPause,
-            sentence: Math.min(maxPause, opts.sentencePause != null ? opts.sentencePause : 0.4),
-            clause: Math.min(maxPause, opts.clausePause != null ? opts.clausePause : 0.32),
-            comma: Math.min(maxPause, opts.commaPause != null ? opts.commaPause : 0.28)
-        };
-        const joinPause = opts.joinPause != null ? opts.joinPause : 0.09;
+    function alignStops(samples, sr, text, opts = {}) {
         const dur = samples.length / sr;
-        const empty = { samples, matched: 0, soft: 0, joined: 0, breaths: 0, pauses: [] };
         const sil = findSilences(samples, sr, { minMs: opts.minMs || 90 })
             .filter(x => x.start > 0.05 && x.end < dur - 0.05);
-        if (!sil.length) return empty;
+        const P = prosody();
+        if (!P) return { sil: [], A: null, voiced: 0 };
+        const A = P.analyze(text);
+        if (!sil.length) return { sil, A, voiced: 0 };
         const a = analyze(samples, sr);
         const onset = Math.min(a.leadingSilence, sil[0].start);
         const offset = Math.max(dur - a.trailingSilence, sil[sil.length - 1].end);
         let quiet = 0;
-        for (const x of sil) { x.vt = Math.max(0, x.start - onset - quiet); quiet += x.end - x.start; }
+        for (const x of sil) { x.vt = Math.max(0, x.start - onset - quiet); quiet += x.end - x.start; x.gap = -1; x.punct = false; }
         const voiced = Math.max(0.1, offset - onset - quiet);
-        const breaks = textBreaks(text, caps, { soft: opts.soft !== false });
-        const owner = new Array(sil.length).fill(null);
-        // 1. punctuation, in order (a stop can serve one break only)
+        const total = A.total || 1;
+        // 1. punctuation, in order (a stop can serve one mark only)
         let from = 0;
-        for (const b of breaks) {
-            if (b.kind === "soft") continue;
-            const want = b.at * voiced;
+        for (const g of A.gaps) {
+            if (!g.punct) continue;
+            const want = g.pos / total * voiced;
             const tol = Math.max(0.6, voiced * 0.12);
             let best = -1, bestScore = -Infinity;
             for (let j = from; j < sil.length; j++) {
@@ -396,45 +301,54 @@
                 if (score > bestScore) { bestScore = score; best = j; }
             }
             if (best < 0) continue;
-            owner[best] = b;
+            sil[best].gap = g.i; sil[best].punct = true;
             from = best + 1;
         }
-        // 2. clause openings: only a real stop (>= 0.12 s), close to the break, and on the right
-        // side of every stop already given to punctuation
-        for (const b of breaks) {
-            if (b.kind !== "soft") continue;
-            const want = b.at * voiced;
-            const tol = Math.max(0.35, voiced * 0.07);
+        // 2. the other stops, between the anchors around them. Measured on 49 comma stops: voiced
+        // time predicts the syllable within 0.28 on average; a near tie goes to the better boundary
+        const anchors = [{ vt: 0, pos: 0 }, ...sil.filter(x => x.punct).map(x => ({ vt: x.vt, pos: A.gaps[x.gap].pos })), { vt: voiced, pos: total }];
+        for (const x of sil) {
+            if (x.punct) continue;
+            let k = 0;
+            while (k < anchors.length - 2 && anchors[k + 1].vt <= x.vt) k++;
+            const p = anchors[k], q = anchors[k + 1];
+            const est = p.pos + (x.vt - p.vt) / Math.max(1e-6, q.vt - p.vt) * (q.pos - p.pos);
+            // A long stop is almost never inside a word, term or number ("biểu | diễn", "mười | lần")
+            // and rarely between two content words ("đáng | kể"): the longer the stop, the more the
+            // next gap is preferred. Other gaps only break near ties: the voice does hesitate after
+            // "rằng" or "của"
+            const pull = 0.3 + 0.9 * Math.max(0, Math.min(1, (x.dur - 0.12) / 0.2));
             let best = -1, bestScore = -Infinity;
-            for (let j = 0; j < sil.length; j++) {
-                if (owner[j] || sil[j].dur < 0.12) continue;
-                const d = Math.abs(sil[j].vt - want);
-                if (d > tol) continue;
-                const crosses = owner.some((o, k) => o && ((k < j && o.at > b.at) || (k > j && o.at < b.at)));
-                if (crosses) continue;
-                const score = Math.min(0.5, sil[j].dur) - d * 1.2;
-                if (score > bestScore) { bestScore = score; best = j; }
+            for (const g of A.gaps) {
+                const d = Math.abs(g.pos - est);
+                if (d > 1.5 || g.pos <= p.pos || g.pos >= q.pos) continue;
+                const prior = g.unit ? -1.5 : g.cost >= 20 && !g.punct ? -0.8 : 0.25 * Math.max(-1, Math.min(1.5, g.value));
+                const score = -1.2 * d * d + pull * prior;
+                if (score > bestScore) { bestScore = score; best = g.i; }
             }
-            if (best >= 0) owner[best] = b;
+            x.gap = best;
+            if (best >= 0 && A.gaps[best].punct) x.punct = true;
         }
-        // 3. keep, join or breathe. A long run with no kept pause still needs somewhere to breathe:
-        // after breathEvery seconds of voiced speech, the next real stop (>= 0.2 s; shorter ones are
-        // mostly hesitations inside a phrase) keeps a short breath
-        const breathEvery = opts.breathEvery != null ? opts.breathEvery : 4.5;
-        const breathPause = Math.min(maxPause, opts.breathPause != null ? opts.breathPause : 0.16);
+        return { sil, A, voiced };
+    }
+
+    function shapePauses(samples, sr, text, opts = {}) {
+        const maxPause = opts.maxPause != null ? opts.maxPause : 0.4;
+        const joinPause = opts.joinPause != null ? opts.joinPause : 0.09;
+        const { sil, A, voiced } = alignStops(samples, sr, text, opts);
+        if (!sil.length) return { samples, matched: 0, soft: 0, joined: 0, pauses: [] };
+        // tight mode (a dense sentence): fewer pauses the text does not ask for, all of them shorter
+        const dec = prosody().choose(A, sil.map(x => ({ gap: x.gap, sec: x.vt, dur: x.dur, punct: x.punct })), voiced, { tight: maxPause < 0.2 });
         const list = [], pauses = [];
-        let joined = 0, breaths = 0, matched = 0, soft = 0, lastKept = 0;
+        let joined = 0, matched = 0, soft = 0;
         sil.forEach((x, j) => {
-            let keep, kind;
-            const o = owner[j];
-            if (o) { keep = Math.min(x.dur, o.cap); kind = o.kind; if (o.kind === "soft") soft++; else matched++; }
-            else if (x.vt - lastKept >= breathEvery && x.dur >= 0.2) { keep = Math.min(x.dur, breathPause); kind = "breath"; breaths++; }
-            else { keep = Math.min(x.dur, joinPause); kind = "joint"; if (x.dur > joinPause + 0.02) joined++; }
-            if (keep > joinPause) lastKept = x.vt;
-            pauses.push({ at: +(x.vt / voiced).toFixed(3), dur: +x.dur.toFixed(3), keep: +keep.toFixed(3), kind });
+            let { keep, kind } = dec[j];
+            if (keep > 0) { keep = Math.min(x.dur, keep, maxPause); if (kind === "soft") soft++; else matched++; }
+            else { keep = Math.min(x.dur, joinPause); if (x.dur > joinPause + 0.02) joined++; }
+            pauses.push({ at: +(x.vt / voiced).toFixed(3), dur: +x.dur.toFixed(3), keep: +keep.toFixed(3), kind, gap: x.gap });
             if (x.dur - keep > 0.02) list.push({ start: x.start, end: x.end, keep });
         });
-        return { samples: shrinkSilences(samples, sr, list), matched, soft, joined, breaths, pauses };
+        return { samples: shrinkSilences(samples, sr, list), matched, soft, joined, pauses };
     }
 
     // ---------------- Spectral noise reduction (1.7.0) ----------------
@@ -672,7 +586,7 @@
     const api = {
         base64ToBytes, pcm16leToFloat, decodeWav, encodeWav, analyze, findSilences, trimSilence,
         normalize, fade, edgeJump, prepareSpeech, compressPauses, splitBySilence, slice, dbToLin, linToDb,
-        shrinkSilences, punctuationBreaks, textBreaks, spokenWeight, shapePauses, denoise, fft,
+        shrinkSilences, alignStops, shapePauses, denoise, fft,
         highPass, cleanTake, startsVoiced
     };
     if (typeof module === "object" && module.exports) module.exports = api;

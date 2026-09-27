@@ -5,7 +5,7 @@ offline** - Gemini and Google are faked, timers are virtualised, no TTS server n
 
 ```bash
 npm test          # ~14s. The bar is 0 fail; 1 skip is normal
-                  # 316 tests / 315 pass as of 2026-09-23, and the count keeps growing
+                  # 442 tests / 441 pass as of 2026-09-27, and the count keeps growing
 ```
 
 The one skip is intentional (see `reload-fight.test.js` below). **A fail is a regression, not noise.**
@@ -27,11 +27,12 @@ sense of weight, not an assertion.
 | `backlog.test.js` | 9 | Settings with one source of truth (no condense code anywhere, `dualMode` via `CST_STYLE.resolveDual`), the single YouTube bridge, glossary loads in Node, segmenter `explain()`, the `buildPhrases` memo, throttled body observers |
 | `generic-site.test.js` | 5 | Unlisted sites: shortcut injects the ISOLATED group once through `activeTab` then delivers the command, `chrome://` left alone, no all-sites permission, generic track path, host-prefixed keys |
 | `settings.test.js` | 6 | Backup build/parse (key optional, caches excluded, foreign files refused), the Settings wiring, `dubMaxRate` capping every rate, `skipSameLang` on all three sites |
-| `voice-pauses.test.js` | 8 | `shapePauses` (unpunctuated stops closed, punctuation kept, breath in long runs, tight cap), `joinGroups` segmenting, 48 kHz wiring |
+| `voice-pauses.test.js` | 8 | `shapePauses` (unpunctuated stops closed, punctuation kept, a long unpunctuated run keeps its clause-opening stops and closes the one inside a phrase, tight cap), `joinGroups` segmenting, 48 kHz wiring, pause roles at punctuation |
 | `spoken-lang.test.js` | 8 | `spokenLanguage` (audio > ASR > title, AI dubs, Vietsub titles), `ytChonTrack` with AI-dub ASR tracks, the gate before the cache |
 | `quality.test.js` | 6 | Size scale (100% = old 70%), `lingerCues`, `denoise` (hiss down, voice kept, clean take skipped), FFT round trip, wiring |
 | `audit.test.js` | 13 | 1.7.3 audit: popup "Tiếng Anh ở trên" live, dead popup switch gone, Coursera render-loop memo, YouTube does not save a Google-fallback video, daily storage sweep, parallel Google fallback, removed dead code. 1.7.4: leaving a Coursera lecture / a YouTube video mid-load (the only **flow** tests of the two start paths; `pageEnv({ timers, tracks, sendMessage, files, sync })` runs the real `content.js` + `youtube.js` with stubbed bridge and network). 1.7.5: Coursera progressive display (first line after 1 reply), playhead-first order, switch-off mid-run, button redrawn after `busy`, popup progress loop (runs the real `popup.js` on a stub DOM) |
-| `voice-clean.test.js` | 10 | `highPass` (rumble cut, voice band kept), the corrected hiss estimate, `spokenWeight`, `textBreaks` soft clause breaks and sentence pauses by length, `shapePauses` keeping a clause-opening stop, lead silence skipped, the 20 ms voiced onset, engine `gapAfter`, wiring (no gate) |
+| `voice-clean.test.js` | 9 | `highPass` (rumble cut, voice band kept), the corrected hiss estimate, clause openings as the strongest boundaries and sentence pauses by length (on `dub-prosody.js` since 1.7.6), `shapePauses` keeping a clause-opening stop, lead silence skipped, the 20 ms voiced onset, engine `gapAfter` wiring, no gate |
+| `prosody.test.js` | 21 | 1.7.6 prosody model: syllables, graded levels and roles (lead, list, comma before a contrast, fronted clause, question, transition), no pause inside units / after "rằng" / before modal "nên", openers and long subjects as boundaries, the selection (budget, choppy and long runs, floor, tight), memo and determinism, breathing commas, cut values, `prosodicCut` for free voices only, engine `gapAfter` and `plainScript`, three real Mỹ Duyên takes in `tests/audio`, and two guards over the whole marked corpus (`prosody-corpus.js`): commas only at marked gaps, no unit ever chosen |
 | `ui.test.js` | 13 | Shortcuts (Alt+S / Alt+D / Alt+Shift+V), no blocking `alert`/`confirm` on the user's page, focus rings and reduced-motion, `role=status` toasts, the YouTube quick menu built on a mini-DOM, light/dark theme wiring, the VieNeu autostart script, auto-switch back to VieNeu when the server appears, and the release-history data |
 
 ## The two harnesses that make offline testing possible
@@ -53,10 +54,16 @@ not dead code.
 
 ## Manual scripts, not in `npm test`
 
-`speech-bench.live.js` (1.7.5): 12 representative sentences through the real VieNeu path (adaptForSpeech,
-server, cleanTake, shapePauses, prepareSpeech); prints the voice's own stops, what is kept, the text
-breaks and the rate. `OUT=<dir>` writes WAVs, `REPS=3` repeats (the voice is not deterministic:
-judge a pause rule on several takes, and A/B old vs new shaping on the **same** take).
+`speech-bench.live.js` (1.7.5, 1.7.6): 12 representative sentences through the real VieNeu path
+(adaptForSpeech, breathing commas, server, cleanTake, shapePauses, prepareSpeech); prints the voice's
+own stops with the word before each and what was kept, and the rate. `OUT=<dir>` writes WAVs,
+`REPS=3` repeats (the voice is not deterministic: judge a pause rule on several takes, and A/B old
+vs new shaping on the **same** take).
+
+`../tools/prosody-eval.js` (1.7.6): the pause-shaping score on 104 marked sentences x 5 takes (see
+`DUBBING.md` "Prosody model"). Renders missing takes (sandbox off), then scores; `OLD=<file>` A/Bs
+an older `dub-audio.js` on the same takes. The marks are one reader's judgment: read WRONG as
+"worth listening to", not as ground truth.
 
 ```bash
 npm run compare              # old vs new segmenter over every fixture. Offline
