@@ -340,6 +340,29 @@ test("âm lượng gốc hạ/nâng mượt (không giật), tôn trọng ngư�
     assert.ok(Math.abs(S.video.volume - Math.min(1, 0.3 / f)) < 0.02, `${S.video.volume} vs ${0.3 / f}`);
 });
 
+test("YouTube re-applying its own volume mid-speech does not undo the duck", () => {
+    const S = runLive();
+    S.eng.settings.playerOwnsVolume = true;
+    S.eng.settings.duck = 0.1;
+    const p = S.eng.plans[3];
+    // Run until the voice speaks and the duck has settled at its target
+    let settled = false;
+    for (let i = 0; i < (p.start + 2) * 20 && !settled; i++) {
+        S.run(50);
+        settled = S.eng.speakingUntilMedia >= S.video.currentTime && Math.abs(S.eng.duckFactor - 0.1) < 1e-3;
+    }
+    assert.ok(settled, "the duck never reached its target");
+    // YouTube writes its own level (Stable Volume, seek, player refresh) while the voice goes on
+    S.video.volume = 0.75;
+    S.video.emit("volumechange");
+    S.run(50);
+    assert.ok(S.eng.speakingUntilMedia >= S.video.currentTime, "the test needs the voice still speaking");
+    assert.ok(Math.abs(S.video.volume - 0.075) < 0.01, `original track left at ${S.video.volume}`);
+    // Turning dubbing off gives back YouTube's level, not a level inflated by the duck factor
+    S.eng.stop();
+    assert.ok(Math.abs(S.video.volume - 0.75) < 0.01, `restored to ${S.video.volume}`);
+});
+
 // ================= 6. ĐỒNG BỘ AUDIO CÓ SẴN (Gemini TTS) =================
 function fakeGeminiProvider(clock, opts = {}) {
     const calls = [];

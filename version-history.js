@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.7.9", luc: "15:07 27/09/2026", ten: "Tiếng gốc trên YouTube hạ nhỏ đúng mức khi giọng Việt đang đọc",
+            y: [
+                "Sửa lỗi tiếng gốc không hạ xuống mức đã chọn (ví dụ 10%) khi giọng Việt đang nói trên YouTube. Nguyên nhân: trình phát YouTube tự đặt lại âm lượng video (tính năng Âm lượng ổn định, sau khi tua...), tiện ích tưởng là người xem tự chỉnh nên thôi hạ nhỏ cho tới lúc giọng Việt ngừng.",
+                "Giờ mỗi khi YouTube tự đặt lại âm lượng, tiếng gốc được hạ lại ngay ở nhịp kế tiếp (khoảng 0,05 giây). Khi tắt lồng tiếng, âm lượng trả về đúng mức của YouTube chứ không bị đẩy lên 100%."
+            ]
+        },
+        {
             v: "1.7.8", luc: "14:51 27/09/2026", ten: "Giọng VieNeu đọc đúng tên riêng, thương hiệu, viết tắt và số phiên bản tiếng Anh",
             y: [
                 "Giọng VieNeu không còn đánh vần tên tiếng Anh bằng chữ cái tiếng Việt: IKEA đọc \"ai-ki-a\" thay vì \"i ca e a\", CPC / ROI / TPM đọc chữ cái tiếng Anh thay vì \"xê phê xê\". Những viết tắt tiếng Việt (CLB, HLV, VTV, UBND), khổ giấy A4, đội U23 vẫn đọc kiểu Việt như cũ.",

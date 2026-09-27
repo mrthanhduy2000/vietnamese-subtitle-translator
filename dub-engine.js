@@ -409,6 +409,7 @@
             this.lastT = null;
             this.stats = { started: [], corrections: 0, dropped: 0, errors: 0, requests: 0, lagMax: 0, cacheHits: 0, ttsPlans: 0, aborted: 0 };
             this.duckFactor = 1;
+            this.duckDirty = false;         // volume written by someone else: re-apply the duck next tick
             this.baseVolume = null;
             this.lastSetVolume = null;
             this.speakingUntilMedia = -1;
@@ -422,10 +423,14 @@
             const v = this.d.video;
             this.baseVolume = v.volume;
             this.onVolume = () => {
-                // Người dùng tự chỉnh âm lượng khi đang lồng tiếng: tôn trọng mức mới
-                if (this.lastSetVolume !== null && Math.abs(v.volume - this.lastSetVolume) > 0.005) {
-                    this.baseVolume = Math.min(1, v.volume / Math.max(0.05, this.duckFactor));
-                }
+                if (this.lastSetVolume === null || Math.abs(v.volume - this.lastSetVolume) <= 0.005) return;
+                // Someone else wrote the volume. YouTube's player writes its own full (unducked) level:
+                // its slider never shows our ducked value, and it re-applies Stable Volume by itself
+                // (measured after a seek: 0.1 -> 0.89). That value is the new base, and the duck must
+                // be applied again, or the original track stays loud until the voice pauses.
+                // A plain <video> control shows the ducked value, so a drag there is scaled back up.
+                this.baseVolume = this.settings.playerOwnsVolume ? v.volume : Math.min(1, v.volume / Math.max(0.05, this.duckFactor));
+                this.duckDirty = true;
             };
             this.onSeek = () => this.hardReset("seek");
             this.onPauseLike = () => this.silence();
@@ -1526,7 +1531,8 @@
             const active = playing && t <= this.speakingUntilMedia;
             const target = active ? this.settings.duck : 1;
             const step = SYNC.duckRampPerTick;
-            if (Math.abs(this.duckFactor - target) < 1e-3) return;
+            if (!this.duckDirty && Math.abs(this.duckFactor - target) < 1e-3) return;
+            this.duckDirty = false;
             this.duckFactor = this.duckFactor < target ? Math.min(target, this.duckFactor + step) : Math.max(target, this.duckFactor - step);
             this.setVideoVolume((this.baseVolume == null ? 1 : this.baseVolume) * this.duckFactor);
         }

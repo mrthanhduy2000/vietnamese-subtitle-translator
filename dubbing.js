@@ -241,7 +241,7 @@
                 }, 0);
             },
             log: (...a) => console.warn("[Lồng tiếng]", ...a)
-        }, { duck: level(s.dubDuck, 0.2), volume: level(s.dubVolume, 1), secondVoice: s.dubSecondVoice === true, maxRate: Number(s.dubMaxRate) || null, prefetchMax: smartPrefetch(mode, opts.video) });
+        }, { duck: level(s.dubDuck, 0.2), volume: level(s.dubVolume, 1), playerOwnsVolume: /(^|\.)youtube\.com$/.test(location.hostname), secondVoice: s.dubSecondVoice === true, maxRate: Number(s.dubMaxRate) || null, prefetchMax: smartPrefetch(mode, opts.video) });
         dub.engine = engine;
         dub.enabled = true;
         dub.starting = false;

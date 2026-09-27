@@ -188,8 +188,12 @@ Knobs you will actually reach for:
   warm). `background.js` `localIsCold()` (>10 min since a good render, kept in `chrome.storage.session`)
   gives that first line a 60 s limit and keeps it out of the speed log. No warm-up line (1.2.6 test).
 - **Ducking**: voice cannot be separated from music, so the original track is ramped down
-  (`duckRampPerTick` 0.09, `duckHold` 0.35) in `updateDuck`, with a guard against fighting the
-  user's own volume changes.
+  (`duckRampPerTick` 0.09, `duckHold` 0.35) in `updateDuck`. Any volume write that is not ours
+  (`onVolume`) resets the base and sets `duckDirty`, so the duck is re-applied next tick. On YouTube
+  (`playerOwnsVolume`, set in `dubbing.js`) the written value IS the new base: the player writes its
+  own full level (Stable Volume after a seek, measured 0.1 -> 0.89). Elsewhere it is divided by the
+  duck factor (a native slider shows the ducked value). Before 1.7.9 a YouTube write mid-speech left
+  the original loud until the voice paused.
 
 **Planning window (1.6.3).** `refresh` plans only groups overlapping
 `[step*planStep - planBehind, (step+1)*planStep + planAhead]` (60 / 150 / 300 s) plus one group past
