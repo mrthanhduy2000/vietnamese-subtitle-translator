@@ -107,7 +107,16 @@ module.exports = {
         { id: "d85", text: "Máy có RAM 16 GB.", ents: [["16 GB", "num"]] },
         { id: "d86", text: "Bản macOS 15.1 / sửa lỗi hao pin.", ents: [["macOS 15.1", "model"]] },
         { id: "d87", text: "Llama 3.1 / hỗ trợ tám ngôn ngữ.", ents: [["Llama 3.1", "model"]] },
-        { id: "d88", text: "Ống kính chỉ dày 0.5 mm.", ents: [["0.5 mm", "num"]] }
+        { id: "d88", text: "Ống kính chỉ dày 0.5 mm.", ents: [["0.5 mm", "num"]] },
+        // 1.8.2: failures of the first blind split (seen since 1.8.0) and new sentences around them
+        { id: "d89", text: "Bà Kim Kardashian / đang rót tiền vào một quỹ đầu tư.", ents: [["Kim Kardashian", "en"]] },
+        { id: "d90", text: "Đạo diễn Ben Affleck / xác nhận sẽ quay phim ở Boston.", ents: [["Ben Affleck", "en"]] },
+        { id: "d91", text: "Ben sẽ chỉ cho các bạn / cách cài đặt phần mềm này.", src: "Ben is going to show you how to install this software.", ents: [["Ben", "en"]] },
+        { id: "d92", text: "Tỷ phú Ken Griffin / vừa mua thêm một căn nhà.", ents: [["Ken Griffin", "en"]] },
+        { id: "d93", text: "Nam diễn viên Leo DiCaprio / đoạt giải Oscar.", ents: [["Leo DiCaprio", "en"]] },
+        { id: "d94", text: "Chị Kim / phụ trách nhóm thiết kế.", ents: [["Kim", "vi"]] },
+        { id: "d95", text: "Cuối tuần này / chúng tôi đi leo núi.", ents: [["leo", "vi"]] },
+        { id: "d96", text: "Ben nói rằng / anh ấy sẽ quay lại.", ents: [["Ben", "hold"]] }
     ],
     validation: [
         { id: "v1", text: "Tôi dùng Microsoft Excel / để làm báo cáo tài chính.", ents: [["Microsoft Excel", "en"]] },

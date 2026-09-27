@@ -183,6 +183,7 @@
     const SUBJECT_STOP = new Set(["là", "rằng", "thì", "mà", "tôi", "ta", "bạn", "họ", "nó", "mình", "anh", "chị", "em",
         "thể", "rất", "cũng", "đã", "sẽ", "đang", "vẫn", "không", "chưa", "cần", "phải", "biết", "nghĩ", "thấy", "tin", "hiểu"]);
     const MODAL_BEFORE = new Set(["định", "biết", "nghĩ", "xét", "nhắc", "hỏi"]);
+    const THINKING = new Set(["nghĩ", "thấy", "biết", "tin", "hiểu", "mong", "muốn", "khuyên", "bảo", "nói", "vân", "khoăn", "chắc", "xem"]);
     const PRONOUN_SUBJECT = new Set(["chúng", "tôi", "bạn", "họ", "nó", "các", "người", "mình", "ta"]);
     // Verbs of change: "tăng | từ 72,5%" is the verb's from-to complement, not an adjunct
     const CHANGE_VERBS = new Set(["tăng", "giảm", "lên", "xuống", "hạ", "rơi", "sụt", "tụt", "vọt", "nhảy", "chuyển", "đổi", "dao động", "kéo dài"]);
@@ -195,6 +196,7 @@
     // Relative "mà": after these heads, or before a pronoun subject, it opens a clause that modifies
     // the noun before it ("dữ liệu | mà nó được huấn luyện"). Contrastive "mà" ("không chỉ ... mà
     // còn") is followed by an adverb, not a subject.
+    const QUANTITY = new Set(["mươi", "trăm", "nghìn", "ngàn", "triệu", "tỷ", "lần", "đôi", "rưỡi"]);
     const REL_HEADS = new Set(["cách", "điều", "thứ", "cái", "nơi", "lúc", "người", "lý do", "nhất", "gì"]);
     const REL_SUBJECT = new Set(["nó", "chúng", "tôi", "bạn", "các", "họ", "ta", "mình", "anh", "chị", "em", "người", "ai"]);
     // A temporal modifier that closes a subject noun phrase ("doanh thu ... trong quý vừa qua | tăng")
@@ -212,6 +214,9 @@
             let n = 0;
             for (let k = i; k < words.length; k++) {
                 if (k > i + 1 && (JOINERS.has(words[k].bare) || (OPENERS[words[k].bare] || 0) >= 14)) break;
+                // the main clause's predicate resumes: "chiếc máy mà tôi mua hôm qua | đã hỏng" (not
+                // right after the clause's own subject: "mà nó đã nhìn thấy")
+                if (k > i + 2 && PREVERBAL.has(words[k].bare) && !REL_SUBJECT.has(words[k - 1].bare)) break;
                 n += words[k].syl;
                 if (words[k].punct) break;
             }
@@ -226,6 +231,17 @@
                 subj += w.syl;
             }
             return subj;
+        };
+        // a clause from a to b with its predicate already said, and no verb of thinking or deciding
+        // that "nên" ("should") could complete ("Tôi nghĩ công ty nên", "đang phân vân nên")
+        const isResultClause = (a, b) => {
+            const ws = words.slice(a, b + 1).map(w => w.bare);
+            if (ws.some(w => THINKING.has(w)) || MODAL_BEFORE.has(ws[ws.length - 1])) return false;
+            let right = 0;
+            for (let k = b + 2; k < words.length; k++) { right += words[k].syl; if (words[k].punct) break; }
+            if (right < 4) return false;
+            if (/^(vì|do|bởi|tại|nhờ)$/.test(ws[0])) return ws.length >= 2;     // "Vì trời mưa | nên"
+            return sylSince(a, b) >= 4 && (ws.some((w, k) => DEGREE.has(w) || PREVERBAL.has(w) || w === "bị" || w === "được" || (k > 0 && CHANGE_VERBS.has(w))));
         };
         const startClause = i => {
             const first = words.slice(i, i + 2).map(w => w.bare);
@@ -246,10 +262,30 @@
                 // two English names or terms joined ("ROI và KPI", "Facebook và Instagram",
                 // "Christopher Nolan và Emma Thomas"): one noun phrase, not two clauses
                 const names = words[g.i].span >= 0 && words[g.i + 2] && words[g.i + 2].span >= 0;
-                if (listed || left < 5 || right < 6 || names) g.cost += 30;
+                // the last item of a list is read with its "và" after a breath when it is long itself:
+                // "hộ chiếu, ảnh thẻ / và bản sao kê ngân hàng trong ba tháng gần nhất"; the item ends
+                // where a predicate starts ("Apple, Microsoft và Google | đều đang ...")
+                let item = 0;
+                for (let k = g.i + 2; k < words.length; k++) {
+                    const w = words[k].bare;
+                    if (PREVERBAL.has(w) || w === "là" || w === "được" || w === "bị" || (OPENERS[w] || 0) >= 20) break;
+                    item += words[k].syl;
+                    if (words[k].punct) break;
+                }
+                // (a list the comma roles missed: an item of <= 6 syllables right after a comma)
+                const longLast = (listed || (zone > 0 && gaps[zone - 1].punct === "comma" && left <= 6)) && !names && item >= 8;
+                if (!longLast && (listed || left < 5 || right < 6 || names)) g.cost += 30;
             } else if (next.bare === "nên" && (SUBJECT_STOP.has(words[g.i].bare) || MODAL_BEFORE.has(words[g.i].bare))) {
                 // "chúng ta | nên", "quyết định | nên": "nên" is "should" here, not "so"
                 g.cost = Math.max(g.cost, 30);
+            } else if (next.bare === "nên" && g.cost < 40) {
+                // result "nên" ("so") after a clause that already has its predicate, written without a
+                // comma: "Trời mưa rất to từ sáng | nên buổi quay phải dời" is two clauses, like "để".
+                // Without a predicate marker (degree adverb, preverbal word, "bị" / "được", a verb of
+                // change) or a fronted "vì" / "do", "nên" may be "should" ("Doanh nghiệp nhỏ nên tập
+                // trung", "Tôi nghĩ công ty nên"): a legal but uninvited boundary
+                if (isResultClause(zone, g.i)) g.cost = Math.min(g.cost, -12);
+                else g.cost = Math.max(g.cost, 0);
             } else if (fronted && !commaYet && g.cost < 40 && PRONOUN_SUBJECT.has(next.bare) && sylSince(sentStart, g.i) >= 6) {
                 // "Khi dữ liệu bị thiếu | chúng ta phải...": the main clause after a fronted clause
                 // written without its comma (once: a later pronoun is an object, "loại bỏ chúng")
@@ -271,8 +307,10 @@
                 // "chỉ tốt | bằng dữ liệu": comparative "as good as"
                 g.cost = Math.max(g.cost, 20);
             } else if (next.bare === "so" && words[g.i + 2] && words[g.i + 2].bare === "với" &&
-                words.slice(Math.max(zone, g.i - 2), g.i + 1).some(w => w.bare === "hơn")) {
-                // "thấp hơn nhiều | so với": the standard of a comparison, not an adjunct
+                (words.slice(Math.max(zone, g.i - 2), g.i + 1).some(w => w.bare === "hơn") ||
+                 words.slice(Math.max(zone, g.i - 3), g.i + 1).some(w => isNum(w) || QUANTITY.has(w.bare)))) {
+                // "thấp hơn nhiều | so với": the standard of a comparison, not an adjunct; the same after
+                // a measured change: "tăng hai mươi phần trăm | so với cùng kỳ", "gấp đôi | so với"
                 g.cost = Math.max(g.cost, 20);
             } else if (next.bare === "mà" && !words[g.i].punct && (REL_HEADS.has(words[g.i].bare) || REL_HEADS.has(at(g.i - 1, 2)) ||
                 (REL_SUBJECT.has((words[g.i + 2] || {}).bare) && relativeLength(g.i + 1) <= 6))) {
@@ -411,6 +449,22 @@
                 break;
             }
         }
+        // C. a purpose clause that completes a short predicate is its complement, not a clause of its
+        // own: "Mình ghé qua đây để mua ít cà phê", "dùng Adobe Premiere Pro để dựng video". When
+        // either side is short (<= 6 syllables) and both fit one breath (<= 16) the gap before "để"
+        // stays a legal but uninvited boundary (soft); two long sides keep their clause boundary
+        const sylOf = (a, b) => { let n = 0; for (let k = a; k <= b; k++) n += words[k].syl; return n; };
+        clauses.forEach((c, j) => {
+            if (c.role !== "purpose" || j === 0 || !gaps[c.start - 1] || gaps[c.start - 1].punct) return;
+            let end = c.start;
+            while (end < n - 1 && !words[end].punct) end++;
+            const main = sylOf(clauses[j - 1].start, c.start - 1), purpose = sylOf(c.start, end);
+            const g = gaps[c.start - 1];
+            if ((main <= 6 || purpose <= 6) && main + purpose <= 16 && g.cost < 0) {
+                g.cost = 0; g.value = valueOf(g.cost);
+                g.purposeAttached = true;
+            }
+        });
         return clauses;
     }
 

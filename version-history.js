@@ -4,6 +4,22 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.8.2", luc: "19:29 27/09/2026", ten: "Ngắt nghỉ theo thành phần câu chính xác hơn, thêm tên Ben, Kim, Leo",
+            y: [
+                "Chữ \"nên\" mang nghĩa \"cho nên\" sau một vế câu đầy đủ được ngắt như ranh giới vế câu (\"Trời mưa rất to từ sáng / nên ...\"); khi \"nên\" có thể là \"nên làm\" (\"Doanh nghiệp nhỏ nên tập trung ...\") thì không mời ngắt nữa.",
+                "Không ngắt trước \"so với\" sau một con số (\"tăng hai mươi phần trăm so với cùng kỳ\"), không tách mệnh đề \"mà\" ngắn khỏi danh từ (\"chiếc máy mà tôi mua hôm qua\").",
+                "Mục cuối dài của một liệt kê được phép lấy hơi trước \"và\"; câu ngắn có \"để\" (\"Mình ghé qua đây để mua ít cà phê\") được đọc liền một hơi, trừ khi giọng tự dừng dài.",
+                "Giọng VieNeu đọc đúng kiểu tiếng Anh các tên Ben, Kim, Leo khi đứng trong tên người nước ngoài (Ben Affleck, Kim Kardashian, Leo DiCaprio); \"Chị Kim\", \"leo núi\" vẫn đọc tiếng Việt.",
+                "Không gọi thêm API nào; bản dịch đã lưu không bị dịch lại. Những câu VieNeu có thay đổi sẽ được đọc lại một lần (miễn phí, trên máy)."
+            ],
+            bang: { cot: ["Đo (tự động, chưa ai nghe thử)", "Trước", "Nay"], hang: [
+                ["Chỗ nghỉ sai trên bản ghi thật VieNeu, bộ câu mới (lỗi bộ mù 1.8.0)", "6", "0"],
+                ["Chỗ nghỉ sai theo văn bản, bộ mù thứ hai do tác tử khác viết, chấm một lần", "5", "4"],
+                ["Tên, viết tắt, số đọc đúng (âm vị VieNeu), bộ mù thứ hai", "78/82", "79/82"],
+                ["Tên/từ tiếng Việt giữ tiếng Việt, bộ mù thứ hai (ca sai duy nhất: VieNeu tự đọc \"Vinamilk\" kiểu Anh)", "13/14", "13/14"]
+            ] }
+        },
+        {
             v: "1.8.1", luc: "19:11 27/09/2026", ten: "Tắt giọng Gemini trả phí, chỉ dùng giọng VieNeu",
             y: [
                 "Lồng tiếng chỉ dùng giọng VieNeu trên máy (miễn phí) ở mọi chế độ chi phí. Không còn gọi Gemini TTS từ bất kỳ đâu, kể cả nút nghe thử trong Cài đặt; không còn tự chuyển sang giọng hệ thống.",

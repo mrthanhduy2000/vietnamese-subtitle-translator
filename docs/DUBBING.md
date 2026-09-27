@@ -189,6 +189,35 @@ re-renders every VieNeu line once (free, local). Translation key: no input from 
   để", which 1.8.0 treats as a legal boundary and the blind marks do not). The blind split is seen now:
   its failures are next round's dev cases (`BACKLOG.md` 29).
 
+## Constituent refinements and respellings (1.8.2)
+
+Small local rules, each checked both ways in `tests/prosody.test.js` / `tests/speech-context.test.js`.
+No new module, no new abstraction; `analyze`, `signature` and the cache keys are unchanged in shape.
+- **Result "nên"** (`adjustJoins`, `isResultClause`): after a clause that already has its predicate
+  (degree adverb, preverbal word, "bị" / "được", verb of change) or a fronted "vì" / "do" / "nhờ", it is
+  a clause boundary like "để" (value 0.85). Without that evidence, or after a verb of thinking
+  ("Tôi nghĩ công ty nên"), "nên" may be "should": soft (0.25), no longer 0.55.
+- **"so với" after a quantity** ("tăng hai mươi phần trăm so với", "gấp đôi so với"): bound, as after
+  "hơn". **Relative "mà"**: the clause length stops where the main predicate resumes ("chiếc máy mà
+  tôi mua hôm qua | đã hỏng"), so a short one stays with its noun.
+- **Long last list item**: "A, B và <8+ syllables>" may breathe before "và" (not forced); the item is
+  counted to its predicate, so "Apple, Microsoft và Google | đều ..." stays bound.
+- **Purpose clause** (`constituents` part C): when either side is <= 6 syllables and both fit 16, the gap
+  before "để" is soft (`purposeAttached`): legal, not invited. Longer pairs keep 0.85. `BACKLOG.md` 31.
+- **Respellings** (`tools/build-speech-tables.js`): ben "benn", kim "kym", leo "lleo", nan, ton; "ben"
+  and "kim" join `NAME_WORDS`, "ben" joins `EN_GIVEN`. "Ken" needs none: VieNeu's kɛn is the same in
+  both languages (`pron-eval` still flags it).
+- **Cost**: nothing reaches the paid key or the translation key (golden tests unchanged); a VieNeu line
+  re-renders only if its text or its prosody signature changed (free).
+
+**Measured** (proxies, nobody has listened): real takes (`prosody-eval`, WRONG kept pauses) syntax2 6 -> 0,
+MISSED 1 -> 0, all other sets unchanged (syntax longest run p90 14 -> 15). `speech-ab` (4 of 136 texts
+differ): WRONG, clicks, clipping, runaway, pauses at a language edge or inside a span unchanged (0 where
+0), level jumps 540 -> 525. Text-only first blind (now dev) WRONG 2 -> 0, BLOCKED 1 -> 0. **Blind split
+2** (`tests/blind-corpus-2.js`, scored once): text-only WRONG 5 -> 4, INVITE 12 -> 7, MISSED 0, HARD 0,
+CUT-WRONG 1 -> 1; phonemes 78 -> 79 of 82, vi 13/14 both (the miss is "Vinamilk", VieNeu's own reading).
+Analysis cost unchanged (~0.15 ms a line uncached, analyse + breath groups + render).
+
 ## The SYNC block is the tuning bible
 
 `dub-engine.js` lines 27 to 76, one object named `SYNC`. **Every timing constant lives there.** If

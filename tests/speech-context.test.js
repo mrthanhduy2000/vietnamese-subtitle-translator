@@ -181,3 +181,18 @@ test("analysis stays well under a millisecond a line, and the token map reuses t
     const map = Number(process.hrtime.bigint() - t) / 1e6 / 100;
     assert.ok(map < 0.5, `${map.toFixed(3)} ms a map from memo`);
 });
+
+// ---- 1.8.2: respellings found by the local search (Ben, Kim, Leo), and the lines they must not cross ----
+test("Ben, Kim and Leo inside an English name are said the English way; Vietnamese uses of the same words are not", () => {
+    assert.equal(say("Đạo diễn Ben Affleck xác nhận sẽ quay phim."), "Đạo diễn <en>benn</en> Affleck xác nhận sẽ quay phim.");
+    assert.equal(say("Ben Affleck xác nhận sẽ quay phim."), "<en>benn</en> Affleck xác nhận sẽ quay phim.");
+    assert.equal(say("Bà Kim Kardashian đang rót tiền."), "Bà <en>kym</en> Kardashian đang rót tiền.");
+    assert.equal(say("Kim Kardashian mở thêm một thương hiệu."), "<en>kym</en> Kardashian mở thêm một thương hiệu.");
+    assert.equal(say("Nam diễn viên Leo DiCaprio đoạt giải."), "Nam diễn viên <en>lleo</en> <en>dicaprio</en> đoạt giải.");
+    // a lone Ben is English only when the English source line names him; a lone Kim never (Vietnamese people carry it)
+    assert.equal(say("Ben sẽ chỉ cho các bạn.", { source: "Ben is going to show you." }), "<en>benn</en> sẽ chỉ cho các bạn.");
+    assert.equal(say("Ben sẽ chỉ cho các bạn."), "Ben sẽ chỉ cho các bạn.");
+    assert.equal(say("Kim nói rằng bài chưa xong.", { source: "Kim said the talk is not done." }), "Kim nói rằng bài chưa xong.");
+    for (const s of ["Chị Kim là trưởng nhóm.", "Kim Anh dạy tiếng Anh.", "Kim loại này rất nặng.", "Kim Nguyễn là giám đốc.",
+        "Leo núi rất mệt.", "Tôi thích leo núi với bạn.", "Kim Google nói."]) assert.equal(say(s), s, s);
+});

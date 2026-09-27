@@ -6,37 +6,39 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-27 · lane C (`options.*`) + B (`dubbing.js`) + D (`cost-policy.js`, `background.js`, tests)
-· `1.8.1`. User asked: switch off the paid Gemini voice, VieNeu only.
+2026-09-27 · lane B (`dub-prosody.js`, `dub-speech.js`) + D (`tools/build-speech-tables.js`, tests)
+· `1.8.2`. User asked: smarter pronunciation / prosody, local only, zero API spend, preserve first.
 
 ## What changed
-- `cost-policy.js` `PAID_TTS = false`; `dubbing.js` VieNeu only, no fallback, waits for the server;
-  service worker refuses non-local TTS (`errorType: "disabled"`); Settings lists VieNeu only;
-  `dubProvider` forced to "vieneu" once (`dubProvider181`). `DUBBING.md` "The three TTS providers".
-- Gemini TTS code and tests kept: harnesses set `PAID_TTS = true`; 2 new tests check the shipped state.
-- 1.8.0 (same day, previous commit): context-aware names, constituent pauses, see `DUBBING.md`.
+- Prosody, small rules in existing functions: result "nên", "so với" after a quantity, short relative
+  "mà", long last list item, short purpose clause soft. `DUBBING.md` "Constituent refinements (1.8.2)".
+- Respellings from the local VieNeu front end: ben, kim, leo, nan, ton; "ben"/"kim" in `NAME_WORDS`,
+  "ben" in `EN_GIVEN`. Old entries and the CAPS tables unchanged.
+- Blind split 2 by a separate agent, frozen unread at 30c6076, scored once. Old blind failures moved
+  into dev (`prosody-corpus.js` syntax2, `speech-corpus.js` d89-d96).
+- No API call of any kind this session (only the local g2p and the local VieNeu server).
 
 ## State
-- `npm test`: 479 pass, 0 fail, 1 skip · Reload: **yes** + F5 video tabs. VieNeu re-renders once.
-- If the VieNeu server is down there is now no voice at all until it starts (by design).
-- Nobody has listened to 1.8.0; all numbers are proxies (phonemes, marks, same-take A/B).
+- `npm test`: 485 pass, 0 fail, 1 skip · Reload: **yes** + F5 video tabs. Changed VieNeu lines
+  re-render once (free). Paid key and translation key untouched (golden tests).
+- Numbers are proxies (phonemes, text marks, real-take stops); nobody has listened to 1.8.0-1.8.2.
 
 ## Unfinished / in progress
-- `BACKLOG.md` 29: blind failures (Kim/Ken/Ben names, "phần trăm | so với", list "ảnh thẻ | và",
-  "sáng | nên", short purpose clause length). Move into dev next round, then a NEW blind split by a
-  separate agent. The current blind file is seen now.
-- `BACKLOG.md` 26-28 (conservative misses, "So" read English by VieNeu, paid voice keeps group cuts).
-- Carried over: `BACKLOG.md` 14, 15, 16 (subject without a marker), 18, 19, 20, 21-24; not heard by
-  the user: 1.8.0, 1.7.8, 1.7.6, 1.7.5, 1.7.2 audio; 1.7.2 to 1.8.0 not verified end to end in real
-  Chrome; 1.7.9 duck fix not confirmed by the user; Udemy / edX (`BACKLOG.md` 9).
+- `BACKLOG.md` 30: blind 2 failures (comparative "như", "công ty | đã", pronoun rule inside a result
+  clause, "lỗi | khi", Long Beach, Raspberry Pi). Move into dev, then blind split 3 by a new agent.
+- `BACKLOG.md` 31: short purpose clause now read in one breath; reverses the 1.8.0 ruling's feel.
+  Ask the user after they listen.
+- Carried over: `BACKLOG.md` 14, 15, 16, 18, 19, 20, 21-24, 26-28; 1.7.2 to 1.8.2 not verified end to
+  end in real Chrome; 1.7.9 duck fix not confirmed by the user; Udemy / edX (`BACKLOG.md` 9).
 
 ## Traps hit this session
-- Bash sandbox: `curl 127.0.0.1:8000` returns nothing and `$TMPDIR` differs from the unsandboxed
-  one. Renders and git worktrees for A/B: sandbox off, absolute paths in the scratchpad.
-- `~/.cache/cst-prosody-takes` had lost 4 of 6 sets: `prosody-eval` re-rendered 350 takes (~25 min).
-- Never grep `tests/` with content output while a blind split is live (`--exclude=blind-corpus.js`).
-- A test that times a "memo" pass must fit the memo (600 lines, cleared when full).
+- `build-speech-tables.js` only searches words `isVietWord` accepts, and "ben"/"ken" targets have no
+  English-only phoneme: MANUAL now also accepts a reading that differs from the plain Vietnamese one.
+- "Ken" reads kɛn in both languages; `pron-eval` flags it anyway. Do not respell to please the scorer.
+- `prosody-eval --old` swaps only `dub-audio.js`: for an old/new prosody A/B, run it from a
+  `git archive HEAD` copy with the new corpus copied in (takes are shared in ~/.cache).
+- `npm test` prints a sandbox registry warning; harmless, tests run offline.
 
 ## Suggested next step
-- Reload, dub an English video with names (Sam Altman, Tim Cook) and a talk with long subjects;
-  listen for wrong English names on Vietnamese people first.
+- Reload, dub a video with Ben / Kim / Leo names and a talk with "để" / "nên"; listen first for any
+  Vietnamese name read English, then for sentences that now run on too long.

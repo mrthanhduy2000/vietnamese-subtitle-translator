@@ -52,8 +52,10 @@ evan ian alan allan bill will phil neil paul saul carl earl hal cal mel nell bel
 moss vance lance chance grant hunt hart burt kurt curt glen ken len hanks cruise diego francisco jose antonio
 monica barbara santa mesa vegas angeles beach bay lake hill king queen prince duke marco polo nemo bond bourne
 holmes watson`.split(/\s+/).filter(w => w && !UNSEEN_HOLDOUT.has(w));
-// Spellings found by hand where the search below finds none; verified the same way
-const MANUAL = { san: "sanne", la: "lah" };
+// Spellings found by hand where the search below finds none; verified the same way. "ben" has no
+// English-only phoneme (bɛn), so it is kept when the voice says it differently from the plain word in a
+// Vietnamese sentence (there "bˈen"; inside <en> "ben" becomes "bɛnz")
+const MANUAL = { san: "sanne", la: "lah", kim: "kym", ben: "benn" };
 const cands = [...new Set(NAMES)].filter(w => SEG.isVietWord(w));
 const bare = p => p.replace(/[ˈˌ.]/g, "");
 const EN_RE = /æ|ɑ|ɪ|ʊ|ʌ|ɚ|ɝ|ɜ|ɹ|θ|ð|ʒ|ᵻ|ɐ|eɪ|aɪ|oʊ|aʊ|ɔɪ|iː|uː|ɔː|ɡ|(?<!t)ʃ|dʒ/;
@@ -69,8 +71,8 @@ function variants(w) {
     if (!m) return [];
     const [, c1, v, c2] = m;
     const vs = v.length === 1 && V[v] ? V[v] : [v];
-    const c2s = c2 ? [c2, c2 + c2.slice(-1), c2 + "e", c2 + "h"] : ["", "h", "e"];
-    const c1s = c1 ? [c1, c1 + "h"] : [""];
+    const c2s = c2 ? [c2, c2 + c2.slice(-1), c2 + "e", c2 + "h", c2 + c2.slice(-1) + "e"] : ["", "h", "e"];   // "kenne"
+    const c1s = c1 ? [c1, c1 + "h", c1 + c1.slice(-1)] : [""];   // "lleo"
     for (const a of c1s) for (const b of vs) for (const c of c2s) out.add(a + b + c);
     out.delete(w);
     return [...out].filter(x => !SEG.isVietWord(x));
@@ -87,9 +89,10 @@ jobs.forEach(([w, v], i) => {
 });
 // manual entries: checked to be one English word each
 const manual = front(Object.values(MANUAL).map(carrier));
+const plain = front(Object.keys(MANUAL).map(w => `Tôi gặp ${w} hôm qua.`));
 Object.keys(MANUAL).forEach((w, i) => {
-    const words = manual[i].ph.join(" ").split(/\s+/);
-    if (words.length === 5 && EN_RE.test(words[2]) && !respell[w]) respell[w] = MANUAL[w];
+    const words = manual[i].ph.join(" ").split(/\s+/), vi = plain[i].ph.join(" ").split(/\s+/);
+    if (words.length === 5 && (EN_RE.test(words[2]) || bare(words[2]) !== bare(vi[2] || "")) && !respell[w]) respell[w] = MANUAL[w];
 });
 
 // ---- write ----

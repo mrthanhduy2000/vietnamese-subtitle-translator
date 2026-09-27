@@ -80,11 +80,12 @@ simulation (tests/hardening) does not reproduce the 7 dropped lines; the fix is 
 
 ## Found by the 1.7.8 English-in-speech work, not fixed
 
-**21. Respellings cover 45 of 67 candidate names** (1.8.0 added "sam": "samh"). No spelling was found that VieNeu's English
-engine reads the English way for kim, do, du, hang, bin, nan, ton, son, phan, leo, ray, roy, guy,
-kay, may, mae, lou, pam, liam, ian, beach, queen: inside an English name they are still read as
-Vietnamese syllables ("Liam" is fine only because "liam" is not one). The "sam" holdout was dropped in 1.8.0 (a new
-blind split exists, `tests/blind-corpus.js`). Some targets are only near ("shalamay" is two words).
+**21. Respellings cover 50 of 67 candidate names** (1.8.2 added ben, kim, leo, nan, ton: the search now
+also tries a doubled consonant at either end, "kenne", "lleo", plus hand-checked "kym", "benn"). No
+spelling was found that VieNeu's English engine reads the English way for do, du, hang, bin, son,
+phan, ray, roy, guy, kay, may, mae, lou, pam, liam, ian, beach, queen: inside an English name they are
+still read as Vietnamese syllables ("Liam" is fine only because "liam" is not one). Some targets are
+only near ("shalamay" is two words).
 
 **22. What is checked is phonemes, not sound.** `tools/pron-eval.js` reads VieNeu's phonemes; nobody
 has listened to the renders blind, and no speech recogniser runs here (none installed; downloading one
@@ -124,14 +125,28 @@ Found in dev d77; not addressed.
 translation group, so "Christopher | Nolan" split over two groups is still two takes there: moving
 that cut would re-bill stored audio. A silence of 1.2 s or more between lines is always followed.
 
-**29. Blind split failures (1.8.0, scored once, not tuned on).** Kim Kardashian, Ken Griffin, Ben
-Affleck, lone Ben / Kim with an English source line (no respelling; add "ben" / "ken" to
-`build-speech-tables.js` NAMES and search). Prosody: "phần trăm | so với cùng kỳ" kept by the text-only
-choice in a 25-syllable run once the subject's PP was closed; "hộ chiếu, ảnh thẻ | và" (a list item
-the model blocks); "sáng | nên" (cause "nên" after a clause without a comma, missed); "Adobe Premiere
-Pro | để" and "đây | để": the blind author marks a short purpose clause attached, the user ruled the
-opposite for "Tôi dùng ChatGPT / để": needs a decision on length. Move these into dev next round and
-write a new blind split with a separate agent.
+**29. (mostly closed 1.8.2)** First blind split failures, moved into dev (`prosody-corpus.js` syntax2,
+`speech-corpus.js` d89-d96) and fixed by rule, not by phrase: result "nên", "so với" after a quantity,
+long last list item, short relative clause, short purpose clause soft. Left: "Ken" is read kɛn, the
+same phonemes in both languages (a scorer artefact of `pron-eval`, not a voice fault); lone "Kim"
+with an English source line stays Vietnamese by design (26); "thẻ | và" (L1) is now allowed, not chosen.
+
+## Found by the 1.8.2 work, not fixed
+
+**30. Second blind split (`tests/blind-corpus-2.js`, separate agent, frozen at 30c6076, scored once).**
+Prosody left: "không hề dễ dàng | như nhiều người nghĩ" (comparative "như" after an adjective, p3);
+"công ty | đã tăng từ 10 lên 20" in a 17-syllable sentence (p26); "Vì hôm qua thức khuya / nên sáng nay |
+tôi" (the fronted-clause pronoun rule fires inside the result clause, p29); "gặp lỗi | khi cài đặt" (a
+time clause nested in a condition, p31); cue "Mình mở máy / để kiểm tra" with a 0.7 s gap is cut (a soft
+boundary is legal, so the speaker's silence is followed, k5). Phonemes left: "Long Beach" (no respelling
+for beach), "Vinamilk" read English by VieNeu itself, "Raspberry Pi" ("pi" Vietnamese). Move these into
+dev next round and write blind split 3 with a separate agent.
+
+**31. Purpose clause length is a judgment call.** 1.8.2 makes "để" after a short predicate soft (legal,
+not invited) when either side is <= 6 syllables and both fit 16: "Tôi dùng ChatGPT để phân tích dữ liệu"
+is now read in one breath unless the voice stops long on its own. The 1.8.0 note said the user ruled the
+split right; the dev marks were always "/" (either way). If the user wants the stop back, raise the
+`purposeAttached` cost in `dub-prosody.js` `constituents` (part C).
 
 ## Cosmetic / housekeeping
 

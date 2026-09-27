@@ -284,3 +284,51 @@ test("VieNeu text: a long stretch gets its breathing comma, the audio key follow
     assert.match(s, /mười lần, thì .* đáng kể, nhưng .* tương ứng\.$/);
     assert.equal(E.plainScript({ phrases: [{ text: "Tôi thử lại và kết quả tốt hơn", breakKind: null }], continuesNext: false }), "Tôi thử lại và kết quả tốt hơn.");
 });
+
+// ---- 1.8.2: constituent rules from the first blind split, each checked both ways ----
+test("result 'nên' after a clause with its predicate is a clause boundary; 'should' is not invited", () => {
+    assert.ok(gapAfter("Trời mưa rất to từ sáng nên buổi quay ngoài trời phải dời sang ngày mai.", "sáng").value >= 0.8);
+    assert.ok(gapAfter("Vì trời mưa nên chúng tôi ở nhà cả ngày.", "mưa").value >= 0.8);
+    for (const [text, word] of [["Doanh nghiệp nhỏ nên tập trung vào khách hàng quen.", "nhỏ"],
+        ["Tôi nghĩ công ty nên đầu tư thêm vào đội ngũ kỹ thuật.", "ty"], ["Chúng ta nên bắt đầu từ dữ liệu.", "ta"]]) {
+        const g = gapAfter(text, word);
+        assert.ok(g.value < 0.3, `${word} | nên: ${g.value}`);
+    }
+});
+
+test("relative 'mà' keeps a short clause with its noun; it ends where the main predicate resumes", () => {
+    assert.ok(gapAfter("Chiếc máy mà tôi mua hôm qua đã bị hỏng.", "máy").value < 0);
+    assert.ok(gapAfter("Cuốn sách mà tôi giới thiệu tuần trước đã hết hàng.", "sách").value < 0);
+    // a long relative clause after a long noun phrase keeps its light boundary (unchanged)
+    assert.ok(eligible(gapAfter("Mô hình dự đoán dựa trên toàn bộ ngữ cảnh mà nó đã nhìn thấy trước đó trong đoạn văn.", "cảnh")));
+    // contrastive "mà" is not touched
+    assert.ok(eligible(gapAfter("Mô hình mới không chỉ rẻ hơn mà còn nhanh hơn đáng kể.", "hơn")));
+});
+
+test("'so với' after a measured quantity is the standard of the comparison, not an adjunct", () => {
+    assert.ok(gapAfter("Doanh thu tăng hai mươi phần trăm so với cùng kỳ năm ngoái.", "trăm").value < 0);
+    assert.ok(gapAfter("Lượng khách tháng này cao gấp đôi so với năm ngoái.", "đôi").value < 0);
+    assert.ok(gapAfter("Doanh thu tăng 20% so với cùng kỳ.", "20%").value < 0);
+    // after a plain clause it stays an adjunct boundary
+    assert.ok(eligible(gapAfter("Chúng tôi đã thay đổi cách làm việc so với những năm trước.", "việc")));
+});
+
+test("a long last list item may take a breath before 'và'; a short one or a subject list may not", () => {
+    assert.ok(eligible(gapAfter("Bạn cần chuẩn bị hộ chiếu, ảnh thẻ và bản sao kê ngân hàng trong ba tháng gần nhất.", "thẻ")));
+    assert.ok(!eligible(gapAfter("Apple, Microsoft và Google đều đang đầu tư mạnh vào trí tuệ nhân tạo.", "Microsoft")));
+    assert.ok(!eligible(gapAfter("Bạn cần chuẩn bị hộ chiếu, ảnh thẻ và giấy khai sinh.", "thẻ")));
+});
+
+test("a purpose clause completing a short predicate is soft; two long sides keep the clause boundary", () => {
+    for (const [text, word] of [["Mình ghé qua đây để mua ít cà phê thôi.", "đây"], ["Tôi dùng ChatGPT để phân tích dữ liệu.", "ChatGPT"],
+        ["Chúng tôi dùng Adobe Premiere Pro để dựng toàn bộ video.", "Pro"]]) {
+        const g = gapAfter(text, word);
+        assert.ok(g.purposeAttached && g.value >= P.K.minValue && g.value < 0.5, `${word} | để: ${g.value}`);
+    }
+    // still a legal boundary: never a unit
+    assert.ok(eligible(gapAfter("Tôi dùng ChatGPT để phân tích dữ liệu.", "ChatGPT")));
+    for (const [text, word] of [["Tôi dùng ChatGPT để phân tích toàn bộ dữ liệu bán hàng của công ty trong ba tháng gần nhất.", "ChatGPT"],
+        ["Nhóm nghiên cứu đã thu thập hơn mười nghìn bức ảnh để huấn luyện một mô hình nhận diện bệnh trên lá lúa.", "ảnh"]]) {
+        assert.ok(gapAfter(text, word).value >= 0.8, word);
+    }
+});

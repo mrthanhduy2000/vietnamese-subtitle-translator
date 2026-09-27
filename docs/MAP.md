@@ -97,8 +97,9 @@ current version and measures pauses, spans, duration, clicks (sandbox off). `too
 regenerates the data block of `dub-speech.js` (rerun after a VieNeu / sea_g2p update).
 `tools/syntax-eval.js` (1.8.0) scores the prosody model's text-only decisions against the marks, and
 where the free voice's segments are cut for sentences given as subtitle lines; no server.
-`tests/blind-corpus.js` (1.8.0) is the unseen split, written by a separate agent that never read the
-rules: scored once per release (`pron-eval --corpus=`, `syntax-eval --corpus=`), never tuned on.
+`tests/blind-corpus.js` (1.8.0) and `tests/blind-corpus-2.js` (1.8.2) are blind splits written by a
+separate agent that never read the rules, each scored once (`pron-eval --corpus=`, `syntax-eval
+--corpus=`); both are seen now, a new one is needed per round.
 
 ## Not source
 

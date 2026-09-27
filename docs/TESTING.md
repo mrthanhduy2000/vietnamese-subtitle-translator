@@ -68,10 +68,10 @@ an older `dub-audio.js` on the same takes. The marks are one reader's judgment: 
 "worth listening to", not as ground truth.
 
 English in speech (1.7.8), corpus `tests/speech-corpus.js` (dev 88 / validation 40 / old unseen 24,
-now seen; its fingerprint is pinned in `speech.test.js`). The unseen split since 1.8.0 is
-`tests/blind-corpus.js`, written by a separate agent: **do not open it while changing rules**; score it
-once at the end, record the result, add its failures as new dev cases for the next round. `hold` =
-the word must be left as is (`pron-eval` kind).
+now seen; its fingerprint is pinned in `speech.test.js`). Blind splits are written by a separate agent
+**before** the rules change, committed unread, scored once at the end, then their failures become dev
+cases: `tests/blind-corpus.js` (1.8.0, seen) and `tests/blind-corpus-2.js` (1.8.2, seen). The next round
+needs a new `blind-corpus-3.js`. `hold` = the word must be left as is (`pron-eval` kind).
 
 ```bash
 node tools/pron-eval.js --split=dev,validation --old=HEAD --detail   # VieNeu phonemes, no server

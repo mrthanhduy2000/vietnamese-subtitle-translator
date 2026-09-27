@@ -164,5 +164,22 @@ module.exports = {
     ["V8", "entity", "Bạn có thể dùng Canva / để thiết kế ảnh bìa."],
     ["V9", "cause", "Doanh số giảm nhẹ / vì thời tiết xấu."],
     ["V10", "subject-pp", "Những khách hàng của chúng tôi tại Hà Nội / đều rất hài lòng."]
+    ],
+    // 1.8.2: the failures of the first blind split (tests/blind-corpus.js, seen since 1.8.0) moved here,
+    // with new sentences around each rule, both ways. The "để" marks follow the user's ruling ("/")
+    syntax2: [
+    ["N1", "nen-result", "Trời mưa rất to từ sáng | nên buổi quay ngoài trời phải dời sang ngày mai."],
+    ["N2", "nen-result", "Máy chủ bị quá tải từ tối qua / nên nhiều người dùng không đăng nhập được."],
+    ["N3", "nen-should", "Doanh nghiệp nhỏ nên tập trung vào khách hàng quen."],
+    ["N4", "nen-should", "Tôi nghĩ công ty nên đầu tư thêm vào đội ngũ kỹ thuật."],
+    ["L1", "list-long-last", "Bạn cần chuẩn bị hộ chiếu, | ảnh thẻ | và bản sao kê ngân hàng trong ba tháng gần nhất."],
+    ["L2", "list-subject", "Apple, / Microsoft và Google / đều đang đầu tư mạnh vào trí tuệ nhân tạo."],
+    ["R1", "relative", "Chiếc máy mà tôi mua hôm qua / đã bị hỏng."],
+    ["R2", "relative", "Cuốn sách mà tôi giới thiệu tuần trước / đã hết hàng ở hầu hết các nhà sách."],
+    ["C1", "compare-quantity", "Doanh thu của mảng điện toán đám mây trong quý ba / tăng hai mươi phần trăm so với cùng kỳ năm ngoái."],
+    ["C2", "compare-quantity", "Lượng khách quốc tế tháng này / cao gấp đôi so với cùng kỳ năm ngoái."],
+    ["P1", "purpose-short", "Chúng tôi dùng Adobe Premiere Pro / để dựng toàn bộ video."],
+    ["P2", "purpose-short", "Mình ghé qua đây / để mua ít cà phê thôi."],
+    ["P3", "purpose-long", "Nhóm nghiên cứu đã thu thập hơn mười nghìn bức ảnh / để huấn luyện một mô hình nhận diện bệnh trên lá lúa."]
     ]
 };

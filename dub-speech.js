@@ -127,12 +127,13 @@
     // Vietnamese-syllable spellings of English name words -> a spelling VieNeu's English engine reads the
     // English way ("tom" -> tˈɑːm). Used only inside an English span ("Tom Hanks", "San Francisco").
     const RESPELL = {
-        an: "ann", bay: "bayh", be: "bhe", bo: "boh", bon: "bonn", ca: "cah", can: "cann", chan: "chann",
-        co: "coh", con: "conn", da: "dah", dan: "dann", di: "dih", don: "donn", go: "goh", he: "heah",
-        ho: "hoh", hon: "hahn", in: "inn", king: "kingh", la: "lah", lan: "lann", lee: "leeh", lin: "linn",
-        lo: "loh", ma: "mah", man: "mann", me: "meah", min: "minn", mo: "moh", mon: "mahn", na: "nah",
-        no: "noh", pa: "pah", ron: "ronn", sam: "samh", san: "sanne", so: "soh", sue: "sueh", ta: "tah",
-        tan: "tann", tim: "timm", tom: "tahm", van: "vann", vic: "vicc"
+        an: "ann", bay: "bayh", be: "bhe", ben: "benn", bo: "boh", bon: "bonn", ca: "cah", can: "cann",
+        chan: "chann", co: "coh", con: "conn", da: "dah", dan: "dann", di: "dih", don: "donn", go: "goh",
+        he: "heah", ho: "hoh", hon: "hahn", in: "inn", kim: "kym", king: "kingh", la: "lah", lan: "lann",
+        lee: "leeh", leo: "lleo", lin: "linn", lo: "loh", ma: "mah", man: "mann", me: "meah", min: "minn",
+        mo: "moh", mon: "mahn", na: "nah", nan: "nanne", no: "noh", pa: "pah", ron: "ronn", sam: "samh",
+        san: "sanne", so: "soh", sue: "sueh", ta: "tah", tan: "tann", tim: "timm", tom: "tahm", ton: "tonne",
+        van: "vann", vic: "vicc"
     };
     // @generated speech-tables end
 
@@ -216,11 +217,12 @@
     // Respelled words that are mostly a first name or a name particle, not a Vietnamese function word
     // ("Con", "So", "In", "Ca" at the start of a sentence are Vietnamese): only these are a name at the
     // start of a sentence, before an English surname ("Sam Altman ...", "Don Norman ...")
-    const NAME_WORDS = new Set("dan don lee lin ron sam san sue tim tom van vic".split(" "));
+    const NAME_WORDS = new Set("ben dan don kim lee lin ron sam san sue tim tom van vic".split(" "));
     // English given names no Vietnamese person carries unaccented: a lone one is English when the
     // English source line names them ("Tom said ..."). Not Lan, An, Kim, Dan (Dân), Van (Văn), Tan
-    // (Tân): an English video about a Vietnamese person writes those the same way
-    const EN_GIVEN = new Set("tom tim ron don sue vic lee sam".split(" "));
+    // (Tân): an English video about a Vietnamese person writes those the same way. "Ben" is no
+    // Vietnamese word unaccented (VieNeu still reads it as one)
+    const EN_GIVEN = new Set("ben tom tim ron don sue vic lee sam".split(" "));
     const ENGLISH_LINE = /(^|[^\p{L}])(the|a|an|is|are|was|were|and|to|of|he|she|it|i|you|we|they|said|says|told|me|my|his|her|just|has|had|have)(?![\p{L}])/iu;
     const VOWEL_CAPS = /[AEIOUY]/;
 
