@@ -29,7 +29,15 @@ const DEFAULT_NORMALIZE = [
     ["v\\s*o\\s*2\\s*max", "VO2 max"],
     ["a\\s*/\\s*b\\s+test(ing)?", "A/B testing"],
     ["six\\s*sigma", "Six Sigma"],
-    ["e[-\\s]?commerce", "e-commerce"]
+    ["e[-\\s]?commerce", "e-commerce"],
+    // Possessive and digit spellings, so the glossary key below still matches
+    ["prisoner[\u2019']?s\\s+dilemma", "prisoner's dilemma"],
+    ["porter[\u2019']?s\\s+five\\s+forces", "Porter's five forces"],
+    ["bloom[\u2019']?s\\s+taxonomy", "Bloom's taxonomy"],
+    ["bayes[\u2019']?(?:s)?\\s+(theorem|rule)", "Bayes' $1"],
+    ["scope\\s+(?:1|one)\\s+emissions?", "scope 1 emissions"],
+    ["scope\\s+(?:2|two)\\s+emissions?", "scope 2 emissions"],
+    ["scope\\s+(?:3|three)\\s+emissions?", "scope 3 emissions"]
 ];
 
 // Ten rieng trung tu tieng Anh thong dung.
@@ -53,7 +61,12 @@ const RISKY_PROPER = [
     "Bootstrap",  // dong tu tu luc
     "Replicate",  // dong tu sao chep
     "Snowflake",  // bong tuyet
-    "Perplexity"  // su boi roi
+    "Perplexity", // su boi roi
+    "Cursor",     // con tro chuot
+    "Windsurf",   // luot van buom
+    "Grok",       // dong tu hieu thau
+    "Anaconda",   // con tran
+    "Streamlit"   // dong tu tinh gon
 ];
 
 
@@ -114,6 +127,11 @@ const GLOSSARY_GROUPS = {
             "Microsoft Excel", "Excel", "PowerPoint", "Power BI", "Tableau",
             "Looker Studio", "Shopify", "WordPress", "WooCommerce",
             "Playwright", "Selenium", "Stripe", "Twilio",
+            "DeepSeek", "Qwen", "Grok", "xAI", "Cursor", "Windsurf",
+            "NotebookLM", "Google AI Studio", "Vertex AI", "Amazon Bedrock",
+            "Claude Agent SDK", "LangGraph", "CrewAI", "AutoGen", "n8n",
+            "Streamlit", "Gradio", "NumPy", "Matplotlib", "Anaconda",
+            "Power Automate", "vLLM", "llama.cpp", "Hugging Face Hub",
 
             // Viet tat
             "AI", "AGI", "API", "LLM", "MCP", "RAG", "NLP", "CNN", "RNN",
@@ -125,6 +143,10 @@ const GLOSSARY_GROUPS = {
             "OOP", "CRUD", "ORM", "DOM", "CORS", "SPA", "PWA", "JWT",
             "OAuth", "IoT", "AR", "VR", "XR", "OCR", "TTS", "ASR", "ETL",
             "CI/CD", "CMS", "CRM", "ERP", "MVP", "QA", "SSO", "MLOps",
+            "RLHF", "SFT", "DPO", "CoT", "MoE", "VRAM", "NPU", "CUDA",
+            "FLOPS", "ONNX", "WASM", "gRPC", "SQLite", "NoSQL", "SLO", "SLI",
+            "LAN", "WAN", "FPGA", "ASIC", "SoC", "LTS", "A2A", "API key",
+            "IP address",
 
             // Cum tu AI
             "machine learning", "deep learning", "neural network",
@@ -190,7 +212,7 @@ const GLOSSARY_GROUPS = {
             "graceful degradation", "circuit breaker", "cache invalidation",
             "horizontal scaling", "vertical scaling", "sharding",
             "replication lag", "eventual consistency", "acid transaction",
-            "model context protocol", "tool calling", "function calling",
+            "function calling",
             "retrieval augmented generation", "context engineering",
             "agent orchestration", "multi agent system", "chain of agents",
             "cloud computing", "edge computing", "tech stack",
@@ -327,7 +349,7 @@ const GLOSSARY_GROUPS = {
             "bootstrapping", "rule of 40", "gross merchandise value",
             "take rate", "customer concentration", "moat",
             "flywheel effect", "network effect", "first mover advantage",
-            "blue ocean strategy", "porter five forces",
+            "blue ocean strategy", "Porter's five forces",
             "value based pricing", "cost plus pricing",
             "penetration pricing", "skimming pricing", "freemium model",
             "subscription model", "marketplace model", "franchise model",
@@ -360,9 +382,9 @@ const GLOSSARY_GROUPS = {
             "marginal utility", "consumer surplus", "producer surplus",
             "deadweight loss", "market equilibrium",
             "perfect competition", "monopolistic competition",
-            "externality", "public good", "moral hazard",
+            "externality", "moral hazard",
             "adverse selection", "information asymmetry",
-            "game theory", "nash equilibrium", "prisoner dilemma",
+            "game theory", "nash equilibrium", "prisoner's dilemma",
             "comparative advantage", "absolute advantage",
             "balance of trade", "exchange rate",
             "purchasing power parity", "business cycle",
@@ -536,7 +558,7 @@ const GLOSSARY_GROUPS = {
             "extrinsic motivation", "socratic method",
             "blended learning", "flipped classroom",
             "formative assessment", "summative assessment",
-            "feedback loop", "bloom taxonomy",
+            "feedback loop", "Bloom's taxonomy",
             "metacognition", "retrieval practice", "interleaved practice"
         ]
     },
@@ -617,8 +639,8 @@ const GLOSSARY_GROUPS = {
             "energy efficiency", "supply chain transparency",
             "fair trade", "social impact", "impact investing",
             "triple bottom line", "stakeholder capitalism",
-            "science based target", "scope one emissions",
-            "scope two emissions", "scope three emissions"
+            "science based target", "scope 1 emissions",
+            "scope 2 emissions", "scope 3 emissions"
         ]
     },
 
@@ -651,8 +673,653 @@ const GLOSSARY_GROUPS = {
             "data processing agreement", "right to be forgotten",
             "cookie consent", "legal liability", "indemnification"
         ]
+    },
+
+    math: {
+        label: "Toán học và thuật toán",
+        terms: [
+            "Big O", "Big O notation",
+            "stochastic gradient descent", "softmax",
+            "sigmoid function", "one-hot vector"
+        ]
+    },
+
+    productivity: {
+        label: "Kỹ năng và năng suất",
+        terms: [
+            "GTD", "SMART", "Pomodoro",
+            "deep work", "time blocking", "second brain", "habit stacking",
+            "inbox zero", "weekly review"
+        ]
     }
 };
+
+// ============================================================
+// TERMS WITH A SETTLED VIETNAMESE RENDERING
+// Protected like every glossary term, but restored as the Vietnamese on the right instead of the
+// English on the left: one fixed rendering per lecture, and no English left in the subtitle or the
+// dubbed voice. Keys are lowercase (lookup is case-insensitive, plurals fold to the singular).
+// Only phrases whose Vietnamese is standard in textbooks or Vietnamese product UIs belong here;
+// a phrase with a common everyday second sense ("public good", "exact match") stays out, because
+// the rendering is applied without looking at the sentence. Jargon Vietnamese developers say in
+// English ("unit test", "pull request", "overfitting") stays English on purpose.
+// ============================================================
+const GLOSSARY_VI = {
+    tech: {
+        "neural network": "mạng nơ-ron",
+        "reinforcement learning": "học tăng cường",
+        "reinforcement learning from human feedback": "học tăng cường từ phản hồi của con người",
+        "supervised learning": "học có giám sát",
+        "unsupervised learning": "học không giám sát",
+        "transfer learning": "học chuyển giao",
+        "natural language processing": "xử lý ngôn ngữ tự nhiên",
+        "computer vision": "thị giác máy tính",
+        "generative ai": "AI tạo sinh",
+        "artificial intelligence": "trí tuệ nhân tạo",
+        "large language model": "mô hình ngôn ngữ lớn",
+        "foundation model": "mô hình nền tảng",
+        "vector database": "cơ sở dữ liệu vector",
+        "semantic search": "tìm kiếm ngữ nghĩa",
+        "attention mechanism": "cơ chế chú ý",
+        "loss function": "hàm mất mát",
+        "activation function": "hàm kích hoạt",
+        "learning rate": "tốc độ học",
+        "synthetic data": "dữ liệu tổng hợp",
+        "knowledge graph": "đồ thị tri thức",
+        "cosine similarity": "độ tương đồng cosine",
+        "latent space": "không gian tiềm ẩn",
+        "speech to text": "chuyển giọng nói thành văn bản",
+        "text to speech": "chuyển văn bản thành giọng nói",
+        "load balancing": "cân bằng tải",
+        "root cause analysis": "phân tích nguyên nhân gốc rễ",
+        "system design": "thiết kế hệ thống",
+        "data structure": "cấu trúc dữ liệu",
+        "time complexity": "độ phức tạp thời gian",
+        "space complexity": "độ phức tạp không gian",
+        "memory leak": "rò rỉ bộ nhớ",
+        "technical debt": "nợ kỹ thuật",
+        "message queue": "hàng đợi tin nhắn",
+        "distributed tracing": "truy vết phân tán",
+        "horizontal scaling": "mở rộng theo chiều ngang",
+        "vertical scaling": "mở rộng theo chiều dọc",
+        "eventual consistency": "nhất quán cuối cùng",
+        "cloud computing": "điện toán đám mây",
+        "edge computing": "điện toán biên",
+        "user interface": "giao diện người dùng",
+        "user experience": "trải nghiệm người dùng",
+        "two-factor authentication": "xác thực hai yếu tố",
+        "source code": "mã nguồn",
+        "open source": "mã nguồn mở",
+        "operating system": "hệ điều hành",
+        "version control": "quản lý phiên bản",
+        "object oriented programming": "lập trình hướng đối tượng",
+        "functional programming": "lập trình hàm",
+        "programming language": "ngôn ngữ lập trình",
+        "binary search": "tìm kiếm nhị phân",
+        "linked list": "danh sách liên kết",
+        "hash table": "bảng băm",
+        "binary tree": "cây nhị phân",
+        "dynamic programming": "quy hoạch động",
+        "sorting algorithm": "thuật toán sắp xếp"
+    },
+
+    marketing: {
+        // Metrics that Vietnamese marketers say in English (CTR, conversion rate, bounce rate)
+        // stay English; these are the ones with an everyday Vietnamese name
+        "brand awareness": "nhận biết thương hiệu",
+        "brand positioning": "định vị thương hiệu",
+        "brand identity": "nhận diện thương hiệu",
+        "target audience": "đối tượng mục tiêu",
+        "market segmentation": "phân khúc thị trường",
+        "competitive analysis": "phân tích đối thủ cạnh tranh",
+        "customer journey": "hành trình khách hàng",
+        "word of mouth": "truyền miệng",
+        "social proof": "bằng chứng xã hội",
+        "call to action": "lời kêu gọi hành động",
+        "customer lifetime value": "giá trị vòng đời khách hàng",
+        "customer acquisition cost": "chi phí thu hút khách hàng",
+        "monthly recurring revenue": "doanh thu định kỳ hằng tháng",
+        "average order value": "giá trị đơn hàng trung bình",
+        "retention rate": "tỷ lệ giữ chân",
+        "churn rate": "tỷ lệ rời bỏ",
+        "engagement rate": "tỷ lệ tương tác",
+        "keyword research": "nghiên cứu từ khóa",
+        "negative keyword": "từ khóa phủ định",
+        "broad match": "đối sánh rộng",
+        "phrase match": "đối sánh cụm từ",
+        "bid strategy": "chiến lược giá thầu",
+        "bid adjustment": "điều chỉnh giá thầu",
+        "daily budget": "ngân sách hằng ngày",
+        "ad group": "nhóm quảng cáo",
+        "organic traffic": "lưu lượng truy cập tự nhiên",
+        "paid traffic": "lưu lượng truy cập trả phí",
+        "loyalty program": "chương trình khách hàng thân thiết",
+        "referral program": "chương trình giới thiệu",
+        "buyer persona": "chân dung khách hàng"
+    },
+
+    business: {
+        "cash flow": "dòng tiền",
+        "gross margin": "biên lợi nhuận gộp",
+        "net margin": "biên lợi nhuận ròng",
+        "operating margin": "biên lợi nhuận hoạt động",
+        "contribution margin": "số dư đảm phí",
+        "operating leverage": "đòn bẩy hoạt động",
+        "break-even point": "điểm hòa vốn",
+        "economies of scale": "lợi thế kinh tế theo quy mô",
+        "sunk cost": "chi phí chìm",
+        "earnings per share": "lợi nhuận trên mỗi cổ phiếu",
+        "market capitalization": "vốn hóa thị trường",
+        "mergers and acquisitions": "mua bán và sáp nhập",
+        "initial public offering": "phát hành cổ phiếu lần đầu ra công chúng",
+        "discounted cash flow": "dòng tiền chiết khấu",
+        "net present value": "giá trị hiện tại ròng",
+        "internal rate of return": "tỷ suất hoàn vốn nội bộ",
+        "venture capital": "vốn đầu tư mạo hiểm",
+        "angel investor": "nhà đầu tư thiên thần",
+        "seed funding": "vốn hạt giống",
+        "exit strategy": "chiến lược thoái vốn",
+        "stock option": "quyền chọn cổ phiếu",
+        "network effect": "hiệu ứng mạng lưới",
+        "first mover advantage": "lợi thế người đi đầu",
+        "blue ocean strategy": "chiến lược đại dương xanh",
+        "design thinking": "tư duy thiết kế",
+        "inventory turnover": "vòng quay hàng tồn kho",
+        "quick ratio": "hệ số thanh toán nhanh",
+        "current ratio": "hệ số thanh toán hiện hành",
+        "debt to equity": "tỷ lệ nợ trên vốn chủ sở hữu",
+        "accrual accounting": "kế toán dồn tích",
+        "fiscal year": "năm tài chính",
+        "quarterly report": "báo cáo quý",
+        "annual report": "báo cáo thường niên",
+        "internal control": "kiểm soát nội bộ",
+        "transfer pricing": "chuyển giá",
+        "feasibility study": "nghiên cứu khả thi",
+        "contingency plan": "kế hoạch dự phòng",
+        "leading indicator": "chỉ báo dẫn dắt",
+        "lagging indicator": "chỉ báo trễ",
+        "balanced scorecard": "thẻ điểm cân bằng",
+        "Porter's five forces": "mô hình năm lực lượng cạnh tranh của Porter"
+    },
+
+    economics: {
+        "inflation rate": "tỷ lệ lạm phát",
+        "stagflation": "lạm phát đình trệ",
+        "interest rate": "lãi suất",
+        "monetary policy": "chính sách tiền tệ",
+        "fiscal policy": "chính sách tài khóa",
+        "quantitative easing": "nới lỏng định lượng",
+        "supply and demand": "cung và cầu",
+        "elasticity of demand": "độ co giãn của cầu",
+        "price elasticity": "độ co giãn theo giá",
+        "marginal cost": "chi phí cận biên",
+        "marginal revenue": "doanh thu cận biên",
+        "marginal utility": "độ thỏa dụng cận biên",
+        "consumer surplus": "thặng dư tiêu dùng",
+        "producer surplus": "thặng dư sản xuất",
+        "deadweight loss": "tổn thất vô ích",
+        "market equilibrium": "cân bằng thị trường",
+        "perfect competition": "cạnh tranh hoàn hảo",
+        "monopolistic competition": "cạnh tranh độc quyền",
+        "externality": "ngoại ứng",
+        "moral hazard": "rủi ro đạo đức",
+        "adverse selection": "lựa chọn bất lợi",
+        "information asymmetry": "bất cân xứng thông tin",
+        "game theory": "lý thuyết trò chơi",
+        "nash equilibrium": "cân bằng Nash",
+        "prisoner's dilemma": "thế lưỡng nan của người tù",
+        "comparative advantage": "lợi thế so sánh",
+        "absolute advantage": "lợi thế tuyệt đối",
+        "balance of trade": "cán cân thương mại",
+        "exchange rate": "tỷ giá hối đoái",
+        "purchasing power parity": "ngang giá sức mua",
+        "business cycle": "chu kỳ kinh doanh",
+        "gross domestic product": "tổng sản phẩm quốc nội",
+        "unemployment rate": "tỷ lệ thất nghiệp",
+        "labor force participation": "tỷ lệ tham gia lực lượng lao động",
+        "opportunity cost": "chi phí cơ hội",
+        "central bank": "ngân hàng trung ương",
+        "trade deficit": "thâm hụt thương mại",
+        "budget deficit": "thâm hụt ngân sách",
+        "invisible hand": "bàn tay vô hình",
+        "diminishing returns": "lợi suất giảm dần"
+    },
+
+    sales: {
+        "cold call": "cuộc gọi chào hàng",
+        "objection handling": "xử lý từ chối",
+        "upselling": "bán thêm gói cao hơn",
+        "cross-selling": "bán chéo",
+        "consultative selling": "bán hàng tư vấn",
+        "win rate": "tỷ lệ chốt đơn",
+        "customer success": "thành công của khách hàng",
+        "renewal rate": "tỷ lệ gia hạn",
+        "customer satisfaction score": "điểm hài lòng của khách hàng"
+    },
+
+    hrops: {
+        "talent acquisition": "thu hút nhân tài",
+        "employer branding": "thương hiệu nhà tuyển dụng",
+        "job description": "bản mô tả công việc",
+        "behavioral interview": "phỏng vấn hành vi",
+        "structured interview": "phỏng vấn có cấu trúc",
+        "performance review": "đánh giá hiệu suất",
+        "succession planning": "hoạch định kế nhiệm",
+        "career path": "lộ trình sự nghiệp",
+        "compensation package": "gói đãi ngộ",
+        "base salary": "lương cơ bản",
+        "employee engagement": "mức độ gắn kết của nhân viên",
+        "employee retention": "giữ chân nhân viên",
+        "turnover rate": "tỷ lệ nghỉ việc",
+        "remote work": "làm việc từ xa",
+        "hybrid work": "làm việc kết hợp",
+        "work life balance": "cân bằng công việc và cuộc sống",
+        "psychological safety": "an toàn tâm lý",
+        "servant leadership": "lãnh đạo phục vụ",
+        "span of control": "phạm vi kiểm soát",
+        "org chart": "sơ đồ tổ chức",
+        "cross functional team": "nhóm liên chức năng",
+        "standard operating procedure": "quy trình vận hành chuẩn",
+        "continuous improvement": "cải tiến liên tục",
+        "lean manufacturing": "sản xuất tinh gọn",
+        "capacity planning": "hoạch định năng lực",
+        "demand forecasting": "dự báo nhu cầu",
+        "inventory management": "quản lý hàng tồn kho",
+        "supply chain management": "quản lý chuỗi cung ứng",
+        "last mile delivery": "giao hàng chặng cuối",
+        "fulfillment center": "trung tâm xử lý đơn hàng",
+        "quality control": "kiểm soát chất lượng"
+    },
+
+    data: {
+        "standard deviation": "độ lệch chuẩn",
+        "normal distribution": "phân phối chuẩn",
+        "probability distribution": "phân phối xác suất",
+        "confidence interval": "khoảng tin cậy",
+        "hypothesis testing": "kiểm định giả thuyết",
+        "null hypothesis": "giả thuyết không",
+        "alternative hypothesis": "giả thuyết đối",
+        "statistical significance": "ý nghĩa thống kê",
+        "correlation coefficient": "hệ số tương quan",
+        "linear regression": "hồi quy tuyến tính",
+        "logistic regression": "hồi quy logistic",
+        "decision tree": "cây quyết định",
+        "random forest": "rừng ngẫu nhiên",
+        "k-means clustering": "phân cụm k-means",
+        "principal component analysis": "phân tích thành phần chính",
+        "cross-validation": "kiểm định chéo",
+        "training set": "tập huấn luyện",
+        "validation set": "tập kiểm định",
+        "test set": "tập kiểm tra",
+        "confusion matrix": "ma trận nhầm lẫn",
+        "time series": "chuỗi thời gian",
+        "data cleaning": "làm sạch dữ liệu",
+        "exploratory data analysis": "phân tích dữ liệu khám phá",
+        "descriptive statistics": "thống kê mô tả",
+        "inferential statistics": "thống kê suy luận",
+        "sample size": "cỡ mẫu",
+        "central limit theorem": "định lý giới hạn trung tâm",
+        "monte carlo simulation": "mô phỏng Monte Carlo",
+        "data warehouse": "kho dữ liệu",
+        "data governance": "quản trị dữ liệu",
+        "class imbalance": "mất cân bằng lớp",
+        "data visualization": "trực quan hóa dữ liệu",
+        "outlier detection": "phát hiện giá trị ngoại lai",
+        "regression to the mean": "hồi quy về giá trị trung bình",
+        "selection bias": "sai lệch chọn mẫu",
+        "statistical power": "lực kiểm định",
+        "effect size": "cỡ hiệu ứng",
+        "degrees of freedom": "bậc tự do",
+        "margin of error": "biên sai số",
+        "sampling error": "sai số chọn mẫu",
+        "type i error": "sai lầm loại I",
+        "type ii error": "sai lầm loại II"
+    },
+
+    health: {
+        "body mass index": "chỉ số khối cơ thể",
+        "basal metabolic rate": "tỷ lệ trao đổi chất cơ bản",
+        "total daily energy expenditure": "tổng năng lượng tiêu hao mỗi ngày",
+        "lean body mass": "khối lượng cơ thể nạc",
+        "heart rate variability": "biến thiên nhịp tim",
+        "resting heart rate": "nhịp tim lúc nghỉ",
+        "macronutrient": "chất dinh dưỡng đa lượng",
+        "micronutrient": "vi chất dinh dưỡng",
+        "protein synthesis": "tổng hợp protein",
+        "muscle protein synthesis": "tổng hợp protein cơ",
+        "muscle hypertrophy": "phì đại cơ",
+        "progressive overload": "tăng tải lũy tiến",
+        "eccentric contraction": "co cơ lệch tâm",
+        "concentric contraction": "co cơ đồng tâm",
+        "isometric contraction": "co cơ đẳng trường",
+        "delayed onset muscle soreness": "đau cơ khởi phát muộn",
+        "glycogen depletion": "cạn kiệt glycogen",
+        "lactate threshold": "ngưỡng lactate",
+        "insulin sensitivity": "độ nhạy insulin",
+        "intermittent fasting": "nhịn ăn gián đoạn",
+        "metabolic syndrome": "hội chứng chuyển hóa",
+        "rate of perceived exertion": "mức gắng sức cảm nhận",
+        "antagonist muscle": "cơ đối vận",
+        "posterior chain": "chuỗi cơ sau",
+        "anterior chain": "chuỗi cơ trước",
+        "energy system": "hệ năng lượng",
+        "electrolyte balance": "cân bằng điện giải",
+        "sleep debt": "nợ ngủ",
+        "range of motion": "biên độ chuyển động",
+        "compound exercise": "bài tập đa khớp",
+        "isolation exercise": "bài tập đơn khớp",
+        "calorie deficit": "thâm hụt calo",
+        "calorie surplus": "dư thừa calo",
+        "circadian rhythm": "nhịp sinh học",
+        "sleep hygiene": "vệ sinh giấc ngủ"
+    },
+
+    medicine: {
+        "randomized controlled trial": "thử nghiệm ngẫu nhiên có đối chứng",
+        "double blind study": "nghiên cứu mù đôi",
+        "placebo effect": "hiệu ứng giả dược",
+        "clinical trial": "thử nghiệm lâm sàng",
+        "meta analysis": "phân tích gộp",
+        "systematic review": "tổng quan hệ thống",
+        "control group": "nhóm đối chứng",
+        "treatment group": "nhóm can thiệp",
+        "side effect": "tác dụng phụ",
+        "contraindication": "chống chỉ định",
+        "immune system": "hệ miễn dịch",
+        "gene expression": "biểu hiện gen",
+        "stem cell": "tế bào gốc",
+        "evidence based medicine": "y học dựa trên bằng chứng",
+        "differential diagnosis": "chẩn đoán phân biệt",
+        "chronic disease": "bệnh mạn tính",
+        "herd immunity": "miễn dịch cộng đồng",
+        "incubation period": "thời kỳ ủ bệnh",
+        "mortality rate": "tỷ lệ tử vong",
+        "life expectancy": "tuổi thọ trung bình",
+        "public health": "y tế công cộng",
+        "gut microbiome": "hệ vi sinh vật đường ruột",
+        "blood pressure": "huyết áp",
+        "blood sugar": "đường huyết",
+        "cardiovascular disease": "bệnh tim mạch",
+        "type 2 diabetes": "tiểu đường tuýp 2",
+        "risk factor": "yếu tố nguy cơ",
+        "adverse event": "biến cố bất lợi",
+        "antibiotic resistance": "kháng kháng sinh",
+        "vital signs": "dấu hiệu sinh tồn"
+    },
+
+    crypto: {
+        "smart contract": "hợp đồng thông minh",
+        "proof of work": "bằng chứng công việc",
+        "proof of stake": "bằng chứng cổ phần",
+        "consensus mechanism": "cơ chế đồng thuận",
+        "private key": "khóa riêng tư",
+        "public key": "khóa công khai",
+        "cold wallet": "ví lạnh",
+        "hot wallet": "ví nóng",
+        "gas fee": "phí gas",
+        "liquidity pool": "bể thanh khoản",
+        "order book": "sổ lệnh"
+    },
+
+    psychology: {
+        "cognitive behavioral therapy": "liệu pháp nhận thức hành vi",
+        "growth mindset": "tư duy phát triển",
+        "fixed mindset": "tư duy cố định",
+        "spaced repetition": "lặp lại ngắt quãng",
+        "active recall": "chủ động gợi nhớ",
+        "deliberate practice": "luyện tập có chủ đích",
+        "flow state": "trạng thái dòng chảy",
+        "cognitive load": "tải nhận thức",
+        "confirmation bias": "thiên kiến xác nhận",
+        "cognitive dissonance": "bất hòa nhận thức",
+        "anchoring bias": "thiên kiến mỏ neo",
+        "survivorship bias": "thiên kiến kẻ sống sót",
+        "sunk cost fallacy": "ngụy biện chi phí chìm",
+        "availability heuristic": "suy nghiệm sẵn có",
+        "framing effect": "hiệu ứng đóng khung",
+        "loss aversion": "tâm lý ngại mất mát",
+        "imposter syndrome": "hội chứng kẻ mạo danh",
+        "emotional intelligence": "trí tuệ cảm xúc",
+        "intrinsic motivation": "động lực nội tại",
+        "extrinsic motivation": "động lực bên ngoài",
+        "socratic method": "phương pháp Socrates",
+        "blended learning": "học tập kết hợp",
+        "flipped classroom": "lớp học đảo ngược",
+        "formative assessment": "đánh giá quá trình",
+        "summative assessment": "đánh giá tổng kết",
+        "feedback loop": "vòng phản hồi",
+        "Bloom's taxonomy": "thang phân loại Bloom",
+        "metacognition": "siêu nhận thức",
+        "retrieval practice": "luyện tập truy xuất",
+        "interleaved practice": "luyện tập xen kẽ",
+        "working memory": "trí nhớ làm việc",
+        "long-term memory": "trí nhớ dài hạn",
+        "short-term memory": "trí nhớ ngắn hạn",
+        "learned helplessness": "bất lực tập nhiễm",
+        "negativity bias": "thiên kiến tiêu cực"
+    },
+
+    design: {
+        "visual hierarchy": "phân cấp thị giác",
+        "usability testing": "kiểm thử khả năng sử dụng",
+        "information architecture": "kiến trúc thông tin",
+        "customer journey map": "bản đồ hành trình khách hàng",
+        "vector graphic": "đồ họa vector",
+        "color grading": "chỉnh màu",
+        "rule of thirds": "quy tắc một phần ba",
+        "negative space": "khoảng trống",
+        "contrast ratio": "tỷ lệ tương phản",
+        "color theory": "lý thuyết màu sắc",
+        "complementary color": "màu bổ túc",
+        "aspect ratio": "tỷ lệ khung hình",
+        "focal point": "điểm nhấn"
+    },
+
+    academic: {
+        "literature review": "tổng quan tài liệu",
+        "research question": "câu hỏi nghiên cứu",
+        "research gap": "khoảng trống nghiên cứu",
+        "theoretical framework": "khung lý thuyết",
+        "conceptual framework": "khung khái niệm",
+        "independent variable": "biến độc lập",
+        "dependent variable": "biến phụ thuộc",
+        "control variable": "biến kiểm soát",
+        "confounding variable": "biến gây nhiễu",
+        "qualitative research": "nghiên cứu định tính",
+        "quantitative research": "nghiên cứu định lượng",
+        "mixed methods": "phương pháp hỗn hợp",
+        "primary source": "nguồn sơ cấp",
+        "secondary source": "nguồn thứ cấp",
+        "reference list": "danh mục tài liệu tham khảo",
+        "peer reviewed journal": "tạp chí có bình duyệt",
+        "impact factor": "chỉ số ảnh hưởng",
+        "thesis statement": "luận điểm chính",
+        "research proposal": "đề cương nghiên cứu",
+        "cohort study": "nghiên cứu đoàn hệ",
+        "longitudinal study": "nghiên cứu dọc",
+        "cross-sectional study": "nghiên cứu cắt ngang",
+        "case control study": "nghiên cứu bệnh chứng",
+        "focus group": "nhóm tập trung",
+        "likert scale": "thang đo Likert",
+        "internal validity": "giá trị nội tại",
+        "external validity": "giá trị ngoại tại",
+        "grounded theory": "lý thuyết nền",
+        "content analysis": "phân tích nội dung",
+        "thematic analysis": "phân tích chủ đề",
+        "ethical approval": "phê duyệt đạo đức",
+        "sampling frame": "khung chọn mẫu",
+        "random sampling": "chọn mẫu ngẫu nhiên",
+        "stratified sampling": "chọn mẫu phân tầng",
+        "convenience sampling": "chọn mẫu thuận tiện",
+        "response rate": "tỷ lệ phản hồi",
+        "pilot study": "nghiên cứu thử nghiệm",
+        "open access": "truy cập mở"
+    },
+
+    cybersecurity: {
+        "penetration testing": "kiểm thử xâm nhập",
+        "threat modeling": "mô hình hóa mối đe dọa",
+        "attack surface": "bề mặt tấn công",
+        "brute force attack": "tấn công vét cạn",
+        "man in the middle": "tấn công xen giữa",
+        "denial of service": "từ chối dịch vụ",
+        "incident response": "ứng phó sự cố",
+        "vulnerability scan": "quét lỗ hổng",
+        "patch management": "quản lý bản vá",
+        "end to end encryption": "mã hóa đầu cuối",
+        "hashing algorithm": "thuật toán băm",
+        "digital signature": "chữ ký số",
+        "certificate authority": "tổ chức cấp chứng thư số",
+        "threat intelligence": "thông tin tình báo về mối đe dọa",
+        "access control": "kiểm soát truy cập",
+        "least privilege": "đặc quyền tối thiểu",
+        "data breach": "rò rỉ dữ liệu",
+        "password manager": "trình quản lý mật khẩu"
+    },
+
+    sustainability: {
+        "carbon footprint": "dấu chân carbon",
+        "carbon neutral": "trung hòa carbon",
+        "net zero": "phát thải ròng bằng 0",
+        "carbon offset": "bù đắp carbon",
+        "carbon credit": "tín chỉ carbon",
+        "circular economy": "kinh tế tuần hoàn",
+        "linear economy": "kinh tế tuyến tính",
+        "life cycle assessment": "đánh giá vòng đời",
+        "greenwashing": "tẩy xanh",
+        "sustainable development": "phát triển bền vững",
+        "waste management": "quản lý chất thải",
+        "energy efficiency": "hiệu quả năng lượng",
+        "fair trade": "thương mại công bằng",
+        "impact investing": "đầu tư tác động",
+        "scope 1 emissions": "phát thải phạm vi 1",
+        "scope 2 emissions": "phát thải phạm vi 2",
+        "scope 3 emissions": "phát thải phạm vi 3",
+        "renewable energy": "năng lượng tái tạo",
+        "climate change": "biến đổi khí hậu",
+        "greenhouse gas": "khí nhà kính",
+        "fossil fuel": "nhiên liệu hóa thạch"
+    },
+
+    realestate: {
+        "cap rate": "tỷ suất vốn hóa",
+        "net operating income": "thu nhập hoạt động ròng",
+        "gross rental yield": "tỷ suất cho thuê gộp",
+        "net rental yield": "tỷ suất cho thuê ròng",
+        "loan to value": "tỷ lệ cho vay trên giá trị tài sản",
+        "debt service coverage ratio": "hệ số khả năng trả nợ",
+        "amortization schedule": "lịch trả nợ",
+        "leasehold": "sở hữu có thời hạn",
+        "freehold": "sở hữu vĩnh viễn",
+        "closing cost": "chi phí hoàn tất giao dịch",
+        "mortgage rate": "lãi suất vay thế chấp",
+        "fixed rate mortgage": "khoản vay thế chấp lãi suất cố định",
+        "adjustable rate mortgage": "khoản vay thế chấp lãi suất thả nổi",
+        "property management": "quản lý bất động sản",
+        "vacancy rate": "tỷ lệ trống",
+        "capital appreciation": "tăng giá vốn",
+        "mixed use development": "dự án đa chức năng",
+        "gross floor area": "tổng diện tích sàn"
+    },
+
+    legal: {
+        "intellectual property": "sở hữu trí tuệ",
+        "fair use": "sử dụng hợp lý",
+        "licensing agreement": "hợp đồng cấp phép",
+        "non-disclosure agreement": "thỏa thuận bảo mật",
+        "terms of service": "điều khoản dịch vụ",
+        "force majeure": "bất khả kháng",
+        "statute of limitations": "thời hiệu khởi kiện",
+        "corporate social responsibility": "trách nhiệm xã hội của doanh nghiệp",
+        "compliance program": "chương trình tuân thủ",
+        "data processing agreement": "thỏa thuận xử lý dữ liệu",
+        "right to be forgotten": "quyền được lãng quên",
+        "legal liability": "trách nhiệm pháp lý",
+        "indemnification": "bồi hoàn",
+        "burden of proof": "nghĩa vụ chứng minh",
+        "due process": "thủ tục tố tụng hợp pháp",
+        "privacy policy": "chính sách quyền riêng tư"
+    },
+
+    math: {
+        "linear algebra": "đại số tuyến tính",
+        "matrix multiplication": "phép nhân ma trận",
+        "identity matrix": "ma trận đơn vị",
+        "inverse matrix": "ma trận nghịch đảo",
+        "dot product": "tích vô hướng",
+        "cross product": "tích có hướng",
+        "eigenvalue": "trị riêng",
+        "eigenvector": "vector riêng",
+        "vector space": "không gian vector",
+        "linear combination": "tổ hợp tuyến tính",
+        "partial derivative": "đạo hàm riêng",
+        "chain rule": "quy tắc dây chuyền",
+        "differential equation": "phương trình vi phân",
+        "definite integral": "tích phân xác định",
+        "indefinite integral": "tích phân bất định",
+        "prime number": "số nguyên tố",
+        "real number": "số thực",
+        "complex number": "số phức",
+        "natural number": "số tự nhiên",
+        "probability density function": "hàm mật độ xác suất",
+        "expected value": "giá trị kỳ vọng",
+        "conditional probability": "xác suất có điều kiện",
+        "Bayes' theorem": "định lý Bayes",
+        "Bayes' rule": "quy tắc Bayes",
+        "pythagorean theorem": "định lý Pythagore",
+        "law of large numbers": "luật số lớn",
+        "random variable": "biến ngẫu nhiên",
+        "cost function": "hàm chi phí",
+        "local minimum": "cực tiểu địa phương",
+        "global minimum": "cực tiểu toàn cục",
+        "convex function": "hàm lồi"
+    },
+
+    productivity: {
+        "time management": "quản lý thời gian",
+        "critical thinking": "tư duy phản biện",
+        "active listening": "lắng nghe chủ động",
+        "public speaking": "nói trước công chúng",
+        "first principles thinking": "tư duy từ nguyên lý gốc",
+        "mental model": "mô hình tư duy",
+        "decision fatigue": "mệt mỏi khi ra quyết định",
+        "comfort zone": "vùng an toàn",
+        "eisenhower matrix": "ma trận Eisenhower",
+        "pomodoro technique": "kỹ thuật Pomodoro",
+        "SMART goal": "mục tiêu SMART",
+        "to-do list": "danh sách việc cần làm"
+    }
+};
+
+// Every rendered key is a protected term of its group, so the options page counts it and the
+// content script builds it into the match patterns with no second list to keep in step
+for (const [key, map] of Object.entries(GLOSSARY_VI)) {
+    const group = GLOSSARY_GROUPS[key];
+    if (!group) continue;
+    group.vi = {};
+    const have = new Set(group.terms.map(t => t.toLowerCase()));
+    for (const [en, vi] of Object.entries(map)) {
+        group.vi[en.toLowerCase()] = vi;
+        if (!have.has(en.toLowerCase())) { group.terms.push(en); have.add(en.toLowerCase()); }
+    }
+}
+
+// Group keys that existed before settings remembered which groups the user had seen (1.8.5).
+// A stored enabledGroups list predates any group not named here, so such a group starts on
+// instead of silently off for everyone who ever pressed Save.
+const LEGACY_GROUP_KEYS = [
+    "tech", "marketing", "business", "economics", "sales", "hrops", "data", "health", "medicine",
+    "crypto", "psychology", "design", "academic", "cybersecurity", "sustainability", "realestate", "legal"
+];
+
+// saved: { enabledGroups, knownGroups } as read from storage (either may be missing)
+function resolveEnabledGroups(saved) {
+    const all = Object.keys(GLOSSARY_GROUPS);
+    const s = saved || {};
+    if (!Array.isArray(s.enabledGroups)) return all;
+    const known = new Set(Array.isArray(s.knownGroups) ? s.knownGroups : LEGACY_GROUP_KEYS);
+    return all.filter(k => s.enabledGroups.includes(k) || !known.has(k));
+}
 
 const DEFAULT_ENABLED_GROUPS = Object.keys(GLOSSARY_GROUPS);
 
@@ -662,7 +1329,9 @@ const CST_GLOSSARY_API = {
     CST_DEFAULT_NORMALIZE: DEFAULT_NORMALIZE,
     CST_DEFAULT_ENABLED_GROUPS: DEFAULT_ENABLED_GROUPS,
     CST_RISKY_PROPER: RISKY_PROPER,
-    CST_CONTEXTUAL_TERMS: CONTEXTUAL_TERMS
+    CST_CONTEXTUAL_TERMS: CONTEXTUAL_TERMS,
+    CST_GLOSSARY_VI: GLOSSARY_VI,
+    CST_resolveEnabledGroups: resolveEnabledGroups
 };
 if (typeof globalThis !== "undefined") Object.assign(globalThis, CST_GLOSSARY_API);
 if (typeof window !== "undefined" && window !== globalThis) Object.assign(window, CST_GLOSSARY_API);

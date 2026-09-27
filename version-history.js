@@ -4,6 +4,22 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.8.5", luc: "20:11 27/09/2026", ten: "Từ điển thuật ngữ: 526 thuật ngữ có cách dịch tiếng Việt chuẩn, thêm 2 nhóm ngành",
+            y: [
+                "Trước đây mọi thuật ngữ trong từ điển đều bị giữ nguyên tiếng Anh, kể cả những cụm đã có tên tiếng Việt chuẩn: phụ đề và giọng lồng tiếng ra \"standard deviation\", \"interest rate\", \"side effect\". Nay 526 cụm như vậy luôn hiện đúng một cách dịch tiếng Việt (độ lệch chuẩn, lãi suất, tác dụng phụ) trong suốt bài giảng.",
+                "Tên sản phẩm, viết tắt và thuật ngữ dân trong nghề quen nói tiếng Anh (CTR, conversion rate, unit test, pull request, overfitting) vẫn giữ nguyên.",
+                "Thêm nhóm \"Toán học và thuật toán\" và \"Kỹ năng và năng suất\"; thêm tên công cụ AI mới (DeepSeek, Cursor, NotebookLM, n8n...) và viết tắt (RLHF, VRAM, CUDA...).",
+                "Nhận cả dạng số nhiều (\"interest rates\"), sở hữu (\"prisoner’s dilemma\", \"Bayes's theorem\") và chữ số (\"Scope 3 emissions\"); thuật ngữ đứng đầu câu được viết hoa chữ đầu.",
+                "Nhóm ngành mới tự bật kể cả khi đã từng bấm Lưu cài đặt; nhóm bạn đã tắt vẫn tắt. Từ bạn khai trong \"Danh sách từ giữ nguyên\" hoặc quy tắc \"=>\" luôn thắng cách dịch sẵn.",
+                "Đoạn có thuật ngữ vừa đổi sang tiếng Việt sẽ được dịch lại một lần (tốn phí một lần), đoạn khác vẫn dùng bản đã lưu."
+            ],
+            bang: { cot: ["Từ điển", "1.8.4", "Nay"], hang: [
+                ["Nhóm ngành", "17", "19"],
+                ["Tổng thuật ngữ", "1.447", "1.611"],
+                ["Thuật ngữ có cách dịch tiếng Việt chuẩn", "0", "526"]
+            ] }
+        },
+        {
             v: "1.8.4", luc: "19:59 27/09/2026", ten: "Nhắc lại chủ thể ở xa, mô tả video sạch hơn, tự kiểm tra ngữ cảnh trong console",
             y: [
                 "Đoạn mở đầu bằng \"he\", \"she\" hay \"the company\" mà người / vật đó được nêu từ 3 câu trở lên trước đây: Gemini nhận kèm đúng câu đã nêu tên (\"Sam joined the company in 2019.\"). Từ chủ đề lặp khắp bài (\"the model\" trong bài học máy) và \"it\", \"they\" không kéo thêm gì.",

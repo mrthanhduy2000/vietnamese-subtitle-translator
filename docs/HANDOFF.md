@@ -6,38 +6,40 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-27 · lane A (`context-engine.js`, `content.js`, `youtube.js`) + D (`background.js` prompt line
-and cache key, `tools/context-eval.js`, tests) · `1.8.4`. User asked: close every open item of the
-1.8.3 context audit (old `BACKLOG.md` 32), deeper, zero API spend.
+2026-09-27 · lane A (`glossary.js`, `content.js`) + C (`options.js`, `options.html`,
+`version-history.js`) + D (`tests/glossary.test.js`, `package.json`) · `1.8.5`. User asked:
+improve, optimise and expand the terminology glossary.
 
 ## What changed
-- Far antecedents: `ContextSession.refSourceFor` -> `context.refSource`, prompt line
-  `[NHẮC LẠI TỪ TRƯỚC, chỉ để hiểu đại từ]`, cache key extended only when non-empty.
-- `cleanDescription` for the topic; `ytWaitForWindowBefore` shared by prefetch and the realtime +1/+2
-  groups; console `contextSummary` on each "🤖 GEMINI" line. Details: `SUBTITLE.md` 1.8.4 paragraph.
-- Old `BACKLOG.md` 32 removed: (a) far antecedent done, (b) realtime done, (c) measured no later than
-  1.8.3 (scaled playback test), (d) prompt reviewed and kept, (e) replaced by the console summary.
-- No API call of any kind this session.
+- Every glossary term used to come back in **English** (placeholder restored to the match), so
+  "standard deviation", "interest rate", "side effect" stayed English in subtitles and dubbing.
+  New `GLOSSARY_VI` in `glossary.js`: 526 lowercase keys -> settled Vietnamese, merged into each
+  group as `group.vi` (keys also pushed into `group.terms`). `loadGlossary` seeds
+  `state.glossaryTranslateAs` from it; user `userKeep` deletes a rendering, user `=>` overrides.
+- `translateAsFor` (plural fold), `sentenceStartAt` + `capitalizeLowerTerm` in `restoreGlossary`.
+- New groups `math`, `productivity`; new tools/acronyms in `tech`; possessive/digit normalize rules
+  (prisoner's dilemma, Bayes' theorem, Porter's five forces, scope 1/2/3 emissions); removed
+  "public good" (everyday sense). 19 groups, 1,611 terms (was 1,447).
+- `knownGroups` storage key + `CST_resolveEnabledGroups`: a stored `enabledGroups` from before a
+  group existed no longer hides it. `LEGACY_GROUP_KEYS` = the 17 pre-1.8.5 keys; add nothing there.
 
 ## State
-- `npm test`: 504 pass, 0 fail, 1 skip · Reload: **yes** + F5 video tabs. Cached translations hit
-  except windows that now carry a `refSource` (re-billed once).
-- `node tools/context-eval.js` (`--root <git archive dir>` for before/after).
+- `npm test`: 514 pass, 0 fail, 1 skip · Reload: **yes** + F5 video tabs. Windows containing a
+  newly rendered term re-bill once (placeholder text is in `unitCacheKey`).
 
 ## Unfinished / in progress
-- Nobody has compared real Gemini output before/after 1.8.3/1.8.4; the console line lets the user
-  check the context while watching normally (no extra call).
-- Carried over: `BACKLOG.md` 30 (blind 2 failures -> dev, then blind split 3), 31 (purpose clause
-  feel, ask the user after listening), 14, 15, 16, 18, 19, 20, 21-24, 26-28; 1.7.2 to 1.8.4 not
-  verified end to end in real Chrome; 1.7.9 duck fix not confirmed; Udemy / edX (`BACKLOG.md` 9).
+- The keep-English vs Vietnamese choice per term is a judgment call; not yet watched in real
+  Chrome. Marketing metrics deliberately stay English. Ask the user after a lecture or two.
+- Carried over: nobody compared real Gemini output before/after 1.8.3/1.8.4 (console line shows
+  context); `BACKLOG.md` 30, 31, 14, 15, 16, 18, 19, 20, 21-24, 26-28; 1.7.2 to 1.8.5 not verified
+  end to end in real Chrome; 1.7.9 duck fix not confirmed; Udemy / edX (`BACKLOG.md` 9).
 
 ## Traps hit this session
-- Names often open sentences ("Sam joined..."): a name test that skips the first word finds none;
-  `OPENERS` is the fix. `\bsponsor\b` misses "sponsored".
-- "the model" everywhere in an ML talk pulled noise until the 3-unit topic rule.
-- Scaled-time tests: scale the sandbox `setTimeout` too, or the prefetch's 1 s idle wait is 50 s of video.
-- A fake translator must echo `[[__T0__]]`, or `requestUnit` resends every window.
+- `protectGlossary` runs the exact-case pass before the lowercase pass: placeholder ids follow
+  pass order, not text order. Tests must not assume text order.
+- `state` in content.js is a top-level `const`: read it with `vm.runInContext("state", sb)`.
+- A glossary key with an everyday second sense gets the rendering blindly ("exact match").
 
 ## Suggested next step
-- Watch a Coursera lecture and a YouTube talk, DevTools console (extension context): every
-  "🤖 GEMINI" line should show "bản dịch trước ✓" except the first window(s).
+- Watch a statistics or economics lecture: terms like "độ lệch chuẩn", "lãi suất" should appear
+  in Vietnamese; flag any rendering the user dislikes and move it out of `GLOSSARY_VI`.

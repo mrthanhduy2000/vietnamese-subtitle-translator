@@ -277,6 +277,18 @@ function rebuildGlossaryRegex() {
     console.log(`Tu dien: ${exact.length} muc dung chu hoa, ${loose.length} muc khong phan biet, ${riskyList.length} ten rieng can than trong`);
 }
 
+// The rendering declared for a matched term. The match patterns accept plurals, the map holds the
+// singular: "interest rates" and "case studies" must find "interest rate" and "case study".
+function translateAsFor(match) {
+    const map = state.glossaryTranslateAs;
+    const k = String(match).toLowerCase();
+    if (map.has(k)) return map.get(k);
+    if (k.endsWith("ies") && map.has(k.slice(0, -3) + "y")) return map.get(k.slice(0, -3) + "y");
+    if (k.endsWith("es") && map.has(k.slice(0, -2))) return map.get(k.slice(0, -2));
+    if (k.endsWith("s") && map.has(k.slice(0, -1))) return map.get(k.slice(0, -1));
+    return undefined;
+}
+
 function protectGlossary(text) {
     if (!state.glossaryEnabled) return { text, terms: [] };
 
@@ -294,7 +306,7 @@ function protectGlossary(text) {
     const replaceWithToken = (match) => {
         // Neu nguoi dung khai bao dang "tu goc => dang muon hien"
         // thi dien dang muon hien, nguoc lai giu nguyen ban goc
-        const custom = state.glossaryTranslateAs.get(match.toLowerCase());
+        const custom = translateAsFor(match);
         const id = terms.length;
         terms.push(custom !== undefined ? custom : match);
         // Dung token an toan co khoang trang bao boc de may dich khong dinh tu lien vao token
@@ -338,10 +350,11 @@ function restoreGlossary(text, terms) {
     if (terms.length === 0) return finalizeTranslation(text);
 
     // Regex da dang: bat ca format moi [[__T0__]] va format cu ZQ0QZ / Z Q 0 Q Z
-    let restored = text.replace(/(?:\[\[\s*__\s*T\s*(\d+)\s*__\s*\]\]|__T\s*(\d+)\s*__|Z\s*Q\s*(\d+)\s*Q\s*Z)/gi, (match, p1, p2, p3) => {
+    let restored = text.replace(/(?:\[\[\s*__\s*T\s*(\d+)\s*__\s*\]\]|__T\s*(\d+)\s*__|Z\s*Q\s*(\d+)\s*Q\s*Z)/gi, (match, p1, p2, p3, offset, whole) => {
         const num = p1 !== undefined ? p1 : (p2 !== undefined ? p2 : p3);
         const idx = parseInt(num, 10);
-        return terms[idx] !== undefined ? terms[idx] : match;
+        if (terms[idx] === undefined) return match;
+        return sentenceStartAt(whole, offset) ? capitalizeLowerTerm(terms[idx]) : terms[idx];
     });
 
     // Don dep khoang trang thua sinh ra boi token
@@ -354,6 +367,18 @@ function restoreGlossary(text, terms) {
 
     // Ma nao con sot (vi du mo hinh doi so thu tu) thi xoa, khong de lot ra man hinh
     return finalizeTranslation(restored);
+}
+
+// A term restored where a sentence starts: "độ lệch chuẩn cho biết..." must read "Độ lệch chuẩn...".
+function sentenceStartAt(text, offset) {
+    return /(?:^|[.!?…]["”')\]]?\s)[\s"“'(\[-]*$/.test(text.slice(0, offset));
+}
+
+// Only an all-lowercase term is capitalized: "iOS", "eCPM" or "n8n" keep their brand casing.
+function capitalizeLowerTerm(term) {
+    const t = String(term);
+    if (t !== t.toLowerCase() || !t) return t;
+    return t.charAt(0).toLocaleUpperCase("vi") + t.slice(1);
 }
 
 function glossaryIntact(translatedText, terms) {
@@ -1943,17 +1968,25 @@ async function loadGlossary() {
         const saved = await chrome.storage.sync.get({
             glossaryEnabled: true,
             enabledGroups: allGroupKeys,
+            knownGroups: null,
             userKeep: "",
             userNormalize: ""
         });
+        const enabledGroups = (typeof CST_resolveEnabledGroups === "function")
+            ? CST_resolveEnabledGroups(saved) : saved.enabledGroups;
 
         state.glossaryEnabled = saved.glossaryEnabled;
 
         // Gom thuat ngu tu cac nhom nganh dang bat
         const fromGroups = [];
-        for (const key of saved.enabledGroups) {
+        // Settled Vietnamese renderings of the enabled groups; a user rule below overrides them
+        state.glossaryTranslateAs = new Map();
+        for (const key of enabledGroups) {
             if (groups[key] && Array.isArray(groups[key].terms)) {
                 fromGroups.push(...groups[key].terms);
+            }
+            for (const [en, vi] of Object.entries((groups[key] && groups[key].vi) || {})) {
+                state.glossaryTranslateAs.set(en, vi);
             }
         }
 
@@ -1962,10 +1995,11 @@ async function loadGlossary() {
             .split("\n")
             .map(s => s.trim())
             .filter(s => s.length > 0 && !s.startsWith("#"));
+        // A term the user asked to keep in English wins over the group's Vietnamese rendering
+        for (const t of userKeep) state.glossaryTranslateAs.delete(t.toLowerCase());
 
         // Quy tac dich rieng: "tu goc => dang muon hien"
         // Ve trai duoc bao ve, khi khoi phuc thi dien ve phai
-        state.glossaryTranslateAs = new Map();
         const userTerms = [];
         saved.userNormalize
             .split("\n")

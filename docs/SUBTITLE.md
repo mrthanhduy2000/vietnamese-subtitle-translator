@@ -14,7 +14,9 @@ runs in the same world, reading `content.js`'s `state` and `CST_UI` directly (no
 
 1. Read the VTT track from the player.
 2. `protectGlossary` wraps terms that must survive translation; `rebuildGlossaryRegex` builds the
-   matcher from `glossary.js` plus the user's own keep-list.
+   matcher from `glossary.js` plus the user's own keep-list. A term with an entry in its group's
+   `vi` map (from `GLOSSARY_VI`, 1.8.5) is restored as that Vietnamese, not the English
+   (`translateAsFor` folds plurals; user keep-list and `=>` rules override it).
 3. `groupCuesIntoSentences` merges cues into sentence units (or keeps them per-cue if `perCueMode`).
 4. `translateAllGroups` / `translateWindow` -> `requestUnit`, the **only** bridge to the service
    worker. `CST_CONTEXT` attaches a sliding window of 2 previous and 2 next cues plus domain and
@@ -207,7 +209,9 @@ was never read by the page and was removed in 1.7.3; old stored values are ignor
 AI and cost: `useAi`, `geminiApiKey`, `geminiModel`, `geminiStrongModel`, `costMode`,
 `autoTranslate`, `budgetDailyUsd`, `budgetVideoUsd`
 
-Glossary: `glossaryEnabled`, `userKeep`, `userNormalize`, `enabledGroups`
+Glossary: `glossaryEnabled`, `userKeep`, `userNormalize`, `enabledGroups`, `knownGroups` (1.8.5:
+group keys the user had seen at the last Save; a group missing from it starts enabled, see
+`CST_resolveEnabledGroups` in `glossary.js`)
 
 UI: `uiTheme` (`auto` / `light` / `dark`), written by `theme.js`, **not** by `collectSettings`. It is
 also mirrored into `localStorage` as `cstUiTheme` so the page can paint before storage resolves.

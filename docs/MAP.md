@@ -37,7 +37,7 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `settings-backup.js` | 76 | Pure build/parse of the settings backup file (all of `storage.sync` + `edits:*`, key optional) | `CST_BACKUP` (options page only) |
 | `vi-segmenter.js` | 890 | Vietnamese cue segmentation + line breaking, two-stage dynamic programming over syllable gaps | `CST_VI_SEG` |
 | `dub-planner.js` | 864 | Pure function: text -> speech script -> prosody and timing. No I/O | `CST_DUB_PLAN` |
-| `glossary.js` | 669 | Pure data: 17 domain term groups, normalize rules, proper nouns never to translate | `CST_GLOSSARY_GROUPS` and friends (globalThis + module.exports) |
+| `glossary.js` | ~1340 | Pure data: 19 domain term groups, `GLOSSARY_VI` settled Vietnamese renderings, normalize rules, proper nouns never to translate, `resolveEnabledGroups` | `CST_GLOSSARY_GROUPS` and friends (globalThis + module.exports) |
 | `dubbing.js` | 481 | Thin page-level dubbing controller: settings, provider pick, badge, hold-video-while-preparing | `window.CST_DUB` |
 | `context-engine.js` | 378 | Domain detection + per-video sliding-window context sent with each translation | `CST_CONTEXT` |
 | `cst-cache.js` | 319 | Two-tier LRU cache (RAM -> IndexedDB) for translations and audio | `CST_CACHE` |

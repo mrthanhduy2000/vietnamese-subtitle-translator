@@ -556,8 +556,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const savedGlossary = await chrome.storage.sync.get({
         userKeep: "", userNormalize: "", glossaryEnabled: true,
-        enabledGroups: allKeys
+        enabledGroups: allKeys, knownGroups: null
     });
+    // A group added in a later version starts ticked even when an older enabledGroups list is stored
+    const enabledGroupKeys = window.CST_resolveEnabledGroups
+        ? window.CST_resolveEnabledGroups(savedGlossary) : savedGlossary.enabledGroups;
 
     if (keepBox) keepBox.value = savedGlossary.userKeep;
     if (normBox) normBox.value = savedGlossary.userNormalize;
@@ -571,12 +574,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             const box = document.createElement("input");
             box.type = "checkbox";
             box.dataset.group = key;
-            box.checked = savedGlossary.enabledGroups.includes(key);
+            box.checked = enabledGroupKeys.includes(key);
             const name = document.createElement("span");
             name.textContent = groups[key].label;
             const count = document.createElement("span");
             count.className = "group-count";
-            count.textContent = `${groups[key].terms.length} từ`;
+            const viCount = Object.keys(groups[key].vi || {}).length;
+            count.textContent = viCount
+                ? `${groups[key].terms.length} từ · ${viCount} dịch sẵn`
+                : `${groups[key].terms.length} từ`;
+            count.title = "Từ \"dịch sẵn\" luôn hiện theo một cách dịch tiếng Việt chuẩn; các từ còn lại giữ nguyên tiếng Anh";
             row.append(box, name, count);
             listEl.appendChild(row);
         }
@@ -797,6 +804,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             userKeep: keepBox ? keepBox.value : "",
             userNormalize: normBox ? normBox.value : "",
             enabledGroups: pickedGroups,
+            knownGroups: allKeys,
 
             // Lồng tiếng
             dubVoiceName: voiceSel ? voiceSel.value : "",
