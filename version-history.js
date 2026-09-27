@@ -4,6 +4,25 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.7.8", luc: "14:51 27/09/2026", ten: "Giọng VieNeu đọc đúng tên riêng, thương hiệu, viết tắt và số phiên bản tiếng Anh",
+            y: [
+                "Giọng VieNeu không còn đánh vần tên tiếng Anh bằng chữ cái tiếng Việt: IKEA đọc \"ai-ki-a\" thay vì \"i ca e a\", CPC / ROI / TPM đọc chữ cái tiếng Anh thay vì \"xê phê xê\". Những viết tắt tiếng Việt (CLB, HLV, VTV, UBND), khổ giấy A4, đội U23 vẫn đọc kiểu Việt như cũ.",
+                "Tên người và địa danh có chữ trùng âm tiết tiếng Việt được đọc kiểu Anh khi chắc chắn là tên: Tom Hanks, Tom Cruise, San Francisco, San Diego, Leonardo DiCaprio, La La Land. Không đoán bừa: \"Con AI này\", \"Chị Lan\", một chữ \"Tom\" đứng một mình vẫn đọc kiểu Việt.",
+                "Số phiên bản đọc bằng \"chấm\" cho mọi giọng: GPT-5.6 là \"GPT năm chấm sáu\" (trước đây \"năm phẩy sáu\"), gemini-2.5-flash-lite không còn đọc \"gạch ngang\" hay \"dash\", iOS 18.2 và Llama-3.3-70B cũng vậy. Số lượng vẫn đọc \"phẩy\": 2,5 kg, 10.5 GB, 3.5 giây. Mã sản phẩm đọc như mã: RTX 5090 là \"năm không chín không\", MacBook Pro M3 là \"em ba\".",
+                "Không ngắt giữa tên, thuật ngữ hay số hiệu (Google Ads API, Christopher Nolan, Performance Max campaign, GPT 5 chấm 6); hai tên nối bằng \"và\" đọc liền một cụm (ROI và KPI, Facebook và Instagram).",
+                "Ngắt nghỉ tiếng Việt: sửa các chỗ ngắt sai còn tồn đọng: \"tăng | từ 72,5%\", \"chỉ tốt | bằng dữ liệu\", \"thấp hơn nhiều | so với\", \"mà\" nối mệnh đề sau danh từ, \"thì\" sau chủ đề ngắn, \"tập thể dục | vào buổi sáng\", \"tăng mạnh | nhờ vào\".",
+                "Tất cả chạy trên máy, không gọi thêm API nào, không tốn thêm tiền. Audio VieNeu đã lưu được tạo lại một lần (miễn phí). Giọng Gemini chỉ đổi ở cách đọc số phiên bản."
+            ],
+            bang: { cot: ["Đo (tự động, không nghe tay)", "Trước", "Nay"], hang: [
+                ["Tên, thương hiệu, viết tắt, số phiên bản đọc đúng (đo trên âm vị của chính VieNeu, bộ câu phát triển)", "68/79", "79/79"],
+                ["Như trên, bộ câu kiểm tra riêng / bộ câu chưa dùng để chỉnh", "18/24 · 23/29", "23/24 · 28/29"],
+                ["Chỗ nghỉ đặt sai, câu tiếng Việt thuần (4 bộ câu × 5 bản ghi thật, cùng bản ghi)", "26", "5"],
+                ["Chỗ nghỉ đặt sai, câu trộn tiếng Anh (86 câu × 3 bản ghi thật)", "20", "8"],
+                ["Chỗ nghỉ giữa tên riêng hoặc thuật ngữ / tiếng lách cách, vỡ tiếng", "0 / 0", "0 / 0"],
+                ["Tổng thời lượng đọc (câu trộn tiếng Anh)", "825,6 giây", "821,4 giây"]
+            ] }
+        },
+        {
             v: "1.7.7", luc: "13:36 27/09/2026", ten: "Máy chủ giọng vừa khởi động lại không còn làm bỏ câu",
             y: [
                 "Khi máy chủ VieNeu để lâu không dùng, macOS đẩy mô hình giọng ra khỏi bộ nhớ và vài câu đầu tạo rất chậm (đo được 1 giây lời mất 3,5 giây, bình thường khoảng 0,25 giây). Trước đây chính những câu đầu đó khiến tiện ích tưởng máy chủ chậm lâu dài và bỏ câu để bắt kịp.",

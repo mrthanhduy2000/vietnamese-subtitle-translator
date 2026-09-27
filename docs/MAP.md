@@ -12,17 +12,18 @@ Everything else is one content-script bundle at `document_idle`, in this order:
 ```
 glossary.js -> cst-cache.js -> cost-policy.js -> lang-detect.js -> vi-segmenter.js ->
 subtitle-style.js -> subtitle-edits.js -> player-ui.js -> transcript.js -> context-engine.js -> vi-quality.js ->
-dub-planner.js -> dub-prosody.js -> dub-audio.js -> dub-engine.js -> dubbing.js -> content.js -> youtube.js
+dub-planner.js -> dub-prosody.js -> dub-speech.js -> dub-audio.js -> dub-engine.js -> dubbing.js -> content.js -> youtube.js
 ```
 
 `background.js` is the MV3 service worker; it pulls in `cst-cache.js`, `cost-policy.js`,
-`vi-segmenter.js`, `dub-planner.js`, `dub-prosody.js` and `dub-audio.js` on its own (`importScripts`,
-that order: the pause shaping reads the text through the segmenter and the planner's syllable count).
+`vi-segmenter.js`, `dub-planner.js`, `dub-prosody.js`, `dub-speech.js` and `dub-audio.js` on its own
+(`importScripts`, that order: the pause shaping reads the text through the segmenter, the planner's
+syllable count and, 1.7.8, the English spans).
 `options.html` loads the dubbing files with plain `<script>` tags, same order. If you add a file, add
 it to `manifest.json` in dependency order (and to `importScripts`, `options.html`, the harness pages
 under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tests if it is a dubbing file).
 
-## Source (31 files, 19,175 lines)
+## Source (32 files, ~19,700 lines)
 
 | File | Lines | Role | Global export |
 |---|---|---|---|
@@ -42,6 +43,7 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `cst-cache.js` | 319 | Two-tier LRU cache (RAM -> IndexedDB) for translations and audio | `CST_CACHE` |
 | `dub-audio.js` | 594 | Pure WAV/PCM work: decode, rumble cut, hiss removal, normalize, silence, split; pause shaping (`alignStops` places the voice's stops on the text, `shapePauses` applies the prosody model's decisions) | `CST_DUB_AUDIO` |
 | `dub-prosody.js` | 442 | Pure prosody model (1.7.6): boundary value of every gap between words, pause roles and lengths, which of a take's stops to keep (dynamic program), breathing commas, the value of a segment cut. See `DUBBING.md` "Prosody model" | `CST_DUB_PROSODY` |
+| `dub-speech.js` | 454 | Pure (1.7.8): English spans inside Vietnamese speech (lexicon, token shapes, evidence) and the text VieNeu is sent for them (`render`: `<en>` tags, respellings, model numbers, at most 8 tags); `spanGaps` for the prosody model. Holds a generated block (`tools/build-speech-tables.js`). See `DUBBING.md` "English inside Vietnamese speech" | `CST_DUB_SPEECH` |
 | `cost-policy.js` | 294 | **Single source of truth** for the model catalog, cost modes, budgets, difficulty routing, local-TTS config | `CST_COST` |
 | `popup.js` | 295 | Popup logic; re-injects content scripts if they are missing | n/a |
 | `yt-bridge.js` | 299 | MAIN-world page bridge: reads YouTube's internal player response, fetches timedtext with the player's `pot` token | none (postMessage protocol only) |
@@ -63,7 +65,8 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 - `CST_COST` -> `background.js`, `content.js`, `dubbing.js`, `options.js`
 - `CST_CACHE` -> `background.js`, `dub-engine.js`
 - `CST_DUB_PLAN`, `CST_DUB_AUDIO` -> `dub-engine.js` (and `dub-audio.js` also into `background.js`)
-- `CST_DUB_PROSODY` -> `dub-audio.js` (`alignStops`, `shapePauses`), `dub-engine.js` (`plainScript`, `gapAfter`), `dub-planner.js` (`prosodicCut`, lazily); it reads `CST_VI_SEG` and `CST_DUB_PLAN`
+- `CST_DUB_PROSODY` -> `dub-audio.js` (`alignStops`, `shapePauses`), `dub-engine.js` (`plainScript`, `gapAfter`), `dub-planner.js` (`prosodicCut`, lazily); it reads `CST_VI_SEG`, `CST_DUB_PLAN` and `CST_DUB_SPEECH` (lazily)
+- `CST_DUB_SPEECH` -> `dub-engine.js` (`speakScript`), `dub-prosody.js` (`spanGaps`, lazily); it reads `CST_VI_SEG` and `CST_DUB_PROSODY` (`vieneuText`, lazily)
 - `CST_DUB_ENGINE` -> `dubbing.js`, `options.js` (voice preview)
 - `CST_DUB` -> `youtube.js`, `content.js`
 - `CST_UI.toast` -> `dubbing.js`, `youtube.js`
@@ -72,9 +75,9 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 - `CST_THEME` -> `options.js` (the theme buttons)
 - `glossary.js` exports like the others (globalThis, window, module.exports); `tests/backlog.test.js` loads it.
 
-## Tests and tooling (`tests/*.js`: 28 files, 7,802 lines)
+## Tests and tooling (`tests/*.js`: 30 files, ~8,300 lines)
 
-See `TESTING.md`. Short version: 19 files in `npm test` (listed in `package.json`: a new test file must be added there), all offline; 4 manual scripts;
+See `TESTING.md`. Short version: 20 files in `npm test` (listed in `package.json`: a new test file must be added there), all offline; 4 manual scripts;
 5 browser harness pages under `tests/harness/`; `tools/bump-version.js` owns the version number.
 
 `tools/vieneu-autostart.command` (63 lines, zsh, executable) installs a macOS LaunchAgent
@@ -85,6 +88,13 @@ the extension.
 `tools/prosody-eval.js` renders the marked sentences of `tests/prosody-corpus.js` on the VieNeu
 server once (cached outside the repo) and scores the pause shaping against the marks; `OLD=` scores
 an older `dub-audio.js` on the same takes. See `DUBBING.md` "Prosody model".
+
+English in speech (1.7.8), all need `~/VieNeu-TTS`: `tools/vieneu-g2p.py` is the server's exact text
+front end (chunks, phonemes; `{"words"}` / `{"normalize"}` modes), run with its own Python.
+`tools/pron-eval.js` scores `tests/speech-corpus.js` on those phonemes (`--old=<rev>` for A/B, no
+server needed). `tools/speech-ab.js` renders the same corpus with the real voice for an old and the
+current version and measures pauses, spans, duration, clicks (sandbox off). `tools/build-speech-tables.js`
+regenerates the data block of `dub-speech.js` (rerun after a VieNeu / sea_g2p update).
 
 ## Not source
 

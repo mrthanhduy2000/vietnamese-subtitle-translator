@@ -305,7 +305,7 @@ function dubbingEnvLocal(msgs, onMsg) {
     };
     sb.window = sb; sb.globalThis = sb;
     vm.createContext(sb);
-    for (const f of ["cst-cache.js", "cost-policy.js", "vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-audio.js", "dub-engine.js", "dubbing.js"]) vm.runInContext(read(f), sb);
+    for (const f of ["cst-cache.js", "cost-policy.js", "vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-speech.js", "dub-audio.js", "dub-engine.js", "dubbing.js"]) vm.runInContext(read(f), sb);
     return sb;
 }
 

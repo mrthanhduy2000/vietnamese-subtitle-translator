@@ -144,3 +144,16 @@ The VieNeu audio key is `LOCAL_STYLE_VERSION` plus the normalized `plainScript` 
 the pause shaping, bump `LOCAL_STYLE_VERSION` so every cached VieNeu line re-renders once (free). Never extend
 `breathText` or a cut change (`prosodicCut`) to paid voices: a changed text or a moved cut is a new
 billed render of audio the user already paid for.
+
+## 14. What VieNeu says is not the text its pauses are placed on (1.7.8)
+
+A VieNeu request carries two texts: `text` (`plainScript`, plain Vietnamese with breathing commas)
+and `speak` (`speakScript` = `dub-speech.js` `render`: `<en>` tags, respellings like `<en>tahm</en>`,
+"RTX 5 0 9 0"). `background.js` sends `speak` as the server's `input`, and gives `text` to
+`shapePauses`, the runaway check and the timeout. **Never hand the rendered text to the pause
+shaping or the syllable count**: the tags and respellings shift every word position. The audio key
+uses `speak` and `LOCAL_STYLE_VERSION`. Two server limits the renderer
+works around, both measured: more than 10 `<en>` tags in one normalizer call corrupt the text
+(`TAG_MAX` 8), and a word that is a Vietnamese syllable stays Vietnamese even inside `<en>`. The data
+block of `dub-speech.js` describes sea_g2p 0.9.1: after a VieNeu update, rerun
+`node tools/build-speech-tables.js`, then `node tools/pron-eval.js --old=HEAD`.

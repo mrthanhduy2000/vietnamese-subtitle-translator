@@ -38,6 +38,8 @@
     // in these, so a take's stops are placed right after an acronym or a number.
     const plan = () => (root && root.CST_DUB_PLAN) ||
         (typeof require === "function" ? (() => { try { return require("./dub-planner.js"); } catch (e) { return null; } })() : null);
+    const speech = () => (root && root.CST_DUB_SPEECH) ||
+        (typeof require === "function" ? (() => { try { return require("./dub-speech.js"); } catch (e) { return null; } })() : null);
     function syllables(raw) {
         const P = plan();
         const n = P ? P.countSyllables(raw) : 0;
@@ -122,6 +124,15 @@
                 unit: !!tokens && !words[i].punct && isUnit(tokens, inside, i) });
         }
         const total = pos + (words.length ? words[words.length - 1].syl : 0);
+        // Inside an English name, term or model ("Google Ads API", "Christopher Nolan", "GPT 5 chấm
+        // 6"): one unit, never a pause, whatever the line-break scoring gave it (dub-speech.js)
+        const S = speech();
+        if (S && tokens) {
+            const inside = S.spanGaps(text);
+            if (inside.length === gaps.length) gaps.forEach((g, i) => { if (inside[i] && !g.punct) { g.cost = Math.max(g.cost, 80); g.unit = true; g.span = true; } });
+            const st = S.analyze(text).tokens;
+            if (st.length === words.length) words.forEach((w, i) => { w.span = st[i].span; });
+        }
         markConnectives(words, gaps);
         assignRoles(words, gaps);
         adjustJoins(words, gaps);
@@ -171,9 +182,49 @@
         "thể", "rất", "cũng", "đã", "sẽ", "đang", "vẫn", "không", "chưa", "cần", "phải", "biết", "nghĩ", "thấy", "tin", "hiểu"]);
     const MODAL_BEFORE = new Set(["định", "biết", "nghĩ", "xét", "nhắc", "hỏi"]);
     const PRONOUN_SUBJECT = new Set(["chúng", "tôi", "bạn", "họ", "nó", "các", "người", "mình", "ta"]);
+    // Verbs of change: "tăng | từ 72,5%" is the verb's from-to complement, not an adjunct
+    const CHANGE_VERBS = new Set(["tăng", "giảm", "lên", "xuống", "hạ", "rơi", "sụt", "tụt", "vọt", "nhảy", "chuyển", "đổi", "dao động", "kéo dài"]);
+    // "từ" as the noun "word": "dự đoán | từ tiếp theo" is "predict the next word"
+    const WORD_NOUN_AFTER = new Set(["tiếp", "kế", "khóa", "khoá", "vựng", "loại", "gốc", "lạ", "đơn", "ghép"]);
+    // Gradable adjectives: "chỉ tốt | bằng dữ liệu" is "only as good as", not "by means of"
+    const GRADABLE = new Set(["tốt", "hay", "giỏi", "cao", "thấp", "lớn", "nhỏ", "to", "nhanh", "chậm", "mạnh", "yếu", "rẻ", "đắt",
+        "dài", "ngắn", "đẹp", "xấu", "nặng", "nhẹ", "xa", "gần", "sớm", "muộn", "dễ", "khó", "giàu", "nghèo", "già", "trẻ", "kém",
+        "tệ", "đúng", "chính xác", "hiệu quả", "quan trọng", "phổ biến", "nhiều", "ít", "rộng", "hẹp", "sâu", "nông"]);
+    // Relative "mà": after these heads, or before a pronoun subject, it opens a clause that modifies
+    // the noun before it ("dữ liệu | mà nó được huấn luyện"). Contrastive "mà" ("không chỉ ... mà
+    // còn") is followed by an adverb, not a subject.
+    const REL_HEADS = new Set(["cách", "điều", "thứ", "cái", "nơi", "lúc", "người", "lý do", "nhất", "gì"]);
+    const REL_SUBJECT = new Set(["nó", "chúng", "tôi", "bạn", "các", "họ", "ta", "mình", "anh", "chị", "em", "người", "ai"]);
+    // A temporal modifier that closes a subject noun phrase ("doanh thu ... trong quý vừa qua | tăng")
+    const TIME_END = ["vừa qua", "vừa rồi", "gần đây", "năm ngoái", "năm qua", "năm nay", "hiện nay", "trước đây", "hôm qua", "tháng trước", "tuần trước"];
     function adjustJoins(words, gaps) {
         let zone = 0, listed = false, sentStart = 0, commaYet = false, fronted = false;
         const sylSince = (a, b) => { let n = 0; for (let k = a; k <= b; k++) n += words[k].syl; return n; };
+        const at = (i, n) => words.slice(i, i + n).map(w => w.bare).join(" ");
+        const isNum = w => !!w && (/^\d/.test(w.bare) || /^(một|hai|ba|bốn|năm|sáu|bảy|tám|chín|mười)$/.test(w.bare));
+        // Syllables of the subject before gap g: back to punctuation, a clause opener, "là" or "rằng".
+        // "thể" stops it only as "có thể" ("tập thể dục" is a verb phrase inside the subject)
+        // Syllables of a relative clause starting at word i ("mà ..."): to punctuation, a joiner or a
+        // clause opener
+        const relativeLength = i => {
+            let n = 0;
+            for (let k = i; k < words.length; k++) {
+                if (k > i + 1 && (JOINERS.has(words[k].bare) || (OPENERS[words[k].bare] || 0) >= 14)) break;
+                n += words[k].syl;
+                if (words[k].punct) break;
+            }
+            return n;
+        };
+        const subjectBefore = g => {
+            let subj = 0;
+            for (let k = g.i; k >= zone; k--) {
+                const w = words[k];
+                if (w.bare === "thể" ? k > 0 && words[k - 1].bare === "có" : SUBJECT_STOP.has(w.bare)) break;
+                if ((OPENERS[w.bare] || 0) >= 14 && !JOINERS.has(w.bare)) break;
+                subj += w.syl;
+            }
+            return subj;
+        };
         const startClause = i => {
             const first = words.slice(i, i + 2).map(w => w.bare);
             fronted = SUBORDINATE.test(first[0] || "") || SUBORDINATE.test(first.join(" "));
@@ -190,7 +241,10 @@
                 let left = 0, right = 0;
                 for (let k = zone; k <= g.i; k++) left += words[k].syl;
                 for (let k = g.i + 1; k < words.length; k++) { right += words[k].syl; if (words[k].punct) break; }
-                if (listed || left < 5 || right < 6) g.cost += 30;
+                // two English names or terms joined ("ROI và KPI", "Facebook và Instagram",
+                // "Christopher Nolan và Emma Thomas"): one noun phrase, not two clauses
+                const names = words[g.i].span >= 0 && words[g.i + 2] && words[g.i + 2].span >= 0;
+                if (listed || left < 5 || right < 6 || names) g.cost += 30;
             } else if (next.bare === "nên" && (SUBJECT_STOP.has(words[g.i].bare) || MODAL_BEFORE.has(words[g.i].bare))) {
                 // "chúng ta | nên", "quyết định | nên": "nên" is "should" here, not "so"
                 g.cost = Math.max(g.cost, 30);
@@ -206,18 +260,60 @@
             } else if (next.bare === "rằng") {
                 // "phát hiện ra | rằng": never more than a joint between a verb and its complement
                 g.cost = Math.max(g.cost, 20);
+            } else if (next.bare === "từ" && ((CHANGE_VERBS.has(words[g.i].bare) || CHANGE_VERBS.has(at(g.i - 1, 2))) && isNum(words[g.i + 2]) ||
+                WORD_NOUN_AFTER.has((words[g.i + 2] || {}).bare))) {
+                // "tăng | từ 72,5% lên 91%": the from-to complement of a verb of change;
+                // "dự đoán | từ tiếp theo": the noun "word"
+                g.cost = Math.max(g.cost, 20);
+            } else if (next.bare === "bằng" && (GRADABLE.has(words[g.i].bare) || GRADABLE.has(at(g.i - 1, 2)))) {
+                // "chỉ tốt | bằng dữ liệu": comparative "as good as"
+                g.cost = Math.max(g.cost, 20);
+            } else if (next.bare === "so" && words[g.i + 2] && words[g.i + 2].bare === "với" &&
+                words.slice(Math.max(zone, g.i - 2), g.i + 1).some(w => w.bare === "hơn")) {
+                // "thấp hơn nhiều | so với": the standard of a comparison, not an adjunct
+                g.cost = Math.max(g.cost, 20);
+            } else if (next.bare === "mà" && !words[g.i].punct && (REL_HEADS.has(words[g.i].bare) || REL_HEADS.has(at(g.i - 1, 2)) ||
+                (REL_SUBJECT.has((words[g.i + 2] || {}).bare) && relativeLength(g.i + 1) <= 6))) {
+                // relative "mà" after the noun it modifies: "điều quan trọng nhất | mà các bạn cần nhớ",
+                // "dữ liệu | mà nó được huấn luyện". A long relative clause after a long noun phrase
+                // keeps its light boundary ("toàn bộ ngữ cảnh / mà nó đã nhìn thấy trước đó")
+                g.cost = Math.max(g.cost, 20);
+            } else if (next.bare === "thì" && !fronted && sylSince(zone, g.i) - (/^(còn|nhưng|mà|và)$/.test(words[zone].bare) ? 1 : 0) <= 6) {
+                // topic "thì" after a short topic: "còn dữ liệu kiểm tra | thì"; after a fronted
+                // condition ("Nếu ... | thì") it stays the clause boundary
+                g.cost = Math.max(g.cost, 20);
+            } else if (next.bare === "là" && sylSince(zone, g.i) <= 4 && g.cost < 20) {
+                // copula after a short subject: "bước tiếp theo | là"
+                g.cost = Math.max(g.cost, 20);
+            } else if (TIME_END.includes(at(g.i + 1, 2)) && /^vừa/.test(next.bare)) {
+                // "quý | vừa qua": "vừa qua" modifies the noun before it ("the past quarter")
+                g.cost = Math.max(g.cost, 20);
+            } else if (TIME_END.includes(at(g.i, 2))) {
+                // inside "vừa qua", "gần đây": one unit
+                g.cost = Math.max(g.cost, 60); g.unit = true;
+            } else if (TIME_END.includes(at(g.i - 1, 2)) && g.i - 1 > zone && !OPENERS[next.bare] && !JOINERS.has(next.bare) && subjectBefore(g) >= 5) {
+                // a temporal modifier closing a long subject: "doanh thu ... trong quý vừa qua | tăng"
+                g.cost = Math.min(g.cost, -2);
+                g.subjectEnd = true;
             } else if ((PREVERBAL.has(next.bare) || (next.bare === "có" && words[g.i + 2] && words[g.i + 2].bare === "thể")) && g.cost > 0 && g.cost < 40) {
                 // subject length: back to punctuation, a clause opener, "là" or "rằng"
-                let subj = 0;
-                for (let k = g.i; k >= zone; k--) {
-                    const w = words[k];
-                    if (SUBJECT_STOP.has(w.bare) || ((OPENERS[w.bare] || 0) >= 14 && !JOINERS.has(w.bare))) break;
-                    subj += w.syl;
-                }
-                if (subj < 5) continue;
+                if (subjectBefore(g) < 5) continue;
                 g.cost -= 12;
+                g.subjectEnd = true;
             } else continue;
             g.value = valueOf(g.cost);
+        }
+        // A predicate of 3 syllables or less after a subject boundary is not a phrase of its own: the
+        // adjunct after it belongs to it ("... vừa qua | tăng mạnh nhờ vào ...", not "tăng mạnh | nhờ")
+        for (const g of gaps) {
+            if (!g.subjectEnd) continue;
+            let syl = 0;
+            for (const h of gaps.slice(g.i + 1)) {
+                syl += words[h.i].syl;
+                if (h.punct || syl > 3) break;
+                const op = openerAt(words, h.i + 1);
+                if (op && op.weight <= 14 && h.cost < 12) { h.cost = 12; h.value = valueOf(h.cost); }
+            }
         }
     }
 

@@ -237,13 +237,16 @@ test("real Mỹ Duyên takes: the voice's own stop before mà and before nên is
     assert.deepEqual(rang.map(d => [d.after, d.kind, d.keep]), [["rằng", "joint", 0.09]]);
 });
 
-test("wiring: the service worker loads the text analysis before the audio module, the page loads the prosody module", () => {
+test("wiring: the service worker loads the text analysis before the audio module, the page loads the prosody and speech modules", () => {
     const bg = fs.readFileSync(path.join(__dirname, "..", "background.js"), "utf8");
-    assert.match(bg, /importScripts\("cst-cache\.js", "cost-policy\.js", "vi-segmenter\.js", "dub-planner\.js", "dub-prosody\.js", "dub-audio\.js"\)/);
+    // 1.7.8: dub-speech.js tells the pause shaping where the English spans are
+    assert.match(bg, /importScripts\("cst-cache\.js", "cost-policy\.js", "vi-segmenter\.js", "dub-planner\.js", "dub-prosody\.js", "dub-speech\.js", "dub-audio\.js"\)/);
     const man = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "manifest.json"), "utf8"));
     const js = man.content_scripts.find(g => g.js.includes("content.js")).js;
     assert.ok(js.indexOf("dub-prosody.js") > js.indexOf("dub-planner.js") && js.indexOf("dub-prosody.js") < js.indexOf("dub-engine.js"));
-    assert.match(fs.readFileSync(path.join(__dirname, "..", "options.html"), "utf8"), /<script src="dub-prosody\.js"><\/script>/);
+    assert.ok(js.indexOf("dub-speech.js") > js.indexOf("dub-prosody.js") && js.indexOf("dub-speech.js") < js.indexOf("dub-engine.js"));
+    const opt = fs.readFileSync(path.join(__dirname, "..", "options.html"), "utf8");
+    assert.match(opt, /<script src="dub-prosody\.js"><\/script>\s*<script src="dub-speech\.js"><\/script>/);
 });
 
 // ---- across segments ----

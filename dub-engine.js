@@ -19,6 +19,7 @@
     const CACHE = (root && root.CST_CACHE) || (typeof require === "function" ? require("./cst-cache.js") : null);
     const COST = (root && root.CST_COST) || (typeof require === "function" ? require("./cost-policy.js") : null);
     const PROSODY = (root && root.CST_DUB_PROSODY) || (typeof require === "function" ? require("./dub-prosody.js") : null);
+    const SPEECH = (root && root.CST_DUB_SPEECH) || (typeof require === "function" ? (() => { try { return require("./dub-speech.js"); } catch (e) { return null; } })() : null);
 
     // Tăng khi đổi cách dựng kịch bản đọc cho Gemini TTS (hướng dẫn giọng, dấu ngắt)
     // -> audio cũ trong kho không bị phát nhầm với cấu hình mới.
@@ -240,7 +241,9 @@
     // 7 (1.7.2): rumble cut, corrected hiss estimate, no gate, pauses at clause openings, 20 ms onset
     // 8 (1.7.5): pauses kept before adjunct openers (bằng cách, thông qua, dựa trên...)
     // 9 (1.7.6): prosody model (dub-prosody.js) picks the pauses, breathing commas in long stretches
-    const LOCAL_STYLE_VERSION = 9;
+    // 10 (1.7.8): English spans rendered for the voice (dub-speech.js), no pause inside a span, the
+    //    backlog-16 pause rules: the cached audio is shaped, so every line re-renders once (free)
+    const LOCAL_STYLE_VERSION = 10;
     // Free voice segmenting: whole sentences across translation groups, and a segment may run to
     // 11 s (paid: 8) before it is cut at a subtitle line. Every cut restarts the voice's intonation;
     // the free server renders ~4x faster than real time, so a longer segment costs ~3 s ahead.
@@ -272,7 +275,7 @@
             },
             audioKey(plan) {
                 const base = ["audio-local", LOCAL_STYLE_VERSION, L.model, L.sampleRate,
-                    provider.voices[plan.speaker] || provider.voices.S1, CACHE.normalizeText(plainScript(plan)).toLowerCase()];
+                    provider.voices[plan.speaker] || provider.voices.S1, CACHE.normalizeText(speakScript(plan)).toLowerCase()];
                 // Câu dày chữ tạo với khoảng nghỉ ngắn hơn: khóa kho riêng (không dùng lẫn audio thường)
                 return CACHE.hashKey(plan.tightPauses ? [...base, "tight"] : base);
             },
@@ -283,7 +286,7 @@
                     const key = p.audioKey || await provider.audioKey(p);
                     const res = await env.sendMessage({
                         action: "synthesizeSpeech", engine: L.id,
-                        text: plainScript(p), voice: provider.voices[p.speaker] || provider.voices.S1,
+                        text: plainScript(p), speak: speakScript(p), voice: provider.voices[p.speaker] || provider.voices.S1,
                         jobId: ctx.jobId, parts: [{ key, weight: p.phrases.reduce((a, ph) => a + ph.syl, 0) }],
                         maxPause: p.tightPauses ? L.tightPause : undefined
                     });
@@ -334,6 +337,15 @@
         if (s && !plan.continuesNext && !/[.!?…]$/.test(s)) s += ".";
         // 1.7.6: a breathing comma at the best clause boundary of a long unpunctuated stretch
         return PROSODY ? PROSODY.breathText(s) : s;
+    }
+
+    // What VieNeu is asked to say: plainScript with its English spans written the way its front end
+    // reads them right (dub-speech.js: "IKEA" -> <en>ikea</en>, "Tom Hanks" -> <en>tahm</en> Hanks).
+    // plainScript stays the text the pauses are placed on; this one is only spoken, and keys the
+    // audio cache (a line the renderer leaves alone is the same string as plainScript).
+    function speakScript(plan) {
+        const s = plainScript(plan);
+        return SPEECH ? SPEECH.render(s, { source: plan.srcText }).text : s;
     }
 
     // Kịch bản đọc cho Gemini TTS: hướng dẫn giọng (ngữ điệu, nhịp, nhấn) + lời thoại.
@@ -1543,7 +1555,7 @@
         }
     }
 
-    const api = { DubEngine, createWebSpeechProvider, createGeminiProvider, createVieneuProvider, geminiScript, plainScript, gapAfter, SYNC, TTS_STYLE_VERSION, DEFAULT_TTS_MODEL };
+    const api = { DubEngine, createWebSpeechProvider, createGeminiProvider, createVieneuProvider, geminiScript, plainScript, speakScript, gapAfter, SYNC, TTS_STYLE_VERSION, DEFAULT_TTS_MODEL };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_DUB_ENGINE = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

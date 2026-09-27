@@ -50,16 +50,15 @@ keeps "phi tuyến | giữa đầu vào".
 
 ## Found by the 1.7.6 prosody evaluation, not fixed
 
-**16. Mild pause placements the model still keeps** (each a pause the corpus marks as wrong, none
-inside a unit): "tăng | từ 72,5%" (a verb before its from-to complement; the voice itself stopped
-0.58 s there), "tăng mạnh | nhờ vào" (maybe a missing mark), "chỉ tốt | bằng dữ liệu" (comparative
-"bằng" read as the preposition), "Điều này | có nghĩa là" (text-only choice, never a comma: 2
-syllables), "tập thể dục | vào buổi sáng" (inside a long subject), relative "mà" after a noun, "thì"
-as a topic marker. Fix one only as a cost correction in `adjustJoins` with a linguistic reason,
-then `tools/prosody-eval.js` on all four sets, and new unseen sentences (all four are seen now).
+**16. Mild pause placements the model still keeps.** 1.7.8 fixed "tăng | từ 72,5%", "tăng mạnh |
+nhờ vào", "chỉ tốt | bằng", "tập thể dục | vào buổi sáng", relative "mà", topic "thì", "thấp hơn
+nhiều | so với" (`adjustJoins`, see `DUBBING.md` "1.7.8 additions"; WRONG on the four old sets 18 ->
+3). Left: a prepositional phrase inside a long subject ("độ chính xác | trên tập kiểm tra", "công ty
+| trong quý vừa qua"): needs a parser, not another keyword. "Điều này | có nghĩa là" untouched. The
+relative-"mà" and topic-"thì" limits (6 syllables) were set on seen sentences: check them on new ones.
 
-**17. Versions in model names are read as decimals**: "gemini-2.5-flash-lite" is said "gemini hai
-phẩy năm flash lite". That is `adaptForSpeech` (speech text), not the pause model.
+**17. (fixed 1.7.8)** Versions in model names are read with "chấm" ("GPT 5 chấm 6", "gemini 2 chấm 5
+flash lite"), for every voice (`adaptForSpeech`).
 
 **18. Alignment limits.** A stop's place in the text is its share of voiced time (mean error 0.33
 syllables on punctuation, 4 of 220 off by more than 1). If the voice skips or repeats a word, or two
@@ -76,6 +75,34 @@ judgment and the numbers measure agreement with them. The A/B WAVs of this sessi
 first seconds of a video are still silent while the model pages in. A real fix lives in
 `~/VieNeu-TTS` (outside this repo): keep the model resident, or restart it. The same-run engine
 simulation (tests/hardening) does not reproduce the 7 dropped lines; the fix is judged by reasoning.
+
+## Found by the 1.7.8 English-in-speech work, not fixed
+
+**21. Respellings cover 44 of 66 candidate names.** No spelling was found that VieNeu's English
+engine reads the English way for kim, do, du, hang, bin, nan, ton, son, phan, leo, ray, roy, guy,
+kay, may, mae, lou, pam, liam, ian, beach, queen: inside an English name they are still read as
+Vietnamese syllables ("Liam" is fine only because "liam" is not one). "sam" is held out of the table
+while the unseen split contains "Sam Altman" (`tools/build-speech-tables.js` `UNSEEN_HOLDOUT`); drop
+the holdout once a new unseen split exists. Some targets are only near ("shalamay" is two words).
+
+**22. What is checked is phonemes, not sound.** `tools/pron-eval.js` reads VieNeu's phonemes; nobody
+has listened to the renders blind, and no speech recogniser runs here (none installed; downloading one
+needs the user's permission). `tools/speech-ab.js` numbers for clicks and level jumps are proxies.
+
+**23. Label debate: "RAM" in validation v12 is marked English**; VieNeu reads it ɹˈaːm (English r,
+Vietnamese vowel), which many Vietnamese speakers say too. Left as marked so the validation score is
+not edited to look better. The same goes for all-caps codes of 5+ letters: VieNeu's table was probed
+for 2-4 letters only; a longer unknown code is left to VieNeu unless it is in `INITIALISMS`.
+
+**25. A short main clause before "để" / "cho" keeps the voice's stop** ("Tôi dùng ChatGPT | để phân
+tích dữ liệu", "chạy Google Ads | cho một ... campaign"; `tools/speech-ab.js` dev, same in 1.7.7 and
+1.7.8). Not a language-boundary rule: "để" (purpose, opener weight 22) after 4-5 syllables is a
+strong boundary for every sentence. A fix needs new marked sentences with "để" first.
+
+**24. Unknown all-caps defaults to English letters.** A 2-4 letter code VieNeu spells Vietnamese
+("CPC") becomes `<en>c p c</en>` unless it is in `VI_CAPS` or VieNeu's own table. A Vietnamese code
+not in either (a new bank or firm) would be read English. With an English source line present the
+evidence rules still do not check caps against it: a possible refinement.
 
 ## Cosmetic / housekeeping
 

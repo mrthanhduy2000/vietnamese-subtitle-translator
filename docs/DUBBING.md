@@ -9,11 +9,12 @@ machinery that one `condense: null` in `dubbing.js` used to keep off (`needsCond
 `condenseBeforeTts`, the `condenseSpeech` action, `condensedIsSafe`) was removed in 1.7.3, and
 `tests/backlog.test.js` fails if any of it comes back.
 
-## Five files, one direction of data
+## Six files, one direction of data
 
 ```
 dub-planner.js   pure    text -> speech script -> prosody and timing. No I/O, fully testable
 dub-prosody.js   pure    where speech may pause and how long (1.7.6), see "Prosody model" below
+dub-speech.js    pure    English spans in Vietnamese speech and how VieNeu is made to say them (1.7.8)
 dub-audio.js     pure    WAV/PCM: decode, normalize, find silence, split, shape pauses
 dub-engine.js    impure  providers + scheduler + video clock + ducking. The complicated one
 dubbing.js       thin    settings, provider pick, badge, "hold the video while preparing"
@@ -53,6 +54,73 @@ Measured facts behind the rules: the server reads a digit run of 7+ digits one d
 (`1500000` -> "một năm không..."), so grouped and long numbers are sent as words; `$20` is "u s d",
 `7B`/`200K` are letters, English `1,000` becomes "một", `1990s` ends in "giây". Versions and section
 numbers are read with "chấm", a decimal with "phẩy". Test: `tests/dub.test.js` "speech text".
+1.7.8: a hyphenated identifier with a digit in it is split into words and its dots read "chấm"
+("GPT-5.6" -> "GPT 5 chấm 6", "Llama-3.3-70B", "COVID-19"; the server said "gạch ngang" / "dash" and
+"phẩy"); a version after any non-Vietnamese word with a capital counts ("iOS 18.2"). Ranges
+("2020-2021", "10-15") and word pairs ("Wi-Fi", "machine-learning") are untouched. Every provider
+gets this. Test: `tests/speech.test.js` "a version is read with chấm".
+
+## English inside Vietnamese speech (1.7.8, `dub-speech.js`)
+
+VieNeu's front end (`sea_g2p` 0.9.1, Rust, inside `~/VieNeu-TTS`) already reads English: a word that
+is not a Vietnamese syllable goes to its English dictionary and G2P, its acronym table turns "API"
+into `<en>a p i</en>`, and its Vietnamese table expands "CLB" to "câu lạc bộ". `tools/pron-eval.js`
+reads back its phonemes for `tests/speech-corpus.js` and found four faults, which are all this
+module fixes:
+
+| Fault (1.7.7) | Example | Sent now |
+|---|---|---|
+| unknown all-caps code spelled with Vietnamese letter names | CPC "xê phê xê", IKEA "i ca e a" | `<en>c p c</en>`, `<en>ikea</en>` |
+| camelCase piece that is a Vietnamese syllable | DiCaprio "zi caprio" | `<en>dicaprio</en>` |
+| name word that is a Vietnamese syllable, even inside `<en>` | Tom t̪ˈɔm, San sˈaːn | `<en>tahm</en>`, `<en>sanne</en>` |
+| model number read as an amount | RTX 5090 "năm nghìn không trăm..." | `RTX 5 0 9 0` |
+
+- `<en>...</en>` is the front end's own marker; text inside skips its acronym and camelCase rules. It
+  cannot change the language of a Vietnamese-syllable word (hence the respellings), and **past 10
+  tags in one normalizer call it breaks** (placeholder "ENTOKEN1" vs "ENTOKEN10": the 11th tag reads
+  "... 0"). `TAG_MAX` = 8 per text, lowest priority dropped first.
+- **Data, generated offline** by `tools/build-speech-tables.js` from the front end itself (the block
+  between the `@generated speech-tables` markers; never hand-edit it): how the server reads every
+  2-4 letter all-caps code (179 English already, 67 Vietnamese expansions, 1,524 read as a word, the
+  rest spelled Vietnamese) and 44 respellings (target = the English engine's reading of the
+  possessive "tom's"; each kept only if the server reads it exactly so, alone, in a Vietnamese
+  carrier sentence). "sam" is held out while the unseen split names Sam Altman.
+- **Evidence before a respelling**: a Vietnamese-syllable word is respelled only inside a lexicon
+  entry ("Tom Hanks"), or capitalised mid-sentence next to a capitalised English word ("của Tom
+  Cruise"), or when the English source line (`plan.srcText`) has the same pair. "Con AI", "So
+  Google", "Chị Lan" and a lone "Tom" stay Vietnamese. Letter + digit codes ("M3") only inside a
+  product name ("MacBook Pro M3"); "giấy A4", "U23" stay Vietnamese. A shouted line stays as is.
+- **Spans for prosody**: `spanGaps(text)` marks every gap inside an English span (lexicon units,
+  runs of English words, capitalised names, a model's numbers "GPT 5 chấm 6"). `dub-prosody.js` gives
+  those gaps cost >= 80 and `unit`, so neither a breathing comma nor a kept voice stop lands there.
+- **Two texts per VieNeu line**: `plainScript(plan)` is the text the pauses are placed on (sent as
+  `text`); `speakScript(plan)` = `render(plainScript, { source: plan.srcText })` is what the voice
+  says (sent as `speak`, used by `background.js` as `input`) and keys the audio cache. A line the
+  renderer leaves alone comes back as the same string. 1.7.8 also moved `LOCAL_STYLE_VERSION` to 10
+  (the pause shaping changed and cached audio is shaped), so every cached VieNeu line re-renders once,
+  free and local.
+  Gemini and Web Speech get neither: they read English natively.
+- Lexicon entries (`ENTRIES`) carry a `say` only where the server's reading was checked wrong;
+  `addEntry(surface, category, say)` or `globalThis.CST_SPEECH_LEXICON` adds local ones (no UI).
+- **Measured, 1.7.7 -> 1.7.8** (phonemes: `tools/pron-eval.js --old=HEAD`; real takes: `tools/speech-ab.js`,
+  Mỹ Duyên x2 + Thái Sơn x1 per text, texts that did not change share their takes):
+
+  | Split | Entities read right | Kept pauses the marks forbid | at a language edge | inside a span | Duration |
+  |---|---|---|---|---|---|
+  | dev (62, tuned on) | 68 -> 79 of 79 | 14 -> 7 | 7 -> 4 | 0 -> 0 | -0.8% |
+  | validation (24) | 18 -> 23 of 24 | 6 -> 1 | 3 -> 0 | 0 -> 0 | +0.4% |
+  | unseen (24, scored once) | 23 -> 28 of 29 | 1 -> 0 | 1 -> 0 | 0 -> 0 | +0.4% |
+
+  Clipping, clicks (jumps > 0.3 in quiet audio) and runaway takes: 0 in both versions. Level jumps
+  > 15 dB between speech frames: +14% on the 19 changed texts, inside the take-to-take spread of the
+  same text (median 10%, p90 25%). Longest run without a kept pause, dev max 17 -> 20 syllables.
+  The misses left: validation "RAM" (label debate, `BACKLOG.md` 23), unseen "Sam Altman" (held out).
+  The unseen texts were written by the same session that wrote the rules, and it had read them: the
+  version rule was widened to lower-case-first names ("iOS") knowing unseen had "iOS 18.2", and the
+  "hay" in the comparative list matches unseen u18. Read unseen as a guard against overfitting, not an
+  independent benchmark.
+  What it does not measure: how a respelling *sounds* (only its phonemes), and anything the server's
+  own G2P reads wrong in a word it already treats as English.
 
 ## The SYNC block is the tuning bible
 
@@ -219,9 +287,27 @@ kind (pauses inside units: 11 -> 0 over all sets) and the stops before "mà", "n
 35/35 inserted commas; longest run mean 16.9 -> 14.2 syllables, worst 28 -> 18; +0.35% duration.
 Segment cuts (synthetic lecture, 57 segments): mid-sentence cuts 7 -> 5, all now at commas.
 
+**1.7.8 additions** (`adjustJoins`, each a cost correction with a linguistic reason; the old sets
+are all seen, so these numbers are not an unseen score):
+- English spans are units (`dub-speech.js` `spanGaps`): cost >= 80 inside "Google Ads API",
+  "Christopher Nolan", "GPT 5 chấm 6". A language switch is not a boundary by itself.
+- "từ" after a verb of change and before a number is its from-to complement ("tăng | từ 72,5%");
+  "từ tiếp theo" is the noun "word"; "ADJ bằng" is the comparative ("chỉ tốt | bằng"); "so với" within
+  two words of "hơn" is the standard of a comparison; relative "mà" after a light head (cách, điều,
+  nhất...) or before a pronoun subject with a clause of <= 6 syllables; topic "thì" after a topic of
+  <= 6 syllables that is not a fronted condition; "là" after a subject of <= 4 syllables.
+- A temporal phrase ("vừa qua", "gần đây", ...) is one unit, binds to the noun before it, and closes
+  a long subject ("... trong quý vừa qua | tăng"); a predicate of <= 3 syllables after a subject
+  boundary keeps its adjunct ("tăng mạnh nhờ vào", not "tăng mạnh | nhờ").
+- The long-subject count stopped at "thể" in "tập thể dục" (taken for "có thể"); now only "có thể".
+- WRONG on the four old sets: 7/4/1/6 -> 0/2/0/1, severe 0, MISSED and RAN-ON unchanged, duration
+  within 0.1 s. Left: "độ chính xác | trên tập kiểm tra" (H3, the voice's 0.13 s stop) and "công ty |
+  trong quý" (F1): a prepositional phrase inside a long subject, not fixed without a parser.
+
 **To change it:** run `node tools/prosody-eval.js` before and after (all four sets), and listen to
 the takes that changed. A rule that only moves WRONG on the corpus is overfitting; check holdout3
-and write new unseen sentences for the next check.
+and write new unseen sentences for the next check. For English spans, also `node tools/speech-ab.js`
+(real takes of `tests/speech-corpus.js`, old vs new, sandbox off).
 
 ## The three TTS providers
 
@@ -235,8 +321,8 @@ Config is centralized in `cost-policy.js` `LOCAL_TTS`: `http://127.0.0.1:8000`, 
 syllables per second. The server is a user-run process outside this repo (`~/VieNeu-TTS`, started
 with `cst-start.command`).
 
-Engine sends `{ action: "synthesizeSpeech", engine: "vieneu", text, voice, jobId, parts: [{ key,
-weight }], maxPause }`. `background.js` probes `/health` and `/v1/models` (`handleLocalTtsStatus`),
+Engine sends `{ action: "synthesizeSpeech", engine: "vieneu", text, speak, voice, jobId, parts: [{ key,
+weight }], maxPause }` (`speak`, 1.7.8: the words the voice says; `text`: the one pauses follow). `background.js` probes `/health` and `/v1/models` (`handleLocalTtsStatus`),
 and calls the OpenAI-compatible
 `POST /v1/audio/speech` with `{ model, voice, input, response_format: "pcm", sample_rate,
 temperature }`.

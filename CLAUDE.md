@@ -68,7 +68,7 @@ Reading all source is ~500KB, roughly 145k tokens. Don't. A normal task should l
 - **Grep only, never read whole:** `README.md` (354 lines, mostly a 25-release changelog; use
   `grep -n '^#' README.md` for its index), `options.html` (1405, ~810 of them inline CSS),
   `youtube.js` (1924), `content.js` (1454), `dub-engine.js` (1269), `background.js` (1256),
-  `glossary.js` (665, pure data), `tests/hardening.test.js` (1489), `tests/cost.test.js` (924).
+  `glossary.js` (665, pure data), `dub-speech.js` (454, a third of it a generated table), `tests/hardening.test.js` (1489), `tests/cost.test.js` (924).
 - Safe to read whole when you need them: `cost-policy.js` (278), `popup.js` (267), `yt-bridge.js`
   (219), `subtitle-style.js` (213), `vi-quality.js` (165), `lang-detect.js` (93), any `docs/` file.
 
@@ -84,6 +84,7 @@ Reading all source is ~500KB, roughly 145k tokens. Don't. A normal task should l
 | Dubbing out of sync, late, drifting, too fast or slow | `docs/DUBBING.md` §SYNC, then `dub-engine.js` `SYNC` block (lines 27-76) |
 | No voice at all | `docs/DUBBING.md` §providers. Check the server first: `curl 127.0.0.1:8000/health` |
 | Voice pacing, pauses, prosody | `dub-planner.js` (`buildDubScript`, `planSegment`) + `docs/DUBBING.md` |
+| Voice says an English name, brand, acronym or model number wrong | `docs/DUBBING.md` §English inside Vietnamese speech, then `dub-speech.js`; measure with `tools/pron-eval.js` |
 | Cost, model pick, budget, quota error | `cost-policy.js` (read whole, it is the single source of truth) |
 | Add or change a setting | `docs/SUBTITLE.md` §storage keys, then `options.js` `collectSettings` + its card in `options.html` |
 | Popup behaviour | `popup.js` |
@@ -107,7 +108,7 @@ harnesses · `BACKLOG.md` known defects and leftovers.
 | Lane | Files |
 |---|---|
 | A. Subtitle | `content.js` `youtube.js` `yt-bridge.js` `vi-segmenter.js` `vi-quality.js` `context-engine.js` `glossary.js` `lang-detect.js` `subtitle-style.js` |
-| B. Dubbing | `dubbing.js` `dub-engine.js` `dub-planner.js` `dub-audio.js` `cst-cache.js` |
+| B. Dubbing | `dubbing.js` `dub-engine.js` `dub-planner.js` `dub-prosody.js` `dub-speech.js` `dub-audio.js` `cst-cache.js` |
 | C. UI | `popup.*` `options.*` `version-check.js` `chrome-shim.js` |
 | D. Core | `background.js` `cost-policy.js` `manifest.json` `tools/` `tests/` |
 

@@ -744,7 +744,7 @@ function dubbingEnv(mode, msgs) {
     // Báo bằng thẻ nhỏ trên trình phát (không dùng hộp thoại chặn trang)
     sandbox.CST_UI = { toast: m => msgs.push({ alert: m }) };
     vm.createContext(sandbox);
-    for (const f of ["cst-cache.js", "cost-policy.js", "vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-audio.js", "dub-engine.js", "dubbing.js"]) vm.runInContext(read(f), sandbox);
+    for (const f of ["cst-cache.js", "cost-policy.js", "vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-speech.js", "dub-audio.js", "dub-engine.js", "dubbing.js"]) vm.runInContext(read(f), sandbox);
     return sandbox;
 }
 

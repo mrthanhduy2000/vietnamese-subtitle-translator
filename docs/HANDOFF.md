@@ -6,40 +6,39 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-27 · lanes B + D · `1.7.7`. User report: Mỹ Duyên, "máy chủ giọng chậm (1 giây lời mất
-3,5 giây), đã bỏ 7 câu để bắt kịp".
+2026-09-27 · lane B (+ D: `background.js` `speak` field, `manifest.json`, tests, tools) · `1.7.8`.
+User asked for a deep speech / prosody / pronunciation upgrade, validated without manual listening.
 
 ## What changed
-
-- Cause: VieNeu idle 4 days, model swapped out by macOS (24 MB of 1.2 GB resident); warm it is 0.23x.
-- `dub-engine.js`: rtf sample excludes `SYNC.renderOverhead` (was counted twice), first sample capped
-  at `SYNC.firstRtfCap` (1.0), `dropRtf()` = min(EMA, latest) feeds `waitAudio` / skip-ahead.
-- `background.js`: `localIsCold()` / `localMarkWarm()`; first line after >10 min idle gets a 60 s
-  limit (not 8 s, which cut the page-in and redid it) and is not written to the speed log.
-- Test: `tests/hardening.test.js` "render speed: first sample capped..." (fails on 1.7.6 code).
-- `DUBBING.md` "Render speed", `BACKLOG.md` 20, `version-history.js` 1.7.7.
+- New `dub-speech.js` (`CST_DUB_SPEECH`): English spans in Vietnamese text + what VieNeu is sent for
+  them (`<en>` tags, respellings, "RTX 5 0 9 0", max 8 tags). Data block generated offline by
+  `tools/build-speech-tables.js` from sea_g2p 0.9.1. `DUBBING.md` "English inside Vietnamese speech".
+- VieNeu request has `text` (pauses) + `speak` (voice input); `speakScript` keys the cache;
+  `LOCAL_STYLE_VERSION` 10 (every cached VieNeu line re-renders once). `DANGER.md` 14.
+- `adaptForSpeech`: hyphenated identifiers with digits, versions after "iOS" read "chấm" (all voices).
+- `dub-prosody.js`: spans are units; backlog-16 rules; "và" between two names bound.
+- Tools: `vieneu-g2p.py`, `pron-eval.js`, `speech-ab.js`, `build-speech-tables.js`. Corpus
+  `tests/speech-corpus.js` (dev 62 / validation 24 / unseen 24, fingerprint pinned). `speech.test.js`.
 
 ## State
-
-- `npm test`: 443 tests, 442 pass, 0 fail, 1 skip · Reload: **yes** + F5 video tabs (not loaded)
+- `npm test`: 465 tests, 464 pass, 0 fail, 1 skip · Reload: **yes** + F5 video tabs
+- Phonemes (pron-eval, vs 1.7.7): dev 68 -> 79/79, validation 18 -> 23/24, unseen 23 -> 28/29 (once).
+- Real takes (speech-ab, same takes where text unchanged): forbidden pauses dev 14 -> 7, validation
+  6 -> 1, unseen 1 -> 0; inside a span 0; clicks / clipping / runaway 0. Old prosody sets 26 -> 5.
 
 ## Unfinished / in progress
-
-- The 7-drop case was not reproduced in simulation (old and new code behave the same in the
-  hardening harness); the fix is reasoned, not measured. `BACKLOG.md` 20: keep the model resident.
-- Not heard by the user: 1.7.6 A/B WAVs, 1.7.2 audio, 1.7.5 A/B (sent in chat).
-- `BACKLOG.md` 14 (Coursera waits for a refine), 15 to 19 (prosody leftovers, alignment, no
-  blind listening). All four marked sets are seen now: write new sentences before the next check.
-- Not verified in real Chrome with the extension: 1.7.2 to 1.7.7 end to end, backup download,
-  `ensureYtBridge`, 1.7.0 case. Fonts host permissions kept (need that check before removal).
-- Prompts / context NOT trimmed. "Truyền cảm" not solved. Udemy / edX (`BACKLOG.md` 9). Long-video
-  jank unmeasured. Leak on 4eY5DuqASQc ~8:40.
+- `BACKLOG.md` 21-25 (respellings 44/66, phonemes not sound, RAM label, caps default, "để" pauses).
+- "sam" held out of RESPELL until a new unseen split exists (u4 Sam Altman is the one unseen miss).
+- Not heard by the user: 1.7.8 A/B WAVs (sent in chat), 1.7.6, 1.7.5, 1.7.2 audio.
+- Carried over: `BACKLOG.md` 14, 15, 16 (PP inside a long subject), 18, 19, 20 (keep VieNeu resident).
+- Not verified in real Chrome with the extension: 1.7.2 to 1.7.8 end to end, backup download,
+  `ensureYtBridge`, 1.7.0 case. Prompts / context NOT trimmed. Udemy / edX (`BACKLOG.md` 9).
 
 ## Traps hit this session
-
-- A voice warm-up line is forbidden by a test ("không làm nóng giọng", 1.2.6): do not add one.
-- The sandbox blocks loopback: `curl 127.0.0.1:8000` needs the sandbox off. Check server RSS with
-  `ps -o rss= -p <pid>`: tiny RSS = swapped out, expect a slow first minute.
+- The scratchpad take folders can vanish between runs: `tools/prosody-eval.js` then re-renders all
+  520 takes (~10 min, sandbox off). `~/.cache` is not writable from the sandbox.
+- A comment naming a Gemini model id fails `cost.test.js` (only `cost-policy.js` may).
+- sea_g2p: 11+ `<en>` tags in one sentence corrupt it; `<en>` cannot make a Vietnamese syllable English.
 
 ## Suggested next step
-- Reload; dub with Mỹ Duyên after >10 min server idle, watch the quick-menu line.
+- Reload; dub a video with brand names / acronyms (Mỹ Duyên), listen for IKEA, CPC, Tom Hanks.

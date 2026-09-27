@@ -136,6 +136,11 @@
         // ("một năm không không không không không"); an English 1,000 came out as "một".
         t = t.replace(/\b\d{1,3}(?:\.\d{3})+(?![.,]?\d)|\b\d{1,3}(?:,\d{3})+(?![.,]?\d)/g, m => numberToVietnamese(Number(m.replace(/[.,]/g, ""))));
         t = t.replace(/\b\d{7,}\b/g, m => numberToVietnamese(Number(m)));
+        // A hyphenated identifier with a number in it is one name, not a range: "GPT-5.6",
+        // "Llama-3.3-70B", "COVID-19", a model id with a version inside. The server says the hyphen
+        // ("gạch ngang", "dash") and reads the dot as a decimal ("phẩy"): split into words, dots "chấm".
+        t = t.replace(/(?<![\p{L}\p{N}.\/@_-])[A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+(?:\.\d+)*)+(?![\p{L}\p{N}\/@_-]|\.\d)/gu,
+            m => /\d/.test(m) ? m.split("-").map(p => p.replace(/(\d)\.(?=\d)/g, "$1 chấm ")).join(" ") : m);
         // A version or a section number is read with "chấm": Python 3.11, Claude 3.5, phiên bản 2.0, mục 3.4
         t = t.replace(/(?:\b(phiên bản)\s+)?\bv(\d+(?:\.\d+)+)\b/gi, (m0, pre, v) => `${pre || "phiên bản"} ${v.split(".").join(" chấm ")}`);
         // 127.0.0.1, 1.2.3: three or more parts is never a decimal
@@ -144,7 +149,7 @@
         t = t.replace(/(?<![\p{L}\p{N}])([A-Za-zÀ-ỹĐđ]+(?: bản)?)(\s)(\d+)\.(\d+)(?![.,]?\d)/gu, (m0, w, sp, a, b) => {
             const lw = w.toLowerCase();
             const section = /^(?:phiên bản|version|mục|chương|phần|bài|điều|khoản)$/.test(lw);
-            const product = /^[A-Z][A-Za-z]*$/.test(w) && !(SEG && SEG.isVietWord && SEG.isVietWord(lw));
+            const product = /^(?=[a-z]*[A-Z])[A-Za-z]+$/.test(w) && !(SEG && SEG.isVietWord && SEG.isVietWord(lw));
             return section || product ? `${w}${sp}${a} chấm ${b}` : m0;
         });
         // 2x, 1,3x -> "2 lần", "1,3 lần" ("hai ích" otherwise). Algebra like 2x - 1 or 2x = 4 is left alone

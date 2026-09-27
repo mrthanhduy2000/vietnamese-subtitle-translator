@@ -13,7 +13,7 @@
 
 // Bộ nhớ đệm bền vững (IndexedDB) + chính sách chi phí + xử lý audio dùng chung
 // (1.7.6: the pause shaping reads the text's structure: segmenter, syllable count, prosody model)
-try { importScripts("cst-cache.js", "cost-policy.js", "vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-audio.js"); } catch (e) { /* chạy ngoài service worker (kiểm thử) */ }
+try { importScripts("cst-cache.js", "cost-policy.js", "vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-speech.js", "dub-audio.js"); } catch (e) { /* chạy ngoài service worker (kiểm thử) */ }
 
 const COST = CST_COST;
 const AUDIO = typeof CST_DUB_AUDIO !== "undefined" ? CST_DUB_AUDIO : null;
@@ -730,7 +730,7 @@ async function handleSynthesizeSpeech(req) {
     if (!text.trim()) return { ok: false, errorType: "invalid", error: "Không có lời thoại" };
     const parts = caches && AUDIO && Array.isArray(req.parts) && req.parts.length ? req.parts : null;
     const engine = req.engine === LOCAL.id ? LOCAL.id : "gemini";
-    const reqKey = await CST_CACHE.hashKey(["ttsreq", AUDIO_CACHE_VERSION, engine, req.model || "", req.voice || "", text, parts ? parts.map(p => p.key) : null]);
+    const reqKey = await CST_CACHE.hashKey(["ttsreq", AUDIO_CACHE_VERSION, engine, req.model || "", req.voice || "", text, req.speak || "", parts ? parts.map(p => p.key) : null]);
     const jobId = req.jobId || `_bg${++ttsJobSeq}`;
     // Đăng ký lượt NGAY (trước mọi bước chờ) -> yêu cầu giống hệt đến sau luôn nhập chung
     let flight = ttsInFlight.get(reqKey);
@@ -973,7 +973,10 @@ async function synthesizeLocalOnce(req, text, parts, signal) {
     if (signal) signal.addEventListener("abort", onAbort, { once: true });
     try {
         await waitLocalIdle(signal);
-        const body = JSON.stringify({ model: LOCAL.model, voice: req.voice || LOCAL.defaultVoice, input: text, response_format: "pcm", sample_rate: LOCAL.sampleRate, temperature: LOCAL.temperature });
+        // req.speak: the same line with its English spans written for VieNeu's front end
+        // (dub-speech.js); `text` stays the one the pauses are placed on
+        const input = typeof req.speak === "string" && req.speak.trim() ? req.speak.slice(0, 6000) : text;
+        const body = JSON.stringify({ model: LOCAL.model, voice: req.voice || LOCAL.defaultVoice, input, response_format: "pcm", sample_rate: LOCAL.sampleRate, temperature: LOCAL.temperature });
         let res;
         // Máy chủ vẫn bận (tab khác ngoài hàng đợi này, máy chủ đang làm việc khác): chờ theo
         // Retry-After rồi thử lại, tổng tối đa ~15 giây. Miễn phí nên thử lại không tốn gì.
