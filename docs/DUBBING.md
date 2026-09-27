@@ -278,7 +278,7 @@ Knobs you will actually reach for:
 - **What the viewer sees (1.5.6)**: `engine.health(t)` returns `{ live, ahead, rtf, dropped, errors }`;
   `CST_DUB.describeHealth()` turns it into the one line under "Lồng tiếng Việt" in both quick menus
   (ready N seconds ahead / server slow at RTF x / N lines skipped), warning-coloured when it matters.
-- **Render speed (1.7.7)**: `renderRtf` is an EMA of `(secs - SYNC.renderOverhead) / audioSecs`; the
+- **Render speed (1.7.7, 1.9.7)**: `renderRtf` is an EMA of `(secs - renderOver()) / audioSecs`; the
   first sample of a run is capped at `SYNC.firstRtfCap`, and drop decisions use `dropRtf()` = min(EMA,
   latest sample). Cold server: macOS swaps VieNeu's model out after long idle (3.5x real time vs 0.23
   warm). `background.js` `localIsCold()` (>10 min since a good render, kept in `chrome.storage.session`)
@@ -448,6 +448,31 @@ lecture's: 5 lines read over a 15 s mid-roll, the ad ducked, those lines rendere
 `tick()` (`adGate`: silence, no schedule, no duck, `stats.ads`) and `onSeek`; when the ad ends the
 engine resets once (`hardReset("ad")`, `lastT` cleared). The subtitle loop has the same gate
 (`youtube.js` `ytAdShowing`), which also stops Gemini calls for the ad's clock.
+
+**1.9.7 a server near real time (BACKLOG 33).** The reach decisions ran on a wrong speed:
+- The overhead was a fixed 0.6 s guess. Real VieNeu costs 0.07 s + 0.21 s per second of audio
+  (fitted on 12 takes), and the page path measured 0.16-0.17 s. So a 0.6 s take read as RTF 0.08,
+  and `dropRtf()` (min of EMA and latest) took it. `noteTake` / `renderOver()` now fit a line through
+  the latest 12 takes made while the server was free. The fit needs 4 or more takes spanning 1.5 s of
+  audio, and is clamped to 0.05-1.5 s. A take under `rtfShortAudio` (1.2 s) feeds the EMA but is never
+  the latest sample.
+- A take the worker's store answered (`fromCache`) counted as a render at RTF ~0.1. It now counts 0
+  seconds of audio (`o.cached`).
+- A job left running for the old place after a seek read as 0 s: the plans are rebuilt, and its lines
+  are not among them. `job.est` keeps the length known at send time.
+- `crowdsNext`, called from `unreachable()` for a serial provider: a line whose audio lands late anyway
+  is given up when the next line gains more time than the late line had left to be heard (at least
+  `crowdGainMin`). This is not condensing: whole lines were already dropped for lag (`skipAhead`,
+  `maxQueueLag`). This only picks which line.
+
+Measured:
+- `playback-sim.js` seekWhileSlow: delivery gaps 7.07 -> 4.87 s, worst gap 3.54 -> 2.49 s, late
+  starts 6 -> 5, recovery 7.68 -> 6.58 s (max 9.9 -> 7.7). Every other scenario is identical.
+- A 144-run matrix (RTF 0.8-1.1, rate 1/1.5/2, 12 seek pairs): lines spoken 2025 -> 2141, late 559
+  -> 546, gaps 818 -> 797 s, worst recovery 34.0 -> 24.6 s.
+- One part was tried and removed: skipping the rtf sample of a take queued behind another left the
+  estimate stale after seeks (worst recovery 25 s at RTF 1.0, rate 1.5).
+- Live, `tests/harness/live.html` on the real VieNeu server held to RTF 0.9: see TESTING.md.
 
 **1.9.6 predicate verbs (BACKLOG 16).** `PRED_VERBS` in `dub-prosody.js` (đạt, chiếm, vượt, gồm, cho
 thấy, mang lại, gây ra, dẫn đến, tạo ra, bao gồm, đòi hỏi, trở thành, đóng vai trò, phụ thuộc, giúp) and

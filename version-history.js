@@ -4,6 +4,21 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.9.7", luc: "02:06 28/09/2026", ten: "Giọng VieNeu: ước lượng đúng tốc độ máy chủ, bớt đuổi theo video khi máy chủ chậm",
+            y: [
+                "Trước đây chương trình tưởng máy chủ giọng nhanh hơn thực tế tới 5 lần (tính cả câu lấy sẵn từ kho và câu rất ngắn), nên gửi những câu chắc chắn về trễ. Nay nó tự đo thời gian cố định mỗi lượt từ các lần tạo gần nhất.",
+                "Sau khi tua, việc tạo giọng còn dở của vị trí cũ nay được tính đúng là máy chủ còn bận.",
+                "Máy chủ chậm: một câu đằng nào cũng về trễ thì nhường chỗ cho câu sau, nếu câu sau được lợi nhiều hơn phần câu trễ còn nghe được.",
+                "Thử thật trong Chrome với máy chủ VieNeu thật: tua tới, tua lui, dừng rồi phát tiếp, tốc độ gấp đôi, quảng cáo: không lỗi, không hai giọng chồng nhau.",
+                "Không rút gọn lời thoại; không gọi Gemini."
+            ],
+            bang: { cot: ["Đo ngoại tuyến (144 lần chạy mô phỏng, máy chủ chậm)", "1.9.6", "Nay"], hang: [
+                ["Số câu được đọc", "2025", "2141"],
+                ["Câu bắt đầu trễ", "559", "546"],
+                ["Lâu nhất để có tiếng lại sau khi tua", "34,0 giây", "24,6 giây"]
+            ] }
+        },
+        {
             v: "1.9.6", luc: "01:39 28/09/2026", ten: "Giọng VieNeu: ngắt đúng sau chủ ngữ dài trước động từ như \"đạt\", \"cho thấy\", \"mang lại\"",
             y: [
                 "Câu kiểu \"Doanh thu của công ty trong quý ba | đạt mức cao nhất\" nay nghỉ đúng chỗ trước động từ, thay vì nghỉ lạc giữa chủ ngữ.",

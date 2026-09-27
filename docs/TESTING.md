@@ -112,6 +112,27 @@ hidden pane. Scripts load with a cache-busting query; `runSmooth(120)` then poll
 runs the VieNeu path of `background.js` (`cleanTake`, `shapePauses`, `prepareSpeech`); keep it in
 step when that path changes. The browser tool times out at 45 s: poll `H.done`, do not await it.
 
+`live.html` + `live-server.js` (1.9.7): the real `DubEngine` and VieNeu provider in Chrome. The
+page's messages are answered by the real `background.js` (through `bg-env.js`) in the Node server.
+It talks to the real local VieNeu server; every other host is refused (`/seen.json` lists refusals),
+so no paid API can be reached. A scripted viewer: seek forward, seek back, pause and resume, 2x, then
+a 12 s ad that takes the clock to 0 and back. Launch configs `live` (8766) and `live-slow` (8767,
+replies held to RTF 0.9). Click "run", poll `H.done` (45 s tool limit), read `summary()`: lines
+spoken, late starts, overlap / voice-while-paused / voice-in-ad samples (every 50 ms), recovery per
+seek. `?engine=smooth/old-dub-engine.js` runs an older engine copied into the git-ignored `smooth/`.
+Restart the server between compared runs: its audio store is shared.
+
+Results:
+
+| Run (one each) | Spoken | Late | Overlap | Errors | Estimated RTF |
+|---|---|---|---|---|---|
+| 1.9.7, healthy server | 33 | 1 (0.62 s at 2x) | 0 | 0 | 0.34 (fitted overhead 0.16 s) |
+| RTF 0.9, 1.9.6 | 31 | 6 | 0 | 0 | 0.19 (wrong) |
+| RTF 0.9, 1.9.7 | 30 | 5 | 0 | 0 | 1.2 |
+
+In every run there was one 50 ms sample of voice right after the pause and one right after the ad
+start: the gap between the event and the engine's next tick.
+
 `generic.html` (+ `generic.vtt`): a bare `<video controls>` in an article, canned translations in
 place of the service worker. Default: a `<track>` element; `?mode=script`: `addTextTrack` only.
 Serve with the `static` launch config. The pane's rAF stops while it is hidden: call `csRender()`

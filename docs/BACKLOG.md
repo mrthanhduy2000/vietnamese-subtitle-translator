@@ -150,10 +150,18 @@ split right; the dev marks were always "/" (either way). If the user wants the s
 
 ## Found by the 1.8.6 delivery work, not fixed
 
-**33. A server near real time (RTF ~0.9) still chases.** One request at a time, each take lands as
-its line ends; after a seek the engine now skips what it cannot reach (13.6 -> 7.7 s to voice) but a
-line can then start 3.5 s late. Only a faster server (int8, GPU) really fixes it; `describeHealth`
-already tells the viewer.
+**33. (mostly closed 1.9.7) A server near real time (RTF ~0.9).** The reach decisions ran on a speed
+read 5x too fast: the 0.6 s overhead guess, store answers, and a job left over from a seek read as 0 s.
+The overhead is now fitted and those are fixed; `crowdsNext` gives up a late line to save the next one
+(DUBBING.md "1.9.7"). Left: a server at RTF 1 or more, or RTF 0.9 at 2x, cannot keep up whatever the
+page does. Lines start late or are skipped; only a faster server (int8, GPU) fixes that, and
+`describeHealth` tells the viewer.
+
+**35. A line cut by an ad resumes where the video is, not where the voice was.** Found live
+(`tests/harness/live.html`, server held to RTF 0.9, 2x then 1x just before the ad). The line had
+started 3 s late; after the ad (`hardReset("ad")`) it was entered mid-way at the video's position.
+About 3 s of it that had not been heard was skipped. 1.9.6 does the same. It is rare (late line and ad
+together). A fix would keep the cut line and its audio position across the ad gate.
 
 ## Cosmetic / housekeeping
 

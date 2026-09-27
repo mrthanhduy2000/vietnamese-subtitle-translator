@@ -131,7 +131,7 @@ function run(engineMod, sc) {
         }
         if (msg.action === "synthesizeSpeech") {
             const key = msg.parts[0].key;
-            if (store.has(key)) { m.storeHits++; const d = store.get(key); return { ok: true, parts: [{ key, wav: wavFor(d), duration: d, sampleRate: 48000 }] }; }
+            if (store.has(key)) { m.storeHits++; const d = store.get(key); return { ok: true, fromCache: true, parts: [{ key, wav: wavFor(d), duration: d, sampleRate: 48000 }] }; }
             let f = flights.get(key);
             if (f) m.joined++;
             else {

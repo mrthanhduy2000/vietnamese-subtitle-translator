@@ -490,9 +490,55 @@ test("render speed: first sample capped, overhead counted once, a recovered serv
     // the engine really uses these numbers
     const src = require("fs").readFileSync(require("path").join(__dirname, "..", "dub-engine.js"), "utf8");
     assert.match(src, /renderOverhead: 0\.6/);
-    assert.match(src, /secs - SYNC\.renderOverhead\) \/ audioSecs/);
+    assert.match(src, /secs - this\.renderOver\(\)\) \/ audioSecs/);
     assert.match(src, /if \(this\.renderRtf == null\) rtf = Math\.min\(rtf, SYNC\.firstRtfCap\)/);
     assert.match(src, /const rtf = this\.dropRtf\(\);/);
+});
+
+// BACKLOG 33 (1.9.7): with a server near real time the reach decisions ran on a wrong speed. A real
+// VieNeu take costs 0.07 s + 0.21 s per second of audio (measured); the fixed 0.6 s guess made a
+// 0.6 s take read as RTF 0.08, and a take the worker's store answered at once read as ~0.1.
+test("render speed: the request overhead is fitted from real takes, a short take is never the latest sample", () => {
+    const E = { renderTakes: [], fittedOver: null };
+    const note = (a, s) => DubEngine.prototype.noteTake.call(E, a, s);
+    const over = () => DubEngine.prototype.renderOver.call(E);
+    assert.equal(over(), 0.6, "no takes yet: the default guess");
+    note(0.64, 0.068 + 0.21 * 0.64); note(0.9, 0.068 + 0.21 * 0.9); note(1.0, 0.068 + 0.21 * 1.0);
+    assert.equal(over(), 0.6, "three takes of similar length do not make a fit");
+    note(8.4, 0.068 + 0.21 * 8.4);
+    assert.ok(Math.abs(over() - 0.068) < 0.01, `fitted overhead ${over()}`);
+    for (let i = 0; i < 12; i++) note(3, 5);                     // one length only: no line to fit
+    assert.equal(over(), 0.6);
+    const src = require("fs").readFileSync(require("path").join(__dirname, "..", "dub-engine.js"), "utf8");
+    assert.match(src, /o\.cached \? 0 : o\.duration/, "a store answer counted as generated audio");
+    assert.match(src, /audioSecs >= SYNC\.rtfShortAudio \|\| this\.lastRtf == null\) this\.lastRtf = rtf/);
+    assert.match(src, /cached: !!res\.fromCache/);
+});
+
+test("reach: a job left running for the old place still keeps a serial server busy after the plans are rebuilt", () => {
+    const now = 10000;
+    const E = Object.assign(Object.create(DubEngine.prototype), {
+        d: { video: { playbackRate: 1 }, now: () => now }, renderRtf: 0.9, lastRtf: 0.9, fittedOver: 0.1, renderTakes: [],
+        provider: { caps: { serial: true } }, planById: new Map(),
+        jobs: new Map([["old", { planIds: ["gone"], t0: now - 1000, orphan: true, est: 6 }]])
+    });
+    const w = E.waitAudio({ id: "p", estDuration: 2 });
+    // 6 s at 0.9 + 0.1, 1 s already spent: 4.5 s left, then 1.9 s for this line
+    assert.ok(Math.abs(w - 6.4) < 1e-9, `wait ${w}`);
+});
+
+test("reach: a late line is given up for the next one on a serial server only when that gains more than it loses", () => {
+    const mk = (serial, plans) => Object.assign(Object.create(DubEngine.prototype), {
+        renderRtf: 0.9, lastRtf: 0.9, fittedOver: 0.1, renderTakes: [], provider: { caps: { serial } },
+        plans, rendered: new Map(), pending: new Map()
+    });
+    const p = { id: "p", start: 64, end: 66.2, estDuration: 2.2 }, q = { id: "q", start: 66.2, end: 70.5, estDuration: 3.9 };
+    // audio for p lands at 65.6 (late, 0.6 s of its slot left); q behind it lands at 69.2
+    assert.equal(mk(true, [p, q]).crowdsNext(p, 60.2, 5.4, 1), true);
+    assert.equal(mk(false, [p, q]).crowdsNext(p, 60.2, 5.4, 1), false, "a parallel provider is not queued");
+    assert.equal(mk(true, [p, q]).crowdsNext(p, 60.2, 3.5, 1), false, "p on time: kept whole");
+    const long = { ...p, end: 69 };                                   // 3.4 s of p still to be heard
+    assert.equal(mk(true, [long, { ...q, start: 69 }]).crowdsNext(long, 60.2, 5.4, 1), false, "more heard than gained");
 });
 
 // ================= 5. NGÂN SÁCH & THỐNG KÊ CHI PHÍ =================

@@ -6,6 +6,18 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "8765", "--bind", "127.0.0.1"],
       "port": 8765
+    },
+    {
+      "name": "live",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["tests/harness/live-server.js", "8766"],
+      "port": 8766
+    },
+    {
+      "name": "live-slow",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["tests/harness/live-server.js", "8767", "0.9"],
+      "port": 8767
     }
   ]
 }

@@ -74,7 +74,13 @@
         skipAheadMax: 60,         // safety bound on one skip (s). Measured on a real timeline with a
                                   // slow server: capping at 6 to 14 loses MORE sentences (14/61 vs
                                   // 29/61), because a short jump lands late again and skips again
-        renderOverhead: 0.6,      // fixed seconds per TTS request (network, startup), outside the rtf
+        renderOverhead: 0.6,      // fixed seconds per TTS request (network, startup), outside the rtf,
+                                  // until renderOver() has fitted the real one (VieNeu measured 0.07)
+        overFitMin: 4,            // takes needed before the overhead is fitted from them ...
+        overFitSpread: 1.5,       // ... spanning at least this many seconds of audio
+        overFitKeep: 12,          // the fit uses the latest this many takes
+        overFitRange: [0.05, 1.5], // a fitted overhead is kept inside this
+        rtfShortAudio: 1.2,       // a take shorter than this is mostly overhead: never the "latest" rtf
         firstRtfCap: 1.0,         // first rtf sample of a run is capped: it carries the server's cold start
         dropLag: 4.0,             // giọng hệ thống trễ quá mức này mới bỏ phần còn lại của đoạn cũ (bớt mất lời)
         prefetchMax: 30,          // trần tạo trước audio (giây); chế độ sử dụng có thể hạ thấp hơn
@@ -112,6 +118,7 @@
         // Delivery scorecard (debugSnapshot only, 1.8.6): a line starting this late counts as a late
         // start; a silence this long beyond the rest the engine means to keep counts as a delivery gap
         lateStart: 0.5,
+        crowdGainMin: 1.0,        // crowdsNext gives a late line up only for at least this much gained
         gapMin: 0.12,
         // Entering a line mid-way (after a seek, 1.8.7): start at a stop the voice really made, not at
         // the proportional position (inside a syllable ~85% of the time, a click with no fade-in).
@@ -260,7 +267,7 @@
                     throw err;
                 }
                 return res.parts.map((sp, k) => ({
-                    planId: plans[k].id, wav: AUDIO.base64ToBytes(sp.wav), duration: sp.duration, sampleRate: sp.sampleRate
+                    planId: plans[k].id, wav: AUDIO.base64ToBytes(sp.wav), duration: sp.duration, sampleRate: sp.sampleRate, cached: !!res.fromCache
                 }));
             }
         };
@@ -343,7 +350,7 @@
                     const sp = res.parts[0];
                     let wav;
                     try { wav = AUDIO.base64ToBytes(sp.wav); } catch (e) { const err = new Error("Audio VieNeu hỏng (base64)"); err.type = "invalid"; throw err; }
-                    out.push({ planId: p.id, wav, duration: sp.duration, sampleRate: sp.sampleRate });
+                    out.push({ planId: p.id, wav, duration: sp.duration, sampleRate: sp.sampleRate, cached: !!res.fromCache });
                 }
                 return out;
             }
@@ -445,6 +452,8 @@
             this.renderLatency = null;      // EMA thời gian một lượt TTS (giây)
             this.renderRtf = null;          // EMA of generation speed (seconds spent / seconds of speech)
             this.lastRtf = null;            // latest rtf sample
+            this.renderTakes = [];          // { audio, secs } of recent takes made while the server was free
+            this.fittedOver = null;         // fixed seconds per request fitted from them (renderOver)
             this.seekTimes = [];
             this.live = null;               // { planId, k, handle, speaking, phraseStartMedia, wallStart, rate }
             this.speech = null;             // lời đang phát (audio có sẵn): { id, mediaStart, offset, rate, end }
@@ -1184,9 +1193,12 @@
         waitAudio(p) {
             const vr = Math.max(0.25, (this.d.video && this.d.video.playbackRate) || 1);
             const rtf = this.dropRtf();
-            const over = SYNC.renderOverhead;
+            const over = this.renderOver();
             const remain = job => {
-                const need = job.planIds.reduce((a, id) => a + ((this.planById.get(id) || {}).estDuration || 0), 0) * rtf + over;
+                // the length known when it was sent: after a seek the plans are rebuilt and a job left
+                // running for the old place is no longer among them (read as 0 s, the server as free)
+                const est = job.est != null ? job.est : job.planIds.reduce((a, id) => a + ((this.planById.get(id) || {}).estDuration || 0), 0);
+                const need = est * rtf + over;
                 return Math.max(0.3, need - (this.d.now() - job.t0) / 1000);
             };
             for (const j of this.jobs.values()) if (!j.orphan && j.planIds.indexOf(p.id) >= 0) return remain(j) * vr;
@@ -1196,6 +1208,28 @@
             const serial = !!(this.provider.caps && this.provider.caps.serial);
             for (const j of this.jobs.values()) if (!j.orphan || serial) busy = Math.max(busy, remain(j));
             return (busy + (p.estDuration || 2) * rtf + over) * vr;
+        }
+
+        // Fixed seconds a request costs outside generation. A least-squares line through recent takes
+        // (seconds spent against seconds of audio) once they span enough audio; the 0.6 guess before.
+        noteTake(audio, secs) {
+            const T = this.renderTakes;
+            T.push({ audio, secs });
+            if (T.length > SYNC.overFitKeep) T.shift();
+            this.fittedOver = null;
+            if (T.length < SYNC.overFitMin) return;
+            const lo = Math.min(...T.map(x => x.audio)), hi = Math.max(...T.map(x => x.audio));
+            if (hi - lo < SYNC.overFitSpread) return;
+            const n = T.length, mx = T.reduce((a, x) => a + x.audio, 0) / n, my = T.reduce((a, x) => a + x.secs, 0) / n;
+            const vxx = T.reduce((a, x) => a + (x.audio - mx) ** 2, 0);
+            const slope = T.reduce((a, x) => a + (x.audio - mx) * (x.secs - my), 0) / vxx;
+            if (!(slope > 0)) return;
+            const [min, max] = SYNC.overFitRange;
+            this.fittedOver = Math.max(min, Math.min(max, my - slope * mx));
+        }
+
+        renderOver() {
+            return this.fittedOver != null ? this.fittedOver : SYNC.renderOverhead;
         }
 
         // Generation speed used to decide whether a sentence is unreachable. The lower of the smoothed
@@ -1417,7 +1451,28 @@
             if (this.d.video.paused) return false;
             const vr = Math.max(0.25, this.d.video.playbackRate || 1);
             const wait = this.renderRtf == null ? (SYNC.reachOverheadMin + (p.estDuration || 2) * SYNC.reachRtfMin) * vr : this.waitAudio(p);
-            return t + wait > p.end - Math.min(0.8, (p.end - p.start) * 0.5);
+            if (t + wait > p.end - Math.min(0.8, (p.end - p.start) * 0.5)) return true;
+            return this.crowdsNext(p, t, wait, vr);
+        }
+
+        // A serial server near real time (BACKLOG 33): a line whose audio lands late anyway (entered
+        // mid-way, its head skipped) still costs its whole render, and the next line queues behind
+        // it and starts late too; that late start carries into the lines after it (a chase). Give
+        // the late line up when the next one gains more time than the late line had left to be
+        // heard. Simulated at RTF 0.9 after a seek: see DUBBING.md "1.9.7".
+        crowdsNext(p, t, wait, vr) {
+            if (this.renderRtf == null || !(this.provider.caps && this.provider.caps.serial)) return false;
+            const lands = t + wait;
+            if (lands <= p.start + SYNC.lateStart) return false;       // on time: keep it whole
+            const q = this.plans[this.plans.indexOf(p) + 1];
+            if (!q || this.rendered.has(q.id) || this.pending.has(q.id)) return false;
+            const rtf = this.dropRtf(), over = this.renderOver();
+            const own = ((q.estDuration || 2) * rtf + over) * vr;
+            const mine = ((p.estDuration || 2) * rtf + over) * vr;
+            const lateWith = Math.max(0, lands + own - q.start);
+            const lateWithout = Math.max(0, lands - mine + own - q.start);
+            const heard = Math.max(0, p.end - lands);
+            return lateWith > SYNC.lateStart && lateWith - lateWithout >= Math.max(SYNC.crowdGainMin, heard);
         }
 
         // What the viewer should know about the voice right now, for the quick menu: how much audio
@@ -1560,7 +1615,8 @@
         async renderBatch(batch) {
             const jobId = `tts${++this.jobSeq}_${Date.now()}`;
             batch.forEach(p => this.pending.set(p.id, jobId));
-            const job = { planIds: batch.map(p => p.id), t0: this.d.now(), orphan: false };
+            const job = { planIds: batch.map(p => p.id), t0: this.d.now(), orphan: false, queued: this.jobs.size > 0,
+                est: batch.reduce((a, p) => a + (p.estDuration || 0), 0) };
             this.jobs.set(jobId, job);
             this.stats.requests++;
             this.stats.ttsPlans += batch.length;
@@ -1573,16 +1629,27 @@
                     // Generation speed = seconds spent / seconds of speech. Predicts the remaining
                     // wait far better than per-job latency, because batch sizes differ by a lot.
                     // A healthy local server is ~0.23; >= 1 means slower than real time.
-                    const audioSecs = out.reduce((a, o) => a + (o.duration || 0), 0);
+                    // Audio the worker's store answered was not generated now: counted as a render
+                    // it read as ~0.1 (min of EMA and last in dropRtf), and the next reach decision
+                    // expected 1.7 s for a 9.4 s render on a server at RTF 0.9 (BACKLOG 33)
+                    const audioSecs = out.reduce((a, o) => a + (o.cached ? 0 : o.duration || 0), 0);
+                    // A take queued behind another still gives a sample (dropping those left the
+                    // estimate stale after seeks: worst recovery 25 s in the simulated matrix), but
+                    // not a point for the overhead fit, whose intercept that wait would inflate
                     if (audioSecs > 0.3) {
                         // Overhead is taken out here because waitAudio adds it back per request;
                         // counting it twice made short single-sentence jobs look 2x slower.
-                        let rtf = Math.max(0.05, secs - SYNC.renderOverhead) / audioSecs;
+                        // The overhead is fitted from recent takes (renderOver): with the 0.6 guess a
+                        // real VieNeu take of 0.6 s audio in 0.17 s read as RTF 0.08 (true 0.21).
+                        if (!job.queued) this.noteTake(audioSecs, secs);
+                        let rtf = Math.max(0.05, secs - this.renderOver()) / audioSecs;
                         // The first job pays the server's cold start: VieNeu idle for days had its
                         // model swapped out by macOS and the first render measured 3.5x real time
                         // (0.23 warm), which then dropped 7 sentences. One sample never says "slow".
                         if (this.renderRtf == null) rtf = Math.min(rtf, SYNC.firstRtfCap);
-                        this.lastRtf = rtf;
+                        // a short take is mostly overhead: an error there of 0.1 s moves its rtf by
+                        // 0.1 / audio, so it feeds the average but is never the "latest" sample
+                        if (audioSecs >= SYNC.rtfShortAudio || this.lastRtf == null) this.lastRtf = rtf;
                         this.renderRtf = this.renderRtf == null ? rtf : this.renderRtf * 0.7 + rtf * 0.3;
                     }
                 }

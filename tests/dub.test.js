@@ -766,6 +766,8 @@ test("playback delivery: rapid seeks get voice back within 3 s each; a slow serv
     assert.ok(r.seekRecoverMax <= 3, `worst ${r.seekRecoverMax} s`);
     const slow = await simRun("seekWhileSlow");
     assert.ok(slow.seekRecover <= 9, `slow server: ${slow.seekRecover} s`);
+    // BACKLOG 33 (1.9.7): no chase after the seek. 1.9.6: 7.1 s of delivery gaps, worst 3.5 s
+    assert.ok(slow.gapSum <= 5.5 && slow.gapMax <= 3, `slow server gaps ${slow.gapSum} s, worst ${slow.gapMax} s`);
 });
 
 test("playback delivery: pausing never cancels the request for the lines just ahead", async () => {
