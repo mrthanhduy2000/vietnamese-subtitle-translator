@@ -4,6 +4,21 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.8.7", luc: "23:34 27/09/2026", ten: "Tua vào giữa câu: giọng bắt đầu đúng chỗ ngắt giữa hai từ",
+            y: [
+                "Tua vào giữa một câu: trước đây giọng bắt đầu ở vị trí ước theo tỉ lệ, 85% số lần rơi vào giữa một âm tiết (nghe cụt, đôi khi có tiếng tách). Nay giọng bắt đầu ở khoảng lặng giữa hai từ gần nhất (thường nghe lại khoảng nửa giây), chỉ còn 0,3%.",
+                "Tua lùi xa (hơn một phút rưỡi): tra kho âm thanh đã lưu trước khi tạo giọng lại, có tiếng gần như ngay lập tức.",
+                "Xem ở tốc độ 1,5x hoặc 2x: câu đầu tiên không còn bị tạo giọng rồi bỏ vì không kịp, có tiếng sớm hơn khoảng 0,5 đến 1 giây.",
+                "Không đổi cách dịch, giọng, ngắt nghỉ; không thêm lượt gọi Gemini nào."
+            ],
+            bang: { cot: ["Đo ngoại tuyến (không gọi API)", "1.8.6", "Nay"], hang: [
+                ["Vào câu giữa âm tiết, 1.509 lần tua trên 25 bản ghi VieNeu thật", "1.277", "4"],
+                ["Có tiếng sau khi tua lùi 3 phút (mô phỏng)", "0,95 giây", "0,1 giây"],
+                ["Tiếng đầu tiên ở tốc độ 2x (mô phỏng)", "2,75 giây", "1,75 giây"],
+                ["Chrome thật: tua vào giữa câu bắt đầu đúng khoảng lặng", "chưa đo", "3 / 3"]
+            ] }
+        },
+        {
             v: "1.8.6", luc: "20:33 27/09/2026", ten: "Lồng tiếng có tiếng lại gần như ngay sau khi tua, không tạo lại đoạn đã có",
             y: [
                 "Tua trong lúc VieNeu đang tạo một câu: trước đây tiện ích cắt ngang câu đó, máy chủ VieNeu vẫn giữ chỗ thêm khoảng 4 giây, và câu ở vị trí mới phải chờ (nhật ký máy chủ hôm nay: 11 lần, mỗi lần 3 đến 5 giây im lặng). Nay câu đang tạo được làm nốt (khoảng 1 giây) và lưu vào kho, câu ở vị trí mới đi ngay sau.",

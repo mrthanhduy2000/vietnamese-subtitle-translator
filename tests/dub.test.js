@@ -693,3 +693,42 @@ test("playback delivery: stopping the engine (another video, dubbing off) drops 
     eng.stop();
     assert.deepEqual(aborted, ids);
 });
+
+// 1.8.7: entering a line after a seek. The proportional position started inside a syllable 85% of
+// the time on 25 real VieNeu takes (1,509 landings), with no fade-in; a gap between words is used
+// now (0.3%). Checked here on the three Mỹ Duyên takes in tests/audio.
+test("playback delivery: a line entered mid-way starts in a gap between words, not inside a syllable", () => {
+    const eng = Object.create(DubEngine.prototype);
+    eng.stats = {};
+    let n = 0, oldVoiced = 0, newVoiced = 0;
+    for (const f of ["vieneu-my-duyen-long-ma.wav", "vieneu-my-duyen-nen.wav", "vieneu-my-duyen-rang.wav"]) {
+        const bytes = new Uint8Array(fs.readFileSync(path.join(__dirname, "audio", f)));
+        const { samples, sampleRate: sr } = AUDIO.decodeWav(bytes);
+        const D = samples.length / sr;
+        const r = { stops: eng.findStops(bytes, D), duration: D };
+        assert.ok(r.stops && r.stops.length >= 2, `${f}: no stops found`);
+        const rms = t => { let q = 0; const a = Math.floor(t * sr), b = Math.min(samples.length, a + sr / 100); for (let i = a; i < b; i++) q += samples[i] * samples[i]; return Math.sqrt(q / Math.max(1, b - a)); };
+        const loud = Math.max(...Array.from({ length: Math.floor(D * 100) }, (_, k) => rms(k / 100)));
+        const voiced = t => rms(t) > loud * 0.03;
+        for (let o = 0.35; o < D - Math.min(0.8, D * 0.5); o += 0.05) {
+            const e = eng.entryPoint(r, o);
+            n++;
+            if (voiced(o)) oldVoiced++;
+            if (voiced(e)) newVoiced++;
+            assert.ok(o - e <= 1.2 + 1e-9 && e - o <= 0.8 + 1e-9, `entry ${e} too far from ${o}`);
+        }
+    }
+    assert.ok(oldVoiced / n > 0.6, `proportional entries inside the voice: ${oldVoiced}/${n}`);
+    assert.ok(newVoiced / n < 0.05, `entries inside the voice: ${newVoiced}/${n}`);
+    assert.equal(eng.entryPoint({ stops: null }, 2.3), 2.3, "a take without stops keeps the proportional entry");
+});
+
+test("playback delivery: a rewind past what the page holds finds the store first; the first line at 2x is not rendered in vain", async () => {
+    const far = await simRun("seekBackFar");
+    assert.ok(far.seekRecover < 0.3, `voice ${far.seekRecover} s after a 3-minute rewind (a re-cut head: 0.95)`);
+    assert.ok(far.serverRuns <= 27, `${far.serverRuns} requests`);
+    const fast = await simRun("rate2");
+    assert.ok(fast.firstAudio <= 2, `first voice at 2x after ${fast.firstAudio} s (2.75 before)`);
+    const normal = await simRun("normal");
+    assert.ok(normal.firstAudio <= 1.65, `the optimistic reach must keep the first line at 1x: ${normal.firstAudio} s`);
+});

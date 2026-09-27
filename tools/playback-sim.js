@@ -11,6 +11,7 @@
 //   OLD=<old dub-engine.js> node tools/playback-sim.js   the same scenarios on an older engine too
 //   node tools/playback-sim.js --json            machine-readable
 //   git show HEAD:dub-engine.js > $TMPDIR/old-engine.js && OLD=$TMPDIR/old-engine.js node tools/playback-sim.js
+//   OLD_BG=queued compares against an engine from 1.8.6 on (the old one runs with the old abort policy)
 //
 // The background policy is a parameter (bgAbort): "running" = a running request is cut when its page
 // job is aborted (before 1.8.6); "queued" = only a request that has not reached the server is cut.
@@ -257,6 +258,8 @@ const SCENARIOS = {
     slowTts: { wall: 150, rtf: (t, R) => 0.6 + R() * 0.6 },
     seekForward: { wall: 90, steps: [{ at: 20, do: "seek", v: 280 }] },
     seekBackward: { wall: 90, steps: [{ at: 50, do: "seek", v: 15 }] },
+    // back past keepBehind (90 s): the audio left the page, only the store has it
+    seekBackFar: { wall: 230, steps: [{ at: 200, do: "seek", v: 20 }] },
     rapidSeek: { wall: 90, steps: [{ at: 10, do: "seek", v: 30 }, { at: 12, do: "seek", v: 150 }, { at: 13.5, do: "seek", v: 45 }, { at: 16, do: "seek", v: 250 }, { at: 17, do: "seek", v: 60 }] },
     pauseResume: { wall: 120, steps: [{ at: 20, do: "pause" }, { at: 35, do: "play" }, { at: 60, do: "pause" }, { at: 61, do: "play" }] },
     rate15: { wall: 100, rate: 1.5 },
@@ -271,7 +274,7 @@ async function main() {
     const rows = [];
     for (const [name, sc0] of Object.entries(SCENARIOS)) {
         const variants = [];
-        if (old) variants.push(["old", old, { ...sc0, bgAbort: "running" }]);
+        if (old) variants.push(["old", old, { ...sc0, bgAbort: process.env.OLD_BG || "running" }]);
         variants.push(["new", cur, { ...sc0, bgAbort: process.env.BG_ABORT || "queued" }]);
         for (const [label, mod, sc] of variants) {
             const r = await run(mod, sc);
@@ -280,7 +283,7 @@ async function main() {
         }
     }
     // cached: a second pass over the normal scenario with the store the first pass filled
-    for (const [label, mod, bg] of (old ? [["old", old, "running"], ["new", cur, "queued"]] : [["new", cur, "queued"]])) {
+    for (const [label, mod, bg] of (old ? [["old", old, process.env.OLD_BG || "running"], ["new", cur, "queued"]] : [["new", cur, "queued"]])) {
         const first = await run(mod, { ...SCENARIOS.normal, bgAbort: bg });
         const r = await run(mod, { ...SCENARIOS.normal, bgAbort: bg, store: first.store });
         delete r.store;

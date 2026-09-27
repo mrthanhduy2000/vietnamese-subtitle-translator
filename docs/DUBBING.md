@@ -358,6 +358,20 @@ What changed, each for a measured cause:
 Not changed on purpose: prefetch horizon (`prefetchAhead` already scales with latency and rate: no
 gap at 1.5x / 2x), rate choice, drift, ducking, prosody, the paid-voice cache keys.
 
+**1.8.7 additions** (1.8.6 vs 1.8.7 on the same simulator, `OLD_BG=queued`):
+- **Clean entry into a line** (`findStops` at `addRendered`, `entryPoint` in `nextSpeech`): the
+  proportional position `into x audio/slot` started inside a syllable on 1,277 of 1,509 landings over
+  25 real takes (`tests/harness/smooth/`), with an amplitude jump on 689. Now it moves back to the
+  last gap between words (<= `entryBack` 1.2 s, heard again) or ahead to the next (<= `entryAhead`
+  0.8 s): 4 of 1,509 inside the voice, 3 jumps; on average 0.35 s heard again or 0.12 s skipped.
+  Gaps of `entryStopMs` 40 ms (80 ms left 6%, 60 ms 1.3%). ~0.5 ms per take. Real Chrome: 3 of 3
+  seeks entered exactly at a gap, voice 23-26 ms after the seek.
+- **Store before re-cut** (`headProbe`, `resolveHeadProbe`): a seek with nothing in the page looks the
+  landing lines up in the store under the current cut before making the head cut. Rewind of 3 min:
+  voice 0.95 -> 0.1 s, one request less; a miss costs one store round trip (rapid seeks +0.04 s).
+- **Optimistic reach before a measurement** (`SYNC.reachOverheadMin` 0.2 + `reachRtfMin` 0.2 x
+  length): first voice at 2x 2.75 -> 1.75 s, at 1.5x 2.3 -> 1.75 s (one late start -> 0); 1x unchanged.
+
 ## Prosody model (1.7.6, `dub-prosody.js`)
 
 Where the dubbed speech may pause, how strongly, and which of the voice's own stops to keep. Pure,

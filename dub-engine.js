@@ -113,6 +113,18 @@
         // start; a silence this long beyond the rest the engine means to keep counts as a delivery gap
         lateStart: 0.5,
         gapMin: 0.12,
+        // Entering a line mid-way (after a seek, 1.8.7): start at a stop the voice really made, not at
+        // the proportional position (inside a syllable ~85% of the time, a click with no fade-in).
+        // Back to the stop before it up to entryBack s (a phrase heard again), else ahead to the next
+        // one up to entryAhead s (a few words skipped); neither in reach: the proportional position.
+        entryStopMs: 40,          // a silence this long is a gap between words. Measured on 25 real takes,
+                                  // 1,509 landings: 80 ms left 6% inside the voice, 60 ms 1.3%, 40 ms 0.3%
+        entryBack: 1.2,
+        entryAhead: 0.8,
+        // Optimistic render time, used by unreachable() before a render is measured: a line is only
+        // given up when even this cannot bring its audio in time (healthy VieNeu measured ~0.24)
+        reachOverheadMin: 0.2,
+        reachRtfMin: 0.2,
         duckRampPerTick: 0.09,    // tốc độ hạ/nâng âm lượng video mỗi nhịp (mượt ~200 ms)
         duckHold: 0.35            // giữ mức hạ thêm chút sau khi nói xong (tránh "bơm" âm lượng giữa các cụm)
     };
@@ -985,7 +997,7 @@
                 const next = i >= 0 ? this.plans[i + 1] : null;
                 const span = Math.max(0.5, (next ? Math.min(next.start, p.end + 0.5) : p.end) - p.start);
                 const scale = Math.max(0.7, Math.min(1.3, r.duration / span));
-                const offset = into > 0.3 ? into * scale : 0;
+                const offset = into > 0.3 ? this.entryPoint(r, into * scale) : 0;
                 // (chỉ khi đã VÀO GIỮA đoạn: đoạn rất ngắn < 0,8 giây từng luôn bị bỏ vì điều kiện này đúng cả khi offset = 0)
                 if (offset > 0 && offset >= r.duration - Math.min(0.8, r.duration * 0.5)) { this.lastSpokenStart = p.start; return null; }
                 return { p, r, offset, lag: 0 };
@@ -1201,6 +1213,7 @@
         schedule(t) {
             if (!this.provider.caps.prerender) return;
             if (this.busyLookup || this.budgetBlocked) return;
+            if (this.headProbe != null && this.resolveHeadProbe(t)) return;
             // Bình thường chỉ MỘT lượt TTS cho vị trí đang xem. Khi audio sẵn phía trước sắp
             // cạn (mạng chậm, vừa tua) cho chạy thêm lượt thứ hai để bắt kịp: KHÔNG tốn thêm
             // (tiền tính theo độ dài audio, không theo số lượt). Lượt cũ chạy nốt không chặn
@@ -1271,11 +1284,15 @@
         // Just started or seeked, video running: a line whose audio cannot exist before its subtitle
         // is nearly over (the point where nextSpeech gives up on entering it) would be generated only
         // to be skipped, and on a serial server it pushes back the next line, the one that can still
-        // be heard. Simulated with a server at RTF 0.9: voice 13.5 s after a seek. Only once the
-        // generation speed is measured: the 0.5 guess would skip the first line on a healthy server.
+        // be heard. Simulated with a server at RTF 0.9: voice 13.5 s after a seek. Before the first
+        // measurement an optimistic render time is used (SYNC.reachRtfMin), never the 0.5 guess
+        // (which would skip the first line on a healthy server): at 2x the first line under the
+        // playhead was rendered and then skipped; at 1x it is kept.
         unreachable(p, t) {
-            if (this.renderRtf == null || this.d.video.paused) return false;
-            return t + this.waitAudio(p) > p.end - Math.min(0.8, (p.end - p.start) * 0.5);
+            if (this.d.video.paused) return false;
+            const vr = Math.max(0.25, this.d.video.playbackRate || 1);
+            const wait = this.renderRtf == null ? (SYNC.reachOverheadMin + (p.estDuration || 2) * SYNC.reachRtfMin) * vr : this.waitAudio(p);
+            return t + wait > p.end - Math.min(0.8, (p.end - p.start) * 0.5);
         }
 
         // What the viewer should know about the voice right now, for the quick menu: how much audio
@@ -1349,7 +1366,29 @@
             // được chọn lúc bắt đầu nói (chooseRate) để nhịp đều giữa các câu
             const stretch = this.baseTempo(p);
             const url = this.d.createObjectURL(wav);
-            this.rendered.set(p.id, { url, duration, stretch, fit: duration / slot, overflow: duration / stretch - slot, text: p.text });
+            this.rendered.set(p.id, { url, duration, stretch, fit: duration / slot, overflow: duration / stretch - slot, text: p.text, stops: this.findStops(wav, duration) });
+        }
+
+        // Where the voice resumes after each stop inside the take (seconds), for entryPoint. ~0.5 ms
+        // per take; a take that is not a 16-bit WAV (test stubs) has none
+        findStops(wav, duration) {
+            try {
+                const d = AUDIO.decodeWav(wav);
+                return AUDIO.findSilences(d.samples, d.sampleRate, { minMs: SYNC.entryStopMs })
+                    .filter(x => x.start > 0.05 && x.end < duration - 0.3)
+                    .map(x => Math.max(0, x.end - 0.02));
+            } catch (e) { return null; }
+        }
+
+        // The audio position to enter a line at, near the proportional position o (see SYNC.entryBack)
+        entryPoint(r, o) {
+            if (!r.stops) return o;
+            let back = 0, ahead = null;
+            for (const e of r.stops) { if (e <= o + 0.05) back = e; else { ahead = e; break; } }
+            if (o - back <= SYNC.entryBack) { this.stats.cleanEntries = (this.stats.cleanEntries || 0) + 1; return back; }
+            if (ahead != null && ahead - o <= SYNC.entryAhead) { this.stats.cleanEntries = (this.stats.cleanEntries || 0) + 1; return ahead; }
+            this.stats.rawEntries = (this.stats.rawEntries || 0) + 1;
+            return o;
         }
 
         async renderBatch(batch) {
@@ -1583,6 +1622,10 @@
             // re-rendered the line (0.8 s on a warm server, one wasted request, more when slow)
             const at = this.d.video.currentTime || 0;
             this.headPinned = this.audioReadyAt(at);
+            // Not in the page, but the store may hold it under the current cut (a rewind past
+            // keepBehind): keep the cut until schedule has looked (resolveHeadProbe, 1.8.7)
+            this.headProbe = !this.headPinned && this.d.audioCache && this.provider.audioKey ? at : null;
+            if (this.headProbe != null) this.headPinned = true;
             if (!this.headPinned) this.headAt = Math.round(at);
             this.resetWall = this.d.now();
             this.live = null;
@@ -1590,6 +1633,30 @@
             this.seekTimes.push(this.d.now());
             this.cancelObsoleteJobs(this.d.video.currentTime);
             if (this.d.onReset) { try { this.d.onReset(reason); } catch (e) { /* bỏ qua */ } }
+        }
+
+        // After a seek with nothing in the page: look the lines at the landing point up in the store
+        // under the current cut first. A hit plays at once; a miss makes the short head cut as before,
+        // one store round trip later. Simulated rewind of 3 min: voice 0.95 -> 0.05 s, 1 request less.
+        // true = wait (lookup running, or the plans were just re-cut)
+        resolveHeadProbe(t) {
+            const i = this.planAt(t + SYNC.startTolerance);
+            const p = i >= 0 ? this.plans[i] : null;
+            const next = this.plans[i + 1];
+            const want = [p && t < p.end ? p : null, next && next.start - t < 3 ? next : null].filter(Boolean);
+            const free = !!(this.provider.caps && this.provider.caps.free);
+            const look = want.filter(q => !this.cacheChecked.has(q.id) && !this.rendered.has(q.id));
+            if (look.length) {
+                if (free) for (const q of look) if (q.tightPauses == null) q.tightPauses = this.denseRatio(q) > SYNC.denseRatio;
+                this.lookupCache(look);
+                return true;
+            }
+            this.headProbe = null;
+            if (want.length && this.audioReadyAt(t)) { this.stats.storeReuse = (this.stats.storeReuse || 0) + 1; return false; }
+            this.headPinned = false;
+            this.headAt = Math.round(t);
+            this.refresh();
+            return true;
         }
 
         // The line under t (or, in a silence, the next one within 2 s) has audio, and if t is near its
