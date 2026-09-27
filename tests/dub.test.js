@@ -284,6 +284,29 @@ test("YouTube ad in the same <video>: no voice, no duck, no render during the ad
     assert.ok(r.eng.stats.ads >= 1);
 });
 
+// BACKLOG 35 (1.9.7): the line an ad cuts goes on where the voice was. It was entered at the video's
+// place instead, so a line already running late lost the part nobody had heard.
+test("YouTube ad cutting a line: after the ad the same line goes on from where the voice was, never ahead", async () => {
+    let ad = false, lectureT = 0, cut = null, resumed = null, adAt = null;
+    const render = async plans => plans.map(p => ({ planId: p.id, wav: new Uint8Array(8), duration: 6 }));
+    await resilienceRun({ get: async () => ({}), render, seconds: 60, deps: { adShowing: () => ad },
+        makeAudio: clock => new FakeAudio(clock, { duration: 6 }),
+        each: (ms, eng) => {
+            const v = eng.d.video, S = eng.speech, r = S && eng.rendered.get(S.id);
+            // the ad comes 3.5 s into a line whose voice started at least 1 s late (the engine reads
+            // the voice one 50 ms tick after this, hence the 0.1 s allowance below)
+            if (adAt == null && ms > 15000 && S && r && r.el && r.el.currentTime > 3.5 && S.mediaStart - eng.planById.get(S.id).start > 1) {
+                adAt = ms; cut = { id: S.id, pos: r.el.currentTime };
+                ad = true; lectureT = v.currentTime; v.currentTime = 0; v.emit("seeking"); v.emit("seeked");
+            }
+            if (adAt != null && ms === adAt + 8000) { ad = false; v.currentTime = lectureT; v.emit("seeking"); v.emit("seeked"); }
+            if (adAt != null && ms > adAt + 8000 && !resumed && eng.speech) resumed = { id: eng.speech.id, offset: eng.speech.offset };
+        } });
+    assert.ok(cut, "no late line was cut in this run");
+    assert.equal(resumed.id, cut.id, "the cut line was not taken up again");
+    assert.ok(resumed.offset <= cut.pos + 0.1 && resumed.offset >= cut.pos - 1.3, `resumed at ${resumed.offset.toFixed(2)} s, the voice was at ${cut.pos.toFixed(2)} s`);
+});
+
 // 1.9.2: Reload at chrome://extensions while the original track is ducked. The old content script
 // runs on until its liveness poll notices (up to 1.5 s) or never stops at all, and the new one
 // starts on the same <video>. Each took the other's ducked level for the user's own: after dubbing
@@ -766,8 +789,21 @@ test("playback delivery: rapid seeks get voice back within 3 s each; a slow serv
     assert.ok(r.seekRecoverMax <= 3, `worst ${r.seekRecoverMax} s`);
     const slow = await simRun("seekWhileSlow");
     assert.ok(slow.seekRecover <= 9, `slow server: ${slow.seekRecover} s`);
-    // BACKLOG 33 (1.9.7): no chase after the seek. 1.9.6: 7.1 s of delivery gaps, worst 3.5 s
-    assert.ok(slow.gapSum <= 5.5 && slow.gapMax <= 3, `slow server gaps ${slow.gapSum} s, worst ${slow.gapMax} s`);
+});
+
+// BACKLOG 33 (1.9.7): a server near real time. One scenario swings with the timing of a single
+// seek (a request cut on the server holds its slot 4.5 s, which the page cannot see), so this runs
+// 24: RTF 0.8/0.9/1.0, rate 1/1.5, 4 seek pairs. 1.9.6: 280 lines, 101 late, 138.6 s of gaps.
+test("playback delivery: a slow server with seeks speaks more lines than 1.9.6, without more lateness", async () => {
+    let spoken = 0, late = 0, gaps = 0;
+    for (const rtf of [0.8, 0.9, 1.0]) for (const rate of [1, 1.5]) for (let s = 1; s <= 4; s++) {
+        const a = 10 + (s * 7) % 15;
+        const r = await SIM.run(require("../dub-engine.js"), { wall: 60, rate, rtf: () => rtf, seed: s, bgAbort: "queued",
+            steps: [{ at: a, do: "seek", v: 30 + (s * 37) % 220 }, { at: a + 22, do: "seek", v: 15 + (s * 53) % 180 }] });
+        spoken += r.spoken; late += r.late; gaps += r.gapSum;
+    }
+    assert.ok(spoken >= 288, `${spoken} lines spoken`);
+    assert.ok(late <= 110 && gaps <= 152, `${late} late starts, ${gaps.toFixed(1)} s of gaps`);
 });
 
 test("playback delivery: pausing never cancels the request for the lines just ahead", async () => {

@@ -490,7 +490,7 @@ test("render speed: first sample capped, overhead counted once, a recovered serv
     // the engine really uses these numbers
     const src = require("fs").readFileSync(require("path").join(__dirname, "..", "dub-engine.js"), "utf8");
     assert.match(src, /renderOverhead: 0\.6/);
-    assert.match(src, /secs - this\.renderOver\(\)\) \/ audioSecs/);
+    assert.match(src, /own - this\.renderOver\(\)\) \/ audioSecs/);
     assert.match(src, /if \(this\.renderRtf == null\) rtf = Math\.min\(rtf, SYNC\.firstRtfCap\)/);
     assert.match(src, /const rtf = this\.dropRtf\(\);/);
 });
@@ -506,24 +506,27 @@ test("render speed: the request overhead is fitted from real takes, a short take
     note(0.64, 0.068 + 0.21 * 0.64); note(0.9, 0.068 + 0.21 * 0.9); note(1.0, 0.068 + 0.21 * 1.0);
     assert.equal(over(), 0.6, "three takes of similar length do not make a fit");
     note(8.4, 0.068 + 0.21 * 8.4);
-    assert.ok(Math.abs(over() - 0.068) < 0.01, `fitted overhead ${over()}`);
+    assert.ok(Math.abs(E.fittedOver - 0.068) < 0.01, `fitted overhead ${E.fittedOver}`);
+    assert.ok(Math.abs(over() - 0.368) < 0.01, "the reach decisions add SYNC.overFitPad (0.3) to the fit");
     for (let i = 0; i < 12; i++) note(3, 5);                     // one length only: no line to fit
     assert.equal(over(), 0.6);
     const src = require("fs").readFileSync(require("path").join(__dirname, "..", "dub-engine.js"), "utf8");
     assert.match(src, /o\.cached \? 0 : o\.duration/, "a store answer counted as generated audio");
     assert.match(src, /audioSecs >= SYNC\.rtfShortAudio \|\| this\.lastRtf == null\) this\.lastRtf = rtf/);
     assert.match(src, /cached: !!res\.fromCache/);
+    // a take queued behind another job on a serial server: the predicted rest of that job is taken out
+    assert.match(src, /const own = Math\.max\(0, secs - \(job\.ahead \|\| 0\)\)/);
 });
 
 test("reach: a job left running for the old place still keeps a serial server busy after the plans are rebuilt", () => {
     const now = 10000;
     const E = Object.assign(Object.create(DubEngine.prototype), {
-        d: { video: { playbackRate: 1 }, now: () => now }, renderRtf: 0.9, lastRtf: 0.9, fittedOver: 0.1, renderTakes: [],
+        d: { video: { playbackRate: 1 }, now: () => now }, renderRtf: 0.9, lastRtf: 0.9, fittedOver: -0.2, renderTakes: [],
         provider: { caps: { serial: true } }, planById: new Map(),
         jobs: new Map([["old", { planIds: ["gone"], t0: now - 1000, orphan: true, est: 6 }]])
     });
     const w = E.waitAudio({ id: "p", estDuration: 2 });
-    // 6 s at 0.9 + 0.1, 1 s already spent: 4.5 s left, then 1.9 s for this line
+    // overhead -0.2 + 0.3 pad = 0.1. 6 s at 0.9 + 0.1, 1 s already spent: 4.5 s left, then 1.9 s for this line
     assert.ok(Math.abs(w - 6.4) < 1e-9, `wait ${w}`);
 });
 

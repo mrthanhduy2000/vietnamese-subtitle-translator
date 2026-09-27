@@ -23,6 +23,16 @@
     [22, "seek", 150], [44, "seek", 30], [62, "pause"], [70, "play"], [82, "rate", 2], [100, "rate", 1],
     [104, "ad", 12], [128, "seek", 260], [150, "end"]
   ];
+  // ?script=stress: what a restless viewer does. Rapid seeks, a seek while paused, rate changes in
+  // the middle of a line, a rewind inside the line being read, a pause during an ad.
+  const STRESS = [
+    [10, "seek", 40], [11, "seek", 90], [11.8, "seek", 200], [13, "seek", 60], [20, "pause"], [22, "seek", 120],
+    [26, "play"], [32, "rate", 0.5], [40, "rate", 1.75], [48, "rate", 1], [52, "back", 2], [58, "back", 1],
+    [66, "ad", 10, "pause"], [84, "seek", 300], [86, "rate", 1.25], [100, "end"]
+  ];
+  // ?script=burst: the rapid seeks, then one more a few seconds later (the stress run's slow recovery)
+  const BURST = [[8, "seek", 40], [9, "seek", 90], [9.8, "seek", 200], [11, "seek", 60], [20, "seek", 300], [32, "end"]];
+  const SCRIPTS = { stress: STRESS, burst: BURST };
   function silentWav(sec, sr = 8000) {
     const n = sec * sr, b = new ArrayBuffer(44 + n * 2), d = new DataView(b);
     const w = (o, s) => [...s].forEach((c, i) => d.setUint8(o + i, c.charCodeAt(0)));
@@ -32,7 +42,7 @@
     return URL.createObjectURL(new Blob([b], { type: "audio/wav" }));
   }
   const send = async msg => (await fetch("/msg", { method: "POST", body: JSON.stringify(msg) })).json();
-  window.runLive = async (script = SCRIPT) => {
+  window.runLive = async (script = SCRIPTS[new URLSearchParams(location.search).get("script")] || SCRIPT) => {
     if (H.started) return "already running";
     H.started = true;
     await window.ready;
@@ -52,6 +62,12 @@
       adShowing: () => ad, log: (...a) => H.events.push(["log", ...a.map(String)])
     }, { duck: 1, volume: 1 });
     H.engine = eng;
+    // ?trace=1: every request sent and every take received, with the clock
+    if (new URLSearchParams(location.search).get("trace")) {
+      const send0 = eng.renderBatch.bind(eng), add0 = eng.addRendered.bind(eng);
+      eng.renderBatch = b => { note("send", b.map(p => p.id).join(","), "jobs", [...eng.jobs.values()].map(j => j.planIds + (j.orphan ? "o" : "")).join(";")); return send0(b); };
+      eng.addRendered = (p, ...a) => { note("recv", p.id); return add0(p, ...a); };
+    }
     const t0 = performance.now();
     const wall = () => (performance.now() - t0) / 1000;
     const note = (...a) => H.events.push([+wall().toFixed(2), +clock.currentTime.toFixed(2), ...a]);
@@ -69,24 +85,29 @@
       const st = eng.stats.started;
       while (seen < st.length) {
         const x = st[seen++];
-        for (const s of H.seeks) if (s.recovered == null) s.recovered = +(wall() - s.wall).toFixed(2);
-        note("start", x.id, +(x.t - x.due).toFixed(2));
+        for (const s of H.seeks) if (s.recovered == null) s.recovered = +(wall() - (s.playAt || s.wall)).toFixed(2);
+        note("start", x.id, +(x.t - x.due).toFixed(2), "from", eng.speech && eng.speech.id === x.id ? +eng.speech.offset.toFixed(2) : null);
       }
     }, 25);
     eng.start();
     await new Promise(r => setTimeout(r, 1500));
     await clock.play();
     note("play");
-    for (const [at, what, v] of script) {
+    for (const [at, what, v, extra] of script) {
       await new Promise(r => setTimeout(r, Math.max(0, at * 1000 - (performance.now() - t0))));
-      if (what === "seek") { clock.currentTime = v; H.seeks.push({ wall: wall(), to: v }); note("seek", v); }
+      if (what === "seek") { clock.currentTime = v; H.seeks.push({ wall: wall(), to: v, paused: clock.paused }); note("seek", v); }
+      if (what === "back") { const to = Math.max(0, clock.currentTime - v); clock.currentTime = to; H.seeks.push({ wall: wall(), to }); note("back", v); }
       if (what === "pause") { clock.pause(); note("pause"); }
-      if (what === "play") { await clock.play(); note("play"); }
+      if (what === "play") { await clock.play(); note("play"); for (const s of H.seeks) if (s.paused && s.recovered == null) s.playAt = wall(); }
       if (what === "rate") { clock.playbackRate = v; note("rate", v); }
       if (what === "ad") {
-        const back = clock.currentTime;
+        const back = clock.currentTime, pauseIn = extra === "pause";
         ad = true; clock.currentTime = 0; note("ad on");
-        await new Promise(r => setTimeout(r, v * 1000));
+        if (pauseIn) {                                   // the viewer pauses the ad for 3 s
+          await new Promise(r => setTimeout(r, v * 400)); clock.pause(); note("ad paused");
+          await new Promise(r => setTimeout(r, 3000)); await clock.play(); note("ad resumed");
+          await new Promise(r => setTimeout(r, v * 600 - 3000));
+        } else await new Promise(r => setTimeout(r, v * 1000));
         clock.currentTime = back; ad = false; note("ad off", back);
         H.seeks.push({ wall: wall(), to: back, ad: true });
       }
@@ -103,7 +124,7 @@
     return {
       done: H.done, clock: window.CLOCK ? +window.CLOCK.currentTime.toFixed(1) : null,
       spoken: st.started.length, lateStarts: lags.filter(l => l > 0.5).length, lagMax: lags.length ? +Math.max(...lags).toFixed(2) : null,
-      dropped: st.dropped, errors: st.errors, errorTypes: st.errorTypes || null, ads: st.ads || 0,
+      dropped: st.dropped, errors: st.errors, errorTypes: st.errorTypes || null, ads: st.ads || 0, adResumed: st.adResumed || 0,
       overlapSamples: H.overlap, voiceWhilePaused: H.voiceWhilePaused, voiceInAd: H.voiceInAd, samples: H.samples,
       seeks: H.seeks, rtf: eng && eng.renderRtf != null ? +eng.renderRtf.toFixed(2) : null,
       fittedOver: eng && eng.fittedOver != null ? +eng.fittedOver.toFixed(2) : null,

@@ -474,6 +474,27 @@ Measured:
   estimate stale after seeks (worst recovery 25 s at RTF 1.0, rate 1.5).
 - Live, `tests/harness/live.html` on the real VieNeu server held to RTF 0.9: see TESTING.md.
 
+**1.9.8 after the live runs.**
+- The line an ad cuts goes on where the voice was (BACKLOG 35, `adCut` / `takeAdResume`). A seek
+  after the ad drops it (`hardReset` clears `adResume`).
+- A take queued behind another job on a serial server has that job's predicted rest taken out of
+  its rtf sample (`job.ahead` from `serverBusy()`). The live harness read RTF 0.3 as 0.55 after a
+  burst of seeks.
+- `SYNC.overFitPad` 0.3 s is added to the fitted overhead for reach decisions. The exact fit let in
+  marginal lines that then started late.
+
+Measured against 1.9.6:
+
+| Matrix | Lines spoken | Late starts | Gaps |
+|---|---|---|---|
+| Slow servers (144 runs) | 2025 -> 2138 | 559 -> 539 | 818 -> 799 s |
+| Healthy server, rapid seeks (60 runs) | 873 -> 877 | 25 -> 29 | 10 -> 11 s |
+
+The extra late starts on the healthy server are the lines 1.9.6 skipped entirely. Per cell it is
+mixed: at RTF 0.9 and 1x, one of 8 seek pairs turns out worse, because a request cut on the server
+holds its slot 4.5 s and the page cannot see that. So the test (`dub.test.js`, 24 runs) checks the
+sum, not one scenario. The matrix scripts are not in the repo; the cells are in the test.
+
 **1.9.6 predicate verbs (BACKLOG 16).** `PRED_VERBS` in `dub-prosody.js` (đạt, chiếm, vượt, gồm, cho
 thấy, mang lại, gây ra, dẫn đến, tạo ra, bao gồm, đòi hỏi, trở thành, đóng vai trò, phụ thuộc, giúp) and
 `predVerbAt`: a 2 or 3 word verb matches whole, a one-word verb only when it is not inside a compound

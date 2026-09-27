@@ -157,11 +157,10 @@ The overhead is now fitted and those are fixed; `crowdsNext` gives up a late lin
 page does. Lines start late or are skipped; only a faster server (int8, GPU) fixes that, and
 `describeHealth` tells the viewer.
 
-**35. A line cut by an ad resumes where the video is, not where the voice was.** Found live
-(`tests/harness/live.html`, server held to RTF 0.9, 2x then 1x just before the ad). The line had
-started 3 s late; after the ad (`hardReset("ad")`) it was entered mid-way at the video's position.
-About 3 s of it that had not been heard was skipped. 1.9.6 does the same. It is rare (late line and ad
-together). A fix would keep the cut line and its audio position across the ad gate.
+**35. (closed 1.9.8) A line cut by an ad resumed where the video was, not where the voice was.**
+`adGate` keeps the cut line and the voice's position (`adCut`); after the ad `takeAdResume` goes on
+from the voice's own stop before that point (never ahead), if the lecture is within
+`adResumeWithin` of where it was. Live: resumed at 1.59 s of the take, where 1.9.7 jumped to ~6 s.
 
 ## Cosmetic / housekeeping
 

@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.9.8", luc: "02:35 28/09/2026", ten: "Lồng tiếng: câu bị quảng cáo cắt ngang được đọc tiếp đúng chỗ, bớt trễ sau khi tua nhiều lần",
+            y: [
+                "Câu đang đọc bị quảng cáo cắt ngang: hết quảng cáo đọc tiếp từ chỗ giọng đã dừng, không bỏ đoạn chưa nghe.",
+                "Đo tốc độ máy chủ giọng chính xác hơn sau khi tua liên tục; thêm biên an toàn nhỏ để bớt câu bị trễ.",
+                "Thử thật trong Chrome với máy chủ VieNeu: tua liên tục, tua khi đang dừng, tốc độ 0,5 đến 1,75 lần, dừng giữa quảng cáo: không lỗi, không hai giọng chồng nhau."
+            ]
+        },
+        {
             v: "1.9.7", luc: "02:06 28/09/2026", ten: "Giọng VieNeu: ước lượng đúng tốc độ máy chủ, bớt đuổi theo video khi máy chủ chậm",
             y: [
                 "Trước đây chương trình tưởng máy chủ giọng nhanh hơn thực tế tới 5 lần (tính cả câu lấy sẵn từ kho và câu rất ngắn), nên gửi những câu chắc chắn về trễ. Nay nó tự đo thời gian cố định mỗi lượt từ các lần tạo gần nhất.",

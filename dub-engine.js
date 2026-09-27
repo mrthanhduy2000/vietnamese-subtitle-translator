@@ -80,6 +80,9 @@
         overFitSpread: 1.5,       // ... spanning at least this many seconds of audio
         overFitKeep: 12,          // the fit uses the latest this many takes
         overFitRange: [0.05, 1.5], // a fitted overhead is kept inside this
+        overFitPad: 0.3,          // ... and this is added for the reach decisions. The exact figure let
+                                  // marginal lines in that then started late: rapid seeks on a healthy
+                                  // server (60 runs) late 25 -> 33; with 0.3 29, and slow servers 539
         rtfShortAudio: 1.2,       // a take shorter than this is mostly overhead: never the "latest" rtf
         firstRtfCap: 1.0,         // first rtf sample of a run is capped: it carries the server's cold start
         dropLag: 4.0,             // giọng hệ thống trễ quá mức này mới bỏ phần còn lại của đoạn cũ (bớt mất lời)
@@ -128,6 +131,7 @@
                                   // 1,509 landings: 80 ms left 6% inside the voice, 60 ms 1.3%, 40 ms 0.3%
         entryBack: 1.2,
         entryAhead: 0.8,
+        adResumeWithin: 2,        // after an ad, the cut line goes on only if the lecture is this close to where it was
         // Optimistic render time, used by unreachable() before a render is measured: a line is only
         // given up when even this cannot bring its audio in time (healthy VieNeu measured ~0.24)
         reachOverheadMin: 0.2,
@@ -666,6 +670,10 @@
                 if (!this.inAd) {
                     this.inAd = true;
                     this.stats.ads = (this.stats.ads || 0) + 1;
+                    // the line the ad cut, and how far the voice had got in it (BACKLOG 35)
+                    const S = this.speech, r = S && this.rendered.get(S.id);
+                    this.adCut = S && r && r.el && !r.el.ended && this.lastT != null
+                        ? { id: S.id, pos: r.el.currentTime || 0, at: this.lastT } : null;
                     this.silence();
                     this.speech = null;
                 }
@@ -676,8 +684,25 @@
                 this.inAd = false;
                 this.lastT = null;                      // the ad's clock says nothing about a jump
                 this.hardReset("ad");
+                this.adResume = this.adCut;
+                this.adCut = null;
             }
             return false;
+        }
+
+        // After an ad: the line it cut goes on where the VOICE was, not where the video is (BACKLOG
+        // 35). A line already running late was entered at the video's place and skipped ~3 s nobody
+        // heard (live harness, RTF 0.9). Back to the voice's own stop before that point, never ahead.
+        takeAdResume(t) {
+            const x = this.adResume;
+            this.adResume = null;
+            if (!x || Math.abs(t - x.at) > SYNC.adResumeWithin) return null;    // the lecture moved: a seek
+            const p = this.planById.get(x.id), r = this.rendered.get(x.id);
+            if (!p || !r || x.pos >= r.duration - 0.3) return null;
+            let offset = x.pos;
+            for (const e of r.stops || []) { if (e > x.pos + 0.05) break; if (x.pos - e <= SYNC.entryBack) { offset = e; break; } }
+            this.stats.adResumed = (this.stats.adResumed || 0) + 1;
+            return { p, r, offset, lag: Math.max(0, t - p.start - offset) };
         }
 
         // ---- Phát trực tiếp theo cụm (Web Speech) ----
@@ -825,7 +850,7 @@
                 this.lastSpeechGap = gapAfter(done, done ? this.plans[this.plans.indexOf(done) + 1] : null);
                 this.speech = S = null;
             }
-            const next = this.nextSpeech(t);
+            const next = (this.adResume && this.takeAdResume(t)) || this.nextSpeech(t);
             if (!next) return;
             const { p, r, offset, lag } = next;
             this.meterStart(p, t, lag);
@@ -1193,21 +1218,25 @@
         waitAudio(p) {
             const vr = Math.max(0.25, (this.d.video && this.d.video.playbackRate) || 1);
             const rtf = this.dropRtf();
-            const over = this.renderOver();
-            const remain = job => {
-                // the length known when it was sent: after a seek the plans are rebuilt and a job left
-                // running for the old place is no longer among them (read as 0 s, the server as free)
-                const est = job.est != null ? job.est : job.planIds.reduce((a, id) => a + ((this.planById.get(id) || {}).estDuration || 0), 0);
-                const need = est * rtf + over;
-                return Math.max(0.3, need - (this.d.now() - job.t0) / 1000);
-            };
-            for (const j of this.jobs.values()) if (!j.orphan && j.planIds.indexOf(p.id) >= 0) return remain(j) * vr;
-            // A serial server (VieNeu) finishes a job left behind by a seek before the next one: that
-            // job is let run (background.js keeps a request the server has started), so it counts
+            for (const j of this.jobs.values()) if (!j.orphan && j.planIds.indexOf(p.id) >= 0) return this.jobRemain(j) * vr;
+            return (this.serverBusy() + (p.estDuration || 2) * rtf + this.renderOver()) * vr;
+        }
+
+        // Wall seconds until a job is done, from the length known when it was sent: after a seek the
+        // plans are rebuilt and a job left running for the old place is no longer among them (it read
+        // as 0 s, the server as free)
+        jobRemain(job) {
+            const est = job.est != null ? job.est : job.planIds.reduce((a, id) => a + ((this.planById.get(id) || {}).estDuration || 0), 0);
+            return Math.max(0.3, est * this.dropRtf() + this.renderOver() - (this.d.now() - job.t0) / 1000);
+        }
+
+        // Wall seconds before the server can start a new request. A serial server (VieNeu) finishes a
+        // job left behind by a seek first (background.js keeps a request the server has started)
+        serverBusy() {
             let busy = 0;
             const serial = !!(this.provider.caps && this.provider.caps.serial);
-            for (const j of this.jobs.values()) if (!j.orphan || serial) busy = Math.max(busy, remain(j));
-            return (busy + (p.estDuration || 2) * rtf + over) * vr;
+            for (const j of this.jobs.values()) if (!j.orphan || serial) busy = Math.max(busy, this.jobRemain(j));
+            return busy;
         }
 
         // Fixed seconds a request costs outside generation. A least-squares line through recent takes
@@ -1229,7 +1258,7 @@
         }
 
         renderOver() {
-            return this.fittedOver != null ? this.fittedOver : SYNC.renderOverhead;
+            return this.fittedOver != null ? this.fittedOver + SYNC.overFitPad : SYNC.renderOverhead;
         }
 
         // Generation speed used to decide whether a sentence is unreachable. The lower of the smoothed
@@ -1616,6 +1645,7 @@
             const jobId = `tts${++this.jobSeq}_${Date.now()}`;
             batch.forEach(p => this.pending.set(p.id, jobId));
             const job = { planIds: batch.map(p => p.id), t0: this.d.now(), orphan: false, queued: this.jobs.size > 0,
+                ahead: this.jobs.size && this.provider.caps && this.provider.caps.serial ? this.serverBusy() : 0,
                 est: batch.reduce((a, p) => a + (p.estDuration || 0), 0) };
             this.jobs.set(jobId, job);
             this.stats.requests++;
@@ -1642,7 +1672,11 @@
                         // The overhead is fitted from recent takes (renderOver): with the 0.6 guess a
                         // real VieNeu take of 0.6 s audio in 0.17 s read as RTF 0.08 (true 0.21).
                         if (!job.queued) this.noteTake(audioSecs, secs);
-                        let rtf = Math.max(0.05, secs - this.renderOver()) / audioSecs;
+                        // queued behind another job on a serial server: that job's predicted rest is
+                        // not this take's time (after a burst of seeks RTF 0.3 read as 0.55, and
+                        // the next seek skipped a line it could reach: 5.9 s to voice, live harness)
+                        const own = Math.max(0, secs - (job.ahead || 0));
+                        let rtf = Math.max(0.05, own - this.renderOver()) / audioSecs;
                         // The first job pays the server's cold start: VieNeu idle for days had its
                         // model swapped out by macOS and the first render measured 3.5x real time
                         // (0.23 warm), which then dropped 7 sentences. One sample never says "slow".
@@ -1863,6 +1897,7 @@
             this.pace = null;                   // the pace of where we were says nothing about where we are
             this.silence();
             this.speech = null;                 // lời đang nói không còn đúng vị trí: bỏ
+            this.adResume = null;               // a seek after an ad: the cut line is not taken up again
             // elements made for where we were (the line cut off, the one prepared after it) go too
             for (const r of this.rendered.values()) if (r.el) this.releaseAudio(r);
             this.lastSpokenStart = null;
