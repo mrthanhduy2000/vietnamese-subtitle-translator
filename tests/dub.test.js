@@ -246,6 +246,26 @@ function overlaps(log) {
     return n;
 }
 
+// 1.9.3: a YouTube ad plays in the lecture's own <video>. The engine took the ad's clock for the
+// lecture's: it read the first lines of the lecture over the ad, ducked the ad, and rendered them.
+test("YouTube ad in the same <video>: no voice, no duck, no render during the ad; the lecture resumes after it", async () => {
+    let ad = false, lectureT = 0, rendersInAd = 0, spokenAtAd = 0, spokenInAd = 0, minVol = 1, spokenAfter = 0, spokenAtEnd = 0;
+    const render = async plans => { if (ad) rendersInAd++; return okRender(plans); };
+    const r = await resilienceRun({ get: async () => ({}), render, seconds: 70, deps: { adShowing: () => ad },
+        each: (ms, eng) => {
+            const v = eng.d.video;
+            if (ms === 30000) { ad = true; lectureT = v.currentTime; v.currentTime = 0; v.emit("seeking"); v.emit("seeked"); spokenAtAd = eng.stats.started.length; }
+            if (ad && ms >= 31000) minVol = Math.min(minVol, v.volume);
+            if (ms === 45000) { spokenInAd = eng.stats.started.length - spokenAtAd; ad = false; v.currentTime = lectureT; v.emit("seeking"); v.emit("seeked"); spokenAfter = eng.stats.started.length; }
+            if (ms === 69950) spokenAtEnd = eng.stats.started.length;
+        } });
+    assert.equal(spokenInAd, 0, `${spokenInAd} lines read over the ad`);
+    assert.equal(rendersInAd, 0, `${rendersInAd} renders for ad time`);
+    assert.ok(minVol > 0.79, `ad ducked to ${minVol}`);
+    assert.ok(spokenAtEnd - spokenAfter >= 3, `${spokenAtEnd - spokenAfter} lines after the ad`);
+    assert.ok(r.eng.stats.ads >= 1);
+});
+
 // 1.9.2: Reload at chrome://extensions while the original track is ducked. The old content script
 // runs on until its liveness poll notices (up to 1.5 s) or never stops at all, and the new one
 // starts on the same <video>. Each took the other's ducked level for the user's own: after dubbing
@@ -809,7 +829,7 @@ test("playback delivery: a rewind past what the page holds finds the store first
 
 // ================= RESILIENCE (1.8.8) =================
 // Each case failed before: reproduced with tests/dub-sim.js, measured over 60 s of the lecture.
-async function resilienceRun({ get, render, seconds = 60, groups = lectureGroups(), makeAudio = null, each = null }) {
+async function resilienceRun({ get, render, seconds = 60, groups = lectureGroups(), makeAudio = null, each = null, deps = {} }) {
     const clock = new Clock(), video = new FakeVideo(), audios = [];
     let urls = 0, revoked = 0;
     const prov = { id: "vieneu", caps: { prerender: true, live: false, free: true, serial: true, maxBatch: 1 }, voiceModel: { ...PLAN.DEFAULT_VOICE_MODEL },
@@ -818,7 +838,7 @@ async function resilienceRun({ get, render, seconds = 60, groups = lectureGroups
         now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id), setTimeout: (f, ms) => clock.setTimeout(f, ms),
         createObjectURL: b => { urls++; return (b && b[0] === 9 ? "blob:bad:" : "blob:") + urls; }, revokeObjectURL: () => { revoked++; },
         createAudio: url => { const a = makeAudio ? makeAudio(clock, url) : new FakeAudio(clock, { duration: 2.5 }); audios.push(a); return a; },
-        audioCache: { get, put() {} } });
+        audioCache: { get, put() {} }, ...deps });
     eng.start();
     video.play();
     for (let i = 0; i < seconds * 20; i++) {

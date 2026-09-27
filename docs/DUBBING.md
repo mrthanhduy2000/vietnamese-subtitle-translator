@@ -442,6 +442,13 @@ element is louder (stale), and claims; `tick()` stops an engine whose token is n
 non-owner; a restore removes both attributes. Checked in real Chrome with two engines on one element:
 old one stood down, duck 0.16, 0.80 after stop, no attribute left.
 
+**1.9.3 YouTube ads.** An ad plays in the lecture's own `<video>`, so its clock (0 to 30 s) read as the
+lecture's: 5 lines read over a 15 s mid-roll, the ad ducked, those lines rendered. `d.adShowing()`
+(optional; `dubbing.js` `adShowingFor`: the player's `ad-showing` / `ad-interrupting` class) gates
+`tick()` (`adGate`: silence, no schedule, no duck, `stats.ads`) and `onSeek`; when the ad ends the
+engine resets once (`hardReset("ad")`, `lastT` cleared). The subtitle loop has the same gate
+(`youtube.js` `ytAdShowing`), which also stops Gemini calls for the ad's clock.
+
 ## Prosody model (1.7.6, `dub-prosody.js`)
 
 Where the dubbed speech may pause, how strongly, and which of the voice's own stops to keep. Pure,

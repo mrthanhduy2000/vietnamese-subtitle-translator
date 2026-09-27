@@ -51,6 +51,9 @@ a 20-minute video simulates deterministically in milliseconds. Used by `dub.test
 `cost.test.js`. `tools/playback-sim.js` builds on it with a model of the service worker and the
 serial VieNeu server (slot held after an abort, translation arriving late) for delivery scenarios
 (seek, rapid seek, pause, rate, cached); `dub.test.js` "playback delivery" asserts on its numbers.
+Loading it replaces `CST_CACHE.hashKey` with Node's synchronous SHA-256 (same hex digest):
+`crypto.subtle` answers from a worker thread, and on a busy machine a store key missed the one
+`setImmediate` a simulated tick waits, so delivery tests failed about 1 run in 5 (1.9.3).
 
 Other helpers: `fixtures.js` real subtitle cases carrying `forbid` / `noLineEnd` / `noLineStart`
 constraints · `quality.js` the shared violation scorer and `greedyWrap`, `LINE_MAX` 42 ·

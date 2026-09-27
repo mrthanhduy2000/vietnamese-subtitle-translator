@@ -164,6 +164,8 @@ waits (up to 10 s) for a run left over from the previous video instead of skippi
    horizon; a failed window backs off as a whole.
 5. `ytVePhuDe` draws the subtitle itself into an overlay (YouTube's own caption layer is not used).
    `ytBatDauDongBo` drives it off `requestVideoFrameCallback`.
+   While the player shows an ad (`ytAdShowing`, 1.9.3) nothing is drawn and nothing is sent for
+   translation: the ad plays in the same `<video>` and its clock is not the lecture's.
 6. `ytTatDich` tears down. (A never-wired live-caption path, `ytBatDauDOMCaptionObserver`, was
    removed in 1.7.3: wired, it would have cost one Gemini call per caption change.)
    `YT_GEN` / `YT_BORN` tag nodes; see `DANGER.md` before touching them.

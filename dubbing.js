@@ -95,6 +95,17 @@
         return { ok: !!(r && r.ok), removed: (r && r.removed) || 0 };
     }
 
+    // A YouTube ad plays in the lecture's own <video>; the player marks it with a class (1.9.3). The
+    // player element is found once and looked up again only if YouTube replaced it. Elsewhere there
+    // is no such player and this always says no.
+    function adShowingFor(video) {
+        let player = null;
+        return () => {
+            if (!player || !player.isConnected) player = video && video.closest ? video.closest(".html5-video-player") : null;
+            return !!(player && (player.classList.contains("ad-showing") || player.classList.contains("ad-interrupting")));
+        };
+    }
+
     function sendMessage(msg) {
         return new Promise(resolve => {
             try {
@@ -253,6 +264,7 @@
             revokeObjectURL: url => URL.revokeObjectURL(url),
             createAudio: url => { const a = new Audio(url); a.preload = "auto"; return a; },
             audioCache,
+            adShowing: adShowingFor(opts.video),
             onStatus: st => { dub.lastStatus = st; renderBadge(); },
             // Tua tới đoạn chưa có audio: chờ chuẩn bị (nếu bật) để có tiếng ngay khi phát tiếp
             onReset: reason => {

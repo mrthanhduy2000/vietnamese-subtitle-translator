@@ -483,7 +483,8 @@
                 this.baseVolume = this.settings.playerOwnsVolume ? v.volume : Math.min(1, v.volume / Math.max(0.05, this.duckFactor));
                 this.duckDirty = true;
             };
-            this.onSeek = () => this.hardReset("seek");
+            // an ad swapping into the element seeks it too: the ad gate resets once the ad is over
+            this.onSeek = () => { if (!this.isAdShowing()) this.hardReset("seek"); };
             this.onPauseLike = () => this.silence();
             this.onWaiting = () => { this.waiting = true; this.silence(); };
             this.onPlaying = () => { this.waiting = false; };
@@ -596,10 +597,11 @@
 
         // ---------------- Vòng lặp chính ----------------
         tick() {
+            if (!this.running) return;
             // A newer engine on this <video> (the new content script after a Reload) owns the duck:
             // this one stops, so two voices never read over each other
-            if (!this.running) return;
             if (!this.ownsVolume()) { this.stats.superseded = (this.stats.superseded || 0) + 1; this.stop(); return; }
+            if (this.adGate()) return;
             const v = this.d.video;
             const t = v.currentTime;
             const now = this.d.now();
@@ -637,6 +639,35 @@
                 this.lastRelease = now;
                 this.releaseOld(t);
             }
+        }
+
+        // ---- Ads (1.9.3) ----
+        // A YouTube ad plays in the lecture's own <video>, so its clock (0 to 30 s) read as the
+        // lecture's: the first lines were read over the ad, the ad was ducked and those lines were
+        // rendered. d.adShowing() (optional) says an ad is on: nothing is spoken, scheduled or ducked,
+        // and the lecture position is left as it was. When the ad ends the engine resets once at
+        // wherever the lecture is, so held audio plays at once (audioReadyAt).
+        isAdShowing() {
+            if (!this.d.adShowing) return false;
+            try { return !!this.d.adShowing(); } catch (e) { return false; }
+        }
+        adGate() {
+            if (this.isAdShowing()) {
+                if (!this.inAd) {
+                    this.inAd = true;
+                    this.stats.ads = (this.stats.ads || 0) + 1;
+                    this.silence();
+                    this.speech = null;
+                }
+                this.updateDuck(0, false);              // the ad plays at the user's own level
+                return true;
+            }
+            if (this.inAd) {
+                this.inAd = false;
+                this.lastT = null;                      // the ad's clock says nothing about a jump
+                this.hardReset("ad");
+            }
+            return false;
         }
 
         // ---- Phát trực tiếp theo cụm (Web Speech) ----

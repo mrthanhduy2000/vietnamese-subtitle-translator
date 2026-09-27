@@ -806,6 +806,13 @@ function ytDichKhanCap(cueIdx) {
     ytDichNhom(gIdx);
 }
 
+// The player marks an ad with a class on itself. Found once, looked up again if YouTube replaced it
+function ytAdShowing() {
+    let p = yt.adPlayer;
+    if (!p || !p.isConnected) p = yt.adPlayer = document.querySelector("#movie_player") || document.querySelector(".html5-video-player");
+    return !!(p && p.classList && (p.classList.contains("ad-showing") || p.classList.contains("ad-interrupting")));
+}
+
 function ytBatDauDongBo() {
     ytDungDongBo();
 
@@ -815,6 +822,13 @@ function ytBatDauDongBo() {
         const video = yt.videoEl;
         const overlay = yt.overlay;
         if (!video || !overlay) return;
+
+        // An ad plays in this same <video> and its clock is not the lecture's (1.9.3): nothing is
+        // drawn and nothing is sent for translation until it is over
+        if (ytAdShowing()) {
+            if (yt.renderKey !== "ad") { yt.renderKey = "ad"; ytVePhuDe(overlay, null, ""); }
+            return;
+        }
 
         const t = video.currentTime;
         const viIdx = ytTimTrong(yt.viCues, t);

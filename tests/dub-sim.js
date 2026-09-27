@@ -5,6 +5,17 @@ const seg = require("../vi-segmenter.js");
 const PLAN = require("../dub-planner.js");
 const fixtures = require("./fixtures");
 
+// Deterministic hashing for every simulation that loads this file. CST_CACHE.hashKey uses
+// crypto.subtle, which answers from a worker thread: on a busy machine a store key was not ready
+// within the one setImmediate a simulated tick waits, the run took another path, and delivery tests
+// failed about 1 run in 5. Node's synchronous SHA-256 gives the identical hex digest and resolves as
+// a microtask, so a simulated tick sees the same thing on any machine.
+{
+    const CACHE = require("../cst-cache.js");
+    const nodeCrypto = require("crypto");
+    CACHE.hashKey = async parts => nodeCrypto.createHash("sha256").update(JSON.stringify(parts)).digest("hex");
+}
+
 class Clock {
     constructor() { this.ms = 0; this.timers = []; this.seq = 0; }
     now() { return this.ms; }

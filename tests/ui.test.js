@@ -829,3 +829,39 @@ test("menu and transcript open and close with a short animation, and none for re
     assert.ok(/if \(menu && menu\.dataset\.cstLeaving\) menu = null;/.test(R("youtube.js")));
     assert.ok(/if \(open && open\.dataset\.cstLeaving\) open = null;/.test(R("content.js")));
 });
+
+// 1.9.3: a YouTube ad plays in the lecture's own <video>. The subtitle loop read the ad's clock
+// (0 to 30 s) as the lecture's: it drew the lecture's opening lines over the ad and, when those were
+// not translated yet, sent them to Gemini, a paid call made only because an ad was on.
+test("YouTube ad: no lecture subtitle drawn over it and no translation sent for the ad's clock", async t => {
+    const dom = miniDom();
+    const sb = loadYouTube(dom);
+    t.after(() => { vm.runInContext("yt.active = false", sb); sb.donTimers(); });
+    const player = dom.doc.querySelector("#movie_player");
+    const video = player.appendChild(dom.doc.createElement("video"));
+    let frame = null;
+    video.currentTime = 6;
+    video.paused = false;
+    video.requestVideoFrameCallback = f => { frame = f; return 1; };
+    video.cancelVideoFrameCallback = () => {};
+    sb.__video = video;
+    sb.__overlay = player.appendChild(dom.doc.createElement("div"));
+    vm.runInContext(`yt.videoEl = __video; yt.overlay = __overlay; yt.active = true;
+        yt.cues = [{ start: 5, end: 8, text: "Welcome to the course." }];
+        yt.viCues = [];
+        yt.groups = [{ start: 5, end: 8, translated: false }];
+        yt.cueToGroupMap = new Map([[0, 0]]);`, sb);
+    const sent = [], drawn = [];
+    sb.ytDichNhom = g => sent.push(g);
+    sb.ytVePhuDe = (o, vi, en) => drawn.push(en);
+    player.className = "html5-video-player ad-showing";
+    sb.ytBatDauDongBo();
+    frame && frame();
+    assert.deepEqual(sent, [], "a translation was sent for the ad's clock");
+    assert.ok(drawn.every(x => x === ""), `drew ${JSON.stringify(drawn)} over the ad`);
+    // ad over: the same position is the lecture's again
+    player.className = "html5-video-player";
+    frame && frame();
+    assert.ok(sent.includes(0), "the lecture's line was not translated after the ad");
+    assert.ok(drawn.includes("Welcome to the course."));
+});

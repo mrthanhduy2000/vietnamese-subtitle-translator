@@ -4,6 +4,20 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.9.3", luc: "01:00 28/09/2026", ten: "Quảng cáo YouTube: không còn đọc lồng tiếng và hiện phụ đề đè lên quảng cáo",
+            y: [
+                "Quảng cáo YouTube phát ngay trong khung video của bài giảng, nên tiện ích tưởng đó là đầu bài giảng: đọc lồng tiếng các câu đầu đè lên quảng cáo, hạ nhỏ tiếng quảng cáo, và hiện phụ đề đầu bài lên đó.",
+                "Tệ hơn: nếu các câu đầu bài chưa được dịch, tiện ích gửi chúng sang Gemini để dịch (tốn tiền) chỉ vì đang có quảng cáo.",
+                "Nay trong lúc quảng cáo: không đọc, không hạ tiếng, không hiện phụ đề, không gửi yêu cầu dịch. Hết quảng cáo thì tiếp tục đúng chỗ đang xem.",
+                "Không đổi cách dịch, giọng, ngắt nghỉ."
+            ],
+            bang: { cot: ["Kiểm thử ngoại tuyến (quảng cáo 15 giây giữa video)", "1.9.2", "Nay"], hang: [
+                ["Câu lồng tiếng đọc đè lên quảng cáo", "5", "0"],
+                ["Yêu cầu dịch gửi đi vì đồng hồ của quảng cáo", "có", "0"],
+                ["Tiếng quảng cáo bị hạ nhỏ", "có", "không"]
+            ] }
+        },
+        {
             v: "1.9.2", luc: "00:38 28/09/2026", ten: "Tải lại tiện ích lúc đang lồng tiếng: tiếng gốc không còn bị kẹt ở mức nhỏ",
             y: [
                 "Bấm Tải lại tiện ích đúng lúc giọng Việt đang đọc (tiếng gốc đang được hạ nhỏ): bản cũ và bản mới cùng chỉnh âm lượng, mỗi bên tưởng mức đã hạ của bên kia là mức bạn chọn. Sau khi tắt lồng tiếng, tiếng YouTube có thể còn 1%. Nay âm lượng bạn chọn được ghi lên chính video, bản mới dùng đúng mức đó và bản cũ tự dừng.",
