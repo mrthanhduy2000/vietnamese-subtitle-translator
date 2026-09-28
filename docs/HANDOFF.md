@@ -39,7 +39,6 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 
 ## Traps hit this session
 - Read `git log` before continuing after a break: another session may have recorded a decision.
-- A sim test with 2.5 s takes cannot show a re-entered tail (entry drops tails under 0.8 s).
 - CSS: "same selector later" is not enough; the media query and `!important` must match too.
 
 ## Suggested next step
