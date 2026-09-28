@@ -677,7 +677,9 @@ What changed:
   no reset. The reset cut the line being read and entered it again mid-way. A real seek still fires
   `seeking`; a jump the clock does not explain still resets.
 - Diagnostics: `note()` keeps the last `SYNC.eventKeep` (150) events in `engine.events`, always on:
-  - `drop` with `why`: lag, lag-no-audio, failed or entered-too-late;
+  - `drop` with `why`: lag, lag-no-audio, failed, entered-too-late (a seek into a line's tail, not
+    counted) or entry-no-audio (2.0.0: waited on at a start or seek and lost, counted in `stats.dropped`
+    when `SYNC.entryWaitMin` 1 s was left);
   - `skip` with lines, wait and rtf;
   - `reset` with `why`, `error` with `kind`, `late` with lag and rate.
   `debugSnapshot()` gains rtf, over, pace, lateTicks, spoken and events. `dubbing.js` `diagnostics()`

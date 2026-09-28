@@ -132,6 +132,7 @@
         // start; a silence this long beyond the rest the engine means to keep counts as a delivery gap
         lateStart: 0.5,
         eventKeep: 150,           // diagnostics ring (note): this many recent events are kept
+        entryWaitMin: 1.0,        // a line entered at a start or seek with this much left, then lost waiting for audio, counts as dropped
         crowdGainMin: 1.0,        // crowdsNext gives a late line up only for at least this much gained
         gapMin: 0.12,
         // Entering a line mid-way (after a seek, 1.8.7): start at a stop the voice really made, not at
@@ -476,6 +477,7 @@
             this.lastRate = null;
             this.warmup = true;             // lượt TTS đầu tiên nhỏ (có tiếng sớm nhất)
             this.lastSpokenStart = null;    // mốc bắt đầu của câu vừa nói (hàng đợi lời nói)
+            this.entryWait = null;          // the line waited on for audio at a start or a seek
             this.lastT = null;
             this.stats = { started: [], corrections: 0, dropped: 0, errors: 0, requests: 0, lagMax: 0, cacheHits: 0, ttsPlans: 0, aborted: 0 };
             this.duckFactor = 1;
@@ -1165,11 +1167,24 @@
                 const idx = this.planAt(t + tol);
                 if (idx < 0) return null;
                 const p = this.plans[idx];
+                // A line waited on here with time left to say it, then passed without a word, was
+                // given up for a slow voice: it counts in stats.dropped ("đã bỏ N câu", BACKLOG 38).
+                // A line the viewer seeked into its last second is their skip, not ours.
+                const waited = this.entryWait;
+                if (waited && waited !== p.id) {
+                    this.entryWait = null;
+                    const w = this.planById.get(waited);
+                    if (w && w.start < p.start) {
+                        this.stats.dropped++;
+                        this.note("drop", { id: waited, why: "entry-no-audio" });
+                    }
+                }
                 const r = this.rendered.get(p.id);
                 if (!r) {
                     const g = this.stats.gate || (this.stats.gate = { waiting: 0, ready: 0, stalled: 0, lastT: null });
                     g.noAudio = (g.noAudio || 0) + 1;
                     g.noAudioT = Math.round(t * 100) / 100;
+                    if (this.entryWait !== p.id && p.end - t > SYNC.entryWaitMin) this.entryWait = p.id;
                     return null;
                 }
                 // Vào giữa đoạn: vị trí trong audio = phần khung đã trôi qua x (độ dài audio / khung).
@@ -1181,9 +1196,12 @@
                 const scale = Math.max(0.7, Math.min(1.3, r.duration / span));
                 const offset = into > 0.3 ? this.entryPoint(r, into * scale) : 0;
                 // (chỉ khi đã VÀO GIỮA đoạn: đoạn rất ngắn < 0,8 giây từng luôn bị bỏ vì điều kiện này đúng cả khi offset = 0)
+                const lost = this.entryWait === p.id;
+                this.entryWait = null;
                 if (offset > 0 && offset >= r.duration - Math.min(0.8, r.duration * 0.5)) {
                     this.lastSpokenStart = p.start;
-                    this.note("drop", { id: p.id, why: "entered-too-late", into: Math.round(into * 100) / 100 });
+                    if (lost) this.stats.dropped++;
+                    this.note("drop", { id: p.id, why: lost ? "entry-no-audio" : "entered-too-late", into: Math.round(into * 100) / 100 });
                     return null;
                 }
                 return { p, r, offset, lag: 0 };
@@ -1959,6 +1977,7 @@
             // elements made for where we were (the line cut off, the one prepared after it) go too
             for (const r of this.rendered.values()) if (r.el) this.releaseAudio(r);
             this.lastSpokenStart = null;
+            this.entryWait = null;              // a line waited on before the seek was the viewer's skip
             this.lastRate = null;               // vị trí mới: không nối nhịp với câu cũ
             this.lastSpeechEnd = null;
             this.lastSpokenId = null;

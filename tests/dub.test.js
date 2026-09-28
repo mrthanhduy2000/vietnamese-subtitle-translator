@@ -1163,3 +1163,37 @@ test("resilience: a watchdog-released job finishing late does not clear its retr
     assert.equal(eng.pending.get("t1"), "tts2");
     assert.match(fs.readFileSync(path.join(__dirname, "..", "dub-engine.js"), "utf8"), /if \(this\.pending\.get\(p\.id\) === jobId\) this\.pending\.delete\(p\.id\)/);
 });
+
+// ================= DROP COUNT (BACKLOG 38) =================
+test("a line waited on for audio after a seek and lost counts as dropped; a seek into a line's last second does not", () => {
+    const { eng } = freeVoiceEngine();
+    const plan = (id, start, end) => ({ id, start, end, phrases: [{ offset: 0, dur: end - start }] });
+    eng.plans = [plan("a", 10, 14), plan("b", 14, 18), plan("c", 18, 22)];
+    eng.planById = new Map(eng.plans.map(p => [p.id, p]));
+    eng.rendered = new Map();
+    // seek into "a" with 3.5 s left, no audio: wait; then "a" passes and "b" begins
+    assert.equal(eng.nextSpeech(10.5), null);
+    assert.equal(eng.nextSpeech(14.2), null);
+    assert.equal(eng.stats.dropped, 1, "the quick menu's 'đã bỏ N câu' missed this line");
+    assert.ok(eng.events.some(e => e.k === "drop" && e.id === "a" && e.why === "entry-no-audio"));
+    // audio for "b" lands too late to say any of it: lost as well
+    eng.rendered.set("b", { duration: 3.5 });
+    eng.entryPoint = (r, x) => x;
+    assert.equal(eng.nextSpeech(17.8), null);
+    assert.equal(eng.stats.dropped, 2);
+    // a fresh seek into the last half second of "c", no audio, then it passes: the viewer's skip
+    eng.hardReset("seek");
+    const before = eng.stats.dropped;
+    assert.equal(eng.nextSpeech(21.6), null);
+    eng.plans.push(plan("d", 22, 25));
+    eng.planById.set("d", eng.plans[3]);
+    assert.equal(eng.nextSpeech(22.1), null);
+    assert.equal(eng.stats.dropped, before);
+    // audio for a waited line that arrives in time is spoken, not counted
+    eng.hardReset("seek");
+    eng.rendered.delete("d");
+    assert.equal(eng.nextSpeech(22.2), null);
+    eng.rendered.set("d", { duration: 3 });
+    assert.ok(eng.nextSpeech(22.6));
+    assert.equal(eng.stats.dropped, before);
+});

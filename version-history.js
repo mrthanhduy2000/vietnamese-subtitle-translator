@@ -4,6 +4,15 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.0.0", luc: "20:54 28/09/2026", ten: "Lồng tiếng: menu nhanh đếm đúng số câu bị bỏ",
+            y: [
+                "Dòng \"đã bỏ N câu để bắt kịp\" trong menu nhanh nay tính cả câu bị mất vì phải chờ giọng quá lâu ngay sau khi mở video hoặc tua. Trước đây những câu này không được đếm nên con số thấp hơn thực tế.",
+                "Câu mà người xem tự tua vào giây cuối không bị tính là câu bị bỏ.",
+                "Cách đọc và thời điểm đọc không đổi: 144 lần chạy mô phỏng máy chủ chậm cho kết quả giống hệt 1.9.9.",
+                "Không rút gọn lời thoại; không gọi Gemini."
+            ]
+        },
+        {
             v: "1.9.9", luc: "15:38 28/09/2026", ten: "Lồng tiếng: chuẩn bị giọng trước xa hơn, không còn im rồi bỏ câu khi máy chậm lúc xem video mới",
             y: [
                 "Giọng VieNeu nay luôn tạo sẵn ít nhất 60 giây lời phía trước (trước đây 20 giây). Khi máy Mac bận làm máy chủ giọng chậm đi vài phút, phần chuẩn bị sẵn đủ bù, giọng không im rồi bỏ câu nữa.",

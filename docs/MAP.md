@@ -23,14 +23,14 @@ syllable count and, 1.7.8, the English spans).
 it to `manifest.json` in dependency order (and to `importScripts`, `options.html`, the harness pages
 under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tests if it is a dubbing file).
 
-## Source (32 files, ~22,100 lines)
+## Source (32 files, ~22,200 lines)
 
 | File | Lines | Role | Global export |
 |---|---|---|---|
 | `youtube.js` | 2017 | YouTube engine: bridge handshake, track pick, timedtext parse, self-drawn overlay, prefetch pool, controls + quick menu | none (same-world sibling of `content.js`, reads its `state`) |
 | `content.js` | 2311 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
 | `options.html` | 1559 | Settings page, 4 tabs. ~850 lines are inline `<style>`; markup is only the rest | n/a |
-| `dub-engine.js` | 2110 | TTS providers + scheduler + video-clock sync + audio ducking | `CST_DUB_ENGINE` |
+| `dub-engine.js` | 2129 | TTS providers + scheduler + video-clock sync + audio ducking | `CST_DUB_ENGINE` |
 | `background.js` | 1452 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access | n/a (message router) |
 | `popup.css` | 995 | Popup styling only | n/a |
 | `options.js` | 1165 | Settings logic. No Save button: debounced autosave every 350ms, flushed on `pagehide` | n/a |
@@ -55,7 +55,7 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `popup.html` | 164 | Popup markup | n/a |
 | `vi-quality.js` | 213 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
 | `lang-detect.js` | 130 | Source-language decision without an API call | `CST_LANG` |
-| `version-history.js` | 1097 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
+| `version-history.js` | 1106 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
 | `version-check.js` | 55 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
 | `theme.js` | 42 | Light/Dark theme for the popup and settings page. Applies instantly from `localStorage` to avoid a flash, then syncs from `storage.sync`. Loaded by `popup.html` and `options.html` only, not a content script | `window.CST_THEME` |
 | `build-info.js` | 6 | **Generated** by `tools/bump-version.js`. Never edit | `CST_BUILD` |
@@ -91,7 +91,7 @@ Shared and settings pages:
 - `CST_CACHE` -> `background.js`, `dub-engine.js`
 - `CST_THEME`, `CST_HISTORY`, `CST_BACKUP` -> `options.js`; `CST_VERSION_CHECK` -> `options.js`, `popup.js`
 
-## Tests and tooling (`tests/*.js`: 36 files, ~10,400 lines)
+## Tests and tooling (`tests/*.js`: 36 files, ~10,500 lines)
 
 See `TESTING.md`. Short version: 23 files in `npm test` (listed in `package.json`: a new test file must be added there), all offline; 4 manual scripts;
 8 browser harness pages under `tests/harness/` (`live.html` has its own server, `live-server.js`); `tools/bump-version.js` owns the version number;

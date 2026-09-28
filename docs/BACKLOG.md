@@ -69,8 +69,6 @@ menu names one: `fasterVoices`) or a less loaded Mac. Never shorter speech (CLAU
   1.9.9 buffer already covers most of this case: a line only goes without audio when the buffer is
   empty.
 - Service-worker CPU per take (cleanTake, shapePauses on 6-12 s takes): the script never finished.
-- A line given up as "entered too late" is not counted in `stats.dropped`, so the quick menu's
-  "đã bỏ N câu" undercounts. `engine.events` has them (`why: "entered-too-late"`).
 - Checked and fine: translation windows landing near the 60 s horizon changed 1 line's closing per
   8 minutes, at 58 s ahead. At 90 s, 1 line was re-rendered.
 - A multi-agent hunt (drop-logic lens only; the other 7 hit the usage limit) proposed 8 mechanisms.
@@ -80,11 +78,15 @@ menu names one: `fasterVoices`) or a less loaded Mac. Never shorter speech (CLAU
     8 s limit).
   - 1.9.9 absorbs it on the lens's own scripts: in a 2-take slowdown at 5x, silent runs 19 -> 1 and
     drops 24 -> 0.
+  Refuted in 2.0.0 on the 144-run slow matrix (1.9.9: 2109 spoken / 521 late / 745 s gaps / 5.90 s back):
+  - cancelling jobs of lines the queue has passed (`cancelObsoleteJobs` with `p.start >
+    lastSpokenStart`): 2085 / 514 / 738 / 6.14, worst back 24.4 -> 28.9 s. Cutting a started VieNeu
+    take holds its slot 4 s (DANGER §15), so it costs more than the wasted render;
+  - a Theil-Sen overhead fit in `noteTake` against one outlier take: 2108 / 520 / 741 / 5.90, and the
+    rapid matrix identical. Noise, not worth the code.
   Not checked:
   - `jobRemain`'s 0.3 s floor makes a stuck take look almost done;
-  - a queued job of a dropped line is detached, not aborted, so the worker still renders it;
-  - the worker does not cut a stuck take and retries the same late line;
-  - one outlier take skews the overhead fit (`noteTake`) for the next 12 takes.
+  - the worker does not cut a stuck take and retries the same late line.
   Scripts: session scratchpad `drop-logic/` (not in the repo).
 
 ## Dubbing: where the voice pauses (prosody)
