@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.0.7", luc: "02:56 29/09/2026", ten: "Lồng tiếng: nhịp đọc đều trong cùng một câu",
+            y: [
+                "Câu dài được đọc thành nhiều đoạn: phần sau của câu nay giữ gần như nguyên nhịp của phần trước (đổi tối đa 3%), không còn lúc nhanh lúc chậm giữa chừng câu. Đoạn còn nối tiếp vẫn được chậm lại khi cần, để giọng không phải dừng giữa câu chờ phụ đề; khi giọng đang trễ nhiều thì vẫn được đuổi kịp như cũ.",
+                "Đo trên mô phỏng 60 lần tua liên tục: chỗ nối giữa câu đổi nhịp từ 5% trở lên giảm từ 23 xuống 6 (trên 53); số câu đọc, câu trễ và khoảng im không đổi."
+            ]
+        },
+        {
             v: "2.0.6", luc: "02:50 29/09/2026", ten: "Lồng tiếng: sau khi tua không còn cắt đôi từ",
             y: [
                 "Ngay sau khi bắt đầu xem hoặc tua, câu phụ đề dài được chia thành đoạn đọc ngắn để có tiếng sớm. Trước đây chỗ chia chỉ theo số âm tiết nên hay cắt giữa cụm từ, cả giữa một từ: \"mạng | nơ-ron\", \"điện | tử\", \"50 xuống | 30 đô la\"; giọng đọc hai nửa như hai câu rời. Nay chỗ chia là ranh giới ngữ pháp gần điểm giữa nhất.",

@@ -144,6 +144,8 @@ every later video on the page.
 `OPENERS` / `LEFT_BIND` / `UNITS`). A lexicon change made for subtitle line breaks (lane A) moves
 the VieNeu pauses and breathing commas too (lane B). After touching the segmenter's lexicon or
 scoring, run `tests/prosody.test.js` and `node tools/prosody-eval.js`, not only the segmenter tests.
+It also moves the free voice's head cuts after a start or seek (`dub-planner.js` `lineGapValues`,
+2.0.6) and its forced segment cuts (`prosodicCut`).
 The VieNeu audio key (`dub-engine.js` `audioKey`, 1.8.0) is `LOCAL_STYLE_VERSION`, model, sample
 rate, voice, the spoken text (`speakScript`) and `PROSODY.signature(plainScript)`, so a segmenter
 change that moves a gap's value re-renders exactly the lines it touches. The cached audio is already

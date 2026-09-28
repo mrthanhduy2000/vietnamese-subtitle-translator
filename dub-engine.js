@@ -51,6 +51,7 @@
         catchUpMax: 0.08,         // đang trễ so với phụ đề: nhanh thêm tối đa 8% để bắt kịp dần
         rateStepUp: 0.1,          // câu sau được nhanh hơn câu trước tối đa 0,1 (câu tràn khung: đuổi kịp, không dồn trễ)
         rateStepDown: 0.06,       // ... và chậm lại từ từ, tối đa 0,06 mỗi câu
+        rateStepInSentence: 0.03, // the next part of a sentence being read: at most this change
         sentenceGap: 0.18,        // câu trước kết thúc bằng dấu chấm: nghỉ tối thiểu trước câu sau (như người thật)
         joinGap: 0,               // câu trước còn nối tiếp (chưa hết ý): nói liền, không nghỉ
         // ... unless that part ended on a comma, semicolon or colon (1.7.2): a long sentence is cut
@@ -1128,7 +1129,18 @@
             // (not for a slow voice whose floor rate is above 1: it is sped up on purpose)
             const natural = this.floorRate(p) <= 1 ? 1 : 0;
             const recent = this.lastRate && t - this.lastRateEnd < SYNC.rateMemory;
-            const smoothOk = !recent || (1 >= this.lastRate - SYNC.rateStepDown - 1e-9 && 1 <= this.lastRate + SYNC.rateStepUp + 1e-9);
+            // The rest of a sentence the voice is still reading keeps its pace (a tempo change inside a
+            // sentence is heard), unless the voice has fallen behind. Slowing down stays free while the
+            // sentence goes on after this part: finishing early there means a silence mid-sentence
+            // while the next subtitle is waited for, which is worse than a change of pace
+            const prevPlan = i > 0 ? this.plans[i - 1] : null;
+            const inSentence = !!(recent && prevPlan && prevPlan.continuesNext && this.lastSpokenId === prevPlan.id && lag <= SYNC.lagBoostAt);
+            const up = inSentence ? SYNC.rateStepInSentence : null;
+            const down = inSentence && !joined ? SYNC.rateStepInSentence : null;
+            if (up != null) rate = Math.min(this.lastRate + up, rate);
+            if (down != null) rate = Math.max(this.lastRate - down, rate);
+            const smoothOk = !recent || ((1 >= this.lastRate - (down != null ? down : SYNC.rateStepDown) - 1e-9) &&
+                (1 <= this.lastRate + (up != null ? up : SYNC.rateStepUp) + 1e-9));
             if (natural === 1 && lag < 0.3 && smoothOk && Math.abs(rate - 1) <= SYNC.snapToNatural + 1e-6) {
                 const over = rate > 1 ? (r.duration - offset) * (1 - 1 / rate) : 0;
                 if (over <= SYNC.fitSlack) rate = 1;

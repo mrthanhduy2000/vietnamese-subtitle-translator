@@ -419,7 +419,12 @@ Knobs you will actually reach for:
 - **Rate**: `chooseRate` clamps per sentence to `[floorRate(), maxSpeechRate 1.3]`, rising to
   `lagMaxSpeechRate` 1.4 once lag passes `lagBoostAt` 1.0. Between sentences the change is smoothed
   (`rateStepUp` 0.1, `rateStepDown` 0.06) because the user's complaint was uneven pace, not
-  wrong pace. `baseTempo` comes from the voice's **measured** syllables per second (`measureVoice`,
+  wrong pace. 2.0.7: the next part of a sentence the voice is still reading moves at most
+  `rateStepInSentence` 0.03 up; down too when it is the sentence's last part (a part that goes on
+  may still slow down freely: finishing early there left a 0.38 s silence mid-sentence in the
+  hidden-tab test). Not when the voice is more than `lagBoostAt` behind. Rapid-seek matrix: parts
+  of one sentence that changed pace by 0.05 or more 23 -> 6 of 53, mean change 0.032 -> 0.021;
+  every delivery number of the rapid and slow matrices and of the scenarios identical. `baseTempo` comes from the voice's **measured** syllables per second (`measureVoice`,
   EMA 0.25), not a constant. `floorRate` divides by `video.playbackRate`.
 - **Chaining**: `chainLead` was cut from 2.0s to 0.8s because starting early accumulated error
   across chained segments. `continuesNext` treats gaps up to 1.5s as one continuous span.

@@ -188,6 +188,40 @@ test("giọng liền mạch: tốc độ hai đoạn sát nhau không nhảy đ�
     }
 });
 
+test("the second part of a sentence keeps the pace of the first; a new sentence or a late voice may change it more", () => {
+    const { SYNC } = require("../dub-engine.js");
+    const clock = new Clock(), video = new FakeVideo();
+    const groups = lectureGroups();
+    const prov = { id: "gemini", caps: { prerender: true }, voiceModel: PLAN.DEFAULT_VOICE_MODEL, render: async () => [] };
+    const make = () => {
+        const eng = new DubEngine({ video, getGroups: () => groups, providers: { primary: prov },
+            now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id) }, {});
+        eng.refresh(true);
+        return eng;
+    };
+    // A is read fast (its audio 1.2x its slot), B's audio fits its own slot at about 1.0
+    const pair = (eng, i, lagB) => {
+        const A = eng.plans[i], B = eng.plans[i + 1];
+        const a = eng.chooseRate(A, { duration: (B.start - A.start) * 1.2 }, A.start, 0, 0);
+        eng.lastSpokenId = A.id;
+        const t = lagB ? B.start + lagB : eng.lastRateEnd + 0.02;
+        return [a, eng.chooseRate(B, { duration: (B.end - B.start) * 0.95 }, t, 0, Math.max(0, t - B.start))];
+    };
+    const eng = make();
+    const i = eng.plans.findIndex(p => p.continuesNext);
+    assert.ok(i >= 0, "the lecture has a sentence read in two parts");
+    const [a, b] = pair(eng, i);
+    assert.ok(Math.abs(b - a) <= SYNC.rateStepInSentence + 1e-9, `inside a sentence ${a.toFixed(3)} -> ${b.toFixed(3)}`);
+    // a new sentence may ease down by rateStepDown
+    const eng2 = make();
+    const j = eng2.plans.findIndex((p, k) => k > 0 && !p.continuesNext && eng2.plans[k + 1] && eng2.plans[k + 1].start - p.end < 1);
+    const [a2, b2] = pair(eng2, j);
+    assert.ok(a2 - b2 > SYNC.rateStepInSentence + 1e-6, `between sentences ${a2.toFixed(3)} -> ${b2.toFixed(3)}`);
+    // a voice 2 s behind catches up even inside a sentence
+    const [a3, b3] = pair(make(), i, 2);
+    assert.ok(b3 - a3 > SYNC.rateStepInSentence, `behind ${a3.toFixed(3)} -> ${b3.toFixed(3)}`);
+});
+
 // ================= 4. AUDIO THẬT (giọng tiếng Việt "Linh" tạo bằng TTS macOS) =================
 const wav = f => AUDIO.decodeWav(fs.readFileSync(path.join(__dirname, "audio", f)));
 
