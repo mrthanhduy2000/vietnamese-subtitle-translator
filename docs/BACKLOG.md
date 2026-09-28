@@ -13,7 +13,8 @@ How this file works:
   story of the fix (that is in git and `DUBBING.md`).
 
 Closed (story in git and `version-history.js`): 1-4 (1.6.4), 6, 10 and 12 (1.9.4), 17 (1.7.8),
-25 (merged into 31), 32 and 34 (1.8.7), 35 (1.9.8).
+25 (merged into 31), 32 and 34 (1.8.7), 35 (1.9.8), 38 (2026-09-29: every lead checked, none
+kept; the numbers are in `DUBBING.md` under the 1.9.9 buffer).
 
 Declined by the user, never re-add or re-propose: 37 (2026-09-28, the VieNeu "release the slot at
 once" server patch; real use showed 27 slow releases in 7979 takes, ~2 min of delay a week, and the
@@ -57,40 +58,6 @@ server (int8, GPU) fixes that, and `describeHealth` tells the viewer.
 the whole video while the voice needs 1.25 s of audio per second of it (Mỹ Duyên, 3.8 syllables/s,
 on zPSs9a0MYGw). Lines then start late or are skipped. What fixes it is a quicker voice (the quick
 menu names one: `fasterVoices`) or a less loaded Mac. Never shorter speech (CLAUDE.md rule 1).
-
-**38. Leads from the 1.9.9 review that a usage limit cut off, not verified:** *(found 1.9.9)*
-- One slow take then a normal one: `dropRtf()` = min(EMA, latest) had the spike as the latest.
-  `skipAhead` then dropped three lines, one of them in flight and 0.3 s from done. Two patches were
-  drafted: "F5", the min also over the sample before; and "F6", never skip a line not yet due. Both
-  are rejected on the 144-run matrix:
-  - F6 alone: 2109 -> 2074 lines, back after a seek 5.90 -> 6.16 s;
-  - F5 + F6: 2045 lines, 6.41 s.
-  The 24-run test looked better with F6 (286 lines vs 282), which is the one-sample trap again. The
-  1.9.9 buffer already covers most of this case: a line only goes without audio when the buffer is
-  empty.
-- Service-worker CPU per take (cleanTake, shapePauses on 6-12 s takes): the script never finished.
-- Checked and fine: translation windows landing near the 60 s horizon changed 1 line's closing per
-  8 minutes, at 58 s ahead. At 90 s, 1 line was re-rendered.
-- A multi-agent hunt (drop-logic lens only; the other 7 hit the usage limit) proposed 8 mechanisms.
-  One was checked adversarially: an over-long take hitting the service worker's timeout, the 4.5 s
-  slot lease and a blind retry.
-  - It is real in 1.9.8 but never fired in `server.log` (7274 takes, worst RTF 1.74, none near the
-    8 s limit).
-  - 1.9.9 absorbs it on the lens's own scripts: in a 2-take slowdown at 5x, silent runs 19 -> 1 and
-    drops 24 -> 0.
-  Refuted in 2.0.0 on the 144-run slow matrix (1.9.9: 2109 spoken / 521 late / 745 s gaps / 5.90 s back):
-  - cancelling jobs of lines the queue has passed (`cancelObsoleteJobs` with `p.start >
-    lastSpokenStart`): 2085 / 514 / 738 / 6.14, worst back 24.4 -> 28.9 s. Cutting a started VieNeu
-    take holds its slot 4 s (DANGER §15), so it costs more than the wasted render;
-  - a Theil-Sen overhead fit in `noteTake` against one outlier take: 2108 / 520 / 741 / 5.90, and the
-    rapid matrix identical. Noise, not worth the code.
-  - `jobRemain`'s 0.3 s floor (a stuck take looks almost done), 2026-09-29: an overdue take given
-    0.3 + k x its overrun, k = 0.25 / 0.5 / 1.0, on a matrix where 6% of takes run 4x slow (60 runs)
-    and on the slow matrix. Every figure moved about 1%, not in one direction as k grew (spoken
-    1029 -> 1043 / 1037 / 1053; slow-matrix recovery 5.90 -> 5.96 / 6.11 / 6.01 s): noise, not shipped.
-  Not checked:
-  - the worker does not cut a stuck take and retries the same late line.
-  Scripts: session scratchpad `drop-logic/` (not in the repo).
 
 ## Dubbing: where the voice pauses (prosody)
 

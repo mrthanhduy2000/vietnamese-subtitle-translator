@@ -718,6 +718,22 @@ gets 1.4% fewer lines and 0.24 s more to voice after a seek. Ablation splits it 
   7.11 s, and the whole difference is in two shifts: the first request left 50 ms later and one line
   crossed the entered-too-late edge.
 
+Leads checked after 1.9.9 and not kept (BACKLOG 38, closed 2026-09-29). Each was measured on the
+144-run slow matrix, or on real logs where the sim cannot show it. Do not re-try them without new
+evidence:
+- `dropRtf()` = min(EMA, latest) with a spike as the latest: "F6" (never skip a line not yet due)
+  2109 -> 2074 lines, back after a seek 5.90 -> 6.16 s; "F5" + F6 2045 lines, 6.41 s.
+- Cancelling jobs for lines the queue has passed: 2085 / 514 / 738 / 6.14 s, worst back 28.9 s. A cut
+  VieNeu take holds its slot ~4 s (DANGER §15), which costs more than the wasted render.
+- Theil-Sen overhead fit in `noteTake`: 2108 / 520 / 741 / 5.90. Noise.
+- `jobRemain`'s 0.3 s floor grown with the overrun (k = 0.25 / 0.5 / 1.0): about 1% either way. Noise.
+- The worker retrying a stuck take (`synthesizeLocal`, timeout then one more try): in 8439 takes of
+  `~/VieNeu-TTS/server.log` no finished take came near its limit (`localTimeoutMs`, 8 s at least).
+  Every long `total=` there has `active=1` and a cut audio length: a take the page left, not one
+  the timeout cut. The path is kept for a truly stuck model and costs nothing when it does not fire.
+- Translation windows near the 60 s horizon: 1 line's closing changed per 8 minutes. Fine.
+- Service-worker CPU per take (cleanTake, shapePauses): not measured, the script never finished.
+
 Held audio in the page: up to 195 s on the fast talk (41 lines, about 18 MB of 48 kHz WAV), against
 150 s before. `playback-sim.js` gains `scale`, `sps`, `unique` and `maxHeld`. `unique` keys each line
 by its place. Without it the repeating lecture's store hits hide the server entirely: fastSlowdown

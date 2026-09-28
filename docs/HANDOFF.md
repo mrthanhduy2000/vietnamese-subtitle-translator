@@ -17,7 +17,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   fast toggles, rewind while paused, seek after an ad); pause counted from the script's own pause;
   lag from the engine's `stats.started`. viewer2 on 2.0.1: 0 voice while paused or in ads, a
   mid-line pause resumes the same take.
-- BACKLOG 38: `jobRemain` floor experiment refuted (noise), written up there.
+- BACKLOG 38 closed: last lead (worker retrying a stuck take) checked on 8439 real takes, never
+  fired; all refuted leads and their numbers moved to `DUBBING.md` (after the 1.9.9 buffer table).
 - 2.0.1 (earlier): after an ad, a finished line whose subtitle is still up is not read again.
 
 ## State
@@ -25,11 +26,10 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 
 ## Unfinished / in progress
 - BACKLOG 7: only the palette question, the user's to decide.
-- Carried over: ask the user for "Chép chẩn đoán" right after a problem; BACKLOG 38 last lead (the
-  worker retrying a stuck take); BACKLOG 36; glossary keep-English per term not watched in Chrome;
-  real Gemini output before/after 1.8.3/1.8.4 not compared; BACKLOG 30, 31, 14-15, 18-24, 26, 28
-  (20 outside); the user's verdict on the 1.9.5 A/B WAVs; 1.7.9 duck fix not confirmed; Udemy /
-  edX (BACKLOG 9); a live YouTube check by the user.
+- Carried over: ask the user for "Chép chẩn đoán" right after a problem; BACKLOG 36; glossary
+  keep-English per term not watched in Chrome; real Gemini output before/after 1.8.3/1.8.4 not
+  compared; BACKLOG 30, 31, 14-15, 18-24, 26, 28 (20 outside); the user's verdict on the 1.9.5 A/B
+  WAVs; 1.7.9 duck fix not confirmed; Udemy / edX (BACKLOG 9); a live YouTube check by the user.
 - The user should turn Chrome's "Allow JavaScript from Apple Events" back off.
 - A stray backup `~/VieNeu-TTS/apps/openai_speech.py.cst-before-fast-release` (harmless) may be
   deleted by the user.
