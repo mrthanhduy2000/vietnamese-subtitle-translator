@@ -14,8 +14,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   the ad (from 4.63 s of the take). `adGate` now keeps `adCut = { done: true }` and `takeAdResume`
   restores `lastSpokenStart` / `lastSpokenId` (`stats.adKeptPlace`). New test fails on 2.0.0.
   Live rerun: no replay, next line on time, worst lag 0.61 s (2.0.0 run: 5.96 s).
-- Live check of 2.0.0 otherwise clean: 0 errors, 0 overlapping voices, seeks back to voice in
-  0.07-1.3 s.
+- Live check of 2.0.0 otherwise clean: 0 errors, 0 overlapping voices, voice 0.07-1.3 s after seeks.
 - Not done, on purpose: BACKLOG 24 (caps against the English source line). There is no paired
   English/Vietnamese data with caps to measure it on (speech corpus has no source lines for those
   items, server.log holds no text), and the rule could break "ML" written for "machine learning".
