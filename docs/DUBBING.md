@@ -268,16 +268,20 @@ Knobs you will actually reach for:
   peak start lag 1.88 -> 0.43 s, overrun 1.76 -> 0.42 s, top rate 1.40 -> 1.41, none dropped. Harness: `scratchpad/sim-kim.js` pattern, see
   `tests/dub.test.js` "slow voice on a fast speaker".
 - **Prefetch**: `prefetchAhead` is adaptive, roughly `(latency * 2.5 + 4) * playbackRate`, times 0.6
-  if the user seeks twice in a minute, with a free-provider floor of 20 to 40s. `dubbing.js`
+  if the user seeks twice in a minute. The free local voice keeps `freeAheadMin` 60 to `freeAheadMax`
+  90 media seconds, times the video rate (1.9.9; 20 to 40 before, see "1.9.9" below). At a seek only
+  jobs for the first `seekKeepAhead` 20 s after the landing point are kept. `dubbing.js`
   `smartPrefetch` shrinks it 30% for videos over 30 minutes.
 - **Retention**: `keepBehind` 90s / `keepAhead` 240s in `releaseOld`, so a short rewind is free.
 - **Levels (1.5.6)**: `dubVolume` and `dubDuck` are 0..1 and read through `CST_DUB.level(x, fallback)`.
   Never `Number(x) || fallback`: 0 is a real choice (mute the original), and that idiom turned the
   Settings slider's 0% into 20%. Both are also set from the quick menu (`buildVolumeControls` in
   `player-ui.js`) and applied live by the storage listener in `dubbing.js`.
-- **What the viewer sees (1.5.6)**: `engine.health(t)` returns `{ live, ahead, rtf, dropped, errors }`;
+- **What the viewer sees (1.5.6)**: `engine.health(t)` returns `{ live, ahead, rtf, dropped, errors,
+  pace, paceHigh }`;
   `CST_DUB.describeHealth()` turns it into the one line under "Lồng tiếng Việt" in both quick menus
-  (ready N seconds ahead / server slow at RTF x / N lines skipped), warning-coloured when it matters.
+  (ready N seconds ahead / server slow at RTF x / N lines skipped / a quicker voice by name, 1.9.9),
+  warning-coloured when it matters.
 - **Render speed (1.7.7, 1.9.7)**: `renderRtf` is an EMA of `(secs - renderOver()) / audioSecs`; the
   first sample of a run is capped at `SYNC.firstRtfCap`, and drop decisions use `dropRtf()` = min(EMA,
   latest sample). Cold server: macOS swaps VieNeu's model out after long idle (3.5x real time vs 0.23
@@ -494,6 +498,73 @@ The extra late starts on the healthy server are the lines 1.9.6 skipped entirely
 mixed: at RTF 0.9 and 1x, one of 8 seek pairs turns out worse, because a request cut on the server
 holds its slot 4.5 s and the page cannot see that. So the test (`dub.test.js`, 24 runs) checks the
 sum, not one scenario. The matrix scripts are not in the repo; the cells are in the test.
+
+**1.9.9 silence, a rush, then skipped lines on a first view.** The user's report: continuous
+viewing of a new YouTube video. The Vietnamese subtitle showed while the voice was silent. Then the
+voice came back faster, stalled again, and skipped what it had not read. Measured live in the user's
+Chrome (1.9.8, zPSs9a0MYGw, Mỹ Duyên, the `data-cst-dub` snapshot sampled every 500 ms):
+- A fast talk. Mỹ Duyên read it at 3.78 syllables/s (the voice table says 4.2), so a line needed up
+  to 1.25 s of audio per second of video. The rate sat at 1.45-1.56 for minutes, lag up to 3.5 s.
+- VieNeu went from RTF 0.25 to 0.5-0.87 for minutes while the Mac was busy (`server.log`).
+- The server's load is RTF x audio seconds per video second; 0.87 x 1.25 is past real time. The 20 s
+  ready ahead drained within a minute. Then came silence, the catch-up rate, lag past `maxQueueLag`
+  4.5 s, and whole lines dropped: the sequence the user saw.
+
+What changed:
+- `freeAheadMin` 20 -> 60, `freeAheadMax` 40 -> 90, in media seconds scaled by the video rate. On
+  the real engine with a virtual clock, 6-minute fast talks:
+  - a server at 0.9x for 200 s dropped 22 lines before, 1 now;
+  - a 60 s stall dropped 12, now 0;
+  - at 1.2x for 90 s, drops went 10 -> 0 and silence 33 -> 3 s.
+  - A 90-120 s floor gained nothing more.
+- `seekKeepAhead` 20: `hardReset` passes it to `cancelObsoleteJobs` as the reach.
+- A job left behind (`job.orphan`) now feeds `renderRtf` (latency stays live-only). Only jobs that
+  landed in time were measured, so on a server at 1.0x the estimate froze at 0.47. The engine then
+  chased lines it could not reach. With the 60 s horizon and without this, the 144-run matrix's worst
+  voice-back after a seek was 35 s; with it, 24.4 s.
+- `tick()` jump detector: a forward jump that matches the wall clock since the last tick is this
+  page's timer running late (a long task, memory pressure). It is counted in `stats.lateTicks`, with
+  no reset. The reset cut the line being read and entered it again mid-way. A real seek still fires
+  `seeking`; a jump the clock does not explain still resets.
+- Diagnostics: `note()` keeps the last `SYNC.eventKeep` (150) events in `engine.events`, always on:
+  - `drop` with `why`: lag, lag-no-audio, failed or entered-too-late;
+  - `skip` with lines, wait and rtf;
+  - `reset` with `why`, `error` with `kind`, `late` with lag and rate.
+  `debugSnapshot()` gains rtf, over, pace, lateTicks, spoken and events. `dubbing.js` `diagnostics()`
+  returns one JSON text (no key, no text beyond line ids). The YouTube quick menu's "Chép chẩn đoán"
+  copies it: ask the user to paste it rather than re-measuring.
+- Voice hint: `health().paceHigh` (the busiest quarter's rate). At 1.35 or more (`SLOW_VOICE_PACE`),
+  `describeHealth` names up to two voices of the same gender that are at least 0.8 syllables/s
+  quicker (`fasterVoices`, `CST_COST.LOCAL_TTS.voices`). Simulated on a fast talk with a slow server:
+  late starts went 59 -> 3 with Thục Đoan (5.3) in place of Mỹ Duyên. Nothing is shortened; a quicker
+  voice says the same words in less time.
+
+Measured against 1.9.8 (`tools/playback-sim.js`, `tools/sim-matrix.js`):
+
+| Run | 1.9.8 | 1.9.9 |
+|---|---|---|
+| fastSlowdown: fast talk, server 0.9x for 2 min | 55 spoken, 11 dropped, 6.6 s gaps | 66, 0, 0 |
+| Slow servers with seeks (144 runs): spoken / late / gaps | 2138 / 539 / 799 s | 2109 / 521 / 745 s |
+| ... voice back after a seek: mean / p90 / max | 5.66 / 12.3 / 24.6 s | 5.90 / 14.2 / 24.4 s |
+| Healthy server, rapid seeks (60 runs): spoken / late / gaps / mean back | 877 / 29 / 11 s / 2.27 s | 869 / 28 / 11 s / 2.24 s |
+| `dub.test.js` 24-run matrix: spoken / late / gaps / mean back | 290 / 104 / 143.8 / 4.11 | 282 / 98 / 128.6 / 4.26 |
+
+The cost, stated plainly: a server that stays at 0.8-1.1x, with a viewer who seeks twice a minute,
+gets 1.4% fewer lines and 0.24 s more to voice after a seek. Ablation splits it in two:
+- The orphan sample makes the engine see a slow server as slow. It gives up lines it cannot reach
+  instead of reading them late: 5 of the 8 lines in the 24-run test, bought back as fewer gaps and
+  late starts.
+- The 60 s horizon keeps the serial server busy further ahead when the seek comes (the other 3).
+- Tried and not kept: the horizon back to 20 s after two seeks in a minute. The 144-run matrix was
+  unchanged (2111 / 523 / 750 / 5.90).
+- The one-scenario seekWhileSlow went 5.5 -> 10.6 s. Over 16 seek-time shifts the means are 6.45 vs
+  7.11 s, and the whole difference is in two shifts: the first request left 50 ms later and one line
+  crossed the entered-too-late edge.
+
+Held audio in the page: up to 195 s on the fast talk (41 lines, about 18 MB of 48 kHz WAV), against
+150 s before. `playback-sim.js` gains `scale`, `sps`, `unique` and `maxHeld`. `unique` keys each line
+by its place. Without it the repeating lecture's store hits hide the server entirely: fastSlowdown
+showed no difference at all.
 
 **1.9.6 predicate verbs (BACKLOG 16).** `PRED_VERBS` in `dub-prosody.js` (đạt, chiếm, vượt, gồm, cho
 thấy, mang lại, gây ra, dẫn đến, tạo ra, bao gồm, đòi hỏi, trở thành, đóng vai trò, phụ thuộc, giúp) and

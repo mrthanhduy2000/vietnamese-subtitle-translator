@@ -35,6 +35,12 @@ const { longLecture } = (() => {
     return { longLecture };
 })();
 
+function scaleGroups(groups, k) {
+    if (k === 1) return groups;
+    const cue = c => ({ ...c, start: c.start * k, end: c.end * k, ...(c.words ? { words: c.words.map(w => ({ ...w, start: w.start * k, end: w.end * k })) } : {}) });
+    return groups.map(g => ({ ...g, start: g.start * k, end: g.end * k, srcCues: g.srcCues.map(cue), viCues: g.viCues.map(cue) }));
+}
+
 // Deterministic noise: same scenario, same numbers
 function rng(seed) { let s = seed >>> 0 || 1; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
 function hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619); return h >>> 0; }
@@ -49,7 +55,8 @@ function run(engineMod, sc) {
     const R = rng(sc.seed || 7);
     const clock = new Clock(), video = new FakeVideo();
     video.playbackRate = sc.rate || 1;
-    const groups = longLecture(sc.minutes || 6);
+    // sc.scale < 1: the same lecture spoken faster (0.6 = 1.67x), the Vietnamese unchanged
+    const groups = scaleGroups(longLecture(sc.minutes || 6), sc.scale || 1);
     const store = new Map(sc.store ? sc.store : []);        // service worker audio store: key -> duration
     const m = { serverRuns: 0, serverDone: 0, cutRunning: 0, droppedQueued: 0, joined: 0, storeHits: 0, blockedMs: 0, generatedKeys: new Map(), playedKeys: new Set() };
 
@@ -76,7 +83,8 @@ function run(engineMod, sc) {
     const queue = [];
     let running = null, slotFreeAt = 0;
     const rtf = () => (sc.rtf ? sc.rtf(clock.now() / 1000, R) : 0.25);
-    const audioSecs = (speak) => { const syl = PLAN.countSyllables(speak); return syl / 4.3 * (0.92 + (hash(speak) % 1000) / 1000 * 0.16) + 0.1; };
+    // sc.sps: the voice's pace in syllables per second (4.3 by default; Mỹ Duyên measured 3.8 live)
+    const audioSecs = (speak) => { const syl = PLAN.countSyllables(speak); return syl / (sc.sps || 4.3) * (0.92 + (hash(speak) % 1000) / 1000 * 0.16) + 0.1; };
     function pump() {
         if (running || !queue.length) return;
         const f = queue.shift();
@@ -148,6 +156,9 @@ function run(engineMod, sc) {
         return { ok: true };
     };
     const provider = createVieneuProvider({ sendMessage }, { localVoice: "Mỹ Duyên" });
+    // sc.unique: the lecture repeats its 22 sentences, so past the first loop every line is a store
+    // hit and costs the server nothing. A new video has no such luck: key each line by its place too
+    if (sc.unique) { const ak = provider.audioKey.bind(provider); provider.audioKey = async p => (await ak(p)) + ":" + Math.round(p.start * 10); }
 
     // ---- page side ----
     const audios = [];
@@ -176,7 +187,7 @@ function run(engineMod, sc) {
     // ---- measurements ----
     const pendingKeys = [];
     const starts = [];                 // { wall, media, id } audio actually starting
-    let overlapTicks = 0, maxRendered = 0, maxEls = 0;
+    let overlapTicks = 0, maxRendered = 0, maxEls = 0, maxHeld = 0;
     const seeks = [];                  // { wall } waiting for the next start
     let lastPlayingSet = new Set(), seenStarts = 0;
     function observe() {
@@ -193,6 +204,7 @@ function run(engineMod, sc) {
         lastPlayingSet = new Set(playing);
         if (sc.trace) sc.trace({ wall: clock.now(), video, eng, queue, running: () => running, slotFreeAt });
         maxRendered = Math.max(maxRendered, eng.rendered.size);
+        maxHeld = Math.max(maxHeld, [...eng.rendered.values()].reduce((a, r) => a + (r.duration || 0), 0));
         maxEls = Math.max(maxEls, [...eng.rendered.values()].filter(r => r.el).length);
     }
 
@@ -246,7 +258,7 @@ function run(engineMod, sc) {
             serverRuns: m.serverRuns, generated: m.serverDone, cutRunning: m.cutRunning, droppedQueued: m.droppedQueued, joined: m.joined, duplicateGen: dup,
             storeHits: m.storeHits, blockedS: +(m.blockedMs / 1000).toFixed(2),
             unplayedGen: [...m.generatedKeys.keys()].filter(k => !m.playedKeys.has(k)).length,
-            maxRendered, maxEls, maxUrls,
+            maxRendered, maxHeld: +maxHeld.toFixed(1), maxEls, maxUrls,
             store: [...store.entries()]
         };
     })();
@@ -256,6 +268,10 @@ const SCENARIOS = {
     normal: { wall: 150 },
     slowTranslation: { wall: 150, trLat: (g, R) => (R() < 0.3 ? 6 + R() * 6 : 1 + R() * 2), trAhead: 20 },
     slowTts: { wall: 150, rtf: (t, R) => 0.6 + R() * 0.6 },
+    // A fast talk on a new video (the lecture at 1.67x and a voice at 3.8 syllables/s, as measured
+    // live on zPSs9a0MYGw with Mỹ Duyên) while the server slows to 0.9x for two minutes (macOS paging,
+    // a busy CPU: server.log had 0.6-0.87 for minutes). Translation 90 s ahead (the "free" mode)
+    fastSlowdown: { wall: 240, scale: 0.6, sps: 3.8, unique: true, trAhead: 90, rtf: t => (t >= 40 && t < 160 ? 0.9 : 0.25) },
     seekForward: { wall: 90, steps: [{ at: 20, do: "seek", v: 280 }] },
     seekBackward: { wall: 90, steps: [{ at: 50, do: "seek", v: 15 }] },
     // back past keepBehind (90 s): the audio left the page, only the store has it
@@ -294,7 +310,7 @@ async function main() {
         rows.push({ scenario: "mixedCache", v: label, ...r2 });
     }
     if (json) { console.log(JSON.stringify(rows, null, 1)); return; }
-    const cols = ["scenario", "v", "spoken", "dropped", "late", "gapN", "gapSum", "gapMax", "firstAudio", "seekRecover", "seekRecoverMax", "overlapTicks", "serverRuns", "cutRunning", "blockedS", "duplicateGen", "unplayedGen", "storeHits", "maxRendered", "maxEls", "maxUrls"];
+    const cols = ["scenario", "v", "spoken", "dropped", "late", "gapN", "gapSum", "gapMax", "firstAudio", "seekRecover", "seekRecoverMax", "overlapTicks", "serverRuns", "cutRunning", "blockedS", "duplicateGen", "unplayedGen", "storeHits", "maxRendered", "maxHeld", "maxEls", "maxUrls"];
     console.log(cols.join("\t"));
     for (const r of rows) console.log(cols.map(c => r[c] == null ? "-" : r[c]).join("\t"));
 }

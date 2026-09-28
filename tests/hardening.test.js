@@ -1853,3 +1853,34 @@ test("page audio cache: a corrupt stored record is skipped, the others are used;
     assert.ok(!msgs.some(m => m.action === "audioCacheGet"));
     env.CST_DUB.stop();
 });
+
+// 1.9.9: a slow voice on a fast talk falls behind and loses lines. The quick menu names quicker
+// voices of the same kind (measured: late starts 59 -> 3 with Thục Đoan instead of Mỹ Duyên)
+test("quick menu: a voice too slow for the video suggests quicker ones by name", () => {
+    const env = dubbingEnvFor("economy", "vieneu", [], () => ({ ok: true, running: true }), false);
+    const D = env.CST_DUB;
+    assert.deepEqual([...D.fasterVoices("Mỹ Duyên")], ["Thùy Dung", "Thục Đoan"]);
+    assert.deepEqual([...D.fasterVoices("Thùy Dung")], [], "already among the quickest");
+    assert.deepEqual([...D.fasterVoices("no such voice")], []);
+    const health = { live: false, ahead: 40, rtf: 0.3, dropped: 2, errors: 0, pace: 1.2, paceHigh: 1.45 };
+    D.dub.enabled = true;
+    D.dub.lastStatus = { voice: "Mỹ Duyên" };
+    D.dub.engine = { health: () => health, d: { video: { currentTime: 10, paused: false } } };
+    let h = D.describeHealth();
+    assert.match(h.text, /thử Thùy Dung hoặc Thục Đoan/);
+    assert.equal(h.warn, true);
+    health.paceHigh = 1.2; health.dropped = 0;
+    h = D.describeHealth();
+    assert.doesNotMatch(h.text, /thử /);
+    assert.match(h.text, /người nói nhanh/);
+    assert.equal(h.warn, false);
+    // "Chép chẩn đoán" copies one JSON text: the engine's snapshot and events, never the API key
+    D.dub.engine.debugSnapshot = () => ({ events: [{ at: 1, t: 2, k: "drop", id: "t1", why: "lag" }] });
+    D.dub.engine.settings = { maxRate: null, secondVoice: false, prefetchMax: 30 };
+    const diag = JSON.parse(D.diagnostics());
+    assert.equal(diag.video, "abc");
+    assert.equal(diag.engine.events[0].why, "lag");
+    assert.equal(diag.player.t, 10);
+    assert.doesNotMatch(D.diagnostics(), /apiKey/i);
+    D.dub.engine = null;
+});

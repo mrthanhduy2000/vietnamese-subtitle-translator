@@ -51,6 +51,11 @@ a 20-minute video simulates deterministically in milliseconds. Used by `dub.test
 `cost.test.js`. `tools/playback-sim.js` builds on it with a model of the service worker and the
 serial VieNeu server (slot held after an abort, translation arriving late) for delivery scenarios
 (seek, rapid seek, pause, rate, cached); `dub.test.js` "playback delivery" asserts on its numbers.
+Scenario options (1.9.9): `scale` < 1 speeds the lecture up (0.6 = a 1.67x talk, the Vietnamese
+unchanged); `sps` sets the voice's pace; `unique: true` keys every line by its place. The lecture
+repeats 22 sentences, so without `unique` everything after the first minute is a store hit and the
+server's speed never shows. `maxHeld` is the most audio seconds the page held at once.
+`tools/sim-matrix.js` runs many seeks per engine: judge an engine change there, never on one scenario.
 Loading it replaces `CST_CACHE.hashKey` with Node's synchronous SHA-256 (same hex digest):
 `crypto.subtle` answers from a worker thread, and on a busy machine a store key missed the one
 `setImmediate` a simulated tick waits, so delivery tests failed about 1 run in 5 (1.9.3).
@@ -151,7 +156,7 @@ between 0.2 and 3.0s · `overlay.html` subtitle layer rendering.
 
 Put it in the file that already owns that area, and add nothing to `package.json` unless you create a
 new file (then add it to the `test` script). Prefer `bg-env.js` or `dub-sim.js` over a new fake.
-Test names are Vietnamese, matching the rest of the suite.
+New test names are English (CLAUDE.md, Language); the existing Vietnamese ones keep theirs.
 
 Two traps in `ui.test.js` that cost a session real time:
 
@@ -166,7 +171,18 @@ Two traps in `ui.test.js` that cost a session real time:
 
 - A tab opened by automation is often hidden (`document.hidden`): Chrome then does not load the video
   at all (readyState 0). Bring it to the front with Control_Chrome `switch_to_tab` first.
+- First ask the user for the quick menu's **"Chép chẩn đoán"** (1.9.9): one JSON text with the
+  version, health line, settings, player state and the engine's snapshot. `engine.events` holds the
+  last 150 drops (with why), skips, resets (with why), errors and late starts, with media time. It is
+  always on, so the problem the user just saw is already in it.
 - Dubbing diagnostics: set `localStorage.cstDubDebug = "1"` on youtube.com, reload; the engine writes
   a JSON snapshot to `<html data-cst-dub>` every 500 ms (`started` has due time, start, rate, overrun).
+- Recording over minutes (1.9.9): Control_Chrome `execute_javascript` needs Chrome's "View >
+  Developer > Allow JavaScript from Apple Events", which the user must switch on (and off afterwards).
+  Always wrap the script in an IIFE: a second top-level `const` returns "missing value". A
+  `setInterval` on the page can copy each `data-cst-dub` snapshot into `window.__cstRec` and later
+  reads can collect it. Watch the server at the same time with `tail -F ~/VieNeu-TTS/server.log`
+  (Monitor, filter `rtf=` >= 0.5).
+  Remove `cstDubDebug` and clear the interval when done.
 - `chrome://extensions` and `chrome-extension://` pages cannot be opened by the tools: only the user can Reload.
 - Prefer a cached video (`ytcache4_*`): no Gemini cost.

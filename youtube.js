@@ -1621,7 +1621,21 @@ function ytMoMenuNhanh(player, btn) {
     });
     const btnOptions = el("button", null, "Cài đặt");
     btnOptions.type = "button";
+    // Dubbing diagnostics (1.9.9): one click copies what the voice engine did lately (lines dropped
+    // and why, resets, errors, late starts, server speed), to paste where the problem is looked into
+    const btnDiag = el("button", null, "Chép chẩn đoán");
+    btnDiag.type = "button";
+    btnDiag.title = "Chép tình trạng lồng tiếng gần đây (câu bị bỏ và lý do, lỗi, tốc độ máy chủ giọng) để gửi khi cần kiểm tra lỗi";
+    btnDiag.addEventListener("click", async () => {
+        const api = window.CST_DUB;
+        const text = api && api.diagnostics ? api.diagnostics() : "";
+        let ok = false;
+        try { await navigator.clipboard.writeText(text); ok = !!text; } catch (e) { ok = false; }
+        dongMenu();
+        ytBao(ok ? "Đã chép chẩn đoán lồng tiếng. Dán vào cuộc trò chuyện để kiểm tra." : "Không chép được chẩn đoán (trình duyệt chặn bộ nhớ tạm hoặc lồng tiếng chưa bật).", { warn: !ok });
+    });
     foot.appendChild(btnTranscript);
+    foot.appendChild(btnDiag);
     foot.appendChild(btnOptions);
     menu.appendChild(foot);
 

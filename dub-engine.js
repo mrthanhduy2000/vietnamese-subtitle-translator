@@ -88,8 +88,18 @@
         dropLag: 4.0,             // giọng hệ thống trễ quá mức này mới bỏ phần còn lại của đoạn cũ (bớt mất lời)
         prefetchMax: 30,          // trần tạo trước audio (giây); chế độ sử dụng có thể hạ thấp hơn
         prefetchMin: 12,
-        freeAheadMin: 20,         // giọng miễn phí trên máy: luôn có sẵn audio ít nhất 20 giây phía trước
-        freeAheadMax: 40,          // luôn tạo trước ít nhất bấy nhiêu giây để kịp phát
+        // Free local voice: audio made this far ahead (media seconds at 1x, scaled up by the video rate)
+        // is the only shock absorber when the server slows down (macOS paging the model out, a busy
+        // CPU: server.log had RTF 0.6-0.87 for minutes) on a fast speaker, whose Vietnamese needs up
+        // to 1.25 s of audio per second of video (measured live, zPSs9a0MYGw). 20 s absorbed none of
+        // it (1.9.9, real engine on a virtual clock, 6-min fast talks): server at 0.9x for 200 s,
+        // lines dropped 22 -> 1; a 60 s stall 12 -> 0; at 1.2x for 90 s 10 -> 0 and silence 33 -> 3 s.
+        // 90-120 gained nothing more. Free, and a seek only wastes renders nobody pays for.
+        freeAheadMin: 60,
+        freeAheadMax: 90,
+        // ... but at a seek only a job for the first this many seconds after the landing point is
+        // kept; one further ahead made the line under the playhead wait on the serial server
+        seekKeepAhead: 20,
         batchSpill: 6,            // một lượt gộp được nhận thêm đoạn liền kề ngay sau tầm nhìn (giảm số lượt gọi)
         prefetchPaused: 10,       // khi video tạm dừng chỉ chuẩn bị đoạn sắp tới
         maxBatchSyl: 110,         // một lượt TTS ~20-25 giây audio (Gemini TTS cho phép tới 32k token)
@@ -121,6 +131,7 @@
         // Delivery scorecard (debugSnapshot only, 1.8.6): a line starting this late counts as a late
         // start; a silence this long beyond the rest the engine means to keep counts as a delivery gap
         lateStart: 0.5,
+        eventKeep: 150,           // diagnostics ring (note): this many recent events are kept
         crowdGainMin: 1.0,        // crowdsNext gives a late line up only for at least this much gained
         gapMin: 0.12,
         // Entering a line mid-way (after a seek, 1.8.7): start at a stop the voice really made, not at
@@ -513,6 +524,8 @@
             this.timer = this.d.setInterval(() => this.tick(), SYNC.tickMs);
             this.headAt = Math.round(v.currentTime || 0);   // đoạn đầu ngắn quanh chỗ bắt đầu xem
             this.resetWall = this.d.now();
+            this.startedAt = this.resetWall;
+            this.events = [];
             this.refresh();
             this.status();
         }
@@ -619,7 +632,17 @@
             const v = this.d.video;
             const t = v.currentTime;
             const now = this.d.now();
-            if (this.lastT !== null && (t < this.lastT - 0.3 || t > this.lastT + 2.5)) this.hardReset("jump");
+            if (this.lastT !== null && (t < this.lastT - 0.3 || t > this.lastT + 2.5)) {
+                // A forward jump that matches the wall clock since the last tick is this page's own
+                // timer running late (a long task, memory pressure, a throttled tab), not a seek: the
+                // video and the voice element both played on meanwhile. A reset there cut the line
+                // being read and entered it again mid-way. A real seek fires 'seeking' anyway.
+                const ahead = t - this.lastT;
+                const played = this.lastTickAt != null ? (now - this.lastTickAt) / 1000 * (v.playbackRate || 1) : 0;
+                if (ahead > 0 && Math.abs(ahead - played) <= Math.max(0.5, ahead * 0.15)) this.stats.lateTicks = (this.stats.lateTicks || 0) + 1;
+                else this.hardReset("jump");
+            }
+            this.lastTickAt = now;
             // Video không tiến dù không tạm dừng (mạng chậm) quá 400 ms: coi như đang tải
             if (this.lastT === null || t !== this.lastT) this.lastAdvance = now;
             const stalled = !v.paused && now - (this.lastAdvance || now) > 400;
@@ -860,6 +883,7 @@
             this.lastSpokenStart = p.start;
             this.lastSpokenId = p.id;
             this.stats.started.push({ id: p.id, t, due: p.start, lag, rate, speechEnd: S.end, cueEnd: p.end });
+            if (lag > SYNC.lateStart) this.note("late", { id: p.id, lag: Math.round(lag * 100) / 100, rate: Math.round(rate * 100) / 100 });
             for (const [id, x] of this.rendered) if (x.el && id !== p.id && !x.el.paused) x.el.pause();
             if (!r.el) r.el = this.makeAudio(r.url);
             this.driveSpeech(S, r, t, videoRate, true);
@@ -1157,7 +1181,11 @@
                 const scale = Math.max(0.7, Math.min(1.3, r.duration / span));
                 const offset = into > 0.3 ? this.entryPoint(r, into * scale) : 0;
                 // (chỉ khi đã VÀO GIỮA đoạn: đoạn rất ngắn < 0,8 giây từng luôn bị bỏ vì điều kiện này đúng cả khi offset = 0)
-                if (offset > 0 && offset >= r.duration - Math.min(0.8, r.duration * 0.5)) { this.lastSpokenStart = p.start; return null; }
+                if (offset > 0 && offset >= r.duration - Math.min(0.8, r.duration * 0.5)) {
+                    this.lastSpokenStart = p.start;
+                    this.note("drop", { id: p.id, why: "entered-too-late", into: Math.round(into * 100) / 100 });
+                    return null;
+                }
                 return { p, r, offset, lag: 0 };
             }
             // Câu trước vừa nói xong (đang trễ, câu sau đã tới giờ): nghỉ một nhịp như người thật
@@ -1191,6 +1219,7 @@
                 if (lag > SYNC.maxQueueLag) {                         // trễ quá xa: bỏ NGUYÊN câu
                     this.lastSpokenStart = p.start;
                     this.stats.dropped++;
+                    this.note("drop", { id: p.id, why: this.rendered.has(p.id) ? "lag" : "lag-no-audio", lag: Math.round(lag * 100) / 100 });
                     continue;
                 }
                 const r = this.rendered.get(p.id);
@@ -1199,6 +1228,7 @@
                 if (!r && (this.failed.get(p.id) || 0) >= 2 && !this.pending.has(p.id)) {
                     this.lastSpokenStart = p.start;
                     this.stats.dropped++;
+                    this.note("drop", { id: p.id, why: "failed" });
                     continue;
                 }
                 if (r) return { p, r, offset: 0, lag };
@@ -1286,6 +1316,7 @@
             this.lastSpokenStart = mark;
             this.stats.dropped += moved;
             this.stats.skipped = (this.stats.skipped || 0) + 1;
+            this.note("skip", { lines: moved, to: Math.round(mark * 100) / 100, wait: Math.round(wait * 100) / 100, rtf: Math.round(this.dropRtf() * 100) / 100 });
             return true;
         }
 
@@ -1319,7 +1350,11 @@
                     st: this.rendered.has(p.id) ? "ok" : this.pending.has(p.id) ? "tao" : (this.failed.get(p.id) || 0) >= 2 ? "loi" : "chua",
                     dur: this.rendered.has(p.id) ? r2(this.rendered.get(p.id).duration) : null
                 })),
-                started: this.stats.started.slice(-25).map(x => ({ id: x.id, t: r2(x.t), due: r2(x.due), rate: r2(x.rate), end: r2(x.speechEnd), cueEnd: r2(x.cueEnd) }))
+                started: this.stats.started.slice(-25).map(x => ({ id: x.id, t: r2(x.t), due: r2(x.due), rate: r2(x.rate), end: r2(x.speechEnd), cueEnd: r2(x.cueEnd) })),
+                rtf: this.renderRtf == null ? null : r2(this.renderRtf), rtfLast: this.lastRtf == null ? null : r2(this.lastRtf),
+                over: this.fittedOver == null ? null : r2(this.fittedOver), pace: this.pace ? { mid: r2(this.pace.mid), high: r2(this.pace.high) } : null,
+                lateTicks: this.stats.lateTicks || 0, errorTypes: this.stats.errorTypes || null, spoken: this.stats.started.length,
+                events: (this.events || []).slice()
             };
         }
 
@@ -1390,10 +1425,12 @@
             this.seekTimes = this.seekTimes.filter(x => now - x < 60000);
             if (this.seekTimes.length >= 2) ahead *= 0.6;           // hay tua: audio xa dễ bị bỏ phí
             if (paused) ahead = Math.min(ahead, SYNC.prefetchPaused);
-            // Giọng trên máy (miễn phí, tạo nhanh gấp ~4 lần thời gian thực): tạo trước xa hơn
-            // (tối thiểu 20 giây) để một lượt tạo chậm hay một câu bị kẹt không làm giọng im
+            // Free local voice: far ahead (SYNC.freeAheadMin), so a slow stretch of the server or one
+            // stuck take does not silence the voice. In media seconds, so scaled by the video rate: at
+            // 2x, 60 media seconds were only 30 s of real time to absorb anything
             if (this.provider.caps && this.provider.caps.free && !paused) {
-                return Math.max(SYNC.freeAheadMin, Math.min(SYNC.freeAheadMax, ahead));
+                const vr = Math.max(1, v.playbackRate || 1);
+                return Math.max(SYNC.freeAheadMin * vr, Math.min(SYNC.freeAheadMax * vr, ahead));
             }
             return Math.max(Math.min(SYNC.prefetchMin, max), Math.min(max, ahead));
         }
@@ -1513,7 +1550,8 @@
                 rtf: this.renderRtf == null ? null : this.renderRtf,
                 dropped: this.stats.dropped || 0,
                 errors: (this.stats.errors || 0) + (this.stats.timeouts || 0),
-                pace: this.pace && this.pace.n >= 3 ? this.pace.mid : null     // typical rate the video asks for
+                pace: this.pace && this.pace.n >= 3 ? this.pace.mid : null,    // typical rate the video asks for
+                paceHigh: this.pace && this.pace.n >= 3 ? this.pace.high : null // ... and what its busiest quarter asks
             };
         }
 
@@ -1602,6 +1640,18 @@
         countError(kind) {
             const m = this.stats.errorTypes || (this.stats.errorTypes = {});
             m[kind] = (m[kind] || 0) + 1;
+            this.note("error", { kind });
+        }
+
+        // Diagnostics (1.9.9): the last SYNC.eventKeep things that cost the viewer words or time
+        // (a line dropped and why, a skip, a reset and why, an error, a late start), with the media
+        // time. Always on and tiny: debugSnapshot() and the quick menu's "Chép chẩn đoán" read it,
+        // so a problem seen once can be read without a debug flag or a reload.
+        note(kind, o) {
+            const E = this.events || (this.events = []);
+            const v = this.d.video;
+            E.push({ at: Math.round((this.d.now() - (this.startedAt || 0)) / 100) / 10, t: v ? Math.round((v.currentTime || 0) * 100) / 100 : null, k: kind, ...o });
+            if (E.length > SYNC.eventKeep) E.shift();
         }
 
         addRendered(p, wav, duration) {
@@ -1654,8 +1704,12 @@
             try {
                 const out = await provider.render(batch, { persona: this.settings.persona, jobId });
                 const secs = (this.d.now() - job.t0) / 1000;
-                if (!job.orphan) {
-                    this.renderLatency = this.renderLatency == null ? secs : this.renderLatency * 0.7 + secs * 0.3;
+                // A job left behind (its line passed, a seek) still measured the server: skipping its
+                // sample froze the estimate exactly when the server could not keep up, because then
+                // nearly every job is left behind (1.9.9: the estimate stayed at 0.47 on a server at
+                // 1.0x, and the engine kept chasing lines it could not reach). Latency stays live-only.
+                {
+                    if (!job.orphan) this.renderLatency = this.renderLatency == null ? secs : this.renderLatency * 0.7 + secs * 0.3;
                     // Generation speed = seconds spent / seconds of speech. Predicts the remaining
                     // wait far better than per-job latency, because batch sizes differ by a lot.
                     // A healthy local server is ~0.23; >= 1 means slower than real time.
@@ -1783,8 +1837,11 @@
         //   - đã chạy gần xong: để chạy nốt; audio vào kho, quay lại là có ngay,
         //     vì hủy lúc này gần như chắc chắn vẫn bị tính tiền mà không nhận được gì
         // Cả hai trường hợp đều không còn chặn việc tạo audio cho vị trí mới.
-        cancelObsoleteJobs(t) {
-            const to = t + this.prefetchAhead(true);
+        // reach: how far ahead a job still counts as useful. A seek passes SYNC.seekKeepAhead: a job
+        // for a line far ahead of the landing point would otherwise hold the serial server while the
+        // line under the playhead waits (the 60 s free horizon, 1.9.9)
+        cancelObsoleteJobs(t, reach) {
+            const to = t + (reach != null ? Math.min(reach, this.prefetchAhead(true)) : this.prefetchAhead(true));
             const now = this.d.now();
             const usual = (this.renderLatency != null ? this.renderLatency : 4) * 1000;
             for (const [jobId, job] of this.jobs) {
@@ -1894,6 +1951,7 @@
         }
 
         hardReset(reason) {
+            this.note("reset", { why: reason });
             this.pace = null;                   // the pace of where we were says nothing about where we are
             this.silence();
             this.speech = null;                 // lời đang nói không còn đúng vị trí: bỏ
@@ -1920,7 +1978,7 @@
             this.live = null;
             this.lastT = null;
             this.seekTimes.push(this.d.now());
-            this.cancelObsoleteJobs(this.d.video.currentTime);
+            this.cancelObsoleteJobs(this.d.video.currentTime, SYNC.seekKeepAhead * Math.max(1, this.d.video.playbackRate || 1));
             if (this.d.onReset) { try { this.d.onReset(reason); } catch (e) { /* bỏ qua */ } }
         }
 

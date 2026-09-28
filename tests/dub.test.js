@@ -778,32 +778,63 @@ test("audio of a plan that left the window is released, not kept forever", () =>
 const SIM = require("../tools/playback-sim.js");
 const simRun = (name, extra = {}) => SIM.run(require("../dub-engine.js"), { ...SIM.SCENARIOS[name], bgAbort: "queued", ...extra });
 
+// The request count as a whole grew with the free voice's 60 s horizon (16 -> 19, all before the
+// seek), so what is checked is the claim itself: nothing is requested while the held audio lasts
 test("playback delivery: a seek back onto audio already in the page plays it at once, with no new request", async () => {
-    const r = await simRun("seekBackward");
+    let lastT = null, seekAt = null, before = null, after = null;
+    const r = await simRun("seekBackward", { trace: ({ wall, video, eng }) => {
+        if (seekAt == null && lastT != null && video.currentTime < lastT - 1) { seekAt = wall; before = eng.stats.requests; }
+        if (seekAt != null && after == null && wall - seekAt >= 30000) after = eng.stats.requests - before;
+        lastT = video.currentTime;
+    } });
     assert.ok(r.seekRecover != null && r.seekRecover < 0.3, `voice ${r.seekRecover} s after the seek`);
-    assert.ok(r.serverRuns <= 17, `${r.serverRuns} requests (a re-cut head line re-rendered held audio: 19)`);
+    assert.equal(after, 0, "requests in the 30 s after a seek back onto held audio (a re-cut head line re-rendered it once)");
+    assert.equal(r.duplicateGen, 0);
 });
 
-test("playback delivery: rapid seeks get voice back within 3 s each; a slow server within 9 s", async () => {
+test("playback delivery: rapid seeks get voice back within 3 s each", async () => {
     const r = await simRun("rapidSeek");
     assert.ok(r.seekRecoverMax <= 3, `worst ${r.seekRecoverMax} s`);
-    const slow = await simRun("seekWhileSlow");
-    assert.ok(slow.seekRecover <= 9, `slow server: ${slow.seekRecover} s`);
 });
 
 // BACKLOG 33 (1.9.7): a server near real time. One scenario swings with the timing of a single
 // seek (a request cut on the server holds its slot 4.5 s, which the page cannot see), so this runs
-// 24: RTF 0.8/0.9/1.0, rate 1/1.5, 4 seek pairs. 1.9.6: 280 lines, 101 late, 138.6 s of gaps.
-test("playback delivery: a slow server with seeks speaks more lines than 1.9.6, without more lateness", async () => {
-    let spoken = 0, late = 0, gaps = 0;
+// 24: RTF 0.8/0.9/1.0, rate 1/1.5, 4 seek pairs. The seekWhileSlow scenario alone is such a swing:
+// its seek times shifted by 0.25 s steps, 16 runs, 1.9.8 averaged 6.45 s to voice and 1.9.9 7.11 s,
+// every difference from two shifts where the first request left 50 ms later and a line crossed the
+// entered-too-late edge (5.5 -> 10.6 s). So the average over many runs is what is held here.
+//          lines  late  gaps    voice back after a seek (mean)
+//   1.9.6   280   101   138.6
+//   1.9.8   290   104   143.8   4.11 s
+//   1.9.9   282    98   128.6   4.26 s
+// 1.9.9 speaks fewer: a job left behind by a seek now measures the server too (renderBatch), so the
+// engine sees a server at 1.0x as one and gives up lines it cannot reach (5 of the 8) instead of
+// reading them late; the 60 s horizon keeps the serial server busy further ahead when the seek
+// comes (the other 3). Continuous viewing is what the horizon is for: see the fastSlowdown test.
+test("playback delivery: a slow server with seeks speaks more lines than 1.9.6, with fewer late starts and gaps", async () => {
+    let spoken = 0, late = 0, gaps = 0, rec = 0, n = 0;
     for (const rtf of [0.8, 0.9, 1.0]) for (const rate of [1, 1.5]) for (let s = 1; s <= 4; s++) {
         const a = 10 + (s * 7) % 15;
         const r = await SIM.run(require("../dub-engine.js"), { wall: 60, rate, rtf: () => rtf, seed: s, bgAbort: "queued",
             steps: [{ at: a, do: "seek", v: 30 + (s * 37) % 220 }, { at: a + 22, do: "seek", v: 15 + (s * 53) % 180 }] });
         spoken += r.spoken; late += r.late; gaps += r.gapSum;
+        if (r.seekRecover != null) { rec += r.seekRecover; n++; }
     }
-    assert.ok(spoken >= 288, `${spoken} lines spoken`);
-    assert.ok(late <= 110 && gaps <= 152, `${late} late starts, ${gaps.toFixed(1)} s of gaps`);
+    assert.ok(spoken >= 281, `${spoken} lines spoken`);
+    assert.ok(late <= 101 && gaps <= 135, `${late} late starts, ${gaps.toFixed(1)} s of gaps`);
+    assert.ok(rec / n <= 4.5, `voice back ${(rec / n).toFixed(2)} s after a seek on average`);
+});
+
+// What the viewer reported (1.9.9): on a first view of a fast talk the Vietnamese subtitle showed,
+// the voice went silent, came back quicker, then skipped lines it had not read. Measured live on
+// zPSs9a0MYGw: the voice (Mỹ Duyên, 3.8 syllables/s) needed up to 1.25 s of audio per second of
+// video while the Mac slowed VieNeu to RTF 0.6-0.87. 20 s ready ahead drained within a minute of
+// that; 60 s lasts it: 1.9.8 dropped 11 of 66 lines here with 6.6 s of gaps, 1.9.9 none.
+test("playback delivery: a fast talk keeps every line through two minutes of a slow server", async () => {
+    const r = await simRun("fastSlowdown");
+    assert.equal(r.dropped, 0, "lines dropped");
+    assert.equal(r.spoken, 66);
+    assert.ok(r.gapSum < 1, `${r.gapSum} s of gaps`);
 });
 
 test("playback delivery: pausing never cancels the request for the lines just ahead", async () => {
@@ -819,7 +850,10 @@ test("playback delivery: in every scenario no two voices overlap, no line is gen
         assert.equal(r.overlapTicks, 0, `${name}: overlap`);
         assert.equal(r.duplicateGen, 0, `${name}: duplicate generation`);
         assert.ok(r.maxEls <= 3, `${name}: ${r.maxEls} audio elements alive`);
-        assert.ok(r.maxRendered <= 30, `${name}: ${r.maxRendered} lines held`);
+        // 90 s behind (keepBehind) and up to 90 s ahead (freeAheadMax): a fast talk's Vietnamese runs
+        // up to 1.1 s of audio per second of it. 195 s at most here (18 MB of 48 kHz WAV); 150 in 1.9.8
+        assert.ok(r.maxHeld <= 210, `${name}: ${r.maxHeld} s of audio held`);
+        assert.ok(r.maxRendered <= 45, `${name}: ${r.maxRendered} lines held`);
     }
 });
 
@@ -881,6 +915,92 @@ test("playback delivery: a rewind past what the page holds finds the store first
     assert.ok(fast.firstAudio <= 2, `first voice at 2x after ${fast.firstAudio} s (2.75 before)`);
     const normal = await simRun("normal");
     assert.ok(normal.firstAudio <= 1.65, `the optimistic reach must keep the first line at 1x: ${normal.firstAudio} s`);
+});
+
+// ================= SLOW SERVER ON A FAST TALK (1.9.9) =================
+// An engine on the free local voice whose renders the test finishes by hand
+function freeVoiceEngine(render = () => new Promise(() => {})) {
+    const clock = new Clock(), video = new FakeVideo();
+    const prov = { id: "vieneu", caps: { prerender: true, live: false, free: true, serial: true, maxBatch: 1 }, voiceModel: { ...PLAN.DEFAULT_VOICE_MODEL },
+        naturalSps: () => 4, audioKey: async p => "k" + p.id, abort() {}, render };
+    const eng = new DubEngine({ video, getGroups: () => lectureGroups(), providers: { primary: prov },
+        now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id), setTimeout: (f, ms) => clock.setTimeout(f, ms),
+        createObjectURL: () => "blob:x", revokeObjectURL() {}, createAudio: () => new FakeAudio(clock, { duration: 2.5 }),
+        audioCache: { get: async () => ({}), put() {} } });
+    return { clock, video, eng };
+}
+
+test("free voice keeps at least 60 s of audio ready ahead, in media seconds scaled by the video rate", () => {
+    const { SYNC } = require("../dub-engine.js");
+    const { video, eng } = freeVoiceEngine();
+    video.play();
+    assert.ok(SYNC.freeAheadMin >= 60, "20 s drained within a minute of a slow server on a fast talk");
+    assert.ok(eng.prefetchAhead() >= SYNC.freeAheadMin && eng.prefetchAhead() <= SYNC.freeAheadMax);
+    video.playbackRate = 2;
+    assert.ok(eng.prefetchAhead() >= 2 * SYNC.freeAheadMin, "at 2x, 60 media seconds last only 30 s of real time");
+    video.playbackRate = 1;
+    video.pause();
+    assert.ok(eng.prefetchAhead() <= Math.max(SYNC.prefetchPaused, SYNC.prefetchMin), "paused: only what is just ahead");
+    eng.provider = { ...eng.provider, caps: { ...eng.provider.caps, free: false } };
+    video.play();
+    assert.ok(eng.prefetchAhead() <= SYNC.prefetchMax, "a paid voice keeps its cap");
+});
+
+// Live (1.9.9): a busy Mac delays the page's timers. A tick 3 s late saw the video 3 s further and
+// took it for a seek: the line being read was cut and entered again mid-way
+test("a page timer that ran late is not taken for a seek; a jump the clock does not explain still resets", () => {
+    const { clock, video, eng } = freeVoiceEngine();
+    eng.start();
+    video.play();
+    clock.advance(2000, st => video.step(st));
+    clock.ms += 3000;                          // the main thread froze for 3 s; the video played on
+    video.currentTime += 3;
+    eng.tick();
+    assert.ok(!eng.events.some(e => e.k === "reset"), JSON.stringify(eng.events));
+    assert.equal(eng.stats.lateTicks, 1);
+    video.currentTime += 30;                   // the player moved with no seeking event
+    eng.tick();
+    assert.ok(eng.events.some(e => e.k === "reset" && e.why === "jump"));
+});
+
+// Live (1.9.9): on a server at 1.0x nearly every job is left behind by the time it lands; counting
+// only the others kept the estimate at 0.47, and the engine chased lines it could not reach
+// (worst voice-back after a seek 35 s in the 144-run matrix, 24.4 s with this)
+test("a take left behind by a seek still measures the server", async () => {
+    let finish = null;
+    const { clock, video, eng } = freeVoiceEngine(batch => new Promise(res => {
+        finish = () => res(batch.map(p => ({ planId: p.id, wav: new Uint8Array(8), duration: 5 })));
+    }));
+    eng.start();
+    video.play();
+    for (let i = 0; i < 40 && !finish; i++) { clock.advance(50, st => video.step(st)); await new Promise(r => setImmediate(r)); }
+    assert.ok(finish, "no request was made");
+    eng.renderRtf = eng.lastRtf = 0.3;         // a healthy server so far
+    for (const j of eng.jobs.values()) j.orphan = true;
+    clock.ms += 4500;                          // 5 s of audio in 4.5 s: about 0.8x real time
+    finish();
+    for (let i = 0; i < 5; i++) await new Promise(r => setImmediate(r));
+    assert.ok(eng.renderRtf > 0.4, `estimate ${eng.renderRtf} after a slow take`);
+});
+
+test("diagnostics: every line the engine gives up is in the event ring with its reason", async () => {
+    for (const name of ["seekWhileSlow", "slowTts", "rapidSeek"]) {
+        let eng = null;
+        await simRun(name, { trace: x => { eng = x.eng; } });
+        const E = eng.events;
+        assert.ok(E.length < require("../dub-engine.js").SYNC.eventKeep, `${name}: ring full, the count below would be short`);
+        const counted = E.filter(e => e.k === "drop" && e.why !== "entered-too-late").length + E.filter(e => e.k === "skip").reduce((a, e) => a + e.lines, 0);
+        assert.equal(counted, eng.stats.dropped, `${name}: ${JSON.stringify(E.filter(e => e.k !== "late"))}`);
+        assert.ok(E.every(e => typeof e.at === "number" && typeof e.t === "number" && e.k));
+        const snap = eng.debugSnapshot();
+        assert.deepEqual(snap.events, E);
+        assert.ok("rtf" in snap && "lateTicks" in snap && "spoken" in snap);
+    }
+    const { eng } = freeVoiceEngine();
+    const { SYNC } = require("../dub-engine.js");
+    for (let i = 0; i < SYNC.eventKeep + 20; i++) eng.note("error", { kind: "x" + i });
+    assert.equal(eng.events.length, SYNC.eventKeep);
+    assert.equal(eng.events[eng.events.length - 1].kind, "x" + (SYNC.eventKeep + 19));
 });
 
 // ================= RESILIENCE (1.8.8) =================

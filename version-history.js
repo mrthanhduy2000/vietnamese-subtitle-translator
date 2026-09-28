@@ -4,6 +4,24 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "1.9.9", luc: "15:38 28/09/2026", ten: "Lồng tiếng: chuẩn bị giọng trước xa hơn, không còn im rồi bỏ câu khi máy chậm lúc xem video mới",
+            y: [
+                "Giọng VieNeu nay luôn tạo sẵn ít nhất 60 giây lời phía trước (trước đây 20 giây). Khi máy Mac bận làm máy chủ giọng chậm đi vài phút, phần chuẩn bị sẵn đủ bù, giọng không im rồi bỏ câu nữa.",
+                "Việc tạo giọng dở dang bị bỏ lại sau khi tua nay vẫn được dùng để đo tốc độ máy chủ, nên chương trình biết đúng lúc máy chủ chậm.",
+                "Trang bị khựng một nhịp (máy bận) không còn bị tưởng là tua video: câu đang đọc không bị cắt và đọc lại giữa chừng.",
+                "Menu nhanh trên YouTube có nút \"Chép chẩn đoán\": chép tình trạng lồng tiếng gần đây (câu bị bỏ và lý do, lỗi, tốc độ máy chủ) để gửi khi cần kiểm tra.",
+                "Giọng đọc quá chậm so với người nói nhanh: dòng trạng thái gợi ý tên giọng nhanh hơn cùng loại.",
+                "Đánh đổi: khi máy chủ chậm suốt và người xem tua liên tục, số câu được đọc ít hơn khoảng 1,4 phần trăm so với 1.9.8.",
+                "Không rút gọn lời thoại; không gọi Gemini."
+            ],
+            bang: { cot: ["Đo ngoại tuyến (mô phỏng, không phải đo trên video thật)", "1.9.8", "Nay"], hang: [
+                ["Người nói nhanh, máy chủ chậm 2 phút: số câu bị bỏ", "11", "0"],
+                ["Như trên: tổng thời gian im khi đáng lẽ có giọng", "6,6 giây", "0"],
+                ["144 lần chạy máy chủ chậm có tua: số câu được đọc", "2138", "2109"],
+                ["144 lần chạy máy chủ chậm có tua: tổng thời gian im", "799 giây", "745 giây"]
+            ] }
+        },
+        {
             v: "1.9.8", luc: "02:35 28/09/2026", ten: "Lồng tiếng: câu bị quảng cáo cắt ngang được đọc tiếp đúng chỗ, bớt trễ sau khi tua nhiều lần",
             y: [
                 "Câu đang đọc bị quảng cáo cắt ngang: hết quảng cáo đọc tiếp từ chỗ giọng đã dừng, không bỏ đoạn chưa nghe.",

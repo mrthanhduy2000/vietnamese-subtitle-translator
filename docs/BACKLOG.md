@@ -162,6 +162,37 @@ page does. Lines start late or are skipped; only a faster server (int8, GPU) fix
 from the voice's own stop before that point (never ahead), if the lecture is within
 `adResumeWithin` of where it was. Live: resumed at 1.59 s of the take, where 1.9.7 jumped to ~6 s.
 
+## Found by the 1.9.9 review (silence, rush, skipped lines), not fixed
+
+**36. A server that stays slow on a fast talk with a slow voice.** The 60 s buffer (1.9.9) carries a
+slowdown of a few minutes. It cannot help when VieNeu stays at 0.8x or slower for the whole video
+while the voice needs 1.25 s of audio per second of it (Mỹ Duyên, 3.8 syllables/s, on zPSs9a0MYGw).
+Lines then start late or are skipped. What fixes it is a quicker voice (the quick menu names one:
+`fasterVoices`) or a less loaded Mac. Never shorter speech (CLAUDE.md rule 1).
+
+**37. Seeks on a slow server cost a little more since 1.9.9.** A server held at 0.8-1.1x, with a
+viewer who seeks twice a minute: 1.4% fewer lines and 0.24 s more to voice after a seek (144 runs,
+DUBBING.md "1.9.9"). The lever is the server, not the page: `tools/vieneu-fast-release.patch`
+(not applied: it edits `~/VieNeu-TTS`, the user must agree). On a scratch harness of 828 single-take
+hiccups, freeing the slot at once cut subtitle-without-voice time from 1787 to 917 s, and lag drops
+from 234 to 80.
+
+**38. Leads from the 1.9.9 review that a usage limit cut off, not verified:**
+- One slow take then a normal one: `dropRtf()` = min(EMA, latest) had the spike as the latest.
+  `skipAhead` then dropped three lines, one of them in flight and 0.3 s from done. Two patches were
+  drafted: "F5", the min also over the sample before; and "F6", never skip a line not yet due. Both
+  are rejected on the 144-run matrix:
+  - F6 alone: 2109 -> 2074 lines, back after a seek 5.90 -> 6.16 s;
+  - F5 + F6: 2045 lines, 6.41 s.
+  The 24-run test looked better with F6 (286 lines vs 282), which is the one-sample trap again. The
+  1.9.9 buffer already covers most of this case: a line only goes without audio when the buffer is
+  empty.
+- Service-worker CPU per take (cleanTake, shapePauses on 6-12 s takes): the script never finished.
+- A line given up as "entered too late" is not counted in `stats.dropped`, so the quick menu's
+  "đã bỏ N câu" undercounts. `engine.events` has them (`why: "entered-too-late"`).
+- Checked and fine: translation windows landing near the 60 s horizon changed 1 line's closing per
+  8 minutes, at 58 s ahead. At 90 s, 1 line was re-rendered.
+
 ## Cosmetic / housekeeping
 
 **5. The folder name says `v1.0.4`, the extension is many versions past that.** Renaming the folder means

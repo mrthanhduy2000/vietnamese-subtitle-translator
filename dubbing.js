@@ -403,10 +403,49 @@
         // The video speaks fast and the voice keeps up with it (dub-engine paceLimits): say so, or a
         // quicker voice than usual looks like a fault
         const fast = h.pace != null && h.pace > 1.12 ? " · người nói nhanh, đọc nhanh theo" : "";
-        if (h.ahead >= 1) return { text: `${voice} · đã chuẩn bị trước ${Math.round(h.ahead)} giây${fast}${skipped}`, warn: !!h.dropped };
+        // A slow voice on a fast speaker: the voice falls behind and lines get skipped. A quicker voice
+        // makes fewer seconds of audio for the same words (measured, 1.9.9: late starts 59 -> 3 with a
+        // 5.3 syllables/s voice instead of 3.6 on a fast talk), so it is suggested by name
+        const alts = h.paceHigh != null && h.paceHigh >= SLOW_VOICE_PACE && st ? fasterVoices(st.voice) : [];
+        const hint = alts.length ? ` · giọng này đọc chậm so với video, thử ${alts.join(" hoặc ")} để đỡ trễ và bỏ câu` : "";
+        if (h.ahead >= 1) return { text: `${voice} · đã chuẩn bị trước ${Math.round(h.ahead)} giây${hint || fast}${skipped}`, warn: !!h.dropped || !!hint };
         const v = e.d.video;
         if (v && !v.paused) return { text: `${voice} · đang tạo giọng…${skipped}`, warn: !!h.dropped };
         return { text: voice, warn: false };
+    }
+
+    // The busiest quarter of the next 90 s needs the voice this much faster than its natural pace
+    const SLOW_VOICE_PACE = 1.35;
+    // Up to two voices of the same gender that speak clearly faster (same region first)
+    function fasterVoices(name) {
+        const L = window.CST_COST && window.CST_COST.LOCAL_TTS;
+        const all = (L && L.voices) || [];
+        const cur = all.find(v => v.id === name);
+        if (!cur || !cur.sps || cur.sps >= 4.8) return [];
+        return all.filter(v => v.id !== cur.id && v.gender === cur.gender && v.sps >= cur.sps + 0.8)
+            .sort((a, b) => (b.region === cur.region) - (a.region === cur.region) || b.sps - a.sps)
+            .slice(0, 2).map(v => v.id);
+    }
+
+    // Everything needed to read a dubbing problem after the fact, as one JSON text (the quick menu's
+    // "Chép chẩn đoán" copies it). No key, no text of the video beyond line ids and times.
+    function diagnostics() {
+        const e = dub.engine;
+        let snap = null, health = null;
+        try { snap = e ? e.debugSnapshot() : null; } catch (err) { snap = { error: String(err && err.message || err) }; }
+        try { health = describeHealth(); } catch (err) { health = null; }
+        let version = "";
+        try { version = chrome.runtime.getManifest().version; } catch (err) { /* page without the runtime */ }
+        let video = "";
+        try { video = new URL(location.href).searchParams.get("v") || location.pathname; } catch (err) { /* bỏ qua */ }
+        const v = e && e.d ? e.d.video : null;
+        return JSON.stringify({
+            version, at: new Date().toISOString(), host: location.hostname, video,
+            status: dub.lastStatus || null, health,
+            settings: e ? { maxRate: e.settings.maxRate || null, secondVoice: !!e.settings.secondVoice, prefetchMax: e.settings.prefetchMax } : null,
+            player: v ? { t: Math.round((v.currentTime || 0) * 100) / 100, rate: v.playbackRate, paused: !!v.paused, readyState: v.readyState, hidden: !!document.hidden } : null,
+            engine: snap
+        });
     }
 
     // ---------- Nhãn trạng thái trên video ----------
@@ -514,5 +553,5 @@
         if (dub.engine) { try { dub.engine.refresh(true); } catch (e) { /* bỏ qua */ } }
     }
 
-    window.CST_DUB = { dub, start, stop, describeHealth, level, refreshText, forgetVideoAudio, showDubBadge, hideDubBadge, readSettings, prepareHold, hold };
+    window.CST_DUB = { dub, start, stop, describeHealth, diagnostics, fasterVoices, level, refreshText, forgetVideoAudio, showDubBadge, hideDubBadge, readSettings, prepareHold, hold };
 })();
