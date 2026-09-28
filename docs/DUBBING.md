@@ -732,7 +732,12 @@ evidence:
   Every long `total=` there has `active=1` and a cut audio length: a take the page left, not one
   the timeout cut. The path is kept for a truly stuck model and costs nothing when it does not fire.
 - Translation windows near the 60 s horizon: 1 line's closing changed per 8 minutes. Fine.
-- Service-worker CPU per take (cleanTake, shapePauses): not measured, the script never finished.
+- Service-worker CPU per take, measured 2026-09-29 on the 280 corpus takes (node, 48 kHz, the
+  `splitTtsAudio` chain): ~11 ms per second of audio, 90 ms mean / 124 ms p90 for a 6-12 s take.
+  `cleanTake` is 90% of it; base64 of a 10 s WAV is 3 ms. It runs inside the serial slot
+  (`localSerial`), so it delays the next request by ~4% of render time at RTF 0.24 and ~1% at RTF
+  1, where it would matter. Moving it out of the slot was judged not worth touching the store-then-
+  reply order for.
 
 Held audio in the page: up to 195 s on the fast talk (41 lines, about 18 MB of 48 kHz WAV), against
 150 s before. `playback-sim.js` gains `scale`, `sps`, `unique` and `maxHeld`. `unique` keys each line
