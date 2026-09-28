@@ -6,37 +6,41 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-28 · `dub-engine.js` (lane B), `tests/dub.test.js`, `version-history.js`, docs · `2.0.0`.
-Earlier the same session: BACKLOG 37 declined by the user (entry and patch removed, never re-add).
+2026-09-28 · `dub-engine.js` (lane B), `tests/dub.test.js`, `version-history.js`, docs · `2.0.1`.
 
 ## What changed
-- `nextSpeech` start/seek branch: `entryWait` remembers a line waited on for audio with more than
-  `SYNC.entryWaitMin` (1 s) left. Lost -> `stats.dropped++` and a `drop` event `entry-no-audio`, so
-  the quick menu's "đã bỏ N câu" no longer undercounts. A seek into a line's tail stays
-  `entered-too-late`, not counted. `hardReset` clears it. Behaviour unchanged: slow and rapid
-  matrices identical to 1.9.9.
-- Two BACKLOG 38 leads tried and refuted on the matrix (numbers in BACKLOG 38): cancelling renders
-  of passed lines (worse), a Theil-Sen overhead fit (noise). Neither is in the code.
+- Found live (`tests/harness/live.html`, real VieNeu): an ad that comes while the voice rests
+  after a finished line, its subtitle still up, made the engine read that line's tail again after
+  the ad (from 4.63 s of the take). `adGate` now keeps `adCut = { done: true }` and `takeAdResume`
+  restores `lastSpokenStart` / `lastSpokenId` (`stats.adKeptPlace`). New test fails on 2.0.0.
+  Live rerun: no replay, next line on time, worst lag 0.61 s (2.0.0 run: 5.96 s).
+- Live check of 2.0.0 otherwise clean: 0 errors, 0 overlapping voices, seeks back to voice in
+  0.07-1.3 s.
+- Not done, on purpose: BACKLOG 24 (caps against the English source line). There is no paired
+  English/Vietnamese data with caps to measure it on (speech corpus has no source lines for those
+  items, server.log holds no text), and the rule could break "ML" written for "machine learning".
+- A mid-session mistake, undone: work supporting the VieNeu fast-release patch was started before
+  reading the user's decline (BACKLOG 37). It was reverted uncommitted; nothing of it is in git.
 
 ## State
-- Tests: 565 pass, 0 fail, 1 skip. Reload: **yes**, at `chrome://extensions`.
+- Tests: 566 pass, 0 fail, 1 skip. Reload: **yes**, at `chrome://extensions`.
 
 ## Unfinished / in progress
-- Carried over: 1.9.9 / 2.0.0 not yet watched live; ask the user for "Chép chẩn đoán" right after a
-  problem.
-- The user asked to keep working through BACKLOG and improving existing features. Left in 38:
-  `jobRemain`'s 0.3 s floor, the worker retrying a stuck take. Low yield so far on sync tuning.
-- Carried over: BACKLOG 36; glossary keep-English per term not watched in Chrome; real Gemini
-  output before/after 1.8.3/1.8.4 not compared; BACKLOG 30, 31, 14-15, 18-24, 26, 28 (20 outside);
-  the user's verdict on the 1.9.5 A/B WAVs; 1.7.9 duck fix not confirmed; Udemy / edX (BACKLOG 9).
+- Carried over: ask the user for "Chép chẩn đoán" right after a problem; BACKLOG 38 leads left
+  (`jobRemain`'s 0.3 s floor, the worker retrying a stuck take), low yield so far; BACKLOG 36;
+  glossary keep-English per term not watched in Chrome; real Gemini output before/after 1.8.3/1.8.4
+  not compared; BACKLOG 30, 31, 14-15, 18-24, 26, 28 (20 outside); the user's verdict on the 1.9.5
+  A/B WAVs; 1.7.9 duck fix not confirmed; Udemy / edX (BACKLOG 9).
 - The user should turn Chrome's "Allow JavaScript from Apple Events" back off.
+- A stray backup `~/VieNeu-TTS/apps/openai_speech.py.cst-before-fast-release` (identical to the
+  server file, harmless) was left by an earlier session of this one; the user may delete it.
 
 ## Traps hit this session
-- Measure any sync change with `node tools/sim-matrix.js slow <copy of old dub-engine.js>` and
-  `rapid`; keep the old engine in the scratchpad (`git show HEAD:dub-engine.js > ...`).
-- Anything that aborts a started VieNeu take more eagerly loses on the matrix (DANGER §15).
-- A scratch-harness win can be large while real use is rare: check `~/VieNeu-TTS/server.log` first.
+- Read `git log` again before continuing after a break: another session may have committed (here it
+  recorded a user decision that made the work in hand wrong).
+- A sim test with 2.5 s takes cannot show a re-entered tail: entry drops a tail under 0.8 s. Use
+  takes near real length (5 s) when testing entry after a reset.
+- Live harness: restart the server between compared runs and close old tabs.
 
 ## Suggested next step
-- A live check of 2.0.0 with the diagnostics button, then BACKLOG 24 (caps checked against the
-  English source line) measured with `tools/pron-eval.js`.
+- `?script=stress` on the live harness after any engine change; a live YouTube check by the user.

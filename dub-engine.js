@@ -699,6 +699,11 @@
                     const S = this.speech, r = S && this.rendered.get(S.id);
                     this.adCut = S && r && r.el && !r.el.ended && this.lastT != null
                         ? { id: S.id, pos: r.el.currentTime || 0, at: this.lastT } : null;
+                    // ... or, the voice resting between lines, the line it last finished: after the ad
+                    // that line is not read again from the video's place (live harness, 2.0.0: the tail
+                    // of a finished line was read twice because its subtitle was still up)
+                    if (!this.adCut && this.lastSpokenId && this.lastT != null)
+                        this.adCut = { done: true, id: this.lastSpokenId, start: this.lastSpokenStart, at: this.lastT };
                     this.silence();
                     this.speech = null;
                 }
@@ -722,6 +727,12 @@
             const x = this.adResume;
             this.adResume = null;
             if (!x || Math.abs(t - x.at) > SYNC.adResumeWithin) return null;    // the lecture moved: a seek
+            if (x.done) {                       // go on after the line already heard
+                this.lastSpokenStart = x.start;
+                this.lastSpokenId = x.id;
+                this.stats.adKeptPlace = (this.stats.adKeptPlace || 0) + 1;
+                return null;
+            }
             const p = this.planById.get(x.id), r = this.rendered.get(x.id);
             if (!p || !r || x.pos >= r.duration - 0.3) return null;
             let offset = x.pos;

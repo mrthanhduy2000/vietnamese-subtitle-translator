@@ -307,6 +307,31 @@ test("YouTube ad cutting a line: after the ad the same line goes on from where t
     assert.ok(resumed.offset <= cut.pos + 0.1 && resumed.offset >= cut.pos - 1.3, `resumed at ${resumed.offset.toFixed(2)} s, the voice was at ${cut.pos.toFixed(2)} s`);
 });
 
+// 2.0.1: an ad that comes while the voice rests after a line whose subtitle is still up. After the
+// ad that line was entered again at the video's place and its tail read a second time.
+test("YouTube ad between lines: the line already heard is not read again after the ad", async () => {
+    let ad = false, lectureT = 0, heard = null, adAt = null, after = null;
+    // 5 s takes: long enough that the tail entered again is not dropped as too short to start
+    const render = async plans => plans.map(p => ({ planId: p.id, wav: new Uint8Array(8), duration: 5 }));
+    const run = await resilienceRun({ get: async () => ({}), render, seconds: 60, deps: { adShowing: () => ad },
+        makeAudio: clock => new FakeAudio(clock, { duration: 5 }),
+        each: (ms, eng) => {
+            const v = eng.d.video;
+            const p = eng.lastSpokenId && eng.planById.get(eng.lastSpokenId);
+            // voice done, the line's subtitle still up a little longer
+            if (adAt == null && ms > 8000 && !eng.speech && p && v.currentTime < p.end - 0.5 && v.currentTime > p.start + 4) {
+                adAt = ms; heard = p.id;
+                ad = true; lectureT = v.currentTime; v.currentTime = 0; v.emit("seeking"); v.emit("seeked");
+            }
+            if (adAt != null && ms === adAt + 6000) { ad = false; v.currentTime = lectureT; v.emit("seeking"); v.emit("seeked"); after = eng.stats.started.length; }
+        } });
+    assert.ok(heard, "no rest inside a subtitle was found in this run");
+    const next = run.eng.stats.started[after];
+    assert.ok(next, "nothing was read after the ad");
+    assert.notEqual(next.id, heard, "the line heard before the ad was read again");
+    assert.equal(run.eng.stats.adKeptPlace, 1);
+});
+
 // 1.9.2: Reload at chrome://extensions while the original track is ducked. The old content script
 // runs on until its liveness poll notices (up to 1.5 s) or never stops at all, and the new one
 // starts on the same <video>. Each took the other's ducked level for the user's own: after dubbing

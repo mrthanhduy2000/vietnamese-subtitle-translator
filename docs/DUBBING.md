@@ -602,6 +602,11 @@ engine resets once (`hardReset("ad")`, `lastT` cleared). The subtitle loop has t
 
 **1.9.8 ad resume** (BACKLOG 35, `adCut` / `takeAdResume`). The line an ad cuts goes on where the
 voice was, not where the video was. A seek after the ad drops it (`hardReset` clears `adResume`).
+2.0.1: an ad that comes while the voice rests after a finished line whose subtitle is still up
+leaves `adCut = { done: true }`; after the ad `takeAdResume` restores `lastSpokenStart` /
+`lastSpokenId` (`stats.adKeptPlace`), so the engine goes on with the next line. Before, the fresh
+path entered that line again at the video's place and read its tail twice (live harness, 2.0.0:
+from 4.63 s of a take already heard).
 
 ### A slow server (1.9.7 to 1.9.9)
 

@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.0.1", luc: "21:08 28/09/2026", ten: "Lồng tiếng: sau quảng cáo không đọc lại câu vừa nghe xong",
+            y: [
+                "Quảng cáo chen vào lúc giọng vừa đọc xong một câu (phụ đề của câu vẫn còn trên màn hình): trước đây hết quảng cáo, phần cuối câu đó bị đọc lại lần nữa. Nay giọng đi tiếp sang câu sau.",
+                "Kiểm tra thật trong Chrome với máy chủ VieNeu: câu sau quảng cáo bắt đầu đúng giờ; trễ nhất 0,61 giây thay vì 5,96 giây ở lần chạy trước."
+            ]
+        },
+        {
             v: "2.0.0", luc: "20:54 28/09/2026", ten: "Lồng tiếng: menu nhanh đếm đúng số câu bị bỏ",
             y: [
                 "Dòng \"đã bỏ N câu để bắt kịp\" trong menu nhanh nay tính cả câu bị mất vì phải chờ giọng quá lâu ngay sau khi mở video hoặc tua. Trước đây những câu này không được đếm nên con số thấp hơn thực tế.",
