@@ -40,7 +40,6 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   inside the sandbox; a baseline module must sit in a repo copy (`git archive HEAD | tar -x`).
 - Compare planners or engines in separate processes: `CST_DUB_PLAN` / `CST_DUB_PROSODY` are
   globals, so a second engine loaded in one process silently runs the first one's planner.
-- CSS: "same selector later" is not enough; the media query and `!important` must match too.
 
 ## Suggested next step
 - `?script=stress` and `?script=viewer2` on the live harness after any engine change.
