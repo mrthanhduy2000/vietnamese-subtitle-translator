@@ -6,21 +6,21 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · `dub-engine.js`, `dub-planner.js`, `dub-prosody.js` (lane B), `tests/`, docs · `2.0.7`.
+2026-09-29 · `dub-engine.js` (lane B), `tests/dub.test.js`, docs · `2.0.8`.
 
 ## What changed
-- 2.0.7: the next part of a sentence changes pace by at most `SYNC.rateStepInSentence` 0.03
-  (down only on the sentence's last part: a part that goes on may slow freely, or the voice waits
-  mid-sentence). Rapid matrix: in-sentence changes >= 0.05 23 -> 6 of 53; delivery identical.
-- 2.0.6: head cuts (the ~3.5 s pieces after a start or seek) go to a phrase boundary near the
-  middle (`lineGapValues`, `HEAD_CUT`), not the syllable midpoint: inside a phrase 106 -> 30 of
-  ~157 cuts. The 24-run slow test moved 282 -> 278 lines on one chaotic run; its guard is now 275 /
-  140 s, with the 144-run paired evidence in the test comment. `DUBBING.md` "2.0.6 head cuts".
+- 2.0.8: ducking between lines. `lineComing` / `nextVoiceAt` know when the next line starts (its
+  take is in the page, or the system voice's next phrase): a gap under `SYNC.duckBridge` 2.0 wall s
+  stays ducked, a longer one comes down ~0.45 s before the line; a pause mid-line holds the duck.
+  Nine scenarios: pumps 88/180 -> 2, loud line starts 163/265 -> 11, delivery identical on both
+  paths. `DUBBING.md` "Ducking between lines (2.0.8)". Not heard by ear.
+- 2.0.7: the next part of a sentence changes pace by at most `SYNC.rateStepInSentence` 0.03.
+- 2.0.6: head cuts go to a phrase boundary near the middle (`lineGapValues`, `HEAD_CUT`); the
+  24-run slow test guard is 275 / 140 s, the paired 144-run evidence is in its comment.
 - 2.0.4 / 2.0.5, BACKLOG 16: more predicate verbs, guards, `SUBJECT_PP` (`DUBBING.md` "2.0.4").
-- 2.0.2 / 2.0.3: dead CSS gone (BACKLOG 7); BACKLOG 38 closed, numbers in `DUBBING.md`.
 
 ## State
-- Tests: 570 pass, 0 fail, 1 skip. Reload: **yes**, at `chrome://extensions`.
+- Tests: 572 pass, 0 fail, 1 skip. Reload: **yes**, at `chrome://extensions`.
 - Takes cached: `~/.cache/cst-prosody-takes` (11 sets). `tests/harness/smooth/` predates 2.0.6
   (`t7367` missing): rerun `smooth-prep.js`.
 

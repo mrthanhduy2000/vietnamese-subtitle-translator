@@ -169,8 +169,12 @@
         liveStallFactor: 2.5,
         liveStallPadMs: 2000,
         maxAudio: 600,
-        duckRampPerTick: 0.09,    // tốc độ hạ/nâng âm lượng video mỗi nhịp (mượt ~200 ms)
-        duckHold: 0.35            // giữ mức hạ thêm chút sau khi nói xong (tránh "bơm" âm lượng giữa các cụm)
+        duckRampPerTick: 0.09,    // how far the video's volume moves per tick: 0.2 <-> 1 takes ~0.45 s
+        duckHold: 0.35,           // the original stays down this long (media s) after a line ends
+        // (2.0.8) Before a line whose start is known (its take is in the page, or a system-voice
+        // phrase), a gap shorter than this (wall seconds) keeps the original down, and after a longer
+        // one it comes down before the line starts (lineComing)
+        duckBridge: 2.0
     };
 
     // ============================================================
@@ -800,6 +804,7 @@
                     onstart: () => { state.wallStart = this.d.now(); },
                     onend: () => {
                         state.speaking = false;
+                        state.endMedia = this.d.video.currentTime;
                         if (state.wallStart !== null && !state.cancelled) this.calibrate(state, videoRate);
                         if (k === plan.phrases.length - 1) state.finished = true;
                     },
@@ -2063,13 +2068,57 @@
         // (luồng media khác nguồn), nên giữ nhạc nền bằng cách HẠ NHỎ tiếng gốc
         // khi có lời Việt, tăng/giảm dần để không giật.
         updateDuck(t, playing) {
-            const active = playing && t <= this.speakingUntilMedia;
+            // (2.0.8) Paused, loading or stalled with a line under way or about to start: the original
+            // stays down. It came back to full during a pause, and the voice went on over it at 91%
+            const cut = this.live && this.live.cancelled && !this.live.finished;    // a system-voice phrase cut by the pause
+            const held = !playing && !this.d.video.ended && !this.inAd && !!(this.speech || cut || this.lineComing(t));
+            // A system-voice phrase still speaking past its predicted end (a slower voice) is still speech
+            const speaking = t <= this.speakingUntilMedia || !!(this.live && this.live.speaking);
+            const active = held || (playing && (speaking || this.lineComing(t)));
             const target = active ? this.settings.duck : 1;
             const step = SYNC.duckRampPerTick;
             if (!this.duckDirty && Math.abs(this.duckFactor - target) < 1e-3) return;
             this.duckDirty = false;
             this.duckFactor = this.duckFactor < target ? Math.min(target, this.duckFactor + step) : Math.max(target, this.duckFactor - step);
             this.setVideoVolume((this.baseVolume == null ? 1 : this.baseVolume) * this.duckFactor);
+        }
+
+        // (2.0.8) Between two lines: when the next one starts (nextVoiceAt), a gap under
+        // SYNC.duckBridge wall seconds keeps the original down, and after a longer one it is down
+        // again when the line starts. Before, it came back after duckHold whatever came next. Nine
+        // simulator scenarios: 88 of 180 gaps under 1.5 s let it up and down again (a pump), 2 now
+        // (a take not made in time); 163 of 265 lines began over it above 50%, 11 now (the first
+        // line after a start, a late take). The system voice: 10 of 30 and 18 of 38, both 0 now
+        lineComing(t) {
+            const next = this.nextVoiceAt(t);
+            if (!next || t > next.at + SYNC.duckHold) return false;    // due and still silent: let it up
+            const vr = Math.max(0.25, this.d.video.playbackRate || 1);
+            const ramp = Math.ceil((1 - this.settings.duck) / SYNC.duckRampPerTick) * SYNC.tickMs / 1000;
+            return (next.end != null && (next.at - next.end) / vr <= SYNC.duckBridge) || t >= next.at - ramp * vr;
+        }
+
+        // { end, at }: the media time the last line ended (null after a start or a seek) and the one
+        // the next starts, by the rules that start it. A take in the page: nextSpeech's (the rest after
+        // the last line; a running sentence may take the next part up to chainLead early; else the
+        // subtitle's start). The system voice: tickLive's (each phrase at its own place in the video).
+        // null while a line plays or when the next one's start is not known (its take is not made)
+        nextVoiceAt(t) {
+            if (this.speech) return null;
+            if (this.provider.caps.live) {
+                const L = this.live, plan = L && L.planId ? this.planById.get(L.planId) : null;
+                if (!plan || L.speaking || L.endMedia == null) return null;
+                const q = L.k + 1 < plan.phrases.length ? plan : this.plans[this.plans.indexOf(plan) + 1];
+                if (!q || !q.phrases.length) return null;
+                const due = q.start + q.phrases[q === plan ? L.k + 1 : 0].offset;
+                return { end: L.endMedia, at: Math.max(L.endMedia, due - SYNC.startTolerance, q === plan ? -Infinity : q.start) };
+            }
+            const end = this.lastSpeechEnd, fresh = this.lastSpokenStart == null;
+            const q = this.plans[this.planAt(fresh ? t + SYNC.startTolerance : this.lastSpokenStart + 1e-6) + 1];
+            if (!q || !this.rendered.has(q.id)) return null;
+            const prev = end != null && this.lastSpokenId ? this.planById.get(this.lastSpokenId) : null;
+            const chain = !!(prev && prev.continuesNext && this.plans[this.plans.indexOf(prev) + 1] === q);
+            const rest = this.lastSpeechGap != null ? this.lastSpeechGap : (this.lastSpeechJoined ? SYNC.joinGap : SYNC.sentenceGap);
+            return { end, at: Math.max(end != null ? end + rest : -Infinity, q.start - (chain ? SYNC.chainLead : SYNC.startTolerance)) };
         }
 
         setVideoVolume(vol, restore) {

@@ -557,6 +557,41 @@ test("YouTube re-applying its own volume mid-speech does not undo the duck", () 
     assert.ok(Math.abs(S.video.volume - 0.75) < 0.01, `restored to ${S.video.volume}`);
 });
 
+// 2.0.8, the system voice, the same cases before: 10 of 30 short gaps pumped, 18 of 38 phrases began
+// over the original above 30%, it rose under 6 to 8% of the voice (phrases running past their
+// predicted end), and the phrase cut by the pause went on over it at 91%.
+test("system voice: the original stays down between close phrases, under a slow phrase and across a pause", () => {
+    // voiceSpeed 0.8: a voice slower than the engine's model, so phrases run past their predicted end
+    for (const { rate, voiceSpeed } of [{ rate: 1 }, { rate: 1.5 }, { rate: 1, voiceSpeed: 0.8 }]) {
+        const S = runLive({ rate, voiceSpeed });
+        let prev = false, gap = null, first = true, pumps = 0, gaps = 0, starts = 0, pausedAt = null, resumed = null, under = 0, voiced = 0;
+        const loud = [];
+        for (let w = 0; w < 150000; w += 50) {
+            if (pausedAt == null && w >= 30000 && S.sp.active) { S.video.pause(); pausedAt = w; }
+            if (pausedAt != null && resumed == null && w >= pausedAt + 5000) { S.video.play(); resumed = w; }
+            S.run(50);
+            if (S.video.paused) { prev = false; gap = null; continue; }
+            const voice = !!S.sp.active, f = S.video.volume / 0.8;
+            if (voice) { voiced++; if (f > 0.35) under++; }
+            if (voice && !prev) {
+                if (gap && w - gap.at < 1500) { gaps++; if (gap.peak > 0.5) pumps++; }
+                if (!first) { starts++; if (f > 0.3) loud.push(`${w} ms ${f.toFixed(2)}`); }
+                first = false;
+                gap = null;
+            } else if (!voice) {
+                if (prev) gap = { at: w, peak: 0 };
+                if (gap) gap.peak = Math.max(gap.peak, f);
+            }
+            prev = voice;
+        }
+        const at = `${rate}x, voice ${voiceSpeed || 1}`;
+        assert.ok(resumed != null && starts >= 25 && gaps >= 20, `${at}: too little measured (${starts} phrases, ${gaps} short gaps)`);
+        assert.equal(pumps, 0, `${at}: ${pumps} of ${gaps} short gaps let the original up and down again`);
+        assert.deepEqual(loud, [], `${at}: phrases that began over the original above 30% (one is the phrase resumed after the pause)`);
+        assert.ok(under / voiced < 0.01, `${at}: the original above 35% under ${(100 * under / voiced).toFixed(1)}% of the voice`);
+    }
+});
+
 // ================= 6. ĐỒNG BỘ AUDIO CÓ SẴN (Gemini TTS) =================
 function fakeGeminiProvider(clock, opts = {}) {
     const calls = [];
@@ -918,6 +953,41 @@ test("playback delivery: in every scenario no two voices overlap, no line is gen
         assert.ok(r.maxHeld <= 210, `${name}: ${r.maxHeld} s of audio held`);
         assert.ok(r.maxRendered <= 45, `${name}: ${r.maxRendered} lines held`);
     }
+});
+
+// 2.0.8: the original track came back after duckHold whatever came next. In a 0.8 s sentence gap it
+// was at full just as the next line began and was ducked again under that line's first words (a
+// pump), and after a pause the line went on over it at full. These three scenarios before: 25 of 40
+// gaps under 1.5 s pumped, 61 of 74 lines began over it above 30%; in gaps over 2.5 s it was back at
+// full 74% of the time (60% now: it comes down before the next line). The first line after the start
+// is left out: its take lands when it is due, so nothing can bring the original down ahead of it.
+test("playback delivery: the original stays down through a short gap and a pause, is down when a line starts, and comes back in a long gap", async () => {
+    let shortGaps = 0, pumps = 0, starts = 0, longTicks = 0, longBack = 0;
+    const loud = [];
+    for (const name of ["normal", "pauseResume", "rate15"]) {
+        let prevVoice = false, gap = null, first = true;
+        await simRun(name, { trace: ({ wall, video, eng }) => {
+            const S = eng.speech, r = S && eng.rendered.get(S.id);
+            const f = video.volume / (eng.baseVolume != null ? eng.baseVolume : 0.8);
+            if (video.paused) { prevVoice = false; gap = null; return; }   // a pause is not a gap
+            const voice = !!(r && r.el && !r.el.paused);
+            if (voice && !prevVoice) {
+                if (gap && wall - gap.at < 1500) { shortGaps++; if (gap.peak > 0.5) pumps++; }
+                if (gap && wall - gap.at >= 2500) { longTicks += gap.ticks; longBack += gap.back; }
+                if (!first) { starts++; if (f > 0.3) loud.push(`${name} ${S.id} ${f.toFixed(2)}`); }
+                first = false;
+                gap = null;
+            } else if (!voice) {
+                if (prevVoice) gap = { at: wall, peak: 0, ticks: 0, back: 0 };
+                if (gap) { gap.peak = Math.max(gap.peak, f); gap.ticks++; if (f > 0.9) gap.back++; }
+            }
+            prevVoice = voice;
+        } });
+    }
+    assert.ok(starts >= 60 && shortGaps >= 30 && longTicks > 0, `too little measured: ${starts} starts, ${shortGaps} short gaps`);
+    assert.equal(pumps, 0, `${pumps} of ${shortGaps} short gaps let the original up and down again`);
+    assert.deepEqual(loud, [], "lines that began over the original above 30%");
+    assert.ok(longBack / longTicks > 0.4, `the original back at full for only ${(100 * longBack / longTicks).toFixed(0)}% of the long gaps`);
 });
 
 test("playback delivery: stopping the engine (another video, dubbing off) drops its queued requests", async () => {

@@ -479,6 +479,22 @@ Knobs you will actually reach for:
   own full level (Stable Volume after a seek, measured 0.1 -> 0.89). Elsewhere it is divided by the
   duck factor (a native slider shows the ducked value). Before 1.7.9 a YouTube write mid-speech left
   the original loud until the voice paused.
+- **Ducking between lines (2.0.8)**: `lineComing` / `nextVoiceAt` know when the next line starts
+  whenever that is known: its take is in the page (by `nextSpeech`'s own rules: the rest after the
+  last line, `chainLead` for a running sentence, the subtitle start after a start or seek), or it is
+  the system voice's next phrase (`tickLive`'s due time; `live.endMedia` is set in `onend`). A gap
+  under `SYNC.duckBridge` 2.0 wall seconds keeps the original down; after a longer one it comes down
+  a ramp's length (~0.45 s) before the line. It is let up when the line is `duckHold` late. While
+  paused, loading or stalled with a line under way (`speech`, a system-voice phrase the pause cut) or
+  about to start, the duck holds instead of releasing, and a system-voice phrase still speaking past
+  its predicted end still counts as speech. Before, the original came back after `duckHold` whatever
+  came next: in a 0.8 s sentence gap it was at full just as the next line began, then ramped down
+  under that line's first words. Nine playback-sim scenarios (`normal rate15 slowTranslation slowTts
+  fastSlowdown pauseResume rate2 seekForward seekBackward`): pumps (above 50% inside a gap under
+  1.5 s) 88/180 -> 2/180, lines beginning over it above 50% 163/265 -> 11/265, voice time over it
+  above 35% 6.4% -> 0.4%; gaps over 2.5 s still have it at full 63% of the time (75% before). What
+  is left is inherent: the first line after a start and a take that lands late. Delivery is identical
+  (rapid and slow matrices, every scenario). Not verified by ear; `duckBridge` is the one knob.
 
 **Planning window (1.6.3).** `refresh` plans only groups overlapping
 `[step*planStep - planBehind, (step+1)*planStep + planAhead]` (60 / 150 / 300 s) plus one group past

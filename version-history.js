@@ -4,6 +4,20 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.0.8", luc: "06:47 29/09/2026", ten: "Lồng tiếng: tiếng gốc không còn bật lên giữa hai câu",
+            y: [
+                "Trước đây giọng Việt dừng quá 0,35 giây là tiếng gốc bắt đầu to lại. Với khoảng nghỉ 0,8 giây giữa hai câu, tiếng gốc vừa về đủ to đúng lúc câu sau bắt đầu, nên mấy chữ đầu của câu Việt bị tiếng gốc đè lên rồi mới hạ xuống. Nay khi đã biết câu sau bắt đầu lúc nào (audio của nó đã có sẵn), khoảng nghỉ dưới 2 giây giữ nguyên mức hạ; khoảng nghỉ dài hơn thì tiếng gốc được hạ xuống trước khi câu sau bắt đầu.",
+                "Tạm dừng rồi phát tiếp giữa một câu: tiếng gốc giữ ở mức hạ, không còn to lên 91% đúng lúc giọng Việt đọc tiếp. Giọng hệ thống (giọng dự phòng) cũng được sửa như vậy, và tiếng gốc không còn to lên dưới một cụm đọc chậm hơn dự kiến.",
+                "Khoảng lặng dài vẫn để tiếng gốc (nhạc, âm thanh minh họa) trở lại, chỉ hạ xuống sớm hơn một chút trước câu kế tiếp. Cách đọc không đổi: số câu, thời điểm và tốc độ đọc giống hệt bản trước trên mọi mô phỏng. Đo ngoại tuyến, chưa nghe thử bằng tai, không gọi dịch vụ trả phí."
+            ],
+            bang: { cot: ["9 tình huống mô phỏng", "2.0.7", "Nay"], hang: [
+                ["Khoảng nghỉ dưới 1,5 giây mà tiếng gốc bật lên rồi hạ", "88 / 180", "2 / 180"],
+                ["Câu bắt đầu khi tiếng gốc còn trên 50%", "163 / 265", "11 / 265"],
+                ["Thời gian đọc mà tiếng gốc còn trên 35%", "6,4%", "0,4%"],
+                ["Khoảng lặng trên 2,5 giây có tiếng gốc đủ to", "75%", "63%"]
+            ] }
+        },
+        {
             v: "2.0.7", luc: "02:56 29/09/2026", ten: "Lồng tiếng: nhịp đọc đều trong cùng một câu",
             y: [
                 "Câu dài được đọc thành nhiều đoạn: phần sau của câu nay giữ gần như nguyên nhịp của phần trước (đổi tối đa 3%), không còn lúc nhanh lúc chậm giữa chừng câu. Đoạn còn nối tiếp vẫn được chậm lại khi cần, để giọng không phải dừng giữa câu chờ phụ đề; khi giọng đang trễ nhiều thì vẫn được đuổi kịp như cũ.",
