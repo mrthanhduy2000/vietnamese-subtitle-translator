@@ -15,6 +15,10 @@ How this file works:
 Closed (story in git and `version-history.js`): 1-4 (1.6.4), 6, 10 and 12 (1.9.4), 17 (1.7.8),
 25 (merged into 31), 32 and 34 (1.8.7), 35 (1.9.8).
 
+Declined by the user, never re-add or re-propose: 37 (2026-09-28, the VieNeu "release the slot at
+once" server patch; real use showed 27 slow releases in 7979 takes, ~2 min of delay a week, and the
+full gain needed the fragile abort path in `DANGER.md` §15. The patch was deleted; it is in git).
+
 ## Defects
 
 none open.
@@ -53,13 +57,6 @@ server (int8, GPU) fixes that, and `describeHealth` tells the viewer.
 the whole video while the voice needs 1.25 s of audio per second of it (Mỹ Duyên, 3.8 syllables/s,
 on zPSs9a0MYGw). Lines then start late or are skipped. What fixes it is a quicker voice (the quick
 menu names one: `fasterVoices`) or a less loaded Mac. Never shorter speech (CLAUDE.md rule 1).
-
-**37. Seeks on a slow server cost a little more since 1.9.9.** *(found 1.9.9)* A server held at
-0.8-1.1x, with a viewer who seeks twice a minute: 1.4% fewer lines and 0.24 s more to voice after a
-seek (144 runs, DUBBING.md "1.9.9"). The lever is the server, not the page:
-`tools/vieneu-fast-release.patch` (not applied: it edits `~/VieNeu-TTS`, the user must agree). On a
-scratch harness of 828 single-take hiccups, freeing the slot at once cut subtitle-without-voice time
-from 1787 to 917 s, and lag drops from 234 to 80.
 
 **38. Leads from the 1.9.9 review that a usage limit cut off, not verified:** *(found 1.9.9)*
 - One slow take then a normal one: `dropRtf()` = min(EMA, latest) had the spike as the latest.

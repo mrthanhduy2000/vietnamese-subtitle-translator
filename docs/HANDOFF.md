@@ -6,38 +6,34 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-28 · docs + `tools/doc-sizes.js` + `.claude/commands/ban-giao.md` · still `1.9.9`, no bump
-(no runtime file changed). Two commits: structure, then a fact-check pass.
+2026-09-28 · `docs/BACKLOG.md`, `docs/HANDOFF.md`, deleted `tools/vieneu-fast-release.patch` ·
+still `1.9.9`, no bump (no runtime file changed).
 
 ## What changed
-- `DUBBING.md` by topic in three parts (what is said / when / who and where), a layout note on top;
-  1.9.5 / 1.9.6 prosody notes moved out of "Delivery", which now has 5 `###` subsections.
-- `BACKLOG.md` grouped by area, numbers kept (next free: 39), a "Closed" list for cited numbers.
-- Fact-checked every doc against the code (names, SYNC values, routes, storage keys, load order,
-  globals, README counts). Fixed: storage.sync is 30 keys + `originalFirst` (popup) + `uiTheme`;
-  storage.session also holds `localTtsLastOk`; `setOptions` note (gone since 1.4.4); DANGER §13
-  audio key (speakScript + prosody signature); MAP "Who consumes what" regenerated from code.
-- `tools/doc-sizes.js` now also rewrites the "~Tests" column of `TESTING.md` and MAP's test counts,
-  and names a test file with no row; `/ban-giao` step 5 runs it.
+- The user **declined** BACKLOG 37 (the VieNeu "release the slot at once" server patch). Entry
+  removed, patch file deleted, a "Declined" line in BACKLOG says never to re-add or re-propose it.
+- Why, for the record: `~/VieNeu-TTS/server.log` over 7 days showed 27 watchdog releases in 7979
+  takes (~4 a day, each up to 4-5 s of wait, ~2 min a week). The 1787 -> 917 s figure came from an
+  artificial 828-hiccup harness. The full gain also needed `background.js` to abort eagerly on seek,
+  the fragile path in `DANGER.md` §15.
 
 ## State
-- Tests: 564 pass, 0 fail, 1 skip. Reload: not needed (docs only).
+- Tests: 0 fail (see the commit). Reload: not needed (docs only).
+- `~/VieNeu-TTS` is untouched by this session: it still runs CST patch 1 only. Its untracked
+  `apps/openai_speech.py.cst-before-fast-release` is an identical backup left by the 1.9.9 session.
 
 ## Unfinished / in progress
 - Carried over from the 1.9.9 session: 1.9.9 not yet watched live; next time ask the user for
   "Chép chẩn đoán" right after a problem.
-- Carried over: ask whether to apply `tools/vieneu-fast-release.patch` (BACKLOG 37); then make
-  `background.js` cut a running request at once when /health says `release_on_leave`.
-- Carried over: BACKLOG 36-38; glossary keep-English per term not watched in Chrome; real Gemini
+- Carried over: BACKLOG 36, 38; glossary keep-English per term not watched in Chrome; real Gemini
   output before/after 1.8.3/1.8.4 not compared; BACKLOG 30, 31, 14-15, 18-24, 26, 28 (20 outside);
   the user's verdict on the 1.9.5 A/B WAVs; 1.7.9 duck fix not confirmed; Udemy / edX (BACKLOG 9).
 - The user should turn Chrome's "Allow JavaScript from Apple Events" back off.
 
 ## Traps hit this session
-- `npm test` works in the sandbox (exit 0). It prints certificate errors and a denied
-  registry.npmjs.org line: npm's own update check, harmless. Summary lines start with `ℹ`, not `#`.
-- BACKLOG numbers 6, 17, 32, 34 looked unused; git shows they were fixed and deleted. Check
-  `git log -p -- docs/BACKLOG.md` before claiming a number was never used.
+- A scratch-harness win can look large; check `server.log` for how often the case really happens
+  before proposing a change (`grep -c "released a stream slot idle" ~/VieNeu-TTS/server.log`).
 
 ## Suggested next step
-- The VieNeu patch decision, then a live check of 1.9.9 on a fast talk with the diagnostics button.
+- A live check of 1.9.9 on a fast talk with the diagnostics button. Small safe fix if wanted:
+  BACKLOG 38, count "entered too late" drops in `stats.dropped`.
