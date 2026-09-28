@@ -537,16 +537,26 @@
                     });
                     return;
                 }
-                const syl = words.map(w => Math.max(1, tokenSyllables(w.replace(/¦/g, ""))));
+                // a translator's hint mark ("¦", its own token) is no syllable
+                const syl = words.map(w => (w === "¦" ? 0 : Math.max(1, tokenSyllables(w.replace(/¦/g, "")))));
                 const total = syl.reduce((a, b) => a + b, 0);
+                // 2.0.6: the cut goes where speech may pause, near the middle. Cut by syllables alone,
+                // 106 of 157 head cuts over the corpus sentences fell inside a phrase or a word
+                // ("mạng | nơ-ron", "điện | tử"), and each cut restarts the voice's intonation
+                const vals = lineGapValues(words);
+                // ... but no piece longer than maxPiece x HEAD_HARD: it is the first request's length
+                const maxSyl = total * HEAD_HARD * HEAD_CUT.maxPiece / dur;
                 const cuts = [];
                 for (let j = 1; j < n; j++) {
                     const target = total * j / n;
+                    const from = cuts.length ? syl.slice(0, cuts[cuts.length - 1]).reduce((a, b) => a + b, 0) : 0;
                     let acc = 0, best = -1, bestCost = Infinity;
                     for (let w = 0; w < words.length - 1; w++) {
                         acc += syl[w];
                         if (w + 1 < 3 || words.length - (w + 1) < 3) continue;
-                        const cost = Math.abs(acc - target) - (/[,.;:!?…]$/.test(words[w]) ? 3 : 0);
+                        if (vals && acc - from > maxSyl) break;
+                        const cost = Math.abs(acc - target) - (vals ? HEAD_CUT.perValue * Math.min(1, vals[w]) - (vals[w] < 0 ? HEAD_CUT.inside : 0) :
+                            (/[,.;:!?…]$/.test(words[w]) ? 3 : 0));
                         if (cost < bestCost && (!cuts.length || w + 1 > cuts[cuts.length - 1])) { bestCost = cost; best = w + 1; }
                     }
                     if (best > 0) cuts.push(best);
@@ -675,6 +685,25 @@
     // `next` fits in `hard` seconds, and it beats cutting here by 0.3 in boundary value.
     const prosody = () => (root && root.CST_DUB_PROSODY) ||
         (typeof require === "function" ? (() => { try { return require("./dub-prosody.js"); } catch (e) { return null; } })() : null);
+    // A head cut (buildDubScript) weighs the boundary value against the distance from the middle, in
+    // syllables per unit of value; a cut inside a phrase (value < 0) is taken only when the line has
+    // no other place to cut
+    const HEAD_CUT = { perValue: 3, inside: 20, maxPiece: 1.5 };
+    // Boundary value after each word of a subtitle line (the translator's "¦" marks are their own
+    // tokens and share the gap they sit in), or null when the prosody model is not loaded or reads
+    // the words differently
+    function lineGapValues(words) {
+        const P = prosody();
+        if (!P) return null;
+        const clean = words.map(w => w.replace(/¦/g, "")).filter(Boolean);
+        const a = P.analyze(clean.join(" "));
+        if (a.words.length !== clean.length) return null;
+        let c = -1;
+        return words.map(w => {
+            if (w.replace(/¦/g, "")) c++;
+            return c >= 0 && a.gaps[c] ? a.gaps[c].value : 2;
+        });
+    }
     function prosodicCut(seg, next, hard) {
         const P = prosody();
         const parts = seg.parts;

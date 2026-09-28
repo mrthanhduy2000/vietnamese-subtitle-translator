@@ -6,23 +6,22 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · `dub-prosody.js` (lane B), `tests/prosody*.js`, docs · `2.0.5`.
+2026-09-29 · `dub-planner.js`, `dub-prosody.js` (lane B), `tests/`, docs · `2.0.6`.
 
 ## What changed
-- 2.0.4, BACKLOG 16: 16 verbs of effect in `PRED_VERBS` plus three guards (`NOUN_BEFORE`, first
-  predicate only, `KIN_NOUNS`) and `constituents` finding a two-syllable predicate verb. Real
-  VieNeu takes: syntax5 (dev) WRONG 4 -> 0, MISSED 14 -> 0; syntax6 (held out, scored once) WRONG
-  3 -> 0, MISSED 15 -> 0; the nine older sets identical. Details: `DUBBING.md` "2.0.4".
-- 2.0.5: a 5-7 syllable subject holding trên / trong / ở... before a `PRED_VERBS` verb is invited
-  (`SUBJECT_PP`). Thin evidence: changes 1 of 493 corpus sentences (syntax4 V1). Offline only.
-- 2.0.2 + 2.0.3, BACKLOG 7: dead CSS gone from `options.html`, 0 computed-style differences.
-  Only the palette question is left (the user's call).
-- BACKLOG 38 closed: every lead checked or refuted, numbers in `DUBBING.md`; service-worker CPU per
-  take measured (~11 ms per audio second).
+- 2.0.6: head cuts (the ~3.5 s pieces after a start or seek) go to a phrase boundary near the
+  middle (`lineGapValues`, `HEAD_CUT`), not the syllable midpoint: inside a phrase 106 -> 30 of
+  ~157 cuts. The 24-run slow test moved 282 -> 278 lines on one chaotic run; its guard is now 275 /
+  140 s, with the 144-run paired evidence in the test comment. `DUBBING.md` "2.0.6 head cuts".
+- 2.0.4 / 2.0.5, BACKLOG 16: 16 verbs of effect in `PRED_VERBS` with guards, and `SUBJECT_PP`;
+  real takes syntax5 + held-out syntax6 WRONG 7 -> 0, MISSED 29 -> 0. `DUBBING.md` "2.0.4", "2.0.5".
+- 2.0.2 / 2.0.3, BACKLOG 7: dead CSS gone from `options.html`; only the palette question is left.
+- BACKLOG 38 closed: every lead checked or refuted, numbers in `DUBBING.md`.
 
 ## State
-- Tests: 568 pass, 0 fail, 1 skip. Reload: **yes**, at `chrome://extensions`.
+- Tests: 569 pass, 0 fail, 1 skip. Reload: **yes**, at `chrome://extensions`.
 - Prosody takes for all 11 sets are cached in `~/.cache/cst-prosody-takes` (rendered 2026-09-29).
+- `tests/harness/smooth/` takes predate 2.0.6 (one missing, `t7367`): rerun `smooth-prep.js`.
 
 ## Unfinished / in progress
 - BACKLOG 16 left: verbs outside the list; RAN-ON is out of reach. BACKLOG 7: palette, user's call.
@@ -38,6 +37,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 - Read `git log` before continuing after a break: another session may have recorded a decision.
 - The user declined a sandbox-off command on 2026-09-29: `prosody-eval.js` scores cached takes
   inside the sandbox; a baseline module must sit in a repo copy (`git archive HEAD | tar -x`).
+- Compare planners or engines in separate processes: `CST_DUB_PLAN` / `CST_DUB_PROSODY` are
+  globals, so a second engine loaded in one process silently runs the first one's planner.
 - CSS: "same selector later" is not enough; the media query and `!important` must match too.
 
 ## Suggested next step

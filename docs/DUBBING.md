@@ -194,6 +194,24 @@ part that continues the sentence without , ; : rests `SYNC.joinGapClause` when t
 a segment must be cut and there is no punctuation to cut at, the cut goes to the best line boundary
 (any half of the segment) that beats the default by 0.3.
 
+**2.0.6 head cuts.** Around the point where playback starts or lands after a seek (`headAt`), a
+subtitle line of more than 4.3 s is cut into ~3.5 s pieces so the first request is short
+(`buildDubScript`, `HEAD_HARD`). The cut used to be the word nearest the syllable midpoint (a comma
+earned 3 syllables): over the 138 long lines of the prosody corpus and the fixtures, 106 of 157 cuts
+fell inside a phrase and many inside a word ("mạng | nơ-ron", "điện | tử", "tham | số", "50 xuống |
+30 đô la"), so after every seek the voice read two broken utterances. Now `lineGapValues` reads the
+prosody value of every gap of the line and a cut costs its distance from the middle minus
+`HEAD_CUT.perValue` 3 per unit of value (up to 1), plus `inside` 20 for a gap inside a phrase; no
+piece may pass `maxPiece` 1.5 x `HEAD_HARD` (the first request stays short). A hint mark "¦" counts
+no syllable. Against the corpus marks: cuts at "|" 30 -> 51, at "/" 25 -> 74, where none is marked
+89 -> 18; inside a phrase 106 -> 30 (what is left: lines with no better place, "xem xét | mạng" at
+-0.25). First piece 8.5 -> 8.8 syllables on average, p90 11 -> 12, max 15 -> 16.
+Delivery (`playback-sim`, separate processes: the planner is a global, so an old engine loaded in
+the same process runs the new planner): scenarios and the healthy rapid-seek matrix identical; the
+144-run slow matrix paired run by run: lines 2109 -> 2096 (22 runs more, 24 fewer), late 521 -> 504,
+gaps 745 -> 735 s, voice back after a seek 5.90 -> 5.99 s (34 runs later, 39 sooner), first voice
+sooner in 60 runs and later in 10. The big swings are all at RTF 1.0-1.1 on a 2x video.
+
 **Measured** (tools/prosody-eval.js; same takes for both engines, both placed with the new alignment;
 WRONG = a kept pause where the marks say none, severe = inside a unit or a bound pair; the marks are
 one reader's judgment, nobody has listened to a blind A/B yet):

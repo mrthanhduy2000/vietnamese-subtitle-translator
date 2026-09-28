@@ -4,6 +4,17 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.0.6", luc: "02:50 29/09/2026", ten: "Lồng tiếng: sau khi tua không còn cắt đôi từ",
+            y: [
+                "Ngay sau khi bắt đầu xem hoặc tua, câu phụ đề dài được chia thành đoạn đọc ngắn để có tiếng sớm. Trước đây chỗ chia chỉ theo số âm tiết nên hay cắt giữa cụm từ, cả giữa một từ: \"mạng | nơ-ron\", \"điện | tử\", \"50 xuống | 30 đô la\"; giọng đọc hai nửa như hai câu rời. Nay chỗ chia là ranh giới ngữ pháp gần điểm giữa nhất.",
+                "Đoạn đầu vẫn ngắn (trung bình 8,8 âm tiết, trước là 8,5), nên tiếng vẫn đến sớm như cũ; trên máy chủ khỏe, số câu đọc và độ trễ không đổi. Đo ngoại tuyến, không gọi dịch vụ trả phí."
+            ],
+            bang: { cot: ["138 câu dài mẫu (156 đến 157 chỗ chia)", "2.0.5", "Nay"], hang: [
+                ["Chia giữa một cụm từ hoặc một từ", "106", "30"],
+                ["Chia ở chỗ không nên ngắt (theo đánh dấu)", "89", "18"]
+            ] }
+        },
+        {
             v: "2.0.5", luc: "02:33 29/09/2026", ten: "Lồng tiếng: nghỉ trước động từ sau chủ ngữ có cụm \"trên, trong, ở\"",
             y: [
                 "Câu như \"Độ chính xác trên tập kiểm tra | đạt 95%\": chủ ngữ ngắn nhưng có cụm chỉ nơi chốn bên trong nay được nghỉ trước động từ, thay vì nghỉ sai ở \"95 phần trăm | sau\".",

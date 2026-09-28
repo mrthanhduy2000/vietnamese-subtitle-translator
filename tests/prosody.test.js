@@ -276,6 +276,31 @@ test("free voice: a forced cut falls at the best line boundary, even in the firs
     assert.ok(paid.some(s => /đưa ra$/.test(s.subtitleText)), "paid segmentation unchanged");
 });
 
+test("head cuts after a start or seek fall where speech may pause, never inside a word, and stay short", () => {
+    // one long subtitle line at the point where playback starts (headAt): cut into ~3.5 s pieces
+    const heads = (text, dur = PLAN.countSyllables(text) / 3.2) => {
+        const g = { start: 0, end: dur, viText: text, viCues: [{ start: 0, end: dur, text }], srcCues: [{ start: 0, end: dur, text: "src" }] };
+        return PLAN.buildDubScript([g], { headAt: 0, joinGroups: true, segSoft: 8, segHard: 11 });
+    };
+    // the lecture fixture's second line (4.6 s) was cut "xem xét mạng | nơ-ron"
+    for (const [text, dur] of [["Chúng ta hãy xem xét mạng nơ-ron tích chập hai lớp.", 4.6],
+        "Hệ thống gợi ý của các sàn thương mại điện tử ảnh hưởng đến quyết định mua hàng của người dùng.",
+        "Giá cổ phiếu giảm từ 50 xuống 30 đô la chỉ trong một tháng.",
+        "Nếu bạn bật tùy chọn này, hệ thống sẽ tự động lưu lại mọi thay đổi sau mỗi lần chỉnh sửa."].map(x => (Array.isArray(x) ? x : [x]))) {
+        const segs = heads(text, dur);
+        assert.ok(segs.length >= 2, `not cut: ${text}`);
+        for (let k = 1; k < segs.length; k++) {
+            // inside a word, a term or a number the value is -3 or less; "xem xét | mạng" (a verb and
+            // its object, -0.25) is the best this line has
+            const v = P.boundaryValue(segs[k - 1].subtitleText, segs[k].subtitleText);
+            assert.ok(v > -1, `${segs[k - 1].subtitleText} | ${segs[k].subtitleText}: ${v}`);
+        }
+        // the first request stays short: no piece over 1.5 x the 3.5 s head length
+        assert.ok(segs.every(s => s.end - s.start <= 3.5 * 1.5 + 1e-6), segs.map(s => (s.end - s.start).toFixed(2)).join(" "));
+    }
+    assert.equal(heads("Chúng ta hãy xem xét mạng nơ-ron tích chập hai lớp.", 4.6)[0].subtitleText, "Chúng ta hãy xem xét");
+});
+
 test("engine: after a cut at a clause boundary without a comma the voice rests like a comma, inside a phrase it runs on", () => {
     const E = require("../dub-engine.js");
     const plan = (text, cont) => ({ phrases: [{ text, breakKind: null }], continuesNext: cont });
