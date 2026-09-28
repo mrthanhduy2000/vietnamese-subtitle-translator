@@ -6,17 +6,19 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-28 · docs only (`docs/DUBBING.md`, `BACKLOG.md`, `MAP.md`, `TESTING.md`, `CLAUDE.md`) ·
-still `1.9.9`, no bump (no runtime file changed).
+2026-09-28 · docs + `tools/doc-sizes.js` + `.claude/commands/ban-giao.md` · still `1.9.9`, no bump
+(no runtime file changed). Two commits: structure, then a fact-check pass.
 
 ## What changed
-- User asked for a structure review. `DUBBING.md` sections are now by topic in three parts (what is
-  said / when / who and where), with a "How this file is laid out" note. The 1.9.5 / 1.9.6 prosody
-  notes that sat inside "Delivery" moved to "Later prosody and name rules". Delivery has 5 `###`
-  subsections. Text moved verbatim; version labels like "1.9.9" still grep.
-- `BACKLOG.md` grouped by area, numbers kept (next free: 39), a "Closed" list for cited numbers,
-  25 merged into 31, 35 removed (closed).
-- Stale numbers fixed; `TESTING.md` gained `edits.test.js` and `glossary.test.js`.
+- `DUBBING.md` by topic in three parts (what is said / when / who and where), a layout note on top;
+  1.9.5 / 1.9.6 prosody notes moved out of "Delivery", which now has 5 `###` subsections.
+- `BACKLOG.md` grouped by area, numbers kept (next free: 39), a "Closed" list for cited numbers.
+- Fact-checked every doc against the code (names, SYNC values, routes, storage keys, load order,
+  globals, README counts). Fixed: storage.sync is 30 keys + `originalFirst` (popup) + `uiTheme`;
+  storage.session also holds `localTtsLastOk`; `setOptions` note (gone since 1.4.4); DANGER §13
+  audio key (speakScript + prosody signature); MAP "Who consumes what" regenerated from code.
+- `tools/doc-sizes.js` now also rewrites the "~Tests" column of `TESTING.md` and MAP's test counts,
+  and names a test file with no row; `/ban-giao` step 5 runs it.
 
 ## State
 - Tests: 564 pass, 0 fail, 1 skip. Reload: not needed (docs only).
@@ -32,8 +34,8 @@ still `1.9.9`, no bump (no runtime file changed).
 - The user should turn Chrome's "Allow JavaScript from Apple Events" back off.
 
 ## Traps hit this session
-- `npm test` is blocked by the sandbox (npm calls registry.npmjs.org). Run the script directly:
-  `eval "$(node -p 'require("./package.json").scripts.test')"`.
+- `npm test` works in the sandbox (exit 0). It prints certificate errors and a denied
+  registry.npmjs.org line: npm's own update check, harmless. Summary lines start with `ℹ`, not `#`.
 - BACKLOG numbers 6, 17, 32, 34 looked unused; git shows they were fixed and deleted. Check
   `git log -p -- docs/BACKLOG.md` before claiming a number was never used.
 

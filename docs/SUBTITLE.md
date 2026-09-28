@@ -190,8 +190,8 @@ To add one: write `handleX`, add `X: handleX` to `ROUTES`. Nothing else.
 
 `translate` · `phimTat` (keyboard shortcut relay) · `forgetVideoAudio` · `getStatus`
 
-Handled by the listener near the end of `content.js`. Note `popup.js` also sends `setOptions`,
-which **no one handles**; see `BACKLOG.md`.
+Handled by the listener near the end of `content.js`. (`popup.js` used to send a `setOptions` that
+nothing handled; removed in 1.4.4, `ui.test.js` guards it.)
 
 ### `youtube.js` <-> `yt-bridge.js`: `window.postMessage({ cstType })`
 
@@ -202,11 +202,13 @@ Request/response pairs correlated by `requestId`:
 
 ## Storage keys
 
-### `chrome.storage.sync` (27 settings written by `options.js` `collectSettings`, plus `uiTheme`)
+### `chrome.storage.sync` (30 settings written by `options.js` `collectSettings`, plus `originalFirst` and `uiTheme`)
 
 Subtitle: `subStyle` (nested object; defaults live in `subtitle-style.js`), `dualMode`,
-`perCueMode`, `originalFirst`, `skipSameLang` (`styleOriginal`, the popup's "Làm mờ dòng tiếng Anh",
-was never read by the page and was removed in 1.7.3; old stored values are ignored)
+`perCueMode`, `skipSameLang` (on: a video's own Vietnamese track is used as is; off: translate from
+the source track; YouTube, Coursera, generic), and `originalFirst`, which only the popup writes
+(`popup.js`), never `collectSettings`. `styleOriginal`, the popup's "Làm mờ dòng tiếng Anh", was never
+read by the page and was removed in 1.7.3; old stored values are ignored.
 
 AI and cost: `useAi`, `geminiApiKey`, `geminiModel`, `geminiStrongModel`, `costMode`,
 `autoTranslate`, `budgetDailyUsd`, `budgetVideoUsd`
@@ -222,9 +224,8 @@ Dubbing: `dubEnabled`, `dubProvider`, `dubTtsModel`, `dubVoiceName`, `dubGeminiV
 `dubGeminiVoice2`, `dubLocalVoice`, `dubLocalVoice2`, `dubSecondVoice` (off by default: every speaker is S1,
 see `DubEngine.oneVoice`), `dubDuck`, `dubVolume`, `dubPrepareWait`.
 `dubMaxRate` (0 = automatic, else 1.1 to 1.5: caps every rate in `DubEngine.chooseRate` /
-`paceLimits` through `userMaxRate()`, applied live). Subtitles: `skipSameLang` (on: a video's own
-Vietnamese track is used as is; off: translate from the source track; YouTube, Coursera, generic).
-`dubCondense` is retired (condensing is permanently off, see `DUBBING.md`); old stored values are ignored
+`paceLimits` through `userMaxRate()`, applied live). `dubCondense` is retired (condensing is
+permanently off, see `DUBBING.md`); old stored values are ignored.
 
 One-shot migration flags (do not reuse the names): `modelsVersion`, `costMigration113`,
 `localVoices1111`, `dubProvider1113`, `dubProvider181` (1.8.1: paid voice off, source forced to vieneu once), `styleDefaults118`, `fontScale170` (size / 0.7, chained after
@@ -234,7 +235,7 @@ One-shot migration flags (do not reuse the names): `modelsVersion`, `costMigrati
 not actually change. `youtube.js` has a deliberate "only act on a real change" guard so this does
 not stack two dubbing voices. Keep it.
 
-### `chrome.storage.local` (owned by `background.js`, not user-editable)
+### `chrome.storage.local` (not user-editable; written by `background.js`, `youtube.js`, `content.js`)
 
 `edits:<videoKey>` is the exception: the viewer's own line corrections, written by
 `subtitle-edits.js` from the transcript panel and the Settings tab "Phụ đề đã sửa". videoKey is
@@ -251,7 +252,8 @@ database, which is separate (see `DUBBING.md`).
 
 ### `chrome.storage.session`
 
-`costSession` per-session cost.
+`costSession` per-session cost · `localTtsLastOk` time of the last good VieNeu render, so
+`localIsCold()` survives the service worker sleeping (see `DUBBING.md` "Render speed").
 
 **Backup (1.6.6).** `settings-backup.js` + the "Sao lưu cài đặt" card: exports all of
 `storage.sync` and the `edits:*` keys of `storage.local` (never caches), the API key only when the

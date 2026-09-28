@@ -28,7 +28,9 @@ for permission between them, and do not skip one because it looks unnecessary.
 
 5. If you learned something structural that a future session would waste tokens rediscovering, put
    it in the matching `docs/` file, or in `docs/BACKLOG.md` if it is a defect you are not fixing.
-   A few lines, not an essay.
+   A few lines, not an essay. Then `node tools/doc-sizes.js`: it rewrites the line and test counts
+   in `docs/MAP.md` and `docs/TESTING.md`, and names anything it cannot fix (a test file with no row
+   in `TESTING.md`, a size in `CLAUDE.md`). Fix what it names.
 
 6. `git add -A` then `git commit`, with the version number in the subject line if step 3 bumped it.
    (If another session is working in this folder at the same time, add your own paths, not `-A`.)

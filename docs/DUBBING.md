@@ -184,7 +184,7 @@ first (1.7.5 scoring), then each other stop is placed between its matched neighb
 syllables; a long stop is pulled away from units and bound pairs, never towards a chosen word.
 
 **3. `breathText(text)`** (engine `plainScript`, VieNeu only, part of the audio key through
-`LOCAL_STYLE_VERSION` 9): in an unpunctuated stretch of 20+ syllables, a comma at the text-only
+`LOCAL_STYLE_VERSION`, 9 in 1.7.6; today's key is under "Cache identity" below): in an unpunctuated stretch of 20+ syllables, a comma at the text-only
 choice (`breathGroups`, 4.6 syllables per second) where value >= 0.6 and 7+ syllables are on each
 side. Only commas are added. 8 of 104 corpus sentences change, every comma at a marked boundary.
 
@@ -404,7 +404,7 @@ Knobs you will actually reach for:
   climbing early, bounded so the current sentence ends at most `lookAheadEarly` (0.5 s) before its
   subtitle. Simulated with Kim Thanh on two real cached timelines: lag over 1 s 3 -> 0 and 5 -> 1,
   a slow speaker (timeline x1.35) unchanged. Measured live on 4eY5DuqASQc 8:25 to end (1.6.1, Kim Thanh):
-  peak start lag 1.88 -> 0.43 s, overrun 1.76 -> 0.42 s, top rate 1.40 -> 1.41, none dropped. Harness: `scratchpad/sim-kim.js` pattern, see
+  peak start lag 1.88 -> 0.43 s, overrun 1.76 -> 0.42 s, top rate 1.40 -> 1.41, none dropped. Harness: a session scratch script (not in the repo); the same case lives in
   `tests/dub.test.js` "slow voice on a fast speaker".
 - **Prefetch**: `prefetchAhead` is adaptive, roughly `(latency * 2.5 + 4) * playbackRate`, times 0.6
   if the user seeks twice in a minute. The free local voice keeps `freeAheadMin` 60 to `freeAheadMax`

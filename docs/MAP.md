@@ -62,25 +62,42 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 
 ## Who consumes what
 
-- `CST_COST` -> `background.js`, `content.js`, `dubbing.js`, `options.js`
-- `CST_CACHE` -> `background.js`, `dub-engine.js`
-- `CST_DUB_PLAN`, `CST_DUB_AUDIO` -> `dub-engine.js` (and `dub-audio.js` also into `background.js`)
-- `CST_DUB_PROSODY` -> `dub-audio.js` (`alignStops`, `shapePauses`), `dub-engine.js` (`plainScript`, `gapAfter`), `dub-planner.js` (`prosodicCut`, lazily); it reads `CST_VI_SEG`, `CST_DUB_PLAN` and `CST_DUB_SPEECH` (lazily)
-- `CST_DUB_SPEECH` -> `dub-engine.js` (`speakScript`), `dub-prosody.js` (`spanGaps`, lazily); it reads `CST_VI_SEG` and `CST_DUB_PROSODY` (`vieneuText`, lazily)
-- `CST_DUB_ENGINE` -> `dubbing.js`, `options.js` (voice preview)
-- `CST_DUB` -> `youtube.js`, `content.js`
-- `CST_UI.toast` -> `dubbing.js`, `youtube.js`
+Uses in code, not comments. `background.js` names `CST_UI` and `CST_STYLE` only inside its
+`executeScript` probe (are the content scripts already in this tab?), not as a dependency.
+
+Subtitle side:
+- `CST_VI_SEG` -> `content.js`, `youtube.js`, `subtitle-style.js`, `subtitle-edits.js`, `options.js`, and the dubbing trio `dub-planner.js`, `dub-prosody.js`, `dub-speech.js`
 - `CST_STYLE` -> `content.js`, `youtube.js`, `options.js`
 - `CST_LANG` -> `content.js`, `youtube.js`
-- `CST_THEME` -> `options.js` (the theme buttons)
-- `glossary.js` exports like the others (globalThis, window, module.exports); `tests/backlog.test.js` loads it.
+- `CST_QUALITY` -> `content.js`, `youtube.js`
+- `CST_CONTEXT` -> `content.js`
+- `CST_GLOSSARY_GROUPS` and friends -> `content.js`, `options.js`; `glossary.js` exports like the others (globalThis, window, module.exports), `tests/backlog.test.js` loads it
+- `CST_EDITS` -> `content.js`, `youtube.js`, `options.js`
+- `CST_TRANSCRIPT` -> `content.js`, `youtube.js`, `subtitle-edits.js`
+- `CST_PLAYER_UI` -> `content.js`, `youtube.js`, `transcript.js`
+- `CST_UI` (`content.js`) -> `youtube.js`, `dubbing.js`, `transcript.js` (all for `toast`); `CST_LAST_AI_INFO` (`content.js`) -> `youtube.js`
+
+Dubbing side:
+- `CST_DUB_PLAN` -> `dub-engine.js`, `options.js` (voice preview); `dub-prosody.js`, `dub-speech.js` (lazily)
+- `CST_DUB_PROSODY` -> `dub-audio.js` (`alignStops`, `shapePauses`), `dub-engine.js` (`plainScript`, `gapAfter`), `dub-planner.js` (`prosodicCut`, lazily), `dub-speech.js` (`vieneuText`, lazily)
+- `CST_DUB_SPEECH` -> `dub-engine.js` (`speakScript`), `dub-prosody.js` (`spanGaps`, lazily)
+- `CST_DUB_AUDIO` -> `dub-engine.js`, `background.js` (pause shaping, cleanup), `dubbing.js` (`base64ToBytes` for page-cache hits), `options.js` (voice preview)
+- `CST_DUB_ENGINE` -> `dubbing.js`, `options.js` (voice preview)
+- `CST_DUB` (`dubbing.js`) -> `youtube.js`, `content.js`, `player-ui.js` (`level`), `subtitle-edits.js` (`refreshText`)
+- `CST_SPEECH_LEXICON`: read by `dub-speech.js` if a page defines it (local lexicon entries, no UI); nothing sets it today
+
+Shared and settings pages:
+- `CST_COST` -> `background.js`, `content.js`, `youtube.js`, `dubbing.js`, `dub-engine.js`, `options.js`
+- `CST_CACHE` -> `background.js`, `dub-engine.js`
+- `CST_THEME`, `CST_HISTORY`, `CST_BACKUP` -> `options.js`; `CST_VERSION_CHECK` -> `options.js`, `popup.js`
 
 ## Tests and tooling (`tests/*.js`: 36 files, ~10,400 lines)
 
 See `TESTING.md`. Short version: 23 files in `npm test` (listed in `package.json`: a new test file must be added there), all offline; 4 manual scripts;
 8 browser harness pages under `tests/harness/` (`live.html` has its own server, `live-server.js`); `tools/bump-version.js` owns the version number;
-`tools/doc-sizes.js` (1.9.4) rewrites the Lines column above and reports stale sizes in `CLAUDE.md`
-(`--check` changes nothing, exits 1 when off).
+`tools/doc-sizes.js` (1.9.4) rewrites the Lines column and the counts above, the "~Tests" column of
+`TESTING.md`, and reports what it cannot write: a test file with no row in `TESTING.md`, stale sizes
+in `CLAUDE.md` (`--check` changes nothing, exits 1 when off). `/ban-giao` runs it.
 
 `tools/vieneu-autostart.command` (63 lines, zsh, executable) installs a macOS LaunchAgent
 `com.damduy.vieneu` that starts the VieNeu TTS server at login and restarts it if it dies.
