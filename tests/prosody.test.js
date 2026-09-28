@@ -356,3 +356,10 @@ test("a verb of effect after a long subject is invited (BACKLOG 16, syntax5); a 
     assert.ok(!eligible(gapAfter("Nghiên cứu này thể hiện điều đó.", "này")));
     assert.ok(!eligible(gapAfter("Việc hạn chế thời gian dùng điện thoại giúp trẻ ngủ ngon hơn.", "Việc")));
 });
+
+test("a short subject with a place or topic phrase inside is invited before its verb; a verb particle is not that phrase", () => {
+    const g = gapAfter("Độ chính xác trên tập kiểm tra đạt 95% sau mười lần huấn luyện.", "tra");
+    assert.ok(g.subjectEnd && g.value >= 0.3, `tra | đạt: ${g.value}`);
+    // "ghé qua": "qua" follows a verb, the gap before "giúp" stays legal but uninvited
+    assert.ok(gapAfter("Hôm qua chú Phong ghé qua sửa giúp cái vòi nước bị rò.", "sửa").value < 0.3);
+});

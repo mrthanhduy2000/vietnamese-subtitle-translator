@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.0.5", luc: "02:33 29/09/2026", ten: "Lồng tiếng: nghỉ trước động từ sau chủ ngữ có cụm \"trên, trong, ở\"",
+            y: [
+                "Câu như \"Độ chính xác trên tập kiểm tra | đạt 95%\": chủ ngữ ngắn nhưng có cụm chỉ nơi chốn bên trong nay được nghỉ trước động từ, thay vì nghỉ sai ở \"95 phần trăm | sau\".",
+                "Chỉ đổi đúng câu này trong 493 câu mẫu của bộ kiểm thử; trên bản đọc thật đã lưu, chỗ ngắt sai của bộ câu đó giảm từ 4 xuống 2, các bộ khác không đổi. Không gọi dịch vụ trả phí."
+            ]
+        },
+        {
             v: "2.0.4", luc: "02:25 29/09/2026", ten: "Lồng tiếng: ngắt hơi đúng sau chủ ngữ dài",
             y: [
                 "Giọng VieNeu nay nghỉ đúng chỗ giữa chủ ngữ dài và động từ như \"ảnh hưởng đến\", \"cải thiện\", \"chứng minh\", \"thể hiện\" (thêm 16 động từ), và không còn ngắt giữa chủ ngữ.",

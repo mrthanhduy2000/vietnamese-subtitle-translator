@@ -6,26 +6,26 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · `dub-prosody.js` (lane B), `tests/prosody*.js`, docs · `2.0.4`.
+2026-09-29 · `dub-prosody.js` (lane B), `tests/prosody*.js`, docs · `2.0.5`.
 
 ## What changed
 - 2.0.4, BACKLOG 16: 16 verbs of effect in `PRED_VERBS` plus three guards (`NOUN_BEFORE`, first
   predicate only, `KIN_NOUNS`) and `constituents` finding a two-syllable predicate verb. Real
   VieNeu takes: syntax5 (dev) WRONG 4 -> 0, MISSED 14 -> 0; syntax6 (held out, scored once) WRONG
   3 -> 0, MISSED 15 -> 0; the nine older sets identical. Details: `DUBBING.md` "2.0.4".
+- 2.0.5: a 5-7 syllable subject holding trên / trong / ở... before a `PRED_VERBS` verb is invited
+  (`SUBJECT_PP`). Thin evidence: changes 1 of 493 corpus sentences (syntax4 V1). Offline only.
 - 2.0.2 + 2.0.3, BACKLOG 7: dead CSS gone from `options.html`, 0 computed-style differences.
   Only the palette question is left (the user's call).
 - BACKLOG 38 closed: every lead checked or refuted, numbers in `DUBBING.md`; service-worker CPU per
   take measured (~11 ms per audio second).
-- Live harness: `?script=viewer2`; 2.0.1: after an ad a finished line is not read again.
 
 ## State
-- Tests: 567 pass, 0 fail, 1 skip. Reload: **yes**, at `chrome://extensions`.
+- Tests: 568 pass, 0 fail, 1 skip. Reload: **yes**, at `chrome://extensions`.
 - Prosody takes for all 11 sets are cached in `~/.cache/cst-prosody-takes` (rendered 2026-09-29).
 
 ## Unfinished / in progress
-- BACKLOG 16 left: verbs outside the list; RAN-ON (the voice not stopping) is out of reach.
-- BACKLOG 7: only the palette question, the user's to decide.
+- BACKLOG 16 left: verbs outside the list; RAN-ON is out of reach. BACKLOG 7: palette, user's call.
 - Carried over: ask the user for "Chép chẩn đoán" right after a problem; BACKLOG 36; glossary
   keep-English per term not watched in Chrome; real Gemini output before/after 1.8.3/1.8.4 not
   compared; BACKLOG 30, 31, 14-15, 18-24, 26, 28 (20 outside); the user's verdict on the 1.9.5 A/B
@@ -36,8 +36,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 
 ## Traps hit this session
 - Read `git log` before continuing after a break: another session may have recorded a decision.
-- A copy made with the sandbox off lands in another `$TMPDIR`; use `git show HEAD:file` as the
-  baseline instead.
+- The user declined a sandbox-off command on 2026-09-29: `prosody-eval.js` scores cached takes
+  inside the sandbox; a baseline module must sit in a repo copy (`git archive HEAD | tar -x`).
 - CSS: "same selector later" is not enough; the media query and `!important` must match too.
 
 ## Suggested next step

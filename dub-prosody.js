@@ -202,6 +202,7 @@
         // 2026-09-29 (syntax5): transitive verbs of effect that head an expository predicate
         "ảnh hưởng đến", "ảnh hưởng tới", "tác động đến", "tác động tới", "cải thiện", "tiết kiệm", "phản ánh",
         "thúc đẩy", "tiêu tốn", "quyết định", "chứng minh", "thể hiện", "đóng góp", "hạn chế", "làm tăng", "làm giảm"]);
+    const SUBJECT_PP = new Set(["trên", "trong", "ở", "tại", "dưới", "giữa", "về"]);
     // After these a word of the list is a noun: "đưa ra | quyết định", "những hạn chế", "tiền tiết kiệm"
     const NOUN_BEFORE = new Set(["các", "những", "một", "mọi", "mỗi", "nhiều", "ít", "vài", "ra", "có", "của", "là", "tiền", "sự", "việc"]);
     const predVerbAt = (words, gaps, i) => {
@@ -377,7 +378,11 @@
                 // đã" wrong, syntax4 V1 marks "Độ chính xác trên tập kiểm tra | đạt" right); it was closed
                 const subj = subjectBefore(g);
                 if (subj < 5) continue;
-                const short = subj < K.subjectLong && clauseSyl(zone) < K.subjectClauseMin;
+                // a prepositional phrase inside the subject ("Độ chính xác trên tập kiểm tra | đạt") makes
+                // it a phrase of its own however short. Only prepositions of place and topic: "của" is a
+                // possessive, "qua", "ra", "vào" also follow verbs ("ghé qua sửa | giúp")
+                const withPP = words.slice(zone + 1, g.i + 1).some(w => SUBJECT_PP.has(w.bare));
+                const short = subj < K.subjectLong && clauseSyl(zone) < K.subjectClauseMin && !withPP;
                 g.cost = Math.min(g.cost, short ? K.valueAt : K.valueAt - 7);
                 g.subjectEnd = true;
             } else if ((PREVERBAL.has(next.bare) || (next.bare === "có" && words[g.i + 2] && words[g.i + 2].bare === "thể")) && g.cost > 0 && g.cost < 40) {

@@ -371,6 +371,14 @@ Real takes: syntax5 (dev, 70 takes) WRONG 4 -> 0, MISSED 14/35 -> 0/35, RAN-ON 2
 nine sets identical on every count. RAN-ON is the voice not stopping at all: out of reach of
 pause shaping, which only keeps or closes the voice's own stops.
 
+**2.0.5 a place or topic phrase inside a short subject.** In the `PRED_VERBS` branch a subject of
+5-7 syllables is invited like a long one when it holds one of `SUBJECT_PP` (trên, trong, ở, tại,
+dưới, giữa, về). "của" is left out (possessive; blind split 2 ruled "Số nhân viên của công ty | đã"
+wrong) and so are "qua", "ra", "vào", which also follow verbs ("ghé qua sửa | giúp" was invited
+with the full `PREPOSITIONS`). Evidence is thin: over the 493 corpus sentences it changes one,
+syntax4 V1; on its cached takes WRONG 4 -> 2, MISSED 2 -> 0, the other ten sets identical. No
+held-out sentence exists for it.
+
 ## The SYNC block is the tuning bible
 
 `dub-engine.js`, one object named `SYNC` (`grep -n "const SYNC"`, ~140 lines). **Every timing
