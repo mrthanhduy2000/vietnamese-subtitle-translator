@@ -187,6 +187,8 @@
         "thể", "rất", "cũng", "đã", "sẽ", "đang", "vẫn", "không", "chưa", "cần", "phải", "biết", "nghĩ", "thấy", "tin", "hiểu"]);
     const MODAL_BEFORE = new Set(["định", "biết", "nghĩ", "xét", "nhắc", "hỏi"]);
     const THINKING = new Set(["nghĩ", "thấy", "biết", "tin", "hiểu", "mong", "muốn", "khuyên", "bảo", "nói", "vân", "khoăn", "chắc", "xem"]);
+    // Nouns ending in a pronoun word: "thói quen của trẻ em" has no pronoun subject in it
+    const KIN_NOUNS = new Set(["trẻ em", "anh em", "chị em", "anh chị"]);
     const PRONOUN_SUBJECT = new Set(["chúng", "tôi", "bạn", "họ", "nó", "các", "người", "mình", "ta"]);
     // Verbs of change: "tăng | từ 72,5%" is the verb's from-to complement, not an adjunct
     const CHANGE_VERBS = new Set(["tăng", "giảm", "lên", "xuống", "hạ", "rơi", "sụt", "tụt", "vọt", "nhảy", "chuyển", "đổi", "dao động", "kéo dài"]);
@@ -196,8 +198,14 @@
     // while one inside the subject ("chính xác | trên tập") was invited. Two-word ones are matched
     // whole; a word that is part of a compound ("chiếm dụng") is not a verb here
     const PRED_VERBS = new Set(["đạt", "chiếm", "vượt", "gồm", "cho thấy", "mang lại", "gây ra", "dẫn đến", "tạo ra",
-        "bao gồm", "đòi hỏi", "trở thành", "đóng vai trò", "phụ thuộc", "giúp"]);
+        "bao gồm", "đòi hỏi", "trở thành", "đóng vai trò", "phụ thuộc", "giúp",
+        // 2026-09-29 (syntax5): transitive verbs of effect that head an expository predicate
+        "ảnh hưởng đến", "ảnh hưởng tới", "tác động đến", "tác động tới", "cải thiện", "tiết kiệm", "phản ánh",
+        "thúc đẩy", "tiêu tốn", "quyết định", "chứng minh", "thể hiện", "đóng góp", "hạn chế", "làm tăng", "làm giảm"]);
+    // After these a word of the list is a noun: "đưa ra | quyết định", "những hạn chế", "tiền tiết kiệm"
+    const NOUN_BEFORE = new Set(["các", "những", "một", "mọi", "mỗi", "nhiều", "ít", "vài", "ra", "có", "của", "là", "tiền", "sự", "việc"]);
     const predVerbAt = (words, gaps, i) => {
+        if (i > 0 && NOUN_BEFORE.has(words[i - 1].bare)) return 0;
         const two = words[i + 1] ? `${words[i].bare} ${words[i + 1].bare}` : "";
         const three = words[i + 2] ? `${two} ${words[i + 2].bare}` : "";
         if (PRED_VERBS.has(three)) return 3;
@@ -247,7 +255,7 @@
             let subj = 0;
             for (let k = g.i; k >= zone; k--) {
                 const w = words[k];
-                if (w.bare === "thể" ? k > 0 && words[k - 1].bare === "có" : SUBJECT_STOP.has(w.bare)) break;
+                if (w.bare === "thể" ? k > 0 && words[k - 1].bare === "có" : SUBJECT_STOP.has(w.bare) && !(k > 0 && KIN_NOUNS.has(`${words[k - 1].bare} ${w.bare}`))) break;
                 if ((OPENERS[w.bare] || 0) >= 14 && !JOINERS.has(w.bare)) break;
                 subj += w.syl;
             }
@@ -361,7 +369,8 @@
                 // a temporal modifier closing a long subject: "doanh thu ... trong quý vừa qua | tăng"
                 g.cost = Math.min(g.cost, -2);
                 g.subjectEnd = true;
-            } else if (predVerbAt(words, gaps, g.i + 1) && !listed && g.cost > 0 && g.cost < 40 && !g.inWord) {
+            } else if (predVerbAt(words, gaps, g.i + 1) && !listed && g.cost > 0 && g.cost < 40 && !g.inWord &&
+                !gaps.some(h => h.subjectEnd && h.i >= zone && h.i < g.i)) {
                 // a predicate verb after its subject (PRED_VERBS): invited like "đã" after a long subject
                 // (value 0.35); after a short one in a short clause legal but not invited (value 0): the
                 // voice decides. Readers disagree there (blind split 2 marked "Số nhân viên của công ty |
@@ -457,7 +466,9 @@
                     // a degree adverb means the predicate already started at a verb the model does not
                     // know ("Mô hình học | rất nhanh"): no subject to find
                     if (gBefore.punct || DEGREE.has(w)) break;
-                    if ((gBefore.inWord || (gaps[v] && gaps[v].inWord)) && w !== "có") continue;   // "không gian", "chỉ số": a noun
+                    // a predicate verb the segmenter reads as one word ("cải thiện") is still a verb
+                    const pv = !gBefore.inWord && predVerbAt(words, gaps, v) > 0;
+                    if ((gBefore.inWord || (gaps[v] && gaps[v].inWord)) && w !== "có" && !pv) continue;   // "không gian", "chỉ số": a noun
                     if (w === "vừa" && TIME_END.includes(at(v, 2))) continue;      // "quý vừa qua"
                     const marker = PREVERBAL.has(w) || w === "là" || w === "được" || w === "bị" || CHANGE_VERBS.has(w) ||
                         (w === "có" && words[v + 1] && words[v + 1].bare === "thể") || predVerbAt(words, gaps, v) > 0;

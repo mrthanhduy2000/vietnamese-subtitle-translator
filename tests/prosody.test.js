@@ -339,3 +339,20 @@ test("a purpose clause completing a short predicate is soft; two long sides keep
         assert.ok(gapAfter(text, word).value >= 0.8, word);
     }
 });
+
+test("a verb of effect after a long subject is invited (BACKLOG 16, syntax5); a second verb, a noun or a short subject is not", () => {
+    for (const [text, word] of [["Kết quả thử nghiệm trên hai nghìn bệnh nhân chứng minh loại thuốc này an toàn.", "nhân"],
+        ["Những bài tập thở đơn giản vào buổi tối cải thiện chất lượng giấc ngủ rõ rệt.", "tối"],
+        ["Hệ thống gợi ý của các sàn thương mại điện tử ảnh hưởng đến quyết định mua hàng của người dùng.", "tử"],
+        // "trẻ em" is a noun, not the pronoun "em" that would end the subject count
+        ["Thói quen đọc sách mỗi ngày của trẻ em quyết định phần lớn vốn từ vựng sau này.", "em"]]) {
+        const g = gapAfter(text, word);
+        assert.ok(g.subjectEnd && g.value >= 0.3, `${word} | verb: ${g.value}`);
+    }
+    // the first predicate ends the subject: "quyết định" after "ảnh hưởng đến" is its object
+    assert.ok(!eligible(gapAfter("Hệ thống gợi ý của các sàn thương mại điện tử ảnh hưởng đến quyết định mua hàng của người dùng.", "đến")));
+    // a prepositional phrase inside that subject stays closed, now that the predicate is found
+    assert.ok(gapAfter("Những bài tập thở đơn giản vào buổi tối cải thiện chất lượng giấc ngủ rõ rệt.", "giản").inSubject);
+    assert.ok(!eligible(gapAfter("Nghiên cứu này thể hiện điều đó.", "này")));
+    assert.ok(!eligible(gapAfter("Việc hạn chế thời gian dùng điện thoại giúp trẻ ngủ ngon hơn.", "Việc")));
+});

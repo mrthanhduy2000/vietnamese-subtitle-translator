@@ -356,6 +356,21 @@ boundary: invited (value above `minValue`) when long, legal but uninvited when s
 marker. Real takes (`prosody-eval.js`, syntax4, 40 takes): WRONG 9 -> 3, MISSED 6/20 -> 0/20, RAN-ON
 14 -> 13 of 20; the other eight sets identical on every count.
 
+**2.0.4 verbs of effect (BACKLOG 16).** `PRED_VERBS` gains ảnh hưởng / tác động đến (tới), cải
+thiện, tiết kiệm, phản ánh, thúc đẩy, tiêu tốn, quyết định, chứng minh, thể hiện, đóng góp, hạn chế,
+làm tăng, làm giảm. Three guards came with them, each found on real takes or a test:
+- `NOUN_BEFORE`: after các, những, một, ra ("đưa ra quyết định"), có, của, sự, việc... the word is
+  a noun, `predVerbAt` returns 0 (it caught `boundaryValue("cách mô hình đưa ra", "quyết định")`).
+- Only the first predicate of a clause ends the subject: no `subjectEnd` after one already set in
+  the zone ("ảnh hưởng đến | quyết định" stays closed).
+- `KIN_NOUNS` ("trẻ em", "anh em", "chị em", "anh chị"): the pronoun word does not stop the subject
+  count. And `constituents` checks `predVerbAt` before skipping a two-syllable word as a noun, so
+  "cải thiện" is found as the predicate and the PP inside its subject is closed.
+Real takes: syntax5 (dev, 70 takes) WRONG 4 -> 0, MISSED 14/35 -> 0/35, RAN-ON 21 -> 19; syntax6
+(written after the rule, scored once) WRONG 3 -> 0, MISSED 15/30 -> 0/30, RAN-ON 15 -> 15; the other
+nine sets identical on every count. RAN-ON is the voice not stopping at all: out of reach of
+pause shaping, which only keeps or closes the voice's own stops.
+
 ## The SYNC block is the tuning bible
 
 `dub-engine.js`, one object named `SYNC` (`grep -n "const SYNC"`, ~140 lines). **Every timing

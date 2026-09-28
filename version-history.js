@@ -4,6 +4,18 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.0.4", luc: "02:25 29/09/2026", ten: "Lồng tiếng: ngắt hơi đúng sau chủ ngữ dài",
+            y: [
+                "Giọng VieNeu nay nghỉ đúng chỗ giữa chủ ngữ dài và động từ như \"ảnh hưởng đến\", \"cải thiện\", \"chứng minh\", \"thể hiện\" (thêm 16 động từ), và không còn ngắt giữa chủ ngữ.",
+                "Không nhầm danh từ thành động từ: \"đưa ra quyết định\", \"những hạn chế\", \"trẻ em\" vẫn đọc liền.",
+                "Đo trên giọng đọc thật của máy (không gọi dịch vụ trả phí): 24 câu mới, 120 lượt đọc; các bộ câu cũ không đổi."
+            ],
+            bang: { cot: ["Giọng thật, 24 câu mới (120 lượt đọc)", "2.0.3", "Nay"], hang: [
+                ["Chỗ ngắt sai", "7", "0"],
+                ["Chỗ giọng đã nghỉ đúng mà bị bỏ", "29 / 65", "0 / 65"]
+            ] }
+        },
+        {
             v: "2.0.3", luc: "01:59 29/09/2026", ten: "Trang Cài đặt: dọn nốt kiểu dáng thừa",
             y: [
                 "Gỡ 50 khai báo kiểu dáng mà quy tắc phía sau luôn ghi đè, cùng màu cũ trong 3 đường viền (màu xám xanh và tím của giao diện cũ còn sót). Giao diện không đổi: so từng phần tử ở nền sáng và nền tối, 0 khác biệt."

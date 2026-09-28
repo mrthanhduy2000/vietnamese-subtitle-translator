@@ -229,5 +229,20 @@ module.exports = {
     ["W12", "topic-thi-long", "Những bạn mới bắt đầu học lập trình / thì nên chọn một ngôn ngữ đơn giản."],
     ["W13", "rel-ma-head", "Đây là cách mà các kỹ sư kiểm tra độ bền của cây cầu."],
     ["W14", "rel-ma-pronoun", "Đó là những dữ liệu mà họ thu thập / trong suốt mười năm qua."]
+    ],
+    // Held out for syntax5's rule (2026-09-29): written after it, scored before and after once. Verbs
+    // of the new list that syntax5 does not use; Y7-Y10 hold the rule back (a verb inside the
+    // subject, a second verb after the predicate, a short subject, "trẻ em" as an object)
+    syntax6: [
+    ["Y1", "verb-chung-minh", "Kết quả thử nghiệm trên hai nghìn bệnh nhân | chứng minh loại thuốc này an toàn."],
+    ["Y2", "verb-the-hien", "Biểu đồ doanh thu theo từng tháng trong năm | thể hiện rõ tính mùa vụ của ngành."],
+    ["Y3", "verb-dong-gop", "Các dự án mã nguồn mở của cộng đồng | đóng góp rất nhiều cho sự phát triển của ngành."],
+    ["Y4", "verb-han-che", "Quy định mới về bảo vệ dữ liệu cá nhân | hạn chế việc chia sẻ thông tin khách hàng."],
+    ["Y5", "verb-lam-tang", "Việc ngồi quá lâu trước màn hình máy tính | làm tăng nguy cơ đau lưng."],
+    ["Y6", "verb-tac-dong", "Giá nhiên liệu trên thị trường thế giới | tác động đến chi phí vận chuyển trong nước."],
+    ["Y7", "noun-han-che", "Việc hạn chế thời gian dùng điện thoại / giúp trẻ ngủ ngon hơn."],
+    ["Y8", "second-verb", "Nhóm nghiên cứu của trường đại học / đã chứng minh rằng phương pháp này thể hiện tốt hơn."],
+    ["Y9", "subject-short", "Nghiên cứu này thể hiện điều đó."],
+    ["Y10", "object-tre-em", "Các ứng dụng học tập miễn phí / giúp trẻ em ở vùng xa tiếp cận kiến thức."]
     ]
 };

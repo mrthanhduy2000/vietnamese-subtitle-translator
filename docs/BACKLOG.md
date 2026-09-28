@@ -77,9 +77,11 @@ boundary when the predicate has a marker the model knows (đã, sẽ, là, đư�
 "công ty ... ở California | trong quý vừa qua | đã" now has one boundary, before "đã"). 1.9.6: a
 small lexicon of predicate verbs (`PRED_VERBS`: đạt, chiếm, cho thấy, mang lại, gây ra...) marks "Độ
 chính xác trên tập kiểm tra | đạt 95%" too (syntax4 real takes: wrong stops kept 9 -> 3, missed 6/20
--> 0/20). Left: verbs outside that list still unmarked; a short subject before one is legal but not
-invited (readers disagree there). "Điều này | có nghĩa là" untouched. The relative-"mà" and
-topic-"thì" limits (6 syllables) were set on seen sentences: check them on new ones.
+-> 0/20). 2.0.4 added 16 verbs of effect with three guards (DUBBING.md "2.0.4"; syntax5 and the
+held-out syntax6: WRONG 7 -> 0, MISSED 29 -> 0). Left: verbs outside that list still unmarked; a
+short subject before one is legal but not invited (readers disagree there). "Điều này | có nghĩa là" untouched. The relative-"mà" and
+topic-"thì" limits (6 syllables) held on new sentences (syntax5 W11-W14, 2026-09-29: no wrong or
+missed stop).
 
 **18. Alignment limits.** *(found 1.7.6)* A stop's place in the text is its share of voiced time
 (mean error 0.33 syllables on punctuation, 4 of 220 off by more than 1). If the voice skips or
