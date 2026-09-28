@@ -192,6 +192,19 @@ from 234 to 80.
   "đã bỏ N câu" undercounts. `engine.events` has them (`why: "entered-too-late"`).
 - Checked and fine: translation windows landing near the 60 s horizon changed 1 line's closing per
   8 minutes, at 58 s ahead. At 90 s, 1 line was re-rendered.
+- A multi-agent hunt (drop-logic lens only; the other 7 hit the usage limit) proposed 8 mechanisms.
+  One was checked adversarially: an over-long take hitting the service worker's timeout, the 4.5 s
+  slot lease and a blind retry.
+  - It is real in 1.9.8 but never fired in `server.log` (7274 takes, worst RTF 1.74, none near the
+    8 s limit).
+  - 1.9.9 absorbs it on the lens's own scripts: in a 2-take slowdown at 5x, silent runs 19 -> 1 and
+    drops 24 -> 0.
+  Not checked:
+  - `jobRemain`'s 0.3 s floor makes a stuck take look almost done;
+  - a queued job of a dropped line is detached, not aborted, so the worker still renders it;
+  - the worker does not cut a stuck take and retries the same late line;
+  - one outlier take skews the overhead fit (`noteTake`) for the next 12 takes.
+  Scripts: session scratchpad `drop-logic/` (not in the repo).
 
 ## Cosmetic / housekeeping
 

@@ -29,8 +29,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 - Ask the user whether to apply `tools/vieneu-fast-release.patch` (BACKLOG 37). On a scratch harness
   of 828 hiccups, subtitle-without-voice time was halved. Then make `background.js` cut a running
   request at once when /health says `release_on_leave`.
-- BACKLOG 36-38: a structurally slow server, seeks on a slow server, and review leads a usage limit
-  cut off (service-worker CPU, `entered-too-late` not counted as dropped).
+- BACKLOG 36-38: a structurally slow server, seeks on a slow server, and unverified leads from a
+  hunt a usage limit cut off (4 drop-logic mechanisms, service-worker CPU, `entered-too-late`).
 - Carried over: glossary keep-English per term not watched in Chrome; real Gemini output before/after
   1.8.3/1.8.4 not compared; `BACKLOG.md` 30, 31, 14-15, 18-24, 26, 28 (20 outside); the user's
   verdict on the 1.9.5 A/B WAVs; 1.7.9 duck fix not confirmed; Udemy / edX (`BACKLOG.md` 9).
