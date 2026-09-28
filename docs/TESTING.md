@@ -127,7 +127,12 @@ a 12 s ad that takes the clock to 0 and back. Launch configs `live` (8766) and `
 replies held to RTF 0.9). Click "run", poll `H.done` (45 s tool limit), read `summary()`: lines
 spoken, late starts, overlap / voice-while-paused / voice-in-ad samples (every 50 ms), recovery per
 seek. `?engine=smooth/old-dub-engine.js` runs an older engine copied into the git-ignored `smooth/`.
-Restart the server between compared runs: its audio store is shared.
+Restart the server between compared runs (its audio store is shared) and close the old tab (it keeps
+posting to the same port). Other scripts: `?script=stress` (rapid seeks, seek while paused, 0.5x and
+1.75x mid-line, rewinds inside the line being read, a pause during an ad), `?script=burst`, and
+`?script=viewer2` (pre-roll ad, pause in the middle of a line, fast pause/play toggles, rewind and
+rate change while paused, seek into a long line, a seek right after an ad). `?trace=1` logs every
+request and take. Late starts use the engine's own `lag`: a line entered mid-way is not late.
 
 Results:
 
@@ -137,8 +142,10 @@ Results:
 | RTF 0.9, 1.9.6 | 31 | 6 | 0 | 0 | 0.19 (wrong) |
 | RTF 0.9, 1.9.7 | 30 | 5 | 0 | 0 | 1.2 |
 
-In every run there was one 50 ms sample of voice right after the pause and one right after the ad
-start: the gap between the event and the engine's next tick.
+Voice-while-paused counts only once the script's own pause is 100 ms old: a sample taken before
+the clock's "pause" event reached the engine counted one per pause in the runs above (a harness
+artefact, 2026-09-29). With that, viewer2 on 2.0.1: 0 voice while paused, 0 in ads, 0 errors,
+0 overlaps; after a pause mid-line the same take went on from where it stopped.
 
 `generic.html` (+ `generic.vtt`): a bare `<video controls>` in an article, canned translations in
 place of the service worker. Default: a `<track>` element; `?mode=script`: `addTextTrack` only.

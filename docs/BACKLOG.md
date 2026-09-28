@@ -84,8 +84,11 @@ menu names one: `fasterVoices`) or a less loaded Mac. Never shorter speech (CLAU
     take holds its slot 4 s (DANGER §15), so it costs more than the wasted render;
   - a Theil-Sen overhead fit in `noteTake` against one outlier take: 2108 / 520 / 741 / 5.90, and the
     rapid matrix identical. Noise, not worth the code.
+  - `jobRemain`'s 0.3 s floor (a stuck take looks almost done), 2026-09-29: an overdue take given
+    0.3 + k x its overrun, k = 0.25 / 0.5 / 1.0, on a matrix where 6% of takes run 4x slow (60 runs)
+    and on the slow matrix. Every figure moved about 1%, not in one direction as k grew (spoken
+    1029 -> 1043 / 1037 / 1053; slow-matrix recovery 5.90 -> 5.96 / 6.11 / 6.01 s): noise, not shipped.
   Not checked:
-  - `jobRemain`'s 0.3 s floor makes a stuck take look almost done;
   - the worker does not cut a stuck take and retries the same late line.
   Scripts: session scratchpad `drop-logic/` (not in the repo).
 

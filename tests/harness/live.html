@@ -32,7 +32,14 @@
   ];
   // ?script=burst: the rapid seeks, then one more a few seconds later (the stress run's slow recovery)
   const BURST = [[8, "seek", 40], [9, "seek", 90], [9.8, "seek", 200], [11, "seek", 60], [20, "seek", 300], [32, "end"]];
-  const SCRIPTS = { stress: STRESS, burst: BURST };
+  // ?script=viewer2: a pre-roll ad, pausing in the middle of a line, fast pause/play toggles, a rewind
+  // and a rate change while paused, a seek into the middle of a long line, a seek right after an ad
+  const VIEWER2 = [
+    [0.2, "ad", 6], [14, "pausemid"], [17, "play"], [24, "pause"], [24.4, "play"], [24.8, "pause"], [25.2, "play"],
+    [32, "pause"], [33, "back", 3], [34, "rate", 1.5], [36, "play"], [44, "rate", 1], [46, "seek", 63],
+    [60, "ad", 8], [68.5, "seek", 200], [85, "end"]
+  ];
+  const SCRIPTS = { stress: STRESS, burst: BURST, viewer2: VIEWER2 };
   function silentWav(sec, sr = 8000) {
     const n = sec * sr, b = new ArrayBuffer(44 + n * 2), d = new DataView(b);
     const w = (o, s) => [...s].forEach((c, i) => d.setUint8(o + i, c.charCodeAt(0)));
@@ -71,13 +78,22 @@
     const t0 = performance.now();
     const wall = () => (performance.now() - t0) / 1000;
     const note = (...a) => H.events.push([+wall().toFixed(2), +clock.currentTime.toFixed(2), ...a]);
+    // when the script paused the clock (its "pause" event comes a task later, so a sample taken in
+    // between saw a voice the engine had not been told to stop yet)
+    let pausedAt = 0;
     // what the viewer would hear, every 50 ms
     setInterval(() => {
       if (H.done) return;
       const on = voices.filter(a => !a.paused && !a.ended && a.currentTime > 0).length;
       H.samples++;
       if (on > 1) H.overlap++;
-      if (on && clock.paused) H.voiceWhilePaused++;
+      // counted once the pause is 100 ms old: before that the engine may not have had the event yet
+      if (on && clock.paused && performance.now() - pausedAt > 100) {
+        H.voiceWhilePaused++;
+        const a = voices.find(x => !x.paused && !x.ended && x.currentTime > 0);
+        (H.pausedVoice = H.pausedVoice || []).push([+wall().toFixed(2), +clock.currentTime.toFixed(2), Math.round(performance.now() - pausedAt),
+          voices.indexOf(a), +a.currentTime.toFixed(2), eng.speech && eng.speech.id, a.src === (eng.speech && eng.rendered.get(eng.speech.id) || {}).url]);
+      }
       if (on && ad) H.voiceInAd++;
     }, 50);
     let seen = 0;
@@ -96,15 +112,29 @@
     for (const [at, what, v, extra] of script) {
       await new Promise(r => setTimeout(r, Math.max(0, at * 1000 - (performance.now() - t0))));
       if (what === "seek") { clock.currentTime = v; H.seeks.push({ wall: wall(), to: v, paused: clock.paused }); note("seek", v); }
-      if (what === "back") { const to = Math.max(0, clock.currentTime - v); clock.currentTime = to; H.seeks.push({ wall: wall(), to }); note("back", v); }
-      if (what === "pause") { clock.pause(); note("pause"); }
-      if (what === "play") { await clock.play(); note("play"); for (const s of H.seeks) if (s.paused && s.recovered == null) s.playAt = wall(); }
+      if (what === "back") { const to = Math.max(0, clock.currentTime - v); clock.currentTime = to; H.seeks.push({ wall: wall(), to, paused: clock.paused }); note("back", v); }
+      if (what === "pause") { clock.pause(); pausedAt = performance.now(); note("pause"); }
+      if (what === "pausemid") {                        // pause once a voice has played 1 s into its line
+        const t1 = performance.now();
+        while (!(eng.speech && voices.some(a => !a.paused && a.currentTime > 1)) && performance.now() - t1 < 8000) await new Promise(r => setTimeout(r, 20));
+        const a = voices.find(x => !x.paused);
+        clock.pause(); pausedAt = performance.now(); note("pause mid", eng.speech && eng.speech.id, a ? +a.currentTime.toFixed(2) : null);
+        H.midPause = { id: eng.speech && eng.speech.id, pos: a ? a.currentTime : null, el: a };
+      }
+      if (what === "play") { await clock.play(); note("play");
+        if (H.midPause && !H.midPause.checked) {        // where the voice goes on after the mid-line pause
+          H.midPause.checked = true;
+          await new Promise(r => setTimeout(r, 400));
+          const a = voices.find(x => !x.paused);
+          H.midPause.after = { id: eng.speech && eng.speech.id, same: a === H.midPause.el, pos: a ? +a.currentTime.toFixed(2) : null };
+          note("after mid pause", JSON.stringify(H.midPause.after));
+        } for (const s of H.seeks) if (s.paused && s.recovered == null) s.playAt = wall(); }
       if (what === "rate") { clock.playbackRate = v; note("rate", v); }
       if (what === "ad") {
         const back = clock.currentTime, pauseIn = extra === "pause";
         ad = true; clock.currentTime = 0; note("ad on");
         if (pauseIn) {                                   // the viewer pauses the ad for 3 s
-          await new Promise(r => setTimeout(r, v * 400)); clock.pause(); note("ad paused");
+          await new Promise(r => setTimeout(r, v * 400)); clock.pause(); pausedAt = performance.now(); note("ad paused");
           await new Promise(r => setTimeout(r, 3000)); await clock.play(); note("ad resumed");
           await new Promise(r => setTimeout(r, v * 600 - 3000));
         } else await new Promise(r => setTimeout(r, v * 1000));
@@ -120,7 +150,8 @@
   };
   window.summary = () => {
     const eng = H.engine, st = eng ? eng.stats : { started: [] };
-    const lags = st.started.map(x => x.t - x.due);
+    // the engine's own lag: a line entered mid-way after a seek starts at its place, it is not late
+    const lags = st.started.map(x => x.lag);
     return {
       done: H.done, clock: window.CLOCK ? +window.CLOCK.currentTime.toFixed(1) : null,
       spoken: st.started.length, lateStarts: lags.filter(l => l > 0.5).length, lagMax: lags.length ? +Math.max(...lags).toFixed(2) : null,
