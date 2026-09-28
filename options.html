@@ -17,17 +17,12 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: var(--bg-page);
-            color: var(--text-main);
             line-height: 1.5;
             min-height: 100vh;
         }
 
         /* Top Banner Header */
         .app-header {
-            background: #ffffff;
-            border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
             z-index: 50;
@@ -51,29 +46,22 @@
         .brand-icon {
             width: 38px;
             height: 38px;
-            border-radius: 10px;
-            background: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
-            box-shadow: 0 2px 8px rgba(217, 119, 87, 0.3);
         }
 
 
         .brand-sub {
             font-size: 12px;
-            color: var(--text-sub);
         }
 
         .header-badge {
             font-size: 11px;
-            font-weight: 600;
-            background: #f1f5f9;
-            color: #475569;
             padding: 4px 10px;
             border-radius: 20px;
-            border: 1px solid #cbd5e1;
+            border: 1px solid;
         }
 
         /* Layout Container */
@@ -83,7 +71,6 @@
             padding: 0 24px;
             display: grid;
             grid-template-columns: 240px 1fr;
-            gap: 28px;
         }
 
         @media (max-width: 768px) {
@@ -103,13 +90,9 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 11px 16px;
             background: transparent;
             border: 1px solid transparent;
-            border-radius: var(--radius-md);
-            color: #475569;
             font-size: 14px;
-            font-weight: 500;
             cursor: pointer;
             text-align: left;
             transition: all 0.15s ease;
@@ -134,12 +117,7 @@
 
         /* Section Cards */
         .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 22px 24px;
             margin-bottom: 20px;
-            box-shadow: var(--shadow-card);
         }
 
         .card-header {
@@ -147,9 +125,6 @@
         }
 
         .card-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #0f172a;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -157,18 +132,16 @@
 
         .card-desc {
             font-size: 13px;
-            color: var(--text-sub);
             margin-top: 4px;
         }
 
         /* Segmented Mode Selector */
         .segmented-control {
             display: flex;
-            background: #f1f5f9;
             padding: 4px;
             border-radius: var(--radius-md);
             margin-bottom: 20px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid;
         }
 
         .mode-btn {
@@ -178,7 +151,6 @@
             background: transparent;
             font-size: 14px;
             font-weight: 600;
-            color: #64748b;
             border-radius: var(--radius-sm);
             cursor: pointer;
             transition: all 0.18s ease;
@@ -188,11 +160,9 @@
         /* Live Preview Video Mockup - 100% YouTube Authentic Player */
         .preview-container {
             background: #050505;
-            border-radius: 12px;
             overflow: hidden;
             position: relative;
             aspect-ratio: 16 / 9;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08);
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -436,8 +406,6 @@
 
         .form-label {
             font-size: 13px;
-            font-weight: 600;
-            color: #334155;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -446,8 +414,6 @@
         .form-label span.value-pill {
             font-size: 12px;
             font-weight: 500;
-            color: var(--primary);
-            background: var(--primary-light);
             padding: 1px 7px;
             border-radius: 4px;
         }
@@ -474,7 +440,6 @@
             height: 6px;
             border-radius: 3px;
             outline: none;
-            accent-color: var(--primary);
             margin: 6px 0;
             cursor: pointer;
         }
@@ -505,7 +470,6 @@
         .color-dot.active {
             border-color: var(--primary);
             transform: scale(1.12);
-            box-shadow: 0 0 0 2px #fff;
         }
 
         .color-dot-custom {
@@ -529,7 +493,6 @@
 
         .field-hint {
             font-size: 12px;
-            color: #64748b;
             line-height: 1.45;
         }
         .field-hint.warn { color: #b45309; }
@@ -555,22 +518,17 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: #ffffff;
-            border-top: 1px solid var(--border);
             padding: 14px 24px;
             display: flex;
             align-items: center;
             justify-content: flex-end;
             gap: 12px;
             z-index: 90;
-            box-shadow: 0 -4px 12px rgba(0,0,0,0.04);
         }
 
         .btn {
             padding: 9px 20px;
-            border-radius: var(--radius-sm);
             font-size: 14px;
-            font-weight: 600;
             cursor: pointer;
             transition: all 0.15s ease;
             display: inline-flex;
@@ -586,7 +544,6 @@
         .status-msg {
             font-size: 13px;
             font-weight: 500;
-            color: var(--success);
             margin-right: auto;
             opacity: 0;
             transition: opacity 0.2s ease;
@@ -601,28 +558,19 @@
             width: 100%;
             min-height: 130px;
             padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
             font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
             font-size: 13px;
             line-height: 1.6;
             resize: vertical;
         }
 
-        textarea.glossary-box:focus {
-            outline: none;
-            border-color: var(--border-focus);
-            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.15);
-        }
 
         .example-box {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            border: 1px solid;
             border-radius: var(--radius-sm);
             padding: 10px 12px;
             font-size: 12px;
             font-family: ui-monospace, SFMono-Regular, monospace;
-            color: #475569;
             margin-bottom: 8px;
             white-space: pre-line;
         }
@@ -829,7 +777,7 @@
                 <button type="button" class="theme-btn" data-theme-set="dark" title="Luôn dùng giao diện tối">Tối</button>
                 <button type="button" class="theme-btn" data-theme-set="auto" title="Theo cài đặt sáng/tối của máy">Theo máy</button>
             </div>
-            <span class="header-badge" title="Cập nhật lúc 01:54 29/09/2026">Phiên bản v2.0.2 · cập nhật 01:54 29/09/2026</span>
+            <span class="header-badge" title="Cập nhật lúc 01:59 29/09/2026">Phiên bản v2.0.3 · cập nhật 01:59 29/09/2026</span>
         </div>
     </header>
 

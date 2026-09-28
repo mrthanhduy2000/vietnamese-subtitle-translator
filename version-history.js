@@ -4,6 +4,12 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.0.3", luc: "01:59 29/09/2026", ten: "Trang Cài đặt: dọn nốt kiểu dáng thừa",
+            y: [
+                "Gỡ 50 khai báo kiểu dáng mà quy tắc phía sau luôn ghi đè, cùng màu cũ trong 3 đường viền (màu xám xanh và tím của giao diện cũ còn sót). Giao diện không đổi: so từng phần tử ở nền sáng và nền tối, 0 khác biệt."
+            ]
+        },
+        {
             v: "2.0.2", luc: "01:54 29/09/2026", ten: "Trang Cài đặt: bỏ phần kiểu dáng thừa",
             y: [
                 "Gỡ bộ màu tím cũ không còn dùng và 9 quy tắc kiểu dáng bị quy tắc sau ghi đè hoàn toàn. Giao diện không đổi: đã so từng phần tử trang Cài đặt ở cả nền sáng lẫn nền tối, 0 khác biệt."

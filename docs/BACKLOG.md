@@ -212,11 +212,11 @@ API key and settings**, so this is deliberately not done. Just do not trust the 
 **7. Two stylesheets, two palettes.** `options.html` carries its CSS inline, `popup.css` is a
 separate file. They do not share tokens because they are not the same design: the popup uses
 `--claude-*` (accent #D97757, Newsreader), the options page `--primary` (#c96442, Source Serif 4).
-Unifying them is a design decision for the user, not a cleanup. Done in 2.0.2: the dead legacy
-`:root` block and 9 fully overridden rules left `options.html`, checked with 0 computed-style
-differences over every element in light and dark. Left: 19 early rules that later rules override
-only in part (merging them is safe but needs the same computed-style check). `popup.css` has no
-duplicate-selector dead rules.
+Unifying them is a design decision for the user, not a cleanup. The dead CSS is gone
+(2.0.2, 2.0.3): the legacy `:root` block, 9 fully overridden rules, and every early declaration a
+later rule with the same selector overrides (50 declarations, plus the stale color in 3 border shorthands).
+Each step checked with 0 computed-style differences over every element in light and dark, against
+the committed page in an iframe. `popup.css` has none. Only the palette question is left.
 
 **8. `tests/legacy/old-splitter.js` duplicates a large Vietnamese compound-word lexicon** that
 `vi-segmenter.js` also maintains. This one is intentional (frozen baseline) and should stay, but be

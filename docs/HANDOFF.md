@@ -6,14 +6,13 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · `options.html` (lane C), `tests/harness/live.html`, docs · `2.0.2`.
+2026-09-29 · `options.html` (lane C), `tests/harness/live.html`, docs · `2.0.3`.
 
 ## What changed
-- BACKLOG 7 (CSS debt): the two pages are two palettes, not duplicated tokens (popup `--claude-*`
-  #D97757, options `--primary` #c96442), so unifying them is the user's design call. Removed from
-  `options.html` only what is provably dead: the legacy purple `:root` block and 9 rules a later rule
-  with the same selector fully overrides. Checked: computed style of every element, HEAD vs now, in
-  light and dark, 5188 values, 0 differ. `popup.css` has no such dead rules.
+- BACKLOG 7 (CSS debt), 2.0.2 + 2.0.3: every dead rule and every early declaration a later
+  same-selector rule overrides is gone from `options.html` (~110 lines). Each step checked: computed
+  style of every element, committed page vs now in iframes, light and dark, 0 differ. What is left
+  is not debt but a design call: popup `--claude-*` #D97757 vs options `--primary` #c96442.
 - Live harness (committed earlier this session): `?script=viewer2` (pre-roll ad, mid-line pause,
   fast toggles, rewind while paused, seek after an ad); pause counted from the script's own pause;
   lag from the engine's `stats.started`. viewer2 on 2.0.1: 0 voice while paused or in ads, a
@@ -25,8 +24,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 - Tests: 566 pass, 0 fail, 1 skip. Reload: **yes**, at `chrome://extensions` (no visible change).
 
 ## Unfinished / in progress
-- BACKLOG 7 left: 19 early rules in `options.html` that later ones override in part; merge only with
-  the same computed-style check (iframe HEAD copy vs now on the static preview, light and dark).
+- BACKLOG 7: only the palette question, the user's to decide.
 - Carried over: ask the user for "Chép chẩn đoán" right after a problem; BACKLOG 38 last lead (the
   worker retrying a stuck take); BACKLOG 36; glossary keep-English per term not watched in Chrome;
   real Gemini output before/after 1.8.3/1.8.4 not compared; BACKLOG 30, 31, 14-15, 18-24, 26, 28
