@@ -9,6 +9,19 @@ machinery that one `condense: null` in `dubbing.js` used to keep off (`needsCond
 `condenseBeforeTts`, the `condenseSpeech` action, `condensedIsSafe`) was removed in 1.7.3, and
 `tests/backlog.test.js` fails if any of it comes back.
 
+## How this file is laid out
+
+Sections are by topic, in three parts that follow the data. Inside a section, the bold version labels
+("**1.9.9 ...**") say when a piece arrived and hold the measurements behind it; grep a label to find
+it. Where two labels disagree the later one wins, and a paragraph marked "history" or "replaced" is
+kept only for its measurements. A new change goes under the section it belongs to, not at the end.
+
+1. **What is said**: data contract, speech text, English inside Vietnamese speech, the prosody model
+   and its later rules (constituents, respellings, predicate verbs).
+2. **When it is said**: the `SYNC` block, then delivery (pipeline, entering a line, robustness, the
+   video shared with ads and a reloaded script, a slow server).
+3. **Who says it and where it is kept**: the three TTS providers, the cache, testing without a video.
+
 ## Six files, one direction of data
 
 ```
@@ -122,473 +135,6 @@ module fixes:
   What it does not measure: how a respelling *sounds* (only its phonemes), and anything the server's
   own G2P reads wrong in a word it already treats as English.
 
-## Context, constituents and cache identity (1.8.0)
-
-**Pronunciation: three states** (`dub-speech.js` `CONF`). A word VieNeu reads Vietnamese (an "ambig"
-shape: Tom, San, Dan...) gets a score; only `HIGH_EN` (>= 3) is rewritten, `AMBIGUOUS` and `HIGH_VI`
-(<= -3) are left alone. Clues: lexicon unit or the source line's same pair (decisive, +10); a
-capitalised English neighbour mid-sentence, a name word (`NAME_WORDS`) opening a sentence before an
-English non-brand surname ("Sam Altman ...", not "So Google", "Con Labrador"), a lone given name the
-English source line names (`EN_GIVEN`: not Lan, An, Dan, Van, Tan, Kim) (strong, +5); a Vietnamese
-name word beside it ("Nguyễn Văn Dan", decisive -10); a title before it ("chị Kim", weak -2); a line
-in capitals (decisive). A lone "Tom" with no source line stays as is. Every token also carries
-`lang`, `entity`, `conf`, `score`.
-**Codes of 5+ letters**: English letters only for a code with **no vowel** and English evidence (the
-source line has it; or an English neighbour plus F/J/W/Z). VieNeu spells all of them Vietnamese
-("SMTPS", "THPTQG"); a code with a vowel ("CRISPR", "NGINX") may be a word, so it is left to the voice.
-**Version or quantity**: `dub-planner.js` `numberRole(before, after)`, used by `adaptForSpeech` and
-the model-number rule: a measure unit after the number wins ("CPU 3.5 GHz" -> "3 phẩy 5", "RAM 4096
-MB"), then a section word or product name before it ("Python 3.12 năm ngoái" -> "chấm").
-
-**Constituents** (`dub-prosody.js` `constituents`, run after `adjustJoins`): clauses start at
-punctuation and openers of weight >= 20 (+ "rằng"), each with a role (purpose, cause, condition,
-contrast, time, result, complement, relative, main). A subject is a personal pronoun, or the words
-before the first predicate marker (preverbal word, "là", "được"/"bị", a verb of change; not inside a
-compound, not "vừa qua"; the scan stops at a degree adverb and never starts at a preposition). Then
-only prohibitions: **A** no pause inside a subject (<= 22 syllables) before a preposition; **B** a
-short predicate keeps its first adjunct (<= 3 syllables before an adjunct opener, <= 5 before a
-plain preposition). A purpose clause is a clause: "Tôi dùng ChatGPT / để phân tích" stays a legal
-boundary. Every gap gets a `tier`: punct, hard (unit or value < 0), soft, open.
-**Token map**: `PROSODY.tokenMap(text, ctx)` joins both analyses per token (id, surface, language,
-spanId, entityType, pronunciationMode, pronunciationConfidence, boundaryBefore/After). Both modules
-read one `SEG.tokenize`, memoised; analysis is ~0.2 to 0.6 ms a line uncached.
-**Across subtitle lines** (free voice only, `buildDubScript`): a silence under `BRIDGE_MAX` 1.2 s at a
-line boundary the model forbids ("Christopher / Nolan", "3,5 / GHz", a subject's PP) no longer cuts
-the segment; `prosodicCut` takes any legal line boundary over an illegal "here". Paid voices keep
-their per-group cuts (a moved cut re-bills stored audio).
-
-**Cache identity.** Paid (Gemini) key: unchanged, pinned by golden hashes in
-`tests/speech-context.test.js`; nothing of `dub-speech.js` or `dub-prosody.js` reaches it (it keys
-`plan.text`, the `adaptForSpeech` output; only a "PRODUCT N.N unit" line changes, where it said
-"chấm" for a quantity). Free (VieNeu) key: `LOCAL_STYLE_VERSION` 11 (shaping code) + voice + the
-rendered text (`speakScript`: that *is* the pronunciation fingerprint, so a lexicon or policy change
-re-renders exactly the lines whose text changed) + `PROSODY.signature(plainScript)` (per-gap values,
-units, punctuation pauses: an analysis change re-renders only the lines it touches). 1.8.0 itself
-re-renders every VieNeu line once (free, local). Translation key: no input from either module
-(asserted). `PRONUNCIATION_VERSION` names the data version and is deliberately not in a key.
-
-**Measured** (same takes old vs new; the marks are one reader's; proxies, nobody has listened):
-- Phonemes (`pron-eval`, 1.7.9 -> 1.8.0): dev 97 -> 104 of 107, validation 35 -> 39 of 42, old
-  unseen 28 -> 29 of 29 (dev/validation grew by 45 / 16 items written before the code). Misses left:
-  Kim Kardashian (no respelling), MMORPG (vowel, left), "So" (VieNeu's own reading), RAM (label), Dan
-  with source (by design), TPM (scorer artefact next to "chip").
-- Real takes (`prosody-eval`, WRONG kept pauses): syntax (dev) 5 -> 0, syntaxval 1 -> 0, holdout3
-  1 -> 0 ("công ty | trong quý"), corpus 1 -> 1, holdout1 3 -> 3, holdout2 0 -> 0; MISSED / RAN-ON
-  unchanged. Cost: in 2 of 5 takes of S1 no stop is left (the voice did not stop before "đã"): longest
-  run max 14 -> 21 syllables on that set.
-- Real takes of the speech corpus (`speech-ab`, 8 of 128 texts differ; no source lines there): dev
-  WRONG 5 -> 3, pauses at a language edge 2 -> 0, inside a span 0 -> 0, clicks / clipping / runaway 0,
-  level jumps 490 -> 485, duration -0.3%; longest run max 20 -> 22.
-- **Blind split** (`tests/blind-corpus.js`, 55 + 40 + 13 items by a separate agent, frozen at commit
-  2b6b2db before the rules were written, scored once): phonemes 62 -> 65 of 70 (en 30 -> 33 of 38;
-  vi 9/9, hold 6/6, vletters 3/3 in both: **no new false positive**). Fixed: "Sam Altman" opening a
-  sentence, lone "Tom" / "Sam" named by the source line. Left: Kim, Ken, Ben (no respelling; "Ben" is
-  not a candidate). Prosody text decisions: WRONG 2 -> 2 (one fixed, "mây | trong quý ba"; one moved
-  to "phần trăm | so với" in the same 25-syllable run), MISSED 2 -> 2, BLOCKED 1 -> 1. Subtitle lines
-  with a 0.7 s gap: segment cuts at an unmarked gap 10 -> 1 (the one left is a purpose clause, "đây |
-  để", which 1.8.0 treats as a legal boundary and the blind marks do not). The blind split is seen now:
-  its failures are next round's dev cases (`BACKLOG.md` 29).
-
-## Constituent refinements and respellings (1.8.2)
-
-Small local rules, each checked both ways in `tests/prosody.test.js` / `tests/speech-context.test.js`.
-No new module, no new abstraction; `analyze`, `signature` and the cache keys are unchanged in shape.
-- **Result "nên"** (`adjustJoins`, `isResultClause`): after a clause that already has its predicate
-  (degree adverb, preverbal word, "bị" / "được", verb of change) or a fronted "vì" / "do" / "nhờ", it is
-  a clause boundary like "để" (value 0.85). Without that evidence, or after a verb of thinking
-  ("Tôi nghĩ công ty nên"), "nên" may be "should": soft (0.25), no longer 0.55.
-- **"so với" after a quantity** ("tăng hai mươi phần trăm so với", "gấp đôi so với"): bound, as after
-  "hơn". **Relative "mà"**: the clause length stops where the main predicate resumes ("chiếc máy mà
-  tôi mua hôm qua | đã hỏng"), so a short one stays with its noun.
-- **Long last list item**: "A, B và <8+ syllables>" may breathe before "và" (not forced); the item is
-  counted to its predicate, so "Apple, Microsoft và Google | đều ..." stays bound.
-- **Purpose clause** (`constituents` part C): when either side is <= 6 syllables and both fit 16, the gap
-  before "để" is soft (`purposeAttached`): legal, not invited. Longer pairs keep 0.85. `BACKLOG.md` 31.
-- **Respellings** (`tools/build-speech-tables.js`): ben "benn", kim "kym", leo "lleo", nan, ton; "ben"
-  and "kim" join `NAME_WORDS`, "ben" joins `EN_GIVEN`. "Ken" needs none: VieNeu's kɛn is the same in
-  both languages (`pron-eval` still flags it).
-- **Cost**: nothing reaches the paid key or the translation key (golden tests unchanged); a VieNeu line
-  re-renders only if its text or its prosody signature changed (free).
-
-**Measured** (proxies, nobody has listened): real takes (`prosody-eval`, WRONG kept pauses) syntax2 6 -> 0,
-MISSED 1 -> 0, all other sets unchanged (syntax longest run p90 14 -> 15). `speech-ab` (4 of 136 texts
-differ): WRONG, clicks, clipping, runaway, pauses at a language edge or inside a span unchanged (0 where
-0), level jumps 540 -> 525. Text-only first blind (now dev) WRONG 2 -> 0, BLOCKED 1 -> 0. **Blind split
-2** (`tests/blind-corpus-2.js`, scored once): text-only WRONG 5 -> 4, INVITE 12 -> 7, MISSED 0, HARD 0,
-CUT-WRONG 1 -> 1; phonemes 78 -> 79 of 82, vi 13/14 both (the miss is "Vinamilk", VieNeu's own reading).
-Analysis cost unchanged (~0.15 ms a line uncached, analyse + breath groups + render).
-
-## The SYNC block is the tuning bible
-
-`dub-engine.js` lines 27 to 76, one object named `SYNC`. **Every timing constant lives there.** If
-you are about to introduce a magic number anywhere in the dubbing code, put it in `SYNC` instead.
-The comments in it record why each value is what it is; read them before changing one.
-
-Knobs you will actually reach for:
-
-- **Drift (1.6.8)**: `driftCorrect` 0.15s re-seeks the audio. Below that, `driveSpeech` first absorbs
-  the element's start-up latency into the sentence's timeline (`driftAnchor` 0.12, once per
-  sentence), smooths the drift (EMA), and nudges by one fixed 3% step with hysteresis
-  (`driftNudge` 0.08 on, `driftNudgeOff` 0.02 off, `nudgeSpacing` 0.8 s). Measured in real Chrome
-  (`tests/harness/smooth.html`, 120 s of real VieNeu audio): the old per-tick nudge changed
-  `playbackRate` 510 times on playing voices (~21 per sentence), each one restarting Chrome's
-  time-stretch = the "robotic stutter" (Thục Đoan); after the fix 0 for Thục Đoan and for Mỹ Duyên
-  (Mỹ Duyên measured only after), lag still 0.
-  `chooseRate` also plays a sentence within `snapToNatural` (5%) of 1.0 at exactly 1.0 when the
-  voice is not a sped-up slow one and the step limits allow (21/24 Thục Đoan sentences, no stretch).
-- **Rate**: `chooseRate` clamps per sentence to `[floorRate(), maxSpeechRate 1.3]`, rising to
-  `lagMaxSpeechRate` 1.4 once lag passes `lagBoostAt` 1.0. Between sentences the change is smoothed
-  (`rateStepUp` 0.1, `rateStepDown` 0.06) because the user's complaint was uneven pace, not
-  wrong pace. `baseTempo` comes from the voice's **measured** syllables per second (`measureVoice`,
-  EMA 0.25), not a constant. `floorRate` divides by `video.playbackRate`.
-- **Chaining**: `chainLead` was cut from 2.0s to 0.8s because starting early accumulated error
-  across chained segments. `continuesNext` treats gaps up to 1.5s as one continuous span.
-- **Skipping**: whole sentences only, never mid-sentence. `maxQueueLag` 4.5, `dropLag` 4.0 for the
-  live provider. Gating happens in `nextSpeech`.
-- **Overload (added 1.4.7)**: when the TTS server is slower than real time, waiting for the next
-  sentence's audio is hopeless and the old code stood silent 4.5s per sentence, dropping them one
-  by one while still rendering sentences it had already given up on. Three parts now: `waitAudio(p)`
-  estimates the remaining wait from the **measured** `renderRtf` (generated seconds per second of
-  speech, EMA in `renderBatch`), `skipAhead` jumps the queue to the first sentence whose audio can
-  still arrive (`skipAfter` 8, `skipAheadMax` 60), and `schedule`'s `inWindow` refuses any plan at
-  or behind `lastSpokenStart`. Plus: with an empty buffer a request carries **one** short plan, not
-  a 4-plan batch. Simulated on a real 11-minute timeline with a server at RTF 1.0: 12/61 sentences
-  spoken before, 30/61 after; at RTF 0.23 nothing changes (61/61). The thresholds are measured, not
-  guessed: `skipAfter` 4.5 costs 2 sentences at RTF 0.7, and capping `skipAheadMax` at 6 to 14
-  seconds drops to 14/61 because short jumps land late again. See `tests/hardening.test.js`
-  "slow voice server".
-- **Video pace (1.6.1)**: `videoPace(t)` reads the next `paceWindow` (90 s): for each plan,
-  `planNeed(i)` = natural audio length (rendered, else syllables / measured voice sps) over its slot,
-  syllable-weighted median (`mid`) and upper quartile (`high`). `paceLimits` raises the ceiling to
-  `min(paceCeilingMax 1.55, high * 1.08, maxSpokenSps 5.8 / sps)` (+0.1 while lagging) and the floor
-  to `mid * 0.92` when `mid > 1`. `chooseRate` also looks `lookAhead` (3) plans ahead and starts
-  climbing early, bounded so the current sentence ends at most `lookAheadEarly` (0.5 s) before its
-  subtitle. Simulated with Kim Thanh on two real cached timelines: lag over 1 s 3 -> 0 and 5 -> 1,
-  a slow speaker (timeline x1.35) unchanged. Measured live on 4eY5DuqASQc 8:25 to end (1.6.1, Kim Thanh):
-  peak start lag 1.88 -> 0.43 s, overrun 1.76 -> 0.42 s, top rate 1.40 -> 1.41, none dropped. Harness: `scratchpad/sim-kim.js` pattern, see
-  `tests/dub.test.js` "slow voice on a fast speaker".
-- **Prefetch**: `prefetchAhead` is adaptive, roughly `(latency * 2.5 + 4) * playbackRate`, times 0.6
-  if the user seeks twice in a minute. The free local voice keeps `freeAheadMin` 60 to `freeAheadMax`
-  90 media seconds, times the video rate (1.9.9; 20 to 40 before, see "1.9.9" below). At a seek only
-  jobs for the first `seekKeepAhead` 20 s after the landing point are kept. `dubbing.js`
-  `smartPrefetch` shrinks it 30% for videos over 30 minutes.
-- **Retention**: `keepBehind` 90s / `keepAhead` 240s in `releaseOld`, so a short rewind is free.
-- **Levels (1.5.6)**: `dubVolume` and `dubDuck` are 0..1 and read through `CST_DUB.level(x, fallback)`.
-  Never `Number(x) || fallback`: 0 is a real choice (mute the original), and that idiom turned the
-  Settings slider's 0% into 20%. Both are also set from the quick menu (`buildVolumeControls` in
-  `player-ui.js`) and applied live by the storage listener in `dubbing.js`.
-- **What the viewer sees (1.5.6)**: `engine.health(t)` returns `{ live, ahead, rtf, dropped, errors,
-  pace, paceHigh }`;
-  `CST_DUB.describeHealth()` turns it into the one line under "Lồng tiếng Việt" in both quick menus
-  (ready N seconds ahead / server slow at RTF x / N lines skipped / a quicker voice by name, 1.9.9),
-  warning-coloured when it matters.
-- **Render speed (1.7.7, 1.9.7)**: `renderRtf` is an EMA of `(secs - renderOver()) / audioSecs`; the
-  first sample of a run is capped at `SYNC.firstRtfCap`, and drop decisions use `dropRtf()` = min(EMA,
-  latest sample). Cold server: macOS swaps VieNeu's model out after long idle (3.5x real time vs 0.23
-  warm). `background.js` `localIsCold()` (>10 min since a good render, kept in `chrome.storage.session`)
-  gives that first line a 60 s limit and keeps it out of the speed log. No warm-up line (1.2.6 test).
-- **Ducking**: voice cannot be separated from music, so the original track is ramped down
-  (`duckRampPerTick` 0.09, `duckHold` 0.35) in `updateDuck`. Any volume write that is not ours
-  (`onVolume`) resets the base and sets `duckDirty`, so the duck is re-applied next tick. On YouTube
-  (`playerOwnsVolume`, set in `dubbing.js`) the written value IS the new base: the player writes its
-  own full level (Stable Volume after a seek, measured 0.1 -> 0.89). Elsewhere it is divided by the
-  duck factor (a native slider shows the ducked value). Before 1.7.9 a YouTube write mid-speech left
-  the original loud until the voice paused.
-
-**Planning window (1.6.3).** `refresh` plans only groups overlapping
-`[step*planStep - planBehind, (step+1)*planStep + planAhead]` (60 / 150 / 300 s) plus one group past
-the edge (for `continuesNext`); the step number is in the signature, so it rebuilds at most once a
-minute while nothing new arrives. Speaker parity for the window comes from
-`PLAN.speakerStateBefore(all, first)`. Whole-video planning cost ~90 ms per new group on a 60-minute
-talk; now ~15 ms. `releaseOld` frees audio whose plan left the window (it used to skip them: a leak).
-`audioKeysForVideo` still plans the whole video, on purpose (forget-audio needs every key).
-
-`tick` is the 50ms main loop. It splits into `tickLive` (Web Speech, no buffer) and `tickBuffer`
-(prerendered timeline). A seek is detected in `tick` as `t < lastT - 0.3 || t > lastT + 2.5` and
-calls `hardReset`, which drops queued speech, renders a tiny first batch (`warmup`), and re-anchors.
-`cancelObsoleteJobs` deliberately lets jobs that are nearly done finish, because aborting a Gemini
-call still bills for it. For VieNeu the service worker also keeps any request the server has started
-(1.8.6, see "Delivery"), so a VieNeu abort only drops what is still queued.
-
-**Viewer cap (1.6.6).** `settings.maxRate` (storage `dubMaxRate`) is the one user override of this
-block: when set, `userMaxRate()` clamps `ceiling`, `lagCeiling` and the final rate, even below a
-slow voice's floor rate. The voice then falls behind instead of rushing; it never drops words.
-
-## Delivery: getting made audio to the ear on time (1.8.6)
-
-Pipeline, per line: group translated -> `refresh` plans the window -> `schedule` looks the line up
-(page L1, then the service worker's store) -> one request at a time to VieNeu (`maxBatch` 1, `serial`)
--> `background.js` queue (`localSerial`), same-key requests join one flight (`ttsInFlight`), store
-checked first, take written to the store before the reply -> `addRendered` (blob URL, no element)
--> `prepareNext` builds the next line's element while the current one plays -> `nextSpeech` /
-`tickBuffer` start it on the video clock (`ended` event re-ticks at once; `gapTimer` for the rest)
--> `releaseAudio` when it ends. Priority is implicit and recomputed every tick: `todo` is sorted by
-start from the current time, so the line about to play always goes first; no queue framework.
-
-Measured with `tools/playback-sim.js` (real engine + provider, modelled service worker and server,
-old = 1.8.5 engine with the old abort policy; all local, no API):
-
-| Scenario | voice after seek (s) | requests | audio elements alive |
-|---|---|---|---|
-| seek back to held audio | 0.8 -> 0.05 | 19 -> 16 | 12 -> 2 |
-| seek forward (1.5 s is translation) | 3.05 -> 3.05, 3 s of it server-blocked -> 0 | 25 -> 24 | 14 -> 2 |
-| 5 seeks in 7 s | mean 3.7 -> 1.4, worst 7.1 -> 2.5 | 28 -> 31 (23 lines spoken, was 20) | 16 -> 2 |
-| server at RTF 0.9, 2 seeks | 13.6 -> 7.7 (lines 15 -> 17) | 21 -> 19 | 9 -> 2 |
-| steady play, pause, 1.5x, 2x, all cached | unchanged (no gap before either) | equal or -1 | 20-21 -> 2 |
-
-The slow-server run has one more delivery gap (2 -> 3, 3.4 -> 7.1 s): a line now starts 3.5 s late
-where the old code was still silent. Late starts and gaps in steady play were 0 before and after:
-the gains are all around seeks, pauses and slow servers.
-Real Chrome (`tests/harness/smooth.html`, real VieNeu takes): voice 15 to 27 ms after a seek back
-and a seek into prefetched audio, 0 overlap in 2,854 samples, at most 2 elements holding a source.
-What changed, each for a measured cause:
-- **A request VieNeu has started is not cut** (`background.js` `LOCAL_KEEP_RUNNING_S` 4). The server
-  keeps its one stream slot ~4-5 s after a client leaves (`apps/openai_speech.py` `_Lease`), and
-  `waitLocalIdle` made the next request (the seek target) wait: `server.log` had 23 such releases,
-  11 of them followed by 12-21 `/health` polls. The take now finishes (~1 s) into the store; a
-  request still in the service worker queue is dropped unsent. Cold server: still cut.
-- **A seek onto held audio keeps the cut** (`hardReset` -> `audioReadyAt`, `headPinned`). The short
-  head cut re-rendered a line that sat ready; now it plays from its offset (the same mid-line entry
-  the head cut used whenever the seek landed >0.3 s into a piece).
-- **Unreachable lines are not rendered after a start/seek** (`unreachable`, only with a measured rtf):
-  at RTF 0.9 or 2x the engine rendered the line under the playhead, then skipped it as too late.
-  `waitAudio` counts an orphan job on a serial server as busy (it now runs to the end).
-- **Pause does not cancel** (`cancelObsoleteJobs` uses `prefetchAhead(true)`, the playing horizon).
-- **Elements are let go**: `releaseAudio` after a line ends and on `hardReset` (the blob URL stays;
-  a rewind makes a new element). `stop()` aborts its queued jobs (next video not held behind them).
-- **Scorecard** (debug only): `debugSnapshot().delivery` = `recoverMs` (start/seek -> first voice),
-  `late` (lag > `SYNC.lateStart`), `gaps` / `gapSec` (silence beyond the intended rest, `SYNC.gapMin`),
-  requests, cache hits, aborted, detached, lines held, live elements. Intended pauses never count.
-Not changed on purpose: prefetch horizon (`prefetchAhead` already scales with latency and rate: no
-gap at 1.5x / 2x), rate choice, drift, ducking, prosody, the paid-voice cache keys.
-
-**1.8.7 additions** (1.8.6 vs 1.8.7 on the same simulator, `OLD_BG=queued`):
-- **Clean entry into a line** (`findStops` at `addRendered`, `entryPoint` in `nextSpeech`): the
-  proportional position `into x audio/slot` started inside a syllable on 1,277 of 1,509 landings over
-  25 real takes (`tests/harness/smooth/`), with an amplitude jump on 689. Now it moves back to the
-  last gap between words (<= `entryBack` 1.2 s, heard again) or ahead to the next (<= `entryAhead`
-  0.8 s): 4 of 1,509 inside the voice, 3 jumps; on average 0.35 s heard again or 0.12 s skipped.
-  Gaps of `entryStopMs` 40 ms (80 ms left 6%, 60 ms 1.3%). ~0.5 ms per take. Real Chrome: 3 of 3
-  seeks entered exactly at a gap, voice 23-26 ms after the seek.
-- **Store before re-cut** (`headProbe`, `resolveHeadProbe`): a seek with nothing in the page looks the
-  landing lines up in the store under the current cut before making the head cut. Rewind of 3 min:
-  voice 0.95 -> 0.1 s, one request less; a miss costs one store round trip (rapid seeks +0.04 s).
-- **Optimistic reach before a measurement** (`SYNC.reachOverheadMin` 0.2 + `reachRtfMin` 0.2 x
-  length): first voice at 2x 2.75 -> 1.75 s, at 1.5x 2.3 -> 1.75 s (one late start -> 0); 1x unchanged.
-
-**1.8.8 resilience.** Each case reproduced first (`tests/dub.test.js` "resilience", all fail on 1.8.7):
-- A store lookup the worker never answers kept `busyLookup` set: 0 lines in 60 s. Now
-  `SYNC.lookupTimeout` 4 s, then misses (late hits still used if they fit).
-- TTS jobs that never answer counted toward `maxJobs` forever: 3 of them = silence for good. Now an
-  orphan stops counting `orphanStallMs` 20 s after it was left, any job after `jobStallMs` 90 s; a
-  retry joins the worker's flight (`ttsInFlight`), so nothing is generated twice. `pending` is a Map
-  planId -> jobId: only the owning job clears it.
-- A hit landing after `stop()` made a blob URL nobody revoked; a hit for a line re-translated while
-  the lookup was out was kept under the new text. Both dropped (`running`, same id and text).
-- A take with a NaN / missing duration: rates went NaN, 1 line of 13. `audioLength` validates and
-  reads the WAV header; garbage = `bad_audio`, retried like an error.
-- Errors by kind in `debugSnapshot().delivery.errorTypes` (`countError`; kinds listed there). The
-  VieNeu provider tells `no_response` (port closed) from `invalid` and the worker's `errorType`.
-- `background.js` reads store keys together (`cachedParts`, `handleAudioCacheGet`, keys validated and
-  deduped): 12 keys on a wedged IndexedDB 18 s -> 1.5 s.
-Measured and left alone: the tick is 17 us on a 60-min lecture (max 6 ms on a plan rebuild, 5 per
-200 s), `base64ToBytes` 0.7 ms per take, `audioKey` 0.02 ms per plan (memoised).
-
-**1.8.9 service-worker races and error codes.** Each reproduced first (`tests/hardening.test.js`,
-"1.8.9", all fail on 1.8.8):
-- A job dropped while queued in `localSerial` answered only when the queue reached it; it now leaves
-  the queue at once (abort listener, removed when the pump takes it).
-- A line dropped and asked for again (seek away and back) joined the dropped flight and got
-  "aborted". A new flight now waits for the old one and uses its take when it finished (kept running,
-  `LOCAL_KEEP_RUNNING_S`), else makes it: never refused, never made twice. Flight cleanup is
-  owner-checked (`ttsInFlight.get(reqKey) === f`).
-- A `ttsAbort` landing while the request key is still hashed was lost and the line generated anyway:
-  `ttsRegistering` holds jobs between arrival and registration.
-- `synthesizeLocalOnce` error by stage: before a reply `local_unavailable` (the only one that may
-  switch the video to the system voice), mid-body `dropped` (retried once, like `timeout`), after it
-  `invalid`. All three read "server not running" before.
-- `waitLocalIdle` follows the job's signal and times the body too: a hung `/health` held a dropped
-  line 1.7 s, now ~5 ms. A dropped job is never sent (was: sent with an aborted signal).
-- `ttsRequestProblem` refuses bad `jobId` / `parts` (key 1-256 chars, weight > 0, <= 12 parts) as
-  `invalid` before any read; a numeric key was stored before.
-- Page cache (`dubbing.js`): one corrupt record threw away every hit of the lookup; now a miss for
-  its line. A hit moves to the newest end, so a take replayed on each rewind is not evicted first.
-
-**1.9.0 play() refusals and WAV headers.** Reproduced first (`tests/dub.test.js`, fail on 1.8.9).
-`driveSpeech` used to send every `play()` rejection to `onProviderError` and ask the paused element
-again on every tick. `onPlayFailed` sorts them by the browser's error name:
-- `AbortError` (a pause or seek cut the start): `play_interrupted`, not a provider error. 8 of them in
-  30 s counted before; three in a row switch a paid voice to the system voice.
-- `NotAllowedError` (autoplay policy): `play_blocked`, asked again after `SYNC.playRetryMs` (1 s):
-  282 -> 25 calls in 20 s. `status().playBlocked` puts a warning on the badge until a play starts.
-- anything else (`NotSupportedError`): `play_failed`, the take is dropped and the line goes back to
-  the schedule (`S.prevSpokenStart`/`prevSpokenId` restored): 51 calls on a broken take -> 1, and
-  the line is made again.
-`decodeWav` refuses non-PCM, channels outside 1-8, rates outside 4-192 kHz and a cut `fmt` chunk
-with `e.code === "wav_invalid"`; rate 0 or 4 GHz used to decode into Infinity durations.
-
-**1.9.1 system voice stall.** `tickLive` returned while `live.speaking`, so an utterance whose end
-Chrome never reports (collected with its handlers, a network voice stopping, a queue stuck pending)
-silenced the system voice for the rest of the video: 3 of 23 lines. `liveStalled` gives a phrase up
-after predicted length x `SYNC.liveStallFactor` + `liveStallPadMs` from its start (or from `sentAt`
-when no start came), counts `speech_stalled` and goes on: 23 of 23. The web-speech handle keeps
-`utterance` so it is not collected. `audioCacheDelete` refuses a non-array, drops bad and repeated
-keys. Measured, left alone: a 2 s scrub (125 `seeking` events) costs 0.4 ms of `hardReset` in total
-and sends no render.
-
-**1.9.2 duck across a Reload.** The old content script runs on after Reload (DANGER.md §3) and the new
-one starts on the same `<video>`: each took the other's ducked level for the user's own. After dubbing
-stopped YouTube was at 0.01 of 0.80 (old script stopping late) or 0.16 (old script frozen); a plain
-video 0.16. Isolated worlds share only the DOM, so the element carries `data-cst-duck-owner` (the
-engine's token) and `data-cst-duck-base` (the user's level). `start()` takes the held level unless the
-element is louder (stale), and claims; `tick()` stops an engine whose token is no longer the owner
-(`stats.superseded`), so there is one voice; `setVideoVolume` never writes or restores for a
-non-owner; a restore removes both attributes. Checked in real Chrome with two engines on one element:
-old one stood down, duck 0.16, 0.80 after stop, no attribute left.
-
-**1.9.3 YouTube ads.** An ad plays in the lecture's own `<video>`, so its clock (0 to 30 s) read as the
-lecture's: 5 lines read over a 15 s mid-roll, the ad ducked, those lines rendered. `d.adShowing()`
-(optional; `dubbing.js` `adShowingFor`: the player's `ad-showing` / `ad-interrupting` class) gates
-`tick()` (`adGate`: silence, no schedule, no duck, `stats.ads`) and `onSeek`; when the ad ends the
-engine resets once (`hardReset("ad")`, `lastT` cleared). The subtitle loop has the same gate
-(`youtube.js` `ytAdShowing`), which also stops Gemini calls for the ad's clock.
-
-**1.9.7 a server near real time (BACKLOG 33).** The reach decisions ran on a wrong speed:
-- The overhead was a fixed 0.6 s guess. Real VieNeu costs 0.07 s + 0.21 s per second of audio
-  (fitted on 12 takes), and the page path measured 0.16-0.17 s. So a 0.6 s take read as RTF 0.08,
-  and `dropRtf()` (min of EMA and latest) took it. `noteTake` / `renderOver()` now fit a line through
-  the latest 12 takes made while the server was free. The fit needs 4 or more takes spanning 1.5 s of
-  audio, and is clamped to 0.05-1.5 s. A take under `rtfShortAudio` (1.2 s) feeds the EMA but is never
-  the latest sample.
-- A take the worker's store answered (`fromCache`) counted as a render at RTF ~0.1. It now counts 0
-  seconds of audio (`o.cached`).
-- A job left running for the old place after a seek read as 0 s: the plans are rebuilt, and its lines
-  are not among them. `job.est` keeps the length known at send time.
-- `crowdsNext`, called from `unreachable()` for a serial provider: a line whose audio lands late anyway
-  is given up when the next line gains more time than the late line had left to be heard (at least
-  `crowdGainMin`). This is not condensing: whole lines were already dropped for lag (`skipAhead`,
-  `maxQueueLag`). This only picks which line.
-
-Measured:
-- `playback-sim.js` seekWhileSlow: delivery gaps 7.07 -> 4.87 s, worst gap 3.54 -> 2.49 s, late
-  starts 6 -> 5, recovery 7.68 -> 6.58 s (max 9.9 -> 7.7). Every other scenario is identical.
-- A 144-run matrix (RTF 0.8-1.1, rate 1/1.5/2, 12 seek pairs): lines spoken 2025 -> 2141, late 559
-  -> 546, gaps 818 -> 797 s, worst recovery 34.0 -> 24.6 s.
-- One part was tried and removed: skipping the rtf sample of a take queued behind another left the
-  estimate stale after seeks (worst recovery 25 s at RTF 1.0, rate 1.5).
-- Live, `tests/harness/live.html` on the real VieNeu server held to RTF 0.9: see TESTING.md.
-
-**1.9.8 after the live runs.**
-- The line an ad cuts goes on where the voice was (BACKLOG 35, `adCut` / `takeAdResume`). A seek
-  after the ad drops it (`hardReset` clears `adResume`).
-- A take queued behind another job on a serial server has that job's predicted rest taken out of
-  its rtf sample (`job.ahead` from `serverBusy()`). The live harness read RTF 0.3 as 0.55 after a
-  burst of seeks.
-- `SYNC.overFitPad` 0.3 s is added to the fitted overhead for reach decisions. The exact fit let in
-  marginal lines that then started late.
-
-Measured against 1.9.6:
-
-| Matrix | Lines spoken | Late starts | Gaps |
-|---|---|---|---|
-| Slow servers (144 runs) | 2025 -> 2138 | 559 -> 539 | 818 -> 799 s |
-| Healthy server, rapid seeks (60 runs) | 873 -> 877 | 25 -> 29 | 10 -> 11 s |
-
-The extra late starts on the healthy server are the lines 1.9.6 skipped entirely. Per cell it is
-mixed: at RTF 0.9 and 1x, one of 8 seek pairs turns out worse, because a request cut on the server
-holds its slot 4.5 s and the page cannot see that. So the test (`dub.test.js`, 24 runs) checks the
-sum, not one scenario. The matrix scripts are not in the repo; the cells are in the test.
-
-**1.9.9 silence, a rush, then skipped lines on a first view.** The user's report: continuous
-viewing of a new YouTube video. The Vietnamese subtitle showed while the voice was silent. Then the
-voice came back faster, stalled again, and skipped what it had not read. Measured live in the user's
-Chrome (1.9.8, zPSs9a0MYGw, Mỹ Duyên, the `data-cst-dub` snapshot sampled every 500 ms):
-- A fast talk. Mỹ Duyên read it at 3.78 syllables/s (the voice table says 4.2), so a line needed up
-  to 1.25 s of audio per second of video. The rate sat at 1.45-1.56 for minutes, lag up to 3.5 s.
-- VieNeu went from RTF 0.25 to 0.5-0.87 for minutes while the Mac was busy (`server.log`).
-- The server's load is RTF x audio seconds per video second; 0.87 x 1.25 is past real time. The 20 s
-  ready ahead drained within a minute. Then came silence, the catch-up rate, lag past `maxQueueLag`
-  4.5 s, and whole lines dropped: the sequence the user saw.
-
-What changed:
-- `freeAheadMin` 20 -> 60, `freeAheadMax` 40 -> 90, in media seconds scaled by the video rate. On
-  the real engine with a virtual clock, 6-minute fast talks:
-  - a server at 0.9x for 200 s dropped 22 lines before, 1 now;
-  - a 60 s stall dropped 12, now 0;
-  - at 1.2x for 90 s, drops went 10 -> 0 and silence 33 -> 3 s.
-  - A 90-120 s floor gained nothing more.
-- `seekKeepAhead` 20: `hardReset` passes it to `cancelObsoleteJobs` as the reach.
-- A job left behind (`job.orphan`) now feeds `renderRtf` (latency stays live-only). Only jobs that
-  landed in time were measured, so on a server at 1.0x the estimate froze at 0.47. The engine then
-  chased lines it could not reach. With the 60 s horizon and without this, the 144-run matrix's worst
-  voice-back after a seek was 35 s; with it, 24.4 s.
-- `tick()` jump detector: a forward jump that matches the wall clock since the last tick is this
-  page's timer running late (a long task, memory pressure). It is counted in `stats.lateTicks`, with
-  no reset. The reset cut the line being read and entered it again mid-way. A real seek still fires
-  `seeking`; a jump the clock does not explain still resets.
-- Diagnostics: `note()` keeps the last `SYNC.eventKeep` (150) events in `engine.events`, always on:
-  - `drop` with `why`: lag, lag-no-audio, failed or entered-too-late;
-  - `skip` with lines, wait and rtf;
-  - `reset` with `why`, `error` with `kind`, `late` with lag and rate.
-  `debugSnapshot()` gains rtf, over, pace, lateTicks, spoken and events. `dubbing.js` `diagnostics()`
-  returns one JSON text (no key, no text beyond line ids). The YouTube quick menu's "Chép chẩn đoán"
-  copies it: ask the user to paste it rather than re-measuring.
-- Voice hint: `health().paceHigh` (the busiest quarter's rate). At 1.35 or more (`SLOW_VOICE_PACE`),
-  `describeHealth` names up to two voices of the same gender that are at least 0.8 syllables/s
-  quicker (`fasterVoices`, `CST_COST.LOCAL_TTS.voices`). Simulated on a fast talk with a slow server:
-  late starts went 59 -> 3 with Thục Đoan (5.3) in place of Mỹ Duyên. Nothing is shortened; a quicker
-  voice says the same words in less time.
-
-Measured against 1.9.8 (`tools/playback-sim.js`, `tools/sim-matrix.js`):
-
-| Run | 1.9.8 | 1.9.9 |
-|---|---|---|
-| fastSlowdown: fast talk, server 0.9x for 2 min | 55 spoken, 11 dropped, 6.6 s gaps | 66, 0, 0 |
-| Slow servers with seeks (144 runs): spoken / late / gaps | 2138 / 539 / 799 s | 2109 / 521 / 745 s |
-| ... voice back after a seek: mean / p90 / max | 5.66 / 12.3 / 24.6 s | 5.90 / 14.2 / 24.4 s |
-| Healthy server, rapid seeks (60 runs): spoken / late / gaps / mean back | 877 / 29 / 11 s / 2.27 s | 869 / 28 / 11 s / 2.24 s |
-| `dub.test.js` 24-run matrix: spoken / late / gaps / mean back | 290 / 104 / 143.8 / 4.11 | 282 / 98 / 128.6 / 4.26 |
-
-The cost, stated plainly: a server that stays at 0.8-1.1x, with a viewer who seeks twice a minute,
-gets 1.4% fewer lines and 0.24 s more to voice after a seek. Ablation splits it in two:
-- The orphan sample makes the engine see a slow server as slow. It gives up lines it cannot reach
-  instead of reading them late: 5 of the 8 lines in the 24-run test, bought back as fewer gaps and
-  late starts.
-- The 60 s horizon keeps the serial server busy further ahead when the seek comes (the other 3).
-- Tried and not kept: the horizon back to 20 s after two seeks in a minute. The 144-run matrix was
-  unchanged (2111 / 523 / 750 / 5.90).
-- The one-scenario seekWhileSlow went 5.5 -> 10.6 s. Over 16 seek-time shifts the means are 6.45 vs
-  7.11 s, and the whole difference is in two shifts: the first request left 50 ms later and one line
-  crossed the entered-too-late edge.
-
-Held audio in the page: up to 195 s on the fast talk (41 lines, about 18 MB of 48 kHz WAV), against
-150 s before. `playback-sim.js` gains `scale`, `sps`, `unique` and `maxHeld`. `unique` keys each line
-by its place. Without it the repeating lecture's store hits hide the server entirely: fastSlowdown
-showed no difference at all.
-
-**1.9.6 predicate verbs (BACKLOG 16).** `PRED_VERBS` in `dub-prosody.js` (đạt, chiếm, vượt, gồm, cho
-thấy, mang lại, gây ra, dẫn đến, tạo ra, bao gồm, đòi hỏi, trở thành, đóng vai trò, phụ thuộc, giúp) and
-`predVerbAt`: a 2 or 3 word verb matches whole, a one-word verb only when it is not inside a compound
-("chiếm dụng" stays a noun). In `adjustJoins`, a subject of 5+ syllables before such a verb becomes a
-boundary: invited (value above `minValue`) when long, legal but uninvited when short (same
-`subjectLong` / `subjectClauseMin` test as 1.9.5). `constituents` counts the verb as a predicate
-marker. Real takes (`prosody-eval.js`, syntax4, 40 takes): WRONG 9 -> 3, MISSED 6/20 -> 0/20, RAN-ON
-14 -> 13 of 20; the other eight sets identical on every count.
-
-**1.9.5 prosody and names (BACKLOG 30, 21), judged on real takes.** Rules in `dub-prosody.js`:
-comparative "như" after a gradable word joins it (as "bằng"); a result "nên" ends a fronted "Vì ..."
-clause, so a pronoun after a time word inside it is not a main clause; rule C covers a time clause
-("gặp lỗi | khi cài đặt"); a subject under `K.subjectLong` (8) syllables in a clause under
-`K.subjectClauseMin` (20) is closed, not after a list. Measured with each version in its own process
-(an `OLD=` dub-audio loaded next to the new one shares the new prosody module: that A/B shows no
-difference whatever changed). `tools/prosody-eval.js`, 1.9.4 -> 1.9.5: syntax3 wrong stops kept
-13 -> 1 (65 takes); corpus, holdouts, syntax, syntaxval, syntax2 unchanged on WRONG / MISSED / RAN-ON,
-a few optional stops closed (corpus kept 328 -> 323). A closed stop is shortened to the voice's
-minimum, not removed: "công ty | đã" 0.15 -> 0.09 s. Names: RESPELL gains long, pi, ray, mae and the
-identity entries may, bin, son, do (tagged only); LEX gains Long Beach, Long Island, Bay Area.
-`tools/pron-eval.js` dev 114 -> 120 of 123 (new items included), validation 39/42 unchanged, blind 2
-79 -> 81 of 82. Proxy to watch: level jumps in the 12 changed takes 19 -> 23 (`speech-ab.js`).
-
 ## Prosody model (1.7.6, `dub-prosody.js`)
 
 Where the dubbed speech may pause, how strongly, and which of the voice's own stops to keep. Pure,
@@ -689,6 +235,487 @@ the takes that changed. A rule that only moves WRONG on the corpus is overfittin
 and write new unseen sentences for the next check. For English spans, also `node tools/speech-ab.js`
 (real takes of `tests/speech-corpus.js`, old vs new, sandbox off).
 
+## Context, constituents and cache identity (1.8.0)
+
+**Pronunciation: three states** (`dub-speech.js` `CONF`). A word VieNeu reads Vietnamese (an "ambig"
+shape: Tom, San, Dan...) gets a score; only `HIGH_EN` (>= 3) is rewritten, `AMBIGUOUS` and `HIGH_VI`
+(<= -3) are left alone. Clues: lexicon unit or the source line's same pair (decisive, +10); a
+capitalised English neighbour mid-sentence, a name word (`NAME_WORDS`) opening a sentence before an
+English non-brand surname ("Sam Altman ...", not "So Google", "Con Labrador"), a lone given name the
+English source line names (`EN_GIVEN`: not Lan, An, Dan, Van, Tan, Kim) (strong, +5); a Vietnamese
+name word beside it ("Nguyễn Văn Dan", decisive -10); a title before it ("chị Kim", weak -2); a line
+in capitals (decisive). A lone "Tom" with no source line stays as is. Every token also carries
+`lang`, `entity`, `conf`, `score`.
+**Codes of 5+ letters**: English letters only for a code with **no vowel** and English evidence (the
+source line has it; or an English neighbour plus F/J/W/Z). VieNeu spells all of them Vietnamese
+("SMTPS", "THPTQG"); a code with a vowel ("CRISPR", "NGINX") may be a word, so it is left to the voice.
+**Version or quantity**: `dub-planner.js` `numberRole(before, after)`, used by `adaptForSpeech` and
+the model-number rule: a measure unit after the number wins ("CPU 3.5 GHz" -> "3 phẩy 5", "RAM 4096
+MB"), then a section word or product name before it ("Python 3.12 năm ngoái" -> "chấm").
+
+**Constituents** (`dub-prosody.js` `constituents`, run after `adjustJoins`): clauses start at
+punctuation and openers of weight >= 20 (+ "rằng"), each with a role (purpose, cause, condition,
+contrast, time, result, complement, relative, main). A subject is a personal pronoun, or the words
+before the first predicate marker (preverbal word, "là", "được"/"bị", a verb of change; not inside a
+compound, not "vừa qua"; the scan stops at a degree adverb and never starts at a preposition). Then
+only prohibitions: **A** no pause inside a subject (<= 22 syllables) before a preposition; **B** a
+short predicate keeps its first adjunct (<= 3 syllables before an adjunct opener, <= 5 before a
+plain preposition). A purpose clause is a clause: "Tôi dùng ChatGPT / để phân tích" stays a legal
+boundary. Every gap gets a `tier`: punct, hard (unit or value < 0), soft, open.
+**Token map**: `PROSODY.tokenMap(text, ctx)` joins both analyses per token (id, surface, language,
+spanId, entityType, pronunciationMode, pronunciationConfidence, boundaryBefore/After). Both modules
+read one `SEG.tokenize`, memoised; analysis is ~0.2 to 0.6 ms a line uncached.
+**Across subtitle lines** (free voice only, `buildDubScript`): a silence under `BRIDGE_MAX` 1.2 s at a
+line boundary the model forbids ("Christopher / Nolan", "3,5 / GHz", a subject's PP) no longer cuts
+the segment; `prosodicCut` takes any legal line boundary over an illegal "here". Paid voices keep
+their per-group cuts (a moved cut re-bills stored audio).
+
+**Cache identity.** Paid (Gemini) key: unchanged, pinned by golden hashes in
+`tests/speech-context.test.js`; nothing of `dub-speech.js` or `dub-prosody.js` reaches it (it keys
+`plan.text`, the `adaptForSpeech` output; only a "PRODUCT N.N unit" line changes, where it said
+"chấm" for a quantity). Free (VieNeu) key: `LOCAL_STYLE_VERSION` 11 (shaping code) + voice + the
+rendered text (`speakScript`: that *is* the pronunciation fingerprint, so a lexicon or policy change
+re-renders exactly the lines whose text changed) + `PROSODY.signature(plainScript)` (per-gap values,
+units, punctuation pauses: an analysis change re-renders only the lines it touches). 1.8.0 itself
+re-renders every VieNeu line once (free, local). Translation key: no input from either module
+(asserted). `PRONUNCIATION_VERSION` names the data version and is deliberately not in a key.
+
+**Measured** (same takes old vs new; the marks are one reader's; proxies, nobody has listened):
+- Phonemes (`pron-eval`, 1.7.9 -> 1.8.0): dev 97 -> 104 of 107, validation 35 -> 39 of 42, old
+  unseen 28 -> 29 of 29 (dev/validation grew by 45 / 16 items written before the code). Misses left:
+  Kim Kardashian (no respelling), MMORPG (vowel, left), "So" (VieNeu's own reading), RAM (label), Dan
+  with source (by design), TPM (scorer artefact next to "chip").
+- Real takes (`prosody-eval`, WRONG kept pauses): syntax (dev) 5 -> 0, syntaxval 1 -> 0, holdout3
+  1 -> 0 ("công ty | trong quý"), corpus 1 -> 1, holdout1 3 -> 3, holdout2 0 -> 0; MISSED / RAN-ON
+  unchanged. Cost: in 2 of 5 takes of S1 no stop is left (the voice did not stop before "đã"): longest
+  run max 14 -> 21 syllables on that set.
+- Real takes of the speech corpus (`speech-ab`, 8 of 128 texts differ; no source lines there): dev
+  WRONG 5 -> 3, pauses at a language edge 2 -> 0, inside a span 0 -> 0, clicks / clipping / runaway 0,
+  level jumps 490 -> 485, duration -0.3%; longest run max 20 -> 22.
+- **Blind split** (`tests/blind-corpus.js`, 55 + 40 + 13 items by a separate agent, frozen at commit
+  2b6b2db before the rules were written, scored once): phonemes 62 -> 65 of 70 (en 30 -> 33 of 38;
+  vi 9/9, hold 6/6, vletters 3/3 in both: **no new false positive**). Fixed: "Sam Altman" opening a
+  sentence, lone "Tom" / "Sam" named by the source line. Left: Kim, Ken, Ben (no respelling; "Ben" is
+  not a candidate). Prosody text decisions: WRONG 2 -> 2 (one fixed, "mây | trong quý ba"; one moved
+  to "phần trăm | so với" in the same 25-syllable run), MISSED 2 -> 2, BLOCKED 1 -> 1. Subtitle lines
+  with a 0.7 s gap: segment cuts at an unmarked gap 10 -> 1 (the one left is a purpose clause, "đây |
+  để", which 1.8.0 treats as a legal boundary and the blind marks do not). The blind split is seen now:
+  its failures are next round's dev cases (`BACKLOG.md` 29).
+
+## Constituent refinements and respellings (1.8.2)
+
+Small local rules, each checked both ways in `tests/prosody.test.js` / `tests/speech-context.test.js`.
+No new module, no new abstraction; `analyze`, `signature` and the cache keys are unchanged in shape.
+- **Result "nên"** (`adjustJoins`, `isResultClause`): after a clause that already has its predicate
+  (degree adverb, preverbal word, "bị" / "được", verb of change) or a fronted "vì" / "do" / "nhờ", it is
+  a clause boundary like "để" (value 0.85). Without that evidence, or after a verb of thinking
+  ("Tôi nghĩ công ty nên"), "nên" may be "should": soft (0.25), no longer 0.55.
+- **"so với" after a quantity** ("tăng hai mươi phần trăm so với", "gấp đôi so với"): bound, as after
+  "hơn". **Relative "mà"**: the clause length stops where the main predicate resumes ("chiếc máy mà
+  tôi mua hôm qua | đã hỏng"), so a short one stays with its noun.
+- **Long last list item**: "A, B và <8+ syllables>" may breathe before "và" (not forced); the item is
+  counted to its predicate, so "Apple, Microsoft và Google | đều ..." stays bound.
+- **Purpose clause** (`constituents` part C): when either side is <= 6 syllables and both fit 16, the gap
+  before "để" is soft (`purposeAttached`): legal, not invited. Longer pairs keep 0.85. `BACKLOG.md` 31.
+- **Respellings** (`tools/build-speech-tables.js`): ben "benn", kim "kym", leo "lleo", nan, ton; "ben"
+  and "kim" join `NAME_WORDS`, "ben" joins `EN_GIVEN`. "Ken" needs none: VieNeu's kɛn is the same in
+  both languages (`pron-eval` still flags it).
+- **Cost**: nothing reaches the paid key or the translation key (golden tests unchanged); a VieNeu line
+  re-renders only if its text or its prosody signature changed (free).
+
+**Measured** (proxies, nobody has listened): real takes (`prosody-eval`, WRONG kept pauses) syntax2 6 -> 0,
+MISSED 1 -> 0, all other sets unchanged (syntax longest run p90 14 -> 15). `speech-ab` (4 of 136 texts
+differ): WRONG, clicks, clipping, runaway, pauses at a language edge or inside a span unchanged (0 where
+0), level jumps 540 -> 525. Text-only first blind (now dev) WRONG 2 -> 0, BLOCKED 1 -> 0. **Blind split
+2** (`tests/blind-corpus-2.js`, scored once): text-only WRONG 5 -> 4, INVITE 12 -> 7, MISSED 0, HARD 0,
+CUT-WRONG 1 -> 1; phonemes 78 -> 79 of 82, vi 13/14 both (the miss is "Vinamilk", VieNeu's own reading).
+Analysis cost unchanged (~0.15 ms a line uncached, analyse + breath groups + render).
+
+## Later prosody and name rules (1.9.5, 1.9.6)
+
+**1.9.5 prosody and names (BACKLOG 30, 21), judged on real takes.** Rules in `dub-prosody.js`:
+comparative "như" after a gradable word joins it (as "bằng"); a result "nên" ends a fronted "Vì ..."
+clause, so a pronoun after a time word inside it is not a main clause; rule C covers a time clause
+("gặp lỗi | khi cài đặt"); a subject under `K.subjectLong` (8) syllables in a clause under
+`K.subjectClauseMin` (20) is closed, not after a list. Measured with each version in its own process
+(an `OLD=` dub-audio loaded next to the new one shares the new prosody module: that A/B shows no
+difference whatever changed). `tools/prosody-eval.js`, 1.9.4 -> 1.9.5: syntax3 wrong stops kept
+13 -> 1 (65 takes); corpus, holdouts, syntax, syntaxval, syntax2 unchanged on WRONG / MISSED / RAN-ON,
+a few optional stops closed (corpus kept 328 -> 323). A closed stop is shortened to the voice's
+minimum, not removed: "công ty | đã" 0.15 -> 0.09 s. Names: RESPELL gains long, pi, ray, mae and the
+identity entries may, bin, son, do (tagged only); LEX gains Long Beach, Long Island, Bay Area.
+`tools/pron-eval.js` dev 114 -> 120 of 123 (new items included), validation 39/42 unchanged, blind 2
+79 -> 81 of 82. Proxy to watch: level jumps in the 12 changed takes 19 -> 23 (`speech-ab.js`).
+
+**1.9.6 predicate verbs (BACKLOG 16).** `PRED_VERBS` in `dub-prosody.js` (đạt, chiếm, vượt, gồm, cho
+thấy, mang lại, gây ra, dẫn đến, tạo ra, bao gồm, đòi hỏi, trở thành, đóng vai trò, phụ thuộc, giúp) and
+`predVerbAt`: a 2 or 3 word verb matches whole, a one-word verb only when it is not inside a compound
+("chiếm dụng" stays a noun). In `adjustJoins`, a subject of 5+ syllables before such a verb becomes a
+boundary: invited (value above `minValue`) when long, legal but uninvited when short (same
+`subjectLong` / `subjectClauseMin` test as 1.9.5). `constituents` counts the verb as a predicate
+marker. Real takes (`prosody-eval.js`, syntax4, 40 takes): WRONG 9 -> 3, MISSED 6/20 -> 0/20, RAN-ON
+14 -> 13 of 20; the other eight sets identical on every count.
+
+## The SYNC block is the tuning bible
+
+`dub-engine.js`, one object named `SYNC` (`grep -n "const SYNC"`, ~140 lines). **Every timing
+constant lives there.** If you are about to introduce a magic number anywhere in the dubbing code,
+put it in `SYNC` instead.
+The comments in it record why each value is what it is; read them before changing one.
+
+Knobs you will actually reach for:
+
+- **Drift (1.6.8)**: `driftCorrect` 0.15s re-seeks the audio. Below that, `driveSpeech` first absorbs
+  the element's start-up latency into the sentence's timeline (`driftAnchor` 0.12, once per
+  sentence), smooths the drift (EMA), and nudges by one fixed 3% step with hysteresis
+  (`driftNudge` 0.08 on, `driftNudgeOff` 0.02 off, `nudgeSpacing` 0.8 s). Measured in real Chrome
+  (`tests/harness/smooth.html`, 120 s of real VieNeu audio): the old per-tick nudge changed
+  `playbackRate` 510 times on playing voices (~21 per sentence), each one restarting Chrome's
+  time-stretch = the "robotic stutter" (Thục Đoan); after the fix 0 for Thục Đoan and for Mỹ Duyên
+  (Mỹ Duyên measured only after), lag still 0.
+  `chooseRate` also plays a sentence within `snapToNatural` (5%) of 1.0 at exactly 1.0 when the
+  voice is not a sped-up slow one and the step limits allow (21/24 Thục Đoan sentences, no stretch).
+- **Rate**: `chooseRate` clamps per sentence to `[floorRate(), maxSpeechRate 1.3]`, rising to
+  `lagMaxSpeechRate` 1.4 once lag passes `lagBoostAt` 1.0. Between sentences the change is smoothed
+  (`rateStepUp` 0.1, `rateStepDown` 0.06) because the user's complaint was uneven pace, not
+  wrong pace. `baseTempo` comes from the voice's **measured** syllables per second (`measureVoice`,
+  EMA 0.25), not a constant. `floorRate` divides by `video.playbackRate`.
+- **Chaining**: `chainLead` was cut from 2.0s to 0.8s because starting early accumulated error
+  across chained segments. `continuesNext` treats gaps up to 1.5s as one continuous span.
+- **Skipping**: whole sentences only, never mid-sentence. `maxQueueLag` 4.5, `dropLag` 4.0 for the
+  live provider. Gating happens in `nextSpeech`.
+- **Overload (added 1.4.7)**: when the TTS server is slower than real time, waiting for the next
+  sentence's audio is hopeless and the old code stood silent 4.5s per sentence, dropping them one
+  by one while still rendering sentences it had already given up on. Three parts now: `waitAudio(p)`
+  estimates the remaining wait from the **measured** `renderRtf` (generated seconds per second of
+  speech, EMA in `renderBatch`), `skipAhead` jumps the queue to the first sentence whose audio can
+  still arrive (`skipAfter` 8, `skipAheadMax` 60), and `schedule`'s `inWindow` refuses any plan at
+  or behind `lastSpokenStart`. Plus: with an empty buffer a request carries **one** short plan, not
+  a 4-plan batch. Simulated on a real 11-minute timeline with a server at RTF 1.0: 12/61 sentences
+  spoken before, 30/61 after; at RTF 0.23 nothing changes (61/61). The thresholds are measured, not
+  guessed: `skipAfter` 4.5 costs 2 sentences at RTF 0.7, and capping `skipAheadMax` at 6 to 14
+  seconds drops to 14/61 because short jumps land late again. See `tests/hardening.test.js`
+  "slow voice server".
+- **Video pace (1.6.1)**: `videoPace(t)` reads the next `paceWindow` (90 s): for each plan,
+  `planNeed(i)` = natural audio length (rendered, else syllables / measured voice sps) over its slot,
+  syllable-weighted median (`mid`) and upper quartile (`high`). `paceLimits` raises the ceiling to
+  `min(paceCeilingMax 1.55, high * 1.08, maxSpokenSps 5.8 / sps)` (+0.1 while lagging) and the floor
+  to `mid * 0.92` when `mid > 1`. `chooseRate` also looks `lookAhead` (3) plans ahead and starts
+  climbing early, bounded so the current sentence ends at most `lookAheadEarly` (0.5 s) before its
+  subtitle. Simulated with Kim Thanh on two real cached timelines: lag over 1 s 3 -> 0 and 5 -> 1,
+  a slow speaker (timeline x1.35) unchanged. Measured live on 4eY5DuqASQc 8:25 to end (1.6.1, Kim Thanh):
+  peak start lag 1.88 -> 0.43 s, overrun 1.76 -> 0.42 s, top rate 1.40 -> 1.41, none dropped. Harness: `scratchpad/sim-kim.js` pattern, see
+  `tests/dub.test.js` "slow voice on a fast speaker".
+- **Prefetch**: `prefetchAhead` is adaptive, roughly `(latency * 2.5 + 4) * playbackRate`, times 0.6
+  if the user seeks twice in a minute. The free local voice keeps `freeAheadMin` 60 to `freeAheadMax`
+  90 media seconds, times the video rate (1.9.9; 20 to 40 before, see "A slow server" under Delivery). At a seek only
+  jobs for the first `seekKeepAhead` 20 s after the landing point are kept. `dubbing.js`
+  `smartPrefetch` shrinks it 30% for videos over 30 minutes.
+- **Retention**: `keepBehind` 90s / `keepAhead` 240s in `releaseOld`, so a short rewind is free.
+- **Levels (1.5.6)**: `dubVolume` and `dubDuck` are 0..1 and read through `CST_DUB.level(x, fallback)`.
+  Never `Number(x) || fallback`: 0 is a real choice (mute the original), and that idiom turned the
+  Settings slider's 0% into 20%. Both are also set from the quick menu (`buildVolumeControls` in
+  `player-ui.js`) and applied live by the storage listener in `dubbing.js`.
+- **What the viewer sees (1.5.6)**: `engine.health(t)` returns `{ live, ahead, rtf, dropped, errors,
+  pace, paceHigh }`;
+  `CST_DUB.describeHealth()` turns it into the one line under "Lồng tiếng Việt" in both quick menus
+  (ready N seconds ahead / server slow at RTF x / N lines skipped / a quicker voice by name, 1.9.9),
+  warning-coloured when it matters.
+- **Render speed (1.7.7, 1.9.7)**: `renderRtf` is an EMA of `(secs - renderOver()) / audioSecs`; the
+  first sample of a run is capped at `SYNC.firstRtfCap`, and drop decisions use `dropRtf()` = min(EMA,
+  latest sample). Cold server: macOS swaps VieNeu's model out after long idle (3.5x real time vs 0.23
+  warm). `background.js` `localIsCold()` (>10 min since a good render, kept in `chrome.storage.session`)
+  gives that first line a 60 s limit and keeps it out of the speed log. No warm-up line (1.2.6 test).
+- **Ducking**: voice cannot be separated from music, so the original track is ramped down
+  (`duckRampPerTick` 0.09, `duckHold` 0.35) in `updateDuck`. Any volume write that is not ours
+  (`onVolume`) resets the base and sets `duckDirty`, so the duck is re-applied next tick. On YouTube
+  (`playerOwnsVolume`, set in `dubbing.js`) the written value IS the new base: the player writes its
+  own full level (Stable Volume after a seek, measured 0.1 -> 0.89). Elsewhere it is divided by the
+  duck factor (a native slider shows the ducked value). Before 1.7.9 a YouTube write mid-speech left
+  the original loud until the voice paused.
+
+**Planning window (1.6.3).** `refresh` plans only groups overlapping
+`[step*planStep - planBehind, (step+1)*planStep + planAhead]` (60 / 150 / 300 s) plus one group past
+the edge (for `continuesNext`); the step number is in the signature, so it rebuilds at most once a
+minute while nothing new arrives. Speaker parity for the window comes from
+`PLAN.speakerStateBefore(all, first)`. Whole-video planning cost ~90 ms per new group on a 60-minute
+talk; now ~15 ms. `releaseOld` frees audio whose plan left the window (it used to skip them: a leak).
+`audioKeysForVideo` still plans the whole video, on purpose (forget-audio needs every key).
+
+`tick` is the 50ms main loop. It splits into `tickLive` (Web Speech, no buffer) and `tickBuffer`
+(prerendered timeline). A seek is detected in `tick` as `t < lastT - 0.3 || t > lastT + 2.5` and
+calls `hardReset`, which drops queued speech, renders a tiny first batch (`warmup`), and re-anchors.
+`cancelObsoleteJobs` deliberately lets jobs that are nearly done finish, because aborting a Gemini
+call still bills for it. For VieNeu the service worker also keeps any request the server has started
+(1.8.6, see "Delivery"), so a VieNeu abort only drops what is still queued.
+
+**Viewer cap (1.6.6).** `settings.maxRate` (storage `dubMaxRate`) is the one user override of this
+block: when set, `userMaxRate()` clamps `ceiling`, `lagCeiling` and the final rate, even below a
+slow voice's floor rate. The voice then falls behind instead of rushing; it never drops words.
+
+## Delivery: getting made audio to the ear on time (1.8.6)
+
+### The pipeline and what 1.8.6 changed
+
+Pipeline, per line: group translated -> `refresh` plans the window -> `schedule` looks the line up
+(page L1, then the service worker's store) -> one request at a time to VieNeu (`maxBatch` 1, `serial`)
+-> `background.js` queue (`localSerial`), same-key requests join one flight (`ttsInFlight`), store
+checked first, take written to the store before the reply -> `addRendered` (blob URL, no element)
+-> `prepareNext` builds the next line's element while the current one plays -> `nextSpeech` /
+`tickBuffer` start it on the video clock (`ended` event re-ticks at once; `gapTimer` for the rest)
+-> `releaseAudio` when it ends. Priority is implicit and recomputed every tick: `todo` is sorted by
+start from the current time, so the line about to play always goes first; no queue framework.
+
+Measured with `tools/playback-sim.js` (real engine + provider, modelled service worker and server,
+old = 1.8.5 engine with the old abort policy; all local, no API):
+
+| Scenario | voice after seek (s) | requests | audio elements alive |
+|---|---|---|---|
+| seek back to held audio | 0.8 -> 0.05 | 19 -> 16 | 12 -> 2 |
+| seek forward (1.5 s is translation) | 3.05 -> 3.05, 3 s of it server-blocked -> 0 | 25 -> 24 | 14 -> 2 |
+| 5 seeks in 7 s | mean 3.7 -> 1.4, worst 7.1 -> 2.5 | 28 -> 31 (23 lines spoken, was 20) | 16 -> 2 |
+| server at RTF 0.9, 2 seeks | 13.6 -> 7.7 (lines 15 -> 17) | 21 -> 19 | 9 -> 2 |
+| steady play, pause, 1.5x, 2x, all cached | unchanged (no gap before either) | equal or -1 | 20-21 -> 2 |
+
+The slow-server run has one more delivery gap (2 -> 3, 3.4 -> 7.1 s): a line now starts 3.5 s late
+where the old code was still silent. Late starts and gaps in steady play were 0 before and after:
+the gains are all around seeks, pauses and slow servers.
+Real Chrome (`tests/harness/smooth.html`, real VieNeu takes): voice 15 to 27 ms after a seek back
+and a seek into prefetched audio, 0 overlap in 2,854 samples, at most 2 elements holding a source.
+What changed, each for a measured cause:
+- **A request VieNeu has started is not cut** (`background.js` `LOCAL_KEEP_RUNNING_S` 4). The server
+  keeps its one stream slot ~4-5 s after a client leaves (`apps/openai_speech.py` `_Lease`), and
+  `waitLocalIdle` made the next request (the seek target) wait: `server.log` had 23 such releases,
+  11 of them followed by 12-21 `/health` polls. The take now finishes (~1 s) into the store; a
+  request still in the service worker queue is dropped unsent. Cold server: still cut.
+- **A seek onto held audio keeps the cut** (`hardReset` -> `audioReadyAt`, `headPinned`). The short
+  head cut re-rendered a line that sat ready; now it plays from its offset (the same mid-line entry
+  the head cut used whenever the seek landed >0.3 s into a piece).
+- **Unreachable lines are not rendered after a start/seek** (`unreachable`, only with a measured rtf):
+  at RTF 0.9 or 2x the engine rendered the line under the playhead, then skipped it as too late.
+  `waitAudio` counts an orphan job on a serial server as busy (it now runs to the end).
+- **Pause does not cancel** (`cancelObsoleteJobs` uses `prefetchAhead(true)`, the playing horizon).
+- **Elements are let go**: `releaseAudio` after a line ends and on `hardReset` (the blob URL stays;
+  a rewind makes a new element). `stop()` aborts its queued jobs (next video not held behind them).
+- **Scorecard** (debug only): `debugSnapshot().delivery` = `recoverMs` (start/seek -> first voice),
+  `late` (lag > `SYNC.lateStart`), `gaps` / `gapSec` (silence beyond the intended rest, `SYNC.gapMin`),
+  requests, cache hits, aborted, detached, lines held, live elements. Intended pauses never count.
+Not changed on purpose: prefetch horizon (`prefetchAhead` already scales with latency and rate: no
+gap at 1.5x / 2x), rate choice, drift, ducking, prosody, the paid-voice cache keys.
+
+### Entering a line (1.8.7)
+
+**1.8.7 additions** (1.8.6 vs 1.8.7 on the same simulator, `OLD_BG=queued`):
+- **Clean entry into a line** (`findStops` at `addRendered`, `entryPoint` in `nextSpeech`): the
+  proportional position `into x audio/slot` started inside a syllable on 1,277 of 1,509 landings over
+  25 real takes (`tests/harness/smooth/`), with an amplitude jump on 689. Now it moves back to the
+  last gap between words (<= `entryBack` 1.2 s, heard again) or ahead to the next (<= `entryAhead`
+  0.8 s): 4 of 1,509 inside the voice, 3 jumps; on average 0.35 s heard again or 0.12 s skipped.
+  Gaps of `entryStopMs` 40 ms (80 ms left 6%, 60 ms 1.3%). ~0.5 ms per take. Real Chrome: 3 of 3
+  seeks entered exactly at a gap, voice 23-26 ms after the seek.
+- **Store before re-cut** (`headProbe`, `resolveHeadProbe`): a seek with nothing in the page looks the
+  landing lines up in the store under the current cut before making the head cut. Rewind of 3 min:
+  voice 0.95 -> 0.1 s, one request less; a miss costs one store round trip (rapid seeks +0.04 s).
+- **Optimistic reach before a measurement** (`SYNC.reachOverheadMin` 0.2 + `reachRtfMin` 0.2 x
+  length): first voice at 2x 2.75 -> 1.75 s, at 1.5x 2.3 -> 1.75 s (one late start -> 0); 1x unchanged.
+
+### Stalls, races and errors (1.8.8 to 1.9.1)
+
+**1.8.8 resilience.** Each case reproduced first (`tests/dub.test.js` "resilience", all fail on 1.8.7):
+- A store lookup the worker never answers kept `busyLookup` set: 0 lines in 60 s. Now
+  `SYNC.lookupTimeout` 4 s, then misses (late hits still used if they fit).
+- TTS jobs that never answer counted toward `maxJobs` forever: 3 of them = silence for good. Now an
+  orphan stops counting `orphanStallMs` 20 s after it was left, any job after `jobStallMs` 90 s; a
+  retry joins the worker's flight (`ttsInFlight`), so nothing is generated twice. `pending` is a Map
+  planId -> jobId: only the owning job clears it.
+- A hit landing after `stop()` made a blob URL nobody revoked; a hit for a line re-translated while
+  the lookup was out was kept under the new text. Both dropped (`running`, same id and text).
+- A take with a NaN / missing duration: rates went NaN, 1 line of 13. `audioLength` validates and
+  reads the WAV header; garbage = `bad_audio`, retried like an error.
+- Errors by kind in `debugSnapshot().delivery.errorTypes` (`countError`; kinds listed there). The
+  VieNeu provider tells `no_response` (port closed) from `invalid` and the worker's `errorType`.
+- `background.js` reads store keys together (`cachedParts`, `handleAudioCacheGet`, keys validated and
+  deduped): 12 keys on a wedged IndexedDB 18 s -> 1.5 s.
+Measured and left alone: the tick is 17 us on a 60-min lecture (max 6 ms on a plan rebuild, 5 per
+200 s), `base64ToBytes` 0.7 ms per take, `audioKey` 0.02 ms per plan (memoised).
+
+**1.8.9 service-worker races and error codes.** Each reproduced first (`tests/hardening.test.js`,
+"1.8.9", all fail on 1.8.8):
+- A job dropped while queued in `localSerial` answered only when the queue reached it; it now leaves
+  the queue at once (abort listener, removed when the pump takes it).
+- A line dropped and asked for again (seek away and back) joined the dropped flight and got
+  "aborted". A new flight now waits for the old one and uses its take when it finished (kept running,
+  `LOCAL_KEEP_RUNNING_S`), else makes it: never refused, never made twice. Flight cleanup is
+  owner-checked (`ttsInFlight.get(reqKey) === f`).
+- A `ttsAbort` landing while the request key is still hashed was lost and the line generated anyway:
+  `ttsRegistering` holds jobs between arrival and registration.
+- `synthesizeLocalOnce` error by stage: before a reply `local_unavailable` (the only one that may
+  switch the video to the system voice), mid-body `dropped` (retried once, like `timeout`), after it
+  `invalid`. All three read "server not running" before.
+- `waitLocalIdle` follows the job's signal and times the body too: a hung `/health` held a dropped
+  line 1.7 s, now ~5 ms. A dropped job is never sent (was: sent with an aborted signal).
+- `ttsRequestProblem` refuses bad `jobId` / `parts` (key 1-256 chars, weight > 0, <= 12 parts) as
+  `invalid` before any read; a numeric key was stored before.
+- Page cache (`dubbing.js`): one corrupt record threw away every hit of the lookup; now a miss for
+  its line. A hit moves to the newest end, so a take replayed on each rewind is not evicted first.
+
+**1.9.0 play() refusals and WAV headers.** Reproduced first (`tests/dub.test.js`, fail on 1.8.9).
+`driveSpeech` used to send every `play()` rejection to `onProviderError` and ask the paused element
+again on every tick. `onPlayFailed` sorts them by the browser's error name:
+- `AbortError` (a pause or seek cut the start): `play_interrupted`, not a provider error. 8 of them in
+  30 s counted before; three in a row switch a paid voice to the system voice.
+- `NotAllowedError` (autoplay policy): `play_blocked`, asked again after `SYNC.playRetryMs` (1 s):
+  282 -> 25 calls in 20 s. `status().playBlocked` puts a warning on the badge until a play starts.
+- anything else (`NotSupportedError`): `play_failed`, the take is dropped and the line goes back to
+  the schedule (`S.prevSpokenStart`/`prevSpokenId` restored): 51 calls on a broken take -> 1, and
+  the line is made again.
+`decodeWav` refuses non-PCM, channels outside 1-8, rates outside 4-192 kHz and a cut `fmt` chunk
+with `e.code === "wav_invalid"`; rate 0 or 4 GHz used to decode into Infinity durations.
+
+**1.9.1 system voice stall.** `tickLive` returned while `live.speaking`, so an utterance whose end
+Chrome never reports (collected with its handlers, a network voice stopping, a queue stuck pending)
+silenced the system voice for the rest of the video: 3 of 23 lines. `liveStalled` gives a phrase up
+after predicted length x `SYNC.liveStallFactor` + `liveStallPadMs` from its start (or from `sentAt`
+when no start came), counts `speech_stalled` and goes on: 23 of 23. The web-speech handle keeps
+`utterance` so it is not collected. `audioCacheDelete` refuses a non-array, drops bad and repeated
+keys. Measured, left alone: a 2 s scrub (125 `seeking` events) costs 0.4 ms of `hardReset` in total
+and sends no render.
+
+### The video is shared: a reloaded script, ads (1.9.2, 1.9.3, 1.9.8)
+
+**1.9.2 duck across a Reload.** The old content script runs on after Reload (DANGER.md §3) and the new
+one starts on the same `<video>`: each took the other's ducked level for the user's own. After dubbing
+stopped YouTube was at 0.01 of 0.80 (old script stopping late) or 0.16 (old script frozen); a plain
+video 0.16. Isolated worlds share only the DOM, so the element carries `data-cst-duck-owner` (the
+engine's token) and `data-cst-duck-base` (the user's level). `start()` takes the held level unless the
+element is louder (stale), and claims; `tick()` stops an engine whose token is no longer the owner
+(`stats.superseded`), so there is one voice; `setVideoVolume` never writes or restores for a
+non-owner; a restore removes both attributes. Checked in real Chrome with two engines on one element:
+old one stood down, duck 0.16, 0.80 after stop, no attribute left.
+
+**1.9.3 YouTube ads.** An ad plays in the lecture's own `<video>`, so its clock (0 to 30 s) read as the
+lecture's: 5 lines read over a 15 s mid-roll, the ad ducked, those lines rendered. `d.adShowing()`
+(optional; `dubbing.js` `adShowingFor`: the player's `ad-showing` / `ad-interrupting` class) gates
+`tick()` (`adGate`: silence, no schedule, no duck, `stats.ads`) and `onSeek`; when the ad ends the
+engine resets once (`hardReset("ad")`, `lastT` cleared). The subtitle loop has the same gate
+(`youtube.js` `ytAdShowing`), which also stops Gemini calls for the ad's clock.
+
+**1.9.8 ad resume** (BACKLOG 35, `adCut` / `takeAdResume`). The line an ad cuts goes on where the
+voice was, not where the video was. A seek after the ad drops it (`hardReset` clears `adResume`).
+
+### A slow server (1.9.7 to 1.9.9)
+
+**1.9.7 a server near real time (BACKLOG 33).** The reach decisions ran on a wrong speed:
+- The overhead was a fixed 0.6 s guess. Real VieNeu costs 0.07 s + 0.21 s per second of audio
+  (fitted on 12 takes), and the page path measured 0.16-0.17 s. So a 0.6 s take read as RTF 0.08,
+  and `dropRtf()` (min of EMA and latest) took it. `noteTake` / `renderOver()` now fit a line through
+  the latest 12 takes made while the server was free. The fit needs 4 or more takes spanning 1.5 s of
+  audio, and is clamped to 0.05-1.5 s. A take under `rtfShortAudio` (1.2 s) feeds the EMA but is never
+  the latest sample.
+- A take the worker's store answered (`fromCache`) counted as a render at RTF ~0.1. It now counts 0
+  seconds of audio (`o.cached`).
+- A job left running for the old place after a seek read as 0 s: the plans are rebuilt, and its lines
+  are not among them. `job.est` keeps the length known at send time.
+- `crowdsNext`, called from `unreachable()` for a serial provider: a line whose audio lands late anyway
+  is given up when the next line gains more time than the late line had left to be heard (at least
+  `crowdGainMin`). This is not condensing: whole lines were already dropped for lag (`skipAhead`,
+  `maxQueueLag`). This only picks which line.
+
+Measured:
+- `playback-sim.js` seekWhileSlow: delivery gaps 7.07 -> 4.87 s, worst gap 3.54 -> 2.49 s, late
+  starts 6 -> 5, recovery 7.68 -> 6.58 s (max 9.9 -> 7.7). Every other scenario is identical.
+- A 144-run matrix (RTF 0.8-1.1, rate 1/1.5/2, 12 seek pairs): lines spoken 2025 -> 2141, late 559
+  -> 546, gaps 818 -> 797 s, worst recovery 34.0 -> 24.6 s.
+- One part was tried and removed: skipping the rtf sample of a take queued behind another left the
+  estimate stale after seeks (worst recovery 25 s at RTF 1.0, rate 1.5).
+- Live, `tests/harness/live.html` on the real VieNeu server held to RTF 0.9: see TESTING.md.
+
+**1.9.8 after the live runs.**
+- A take queued behind another job on a serial server has that job's predicted rest taken out of
+  its rtf sample (`job.ahead` from `serverBusy()`). The live harness read RTF 0.3 as 0.55 after a
+  burst of seeks.
+- `SYNC.overFitPad` 0.3 s is added to the fitted overhead for reach decisions. The exact fit let in
+  marginal lines that then started late.
+
+Measured against 1.9.6:
+
+| Matrix | Lines spoken | Late starts | Gaps |
+|---|---|---|---|
+| Slow servers (144 runs) | 2025 -> 2138 | 559 -> 539 | 818 -> 799 s |
+| Healthy server, rapid seeks (60 runs) | 873 -> 877 | 25 -> 29 | 10 -> 11 s |
+
+The extra late starts on the healthy server are the lines 1.9.6 skipped entirely. Per cell it is
+mixed: at RTF 0.9 and 1x, one of 8 seek pairs turns out worse, because a request cut on the server
+holds its slot 4.5 s and the page cannot see that. So the test (`dub.test.js`, 24 runs) checks the
+sum, not one scenario. The matrix scripts are not in the repo; the cells are in the test.
+
+**1.9.9 silence, a rush, then skipped lines on a first view.** The user's report: continuous
+viewing of a new YouTube video. The Vietnamese subtitle showed while the voice was silent. Then the
+voice came back faster, stalled again, and skipped what it had not read. Measured live in the user's
+Chrome (1.9.8, zPSs9a0MYGw, Mỹ Duyên, the `data-cst-dub` snapshot sampled every 500 ms):
+- A fast talk. Mỹ Duyên read it at 3.78 syllables/s (the voice table says 4.2), so a line needed up
+  to 1.25 s of audio per second of video. The rate sat at 1.45-1.56 for minutes, lag up to 3.5 s.
+- VieNeu went from RTF 0.25 to 0.5-0.87 for minutes while the Mac was busy (`server.log`).
+- The server's load is RTF x audio seconds per video second; 0.87 x 1.25 is past real time. The 20 s
+  ready ahead drained within a minute. Then came silence, the catch-up rate, lag past `maxQueueLag`
+  4.5 s, and whole lines dropped: the sequence the user saw.
+
+What changed:
+- `freeAheadMin` 20 -> 60, `freeAheadMax` 40 -> 90, in media seconds scaled by the video rate. On
+  the real engine with a virtual clock, 6-minute fast talks:
+  - a server at 0.9x for 200 s dropped 22 lines before, 1 now;
+  - a 60 s stall dropped 12, now 0;
+  - at 1.2x for 90 s, drops went 10 -> 0 and silence 33 -> 3 s.
+  - A 90-120 s floor gained nothing more.
+- `seekKeepAhead` 20: `hardReset` passes it to `cancelObsoleteJobs` as the reach.
+- A job left behind (`job.orphan`) now feeds `renderRtf` (latency stays live-only). Only jobs that
+  landed in time were measured, so on a server at 1.0x the estimate froze at 0.47. The engine then
+  chased lines it could not reach. With the 60 s horizon and without this, the 144-run matrix's worst
+  voice-back after a seek was 35 s; with it, 24.4 s.
+- `tick()` jump detector: a forward jump that matches the wall clock since the last tick is this
+  page's timer running late (a long task, memory pressure). It is counted in `stats.lateTicks`, with
+  no reset. The reset cut the line being read and entered it again mid-way. A real seek still fires
+  `seeking`; a jump the clock does not explain still resets.
+- Diagnostics: `note()` keeps the last `SYNC.eventKeep` (150) events in `engine.events`, always on:
+  - `drop` with `why`: lag, lag-no-audio, failed or entered-too-late;
+  - `skip` with lines, wait and rtf;
+  - `reset` with `why`, `error` with `kind`, `late` with lag and rate.
+  `debugSnapshot()` gains rtf, over, pace, lateTicks, spoken and events. `dubbing.js` `diagnostics()`
+  returns one JSON text (no key, no text beyond line ids). The YouTube quick menu's "Chép chẩn đoán"
+  copies it: ask the user to paste it rather than re-measuring.
+- Voice hint: `health().paceHigh` (the busiest quarter's rate). At 1.35 or more (`SLOW_VOICE_PACE`),
+  `describeHealth` names up to two voices of the same gender that are at least 0.8 syllables/s
+  quicker (`fasterVoices`, `CST_COST.LOCAL_TTS.voices`). Simulated on a fast talk with a slow server:
+  late starts went 59 -> 3 with Thục Đoan (5.3) in place of Mỹ Duyên. Nothing is shortened; a quicker
+  voice says the same words in less time.
+
+Measured against 1.9.8 (`tools/playback-sim.js`, `tools/sim-matrix.js`):
+
+| Run | 1.9.8 | 1.9.9 |
+|---|---|---|
+| fastSlowdown: fast talk, server 0.9x for 2 min | 55 spoken, 11 dropped, 6.6 s gaps | 66, 0, 0 |
+| Slow servers with seeks (144 runs): spoken / late / gaps | 2138 / 539 / 799 s | 2109 / 521 / 745 s |
+| ... voice back after a seek: mean / p90 / max | 5.66 / 12.3 / 24.6 s | 5.90 / 14.2 / 24.4 s |
+| Healthy server, rapid seeks (60 runs): spoken / late / gaps / mean back | 877 / 29 / 11 s / 2.27 s | 869 / 28 / 11 s / 2.24 s |
+| `dub.test.js` 24-run matrix: spoken / late / gaps / mean back | 290 / 104 / 143.8 / 4.11 | 282 / 98 / 128.6 / 4.26 |
+
+The cost, stated plainly: a server that stays at 0.8-1.1x, with a viewer who seeks twice a minute,
+gets 1.4% fewer lines and 0.24 s more to voice after a seek. Ablation splits it in two:
+- The orphan sample makes the engine see a slow server as slow. It gives up lines it cannot reach
+  instead of reading them late: 5 of the 8 lines in the 24-run test, bought back as fewer gaps and
+  late starts.
+- The 60 s horizon keeps the serial server busy further ahead when the seek comes (the other 3).
+- Tried and not kept: the horizon back to 20 s after two seeks in a minute. The 144-run matrix was
+  unchanged (2111 / 523 / 750 / 5.90).
+- The one-scenario seekWhileSlow went 5.5 -> 10.6 s. Over 16 seek-time shifts the means are 6.45 vs
+  7.11 s, and the whole difference is in two shifts: the first request left 50 ms later and one line
+  crossed the entered-too-late edge.
+
+Held audio in the page: up to 195 s on the fast talk (41 lines, about 18 MB of 48 kHz WAV), against
+150 s before. `playback-sim.js` gains `scale`, `sps`, `unique` and `maxHeld`. `unique` keys each line
+by its place. Without it the repeating lecture's store hits hide the server entirely: fastSlowdown
+showed no difference at all.
+
 ## The three TTS providers
 
 Selected by the `dubProvider` setting. `createVieneuProvider` / `createGeminiProvider` /
@@ -727,6 +754,8 @@ can be redone: 3 lecture sentences per voice through `POST /v1/audio/speech` (pc
 syllables over voiced 20 ms frames (energy within 38 dB of the peak), scale by 0.984 so the 4
 voices measured earlier are reproduced (they were, within 4%). Needs the sandbox off for loopback.
 `CST_COST.voiceLabel(v)` shows the pace (chậm < 4.4 <= vừa <= 5.2 < nhanh) in all three pickers.
+
+#### Take cleanup and the old pause shaping (1.6.7 to 1.7.2)
 
 **Pauses, hiss, sample rate (1.6.7).** Three causes of the voice stopping where the text has no
 break, all fixed: `plainScript` no longer adds a comma at the source speaker's pauses (only after an

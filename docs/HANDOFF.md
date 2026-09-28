@@ -6,40 +6,36 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-28 · lanes B (`dub-engine.js`, `dubbing.js`) + A (`youtube.js`, one button) + C
-(`version-history.js`) + D (tests, `tools/playback-sim.js`) · `1.9.9`.
+2026-09-28 · docs only (`docs/DUBBING.md`, `BACKLOG.md`, `MAP.md`, `TESTING.md`, `CLAUDE.md`) ·
+still `1.9.9`, no bump (no runtime file changed).
 
 ## What changed
-- User report: first view, subtitle shown, voice silent, then quicker, then lines skipped. Measured
-  live in their Chrome: a fast talk plus VieNeu slowed by a busy Mac drained the 20 s buffer.
-  DUBBING.md "1.9.9" has the numbers.
-- `freeAheadMin` 60 / `freeAheadMax` 90 (media s, times the rate), `seekKeepAhead` 20. Orphan jobs
-  feed `renderRtf`. A late page timer is no longer a seek (`tick`, `stats.lateTicks`).
-- Always-on event ring (`note`, `engine.events`), `CST_DUB.diagnostics()`, and a "Chép chẩn đoán"
-  button in the YouTube quick menu. A voice-speed hint in `describeHealth` (`fasterVoices`).
-- `playback-sim.js`: `scale`, `sps`, `unique`, `maxHeld`; new scenario `fastSlowdown`.
+- User asked for a structure review. `DUBBING.md` sections are now by topic in three parts (what is
+  said / when / who and where), with a "How this file is laid out" note. The 1.9.5 / 1.9.6 prosody
+  notes that sat inside "Delivery" moved to "Later prosody and name rules". Delivery has 5 `###`
+  subsections. Text moved verbatim; version labels like "1.9.9" still grep.
+- `BACKLOG.md` grouped by area, numbers kept (next free: 39), a "Closed" list for cited numbers,
+  25 merged into 31, 35 removed (closed).
+- Stale numbers fixed; `TESTING.md` gained `edits.test.js` and `glossary.test.js`.
 
 ## State
-- Tests: 564 pass, 0 fail, 1 skip. Reload: **yes** + F5 video tabs. `cstDubDebug` removed from the
-  user's youtube.com and the page recorder stopped. The user should turn Chrome's "Allow JavaScript
-  from Apple Events" back off.
+- Tests: 564 pass, 0 fail, 1 skip. Reload: not needed (docs only).
 
 ## Unfinished / in progress
-- 1.9.9 not yet watched live. Next time, ask the user for "Chép chẩn đoán" right after a problem.
-- Ask the user whether to apply `tools/vieneu-fast-release.patch` (BACKLOG 37). On a scratch harness
-  of 828 hiccups, subtitle-without-voice time was halved. Then make `background.js` cut a running
-  request at once when /health says `release_on_leave`.
-- BACKLOG 36-38: a structurally slow server, seeks on a slow server, and unverified leads from a
-  hunt a usage limit cut off (4 drop-logic mechanisms, service-worker CPU, `entered-too-late`).
-- Carried over: glossary keep-English per term not watched in Chrome; real Gemini output before/after
-  1.8.3/1.8.4 not compared; `BACKLOG.md` 30, 31, 14-15, 18-24, 26, 28 (20 outside); the user's
-  verdict on the 1.9.5 A/B WAVs; 1.7.9 duck fix not confirmed; Udemy / edX (`BACKLOG.md` 9).
+- Carried over from the 1.9.9 session: 1.9.9 not yet watched live; next time ask the user for
+  "Chép chẩn đoán" right after a problem.
+- Carried over: ask whether to apply `tools/vieneu-fast-release.patch` (BACKLOG 37); then make
+  `background.js` cut a running request at once when /health says `release_on_leave`.
+- Carried over: BACKLOG 36-38; glossary keep-English per term not watched in Chrome; real Gemini
+  output before/after 1.8.3/1.8.4 not compared; BACKLOG 30, 31, 14-15, 18-24, 26, 28 (20 outside);
+  the user's verdict on the 1.9.5 A/B WAVs; 1.7.9 duck fix not confirmed; Udemy / edX (BACKLOG 9).
+- The user should turn Chrome's "Allow JavaScript from Apple Events" back off.
 
 ## Traps hit this session
-- The sim lecture repeats 22 sentences: without `unique: true` the store answers everything and a
-  slow server shows nothing. A 24-run gain (patch F6) reversed on the 144-run matrix: always check.
-- Control_Chrome JS: wrap in an IIFE; a second top-level `const` returns "missing value".
-- Workflow subagents hit the usage limit mid-run; their scratch is not in the repo.
+- `npm test` is blocked by the sandbox (npm calls registry.npmjs.org). Run the script directly:
+  `eval "$(node -p 'require("./package.json").scripts.test')"`.
+- BACKLOG numbers 6, 17, 32, 34 looked unused; git shows they were fixed and deleted. Check
+  `git log -p -- docs/BACKLOG.md` before claiming a number was never used.
 
 ## Suggested next step
 - The VieNeu patch decision, then a live check of 1.9.9 on a fast talk with the diagnostics button.

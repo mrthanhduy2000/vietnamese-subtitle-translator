@@ -53,7 +53,7 @@ screen.
 **The Vietnamese already here stays.** Do not start a translation pass:
 
 - The 41 Vietnamese function names (`ytBatDauDich`, `layNoiDungPhuDe`, `capNhatHienThi`, ...) keep
-  their names. Renaming them across 14,400 lines fails in ways the tests do not catch.
+  their names. Renaming them across ~22,000 lines fails in ways the tests do not catch.
 - The 231 Vietnamese test names keep their names.
 - The ~1,000 Vietnamese comment lines get translated **only** when you are already rewriting that
   exact block for another reason. Never open a file just to translate comments, and never ship a
@@ -65,7 +65,7 @@ Reading all source is ~500KB, roughly 145k tokens. Don't. A normal task should l
 
 - Never `Read` a file over ~400 lines whole. `grep -n <symbol>` first, then read with offset/limit.
 - Line numbers in `docs/` are anchors and they drift. Confirm with grep before editing.
-- **Grep only, never read whole:** `options.html` (~1600, ~810 of them inline CSS),
+- **Grep only, never read whole:** `options.html` (~1600, ~850 of them inline CSS),
   `youtube.js` (~2000), `content.js` (~2300), `dub-engine.js` (~1950), `background.js` (~1450),
   `glossary.js` (~1340, pure data), `dub-speech.js` (~550, a third of it a generated table),
   `tests/hardening.test.js` (~1800), `tests/cost.test.js` (~1000).
@@ -83,7 +83,7 @@ Reading all source is ~500KB, roughly 145k tokens. Don't. A normal task should l
 | Coursera subtitles | `docs/SUBTITLE.md` §Coursera, then grep `content.js` |
 | Vietnamese line breaking / cue splitting | `vi-segmenter.js` (`segmentGroupSafe`), `tests/fixtures.js` |
 | Translation quality, wrong term, English left in | `context-engine.js`, `vi-quality.js`, grep the term in `glossary.js` |
-| Dubbing out of sync, late, drifting, too fast or slow | `docs/DUBBING.md` §SYNC, then `dub-engine.js` `SYNC` block (`grep -n "const SYNC"`, ~120 lines) |
+| Dubbing out of sync, late, drifting, too fast or slow | `docs/DUBBING.md` §SYNC, then `dub-engine.js` `SYNC` block (`grep -n "const SYNC"`, ~140 lines) |
 | No voice at all | `docs/DUBBING.md` §providers. Check the server first: `curl 127.0.0.1:8000/health` |
 | Voice pacing, pauses, prosody | `dub-planner.js` (`buildDubScript`, `planSegment`) + `docs/DUBBING.md` |
 | Voice says an English name, brand, acronym or model number wrong | `docs/DUBBING.md` §English inside Vietnamese speech, then `dub-speech.js`; measure with `tools/pron-eval.js` |
