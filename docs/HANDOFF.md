@@ -25,6 +25,9 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 - Tests: 566 pass, 0 fail, 1 skip. Reload: **yes**, at `chrome://extensions` (no visible change).
 
 ## Unfinished / in progress
+- In progress: BACKLOG 16, verbs outside `PRED_VERBS`. New set `syntax5` (W1-W14) written
+  before any code; real VieNeu takes rendering for all sets (`tools/prosody-eval.js`), baseline
+  first, then a rule change judged on every set.
 - BACKLOG 7: only the palette question, the user's to decide.
 - Carried over: ask the user for "Chép chẩn đoán" right after a problem; BACKLOG 36; glossary
   keep-English per term not watched in Chrome; real Gemini output before/after 1.8.3/1.8.4 not

@@ -211,5 +211,23 @@ module.exports = {
     ["V6", "noun-chiem", "Tỷ lệ chiếm dụng phòng của khách sạn / đã tăng mạnh trong mùa hè."],
     ["V7", "subject-short", "Sản phẩm mới giúp khách hàng tiết kiệm thời gian."],
     ["V8", "verb-gay-ra", "Việc sử dụng kháng sinh bừa bãi ở trẻ nhỏ | gây ra tình trạng kháng thuốc."]
+    ],
+    // 2026-09-29 (BACKLOG 16 left: verbs outside PRED_VERBS; the "thì" / "mà" limits on new sentences).
+    // Written before any code change; W8-W10 hold a rule back (a verb inside a noun, a short subject)
+    syntax5: [
+    ["W1", "verb-anh-huong", "Hệ thống gợi ý của các sàn thương mại điện tử | ảnh hưởng đến quyết định mua hàng của người dùng."],
+    ["W2", "verb-cai-thien", "Những bài tập thở đơn giản vào buổi tối | cải thiện chất lượng giấc ngủ rõ rệt."],
+    ["W3", "verb-tiet-kiem", "Các thuật toán nén dữ liệu hiện đại | tiết kiệm rất nhiều dung lượng lưu trữ."],
+    ["W4", "verb-phan-anh", "Kết quả khảo sát trên năm nghìn sinh viên | phản ánh áp lực học tập ngày càng lớn."],
+    ["W5", "verb-thuc-day", "Chính sách hỗ trợ doanh nghiệp nhỏ của chính phủ | thúc đẩy tăng trưởng việc làm ở địa phương."],
+    ["W6", "verb-tieu-ton", "Quá trình huấn luyện một mô hình ngôn ngữ lớn | tiêu tốn hàng triệu đô la tiền điện."],
+    ["W7", "verb-quyet-dinh", "Thói quen đọc sách mỗi ngày của trẻ em | quyết định phần lớn vốn từ vựng sau này."],
+    ["W8", "noun-ho-tro", "Sự hỗ trợ của cộng đồng mạng / đã giúp dự án hoàn thành đúng hạn."],
+    ["W9", "subject-short", "Bài tập này cải thiện sức bền."],
+    ["W10", "noun-yeu-cau", "Yêu cầu của khách hàng / thay đổi liên tục trong suốt dự án."],
+    ["W11", "topic-thi-short", "Còn phần mềm miễn phí thì / thường thiếu các tính năng nâng cao."],
+    ["W12", "topic-thi-long", "Những bạn mới bắt đầu học lập trình / thì nên chọn một ngôn ngữ đơn giản."],
+    ["W13", "rel-ma-head", "Đây là cách mà các kỹ sư kiểm tra độ bền của cây cầu."],
+    ["W14", "rel-ma-pronoun", "Đó là những dữ liệu mà họ thu thập / trong suốt mười năm qua."]
     ]
 };
