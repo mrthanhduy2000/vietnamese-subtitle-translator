@@ -4,6 +4,12 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.0.2", luc: "01:54 29/09/2026", ten: "Trang Cài đặt: bỏ phần kiểu dáng thừa",
+            y: [
+                "Gỡ bộ màu tím cũ không còn dùng và 9 quy tắc kiểu dáng bị quy tắc sau ghi đè hoàn toàn. Giao diện không đổi: đã so từng phần tử trang Cài đặt ở cả nền sáng lẫn nền tối, 0 khác biệt."
+            ]
+        },
+        {
             v: "2.0.1", luc: "21:08 28/09/2026", ten: "Lồng tiếng: sau quảng cáo không đọc lại câu vừa nghe xong",
             y: [
                 "Quảng cáo chen vào lúc giọng vừa đọc xong một câu (phụ đề của câu vẫn còn trên màn hình): trước đây hết quảng cáo, phần cuối câu đó bị đọc lại lần nữa. Nay giọng đi tiếp sang câu sau.",

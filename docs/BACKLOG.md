@@ -209,8 +209,14 @@ more between lines is always followed.
 means re-running Load unpacked in Chrome, which creates a new extension id and **loses the stored
 API key and settings**, so this is deliberately not done. Just do not trust the folder name.
 
-**7. Two stylesheets, same design tokens.** `options.html` carries ~850 lines of inline CSS while
-`popup.css` is a separate ~1,000-line file, and they duplicate the same tokens with nothing shared.
+**7. Two stylesheets, two palettes.** `options.html` carries its CSS inline, `popup.css` is a
+separate file. They do not share tokens because they are not the same design: the popup uses
+`--claude-*` (accent #D97757, Newsreader), the options page `--primary` (#c96442, Source Serif 4).
+Unifying them is a design decision for the user, not a cleanup. Done in 2.0.2: the dead legacy
+`:root` block and 9 fully overridden rules left `options.html`, checked with 0 computed-style
+differences over every element in light and dark. Left: 19 early rules that later rules override
+only in part (merging them is safe but needs the same computed-style check). `popup.css` has no
+duplicate-selector dead rules.
 
 **8. `tests/legacy/old-splitter.js` duplicates a large Vietnamese compound-word lexicon** that
 `vi-segmenter.js` also maintains. This one is intentional (frozen baseline) and should stay, but be
