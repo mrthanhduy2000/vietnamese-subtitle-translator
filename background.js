@@ -1491,6 +1491,10 @@ async function handleTestKey(req) {
     await ledgerReady;                     // its call is charged; the ledger must be loaded first
     const apiKey = String(req.key || "").trim();
     if (!apiKey) return { ok: false, error: "Chưa nhập API Key" };
+    // The viewer asks for a real check, typically right after fixing billing or permissions in AI
+    // Studio: the 10-minute block from the last refusal would answer it without asking Google.
+    // A failed test sets it again; a passing one lets translation use the key at once.
+    if (keyBlock && keyBlock.key === apiKey) keyBlock = null;
     const cfg = { ...(await modelsFromCfg()), cheap: req.model || COST.DEFAULT_MODELS.cheap };
     const tried = [];
     const t0 = Date.now();

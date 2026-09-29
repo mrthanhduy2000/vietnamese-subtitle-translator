@@ -148,6 +148,22 @@ test("Kiểm tra Key trong Cài đặt: gọi generateContent THẬT theo chuỗ
     assert.equal(r2.model, "gemini-2.5-flash-lite");
 });
 
+test("key test after fixing billing: it asks Google again instead of repeating the 10-minute block", async () => {
+    let paid = false, calls = 0;
+    const f = async () => {
+        calls++;
+        if (!paid) return { ok: false, status: 402, json: async () => ({ error: { code: 402, message: "Prepaid credits exhausted" } }) };
+        return reply({ t: ["Trí tuệ nhân tạo"] });
+    };
+    const E = bgEnv(f, { geminiApiKey: "K", costMigration113: true });
+    const r1 = await E.send({ action: "testKey", key: "K", model: "auto" });
+    assert.equal(r1.errorType, "payment");
+    paid = true;                                        // the viewer tops up in AI Studio
+    const r2 = await E.send({ action: "testKey", key: "K", model: "auto" });
+    assert.equal(r2.ok, true);
+    assert.equal(calls, 2, "the second test reached Google");
+});
+
 test("TTS: key mới không dùng được 2.5 TTS -> dùng 3.1 TTS, ghi nhớ, lượt sau không thử lại 2.5 TTS", async () => {
     const seen = [];
     const E = bgEnv(server(seen), cfg());

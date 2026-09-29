@@ -4,6 +4,12 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.2.5", luc: "", ten: "Nút Kiểm tra API Key kiểm tra lại thật",
+            y: [
+                "Khi Google từ chối key (sai quyền, hết tiền trả trước, dự án chưa bật thanh toán), tiện ích tạm chặn key đó 10 phút để khỏi gọi phí. Trước đây nếu bạn sửa xong trong AI Studio rồi bấm Kiểm tra trong Cài đặt, nút vẫn báo lỗi cũ suốt 10 phút mà không hỏi Google. Nay bấm Kiểm tra luôn gọi Google thật; qua được thì dịch dùng key ngay."
+            ]
+        },
+        {
             v: "2.2.4", luc: "", ten: "Giọng đọc chữ viết tắt tiếng Việt đúng kiểu Việt, cửa sổ bật lên rõ ràng hơn",
             y: [
                 "Chữ viết tắt tiếng Việt mà giọng VieNeu không có sẵn trong bảng (DN, NHNN, TMCP, CTCP, SGK, HS, ThS, mã cổ phiếu HPG, VNM, MWG...) trước đây bị đọc bằng chữ cái tiếng Anh (\"đi en\"). Nay đọc kiểu Việt.",
