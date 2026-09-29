@@ -69,7 +69,7 @@ Reading all source is ~500KB, roughly 145k tokens. Don't. A normal task should l
   `youtube.js` (~2000), `content.js` (~2300), `dub-engine.js` (~1950), `background.js` (~1450),
   `glossary.js` (~1340, pure data), `dub-speech.js` (~550, a third of it a generated table),
   `tests/hardening.test.js` (~1800), `tests/cost.test.js` (~1000).
-- Safe to read whole when you need them: `cost-policy.js` (~300), `popup.js` (~300), `yt-bridge.js`
+- Safe to read whole when you need them: `cost-policy.js` (~370), `popup.js` (~300), `yt-bridge.js`
   (~300), `subtitle-style.js` (~300), `vi-quality.js` (~210), `lang-detect.js` (~130), any `docs/` file.
 - These sizes drift. `node tools/doc-sizes.js` rewrites the line and test counts in `docs/MAP.md`
   and `docs/TESTING.md`, and lists any size quoted here that is off by more than 15%.

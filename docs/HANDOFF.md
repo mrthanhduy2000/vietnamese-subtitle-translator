@@ -16,11 +16,12 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   `lateOpened` keep-alive; `COST.priceOf` for typed ids (`how` exact/variant/family/unknown).
 - 2.1.5-2.1.9 breathing commas (`BREATH`, `breathText` fallback, `fallbackRun` 14): all 184 as sent
   RAN-ON 39/365 -> 6/365 (rest on purpose, DUBBING §3). Takes via `$TMPDIR/br/ab2.js` in the user's Terminal.
-- Duck 2.1.2-2.1.4: `duckAttackTicks` 4; `nextVoiceAt` counts a take still being made (slow pumps 197 -> 8).
+- Duck 2.1.2-2.1.4: `duckAttackTicks` 4, `nextVoiceAt` counts a pending take. 2.1.8: breath-length keep.
 
 ## State
 - Tests: 585 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
-- Live check 2.1.9 done (DUBBING.md "Live check"): no defect found. Not heard by ear yet.
+- Live check 2.1.9 done (DUBBING.md "Live check"): no defect found. Not heard by ear yet. Review pass
+  after it: no dead functions or methods; a gentler deep-duck attack tried and not kept; BACKLOG 39.
 
 ## Unfinished / in progress
 - AI Studio checked 2026-09-29 (Usage + Spend, 28 days): only the extension's models appear (3.1

@@ -537,6 +537,10 @@ Knobs you will actually reach for:
   Rates were 1.2 to 1.41 at 1x (pace mid 1.1, high 1.18): the talker is fast, rule 1 leaves only
   rate and pauses. At a 0.05 duck the ramp spans 26 dB: 2.9 dB a tick back up, 6.5 dB a tick on
   the attack. The original comes up to full during a seek's load and down when the new line starts.
+  Tried after it and not kept: an attack of only the first 12 dB in 4 ticks, then the ramp's pace
+  (no step over 3 dB). At a 0.05 duck the 18 lines that begin over a loud original had it at -14.8
+  -> -9.5 dB in their first 0.45 s: the first words lose far more than the smoother step gains, and
+  broadcast duckers attack in 10 to 50 ms anyway (a slow release is what the ear needs).
 - **Ducking between lines (2.0.8)**: `lineComing` / `nextVoiceAt` know when the next line starts
   whenever that is known: its take is in the page (by `nextSpeech`'s own rules: the rest after the
   last line, `chainLead` for a running sentence, the subtitle start after a start or seek), or it is

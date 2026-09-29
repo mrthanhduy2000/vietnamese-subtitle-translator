@@ -7,7 +7,7 @@ and its own version bump. Ask the user first.
 How this file works:
 - Grouped by **area**, not by when it was found; *(found 1.x.y)* after a title says when.
 - Numbers are permanent: code comments and `version-history.js` cite them. Never renumber. The next
-  free number is **39**.
+  free number is **40**.
 - Add an entry whenever you find something out of scope for your task. Delete it once it is fixed and
   add its number to "Closed" below. An entry that is only partly fixed keeps what is left, not the
   story of the fix (that is in git and `DUBBING.md`).
@@ -59,6 +59,14 @@ left over from a seek read as 0 s. The overhead is now fitted and those are fixe
 gives up a late line to save the next one (DUBBING.md "1.9.7"). Left: a server at RTF 1 or more, or
 RTF 0.9 at 2x, cannot keep up whatever the page does. Lines start late or are skipped; only a faster
 server (int8, GPU) fixes that, and `describeHealth` tells the viewer.
+
+**39. The voice is sped up by the page, not read faster by the server.** *(found 2.2.2 live check)*
+A fast talker needs 1.2 to 1.4x (live, H9yU-Y22vGI); the page time-stretches the take
+(`playbackRate`, pitch kept), which blurs consonants at 1.3x and up. VieNeu's OpenAI endpoint
+accepts `speed` but ignores it (`apps/openai_speech.py`, header `X-VieNeu-Ignored`); only its v3nano
+model honours speed, and the user's server runs the onnx backend. Reading faster at the source needs
+a server change in `~/VieNeu-TTS` and a model switch: the user's call (editing that folder was
+refused once, for a different patch). Nothing in this repo can do it alone.
 
 **36. A server that stays slow on a fast talk with a slow voice.** *(found 1.9.9)* The 60 s buffer
 (1.9.9) carries a slowdown of a few minutes. It cannot help when VieNeu stays at 0.8x or slower for
