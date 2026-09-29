@@ -351,7 +351,9 @@
     // Paid voice (Gemini TTS) switched off by the user on 2026-09-27: dubbing uses the free local
     // VieNeu voice only. The Gemini TTS code stays (tested), but nothing reaches it: dubbing.js never
     // creates the provider, the service worker refuses a non-local synthesizeSpeech, Settings offers
-    // VieNeu only. Set true to bring the paid voice back.
+    // VieNeu only. Set true to bring the paid voice back, and with it three known costs closed while
+    // it is off (git: BACKLOG 11, 13, 28): a refined line is voiced twice, the Settings preview is not
+    // cached, a name split over two translation groups stays two takes.
     const PAID_TTS = false;
 
     const api = {

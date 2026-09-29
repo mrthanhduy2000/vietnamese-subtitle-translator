@@ -1206,6 +1206,38 @@ async function handleLocalTtsStatus() {
     }
 }
 
+// ---- Cold-server warm-up (2.2.6, BACKLOG 20) ----
+// macOS pages VieNeu's model out after a long idle; the first real line then waits for the page-in
+// and renders at ~3.5x real time. Dubbing starts 1-2 s before its first translated line exists, so
+// a tiny take sent at that moment pages the model in while nothing else needs the server. Only
+// when cold (localIsCold: no good take for 10 min) and the queue is empty: on a warm server the
+// 1.2.6 measurement stands (a warm-up line only delayed the first real one). Same serial queue as
+// every take, so a real line arriving meanwhile waits for it instead of competing with it.
+let localWarming = null;
+async function handleLocalWarm(req) {
+    if (localWarming) return localWarming;
+    if (!(await localIsCold())) return { ok: true, warmed: false, reason: "warm" };
+    if (localBusy || localQueue.length) return { ok: true, warmed: false, reason: "busy" };
+    localWarming = localSerial(async () => {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), LOCAL_COLD_TIMEOUT_MS);
+        const t0 = Date.now();
+        try {
+            const body = JSON.stringify({ model: LOCAL.model, voice: req.voice || LOCAL.defaultVoice, input: "Xin chào.", response_format: "pcm", sample_rate: LOCAL.sampleRate, temperature: LOCAL.temperature });
+            const res = await fetch(LOCAL.url + "/v1/audio/speech", { method: "POST", headers: { "Content-Type": "application/json" }, body, signal: controller.signal });
+            await res.arrayBuffer();
+            if (!res.ok) return { ok: false, warmed: false, error: `VieNeu HTTP ${res.status}` };
+            localMarkWarm();
+            return { ok: true, warmed: true, ms: Date.now() - t0 };
+        } catch (e) {
+            return { ok: false, warmed: false, error: e.message };
+        } finally {
+            clearTimeout(timer);
+        }
+    }).finally(() => { localWarming = null; });
+    return localWarming;
+}
+
 // Máy chủ VieNeu trên CPU chỉ tạo MỘT luồng mỗi lúc: mọi yêu cầu (mọi tab, trang Cài đặt)
 // xếp hàng TẠI ĐÂY, gửi lần lượt -> không tự gây lỗi 429 "máy chủ bận". First in, first out (the
 // priority lane served only the voice warm-up, removed in 1.7.3).
@@ -1721,6 +1753,7 @@ const ROUTES = {
     openOptions: handleOpenOptions,
     costStats: handleCostStats,
     localTtsStatus: handleLocalTtsStatus,
+    localWarm: handleLocalWarm,
     costReset: handleCostReset
 };
 

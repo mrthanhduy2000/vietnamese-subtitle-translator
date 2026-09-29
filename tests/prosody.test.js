@@ -416,3 +416,14 @@ test("a short subject with a place or topic phrase inside is invited before its 
     // "ghé qua": "qua" follows a verb, the gap before "giúp" stays legal but uninvited
     assert.ok(gapAfter("Hôm qua chú Phong ghé qua sửa giúp cái vòi nước bị rò.", "sửa").value < 0.3);
 });
+
+test("BACKLOG 16: an explaining copula after a short subject is read with it ('Điều này có nghĩa là')", () => {
+    for (const t of ["Điều này có nghĩa là hệ thống sẽ phải xử lý gấp đôi lượng dữ liệu trong cùng một khoảng thời gian.",
+        "Điều đó nghĩa là chúng ta cần thêm dữ liệu để huấn luyện lại toàn bộ mô hình từ đầu.",
+        "Việc này tức là mô hình sẽ phải học lại toàn bộ các đặc trưng từ đầu trên tập dữ liệu mới."]) {
+        const a = P.analyze(t);
+        const g = a.gaps[1];
+        assert.ok(g.value < 0.35, `${t}: the gap after the subject invites a stop (${g.value})`);
+        assert.ok(!P.breathGroups(t).some(b => b.gap === 1), `${t}: a breathing comma after the subject`);
+    }
+});

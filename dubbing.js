@@ -153,6 +153,9 @@
         const wantLocal = localOnly || s.dubProvider === "auto" || s.dubProvider === "vieneu";
         const local = wantLocal && E.createVieneuProvider ? E.createVieneuProvider(env, { localVoice: s.dubLocalVoice, localVoice2: s.dubLocalVoice2 }) : null;
         const [hasSystem, hasLocal] = await Promise.all([system.init(s.dubVoiceName), local ? local.init() : false]);
+        // A cold server pages its model in during the 1-2 s before the first translated line (BACKLOG
+        // 20); the service worker does nothing when the server is warm or already busy. Not awaited.
+        if (hasLocal) sendMessage({ action: "localWarm", voice: s.dubLocalVoice }).catch(() => {});
         // Chế độ "Tiết kiệm": không dùng Gemini TTS (chỉ giọng miễn phí)
         const canGemini = !localOnly && !!(s.useAi && s.geminiApiKey) && mode.tts === "gemini";
         // Model TTS mà API key này gọi được thật (key mới không dùng được 2.5 TTS): khóa kho

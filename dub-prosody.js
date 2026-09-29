@@ -358,8 +358,10 @@
                 // topic "thì" after a short topic: "còn dữ liệu kiểm tra | thì"; after a fronted
                 // condition ("Nếu ... | thì") it stays the clause boundary
                 g.cost = Math.max(g.cost, 20);
-            } else if (next.bare === "là" && sylSince(zone, g.i) <= 4 && g.cost < 20) {
-                // copula after a short subject: "bước tiếp theo | là"
+            } else if ((next.bare === "là" || at(g.i + 1, 3) === "có nghĩa là" || /^(nghĩa là|tức là)$/.test(at(g.i + 1, 2))) &&
+                sylSince(zone, g.i) <= 4 && g.cost < 20) {
+                // copula after a short subject: "bước tiếp theo | là"; 2.2.6 the copulas that explain
+                // (BACKLOG 16): "Điều này | có nghĩa là", "Tức là", "nghĩa là" (corpus e1 was WRONG there)
                 g.cost = Math.max(g.cost, 20);
             } else if (TIME_END.includes(at(g.i + 1, 2)) && /^vừa/.test(next.bare)) {
                 // "quý | vừa qua": "vừa qua" modifies the noun before it ("the past quarter")

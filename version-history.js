@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.2.7", luc: "", ten: "Giọng VieNeu có tiếng sớm hơn sau thời gian nghỉ, đọc liền \"Điều này có nghĩa là\"",
+            y: [
+                "Sau khi máy nghỉ lâu, macOS đẩy giọng VieNeu ra khỏi bộ nhớ nên vài giây đầu video im lặng. Nay khi bật lồng tiếng mà máy chủ đã nguội (hơn 10 phút không đọc), tiện ích đọc thử một câu rất ngắn ngay trong 1 đến 2 giây chờ bản dịch đầu tiên, để giọng nạp lại vào bộ nhớ sẵn. Máy chủ đang ấm thì không làm gì (đo từ bản 1.2.6: làm nóng lúc ấm chỉ làm câu đầu chậm hơn).",
+                "Giọng đọc không còn ngắt giữa \"Điều này | có nghĩa là\", \"Việc này | tức là\": chủ ngữ ngắn đọc liền với hệ từ giải thích, như đã làm với \"là\". Trên các bộ câu mẫu: chỗ ngắt sai 1 xuống 0, không bộ nào xấu đi.",
+                "Rà xong toàn bộ danh sách tồn đọng: mỗi mục đều có kết luận (đã sửa, không thể xảy ra khi giọng trả phí đang tắt, giữ nguyên có chủ đích và ghi vào tài liệu, hoặc từ chối kèm lý do)."
+            ]
+        },
+        {
             v: "2.2.6", luc: "", ten: "Không nhầm tiếng Bồ Đào Nha thành tiếng Việt, sửa dòng phụ đề chắc chắn hơn, tệp .srt đúng chuẩn",
             y: [
                 "Video tiếng Bồ Đào Nha (và tiếng Romania) trước đây bị nhận là tiếng Việt vì chữ \"ã\", \"ă\" (não, então, să): tiện ích bỏ qua không dịch và trả nguyên văn từng câu. Nay nhận đúng và dịch bình thường; tiếng Việt vẫn được nhận chắc chắn như cũ.",

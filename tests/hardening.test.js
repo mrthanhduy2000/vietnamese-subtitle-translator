@@ -1319,6 +1319,22 @@ test("giải phóng audio các câu đã qua xa (video dài không phình bộ n
     assert.ok(S.eng.stats.cacheHits > 0);
 });
 
+test("VieNeu warm-up (BACKLOG 20): one tiny take when the server is cold, none once it is warm", async () => {
+    const calls = [];
+    const E = bgEnv(vieneuServer(calls), cfg());
+    const r1 = await E.send({ action: "localWarm", voice: "Mỹ Duyên" });
+    assert.equal(r1.warmed, true);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].input, "Xin chào.");
+    assert.equal(calls[0].voice, "Mỹ Duyên");
+    const r2 = await E.send({ action: "localWarm", voice: "Mỹ Duyên" });
+    assert.equal(r2.warmed, false, "a warm server is left alone (the 1.2.6 measurement)");
+    assert.equal(calls.length, 1);
+    // a real take right after is not held back by the cold 60 s path: the server is known warm
+    const st = await E.send({ action: "costStats" });
+    assert.ok(!(st.day.localSec > 0), "the warm-up is not counted as dubbing");
+});
+
 test("VieNeu bận (429): chờ theo Retry-After rồi thử lại (tối đa 2 lần), không coi là lỗi", async () => {
     let n = 0;
     const calls = [];

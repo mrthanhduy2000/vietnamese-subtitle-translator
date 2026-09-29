@@ -436,6 +436,27 @@ with the full `PREPOSITIONS`). Evidence is thin: over the 493 corpus sentences i
 syntax4 V1; on its cached takes WRONG 4 -> 2, MISSED 2 -> 0, the other ten sets identical. No
 held-out sentence exists for it.
 
+## Known limits kept on purpose (backlog closed 2026-09-29)
+
+What the old BACKLOG entries left open, now decided. Numbers are the old entry numbers (git has the
+full text). Reopen only with a new failing example, measured on real takes.
+- **Server speed (20, 33, 36).** macOS pages VieNeu's model out after long idle: 2.2.6 sends one tiny
+  take when the server is cold (`handleLocalWarm`, >10 min since a good take), during the wait for
+  the first translation. A server at or past real time cannot keep up whatever the page does; the
+  quick menu says so (`describeHealth`) and names a quicker voice. Never shorter speech (rule 1).
+- **Prosody (15, 16, 18, 29, 30, 31).** Every eval set is WRONG 0 on the text-only proxy (2.2.6:
+  explaining copulas "có nghĩa là", "tức là" after a short subject closed, corpus e1). Text-only
+  MISSED at subject | verb is where the real voice stops and the model keeps it (real takes MISSED 0,
+  2.0.4). Left on purpose: a run under 14 syllables with no boundary of value >= 0.1 keeps no pause;
+  alignment errs 0.33 syllables on average, bounded by punctuation anchors; cue k5 follows the
+  speaker's pause; a purpose clause after a short predicate is soft (the user's 1.8.0 ruling).
+- **English readings (21, 23, 26, 27).** No respelling exists for du, hang, phan (also Vietnamese
+  surnames). "RAM" stays marked English in validation v12. A lone Dan, Lan, An, Van, Tan, Kim stays
+  Vietnamese even when the source names them. "So Google" is read sˈoʊ by VieNeu's own chunker (8
+  separators probed, none helps).
+- **Checks (19, 22).** `pron-eval` compares phonemes, not sound; corpus marks are one reader's. The
+  user's live listen is the final check (HANDOFF).
+
 ## The SYNC block is the tuning bible
 
 `dub-engine.js`, one object named `SYNC` (`grep -n "const SYNC"`, ~140 lines). **Every timing
