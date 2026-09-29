@@ -7,7 +7,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 
 ## Last touched
 2026-09-29 · cost card: `background.js`, `cost-policy.js`, `options.html` / `options.js`,
-`popup.html` / `popup.js`, `version-history.js`, `tests/hardening.test.js` · `2.1.3`.
+`popup.html` / `popup.js`, `tests/hardening.test.js` (2.1.3); duck bridge: `tests/dub.test.js`,
+`docs/DUBBING.md`, `version-history.js` (2.1.4) · `2.1.4`.
 
 ## What changed
 - 2.1.0 to 2.1.1: the ledger charges every billed request (`geminiCall` `policy.onBilled`,
@@ -20,11 +21,13 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   late answer's real usage replaces the estimate (`trackText(meta, model, u, prev)`, `lateCalls`).
 - 2.1.3: KPI tiles (today, month by Google day, projection from 3 recorded days, per call), a
   daily budget meter; `.content-area { min-width: 0 }` stops wide tables overflowing the page.
-- 2.1.2 (other session): `SYNC.duckAttackTicks` 4, duck under a voice already sounding.
+- 2.1.2 (duck session): `SYNC.duckAttackTicks` 4, duck under a voice already sounding.
+- 2.1.4 (duck session; code went out in 2.1.3): `nextVoiceAt` counts a take still being made
+  (`next.pending`, bridge only). Slow matrix pumps 197 -> 8, slowTts 2 -> 0; delivery identical.
 
 ## State
-- Tests: 576 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
-- 2.0.8 / 2.0.9 / 2.1.2 duck changes not heard by ear yet.
+- Tests: 577 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
+- 2.0.8 / 2.0.9 / 2.1.2 / 2.1.4 duck changes not heard by ear yet.
 
 ## Unfinished / in progress
 - User to compare the card with AI Studio; still far off: key shared elsewhere, or BACKLOG 37.
@@ -36,8 +39,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   (BACKLOG 9); a live YouTube check by the user; user: Apple Events JS off in Chrome.
 
 ## Traps hit this session
-- 68d9ebd (2.1.3, cost) swept in the duck session's unfinished `dub-engine.js` bridge change
-  (`next.pending`, "2.1.3" comment): tests passed with it; that session must renumber. Stage by path.
+- Two sessions in one tree: each commit swept in the other's files twice (cbcc311, 68d9ebd). Stage
+  by path, and check `git status` and the manifest version just before a bump.
 - The live ledger can be read offline from Chrome's leveldb:
   `~/Library/Application Support/Google/Chrome/Profile 42/Local Extension Settings/<ext id>/*.log`.
 

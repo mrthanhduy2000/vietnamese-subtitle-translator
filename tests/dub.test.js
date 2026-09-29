@@ -1000,6 +1000,32 @@ test("playback delivery: the original stays down through a short gap and a pause
     assert.ok(longBack / longTicks > 0.4, `the original back at full for only ${(100 * longBack / longTicks).toFixed(0)}% of the long gaps`);
 });
 
+test("slow server: a close line whose take is still being made keeps the original down, and a long wait lets it up", async () => {
+    // 2.1.3: slowTts had 2 short gaps (0.97 s, 1.4 s) where the next take was on the way but not made,
+    // so nothing announced the line and the original came up to full, then down again under it
+    let shortGaps = 0, pumps = 0, longestDown = 0, downAt = null;
+    let prevVoice = false, gap = null;
+    await simRun("slowTts", { trace: ({ wall, video, eng }) => {
+        const S = eng.speech, r = S && eng.rendered.get(S.id);
+        const f = video.volume / (eng.baseVolume != null ? eng.baseVolume : 0.8);
+        if (video.paused) { prevVoice = false; gap = null; downAt = null; return; }
+        const voice = !!(r && r.el && !r.el.paused);
+        if (voice && !prevVoice && gap && wall - gap.at < 1500) { shortGaps++; if (gap.peak > 0.5) pumps++; }
+        if (voice) { gap = null; downAt = null; }
+        else {
+            if (prevVoice) gap = { at: wall, peak: 0 };
+            if (gap) gap.peak = Math.max(gap.peak, f);
+            if (f >= 0.5) downAt = null;
+            else { if (downAt == null) downAt = wall; longestDown = Math.max(longestDown, wall - downAt); }
+        }
+        prevVoice = voice;
+    } });
+    assert.ok(shortGaps >= 10, `too little measured: ${shortGaps} short gaps`);
+    assert.equal(pumps, 0, `${pumps} of ${shortGaps} short gaps let the original up and down again`);
+    // Held at most duckBridge (2 s) after a line, plus duckHold and the ramp back up
+    assert.ok(longestDown <= 3000, `the original held down ${longestDown} ms with no voice`);
+});
+
 test("playback delivery: stopping the engine (another video, dubbing off) drops its queued requests", async () => {
     const clock = new Clock(), video = new FakeVideo();
     const aborted = [];

@@ -4,6 +4,18 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.1.4", luc: "12:39 29/09/2026", ten: "Lồng tiếng: máy chủ giọng chậm không còn làm tiếng gốc bật lên giữa hai câu",
+            y: [
+                "Khi máy chủ giọng VieNeu chậm, âm thanh của câu sau có thể chưa làm xong lúc câu trước vừa đọc hết. Trước đây tiếng gốc lúc đó bật to lên, rồi lại hạ xuống khi câu sau cất lên chỉ một, hai giây sau. Nay nếu câu sau đang được làm và dự kiến bắt đầu trong vòng 2 giây, tiếng gốc vẫn được giữ nhỏ. Nếu chờ quá 2 giây mà câu sau chưa tới, tiếng gốc được nâng lên như cũ, để không có khoảng lặng dài.",
+                "Mã của thay đổi này đã có sẵn từ bản 2.1.3. Bản này thêm bài kiểm tra và ghi lại số đo. Cách đọc (câu nào, lúc nào, nhanh hay chậm) không đổi. Đo ngoại tuyến bằng mô phỏng, chưa nghe thử bằng tai, không gọi dịch vụ trả phí."
+            ],
+            bang: { cot: ["144 lượt mô phỏng máy chủ chậm, mỗi lượt tua 2 lần", "2.1.2", "Nay"], hang: [
+                ["Khoảng nghỉ ngắn giữa hai câu mà tiếng gốc bật lên rồi hạ lại", "197 trên 1097", "8 trên 1097 (đều do tua)"],
+                ["Câu bắt đầu khi tiếng gốc còn trên 50%", "594 trên 2067", "382 trên 2067"],
+                ["Thời gian im lặng mà tiếng gốc vẫn được giữ nhỏ", "22,1%", "25,9%"]
+            ] }
+        },
+        {
             v: "2.1.3", luc: "12:35 29/09/2026", ten: "Chi phí: chọn hiển thị VNĐ, USD hoặc cả hai; ước tính sát hơn",
             y: [
                 "Thẻ Chi phí có nút chọn đơn vị tiền: VNĐ, USD, hoặc VNĐ và USD song song. Cửa sổ nhỏ của tiện ích cũng theo lựa chọn này. Tỷ giá mặc định 26.020 đ cho 1 USD (giá giữa thị trường ngày 29/09/2026), sửa được cho khớp sao kê thẻ; có thêm ô thuế và phí cộng thêm (%). Ở chế độ VNĐ, ngân sách nhập bằng đồng.",

@@ -513,6 +513,13 @@ Knobs you will actually reach for:
   above 35% 6.4% -> 0.4%; gaps over 2.5 s still have it at full 63% of the time (75% before). What
   is left is inherent: the first line after a start and a take that lands late. Delivery is identical
   (rapid and slow matrices, every scenario). Not verified by ear; `duckBridge` is the one knob.
+  2.1.3 (code shipped in the 2.1.3 commit, entry 2.1.4): a next take still being made (`pending`,
+  its job not orphaned) counts too, at `max(start, now + jobRemain)`, for the bridge only (no
+  pre-duck, since an overrun estimate would keep pulling it forward): the original stays down at
+  most `duckBridge` after the last line, then comes up. slowTts pumps 2 -> 0; the slow matrix
+  (`sim-matrix slow`, 144 runs, 2 seeks each): short-gap pumps 197 -> 8 (all 8 across a seek), lines
+  beginning over it above 50% 594 -> 382 (the rest are first lines after a start or seek), silent
+  time with it down 22.1 -> 25.9%. Delivery identical (slow matrix, system-voice logs).
 
 **Planning window (1.6.3).** `refresh` plans only groups overlapping
 `[step*planStep - planBehind, (step+1)*planStep + planAhead]` (60 / 150 / 300 s) plus one group past
