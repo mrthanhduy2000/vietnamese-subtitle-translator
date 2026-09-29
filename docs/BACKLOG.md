@@ -14,7 +14,8 @@ How this file works:
 
 Closed (story in git and `version-history.js`): 1-4 (1.6.4), 6, 10 and 12 (1.9.4), 17 (1.7.8),
 25 (merged into 31), 32 and 34 (1.8.7), 35 (1.9.8), 38 (2026-09-29: every lead checked, none
-kept; the numbers are in `DUBBING.md` under the 1.9.9 buffer).
+kept; the numbers are in `DUBBING.md` under the 1.9.9 buffer), 7 (2026-09-29, decided: the popup and
+the options page keep their own palettes, two designs, not duplication; the dead CSS went in 2.0.2-2.0.3).
 
 Declined by the user, never re-add or re-propose: 37 (2026-09-28, the VieNeu "release the slot at
 once" server patch; real use showed 27 slow releases in 7979 takes, ~2 min of delay a week, and the
@@ -65,8 +66,10 @@ A fast talker needs 1.2 to 1.4x (live, H9yU-Y22vGI); the page time-stretches the
 (`playbackRate`, pitch kept), which blurs consonants at 1.3x and up. VieNeu's OpenAI endpoint
 accepts `speed` but ignores it (`apps/openai_speech.py`, header `X-VieNeu-Ignored`); only its v3nano
 model honours speed, and the user's server runs the onnx backend. Reading faster at the source needs
-a server change in `~/VieNeu-TTS` and a model switch: the user's call (editing that folder was
-refused once, for a different patch). Nothing in this repo can do it alone.
+a server change in `~/VieNeu-TTS` and a model switch. Decided 2026-09-29 (the user hands such calls
+to Claude): not now. v3nano is another model (a different timbre, unmeasured speed on the 16 GB Mac
+that already pages the onnx model out, BACKLOG 20) and the free voice works; the gain is not
+measured. Revisit if VieNeu's onnx backend honours `speed`. Nothing in this repo can do it alone.
 
 **36. A server that stays slow on a fast talk with a slow voice.** *(found 1.9.9)* The 60 s buffer
 (1.9.9) carries a slowdown of a few minutes. It cannot help when VieNeu stays at 0.8x or slower for
@@ -195,15 +198,6 @@ more between lines is always followed.
 **5. The folder name says `v1.0.4`, the extension is many versions past that.** Renaming the folder
 means re-running Load unpacked in Chrome, which creates a new extension id and **loses the stored
 API key and settings**, so this is deliberately not done. Just do not trust the folder name.
-
-**7. Two stylesheets, two palettes.** `options.html` carries its CSS inline, `popup.css` is a
-separate file. They do not share tokens because they are not the same design: the popup uses
-`--claude-*` (accent #D97757, Newsreader), the options page `--primary` (#c96442, Source Serif 4).
-Unifying them is a design decision for the user, not a cleanup. The dead CSS is gone
-(2.0.2, 2.0.3): the legacy `:root` block, 9 fully overridden rules, and every early declaration a
-later rule with the same selector overrides (50 declarations, plus the stale color in 3 border shorthands).
-Each step checked with 0 computed-style differences over every element in light and dark, against
-the committed page in an iframe. `popup.css` has none. Only the palette question is left.
 
 **8. `tests/legacy/old-splitter.js` duplicates a large Vietnamese compound-word lexicon** that
 `vi-segmenter.js` also maintains. This one is intentional (frozen baseline) and should stay, but be

@@ -30,12 +30,12 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   real check: a full Pacific day recorded after Chrome is reloaded (Chrome still ran 2.1.9).
 - 2.2.2 fixed the card naming 2.5 after the 404 mark lapsed (`likelyModel`, `lapsedFn`, `retry`
   state) and doubles the mark on each repeat refusal (3 -> 30 days, `ACCESS_MAX_TTL_MS`).
-- BACKLOG 16: verbs outside the list. BACKLOG 7: user's call.
+- BACKLOG 16: verbs outside the list. BACKLOG 7 closed, 39 decided (not now).
 - Carried over: the live harness (`?script=stress`, `viewer2`) needs the local server; the user
   said yes, but the classifier blocks it here, so the user runs it or adds a permission rule;
   "Chép chẩn đoán" right after a problem; BACKLOG 36; glossary keep-English per term not watched
   in Chrome; BACKLOG 30, 31, 14-15, 18-24, 26, 28; verdict on the 1.9.5 A/B WAVs; Udemy / edX
-  (BACKLOG 9); a live YouTube check by the user (user: switch Apple Events JS off again after the live check).
+  (BACKLOG 9); a live YouTube listen by the user. Never ask about Apple Events JS or hand decisions back (memory).
 
 ## Traps hit this session
 - Two sessions in one tree: each commit swept in the other's files twice (cbcc311, 68d9ebd). Stage
