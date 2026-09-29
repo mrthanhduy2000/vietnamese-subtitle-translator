@@ -27,8 +27,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 - 2.0.8 / 2.0.9 duck ramps not heard by ear yet.
 
 ## Unfinished / in progress
-- Ask the user to compare the card's token totals with AI Studio after a day. If still far off:
-  other apps on the same key, or BACKLOG 37 (tight timeout, wasted billed calls).
+- User to compare the card with AI Studio; still far off: key shared elsewhere, or BACKLOG 37.
 - BACKLOG 16: verbs outside the list; RAN-ON needs the BACKLOG 15 lead. BACKLOG 7: user's call.
 - Carried over: VieNeu renders (BACKLOG 15 breath lead) and the live harness (`?script=stress`,
   `viewer2`) need the local server, i.e. the user's yes for work outside the sandbox;
@@ -37,10 +36,10 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   (BACKLOG 9); a live YouTube check by the user; user: Apple Events JS off in Chrome.
 
 ## Traps hit this session
-- Another session edits `dub-engine.js` in this folder at the same time: commit your own paths.
-- Options preview on the `static` server caches old JS: `fetch(url, {cache: "reload"})` first.
+- A parallel session's `docs/DUBBING.md` note (duck attack, "2.1.1") went out in cbcc311 by
+  mistake; its `dub-engine.js` is not committed yet and 2.1.1 is the cost card: it must renumber.
 - The live ledger can be read offline from Chrome's leveldb:
   `~/Library/Application Support/Google/Chrome/Profile 42/Local Extension Settings/<ext id>/*.log`.
 
 ## Suggested next step
-- Compare the card's Google-day table with AI Studio for one day (see Unfinished).
+- Compare the card's Google-day table with AI Studio for one day.
