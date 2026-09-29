@@ -40,7 +40,6 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 ## Traps hit this session
 - Two sessions in one tree: each commit swept in the other's files twice (cbcc311, 68d9ebd). Stage
   by path, and check `git status` and the manifest version just before a bump.
-- Live ledger offline: Chrome leveldb, `Profile 42/Local Extension Settings/<ext id>/*.log`.
 
 ## Suggested next step
 - Compare the card's Google-day table with AI Studio for one day; a YouTube listen of 2.1.5.
