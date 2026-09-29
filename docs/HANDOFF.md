@@ -20,8 +20,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 
 ## State
 - Tests: 585 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
-- Live check 2.1.9 done (DUBBING.md "Live check"): no defect found. Not heard by ear yet. Review pass
-  after it: no dead functions or methods; a gentler deep-duck attack tried and not kept; BACKLOG 39.
+- Live check 2.1.9 + review pass: no defect, no dead code; gentler deep-duck attack not kept; BACKLOG 39.
 
 ## Unfinished / in progress
 - AI Studio checked 2026-09-29 (Usage + Spend, 28 days): only the extension's models appear (3.1
