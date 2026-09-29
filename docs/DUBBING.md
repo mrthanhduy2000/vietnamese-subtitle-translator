@@ -530,6 +530,13 @@ Knobs you will actually reach for:
   own full level (Stable Volume after a seek, measured 0.1 -> 0.89). Elsewhere it is divided by the
   duck factor (a native slider shows the ducked value). Before 1.7.9 a YouTube write mid-speech left
   the original loud until the voice paused.
+- **Live check, 2026-09-29 (2.1.9, H9yU-Y22vGI, a fast English talker, cached translation, VieNeu
+  RTF 0.22, the user's duck 0.05)**: ~4 min with a seek to 300 s, a 5 s pause, then 1.5x. 0 drops, 0
+  errors, 66 requests; voice back 0.78 s and 2.08 s after the two seeks; the pause kept the original
+  at the duck level; 3 lines started 0.6 to 0.9 s late, all at 1.5x with the rate at its 1.3 cap.
+  Rates were 1.2 to 1.41 at 1x (pace mid 1.1, high 1.18): the talker is fast, rule 1 leaves only
+  rate and pauses. At a 0.05 duck the ramp spans 26 dB: 2.9 dB a tick back up, 6.5 dB a tick on
+  the attack. The original comes up to full during a seek's load and down when the new line starts.
 - **Ducking between lines (2.0.8)**: `lineComing` / `nextVoiceAt` know when the next line starts
   whenever that is known: its take is in the page (by `nextSpeech`'s own rules: the rest after the
   last line, `chainLead` for a running sentence, the subtitle start after a start or seek), or it is
