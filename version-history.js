@@ -4,6 +4,20 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.1.5", luc: "13:01 29/09/2026", ten: "Lồng tiếng: câu dài có chỗ lấy hơi đúng chỗ",
+            y: [
+                "Giọng VieNeu chỉ dừng chắc chắn ở dấu câu. Câu dài không có dấu phẩy trước đây hay bị đọc liền một mạch qua chỗ lẽ ra phải ngắt. Nay tiện ích thêm dấu phẩy lấy hơi ở nhiều chỗ ngắt tự nhiên hơn (trước chỉ ở chỗ ngắt rất mạnh), trong đoạn từ 18 âm tiết trở lên. Chữ không đổi, không bớt từ nào.",
+                "Lần này đo trên bản đọc thật của VieNeu trên máy (miễn phí): 20 câu mẫu bị ảnh hưởng, mỗi câu đọc 5 lần với 2 giọng, trước và sau. Chưa nghe thử bằng tai trên video thật. Không gọi dịch vụ trả phí."
+            ],
+            bang: { cot: ["20 câu mẫu, 100 bản đọc mỗi bên", "2.1.4", "Nay"], hang: [
+                ["Chỗ cần ngắt mà giọng đọc liền một mạch", "18 trên 60", "0 trên 60"],
+                ["Chỗ giọng dừng mà không nên dừng", "2", "0"],
+                ["Đoạn đọc liền dài nhất (9 trên 10 câu không vượt quá)", "22 âm tiết", "17 âm tiết"],
+                ["Đoạn đọc liền dài nhất trong cả 20 câu", "38 âm tiết", "26 âm tiết"],
+                ["Tổng độ dài giọng đọc", "571,9 giây", "575,8 giây (+0,7%)"]
+            ] }
+        },
+        {
             v: "2.1.4", luc: "12:39 29/09/2026", ten: "Lồng tiếng: máy chủ giọng chậm không còn làm tiếng gốc bật lên giữa hai câu",
             y: [
                 "Khi máy chủ giọng VieNeu chậm, âm thanh của câu sau có thể chưa làm xong lúc câu trước vừa đọc hết. Trước đây tiếng gốc lúc đó bật to lên, rồi lại hạ xuống khi câu sau cất lên chỉ một, hai giây sau. Nay nếu câu sau đang được làm và dự kiến bắt đầu trong vòng 2 giây, tiếng gốc vẫn được giữ nhỏ. Nếu chờ quá 2 giây mà câu sau chưa tới, tiếng gốc được nâng lên như cũ, để không có khoảng lặng dài.",

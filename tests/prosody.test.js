@@ -141,7 +141,8 @@ test("corpus: a breathing comma only ever lands where the marks allow a pause", 
             if (/,$/.test(w) && !/,$/.test(words[i])) assert.ok(gold[i] > 0, `${id}: comma after "${words[i]}"`);
         });
     }
-    assert.ok(changed >= 6 && changed <= 12, `${changed} sentences got a comma`);   // 8 on 2026-09-27
+    // 8 on 2026-09-27; 29 since 2.1.5 (BREATH 0.35 / 18 also takes the "/" boundaries)
+    assert.ok(changed >= 24 && changed <= 34, `${changed} sentences got a comma`);
 });
 
 test("corpus: the text-only choice never splits a unit or a bound pair, and no marked boundary is a unit", () => {

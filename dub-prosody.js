@@ -713,7 +713,12 @@
     // 37-syllable sentence read 27/16/27/16/16 before, 16 on all five after; +0.35% duration.
     // Only strong boundaries (clause openers, a main clause after a fronted one), only in a run of
     // 20+ syllables, 7+ on each side: a comma in a weak place would be heard. The words never change.
-    const BREATH = { minRun: 20, minSide: 7, minValue: 0.6 };
+    // (2.1.5) minValue 0.6 -> 0.35 and minRun 20 -> 18 also take the boundaries the marks call
+    // either way ("/": "... Performance Max này, đã tăng"), where the voice mostly stopped already.
+    // On the 20 of 184 corpus sentences it changes (6 of them held out), 100 real takes each way:
+    // "|" read in one run 18/60 -> 0/60, stops where the marks say none 2 -> 0, longest run p90
+    // 22 -> 17 syllables (max 38 -> 26), kept pause mean 0.18 -> 0.24 s, duration +0.7%.
+    const BREATH = { minRun: 18, minSide: 7, minValue: 0.35 };
     const breathMemo = new Map();
     function breathText(text) {
         const key = String(text || "");

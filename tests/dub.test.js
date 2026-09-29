@@ -912,6 +912,7 @@ test("playback delivery: rapid seeks get voice back within 3 s each", async () =
 //   1.9.8   290   104   143.8   4.11 s
 //   1.9.9   282    98   128.6   4.26 s
 //   2.0.6   278    96   136.0   4.36 s
+//   2.1.5   279    99   142.6   4.36 s
 // 1.9.9 speaks fewer: a job left behind by a seek now measures the server too (renderBatch), so the
 // engine sees a server at 1.0x as one and gives up lines it cannot reach (5 of the 8) instead of
 // reading them late; the 60 s horizon keeps the serial server busy further ahead when the seek
@@ -919,6 +920,9 @@ test("playback delivery: rapid seeks get voice back within 3 s each", async () =
 // 2.0.6 moved the head cuts after a seek to phrase boundaries: 3 of the 4 lines are one run (RTF 0.9
 // at 1.5x, where a skip decision came 8 s later). Paired over the 144-run slow matrix it is noise:
 // lines -13 (22 runs more, 24 fewer), late -17, gaps -10 s, first voice sooner in 60 runs, later in 10.
+// 2.1.5 (breathing commas at "/" too, speech +0.7%): the 144-run slow matrix went lines 2096 -> 2098,
+// late 504 -> 502, gaps 735.2 -> 740.6 s (+0.7%, worse in 20 runs, better in 11), voice back after a
+// seek 5.99 -> 5.89 s; these 24 runs swing more (gaps +6.7 s), so the gap bound is 145.
 test("playback delivery: a slow server with seeks keeps its lines, late starts and gaps (24 runs)", async () => {
     let spoken = 0, late = 0, gaps = 0, rec = 0, n = 0;
     for (const rtf of [0.8, 0.9, 1.0]) for (const rate of [1, 1.5]) for (let s = 1; s <= 4; s++) {
@@ -929,7 +933,7 @@ test("playback delivery: a slow server with seeks keeps its lines, late starts a
         if (r.seekRecover != null) { rec += r.seekRecover; n++; }
     }
     assert.ok(spoken >= 275, `${spoken} lines spoken`);
-    assert.ok(late <= 101 && gaps <= 140, `${late} late starts, ${gaps.toFixed(1)} s of gaps`);
+    assert.ok(late <= 101 && gaps <= 145, `${late} late starts, ${gaps.toFixed(1)} s of gaps`);
     assert.ok(rec / n <= 4.5, `voice back ${(rec / n).toFixed(2)} s after a seek on average`);
 });
 

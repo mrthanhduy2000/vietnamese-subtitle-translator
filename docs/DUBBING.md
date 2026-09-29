@@ -185,8 +185,15 @@ syllables; a long stop is pulled away from units and bound pairs, never towards 
 
 **3. `breathText(text)`** (engine `plainScript`, VieNeu only, part of the audio key through
 `LOCAL_STYLE_VERSION`, 9 in 1.7.6; today's key is under "Cache identity" below): in an unpunctuated stretch of 20+ syllables, a comma at the text-only
-choice (`breathGroups`, 4.6 syllables per second) where value >= 0.6 and 7+ syllables are on each
-side. Only commas are added. 8 of 104 corpus sentences change, every comma at a marked boundary.
+choice (`breathGroups`, 4.6 syllables per second) where value >= 0.35 and 7+ syllables are on each
+side, in a stretch of 18+ (2.1.5; 0.6 / 20 before). Only commas are added. 29 of 184 corpus sentences
+change, every comma at a marked boundary ("|" or "/"). 2.1.5 was judged on real takes, not text: the
+20 sentences the new thresholds change, 5 local takes each way (Mỹ Duyên x3, Thái Sơn x2, scored as
+`tools/prosody-eval.js` does, 6 of the 20 from held-out sets): "|" read in one run 18/60 -> 0/60,
+kept stops where the marks say none 2 -> 0, longest run p90 22 -> 17 syllables (max 38 -> 26), kept
+pause mean 0.18 -> 0.24 s, total length +0.7%. The "/" commas ("Performance Max này, đã tăng",
+"PyTorch, để xây dựng") sit where the voice already stopped on 4-5 of 5 takes without them; the comma
+makes it every take and 0.05 s longer. A changed text is a new audio key, so those lines re-render.
 
 **4. `boundaryValue(left, right)`**: the value of a cut between two segments. Engine `gapAfter`: a
 part that continues the sentence without , ; : rests `SYNC.joinGapClause` when the cut's value is >=
