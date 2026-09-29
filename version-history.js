@@ -4,6 +4,12 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.3.4", luc: "", ten: "Trang Cài đặt mở ở thẻ nền vẫn kiểm tra máy chủ giọng ngay",
+            y: [
+                "Bản 2.3.3 bỏ qua lần kiểm tra máy chủ VieNeu đầu tiên khi trang Cài đặt được mở ở một thẻ nền, nên mục trạng thái đứng ở \"Đang kiểm tra máy chủ VieNeu...\" cho tới khi bạn chuyển sang thẻ đó. Nay lần đầu luôn kiểm tra ngay như trước."
+            ]
+        },
+        {
             v: "2.3.3", luc: "", ten: "Trang Cài đặt bớt hỏi máy chủ giọng, nút dịch gọi đúng tên video",
             y: [
                 "Trang Cài đặt để mở hỏi máy chủ giọng VieNeu mỗi 5 giây, mỗi lần 2 yêu cầu, kể cả khi không lồng tiếng: nhật ký máy chủ của bạn ghi 5.082 yêu cầu trong 6 tiếng không dùng giọng. Nay chỉ hỏi dồn khi máy chủ chưa chạy (để thấy ngay lúc nó vừa bật), chạy rồi thì 30 giây một lần.",

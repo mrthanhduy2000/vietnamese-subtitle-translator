@@ -23,7 +23,7 @@ syllable count and, 1.7.8, the English spans).
 it to `manifest.json` in dependency order (and to `importScripts`, `options.html`, the harness pages
 under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tests if it is a dubbing file).
 
-## Source (32 files, ~23,600 lines)
+## Source (32 files, ~23,700 lines)
 
 | File | Lines | Role | Global export |
 |---|---|---|---|
@@ -33,7 +33,7 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `dub-engine.js` | 2255 | TTS providers + scheduler + video-clock sync + audio ducking | `CST_DUB_ENGINE` |
 | `background.js` | 1775 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access | n/a (message router) |
 | `popup.css` | 995 | Popup styling only | n/a |
-| `options.js` | 1337 | Settings logic. No Save button: debounced autosave every 350ms, flushed on `pagehide` | n/a |
+| `options.js` | 1338 | Settings logic. No Save button: debounced autosave every 350ms, flushed on `pagehide` | n/a |
 | `settings-backup.js` | 76 | Pure build/parse of the settings backup file (all of `storage.sync` + `edits:*`, key optional) | `CST_BACKUP` (options page only) |
 | `vi-segmenter.js` | 890 | Vietnamese cue segmentation + line breaking, two-stage dynamic programming over syllable gaps | `CST_VI_SEG` |
 | `dub-planner.js` | 939 | Pure function: text -> speech script -> prosody and timing. No I/O | `CST_DUB_PLAN` |
@@ -55,7 +55,7 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `popup.html` | 165 | Popup markup | n/a |
 | `vi-quality.js` | 403 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
 | `lang-detect.js` | 132 | Source-language decision without an API call | `CST_LANG` |
-| `version-history.js` | 1423 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
+| `version-history.js` | 1429 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
 | `version-check.js` | 55 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
 | `theme.js` | 42 | Light/Dark theme for the popup and settings page. Applies instantly from `localStorage` to avoid a flash, then syncs from `storage.sync`. Loaded by `popup.html` and `options.html` only, not a content script | `window.CST_THEME` |
 | `build-info.js` | 6 | **Generated** by `tools/bump-version.js`. Never edit | `CST_BUILD` |

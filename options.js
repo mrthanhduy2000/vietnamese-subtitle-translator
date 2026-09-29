@@ -802,12 +802,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     // The status updates itself: a server that just came up (autostart installed) shows within 5 s,
     // and once it runs every 30 s is enough. Left open, the page asked every 5 s, two requests each
     // time (health, then the model): 5,082 requests in 6 idle hours of the user's server log (2.3.3)
+    // The first check runs even in a background tab, as it always did
     let localRunning = false;
-    const pollLocal = async () => {
-        if (!document.hidden) localRunning = await refreshLocalStatus();
+    const pollLocal = async first => {
+        if (first === true || !document.hidden) localRunning = await refreshLocalStatus();
         setTimeout(pollLocal, localRunning ? 30000 : 5000);
     };
-    if (localStatusEl) pollLocal();
+    if (localStatusEl) pollLocal(true);
 
     function fillVoices() {
         if (!voiceSel) return;

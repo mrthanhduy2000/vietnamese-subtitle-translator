@@ -375,7 +375,8 @@ test("channel terms: the cache sweep drops empty and old lists, keeps a live one
 test("settings: the local voice status is polled every 5 s until the server runs, then every 30 s", () => {
     const js = read("options.js");
     assert.doesNotMatch(js, /setInterval\(\(\) => \{ if \(!document\.hidden\) refreshLocalStatus\(\); \}, 5000\)/);
-    assert.match(js, /if \(!document\.hidden\) localRunning = await refreshLocalStatus\(\);\n\s+setTimeout\(pollLocal, localRunning \? 30000 : 5000\);/);
+    assert.match(js, /if \(first === true \|\| !document\.hidden\) localRunning = await refreshLocalStatus\(\);\n\s+setTimeout\(pollLocal, localRunning \? 30000 : 5000\);/);
+    assert.match(js, /if \(localStatusEl\) pollLocal\(true\);/, "the first check runs even in a background tab");
 });
 
 // 2.3.1: the cost card listed "(1) I Removed Everything I Didn't Need - YouTube" (4 of the 5 real
