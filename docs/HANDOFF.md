@@ -21,7 +21,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   3.8 Flash was wrong, now 0.75 / 3.75.
 
 ## State
-- Tests: 573 pass, 0 fail, 1 skip. Reload: **yes**, at `chrome://extensions`.
+- Tests: 573 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
 - 2026-09-28, old ledger: 254 calls, 0.1127 USD. 2.0.8 / 2.0.9 duck ramps not heard by ear yet.
 
 ## Unfinished / in progress
@@ -33,8 +33,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   "Chép chẩn đoán" right after a problem; BACKLOG 36; glossary keep-English per term not watched
   in Chrome; BACKLOG 30, 31, 14-15, 18-24, 26, 28; verdict on the 1.9.5 A/B WAVs; Udemy / edX
   (BACKLOG 9); a live YouTube check by the user (also confirms the 1.7.9 duck fix).
-- The user: Chrome's "Allow JavaScript from Apple Events" back off; may delete
-  `~/VieNeu-TTS/apps/openai_speech.py.cst-before-fast-release`.
+- The user: Apple Events JS off in Chrome; may delete the VieNeu `.cst-before-fast-release` backup.
 
 ## Traps hit this session
 - Inserting a statement between `if (timedOut) ...;` and its `else if` in `geminiCall` re-bound
