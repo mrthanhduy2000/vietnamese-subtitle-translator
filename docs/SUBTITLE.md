@@ -141,7 +141,9 @@ engine `refresh(true)`, which drops audio only where the text changed. Both play
 **Transcript panel (1.5.4, both sites).** `transcript.js` (`CST_TRANSCRIPT.toggle(adapter)`) draws the
 whole talk beside the picture from the lists the overlay already uses, so it costs no API call:
 `ytTranscriptAdapter()` feeds it `yt.viCues` + `yt.cues`, `csTranscriptAdapter()` feeds it
-`cs.viCues` + `cs.origCues`, and `mergeLines` pairs them up. Click a row to seek, search inside the
+`cs.viCues` + `cs.origCues`, and `mergeLines` pairs them up: each source line goes to the one
+Vietnamese row it overlaps most (2.3.5; listed in every row it touched, the English came out 45%
+longer than the video's, and 10% of rows now show no English line of their own). Click a row to seek, search inside the
 talk, export `.srt` (bilingual when the display mode is bilingual). Both quick menus also show which
 source track is in use (`ytNguonPhuDe` / `csSubtitleSource`): machine-heard captions are the usual
 reason a translated line is wrong, and the label turns warning-coloured for them.

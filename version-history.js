@@ -4,6 +4,15 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.3.5", luc: "", ten: "Bản chép lời và tệp .srt song ngữ không còn lặp dòng tiếng Anh",
+            y: [
+                "Trong bảng bản chép lời bên cạnh video và tệp .srt song ngữ xuất ra, một dòng tiếng Anh vắt qua ranh giới hai dòng tiếng Việt từng được ghi ở cả hai hàng. Trên 15 video bạn đã xem, 33% dòng tiếng Anh bị lặp như vậy, tổng số chữ tiếng Anh dài hơn video 45%. Nay mỗi dòng tiếng Anh chỉ nằm ở hàng tiếng Việt trùng giờ với nó nhiều nhất; khoảng 10% hàng không có dòng tiếng Anh riêng vì câu đó đã ở hàng bên cạnh."
+            ],
+            bang: { cot: ["15 video bạn đã xem", "2.3.4", "Nay"], hang: [
+                ["Số chữ tiếng Anh trong bản chép lời (video có 19.524 chữ)", "28.263", "19.524"]
+            ] }
+        },
+        {
             v: "2.3.4", luc: "", ten: "Trang Cài đặt mở ở thẻ nền vẫn kiểm tra máy chủ giọng ngay",
             y: [
                 "Bản 2.3.3 bỏ qua lần kiểm tra máy chủ VieNeu đầu tiên khi trang Cài đặt được mở ở một thẻ nền, nên mục trạng thái đứng ở \"Đang kiểm tra máy chủ VieNeu...\" cho tới khi bạn chuyển sang thẻ đó. Nay lần đầu luôn kiểm tra ngay như trước."

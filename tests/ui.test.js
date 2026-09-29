@@ -553,6 +553,27 @@ test("bản chép lời: dựng .srt đúng định dạng và ghép đúng dòn
     assert.equal(T.fileName("Đường đi của dữ liệu"), "Duong-di-cua-du-lieu.srt");
 });
 
+// 2.3.5: the Vietnamese cues are cut at other times than the source lines, so a source line crossing
+// a cue boundary was listed in both rows: 33% of the source lines in the user's 15 videos, 45% more
+// English words in the panel and the bilingual .srt than the video has. Now each sits in one row.
+test("transcript: each source line sits in the one row it overlaps most, never in two", () => {
+    const T = require("../transcript.js");
+    const vi = [{ start: 0, end: 3, text: "Một." }, { start: 3, end: 6, text: "Hai." }, { start: 6, end: 9, text: "Ba." }];
+    const en = [
+        { start: 0, end: 3.4, text: "one" },          // crosses into row 2 by 0.4 s: row 1 only
+        { start: 2.2, end: 6.5, text: "two" },        // 0.8 s in row 1, 3 s in row 2
+        { start: 5.5, end: 6.5, text: "tie" },        // 0.5 s each: the earlier row
+        { start: 6.5, end: 9, text: "three" }
+    ];
+    const rows = T.mergeLines(vi, en);
+    assert.deepEqual(rows.map(r => r.en), ["one", "two tie", "three"]);
+    // every source word once, whatever the overlaps
+    const words = rows.map(r => r.en).join(" ").split(" ").filter(Boolean);
+    assert.equal(words.length, en.length);
+    // a source line inside no row (not translated yet) is left out, a row may have no source line
+    assert.deepEqual(T.mergeLines([{ start: 0, end: 1, text: "A." }, { start: 1, end: 1.2, text: "B." }], [{ start: 0, end: 1.1, text: "a" }, { start: 20, end: 21, text: "z" }]).map(r => r.en), ["a", ""]);
+});
+
 test("bản chép lời: mở trong trình phát, bấm một dòng thì video nhảy tới, dòng đang phát được đánh dấu", async t => {
     const dom = miniDom();
     const sb = loadYouTube(dom);

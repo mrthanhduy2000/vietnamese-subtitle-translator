@@ -64,25 +64,35 @@
         return out;
     }
 
+    // Each source line goes to the one row it overlaps most (a tie: the earlier row). The two languages
+    // are cut at different times, so a source line crossing a Vietnamese cue boundary was listed in
+    // both rows: 33% of the source lines in the user's 15 videos, 45% more English words in the panel
+    // and the bilingual .srt than the video has (2.3.5).
     function mergeLinesNow(viCues, srcCues) {
         const vi = viCues || [];
         const src = (srcCues || []).slice().sort((a, b) => a.start - b.start);
-        const out = [];
-        let i = 0;
-        for (const c of vi) {
-            const text = (c.text || (c.lines || []).join(" ") || "").trim();
-            while (i < src.length && src[i].end <= c.start) i++;
-            const parts = [];
-            for (let k = i; k < src.length && src[k].start < c.end; k++) {
-                const t = (src[k].text || "").trim();
-                if (t) parts.push(t);
+        const own = vi.map(() => []);
+        let j = 0;
+        for (const s of src) {
+            const t = (s.text || "").trim();
+            if (!t) continue;
+            while (j < vi.length && vi[j].end <= s.start) j++;
+            let best = -1, most = 0;
+            for (let r = j; r < vi.length && vi[r].start < s.end; r++) {
+                const ov = Math.min(vi[r].end, s.end) - Math.max(vi[r].start, s.start);
+                if (ov > most) { most = ov; best = r; }
             }
+            if (best >= 0) own[best].push(t);
+        }
+        const out = [];
+        vi.forEach((c, r) => {
+            const text = (c.text || (c.lines || []).join(" ") || "").trim();
             out.push({
-                start: c.start, end: c.end, vi: text, en: parts.join(" "),
+                start: c.start, end: c.end, vi: text, en: own[r].join(" "),
                 edited: !!c.cstEdited,
                 machine: c.cstOrig ? c.cstOrig.text : text      // what the translator produced
             });
-        }
+        });
         return out;
     }
 
