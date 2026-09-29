@@ -8,7 +8,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 ## Last touched
 2026-09-29 · cost card: `background.js`, `cost-policy.js`, `options.html` / `options.js`,
 `popup.html` / `popup.js` (2.1.3); dubbing: `dub-prosody.js` `BREATH`, `tests/prosody.test.js`,
-`dub-audio.js`, `dub-engine.js`, `background.js` (D, `breath` field), tests, docs (2.1.5-2.1.8) · `2.1.8`.
+`dub-audio.js`, `dub-engine.js`, `background.js` (D, `breath` field), tests, docs (2.1.5-2.1.9) · `2.1.9`.
 
 ## What changed
 - 2.1.0 to 2.1.1: ledger charges every billed request (`policy.onBilled`), `costHistory` by Pacific day.
@@ -19,12 +19,13 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   sentences as sent (920 takes): RAN-ON 39/365 -> 9/365, WRONG 1 -> 1, +0.2% length.
 - 2.1.8: breathing commas shaped as breaths (`breathAdded`, request `breath`, `K.breathKeep`):
   same stops, mean kept 0.23 -> 0.21 s, -0.3% length. `LOCAL_STYLE_VERSION` not bumped.
+  2.1.9: `fallbackRun` 14; all 184 as sent: RAN-ON 6/365 (the rest is left on purpose, DUBBING §3).
 - Duck: 2.1.2 `duckAttackTicks` 4; 2.1.4 (code in 2.1.3) `nextVoiceAt` counts a take still being
   made (`next.pending`, bridge only): slow-matrix pumps 197 -> 8, delivery identical.
 
 ## State
 - Tests: 580 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
-- Not heard by ear yet: duck changes 2.0.8 to 2.1.4, breath commas 2.1.5 to 2.1.8.
+- Not heard by ear yet: duck changes 2.0.8 to 2.1.4, breath commas 2.1.5 to 2.1.9.
 - `~/.cache/cst-prosody-takes` rebuilt by the user 13:55 (920 takes, plain text, no breath commas).
 
 ## Unfinished / in progress

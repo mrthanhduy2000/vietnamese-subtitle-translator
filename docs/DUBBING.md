@@ -218,6 +218,10 @@ apart from the text alone was tried and not kept: removing a comma and re-runnin
 57 of 57 but also 4 of the translation's 60 own commas ("dữ liệu cũ, nhưng"). 920 real takes as sent:
 same stops kept (RAN-ON 9/365, WRONG 1), mean kept pause 0.23 -> 0.21 s, total 3854.5 -> 3841.8 s.
 `LOCAL_STYLE_VERSION` is not bumped: lines already cached keep their longer breath until re-rendered.
+2.1.9: `fallbackRun` 15 -> 14 (corpus l2, a list subject then "đều ảnh hưởng", ran on 3 of 5 takes).
+3 sentences change (15 takes each way): RAN-ON 3/10 -> 0/10, WRONG 0. All 184 as sent: RAN-ON 6/365.
+The rest: "ảnh thẻ | và" (a 2-syllable side, left) and 1 of 5 takes running past the comma in "Anh
+Đàm, phần này" (the voice's own). 13 was not taken: it cuts "không chỉ rẻ hơn, mà còn" (13 syllables).
 
 **4. `boundaryValue(left, right)`**: the value of a cut between two segments. Engine `gapAfter`: a
 part that continues the sentence without , ; : rests `SYNC.joinGapClause` when the cut's value is >=

@@ -4,6 +4,18 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.1.9", luc: "14:31 29/09/2026", ten: "Lồng tiếng: thêm chỗ lấy hơi cho đoạn 14 âm tiết",
+            y: [
+                "Chỗ lấy hơi được thêm cho cả đoạn 14 âm tiết chưa có chỗ nghỉ nào (trước từ 15). Ví dụ \"CPU, bộ nhớ, tốc độ mạng và độ trễ, đều ảnh hưởng đến trải nghiệm người dùng\" trước đây bị đọc liền qua chỗ trước \"đều\" 3 trên 5 lần. Câu 13 âm tiết trở xuống vẫn đọc một hơi. Chữ không đổi, không bớt từ nào; dấu phẩy chỉ nằm trong chữ gửi cho giọng đọc.",
+                "Đo trên bản đọc thật của VieNeu trên máy (miễn phí, bạn chạy trong Terminal). Chưa nghe thử trên video thật. Không gọi dịch vụ trả phí."
+            ],
+            bang: { cot: ["Bản đọc thật", "2.1.8", "Nay"], hang: [
+                ["3 câu bị ảnh hưởng: chỗ cần ngắt mà giọng đọc liền", "3 trên 10", "0 trên 10"],
+                ["3 câu bị ảnh hưởng: chỗ giọng dừng mà không nên dừng", "0", "0"],
+                ["Cả 184 câu mẫu: chỗ cần ngắt mà giọng đọc liền", "9 trên 365", "6 trên 365"]
+            ] }
+        },
+        {
             v: "2.1.8", luc: "14:24 29/09/2026", ten: "Lồng tiếng: chỗ lấy hơi nghỉ ngắn như một hơi thở, không như dấu phẩy",
             y: [
                 "Dấu phẩy lấy hơi mà tiện ích thêm vào (từ bản 2.1.5) trước đây được giữ khoảng nghỉ dài như dấu phẩy thật của bản dịch, khoảng 0,24 đến 0,28 giây. Nay chỗ đó chỉ nghỉ như một lần lấy hơi, 0,14 đến 0,22 giây, bằng đúng khoảng nghỉ khi giọng tự ngừng ở chính chỗ đó. Dấu phẩy thật của bản dịch giữ nguyên như cũ.",

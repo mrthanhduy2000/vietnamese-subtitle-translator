@@ -75,8 +75,8 @@ split units ("gấp | mười", "đô | la", "chuẩn | bị"). A pause needs a 
 syllable stretch (real takes of the 20 changed sentences: RAN-ON 18/60 -> 0/60, `DUBBING.md` §3);
 2.1.6 lets a 26+ syllable stretch take a weaker boundary (value >= 0.1). Left: a run with no gap of
 value >= 0.1 at all (a long English name, a repeated word) keeps no pause; 2.1.7 gives a 15+ run the
-text-only choice left whole its best boundary (all 184 as sent: RAN-ON 39/365 -> 9/365). Left: runs
-under 15 syllables and a side under 6 ("thẻ | và"). Not heard by the user yet. Rendering needs the
+text-only choice left whole its best boundary (all 184 as sent: RAN-ON 39/365 -> 9/365; 2.1.9 takes
+14+, 6/365). Left: runs under 14 syllables and a side under 6 ("thẻ | và"). Not heard by the user yet. Rendering needs the
 local server; the auto-mode classifier blocks it here, so the user runs the render command.
 
 **16. Mild pause placements the model still keeps.** *(found 1.7.6)* 1.7.8 fixed "tăng | từ 72,5%",

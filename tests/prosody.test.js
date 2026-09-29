@@ -143,7 +143,7 @@ test("corpus: a breathing comma only ever lands where the marks allow a pause", 
     }
     // 8 on 2026-09-27; 29 since 2.1.5 (BREATH 0.35 / 18 also takes the "/" boundaries); 36 since
     // 2.1.6 (minSide 6, a weaker boundary in a 26+ syllable stretch); 56 since 2.1.7 (minRun 16, and
-    // a 15+ run the text-only choice left whole takes its best boundary)
+    // a 15+ run the text-only choice left whole takes its best boundary); 58 since 2.1.9 (14+)
     assert.ok(changed >= 50 && changed <= 62, `${changed} sentences got a comma`);
 });
 
@@ -330,7 +330,10 @@ test("a long subject before its verb gets the breath the text-only choice left o
         "Chi phí quảng cáo trên mạng xã hội, chiếm phần lớn ngân sách của doanh nghiệp.");
     assert.equal(P.breathText("Trời mưa rất to từ sáng nên buổi quay ngoài trời phải dời sang ngày mai."),
         "Trời mưa rất to từ sáng, nên buổi quay ngoài trời phải dời sang ngày mai.");
-    for (const short of ["Mô hình này học rất nhanh trên dữ liệu nhỏ.", "Chúng tôi dùng Python mỗi ngày."])
+    // 2.1.9: a 14-syllable run after a list: read in one run on 3 of 5 takes before
+    assert.equal(P.breathText("CPU, bộ nhớ, tốc độ mạng và độ trễ đều ảnh hưởng đến trải nghiệm người dùng."),
+        "CPU, bộ nhớ, tốc độ mạng và độ trễ, đều ảnh hưởng đến trải nghiệm người dùng.");
+    for (const short of ["Mô hình này học rất nhanh trên dữ liệu nhỏ.", "Chúng tôi dùng Python mỗi ngày.", "Mô hình mới không chỉ rẻ hơn mà còn nhanh hơn đáng kể."])
         assert.equal(P.breathText(short), short);
 });
 

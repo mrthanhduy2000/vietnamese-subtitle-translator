@@ -734,7 +734,11 @@
     // in the subtitle. The 20 corpus sentences it changes, 100 real takes each way: "|" read in one
     // run 30/55 -> 0/55, stops where the marks say none 0 -> 0, longest run p90 17 -> 10 syllables.
     // All 184 sentences as sent (920 takes): RAN-ON 39/365 -> 9/365, WRONG 1 -> 1, length +0.2%.
-    const BREATH = { minRun: 16, fallbackRun: 15, minSide: 6, minValue: 0.35, longRun: 26, longValue: 0.1 };
+    // (2.1.9) fallbackRun 15 -> 14: "CPU, bộ nhớ, tốc độ mạng và độ trễ, đều ảnh hưởng ..." was read
+    // in one run on 3 of 5 takes. The 3 corpus sentences it changes, 15 real takes each way: "|" read
+    // in one run 3/10 -> 0/10, no stop where the marks say none. 13 was not tried on takes: it also
+    // cuts a 13-syllable "không chỉ rẻ hơn, mà còn ...".
+    const BREATH = { minRun: 16, fallbackRun: 14, minSide: 6, minValue: 0.35, longRun: 26, longValue: 0.1 };
     const breathMemo = new Map();
     function breathText(text) {
         return breathInfo(text).text;
