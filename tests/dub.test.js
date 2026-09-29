@@ -950,6 +950,24 @@ test("playback delivery: a fast talk keeps every line through two minutes of a s
     // every take made was heard: the simulator matches a take by the key it was made under (2.3.2;
     // recomputed at the start without the tight-pause flag, it counted 46 played takes as unplayed)
     assert.equal(r.unplayedGen, 0);
+    // and every word of it is read, once (2.3.6: lines are counted, words are what the viewer hears)
+    assert.deepEqual([r.wordsLost, r.wordsTwice], [0, 0]);
+});
+
+// 2.3.6: a caption line cut at a sentence end can now have its two halves in two translation windows
+// (youtube.js closes a window at its hard limit even there). When the second half came while the
+// first was being read, the planner carried it into that line; the engine went on from the next
+// line start, so its words were never read: 17 of 51 here on 2.3.5.
+test("playback delivery: the second half of a cut caption line, translated while the first plays, is still read", async () => {
+    const mk = (start, end, text, extra) => ({ start, end, viText: text, viCues: [{ start, end, text, lines: [text] }], srcCues: [{ start, end, text: "src" }], ...extra });
+    const A = ["Chúng tôi mua nhà năm ngoái và nấu ăn ở nhà nhiều hơn.", "Tôi dùng chiếc điện thoại này đã năm năm rồi.", "Mặt kính camera trước có một vết xước nhỏ."];
+    const B = ["Tôi thấy mình tiết kiệm được khá nhiều tiền.", "Thật ra tôi không muốn đổi sang máy mới.", "Nó làm ảnh chụp hơi mờ một chút."];
+    for (const into of [1.5, 3]) {
+        const groups = A.flatMap((a, k) => [mk(12 * k + 1, 12 * k + 4.5, a, { batch: 2 * k }), mk(12 * k + 4.5, 12 * k + 8, B[k], { batch: 2 * k + 1, midLine: true })]);
+        const r = await SIM.run(require("../dub-engine.js"), { groups, wall: 45, bgAbort: "queued", trAhead: 1e9,
+            trLat: g => (g.batch % 2 ? groups[g.batch - 1].start + into : 0) });
+        assert.deepEqual([r.spoken, r.wordsLost, r.wordsTwice], [6, 0, 0], `second half ${into} s into the first`);
+    }
 });
 
 test("playback delivery: pausing never cancels the request for the lines just ahead", async () => {

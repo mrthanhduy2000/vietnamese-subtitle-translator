@@ -64,14 +64,15 @@ function run(engineMod, sc) {
 
     // ---- translation arrival ----
     // per group, or per `batch` when the groups carry one (youtube.js translates a window at once):
-    // the whole batch arrives together once its first group comes within reach
-    const entered = new Map(), batchStart = new Map();
-    for (const g of groups) if (g.batch != null && !batchStart.has(g.batch)) batchStart.set(g.batch, g.start);
+    // the whole batch arrives together once its last group comes within reach, as the prefetch takes
+    // a window (it waited for the first before 2.3.6, which hid what a long window costs)
+    const entered = new Map(), batchLast = new Map();
+    for (const g of groups) if (g.batch != null) batchLast.set(g.batch, g.start);
     const trLat = g => (sc.trLat ? sc.trLat(g, R) : 1.5);
     const getGroups = () => {
         const t = video.currentTime, now = clock.now();
         return groups.filter(g => {
-            if ((g.batch != null ? batchStart.get(g.batch) : g.start) > t + (sc.trAhead || 40)) return false;
+            if ((g.batch != null ? batchLast.get(g.batch) : g.start) > t + (sc.trAhead || 40)) return false;
             if (g.end < t - 200) return false;
             const k = g.batch != null ? "batch " + g.batch : g;
             if (!entered.has(k)) entered.set(k, { at: now, lat: trLat(g) * 1000 });
@@ -202,6 +203,7 @@ function run(engineMod, sc) {
     // ---- measurements ----
     const pendingKeys = [];
     const starts = [];                 // { wall, media, id } audio actually starting
+    const spokenTexts = [];            // the text of each line as it was when it started
     let overlapTicks = 0, maxRendered = 0, maxEls = 0, maxHeld = 0;
     const seeks = [];                  // { wall } waiting for the next start
     let lastPlayingSet = new Set(), seenStarts = 0;
@@ -213,6 +215,7 @@ function run(engineMod, sc) {
             const x = eng.stats.started[seenStarts++];
             starts.push({ wall: clock.now(), media: video.currentTime, id: x.id });
             const pl = eng.planById.get(x.id);
+            if (pl) spokenTexts.push(pl.subtitleText);
             const made = pl && madeUnder.get(pl.id + "\n" + pl.text);
             if (made) m.playedKeys.add(made);
             else if (pl) pendingKeys.push(provider.audioKey(pl).then(k => m.playedKeys.add(k)));
@@ -266,8 +269,22 @@ function run(engineMod, sc) {
         const dup = gen.reduce((a, n) => a + n - 1, 0);
         const rec = seeks.filter(s => !s.first && s.recovered != null).map(s => s.recovered / 1000);
         const first = seeks[0].recovered != null ? seeks[0].recovered / 1000 : null;
+        // Words, not lines (2.3.6): a line that grew after it started counted as spoken while its new
+        // words were never read. Every group's Vietnamese (sound notes out) against the text of each
+        // line as it started, as multisets of words; only for a run that passed every group and had
+        // no seek or pause (a skip of the viewer's is not a loss)
+        let wordsLost = null, wordsTwice = null;
+        if (!(steps && steps.length) && groups.every(g => g.end < video.currentTime - 1)) {
+            const words = t => String(t || "").replace(/¦/g, " ").toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/).filter(Boolean);
+            const want = new Map(), got = new Map();
+            for (const g of groups) for (const w of words(PLAN.stripSoundNotes(g.viText))) want.set(w, (want.get(w) || 0) + 1);
+            for (const t of spokenTexts) for (const w of words(t)) got.set(w, (got.get(w) || 0) + 1);
+            wordsLost = 0; wordsTwice = 0;
+            for (const [k, n] of want) wordsLost += Math.max(0, n - (got.get(k) || 0));
+            for (const [k, n] of got) wordsTwice += Math.max(0, n - (want.get(k) || 0));
+        }
         return {
-            spoken: st.length, dropped: eng.stats.dropped, late,
+            spoken: st.length, dropped: eng.stats.dropped, late, wordsLost, wordsTwice,
             gapN, gapSum: +gapSum.toFixed(2), gapMax: +gapMax.toFixed(2),
             firstAudio: first == null ? null : +first.toFixed(2),
             seekRecover: rec.length ? +(rec.reduce((a, b) => a + b, 0) / rec.length).toFixed(2) : null,
@@ -349,7 +366,7 @@ async function realMain(dir, json) {
         rows.push({ video: f.slice(9, 20), groups: groups.length, minutes: +(groups[groups.length - 1].end / 60).toFixed(1), ...r });
     }
     if (json) { console.log(JSON.stringify(rows, null, 1)); return; }
-    const cols = ["video", "minutes", "groups", "spoken", "dropped", "late", "gapN", "gapSum", "gapMax", "firstAudio", "rateP50", "rateP90", "rateMax", "serverRuns", "maxHeld"];
+    const cols = ["video", "minutes", "groups", "spoken", "dropped", "late", "wordsLost", "wordsTwice", "gapN", "gapSum", "gapMax", "firstAudio", "rateP50", "rateP90", "rateMax", "serverRuns", "maxHeld"];
     console.log(cols.join("\t"));
     for (const r of rows) console.log(cols.map(c => r[c] == null ? "-" : r[c]).join("\t"));
 }
@@ -383,7 +400,7 @@ async function main() {
         rows.push({ scenario: "mixedCache", v: label, ...r2 });
     }
     if (json) { console.log(JSON.stringify(rows, null, 1)); return; }
-    const cols = ["scenario", "v", "spoken", "dropped", "late", "gapN", "gapSum", "gapMax", "firstAudio", "seekRecover", "seekRecoverMax", "overlapTicks", "serverRuns", "cutRunning", "blockedS", "duplicateGen", "unplayedGen", "storeHits", "maxRendered", "maxHeld", "maxEls", "maxUrls"];
+    const cols = ["scenario", "v", "spoken", "dropped", "late", "wordsLost", "wordsTwice", "gapN", "gapSum", "gapMax", "firstAudio", "seekRecover", "seekRecoverMax", "overlapTicks", "serverRuns", "cutRunning", "blockedS", "duplicateGen", "unplayedGen", "storeHits", "maxRendered", "maxHeld", "maxEls", "maxUrls"];
     console.log(cols.join("\t"));
     for (const r of rows) console.log(cols.map(c => r[c] == null ? "-" : r[c]).join("\t"));
 }

@@ -343,11 +343,20 @@ all groups at once / arriving window by window, 4 s a window, 40 s ahead):
 
 Carrying every finished sentence starts fewer lines late, but the lines it drops are longer: more
 words lost, declined for rule 1's sake. A take never played costs the free server time, nothing
-else. `ytCanonicalWindows` never ends a window before a `midLine` group, so the two halves of such a
-segment always arrive together. Paid voices still cut at every group (per sentence now). The
-simulation's split is approximate (cached groups cut at Vietnamese sentence ends; the real cut is
-made on the English line and translated as such); the scripts are not kept, `tools/playback-sim.js`
-exports `realGroups` and takes `batch` on groups for window-by-window arrival.
+else. `ytCanonicalWindows` ends a window before a `midLine` group only at a hard limit (2.3.6;
+before, windows ran on through runs of them to 3,075 characters), so the two halves of such a
+segment can arrive apart. **A segment that has played never grows** (`buildDubScript`
+`opts.spoken`, the start and end of the last segment the engine spoke or passed): the engine goes
+on from the first segment starting after it, so words carried into it from a later group were
+never read. The later half now opens a segment of its own; pieces up to that end still join, or a
+carry made before it played would come apart and be read twice. Simulated on the user's video with
+every window arriving 0.5 / 2 s before the one before it ended, words never read: 2.3.5 38 / 18,
+windows closed at the hard limit without the guard 125 / 105, with it 24 / 4; none read twice;
+arriving early, the voice is unchanged (15 real videos and the scenarios, identical). Paid voices
+still cut at every group (per sentence now). The table's split is approximate (cached groups cut at
+Vietnamese sentence ends; the real cut is made on the English line and translated as such); the
+scripts are not kept, `tools/playback-sim.js` exports `realGroups` and takes `batch` on groups for
+window-by-window arrival (a batch arrives when its last group is in reach, as the prefetch sends).
 
 **Cache identity.** Paid (Gemini) key: unchanged, pinned by golden hashes in
 `tests/speech-context.test.js`; nothing of `dub-speech.js` or `dub-prosody.js` reaches it (it keys

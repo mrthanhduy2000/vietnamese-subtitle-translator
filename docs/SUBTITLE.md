@@ -212,7 +212,12 @@ waits (up to 10 s) for a run left over from the previous video instead of skippi
    whole. Grouping only looks at line ends: on the user's 6 punctuated videos 112 of 316 groups ended
    mid-sentence (the 24 s / 520 char limits cut them) and 64 windows ended on a fragment, where the
    model finished the sentence from the next window's context (a leak) or split it over two items
-   (a head repeat). After: 11 groups, 1 window. A piece after a cut is `midLine`, and so is its
+   (a head repeat). After: 11 groups, 1 window. A sentence start in the last word or two of a line
+   ("5 years now. There's") has barely one word's time, so the 0.3 s rule kept 13 of 56 such lines
+   whole on the first live video (2.3.6: all 8 one-word starts): it now moves to the front of the
+   next line instead, if that follows within 1 s and has no `>>`. Over the 7 punctuated videos,
+   lines left whole 135 -> 33 (word times modelled on the live one), groups ending mid-sentence 23 -> 10.
+   A piece after a cut is `midLine`, and so is a line that took a sentence start, and so is its
    group: the voice reads across the cut as before (`DUBBING.md` "Across a caption line cut"), and
    the flag is the cache's 6th group field. `yt.cues` holds the pieces, so the English line of the
    bilingual display and the transcript rows change at the cut too. Coursera is not cut: its groups map back to the track's
@@ -222,10 +227,14 @@ waits (up to 10 s) for a run left over from the previous video instead of skippi
    text alone (`ytCanonicalWindows`, 1.7.3: close at a sentence end from 420 chars or 8 groups, at
    most 800 chars / 12 groups / 45 s; 2.3.2 raised 4 / 6 because groups are single sentences more
    often, which at 4 / 6 took 29% more requests, at 8 / 12 6% more), so a second visit from any
-   position sends the same sentences and the translation cache hits. A window never ends before a
-   `midLine` group, past a hard limit if need be (by the rest of one caption line), so the voice's
-   segment across the cut never arrives in two halves. The prefetch takes a window only when all of
-   it is inside the horizon; a failed window backs off as a whole.
+   position sends the same sentences and the translation cache hits. A window does not close at its
+   soft limit before a `midLine` group, so the voice's segment across the cut arrives in one piece;
+   the hard limits hold there too (2.3.6). 2.3.2 let a window run past them into any `midLine`
+   group, and those come in runs (up to 26 in a row): windows reached 3,075 characters and 142 s,
+   49 of 105 over a limit on the 7 punctuated videos, 0 of 150 now (+3 to +12 requests a video, at
+   ~600 fixed input tokens each 0.0005-0.0018 USD). A window longer than the horizon was sent only
+   once the viewer was inside it. The prefetch
+   takes a window only when all of it is inside the horizon; a failed window backs off as a whole.
 5. `ytVePhuDe` draws the subtitle itself into an overlay (YouTube's own caption layer is not used).
    `ytBatDauDongBo` drives it off `requestVideoFrameCallback`.
    While the player shows an ad (`ytAdShowing`, 1.9.3) nothing is drawn and nothing is sent for

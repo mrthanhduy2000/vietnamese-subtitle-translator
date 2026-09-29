@@ -633,7 +633,11 @@
             const free = !!(this.provider && this.provider.caps && this.provider.caps.free);
             const first = groups.reduce((m, g) => Math.min(m, g.start), Infinity);
             const speakerState = this.settings.secondVoice && isFinite(first) ? PLAN.speakerStateBefore(all, first) : null;
-            const script = this.oneVoice(PLAN.buildDubScript(groups, { headAt: free ? this.headAt : null, speakerState, ...(free ? FREE_SEGMENTS : {}) }));
+            // what the queue has spoken or passed never changes (buildDubScript opts.spoken)
+            const s0 = this.lastSpokenStart;
+            const passed = s0 == null ? null : (this.plans || []).find(p => Math.abs(p.start - s0) < 1e-6);
+            const spoken = s0 == null ? null : { start: s0, end: passed ? passed.end : s0 };
+            const script = this.oneVoice(PLAN.buildDubScript(groups, { headAt: free ? this.headAt : null, speakerState, spoken, ...(free ? FREE_SEGMENTS : {}) }));
             const opts = { voiceModel: this.provider.voiceModel };
             this.plans = PLAN.planAll(script, opts);
             this.planById = new Map(this.plans.map(p => [p.id, p]));

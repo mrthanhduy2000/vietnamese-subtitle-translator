@@ -24,6 +24,10 @@ is capped at 12 entries.
 If YouTube captions go empty again, **measure the real page first** (browser pane, look at what
 parameters the player's own `timedtext` request carries) before changing any code.
 
+Never reuse a `pot` captured on one video for another one, to skip the toggle and show subtitles
+sooner: it is YouTube's per-video attestation, and sending it elsewhere is working around its bot
+detection (declined 2026-09-29).
+
 ## 2. There is ONE bridge, injected two ways
 
 `manifest.json` injects `yt-bridge.js` into the MAIN world at `document_start`. When the page predates

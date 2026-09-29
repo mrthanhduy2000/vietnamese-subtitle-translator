@@ -4,6 +4,20 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.3.6", luc: "", ten: "Giọng đọc không bỏ sót câu đến muộn, lượt dịch YouTube không còn phình to",
+            y: [
+                "Khi bản dịch của đoạn kế tiếp về đúng lúc giọng đang đọc câu ngay trước nó, phần đầu đoạn mới từng bị ghép vào câu đang đọc và không bao giờ được đọc. Lỗi có từ bản 1.6.7 và chỉ xảy ra khi bản dịch về sát giờ (sau khi tua, mạng chậm). Nay phần đó được đọc thành câu riêng. Mô phỏng trên video bạn vừa xem với bản dịch về trễ: số chữ không được đọc từ 18-38 còn 4-24, không chữ nào bị đọc hai lần; bản dịch về sớm như thường lệ thì giọng đọc y như cũ.",
+                "Dòng phụ đề YouTube chỉ còn một hai chữ sau dấu chấm (\"...5 years now. There's\") trước đây được giữ nguyên cả dòng, nên nhóm câu chạy qua nhiều câu: trên video \"Things I refuse to upgrade...\" có nhóm dài 20 giây gồm 4 câu, kết thúc ở dấu phẩy. Nay mấy chữ đó được chuyển sang đầu dòng sau, câu mới bắt đầu đúng chỗ.",
+                "Bản 2.3.2 cho một lượt gửi dịch chạy quá giới hạn 800 ký tự, 45 giây khi gặp câu bắt đầu giữa dòng. Trên video nhiều câu như vậy, một lượt dài tới 3.075 ký tự, 142 giây, dài hơn khoảng dịch trước (90-120 giây), nên chỉ được gửi khi video đã phát tới: đầu đoạn đó thiếu phụ đề và giọng. Nay giới hạn luôn được giữ. Đổi lại mỗi video gọi dịch thêm 3 đến 12 lần, khoảng 0,0005-0,0018 USD."
+            ],
+            bang: { cot: ["7 video có dấu câu bạn đã xem", "2.3.5", "Nay"], hang: [
+                ["Dòng có dấu chấm ở giữa mà không được cắt (ước tính)", "135", "33"],
+                ["Nhóm câu kết thúc giữa câu (ước tính)", "23", "10"],
+                ["Lượt dịch vượt giới hạn", "49 / 105", "0 / 150"],
+                ["Lượt dịch dài nhất", "3.075 ký tự, 142 giây", "789 ký tự, 45 giây"]
+            ] }
+        },
+        {
             v: "2.3.5", luc: "", ten: "Bản chép lời và tệp .srt song ngữ không còn lặp dòng tiếng Anh",
             y: [
                 "Trong bảng bản chép lời bên cạnh video và tệp .srt song ngữ xuất ra, một dòng tiếng Anh vắt qua ranh giới hai dòng tiếng Việt từng được ghi ở cả hai hàng. Trên 15 video bạn đã xem, 33% dòng tiếng Anh bị lặp như vậy, tổng số chữ tiếng Anh dài hơn video 45%. Nay mỗi dòng tiếng Anh chỉ nằm ở hàng tiếng Việt trùng giờ với nó nhiều nhất; khoảng 10% hàng không có dòng tiếng Anh riêng vì câu đó đã ở hàng bên cạnh."

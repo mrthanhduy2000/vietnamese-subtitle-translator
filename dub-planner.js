@@ -469,6 +469,15 @@
         const endsSentence = t => /[.!?…]["”')\]]*\s*$/.test(String(t || "").replace(/¦/g, "").trim());
         let cur = null;
         const flush = () => { if (cur) { segments.push(cur); cur = null; } };
+        // opts.spoken: { start, end } of the last segment the engine has spoken or passed. It goes on
+        // from the first segment that starts after `start`, so a segment starting there takes no
+        // piece ending after `end`: a group translated later (the next window, arriving while that
+        // segment played) was carried into it and those words were never read. Pieces up to `end`
+        // still join, or a carry made before it played would come apart and be read twice.
+        // 2.3.6, simulated on the user's video, every window arriving 0.5-2 s before the one before
+        // it ended: 105-125 syllables never read at the cuts youtube.js now makes at a hard limit
+        const SPOKEN = opts.spoken || null;
+        const pastSpoken = (seg, end) => !!SPOKEN && seg.start <= SPOKEN.start + 1e-6 && end > SPOKEN.end + 1e-6;
 
         for (let gi = 0; gi < list.length; gi++) {
             const g = list[gi];
@@ -583,8 +592,9 @@
             // running is carried over a short pause, or bridged over a longer one inside a phrase.
             // 2.3.2: so is a finished sentence when this group starts inside the caption line the
             // last one ended in (`midLine`, content.js splitCuesAtSentenceEnds): the voice reads
-            // across that cut as it did when the line was one group (a caption line never spans two
-            // windows, youtube.js ytCanonicalWindows, so both halves arrive together). Simulated on
+            // across that cut as it did when the line was one group (both halves come in one
+            // translation window, unless the window meets a hard limit there: youtube.js
+            // ytCanonicalWindows, 2.3.6; the later half then re-plans that segment). Simulated on
             // the user's 6 punctuated videos: closed there, late starts 88 -> 124; carried, 87.
             // Carrying every finished sentence gave 71, but the line it dropped lost 52 syllables
             // instead of 29 (docs/DUBBING.md "Across a caption line cut")
@@ -597,6 +607,7 @@
                 if (!carry) flush();
             }
             pieces.forEach(c => {
+                if (cur && pastSpoken(cur, c.end)) flush();
                 const gapBefore = cur ? c.start - cur.end : 0;
                 const len = cur ? c.end - cur.start : 0;
                 const hard = cur && len > hardFor(cur.start);
@@ -645,7 +656,7 @@
             const a = segments[i], b = segments[i + 1];
             const txt = (SEG ? SEG.cleanText(a.texts.join(" ")) : a.texts.join(" "));
             if (countSyllables(txt) > 2 || /[.!?…]["”')\]]*$/.test(txt)) continue;
-            if (a.speaker !== b.speaker || b.start - a.end >= 1.5) continue;
+            if (a.speaker !== b.speaker || b.start - a.end >= 1.5 || pastSpoken(a, b.end)) continue;
             b.start = a.start;
             b.texts = [...a.texts, ...b.texts];
             b.parts = [...a.parts, ...b.parts];

@@ -223,17 +223,27 @@ test("YouTube: nhóm chưa hết câu được dịch CHUNG với nhóm kế (kh
 
 // 2.3.2: a caption line cut at a sentence end stays in one window, so the voice, which reads its
 // pieces as one segment, never has half of that segment arrive with a later window
-test("YouTube windows never end inside a caption line cut at a sentence end (midLine)", () => {
+test("YouTube windows: no soft close inside a caption line cut at a sentence end (midLine), hard limits hold", () => {
     const env = makeContentEnv(() => ({ ok: true, translations: [] }), { youtube: true });
     const g = [];
     for (let i = 0; i < 60; i++) g.push({ text: `sentence number ${i} is a whole sentence of about sixty characters.`, translated: false, start: i * 3, end: i * 3 + 3, ...(i % 3 ? { midLine: true } : {}) });
     env.__g = g;
-    const wins = [...new Set(vm.runInContext("yt.groups = __g; yt.inFlightGroups.clear(); __g.map((_, i) => ytChonCuaSo(i).join(','))", env))].map(w => w.split(",").map(Number));
+    const windowsOf = name => [...new Set(vm.runInContext(`yt.groups = ${name}; yt.inFlightGroups.clear(); ${name}.map((_, i) => ytChonCuaSo(i).join(','))`, env))].map(w => w.split(",").map(Number));
+    const wins = windowsOf("__g");
     assert.deepEqual(wins.flat(), g.map((_, i) => i));
     for (const w of wins) assert.ok(!g[w[0]].midLine, `a window starts inside a line: ${w}`);
-    // past a hard limit if need be: thirteen pieces of one line stay together (the cap is 12)
+    // 2.3.6: the hard limits hold inside a run of midLine groups. 2.3.2 let a window run on into every
+    // one, and on the user's punctuated videos runs of up to 26 made windows of 3,075 characters, 142 s
     env.__h = Array.from({ length: 14 }, (_, i) => ({ text: `piece ${i}.`, translated: false, start: i, end: i + 1, ...(i ? { midLine: true } : {}) }));
-    assert.equal(vm.runInContext("yt.groups = __h; yt.inFlightGroups.clear(); ytChonCuaSo(0).length", env), 14);
+    assert.equal(vm.runInContext("yt.groups = __h; yt.inFlightGroups.clear(); ytChonCuaSo(0).length", env), vm.runInContext("WIN_HARD_GROUPS", env));
+    env.__k = Array.from({ length: 40 }, (_, i) => ({ text: `sentence ${i} is a whole sentence of about ninety characters, all of it in one line.`, translated: false, start: i * 5, end: i * 5 + 5, ...(i ? { midLine: true } : {}) }));
+    const [hard, span] = vm.runInContext("[WIN_HARD_CHARS, WIN_MAX_SPAN]", env);
+    const long = windowsOf("__k");
+    assert.deepEqual(long.flat(), env.__k.map((_, i) => i));
+    for (const w of long) {
+        assert.ok(w.reduce((a, i) => a + env.__k[i].text.length + 1, 0) <= hard, `window over ${hard} characters: ${w}`);
+        assert.ok(env.__k[w[w.length - 1]].end - env.__k[w[0]].start <= span, `window over ${span} s: ${w}`);
+    }
 });
 
 test("YouTube windows depend on the text only: the same window from any group, any start point", () => {

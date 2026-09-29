@@ -6,40 +6,40 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · `2.3.5` whole-product review, rounds 4 and 5 (2.3.2 to 2.3.5, lanes A to D).
+2026-09-30 · `2.3.6` review round 6, from the user's first live video on 2.3.2+ (lanes A, B, D).
 
 ## What changed
-- YouTube caption lines are cut at a sentence end inside them (`splitCuesAtSentenceEnds`): groups
-  ending mid-sentence 112 -> 11 of 316, windows on a fragment 64 -> 1; window caps 8/12 groups (+6%
-  requests). No window ends before a `midLine` group; the free voice reads across that cut as
-  before (`dub-planner.js`, simulated late starts 87, 124 if closed). Cache: 6th group field.
-- Quality check: no false severity-3 flags (6 -> 1 of 531 lines); `localFixes` before `assessAll`.
-- `playback-sim.js`: `unplayedGen` fixed (241 of 882 real takes miscounted), `batch`, `realGroups`.
-- 2.3.3: Settings polled `/health` + `/v1/models` every 5 s for hours (user's `~/VieNeu-TTS/server.log`,
-  renders healthy), 30 s once running (2.3.4: first check in a background tab too); popup says
-  "video" off Coursera; empty terms swept.
-- 2.3.5: transcript rows and the bilingual .srt list each source line once (English was 45% longer
-  than the video's). Measured, fine as is: segmenter cuts, main-thread costs, subtitle text.
+- Live check of 2.3.2-2.3.5 on AF6MSemog7Y (00:09-00:18): cut lines worked (43 `midLine` groups,
+  0 quality flags, 0 leaks, 0 head repeats), empty term lists swept, VieNeu log clean (84 renders,
+  warm first line 254 ms after 8 h 47 min idle), 15 Gemini calls, 0.0073 USD.
+- `splitCuesAtSentenceEnds`: a sentence start in a line's last word or two (word times give it
+  under 0.3 s: 13 of 56 lines kept whole live) moves to the next line (within 1 s, no `>>`), `midLine`.
+- `ytCanonicalWindows`: hard limits hold before `midLine` groups too. Runs of them (up to 26) had
+  made windows of 3,075 chars / 142 s, past the prefetch horizon (49 of 105 over, 0 of 150 now).
+- `buildDubScript` `opts.spoken` (engine passes its last spoken segment): a segment that played
+  never grows. A group arriving while the segment before it played was carried into it and never
+  read, a bug since 1.6.7 (late windows on AF6: 18-38 words lost on 2.3.5, 4-24 now, 0 twice).
+- `playback-sim.js`: a batch arrives when its last group is in reach (as the prefetch sends);
+  `wordsLost` / `wordsTwice` columns. Backlog 40 declined; the `pot` reuse decline is in `DANGER.md` §1.
 
 ## State
-- Tests: 617 pass, 0 fail, 1 skip. Reload: **yes** for 2.3.5 (`chrome://extensions`).
+- Tests: 619 pass, 0 fail, 1 skip. Reload: **yes** for 2.3.6 (`chrome://extensions`).
 
 ## Unfinished / in progress
-- Not verified live (the classifier blocks Claude on the local server; the user's next YouTube
-  listen is the check): the 2.3.2 cut on a new video and its voice (cached videos keep their old
-  groups; the simulation cut cached Vietnamese, not the English line), the warm-up after a long
-  idle, "có nghĩa là", DN and NHNN read Vietnamese (2.2.4).
+- Not verified live: the voice reading "...at home. I feel..." in one breath (the user's ear), "có
+  nghĩa là", DN and NHNN read Vietnamese (2.2.4); the 2.3.6 cut and windows on a new video.
 - Carried over: AI Studio vs cost card over one full Pacific day; the live harness (`?script=stress`,
   `viewer2`) is the user's to run; "Chép chẩn đoán" right after a problem. Never ask about Apple
   Events JS or hand decisions back (memory).
 - Fast talkers with Mỹ Duyên: 24-30% of lines start >0.5 s late (known limit, quicker voices).
 
 ## Traps hit this session
-- Judge a dub change on syllables lost to drops, not only lines: carrying every finished sentence
-  cut late starts 17% but its drops lost 52 syllables instead of 29 (declined, `DUBBING.md`).
-- Simulate from `realGroups` (repairs applied as on load): raw cached groups keep leaked text.
-  Give groups `batch` for window-by-window arrival. The browser pane is a hidden tab.
-- Never reuse a captured `pot` for another video: it is YouTube's per-video attestation.
+- The simulator counted lines, so a line that grew after playing hid a word loss for months: judge
+  voice changes on `wordsLost` too. Arrival must follow the prefetch (a window's last group).
+- Freezing a played segment must keep pieces up to its end, or a carry made before it played comes
+  apart and is read twice (`pastSpoken` checks start and end).
+- Word times are not in the cache: model them (last word ~0.2 s) to measure cuts. Price is 0.25 /
+  1.50 USD per M tokens in / out (ledger), not 0.10.
 
 ## Suggested next step
-- After a Reload: a new punctuated YouTube video, voice on ("...at home. I feel..." in one breath).
+- After a Reload: a new punctuated YouTube video with the voice on; then dump it and compare.

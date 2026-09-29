@@ -361,6 +361,21 @@ test("caption lines are cut at a sentence end inside them, timed by word times o
         assert.equal(split([{ start: 0, end: 5, text }]).length, 1, text);
     }
     assert.equal(split([{ start: 0, end: 1, text: "Okay. So the thing is that we" }]).length, 1, "a 0.2 s piece");
+    // 2.3.6: a sentence start in the last word of a line (word times give it ~0.2 s) moves to the
+    // front of the next line instead of keeping the line whole, and that line is midLine
+    const tailWords = [...["this", "for", "about", "5", "years", "now."].map((text, k) => ({ text, t: 73.08 + k * 0.3 })), { text: "There's", t: 74.92 }];
+    const line = { start: 73.08, end: 75.12, text: "this for about 5 years now. There's", words: tailWords };
+    const moved = split([line, { start: 75.12, end: 76.6, text: "actually a little bit", words: ["actually", "a", "little", "bit"].map((text, k) => ({ text, t: 75.12 + k * 0.35 })) }]);
+    assert.deepEqual(moved.map(x => x.text), ["this for about 5 years now.", "There's actually a little bit"]);
+    near(moved[0].end, 74.92); near(moved[1].start, 74.92); near(moved[1].end, 76.6);
+    assert.deepEqual(moved.map(x => !!x.midLine), [false, true]);
+    assert.deepEqual(moved[1].words.map(w => w.text), ["There's", "actually", "a", "little", "bit"]);
+    // not to a new speaker (">>"), over a pause of more than a second, or past the last line
+    for (const next of [{ start: 75.12, end: 76.6, text: ">> actually a little bit" }, { start: 76.5, end: 78, text: "actually a little bit" }, null]) {
+        assert.equal(split([line, ...(next ? [next] : [])])[0].text, line.text, JSON.stringify(next));
+    }
+    // a one-letter start moves too, onto a one-word line
+    assert.deepEqual(split([{ start: 0, end: 2, text: "that is all. I" }, { start: 2, end: 2.4, text: "think" }]).map(x => x.text), ["that is all.", "I think"]);
     // a group now closes at the sentence end inside the line
     const cues = split([{ start: 0, end: 3, text: "We bought a house last year and" }, { start: 3, end: 6, text: "cook more at home. I feel like I am" }, { start: 6, end: 9, text: "saving a lot of money now." }]);
     const groups = [...env.groupCuesIntoSentences(cues, false)];

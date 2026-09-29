@@ -802,14 +802,33 @@ function makeGroup(cues, idxs) {
 // fragment, which is where the model finished the sentence from the next window's context (a leak)
 // or split one sentence over two items (a head repeat). With the cut: 11 groups, 1 window.
 // Plain cues only ({ start, end, text, words }); word times, when the automatic captions have them,
-// place the cut, else the characters do. A piece under 0.3 s or without two letters keeps the line whole.
-// Every piece after the first is marked `midLine`: the voice still reads across the cut, as it did
-// when the line was one group, and a translation window never ends there (youtube.js).
+// place the cut, else the characters do. A piece under 0.3 s or without two letters keeps the line
+// whole, with one exception: a sentence that starts in the last word or two of a line ("5 years now.
+// There's") gets barely one word's time there, so on the user's first video with the cut (2.3.6)
+// all 8 one-word and 4 of 10 two-word starts kept their lines whole (13 of 56), and one group ran
+// 20 s over four sentences to end on a comma. That start moves to the front of the next line, when
+// the next line follows within a second and is speech from the same speaker (no ">>").
+// Every piece after the first is marked `midLine`, and so is a line that took a sentence start: the
+// voice still reads across the cut, as it did when the line was one group, and a translation window
+// does not close there at its soft limit (youtube.js).
 const SENTENCE_CUT_RE = /[.!?…]+["'”’)\]]?\s+(?=["'“‘(\[]?[\p{Lu}\p{N}¿¡])/gu;
 const SENTENCE_ABBR_RE = /(?:^|[\s(])(?:e\.g|i\.e|vs|fig|dr|prof|mr|mrs|ms|st|jr|sr|approx|dept|vol|no|etc|al|eq|sec|pp?)\.$/i;
 function splitCuesAtSentenceEnds(cues) {
     const out = [];
-    for (const c of cues || []) {
+    const list = cues || [];
+    const tooShort = p => p.end - p.start < 0.3 || !/\p{L}.*\p{L}/su.test(p.text);
+    // letters outside a "[music]" note, and no ">>" (a new speaker)
+    const takesStart = (next, c) => !!next && next.start - c.end <= 1 && !/^\s*>>/.test(next.text || "") &&
+        /\p{L}.*\p{L}/su.test(String(next.text || "").replace(/\[[^\]]*\]/g, ""));
+    let carry = null;
+    for (let n = 0; n < list.length; n++) {
+        let c = list[n];
+        if (carry) {
+            const own = String((c && c.text) || "").trim();
+            c = { ...c, start: carry.start, text: carry.text + " " + own, midLine: true,
+                words: carry.words ? [...carry.words, ...(Array.isArray(c.words) ? c.words : [{ text: own, t: c.start }])] : undefined };
+            carry = null;
+        }
         const text = String((c && c.text) || "");
         const cuts = [];
         SENTENCE_CUT_RE.lastIndex = 0;
@@ -837,14 +856,20 @@ function splitCuesAtSentenceEnds(cues) {
         for (let i = 0; i + 1 < bounds.length; i++) {
             const a = bounds[i], b = bounds[i + 1];
             const piece = { start: i ? timeAt(a) : c.start, end: i + 2 < bounds.length ? timeAt(b) : c.end, text: text.slice(a, b).trim() };
-            if (i) piece.midLine = true;
+            if (i || c.midLine) piece.midLine = true;
             if (words) {
                 const ws = words.filter((w, k) => at[k] >= a && at[k] < b);
                 if (ws.length > 1) piece.words = ws;
             }
             pieces.push(piece);
         }
-        if (pieces.some(p => p.end - p.start < 0.3 || !/\p{L}.*\p{L}/su.test(p.text))) out.push(c);
+        const last = pieces[pieces.length - 1];
+        if (tooShort(last) && !pieces.slice(0, -1).some(tooShort) && takesStart(list[n + 1], c)) {
+            const from = bounds[bounds.length - 2];
+            carry = { start: last.start, text: last.text, words: words ? words.filter((w, k) => at[k] >= from) : null };
+            pieces.pop();
+        }
+        if (pieces.some(tooShort)) out.push(c);
         else out.push(...pieces);
     }
     return out;

@@ -19,7 +19,7 @@ sense of weight, not an assertion.
 | `segmenter.test.js` | 30 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
 | `context.test.js` | 17 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |
 | `integration.test.js` | 25 | Runs the **real** `content.js` and `background.js` in a `vm` with a fake `chrome`, fake DOM and fake Gemini |
-| `dub.test.js` | 71 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
+| `dub.test.js` | 72 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
 | `cost.test.js` | 58 | The full LOCAL -> CACHE -> cheap -> strong -> TTS chain, plus `cst-cache`, `cost-policy`, `dub-planner`, `dub-engine` |
 | `hardening.test.js` | 105 | Per-API-key model access, options opening, language auto-detect, no-clipping dubbing, budget caps, the version-scheme rule |
 | `bridge.test.js` | 4 | `yt-bridge.js` recovering empty captions that are missing the `pot` token, and restoring the viewer's original caption track |
@@ -27,7 +27,7 @@ sense of weight, not an assertion.
 | `backlog.test.js` | 9 | Settings with one source of truth (no condense code anywhere, `dualMode` via `CST_STYLE.resolveDual`), the single YouTube bridge, glossary loads in Node, segmenter `explain()`, the `buildPhrases` memo, throttled body observers |
 | `generic-site.test.js` | 5 | Unlisted sites: shortcut injects the ISOLATED group once through `activeTab` then delivers the command, `chrome://` left alone, no all-sites permission, generic track path, host-prefixed keys |
 | `settings.test.js` | 6 | Backup build/parse (key optional, caches excluded, foreign files refused), the Settings wiring, `dubMaxRate` capping every rate, `skipSameLang` on all three sites |
-| `voice-pauses.test.js` | 10 | `shapePauses` (unpunctuated stops closed, punctuation kept, a long unpunctuated run keeps its clause-opening stops and closes the one inside a phrase, tight cap), `joinGroups` segmenting, 48 kHz wiring, pause roles at punctuation |
+| `voice-pauses.test.js` | 11 | `shapePauses` (unpunctuated stops closed, punctuation kept, a long unpunctuated run keeps its clause-opening stops and closes the one inside a phrase, tight cap), `joinGroups` segmenting, 48 kHz wiring, pause roles at punctuation |
 | `spoken-lang.test.js` | 9 | `spokenLanguage` (audio > ASR > title, AI dubs, Vietsub titles), `ytChonTrack` with AI-dub ASR tracks, the gate before the cache |
 | `quality.test.js` | 6 | Size scale (100% = old 70%), `lingerCues`, `denoise` (hiss down, voice kept, clean take skipped), FFT round trip, wiring |
 | `audit.test.js` | 19 | 1.7.3 audit: popup "Tiếng Anh ở trên" live, dead popup switch gone, Coursera render-loop memo, YouTube does not save a Google-fallback video, daily storage sweep, parallel Google fallback, removed dead code. 1.7.4: leaving a Coursera lecture / a YouTube video mid-load (the only **flow** tests of the two start paths; `pageEnv({ timers, tracks, sendMessage, files, sync })` runs the real `content.js` + `youtube.js` with stubbed bridge and network). 1.7.5: Coursera progressive display (first line after 1 reply), playhead-first order, switch-off mid-run, button redrawn after `busy`, popup progress loop (runs the real `popup.js` on a stub DOM) |
@@ -69,7 +69,13 @@ than 0.5 s late at a median rate of 1.33-1.44, the others 0-9% at about 1.1.
 as the engine keeps it); recomputed at the start it missed the tight-pause flag a re-plan leaves
 unset, and 241 of 882 takes on the real videos (46 in `fastSlowdown`) counted as never played: 2
 and 0 now. Groups that carry `batch` arrive together, as `youtube.js` translates a window at once
-(`trAhead` counts from the batch's first group). `realGroups` is exported for scripts.
+(`trAhead` counts from the batch's last group, as the prefetch sends a window, 2.3.6; from its first
+it hid what a long window costs). `realGroups` is exported for scripts. `wordsLost` / `wordsTwice`
+(2.3.6) compare every group's Vietnamese with the text of each line as it started, as multisets of
+words; `spoken` counts lines, and a line that grew after it started (`DUBBING.md` "Across a caption
+line cut") counted as spoken while its new words were never read. Filled only for a run that passed
+every group without a seek or pause (`--real`, `fastSlowdown`); on the 15 real videos: 29 lost, all
+in the one line dropped on zPSs9a0MYGw, none read twice.
 `OLD=` rows run the older engine under the older abort policy, so seek rows differ even for an
 identical engine (`cutRunning`, `blockedS`). To prove a change is neutral, run the tool twice with
 the old and the new `dub-engine.js` in place and diff the `new` rows (2.2.9: all 14 identical).

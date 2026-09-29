@@ -120,6 +120,31 @@ test("a caption line cut at a sentence end (midLine) is read on as one segment b
     assert.equal(PLAN.buildDubScript(turn, { joinGroups: true }).length, 2);
 });
 
+// 2.3.6: the engine goes on from the first segment that starts after the last one it spoke, so a
+// segment that already played took words from a group translated later (the next window, arriving
+// while it played) and those words were never read. youtube.js now closes a window at its hard
+// limit even before a midLine group, which makes that order more common after a seek.
+test("a segment the engine has spoken takes no words from a group translated later, and keeps its own", () => {
+    const a = mkGroup(1, [[1, 3.2, "Chúng tôi mua nhà năm ngoái và nấu ăn ở nhà nhiều hơn."]]);
+    const b = { ...mkGroup(3.2, [[3.2, 5.5, "Tôi thấy mình tiết kiệm được khá nhiều tiền."]]), midLine: true };
+    const alone = PLAN.buildDubScript([a], { joinGroups: true });
+    const spokenOf = s => ({ start: s.start, end: s.end });
+    const late = PLAN.buildDubScript([a, b], { joinGroups: true, spoken: spokenOf(alone[0]) });
+    assert.deepEqual(late.map(s => s.subtitleText), [alone[0].subtitleText, "Tôi thấy mình tiết kiệm được khá nhiều tiền."]);
+    assert.equal(late[0].id, alone[0].id);
+    // both there before it played: the joined segment stays joined, nothing is read twice
+    const joined = PLAN.buildDubScript([a, b], { joinGroups: true });
+    assert.equal(joined.length, 1);
+    assert.deepEqual(PLAN.buildDubScript([a, b], { joinGroups: true, spoken: spokenOf(joined[0]) }).map(s => s.subtitleText), [joined[0].subtitleText]);
+    // a short segment already spoken does not hand its start to the segment after it
+    const x = mkGroup(10, [[10, 10.6, "Thế là"]]), y = mkGroup(10.8, [[10.8, 13, "chúng tôi chuyển về quê sống."]]);
+    assert.equal(PLAN.buildDubScript([x, y], {}).length, 1);
+    const first = PLAN.buildDubScript([x], {});
+    assert.deepEqual(PLAN.buildDubScript([x, y], { spoken: spokenOf(first[0]) }).map(s => s.subtitleText), ["Thế là", "chúng tôi chuyển về quê sống."]);
+    // the engine passes what its queue has spoken or passed
+    assert.match(read("dub-engine.js"), /const spoken = s0 == null \? null : \{ start: s0, end: passed \? passed\.end : s0 \};/);
+});
+
 test("wiring: 48 kHz, shaping and cleanup on the VieNeu path, engine joins groups for free voices only", () => {
     const COST = require("../cost-policy.js");
     assert.equal(COST.LOCAL_TTS.sampleRate, 48000);
@@ -127,7 +152,7 @@ test("wiring: 48 kHz, shaping and cleanup on the VieNeu path, engine joins group
     assert.match(bg, /splitTtsAudio\(bytes, mime, sr, parts, \{ maxPause, text, breath, clean: true, hpHz: localHighPass\(req\.voice\) \}\)/);
     assert.match(bg, /AUDIO\.shapePauses\(piece, sr, opts\.text, \{ maxPause: opts\.maxPause, breath: opts\.breath \}\)/);
     const eng = read("dub-engine.js");
-    assert.match(eng, /speakerState, \.\.\.\(free \? FREE_SEGMENTS : \{\}\) \}/);
+    assert.match(eng, /speakerState, spoken, \.\.\.\(free \? FREE_SEGMENTS : \{\}\) \}/);
     assert.match(eng, /const FREE_SEGMENTS = \{ joinGroups: true, segSoft: 8, segHard: 11 \};/);
     assert.match(eng, /const LOCAL_STYLE_VERSION = 11;/);
     assert.match(eng, /const natural = ph\.breakKind === "opener";/);

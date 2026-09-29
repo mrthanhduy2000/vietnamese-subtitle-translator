@@ -654,12 +654,17 @@ function ytCanonicalWindows(groups) {
         if (cur.length) { cur.forEach(i => { of[i] = wins.length; }); wins.push(cur); }
         cur = []; chars = 0;
     };
-    // A caption line cut at a sentence end (splitCuesAtSentenceEnds) stays in one window, past a hard
-    // limit if need be (by the rest of one line): the voice reads its pieces as one segment
-    // (dub-planner.js `midLine`), and a piece translated later grew a segment already made
+    // A caption line cut at a sentence end (splitCuesAtSentenceEnds): the window does not close at its
+    // soft limit before the `midLine` group, so the voice's segment across the cut (dub-planner.js)
+    // arrives in one piece. The hard limits hold there too. 2.3.2 let a window run past them into any
+    // `midLine` group, but those come in runs (up to 26 in a row on the user's punctuated videos), and
+    // windows reached 3,075 characters and 142 s: longer than the 90-120 s the prefetch looks ahead,
+    // so one was sent only once the viewer was inside it. Closing there costs 3 to 12 more requests
+    // a video (~600 input tokens each); when the second half arrives after the first began playing,
+    // the voice starts it as a new segment (dub-planner.js opts.spoken) instead of losing its words.
     groups.forEach((g, i) => {
         const len = String(g.text || "").length + 1;
-        if (cur.length && !g.midLine && (chars + len > WIN_HARD_CHARS || cur.length >= WIN_HARD_GROUPS ||
+        if (cur.length && (chars + len > WIN_HARD_CHARS || cur.length >= WIN_HARD_GROUPS ||
             g.end - groups[cur[0]].start > WIN_MAX_SPAN)) close();
         cur.push(i);
         chars += len;
