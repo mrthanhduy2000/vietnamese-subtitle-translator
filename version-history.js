@@ -4,6 +4,16 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.2.9", luc: "", ten: "Bộ máy lồng tiếng: không bỏ sót bản dịch lại cùng độ dài, dọn tài nguyên gọn hơn",
+            y: [
+                "Bản dịch lại (hoặc bản sửa) có cùng số ký tự với bản cũ, ví dụ đổi \"bước\" thành \"khâu\", trước đây không được bộ máy lồng tiếng nhận ra nên giọng vẫn đọc câu cũ. Nay mọi thay đổi nội dung đều được nhận ra, với chi phí như trước.",
+                "Audio của câu đã đổi nội dung được giải phóng hẳn (cả trình phát đã nạp sẵn), không chỉ thu hồi đường dẫn.",
+                "Tắt lồng tiếng hủy luôn hẹn giờ gọi câu kế tiếp; mỗi lần tra kho audio không còn để sót một hẹn giờ.",
+                "Audio về sau khi đã chuyển giọng được lưu kho theo đúng giọng đã tạo ra nó.",
+                "Kiểm tra trên bộ mô phỏng phát lại: cả 14 kịch bản (xem thường, tua, tạm dừng, máy chủ chậm, tốc độ 1,5x và 2x...) cho kết quả giống hệt bản trước."
+            ]
+        },
+        {
             v: "2.2.8", luc: "", ten: "Nhập bản sao lưu không bị ghi đè ngược, menu nhanh dùng phím Tab trọn vẹn",
             y: [
                 "Nhập tệp sao lưu cài đặt: nếu vừa đổi một cài đặt ngay trước đó, lúc trang Cài đặt tải lại bộ tự lưu có thể ghi biểu mẫu cũ đè lên bản vừa nhập. Nay nhập xong thì bộ tự lưu dừng hẳn cho tới khi trang tải lại.",

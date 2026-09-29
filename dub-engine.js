@@ -481,7 +481,7 @@
     // ENGINE
     // ============================================================
     class DubEngine {
-        // deps: { video, getGroups, providers:{primary, fallback}, now, setInterval, clearInterval,
+        // deps: { video, getGroups, providers:{primary, fallback}, now, setInterval, clearInterval, setTimeout, clearTimeout,
         //         createAudio(url), createObjectURL(bytes), revokeObjectURL, onStatus }
         // There is no condensing path: a line is always spoken whole (CLAUDE.md rule 1). 1.7.3 removed
         // the machinery that a single `condense: null` in dubbing.js used to keep switched off.
@@ -570,6 +570,9 @@
             if (!this.running) return;
             this.running = false;
             this.d.clearInterval(this.timer);
+            // the wake-up for the next line: left pending, a restart before it fired could not set its own
+            if (this.gapTimer != null && this.d.clearTimeout) this.d.clearTimeout(this.gapTimer);
+            this.gapTimer = null;
             const v = this.d.video;
             v.removeEventListener("volumechange", this.onVolume);
             v.removeEventListener("seeking", this.onSeek);
@@ -614,7 +617,15 @@
                 groups.push(g);
             }
             if (tail) groups.push(tail);              // one past the edge, so continuesNext stays right
-            const sig = step + "|" + groups.length + "|" + groups.map(g => g.viText.length).join(",") + "|" + (this.provider && this.provider.id) + "|" + (this.provider && this.provider.caps && this.provider.caps.free ? this.headAt : "");
+            // A text that changed at the same length (a refine swapping "bước" for "khâu") left the
+            // old lengths-only signature as it was, and the voice kept reading the old words. Each
+            // group's last text is remembered by object; the same string compares at once, so this
+            // stays as cheap as the lengths it replaces on the every-tick path.
+            const seen = this.textSeen || (this.textSeen = new WeakMap());
+            for (const g of groups) {
+                if (seen.get(g) !== g.viText) { seen.set(g, g.viText); this.textRev = (this.textRev || 0) + 1; }
+            }
+            const sig = step + "|" + groups.length + "|" + this.textRev + "|" + (this.provider && this.provider.id) + "|" + (this.provider && this.provider.caps && this.provider.caps.free ? this.headAt : "");
             if (!force && sig === this.sourceSig) return false;
             this.sourceSig = sig;
             // Chỉ giọng MIỄN PHÍ (VieNeu) mới cắt đoạn đầu ngắn: đổi điểm cắt sau khi tua có thể phải
@@ -631,6 +642,7 @@
             for (const [id, r] of this.rendered) {
                 const p = this.planById.get(id);
                 if (p && r.text != null && r.text !== p.text && !(this.speech && this.speech.id === id)) {
+                    if (r.el) this.releaseAudio(r);   // as in stop() and releaseOld(): not only its URL
                     if (r.url && this.d.revokeObjectURL) this.d.revokeObjectURL(r.url);
                     this.rendered.delete(id);
                     this.cacheChecked.delete(id);
@@ -1821,8 +1833,10 @@
                     if (!p) continue;
                     // Kho bền vững đã được service worker ghi TRƯỚC khi trả lời; ở đây chỉ
                     // nhớ trong RAM của trang để bật lại lồng tiếng / tua lại là phát ngay.
-                    if (this.d.audioCache && this.provider.audioKey) {
-                        const key = p.audioKey || await this.provider.audioKey(p);
+                    // keyed by the voice that made this audio, not the one current now (a switch to
+                    // the fallback mid-flight stored the old voice's take under the new voice's key)
+                    if (this.d.audioCache && provider.audioKey) {
+                        const key = p.audioKey || await provider.audioKey(p);
                         this.d.audioCache.put(key, { wav: o.wav, duration: o.duration, sampleRate: o.sampleRate });
                     }
                     if (!this.running || this.provider !== provider) continue;

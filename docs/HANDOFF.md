@@ -6,9 +6,9 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · `2.2.8`: `options.js` (backup import freezes autosave, `saveFrozen`), `player-ui.js`
-`trapTab` used by both quick menus (`content.js`, `youtube.js`), tests. 2.2.7 full backlog pass
-(`handleLocalWarm`, explaining copulas, BACKLOG empty); 2.2.3-2.2.6 review passes.
+2026-09-29 · `2.2.9` dub-engine review: `dub-engine.js` (`refresh` text signature `textSeen`/`textRev`,
+element release, `gapTimer` cleared in `stop`, cache key by the voice that made the take),
+`dubbing.js` (`clearTimeout` dep), tests, `docs/TESTING.md`. 2.2.3-2.2.8 earlier today.
 
 ## What changed
 - BACKLOG is empty: every entry decided (Closed / Declined lines at its top). Kept-on-purpose
@@ -22,7 +22,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   `keyNear`, .srt clock (see git and `version-history.js`).
 
 ## State
-- Tests: 596 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
+- Tests: 598 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
 - Ledger read-only at `~/Library/Application Support/Google/Chrome/Profile 42/Local Extension
   Settings/<id>/` with `strings | grep`.
 
@@ -38,6 +38,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 - Node `fetch` in the sandbox fails on certificates; `curl` with `allowed_domains` works.
 - `tools/syntax-eval.js` MISSED at subject | verb is a text-only proxy: real takes keep those stops.
 - BACKLOG used 37 twice (declined VieNeu patch, closed timeout): cite it with its title.
+- `playback-sim` `OLD=` seek rows differ for an identical engine: diff `new` rows instead (TESTING.md).
 
 ## Suggested next step
 - After a Reload, one YouTube listen after the Mac idled 10+ min (first voice time), and one full

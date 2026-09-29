@@ -165,6 +165,39 @@ test("voice: after an edit only the edited sentence loses its audio, the rest is
     assert.ok(eng.plans.some(p => eng.rendered.has(p.id)), "untouched sentences lost their audio");
 });
 
+test("voice: a refined translation of the same length is picked up without a forced refresh", () => {
+    const groups = lecture();
+    const clock = new Clock();
+    const video = new FakeVideo();
+    const released = [];
+    const provider = {
+        id: "vieneu", label: "VieNeu", caps: { prerender: true, live: false, free: true }, voiceLabel: "x",
+        voiceModel: { sylPerSec: 4.3, rateExp: 1, pauseFactor: 1.3, calibration: 1 },
+        tempo: { targetSps: 4.6, minSps: 3.9, maxTempo: 1.25, maxFloor: 1.15 },
+        naturalSps: () => 4.3, audioKey: async p => "k" + p.id, abort() {}, render: async () => []
+    };
+    const eng = new DubEngine({
+        video, getGroups: () => groups, providers: { primary: provider },
+        now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id),
+        setTimeout: (f, ms) => clock.setTimeout(f, ms), createObjectURL: () => "blob:x", revokeObjectURL() {},
+        createAudio: () => new FakeAudio(clock, { duration: 1 })
+    });
+    eng.refresh(true);
+    for (const p of eng.plans) eng.rendered.set(p.id, { url: "blob:" + p.id, duration: 1, stretch: 1, text: p.text, el: { pause() { released.push(p.id); } } });
+    // the refine pass swaps a word for another of the same length ("bước" -> "khâu"): the old
+    // signature (step, group count, text lengths) did not change, so the voice kept the old words
+    const g = groups[1];
+    const before = g.viText;
+    g.viText = before.replace("bước đầu tiên", "khâu đầu tiên");
+    assert.equal(g.viText.length, before.length);
+    g.viCues = seg.segmentGroupSafe(g.viText, g.srcCues);
+    assert.equal(eng.refresh(), true, "the same-length change was not noticed");
+    assert.ok(eng.plans.some(p => /khâu đầu tiên/.test(p.text)));
+    const stale = [...released];
+    assert.ok(stale.length >= 1, "the replaced line's preloaded audio element was not released");
+    assert.equal(eng.refresh(), false, "nothing changed since: no rebuild");
+});
+
 // ---- the transcript panel in a small DOM ----
 function panelDom() {
     class El {

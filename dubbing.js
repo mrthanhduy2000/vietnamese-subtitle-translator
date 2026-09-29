@@ -262,6 +262,7 @@
             now: () => performance.now(),
             setInterval: (f, ms) => setInterval(f, ms),
             setTimeout: (f, ms) => setTimeout(f, ms),
+            clearTimeout: id => clearTimeout(id),       // lookupCache drops its give-up timer with it
             clearInterval: id => clearInterval(id),
             createObjectURL: bytes => URL.createObjectURL(new Blob([bytes], { type: "audio/wav" })),
             revokeObjectURL: url => URL.revokeObjectURL(url),

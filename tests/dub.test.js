@@ -1370,3 +1370,22 @@ test("a line waited on for audio after a seek and lost counts as dropped; a seek
     assert.ok(eng.nextSpeech(22.6));
     assert.equal(eng.stats.dropped, before);
 });
+
+test("engine stop: the next-line wake-up timer is cancelled; the page passes clearTimeout", () => {
+    const clock = new Clock(), video = new FakeVideo();
+    const provider = { id: "vieneu", caps: { prerender: true, free: true }, voiceModel: PLAN.DEFAULT_VOICE_MODEL, render: async () => [] };
+    const eng = new DubEngine({
+        video, getGroups: () => lectureGroups(), providers: { primary: provider },
+        now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id),
+        setTimeout: (f, ms) => clock.setTimeout(f, ms), clearTimeout: id => clock.clear(id),
+        createObjectURL: () => "blob:x", revokeObjectURL() {}, createAudio: () => new FakeAudio(clock, { duration: 1 })
+    });
+    eng.start();
+    let fired = 0;
+    eng.gapTimer = clock.setTimeout(() => { fired++; eng.gapTimer = null; }, 500);
+    eng.stop();
+    assert.equal(eng.gapTimer, null);
+    clock.advance(1000);
+    assert.equal(fired, 0, "the old wake-up still fired after stop");
+    assert.match(fs.readFileSync(path.join(__dirname, "..", "dubbing.js"), "utf8"), /clearTimeout: id => clearTimeout\(id\)/);
+});

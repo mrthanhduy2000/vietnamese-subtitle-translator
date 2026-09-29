@@ -19,7 +19,7 @@ sense of weight, not an assertion.
 | `segmenter.test.js` | 26 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
 | `context.test.js` | 14 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |
 | `integration.test.js` | 24 | Runs the **real** `content.js` and `background.js` in a `vm` with a fake `chrome`, fake DOM and fake Gemini |
-| `dub.test.js` | 70 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
+| `dub.test.js` | 71 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
 | `cost.test.js` | 58 | The full LOCAL -> CACHE -> cheap -> strong -> TTS chain, plus `cst-cache`, `cost-policy`, `dub-planner`, `dub-engine` |
 | `hardening.test.js` | 104 | Per-API-key model access, options opening, language auto-detect, no-clipping dubbing, budget caps, the version-scheme rule |
 | `bridge.test.js` | 4 | `yt-bridge.js` recovering empty captions that are missing the `pot` token, and restoring the viewer's original caption track |
@@ -37,7 +37,7 @@ sense of weight, not an assertion.
 | `context-package.test.js` | 16 | 1.8.3/1.8.4: what reaches Gemini, on `context-corpus.js`: a clause across cues is one group, the context package for pronoun / ellipsis / discourse / entity / terms, sense hints without the general fallback, Coursera and YouTube windows carrying the previous translation, short tail windows merged, the cache key's contents; 1.8.4 far antecedents, description cleaning, the realtime 20 s rule, a scaled-time playback check that windows stay ready ahead, the console summary |
 | `speech.test.js` | 23 | 1.7.8 English in speech (`dub-speech.js`): what VieNeu is sent for unknown codes, word acronyms, camelCase and Vietnamese-syllable names, model numbers; what stays untouched (VieNeu's own tables, Vietnamese codes, A4, U23, shouting, "Con AI", a lone "Tom"); evidence from the English source; unchanged text = same string; 8-tag cap; consistency; the user's adversarial list; the version reading of `adaptForSpeech`; spans as prosody units; the backlog-16 pause rules; engine `speakScript` + the `speak` field; no network; speed; custom entries; the unseen split's fingerprint; three subtitle lines read as one take |
 | `ui.test.js` | 37 | Shortcuts (Alt+S / Alt+D / Alt+Shift+V), no blocking `alert`/`confirm` on the user's page, focus rings and reduced-motion, `role=status` toasts, the YouTube quick menu built on a mini-DOM, light/dark theme wiring, the VieNeu autostart script, auto-switch back to VieNeu when the server appears, and the release-history data |
-| `edits.test.js` | 7 | `subtitle-edits.js`: a viewer's correction is stored per video, reaches both the overlay and the voice text, re-voices only the edited sentence, and the transcript panel's edit box |
+| `edits.test.js` | 8 | `subtitle-edits.js`: a viewer's correction is stored per video, reaches both the overlay and the voice text, re-voices only the edited sentence, and the transcript panel's edit box |
 | `glossary.test.js` | 10 | `glossary.js` data and the protect -> restore round trip in `content.js`: settled renderings, plurals, sentence-start capitals, user rules, groups added after a saved list |
 
 ## The two harnesses that make offline testing possible
@@ -58,6 +58,9 @@ unchanged); `sps` sets the voice's pace; `unique: true` keys every line by its p
 repeats 22 sentences, so without `unique` everything after the first minute is a store hit and the
 server's speed never shows. `maxHeld` is the most audio seconds the page held at once.
 `tools/sim-matrix.js` runs many seeks per engine: judge an engine change there, never on one scenario.
+`OLD=` rows run the older engine under the older abort policy, so seek rows differ even for an
+identical engine (`cutRunning`, `blockedS`). To prove a change is neutral, run the tool twice with
+the old and the new `dub-engine.js` in place and diff the `new` rows (2.2.9: all 14 identical).
 Loading it replaces `CST_CACHE.hashKey` with Node's synchronous SHA-256 (same hex digest):
 `crypto.subtle` answers from a worker thread, and on a busy machine a store key missed the one
 `setImmediate` a simulated tick waits, so delivery tests failed about 1 run in 5 (1.9.3).
