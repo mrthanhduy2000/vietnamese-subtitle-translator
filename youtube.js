@@ -169,8 +169,10 @@ async function ytDonCache() {
     try {
         const tatCa = await chrome.storage.local.get(null);
         const cu = Object.keys(tatCa).filter(k => k.startsWith(YT_CACHE_CU) && !k.startsWith(YT_CACHE_PREFIX));
-        // Thuat ngu da luu qua lau khong dung (tren 60 ngay) thi xoa
-        const ctxCu = Object.keys(tatCa).filter(k => k.startsWith("ctxterms_") && Date.now() - ((tatCa[k] || {}).luc || 0) > 60 * 864e5);
+        // Terms unused for 60 days go, and so does an empty list: none is written since 2.3.1, and
+        // 43 of the user's 51 lists were left empty from before (a missing list reads the same)
+        const ctxCu = Object.keys(tatCa).filter(k => k.startsWith("ctxterms_") &&
+            (Date.now() - ((tatCa[k] || {}).luc || 0) > 60 * 864e5 || !((tatCa[k] || {}).terms || []).length));
         cu.push(...ctxCu);
         if (cu.length) await chrome.storage.local.remove(cu);
         const keys = Object.keys(tatCa).filter(k => k.startsWith(YT_CACHE_PREFIX));

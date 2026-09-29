@@ -16,6 +16,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // success or an error no longer puts back "Bắt đầu" on a page that already shows Vietnamese
     let idleLabel = btnLabel ? btnLabel.textContent : "";
     const setIdleLabel = t => { idleLabel = t; if (btnLabel && !translateBtn.classList.contains("is-translating") && !translateBtn.classList.contains("is-success")) btnLabel.textContent = t; };
+    // What the page holds: a lecture on Coursera, a video anywhere else (most of what is watched)
+    let noun = "video";
 
     // 1. Load saved settings from Chrome storage
     const saved = await chrome.storage.sync.get({
@@ -99,7 +101,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!st) { el.hidden = true; return; }
         if (veTheDangXem(st)) {
             el.hidden = true;
-            if (st.active) setIdleLabel("Dịch lại bài giảng");
+            if (st.active) setIdleLabel(`Dịch lại ${noun}`);
             return;
         }
         const phan = [];
@@ -109,13 +111,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!phan.length) { el.hidden = true; return; }
         el.textContent = phan.join(" · ");
         el.hidden = false;
-        if (st.active) setIdleLabel("Dịch lại bài giảng");
+        if (st.active) setIdleLabel(`Dịch lại ${noun}`);
     }
 
     // 5b. Detect Active Tab for Live Status Indicator
     try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         if (tab && tab.url) {
+            if (tab.url.includes("coursera.org")) noun = "bài giảng";
+            setIdleLabel(`Bắt đầu dịch ${noun}`);
             if (tab.url.includes("coursera.org")) {
                 liveStatusText.textContent = "Coursera bài giảng";
             } else if (tab.url.includes("youtube.com")) {
@@ -301,7 +305,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             // Success Transition
             translateBtn.classList.remove("is-translating");
             translateBtn.classList.add("is-success");
-            idleLabel = "Dịch lại bài giảng";
+            idleLabel = `Dịch lại ${noun}`;
             btnLabel.textContent = "Đã kích hoạt phụ đề!";
             showStatus("Đang xử lý. Xem thanh tiến trình trên video.", "success");
 

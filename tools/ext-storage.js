@@ -12,7 +12,8 @@
 //   --dir=<folder>                                    another profile or extension id
 //
 // A cached video is { luc, cues: [[start, end, text]], vi: [[start, end, lines]], g: [[start, end,
-// viText, srcCues, viCues]] } (youtube.js ytGhiCache): g[k][2] against g[k][3] is the translation
+// viText, srcCues, viCues, midLine]] } (youtube.js ytGhiCache; midLine 1 or 0 from 2.3.2, absent
+// before): g[k][2] against g[k][3] is the translation
 // of one group against its source lines. The Gemini key is in sync storage, not here; any key whose
 // name holds "apikey" is still skipped, whatever folder is given.
 const fs = require("node:fs");

@@ -799,9 +799,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             : `<div class="cst-note-title">Máy chủ VieNeu chưa sẵn sàng</div><div class="cst-note-body">Cài MỘT LẦN để nó tự chạy mỗi khi bật máy: nhấp đúp tệp <b>tools/vieneu-autostart.command</b> trong thư mục tiện ích. Sau đó máy chủ tự bật khi đăng nhập và tự bật lại nếu bị tắt, không phải làm gì nữa. Trang này và trình phát tự nhận ra khi máy chủ sẵn sàng.</div>`;
         return running;
     }
-    refreshLocalStatus();
-    // Tự cập nhật trạng thái: vừa cài tự khởi động hoặc máy chủ vừa lên là thấy ngay, không phải tải lại trang
-    setInterval(() => { if (!document.hidden) refreshLocalStatus(); }, 5000);
+    // The status updates itself: a server that just came up (autostart installed) shows within 5 s,
+    // and once it runs every 30 s is enough. Left open, the page asked every 5 s, two requests each
+    // time (health, then the model): 5,082 requests in 6 idle hours of the user's server log (2.3.3)
+    let localRunning = false;
+    const pollLocal = async () => {
+        if (!document.hidden) localRunning = await refreshLocalStatus();
+        setTimeout(pollLocal, localRunning ? 30000 : 5000);
+    };
+    if (localStatusEl) pollLocal();
 
     function fillVoices() {
         if (!voiceSel) return;

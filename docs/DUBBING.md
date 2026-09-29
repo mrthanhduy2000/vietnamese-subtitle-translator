@@ -947,8 +947,8 @@ with `cst-start.command`).
 
 Engine sends `{ action: "synthesizeSpeech", engine: "vieneu", text, speak, voice, jobId, parts: [{ key,
 weight }], maxPause, breath }` (`speak`, 1.7.8: the words the voice says; `text`: the one pauses
-follow; `breath`, 2.1.8: word indices of the breathing commas in `text`). `background.js` probes `/health` and `/v1/models` (`handleLocalTtsStatus`),
-and calls the OpenAI-compatible
+follow; `breath`, 2.1.8: word indices of the breathing commas in `text`). `background.js` probes `/health` and `/v1/models` (`handleLocalTtsStatus`;
+Settings asks every 5 s until the server runs, then every 30 s, 2.3.3), and calls the OpenAI-compatible
 `POST /v1/audio/speech` with `{ model, voice, input, response_format: "pcm", sample_rate,
 temperature }`.
 

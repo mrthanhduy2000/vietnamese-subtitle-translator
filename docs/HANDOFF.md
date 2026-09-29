@@ -6,22 +6,22 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · `2.3.2` whole-product review, round 4 (lanes A and B, plus `tools/playback-sim.js`).
+2026-09-29 · `2.3.3` whole-product review, round 4 (2.3.2 and 2.3.3, lanes A to D).
 
 ## What changed
 - YouTube caption lines are cut at a sentence end inside them (`splitCuesAtSentenceEnds`): groups
-  ending mid-sentence 112 -> 11 of 316, windows ending on a fragment 64 -> 1 (6 punctuated videos).
-  Window caps 4/6 -> 8/12 groups (+6% requests instead of +29%). A window never ends before a
-  `midLine` group; the free voice reads across that cut as before (`dub-planner.js`, simulated late
-  starts 88 -> 87 instead of 124). The flag is the cache's 6th group field.
-- Quality check: addresses, loanwords, sound notes and non-Latin sources no longer raise false
-  severity-3 flags (6 -> 1 of 531 cached lines, each one a paid refine); `localFixes` mends sound
-  notes and head repeats before `assessAll`.
+  ending mid-sentence 112 -> 11 of 316, windows on a fragment 64 -> 1; window caps 8/12 groups (+6%
+  requests). No window ends before a `midLine` group; the free voice reads across that cut as
+  before (`dub-planner.js`, simulated late starts 87, 124 if closed). Cache: 6th group field.
+- Quality check: no false severity-3 flags for addresses, loanwords, sound notes, non-Latin sources
+  (6 -> 1 of 531 cached lines, each a paid refine); `localFixes` runs before `assessAll`.
 - `playback-sim.js`: `unplayedGen` fixed (241 of 882 real takes were miscounted), `batch` groups
   arrive together, `realGroups` exported. `SUBTITLE.md`, `DUBBING.md`, `TESTING.md` updated.
+- 2.3.3: Settings polled `/health` + `/v1/models` every 5 s for hours (user's `~/VieNeu-TTS/server.log`,
+  renders healthy there), now 30 s once running; popup says "video" off Coursera; empty terms swept.
 
 ## State
-- Tests: 613 pass, 0 fail, 1 skip. Reload: **yes** for 2.3.2 (`chrome://extensions`).
+- Tests: 616 pass, 0 fail, 1 skip. Reload: **yes** for 2.3.3 (`chrome://extensions`).
 
 ## Unfinished / in progress
 - Not verified live (the classifier blocks Claude on the local server; the user's next YouTube
@@ -38,8 +38,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 - Judge a dub change on syllables lost to drops, not only lines: carrying every finished sentence
   cut late starts 17% but its drops lost 52 syllables instead of 29 (declined, `DUBBING.md`).
 - Simulate from `realGroups` (repairs applied as on load): raw cached groups keep leaked text, which
-  invented drops. Give groups `batch` for window-by-window arrival. Window tests read `WIN_*`.
+  invented drops. Give groups `batch` for window-by-window arrival.
 
 ## Suggested next step
-- After a Reload, one new punctuated YouTube video with the voice on (a line like "...at home. I
-  feel..." should read as one breath), and a full Pacific day of the cost card.
+- After a Reload, a new punctuated YouTube video with the voice on ("...at home. I feel..." reads
+  as one breath), and a full Pacific day of the cost card.

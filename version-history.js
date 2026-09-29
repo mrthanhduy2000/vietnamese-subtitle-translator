@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.3.3", luc: "", ten: "Trang Cài đặt bớt hỏi máy chủ giọng, nút dịch gọi đúng tên video",
+            y: [
+                "Trang Cài đặt để mở hỏi máy chủ giọng VieNeu mỗi 5 giây, mỗi lần 2 yêu cầu, kể cả khi không lồng tiếng: nhật ký máy chủ của bạn ghi 5.082 yêu cầu trong 6 tiếng không dùng giọng. Nay chỉ hỏi dồn khi máy chủ chưa chạy (để thấy ngay lúc nó vừa bật), chạy rồi thì 30 giây một lần.",
+                "Nút trong cửa sổ nhỏ của tiện ích ghi \"Bắt đầu dịch video\" và \"Dịch lại video\" trên YouTube và các trang video khác; \"bài giảng\" chỉ còn dùng trên Coursera.",
+                "Các danh sách thuật ngữ rỗng còn sót từ trước bản 2.3.1 (43 trên 51 danh sách theo kênh) được dọn ở lượt dọn bộ nhớ hằng ngày."
+            ]
+        },
+        {
             v: "2.3.2", luc: "", ten: "Phụ đề YouTube ngắt đúng chỗ hết câu, bớt lượt dịch lại tốn tiền",
             y: [
                 "Một dòng phụ đề YouTube thường chứa cuối câu này và đầu câu sau (\"...cook more at home. I feel like I am\"). Trước đây tiện ích chỉ xét chỗ hết dòng, nên trong 6 video có dấu câu bạn đã xem, 112 trên 316 nhóm câu kết thúc giữa câu và 64 lượt gửi Gemini dừng ở một mảnh câu: Gemini hay dịch luôn phần câu của lượt sau (câu hiện và được đọc hai lần) hoặc chia một câu thành hai mục lặp nhau. Nay dòng được cắt tại chỗ hết câu, theo mốc thời gian từng chữ khi phụ đề tự động có: còn 11 nhóm và 1 lượt. Mỗi lượt gửi gom được nhiều câu hơn, nên số lượt gọi Gemini chỉ tăng khoảng 6%.",
