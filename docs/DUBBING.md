@@ -492,7 +492,9 @@ Knobs you will actually reach for:
   a ramp's length (~0.45 s) before the line. It is let up when the line is `duckHold` late. While
   paused, loading or stalled with a line under way (`speech`, a system-voice phrase the pause cut) or
   about to start, the duck holds instead of releasing, and a system-voice phrase still speaking past
-  its predicted end still counts as speech. Before, the original came back after `duckHold` whatever
+  its predicted end still counts as speech. On a plain player (Coursera) the slider therefore shows
+  the ducked level during such a pause too, as it always did while the voice speaks; YouTube's never
+  shows it (`playerOwnsVolume`). Before, the original came back after `duckHold` whatever
   came next: in a 0.8 s sentence gap it was at full just as the next line began, then ramped down
   under that line's first words. Nine playback-sim scenarios (`normal rate15 slowTranslation slowTts
   fastSlowdown pauseResume rate2 seekForward seekBackward`): pumps (above 50% inside a gap under
