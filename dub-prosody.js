@@ -29,6 +29,7 @@
         longRun: 2.6, longWeight: 0.45, // ... one over 2.6 s voiced needs a breath (quadratic)
         voiceWeight: 0.5,             // a long stop is the voice's own phrasing: it adds up to this
         minStop: 0.12,                // a shorter stop is never kept as a pause
+        breathKeep: 0.14,             // (2.1.8) a breathing comma keeps at least this (else phrasePause)
         minValue: 0,                  // below this a gap is inside a phrase: never a pause, however long the run
         // A subject boundary is invited when the subject has subjectLong syllables or the clause
         // subjectClauseMin (1.9.5): ~4.3 s at sps, one breath
@@ -676,7 +677,9 @@
             if (!chosen.has(q)) return;
             if (p.stop != null) {
                 const s = stops[p.stop], g = analysis.gaps[s.gap];
-                out[p.stop] = s.punct ? { keep: g.pause, kind: g.punct } : { keep: phrasePause(g.value, p.sec - lastSec), kind: "soft" };
+                // A breathing comma (s.breath) is always kept, but for a breath's length, not a comma's
+                out[p.stop] = s.breath ? { keep: Math.max(K.breathKeep, phrasePause(g.value, p.sec - lastSec)), kind: "breath" }
+                    : s.punct ? { keep: g.pause, kind: g.punct } : { keep: phrasePause(g.value, p.sec - lastSec), kind: "soft" };
             }
             lastSec = p.sec;
         });
@@ -734,6 +737,14 @@
     const BREATH = { minRun: 16, fallbackRun: 15, minSide: 6, minValue: 0.35, longRun: 26, longValue: 0.1 };
     const breathMemo = new Map();
     function breathText(text) {
+        return breathInfo(text).text;
+    }
+    // (2.1.8) The word indices breathText put a comma after: the audio shaping keeps a breath there,
+    // not a written comma's pause (dub-audio shapePauses opts.breath)
+    function breathAdded(text) {
+        return breathInfo(text).added.slice();
+    }
+    function breathInfo(text) {
         const key = String(text || "");
         let hit = breathMemo.get(key);
         if (hit !== undefined) return hit;
@@ -763,7 +774,7 @@
             if (best >= 0) add.add(best);
             from = to + 1;
         }
-        hit = add.size ? a.words.map((w, i) => w.raw + (add.has(i) ? "," : "")).join(" ") : key;
+        hit = { text: add.size ? a.words.map((w, i) => w.raw + (add.has(i) ? "," : "")).join(" ") : key, added: [...add].sort((x, y) => x - y) };
         if (breathMemo.size >= 600) breathMemo.clear();
         breathMemo.set(key, hit);
         return hit;
@@ -808,7 +819,7 @@
         });
     }
 
-    const api = { analyze, choose, breathGroups, breathText, boundaryValue, selectBoundaries, spokenWeight, syllables, runPenalty, signature, tokenMap, K };
+    const api = { analyze, choose, breathGroups, breathText, breathAdded, boundaryValue, selectBoundaries, spokenWeight, syllables, runPenalty, signature, tokenMap, K };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_DUB_PROSODY = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

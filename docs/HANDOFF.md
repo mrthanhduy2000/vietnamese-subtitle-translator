@@ -8,24 +8,23 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 ## Last touched
 2026-09-29 · cost card: `background.js`, `cost-policy.js`, `options.html` / `options.js`,
 `popup.html` / `popup.js` (2.1.3); dubbing: `dub-prosody.js` `BREATH`, `tests/prosody.test.js`,
-`tests/dub.test.js`, `docs/DUBBING.md` / `BACKLOG.md`, `version-history.js` (2.1.5-2.1.7) · `2.1.7`.
+`dub-audio.js`, `dub-engine.js`, `background.js` (D, `breath` field), tests, docs (2.1.5-2.1.8) · `2.1.8`.
 
 ## What changed
 - 2.1.0 to 2.1.1: ledger charges every billed request (`policy.onBilled`), `costHistory` by Pacific day.
-- 2.1.3: display currency: `cost-policy.js` `FX`, `MONEY_DEFAULTS`, `money`; budgets stay USD.
-- 2.1.3: a timed-out translation is not aborted: `policy.onLate` + `LATE_WAIT_MS` 120 s; the
-  late answer's real usage replaces the estimate (`trackText(meta, model, u, prev)`, `lateCalls`).
-- 2.1.3: KPI tiles, daily budget meter; `.content-area { min-width: 0 }` stops table overflow.
-- 2.1.5 / 2.1.6: `BREATH` 0.35 / 18, `minSide` 6, `longRun` 26 / `longValue` 0.1 (real takes). Takes rendered by the user in their
+- 2.1.3: currency (`FX`, `money`), late answers replace estimates (`policy.onLate`, 120 s), KPI tiles.
+- 2.1.5 / 2.1.6: `BREATH` 0.35 / 18, `minSide` 6, `longRun` 26 / `longValue` 0.1. Takes by the user's
   Terminal (`$TMPDIR/br/ab2.js`, CUR / CAND json of texts from `$TMPDIR/br/texts.js <repo>`).
 - 2.1.7: `breathText` fallback: a 15+ run with no comma takes its best boundary >= 0.35; all 184
   sentences as sent (920 takes): RAN-ON 39/365 -> 9/365, WRONG 1 -> 1, +0.2% length.
+- 2.1.8: breathing commas shaped as breaths (`breathAdded`, request `breath`, `K.breathKeep`):
+  same stops, mean kept 0.23 -> 0.21 s, -0.3% length. `LOCAL_STYLE_VERSION` not bumped.
 - Duck: 2.1.2 `duckAttackTicks` 4; 2.1.4 (code in 2.1.3) `nextVoiceAt` counts a take still being
   made (`next.pending`, bridge only): slow-matrix pumps 197 -> 8, delivery identical.
 
 ## State
-- Tests: 579 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
-- Not heard by ear yet: duck changes 2.0.8 to 2.1.4, breath commas 2.1.5 to 2.1.7.
+- Tests: 580 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
+- Not heard by ear yet: duck changes 2.0.8 to 2.1.4, breath commas 2.1.5 to 2.1.8.
 - `~/.cache/cst-prosody-takes` rebuilt by the user 13:55 (920 takes, plain text, no breath commas).
 
 ## Unfinished / in progress

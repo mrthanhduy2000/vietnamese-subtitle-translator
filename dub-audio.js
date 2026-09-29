@@ -351,7 +351,9 @@
         const { sil, A, voiced } = alignStops(samples, sr, text, opts);
         if (!sil.length) return { samples, matched: 0, soft: 0, joined: 0, pauses: [] };
         // tight mode (a dense sentence): fewer pauses the text does not ask for, all of them shorter
-        const dec = prosody().choose(A, sil.map(x => ({ gap: x.gap, sec: x.vt, dur: x.dur, punct: x.punct })), voiced, { tight: maxPause < 0.2 });
+        // opts.breath: word indices of breathing commas (dub-prosody breathAdded), kept at a breath's length
+        const breath = new Set(opts.breath || []);
+        const dec = prosody().choose(A, sil.map(x => ({ gap: x.gap, sec: x.vt, dur: x.dur, punct: x.punct, breath: !!x.punct && breath.has(x.gap) })), voiced, { tight: maxPause < 0.2 });
         const list = [], pauses = [];
         let joined = 0, matched = 0, soft = 0;
         sil.forEach((x, j) => {

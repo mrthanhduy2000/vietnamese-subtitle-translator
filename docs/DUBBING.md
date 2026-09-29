@@ -210,6 +210,14 @@ of `fallbackRun` 15+ with no comma its best boundary of value >= 0.35 (sides >= 
 style scoring): RAN-ON 39/365 -> 9/365, WRONG 1 -> 1, +0.2% length. Left: 4 in corpus (l2 "trễ |
 đều", a 14-syllable run) and syntax2 L1 "thẻ | và" (a 2-syllable side). The comma is only in the
 text sent to VieNeu: a subject-verb comma is not written Vietnamese, but the subtitle never shows it.
+2.1.8: a breathing comma is shaped as a breath. The engine sends `breath` (`breathAt(plan)` =
+`breathAdded(scriptBase(plan))`, word indices) with each VieNeu request; `background.js`
+`splitTtsAudio` passes it to `shapePauses` (`opts.breath`), and `choose` keeps such a stop at
+`max(K.breathKeep 0.14, phrasePause)` (kind `breath`) instead of the comma's `g.pause`. Telling them
+apart from the text alone was tried and not kept: removing a comma and re-running `breathText` finds
+57 of 57 but also 4 of the translation's 60 own commas ("dữ liệu cũ, nhưng"). 920 real takes as sent:
+same stops kept (RAN-ON 9/365, WRONG 1), mean kept pause 0.23 -> 0.21 s, total 3854.5 -> 3841.8 s.
+`LOCAL_STYLE_VERSION` is not bumped: lines already cached keep their longer breath until re-rendered.
 
 **4. `boundaryValue(left, right)`**: the value of a cut between two segments. Engine `gapAfter`: a
 part that continues the sentence without , ; : rests `SYNC.joinGapClause` when the cut's value is >=
@@ -876,7 +884,8 @@ syllables per second. The server is a user-run process outside this repo (`~/Vie
 with `cst-start.command`).
 
 Engine sends `{ action: "synthesizeSpeech", engine: "vieneu", text, speak, voice, jobId, parts: [{ key,
-weight }], maxPause }` (`speak`, 1.7.8: the words the voice says; `text`: the one pauses follow). `background.js` probes `/health` and `/v1/models` (`handleLocalTtsStatus`),
+weight }], maxPause, breath }` (`speak`, 1.7.8: the words the voice says; `text`: the one pauses
+follow; `breath`, 2.1.8: word indices of the breathing commas in `text`). `background.js` probes `/health` and `/v1/models` (`handleLocalTtsStatus`),
 and calls the OpenAI-compatible
 `POST /v1/audio/speech` with `{ model, voice, input, response_format: "pcm", sample_rate,
 temperature }`.

@@ -100,13 +100,36 @@ test("wiring: 48 kHz, shaping and cleanup on the VieNeu path, engine joins group
     const COST = require("../cost-policy.js");
     assert.equal(COST.LOCAL_TTS.sampleRate, 48000);
     const bg = read("background.js");
-    assert.match(bg, /splitTtsAudio\(bytes, mime, sr, parts, \{ maxPause, text, clean: true, hpHz: localHighPass\(req\.voice\) \}\)/);
-    assert.match(bg, /AUDIO\.shapePauses\(piece, sr, opts\.text/);
+    assert.match(bg, /splitTtsAudio\(bytes, mime, sr, parts, \{ maxPause, text, breath, clean: true, hpHz: localHighPass\(req\.voice\) \}\)/);
+    assert.match(bg, /AUDIO\.shapePauses\(piece, sr, opts\.text, \{ maxPause: opts\.maxPause, breath: opts\.breath \}\)/);
     const eng = read("dub-engine.js");
     assert.match(eng, /speakerState, \.\.\.\(free \? FREE_SEGMENTS : \{\}\) \}/);
     assert.match(eng, /const FREE_SEGMENTS = \{ joinGroups: true, segSoft: 8, segHard: 11 \};/);
     assert.match(eng, /const LOCAL_STYLE_VERSION = 11;/);
     assert.match(eng, /const natural = ph\.breakKind === "opener";/);
+});
+
+// 2.1.8: a breathing comma is a breath, not a written comma. 920 real takes of the corpus as sent:
+// the same stops kept (RAN-ON 9/365, WRONG 1 either way), mean kept pause 0.23 -> 0.21 s, total
+// length 3854.5 -> 3841.8 s; the breathing commas had kept a comma's 0.24-0.28 s where the voice's
+// own stop at the same place kept 0.17-0.21 s
+test("a breathing comma keeps a breath's length, the translation's own comma keeps its pause", () => {
+    const P = require("../dub-prosody.js");
+    const plain = "Chi phí quảng cáo trên mạng xã hội chiếm phần lớn ngân sách của doanh nghiệp.";
+    const text = P.breathText(plain);
+    const added = P.breathAdded(plain);
+    assert.deepEqual(added, [7]);
+    assert.equal(text.split(/\s+/)[7], "hội,");
+    assert.deepEqual(P.breathAdded("Câu ngắn thôi."), []);
+    const A = P.analyze(text);
+    const stop = { gap: 7, sec: 1.8, dur: 0.45, punct: true };
+    const [asComma] = P.choose(A, [stop], 4);
+    const [asBreath] = P.choose(A, [{ ...stop, breath: true }], 4);
+    assert.equal(asComma.kind, "comma");
+    assert.equal(asBreath.kind, "breath");
+    assert.ok(asBreath.keep >= P.K.breathKeep && asBreath.keep <= 0.22 && asBreath.keep < asComma.keep, `${asBreath.keep} vs ${asComma.keep}`);
+    // the engine sends the indices with the take
+    assert.match(read("dub-engine.js"), /maxPause: p\.tightPauses \? L\.tightPause : undefined, breath: breathAt\(p\)/);
 });
 
 // ---- 1.6.8: smoothness ----

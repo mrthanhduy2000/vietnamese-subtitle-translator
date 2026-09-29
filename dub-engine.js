@@ -363,7 +363,7 @@
                         action: "synthesizeSpeech", engine: L.id,
                         text: plainScript(p), speak: speakScript(p), voice: provider.voices[p.speaker] || provider.voices.S1,
                         jobId: ctx.jobId, parts: [{ key, weight: p.phrases.reduce((a, ph) => a + ph.syl, 0) }],
-                        maxPause: p.tightPauses ? L.tightPause : undefined
+                        maxPause: p.tightPauses ? L.tightPause : undefined, breath: breathAt(p)
                     });
                     if (res && (res.aborted || res.errorType === "aborted")) { const err = new Error("Đã hủy"); err.aborted = true; throw err; }
                     if (!res || !res.ok || !Array.isArray(res.parts) || !res.parts[0] || typeof res.parts[0].wav !== "string") {
@@ -415,6 +415,18 @@
     }
 
     function plainScript(plan) {
+        // 1.7.6: a breathing comma at the best clause boundary of a long unpunctuated stretch
+        return PROSODY ? PROSODY.breathText(scriptBase(plan)) : scriptBase(plan);
+    }
+
+    // (2.1.8) The words plainScript put a breathing comma after, sent with the take so its shaping
+    // keeps a breath there, not a written comma's pause (dub-audio shapePauses opts.breath)
+    function breathAt(plan) {
+        return PROSODY && PROSODY.breathAdded ? PROSODY.breathAdded(scriptBase(plan)) : [];
+    }
+
+    // plainScript before the breathing commas
+    function scriptBase(plan) {
         const parts = plan.phrases.map((ph, k) => {
             let t = ph.text.replace(/¦/g, "").replace(/\[[^\]]*\]|\([^)]*\)|[♪♫*_#]|>>/g, " ").replace(/^\s*[-–]\s+/, "").trim();
             const last = k === plan.phrases.length - 1;
@@ -427,8 +439,7 @@
         }).filter(Boolean);
         let s = parts.join(" ").replace(/\s+([,.;:!?…])/g, "$1").replace(/\s+/g, " ").trim();
         if (s && !plan.continuesNext && !/[.!?…]$/.test(s)) s += ".";
-        // 1.7.6: a breathing comma at the best clause boundary of a long unpunctuated stretch
-        return PROSODY ? PROSODY.breathText(s) : s;
+        return s;
     }
 
     // What VieNeu is asked to say: plainScript with its English spans written the way its front end

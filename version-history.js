@@ -4,6 +4,19 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.1.8", luc: "14:24 29/09/2026", ten: "Lồng tiếng: chỗ lấy hơi nghỉ ngắn như một hơi thở, không như dấu phẩy",
+            y: [
+                "Dấu phẩy lấy hơi mà tiện ích thêm vào (từ bản 2.1.5) trước đây được giữ khoảng nghỉ dài như dấu phẩy thật của bản dịch, khoảng 0,24 đến 0,28 giây. Nay chỗ đó chỉ nghỉ như một lần lấy hơi, 0,14 đến 0,22 giây, bằng đúng khoảng nghỉ khi giọng tự ngừng ở chính chỗ đó. Dấu phẩy thật của bản dịch giữ nguyên như cũ.",
+                "Những câu đã lưu sẵn trong kho vẫn giữ khoảng nghỉ cũ cho tới khi được đọc lại. Đo trên 920 bản đọc thật của VieNeu trên máy (miễn phí). Chưa nghe thử trên video thật. Không gọi dịch vụ trả phí."
+            ],
+            bang: { cot: ["184 câu mẫu, 920 bản đọc thật", "2.1.7", "Nay"], hang: [
+                ["Chỗ cần ngắt mà giọng đọc liền", "9 trên 365", "9 trên 365"],
+                ["Chỗ giọng dừng mà không nên dừng", "1", "1"],
+                ["Khoảng nghỉ giữ lại, trung bình", "0,23 giây", "0,21 giây"],
+                ["Tổng độ dài giọng đọc", "3854,5 giây", "3841,8 giây (-0,3%)"]
+            ] }
+        },
+        {
             v: "2.1.7", luc: "14:12 29/09/2026", ten: "Lồng tiếng: câu có chủ ngữ dài được ngắt hơi trước động từ",
             y: [
                 "Câu kiểu \"Chi phí quảng cáo trên mạng xã hội chiếm phần lớn ngân sách\" (chủ ngữ dài rồi mới tới động từ) trước đây bị giọng VieNeu đọc liền một mạch khoảng một nửa số lần. Nay chữ gửi cho giọng đọc có một dấu phẩy lấy hơi ở chỗ ngắt tốt nhất của những đoạn từ 15 âm tiết trở lên chưa có chỗ nghỉ nào. Dấu phẩy này chỉ nằm trong chữ gửi cho giọng đọc, phụ đề trên màn hình không đổi. Chữ không đổi, không bớt từ nào.",
