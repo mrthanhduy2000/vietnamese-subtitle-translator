@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.2.8", luc: "", ten: "Nhập bản sao lưu không bị ghi đè ngược, menu nhanh dùng phím Tab trọn vẹn",
+            y: [
+                "Nhập tệp sao lưu cài đặt: nếu vừa đổi một cài đặt ngay trước đó, lúc trang Cài đặt tải lại bộ tự lưu có thể ghi biểu mẫu cũ đè lên bản vừa nhập. Nay nhập xong thì bộ tự lưu dừng hẳn cho tới khi trang tải lại.",
+                "Menu nhanh trên trình phát: phím Tab và Shift+Tab chạy vòng bên trong menu trên cả Coursera (trước đây Tab rơi ra sau trình phát) lẫn YouTube (trước đây Tab thoát ra từ thanh trượt âm lượng và cỡ chữ)."
+            ]
+        },
+        {
             v: "2.2.7", luc: "", ten: "Giọng VieNeu có tiếng sớm hơn sau thời gian nghỉ, đọc liền \"Điều này có nghĩa là\"",
             y: [
                 "Sau khi máy nghỉ lâu, macOS đẩy giọng VieNeu ra khỏi bộ nhớ nên vài giây đầu video im lặng. Nay khi bật lồng tiếng mà máy chủ đã nguội (hơn 10 phút không đọc), tiện ích đọc thử một câu rất ngắn ngay trong 1 đến 2 giây chờ bản dịch đầu tiên, để giọng nạp lại vào bộ nhớ sẵn. Máy chủ đang ấm thì không làm gì (đo từ bản 1.2.6: làm nóng lúc ấm chỉ làm câu đầu chậm hơn).",

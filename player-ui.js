@@ -418,7 +418,23 @@
         setTimeout(() => el.remove(), 170);
     }
 
-    root.CST_PLAYER_UI = { MARK_SVG, BTN_ICON_SVG, BTN_ICON_URL, MENU_CSS, napCss, taoNut, datTrangThai, buildStepper, buildSlider, buildVolumeControls, buildSection, dismiss };
+    // Tab and Shift+Tab go round inside an open quick menu instead of falling behind the player.
+    // Every focusable control counts, the range sliders too (the YouTube menu listed buttons and
+    // selects only, so Tab left from the volume slider; the Coursera menu had no loop at all).
+    // Returns true when it moved the focus.
+    function trapTab(menu, e, doc) {
+        const d = doc || (typeof document !== "undefined" ? document : null);
+        if (!d || e.key !== "Tab" || !menu.contains(d.activeElement)) return false;
+        const items = [...menu.querySelectorAll("button, select, input, textarea, [tabindex]:not([tabindex='-1'])")]
+            .filter(x => !x.disabled && x.getAttribute("aria-disabled") !== "true" && !x.hidden && x.getClientRects().length > 0);
+        if (!items.length) return false;
+        const first = items[0], last = items[items.length - 1];
+        if (e.shiftKey && d.activeElement === first) { e.preventDefault(); last.focus(); return true; }
+        if (!e.shiftKey && d.activeElement === last) { e.preventDefault(); first.focus(); return true; }
+        return false;
+    }
+
+    root.CST_PLAYER_UI = { MARK_SVG, BTN_ICON_SVG, BTN_ICON_URL, MENU_CSS, napCss, taoNut, datTrangThai, buildStepper, buildSlider, buildVolumeControls, buildSection, dismiss, trapTab };
 })(typeof window !== "undefined" ? window : globalThis);
 
 if (typeof module !== "undefined" && module.exports) module.exports = globalThis.CST_PLAYER_UI;

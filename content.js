@@ -1868,7 +1868,10 @@ function csOpenMenu(btn) {
     };
     menu.cstDong = dong;
     const onDocClick = e => { if (!menu.contains(e.target) && !btn.contains(e.target)) dong(); };
-    const onKeyDown = e => { if (e.key === "Escape") { e.stopPropagation(); dong(); } };
+    const onKeyDown = e => {
+        if (e.key === "Escape") { e.stopPropagation(); dong(); return; }
+        if (kit.trapTab) kit.trapTab(menu, e);                // Tab goes round inside the menu, as on YouTube
+    };
     setTimeout(() => {
         document.addEventListener("click", onDocClick);
         document.addEventListener("keydown", onKeyDown);

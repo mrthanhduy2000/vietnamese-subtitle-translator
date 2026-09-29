@@ -60,7 +60,7 @@ test("nút trên thanh điều khiển YouTube: báo trạng thái bật/tắt; 
     assert.match(src, /aria-expanded/, "chưa báo thực đơn đang mở");
     assert.match(src, /e\.key === "Escape"/, "thực đơn chưa đóng bằng Esc");
     assert.match(src, /setAttribute\("role", "switch"\)/, "các dòng bật/tắt phải là công tắc thật");
-    assert.match(src, /e\.key !== "Tab"/, "Tab phải chạy vòng trong thực đơn");
+    assert.match(src, /trapTab\(menu, e\)/, "Tab phải chạy vòng trong thực đơn");
 });
 
 // Thẻ thông báo dựng bằng DOM thật của trang: phải hiện trong trình phát, đọc được bằng
@@ -894,4 +894,23 @@ test("YouTube: a refine that lands after the video was saved is written to the p
     vm.runInContext(`yt.currentVideoId = "other";`, sb);
     await new Promise(r => setTimeout(r, 700));
     assert.deepEqual(saved, []);
+});
+
+test("quick menu: Tab goes round inside it on both players, sliders included", () => {
+    const UI = require("../player-ui.js");
+    const el = name => ({ name, disabled: false, hidden: false, getAttribute: () => null, getClientRects: () => [1], focus() { doc.activeElement = this; } });
+    const btn = el("close"), select = el("voice"), slider = el("volume"), hidden = { ...el("gone"), getClientRects: () => [] };
+    const menu = { contains: x => [btn, select, slider, hidden].includes(x), querySelectorAll: () => [btn, select, slider, hidden] };
+    const doc = { activeElement: slider };
+    const key = (shiftKey = false) => { const e = { key: "Tab", shiftKey, prevented: false, preventDefault() { this.prevented = true; } }; return e; };
+    let e = key();
+    assert.equal(UI.trapTab(menu, e, doc), true, "Tab on the last control (the slider) wraps");
+    assert.equal(doc.activeElement, btn);
+    e = key(true);
+    assert.equal(UI.trapTab(menu, e, doc), true);
+    assert.equal(doc.activeElement, slider, "Shift+Tab on the first wraps to the last visible one");
+    doc.activeElement = select;
+    assert.equal(UI.trapTab(menu, key(), doc), false, "a middle control: the browser moves the focus");
+    const src = read("content.js") + read("youtube.js");
+    assert.equal((src.match(/trapTab\(menu, e\)/g) || []).length, 2, "both quick menus use it");
 });

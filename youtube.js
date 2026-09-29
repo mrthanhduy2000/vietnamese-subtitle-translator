@@ -1704,12 +1704,7 @@ function ytMoMenuNhanh(player, btn) {
     // Esc đóng; Tab quanh vòng trong thực đơn (không rơi ra sau lưng trình phát YouTube)
     const onKeyDown = e => {
         if (e.key === "Escape") { e.stopPropagation(); dongMenu(); return; }
-        if (e.key !== "Tab" || !menu.contains(document.activeElement)) return;
-        const items = [...menu.querySelectorAll("button, select")].filter(x => x.getAttribute("aria-disabled") !== "true");
-        if (!items.length) return;
-        const dau = items[0], cuoi = items[items.length - 1];
-        if (e.shiftKey && document.activeElement === dau) { e.preventDefault(); cuoi.focus(); }
-        else if (!e.shiftKey && document.activeElement === cuoi) { e.preventDefault(); dau.focus(); }
+        if (CST_UI_KIT().trapTab) CST_UI_KIT().trapTab(menu, e);
     };
     menu.cstDong = dongMenu;
     setTimeout(() => document.addEventListener("click", onDocClick), 50);

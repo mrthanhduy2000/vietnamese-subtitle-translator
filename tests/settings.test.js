@@ -51,6 +51,10 @@ test("Settings page wires backup, max rate and skipSameLang", () => {
     // ticking the key box or picking a file is not a settings change
     assert.match(js, /e\.target\.dataset\.noSave/);
     assert.match(html, /id="backupIncludeKey" data-no-save="1"/);
+    // an import freezes the autosave before writing: a pending save or the pagehide flush on the
+    // reload would otherwise write the stale form over the imported settings
+    assert.match(js, /saveFrozen = true;[\s\S]{0,200}storage\.sync\.set\(parsed\.sync\)/);
+    assert.match(js, /async function saveNow\(\) \{[\s\S]{0,120}if \(saveFrozen\) return;/);
 });
 
 function engineAt(maxRate) {

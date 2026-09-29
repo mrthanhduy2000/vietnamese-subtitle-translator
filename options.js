@@ -984,9 +984,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     // đang mở lắng nghe thay đổi và cập nhật phụ đề ngay, không cần tải lại.
     let saveTimer = null;
     let lastSaved = "";
+    // Set once a backup is imported: the form on screen is stale until the page reloads, and any
+    // save from it (a pending one, the pagehide flush) would write the old values over the import
+    let saveFrozen = false;
     async function saveNow() {
         clearTimeout(saveTimer);
         saveTimer = null;
+        if (saveFrozen) return;
         const data = collectSettings();
         const sig = JSON.stringify(data);
         if (sig === lastSaved) return;
@@ -1006,6 +1010,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     function scheduleSave() {
         clearTimeout(saveTimer);
+        if (saveFrozen) { saveTimer = null; return; }
         saveTimer = setTimeout(saveNow, 350);
     }
     const area = document.querySelector(".content-area") || document.body;
@@ -1303,13 +1308,18 @@ document.addEventListener("DOMContentLoaded", async () => {
                 `- ${sm.edits} dòng phụ đề đã sửa trên ${sm.videos} video\n\n` +
                 "Cài đặt hiện tại sẽ bị thay bằng nội dung trong tệp.";
             if (!confirm(ask)) { sayBackup("Đã hủy, không đổi gì."); return; }
+            let wroteSync = false;
             try {
-                clearTimeout(saveTimer);                       // the form on screen is about to be stale
+                saveFrozen = true;                             // the form on screen is about to be stale
+                clearTimeout(saveTimer);
+                saveTimer = null;
                 await chrome.storage.sync.set(parsed.sync);
+                wroteSync = true;
                 if (Object.keys(parsed.local).length) await chrome.storage.local.set(parsed.local);
                 sayBackup("✓ Đã nhập. Đang tải lại trang Cài đặt…");
                 setTimeout(() => location.reload(), 600);
             } catch (e) {
+                if (!wroteSync) saveFrozen = false;            // nothing was replaced: the form is current
                 sayBackup(`⚠ Chưa nhập được: ${e.message}`, true);
             }
         });

@@ -6,9 +6,9 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · `2.2.7` full backlog pass: `background.js` (`handleLocalWarm`), `dubbing.js`,
-`dub-prosody.js` (explaining copulas), `cost-policy.js` (comment), tests, `docs/BACKLOG.md`,
-`docs/DUBBING.md` "Known limits kept on purpose". Earlier today 2.2.3-2.2.6 review passes.
+2026-09-29 · `2.2.8`: `options.js` (backup import freezes autosave, `saveFrozen`), `player-ui.js`
+`trapTab` used by both quick menus (`content.js`, `youtube.js`), tests. 2.2.7 full backlog pass
+(`handleLocalWarm`, explaining copulas, BACKLOG empty); 2.2.3-2.2.6 review passes.
 
 ## What changed
 - BACKLOG is empty: every entry decided (Closed / Declined lines at its top). Kept-on-purpose
@@ -22,7 +22,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   `keyNear`, .srt clock (see git and `version-history.js`).
 
 ## State
-- Tests: 595 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
+- Tests: 596 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
 - Ledger read-only at `~/Library/Application Support/Google/Chrome/Profile 42/Local Extension
   Settings/<id>/` with `strings | grep`.
 
