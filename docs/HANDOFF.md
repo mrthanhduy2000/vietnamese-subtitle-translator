@@ -6,40 +6,41 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · `dub-engine.js` (B), `tests/dub.test.js`, `tools/syntax-eval.js` (D), docs · `2.0.9`.
+2026-09-29 · `background.js` (D), `cost-policy.js` (D), `options.html` / `options.js` /
+`version-history.js` (C, the cost card), `tests/hardening.test.js` · `2.1.0`.
 
 ## What changed
-- 2.0.9: the duck ramps in equal dB steps (`duckStep`, `SYNC.duckRampTicks` 9, replaces
-  `duckRampPerTick`): largest one-tick change 3.23 -> 1.55 dB; the smoothness test now bounds dB.
-- 2.0.8: `lineComing` / `nextVoiceAt` know when the next line starts: a gap under
-  `SYNC.duckBridge` 2.0 wall s stays ducked, a longer one comes down ~0.45 s before the line, a
-  pause mid-line holds the duck. Pumps 88/180 -> 2, loud line starts 163/265 -> 11, delivery
-  identical. `DUBBING.md` "Ducking between lines (2.0.8)". Neither 2.0.8 nor 2.0.9 heard by ear.
-- No bump: `syntax-eval --breath=` scores breathing commas, a lead is in BACKLOG 15 (needs real
-  takes); a between-sentence pace hold was tried and not kept (`DUBBING.md`, Rate).
-- 2.0.7: in-sentence pace step <= 0.03. 2.0.6: head cuts at a phrase boundary; the 24-run slow
-  test guard is 275 / 140 s (paired 144-run evidence in its comment).
+- 2.1.0: the cost ledger undercounted (user: the real Google bill is much higher). Only the last,
+  kept pass of a translation was charged. Now `geminiCall` calls `policy.onBilled(data)` for every
+  answered request and `onBilled(null)` on our own timeout (Google still bills it); `usageOf()`
+  turns that into tokens (estimate ~3 chars/token when usage is missing). `trackText()` adds
+  `inTok`, `outTok` (thinking included), `estCalls`. Test-key calls are charged too.
+- `costStats` now returns `model` (what "auto" resolves to for the key, with `estPrice`).
+- Settings card: model + price, token totals for AI Studio, no paid-voice text, Pacific-day note.
+- Prices re-checked on the Pricing page 2026-09-29: 3.1 Flash-Lite 0.25 / 1.50 (unchanged);
+  3.8 Flash was wrong, now 0.75 / 3.75.
 
 ## State
-- Tests: 572 pass, 0 fail, 1 skip. Reload: **yes**, at `chrome://extensions`.
-- Takes cached in `~/.cache/cst-prosody-takes` (11 sets); `tests/harness/smooth/` predates 2.0.6.
+- Tests: 573 pass, 0 fail, 1 skip. Reload: **yes**, at `chrome://extensions`.
+- 2026-09-28, old ledger: 254 calls, 0.1127 USD. 2.0.8 / 2.0.9 duck ramps not heard by ear yet.
 
 ## Unfinished / in progress
+- Ask the user to compare the card's token totals with AI Studio after a day. If still far off:
+  other apps on the same key, or BACKLOG 37 (tight timeout, wasted billed calls).
 - BACKLOG 16: verbs outside the list; RAN-ON needs the BACKLOG 15 lead. BACKLOG 7: user's call.
-- Carried over: "Chép chẩn đoán" right after a problem; BACKLOG 36; glossary keep-English per term
-  not watched in Chrome; Gemini output around 1.8.3/1.8.4 not compared; BACKLOG 30, 31, 14-15,
-  18-24, 26, 28 (20 outside); verdict on the 1.9.5 A/B WAVs; Udemy / edX (BACKLOG 9); a live
-  YouTube check by the user, which also confirms the 1.7.9 duck fix.
-- The user: Chrome's "Allow JavaScript from Apple Events" back off; may delete the harmless backup
+- Carried over: VieNeu renders (BACKLOG 15 breath lead) and the live harness (`?script=stress`,
+  `viewer2`) need the local server, i.e. the user's yes for work outside the sandbox;
+  "Chép chẩn đoán" right after a problem; BACKLOG 36; glossary keep-English per term not watched
+  in Chrome; BACKLOG 30, 31, 14-15, 18-24, 26, 28; verdict on the 1.9.5 A/B WAVs; Udemy / edX
+  (BACKLOG 9); a live YouTube check by the user (also confirms the 1.7.9 duck fix).
+- The user: Chrome's "Allow JavaScript from Apple Events" back off; may delete
   `~/VieNeu-TTS/apps/openai_speech.py.cst-before-fast-release`.
 
 ## Traps hit this session
-- Read `git log` before continuing after a break: another session may have recorded a decision.
-- The user declined a sandbox-off command on 2026-09-29: `prosody-eval.js` scores cached takes
-  inside the sandbox; a baseline module must sit in a repo copy (`git archive HEAD | tar -x`).
-- Compare planners or engines in separate processes: `CST_DUB_PLAN` / `CST_DUB_PROSODY` are
-  globals, so a second engine loaded in one process silently runs the first one's planner.
+- Inserting a statement between `if (timedOut) ...;` and its `else if` in `geminiCall` re-bound
+  the `else` and turned TTS timeouts into "aborted". Use braces there.
+- The live ledger can be read offline from Chrome's leveldb:
+  `~/Library/Application Support/Google/Chrome/Profile 42/Local Extension Settings/<ext id>/*.log`.
 
 ## Suggested next step
-- Ask the user first: VieNeu renders (BACKLOG 15 breath lead) and the live harness (`?script=stress`,
-  `viewer2`, after 2.0.6 to 2.0.9) both need the local server, i.e. work outside the sandbox.
+- Get the user's AI Studio token figures for one day and compare with the card (see Unfinished).

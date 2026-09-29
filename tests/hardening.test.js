@@ -587,6 +587,37 @@ test("thống kê chi phí: ghi số lượt, USD ước tính, audio, lượt t
     assert.ok(!JSON.stringify(local).includes("KEY-OLD-USER"));
 });
 
+test("cost ledger charges every billed request: a thrown-away answer and a timed-out one count, with real token numbers", async () => {
+    let n = 0;
+    const usage = { promptTokenCount: 1000, candidatesTokenCount: 100, thoughtsTokenCount: 20 };
+    const fetchImpl = async (u, o) => {
+        if (!u.includes("generativelanguage")) return GOOGLE_OK;
+        n++;
+        // 1st answer is not JSON (billed, thrown away, next model tried); 2nd is fine
+        if (n === 1) return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: "oops" }] }, finishReason: "STOP" }], usageMetadata: usage }) };
+        return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify({ t: ["bản dịch"] }) }] }, finishReason: "STOP" }], usageMetadata: usage }) };
+    };
+    const E = bgEnv(fetchImpl, cfg({ geminiApiKey: "KEY-OLD-USER" }));
+    const r = await E.send({ ...REQ, videoKey: "yt:v1" });
+    assert.equal(r.engine, "gemini");
+    const st = await E.send({ action: "costStats" });
+    assert.equal(st.day.trCalls, 2, "the unusable answer was billed too");
+    assert.equal(st.day.inTok, 2000);
+    assert.equal(st.day.outTok, 240, "thinking tokens are billed as output");
+    assert.equal(st.day.estCalls, 0);
+    assert.ok(st.model && st.model.price, "the card is told which model and price the estimate uses");
+
+    // A request our timer drops still runs at Google: charged with an estimate
+    const T = bgEnv(async (u, o) => {
+        if (!u.includes("generativelanguage")) return GOOGLE_OK;
+        return new Promise((_, rej) => o.signal.addEventListener("abort", () => rej(Object.assign(new Error("aborted"), { name: "AbortError" }))));
+    }, cfg({ geminiApiKey: "KEY-OLD-USER" }));
+    await T.send(REQ);
+    const st2 = await T.send({ action: "costStats" });
+    assert.ok(st2.day.trCalls >= 1 && st2.day.estCalls === st2.day.trCalls, `timed-out calls ${JSON.stringify(st2.day)}`);
+    assert.ok(st2.day.trUsd > 0 && st2.day.inTok > 0);
+});
+
 test("vượt gấp đôi ngân sách ngày: ngừng gọi Gemini dịch (hàng rào cứng), dùng bản miễn phí", async () => {
     const local = { costLedger: null };
     const seen = [];

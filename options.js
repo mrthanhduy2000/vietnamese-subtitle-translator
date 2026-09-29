@@ -518,22 +518,35 @@ document.addEventListener("DOMContentLoaded", async () => {
     // ---- Chi phí ước tính & ngân sách ----
     const usd = x => `${(x || 0).toFixed(x >= 1 ? 2 : 4)} USD`;
     const mins = sec => `${((sec || 0) / 60).toFixed(1)} phút`;
+    const toks = n => (n || 0).toLocaleString("vi-VN");
     async function showCostStats(res) {
         const r = res || await bgSend({ action: "costStats" });
         const sumEl = document.getElementById("costSummary"), vidEl = document.getElementById("costVideos");
         if (!sumEl) return;
         if (!r || !r.ok || !r.day || !r.budget) { sumEl.textContent = "Chưa đọc được (mở trang này từ trong tiện ích)."; return; }
-        const line = (label, x) => `${label}: dịch ${usd(x.trUsd)} (${x.trCalls} lượt), giọng AI ${usd(x.ttsUsd)} (${x.ttsCalls} lượt, ${mins(x.audioSec)} audio), giọng VieNeu trên máy ${mins(x.localSec)} (miễn phí), trúng bộ nhớ đệm ${x.hitsTr + x.hitsAudio} lần, tránh được ${x.avoided} lượt gọi Gemini`;
-        const b = r.budget;
+        const line = (label, x) => {
+            // Token counts first: AI Studio's usage page shows the same numbers to compare against
+            const parts = [`<b>${label}</b>: dịch ${usd(x.trUsd)}, ${x.trCalls} lượt gọi Gemini tính tiền`];
+            if (x.inTok || x.outTok) parts.push(`${toks(x.inTok)} token vào, ${toks(x.outTok)} token ra`);
+            if (x.estCalls) parts.push(`${x.estCalls} lượt quá giờ hoặc thiếu số token, đã tính theo ước lượng`);
+            if (x.ttsCalls || x.ttsUsd) parts.push(`giọng Gemini ${usd(x.ttsUsd)} (${x.ttsCalls} lượt)`);
+            if (x.localSec) parts.push(`giọng VieNeu trên máy ${mins(x.localSec)} (miễn phí)`);
+            parts.push(`dùng lại bản đã lưu ${x.hitsTr + x.hitsAudio} lần`);
+            return parts.join(" · ");
+        };
+        const b = r.budget, m = r.model;
         sumEl.innerHTML = [
+            m ? `Model đang dịch: <b>${m.label}</b>${m.price ? `, giá ${m.price.in} USD mỗi 1 triệu token vào, ${m.price.out} USD mỗi 1 triệu token ra` : ""}` : "",
             line(`Hôm nay (${r.day.day})`, r.day),
-            line("Phiên này", r.session),
-            b.dailyBudget ? `Đã dùng ${Math.round(b.spentDay / b.dailyBudget * 100)}% ngân sách ngày${b.level === "over" ? " (đã chạm, giọng AI đang tạm dừng)" : b.level === "warn" ? " (sắp chạm)" : ""}` : "Không giới hạn ngân sách ngày"
-        ].map(x => `<div>${x}</div>`).join("");
+            line("Từ lúc mở trình duyệt", r.session),
+            (r.day.day && !r.day.inTok && r.day.trCalls) ? "Số token chỉ được đếm từ phiên bản này; số USD trước đó của hôm nay đếm thiếu." : "",
+            b.dailyBudget ? `Đã dùng ${Math.round(b.spentDay / b.dailyBudget * 100)}% ngân sách ngày${b.level === "over" ? " (đã chạm: thôi dịch lại bằng model mạnh)" : b.level === "warn" ? " (sắp chạm)" : ""}` : "Không giới hạn ngân sách ngày",
+            "Ngày ở đây tính theo giờ Việt Nam; Google tính theo giờ Thái Bình Dương (chậm 14 đến 15 tiếng), nên số theo ngày có thể lệch nhau."
+        ].filter(Boolean).map(x => `<div>${x}</div>`).join("");
         const vids = Object.entries(r.day.videos || {}).sort((a, c) => c[1].usd - a[1].usd).slice(0, 5);
         vidEl.innerHTML = vids.length ? "<div><b>Video tốn nhiều nhất hôm nay:</b></div>" + vids.map(([k, v]) => {
             const odd = v.videoSec && v.audioSec > v.videoSec * 1.2;
-            return `<div>${String(v.title || k).replace(/</g, "&lt;")}: ${usd(v.usd)}, ${mins(v.audioSec)} audio${v.videoSec ? ` / video ${mins(v.videoSec)}` : ""}${odd ? " ⚠ tạo audio nhiều bất thường so với độ dài video" : ""}</div>`;
+            return `<div>${String(v.title || k).replace(/</g, "&lt;")}: ${usd(v.usd)}${v.videoSec ? `, video ${mins(v.videoSec)}` : ""}${v.audioSec ? `, ${mins(v.audioSec)} audio Gemini` : ""}${odd ? " ⚠ tạo audio nhiều bất thường so với độ dài video" : ""}</div>`;
         }).join("") : "";
     }
     document.getElementById("costRefresh")?.addEventListener("click", () => showCostStats());

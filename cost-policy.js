@@ -15,14 +15,14 @@
     // access "restricted": model còn hoạt động nhưng Google không cấp cho API key / dự án MỚI
     //   (API trả 404 "no longer available to new users"). Chỉ dùng khi key này gọi được thật.
     // shutdown / replacement: lịch ngừng hỗ trợ theo trang Deprecations.
-    // estPrice: USD / 1 triệu token (trang Pricing 16/09/2026), CHỈ để ước tính chi phí
-    //   trong Cài đặt và giới hạn ngân sách, không dùng cho quyết định nào khác.
+    // estPrice: USD per 1M tokens, paid tier, text input (Pricing page re-checked 2026-09-29; output
+    //   includes thinking tokens). Only for the cost estimate and budget, no other decision.
     const TRANSLATION_MODELS = [
         { id: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash-Lite", hint: "rẻ nhất", costRank: 1, access: "restricted", estPrice: { in: 0.10, out: 0.40 } },
         { id: "gemini-3.1-flash-lite", label: "Gemini 3.1 Flash-Lite", hint: "rẻ, mọi API key đều dùng được", costRank: 2, shutdown: "2027-05-07", replacement: "gemini-3.5-flash-lite", estPrice: { in: 0.25, out: 1.50 } },
         { id: "gemini-3.5-flash-lite", label: "Gemini 3.5 Flash-Lite", hint: "hiểu ngữ cảnh tốt hơn, đắt hơn", costRank: 3, estPrice: { in: 0.30, out: 2.50 } },
         // Flash thế hệ 3 mặc định "suy nghĩ" mức trung bình (token suy nghĩ tính như đầu ra) -> hạ xuống thấp
-        { id: "gemini-3.8-flash", label: "Gemini 3.8 Flash", hint: "hiểu sâu nhất, đắt nhất", costRank: 4, thinkingLevel: "low", estPrice: { in: 0.50, out: 3.00 } }
+        { id: "gemini-3.8-flash", label: "Gemini 3.8 Flash", hint: "hiểu sâu nhất, đắt nhất", costRank: 4, thinkingLevel: "low", estPrice: { in: 0.75, out: 3.75 } }
     ];
     const TTS_MODELS = [
         { id: "gemini-2.5-flash-preview-tts", label: "Gemini 2.5 Flash TTS", costRank: 1, access: "restricted", estPrice: { in: 0.50, out: 10.00 } },

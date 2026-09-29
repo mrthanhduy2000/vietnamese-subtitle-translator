@@ -241,13 +241,20 @@ async function geminiCall(model, apiKey, body, policy = {}) {
                 signal: controller.signal
             });
             const data = await res.json().catch(() => null);
+            // Google bills every answered request, also one whose text is later thrown away
+            if (res.ok && policy.onBilled) policy.onBilled(data || {});
             if (res.ok) { setAccess(kh, model, "ok"); return data || {}; }
             const type = classifyHttp(res.status, data);
             const detail = String(data?.error?.message || res.statusText || "").slice(0, 200);
             err = new GeminiError(type, `Gemini ${model} HTTP ${res.status}: ${detail || ERROR_TEXT[type] || ""}`, { status: res.status, retryAfterMs: retryDelayMs(data) });
             if (type === "unavailable_for_key") err.suggested = (detail.match(/use models\/([\w.-]+)/) || [])[1] || "";
         } catch (e) {
-            if (timedOut) err = new GeminiError("timeout", `${model}: ${ERROR_TEXT.timeout} (${Math.round(timeoutMs / 1000)} giây)`);
+            if (timedOut) {
+                err = new GeminiError("timeout", `${model}: ${ERROR_TEXT.timeout} (${Math.round(timeoutMs / 1000)} giây)`);
+                // A request dropped by our own timer still runs to the end at Google and is billed;
+                // the answer never arrives, so the caller estimates its tokens (null data)
+                if (policy.onBilled) policy.onBilled(null);
+            }
             else if (e && e.name === "AbortError") err = new GeminiError("aborted", "Đã hủy");
             else err = new GeminiError("network", `${model}: ${ERROR_TEXT.network}`);
         } finally {
@@ -388,9 +395,23 @@ function parseUnitJson(raw) {
 
 let unitSchemaUnsupported = false;
 
+// Billed tokens of one request: the server's own counts; when they are missing, or the request
+// timed out (data null), estimated from length. ~3 characters per token: the prompt is mostly
+// Vietnamese, which splits into more tokens than English (the old guess of 4 undercounted).
+function usageOf(data, promptChars, outGuess) {
+    const u = (data && data.usageMetadata) || {};
+    const estimated = !u.promptTokenCount;
+    return {
+        in: u.promptTokenCount || Math.ceil(promptChars / 3),
+        out: data ? (u.candidatesTokenCount != null ? u.candidatesTokenCount : Math.ceil(responseText(data).length / 3)) : outGuess,
+        thoughts: u.thoughtsTokenCount || 0,
+        estimated
+    };
+}
+
 // retries: geminiCall's retries for a 5xx / network error. The first model of a chain gets 2; a model
 // tried after another one failed gets none, so falling through the chain adds one quick call each.
-async function callGeminiUnit(req, apiKey, model, retries = 2) {
+async function callGeminiUnit(req, apiKey, model, retries = 2, bill = null) {
     const { sys, user } = buildUnitPrompt(req);
     const srcChars = req.sentences.join(" ").length;
     const timeoutMs = Math.min(15000, 4500 + srcChars * 6 + (req.refine ? 2000 : 0));
@@ -398,6 +419,9 @@ async function callGeminiUnit(req, apiKey, model, retries = 2) {
     let maxTokens = Math.min(8192, Math.max(512, Math.ceil(srcChars * 1.2) + (req.wantTerms ? 250 : 80)));
     const allowed = (req.placeholders || []).map(p => `[[__T${p.id}__]]`);
     const t0 = Date.now();
+    // Every request Google answered or timed out on is charged, not only the pass whose
+    // translation is kept: a retry after a cut-off or unparsable answer was billed too
+    const onBilled = bill && (data => bill(usageOf(data, sys.length + user.length, Math.ceil(srcChars * 1.3 / 3) + 60)));
 
     // Tối đa 3 lượt gửi: model không nhận JSON schema / cấu hình suy nghĩ (bỏ tính năng đó),
     // hoặc bản dịch bị cắt cụt vì chạm trần token (gửi lại một lần với trần gấp đôi).
@@ -415,7 +439,7 @@ async function callGeminiUnit(req, apiKey, model, retries = 2) {
                 system_instruction: { parts: [{ text: sys }] },
                 contents: [{ parts: [{ text: user }] }],
                 generationConfig
-            }, { timeoutMs, retries, backoffMs: 500, timeoutCooldownMs: 15000 });
+            }, { timeoutMs, retries, backoffMs: 500, timeoutCooldownMs: 15000, onBilled });
         } catch (e) {
             if (e.type === "invalid" && /thinking/i.test(e.message) && thinking) { noThinkingCfg.add(model); continue; }
             if (e.type === "invalid" && /schema|mime/i.test(e.message) && !unitSchemaUnsupported) { unitSchemaUnsupported = true; continue; }
@@ -438,19 +462,14 @@ async function callGeminiUnit(req, apiKey, model, retries = 2) {
             else throw new GeminiError("bad_output", `Số mục không khớp (gửi ${req.sentences.length}, nhận ${translations.length})`);
         }
         if (translations.some(t => !t)) throw new GeminiError("bad_output", "Có mục dịch rỗng");
-        // Số token thật từ máy chủ; thiếu thì ước tính theo độ dài (~4 ký tự / token)
-        const usage = data.usageMetadata || {};
-        if (!usage.promptTokenCount) {
-            usage.promptTokenCount = Math.ceil((sys.length + user.length) / 4);
-            usage.candidatesTokenCount = Math.ceil(raw.length / 3);
-        }
+        const usage = usageOf(data, sys.length + user.length, 0);
         return {
             translations,
             terms: Array.isArray(obj.terms) ? obj.terms.filter(t => t && t.en && t.vi).slice(0, 5) : [],
             engine: "gemini",
             model,
             latency: Date.now() - t0,
-            usage: { in: usage.promptTokenCount || 0, out: usage.candidatesTokenCount || 0, thoughts: usage.thoughtsTokenCount || 0 }
+            usage
         };
     }
     throw new GeminiError("bad_output", "Gemini không trả bản dịch hợp lệ");
@@ -476,7 +495,14 @@ function localDay() {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
-const emptyStats = () => ({ trUsd: 0, ttsUsd: 0, trCalls: 0, ttsCalls: 0, audioSec: 0, localSec: 0, hitsTr: 0, hitsAudio: 0, avoided: 0 });
+// inTok / outTok: billed text tokens (output includes thinking), comparable with AI Studio's usage
+// page; estCalls: requests whose tokens had to be estimated (timed out, no usage in the answer)
+const emptyStats = () => ({ trUsd: 0, ttsUsd: 0, trCalls: 0, ttsCalls: 0, audioSec: 0, localSec: 0, hitsTr: 0, hitsAudio: 0, avoided: 0, inTok: 0, outTok: 0, estCalls: 0 });
+// One billed translation request into the ledger
+function trackText(meta, model, u) {
+    const out = u.out + u.thoughts;
+    track(meta, { trUsd: COST.estimateTextCost(model, u.in, out), trCalls: 1, inTok: u.in, outTok: out, estCalls: u.estimated ? 1 : 0 });
+}
 let ledger = { day: localDay(), ...emptyStats(), videos: {} };
 let sessionStats = emptyStats();
 const sessionArea = (typeof chrome !== "undefined" && chrome.storage && chrome.storage.session) || null;
@@ -614,10 +640,9 @@ async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
             tried.add(model);
             if (!firstTried) firstTried = model;
             try {
-                const r = await callGeminiUnit({ ...request, sentences }, cfg.geminiApiKey, model, model === firstTried ? 2 : 0);
+                const r = await callGeminiUnit({ ...request, sentences }, cfg.geminiApiKey, model, model === firstTried ? 2 : 0, u => trackText(meta, model, u));
                 r.tier = tier;
                 if (model !== firstTried) r.fallbackFrom = firstTried;
-                track(meta, { trUsd: COST.estimateTextCost(model, r.usage.in, r.usage.out + r.usage.thoughts), trCalls: 1 });
                 // Lưu theo ĐÚNG model đã tạo bản dịch; chỉ lưu kết quả đã kiểm tra hợp lệ.
                 // Không chờ ghi xong (RAM có ngay) -> IndexedDB chậm không làm trễ phụ đề.
                 let key = null;
@@ -1233,7 +1258,7 @@ async function handleTestKey(req) {
             const data = await geminiCall(model, apiKey, {
                 contents: [{ parts: [{ text: "Dịch sang tiếng Việt, chỉ trả bản dịch: 'Artificial Intelligence'" }] }],
                 generationConfig: { maxOutputTokens: 40, temperature: 0.1 }
-            }, { timeoutMs: 15000, retries: 1 });
+            }, { timeoutMs: 15000, retries: 1, onBilled: data => trackText({}, model, usageOf(data, 80, 40)) });
             return { ok: true, model, sample: responseText(data).trim(), latency: Date.now() - t0, skipped: tried.slice(0, -1) };
         } catch (e) {
             if (e.type !== "not_found" && e.type !== "unavailable_for_key") return { ok: false, model, errorType: e.type, error: e.message, skipped: tried.slice(0, -1) };
@@ -1262,7 +1287,16 @@ async function handleCostStats() {
     await ledgerReady;
     rollDay();
     const budget = await budgetState({});
-    return { ok: true, day: ledger, session: sessionStats, budget };
+    // The model a new line goes to now ("auto" resolved for this key) and its price, so the
+    // Settings card says which rate the estimate uses
+    let model = null;
+    try {
+        const cfg = await modelsFromCfg();
+        const id = cfg.geminiApiKey ? COST.modelChain("cheap", cfg, cfg.costMode, await isUnavailableFn(cfg.geminiApiKey))[0] : null;
+        const m = id && COST.findModel(id);
+        if (id) model = { id, label: COST.modelLabel(id), price: (m && m.estPrice) || null };
+    } catch (e) { model = null; }
+    return { ok: true, day: ledger, session: sessionStats, budget, model };
 }
 
 async function handleCostReset() {

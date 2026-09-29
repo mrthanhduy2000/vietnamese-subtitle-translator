@@ -245,7 +245,7 @@ not stack two dubbing voices. Keep it.
 
 
 `modelAccess` per-API-key model availability, keyed by a SHA-256 hash of the key, 3-day TTL ·
-`costLedger` daily cost ledger · `ytcache4_<videoId>` cached YouTube translations (an older
+`costLedger` daily cost ledger (2.1.0: every billed request is charged through `geminiCall`'s `policy.onBilled`, also thrown-away answers and our own timeouts, which Google still bills; `inTok`/`outTok`/`estCalls` added) · `ytcache4_<videoId>` cached YouTube translations (an older
 `ytcache` prefix exists; swept once a day, `ytSweptAt`, since the sweep reads all of storage.local) ·
 `ctxterms_<key>` agreed context terms · plus the `cst-cache` IndexedDB
 database, which is separate (see `DUBBING.md`).

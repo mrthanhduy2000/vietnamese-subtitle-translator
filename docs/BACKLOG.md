@@ -22,7 +22,12 @@ full gain needed the fragile abort path in `DANGER.md` §15. The patch was delet
 
 ## Defects
 
-none open.
+**37. The translation timeout is tight and a timed-out call is paid for nothing.** *(found 2.1.0)*
+`callGeminiUnit` gives `4500 + 6 ms per source character`, 15 s cap (~6 s for a 250-character
+window). Google finishes and bills a request we abort; since 2.1.0 the ledger counts it
+(`estCalls`), but the money is still wasted and the line falls to Google Translate. Next: read
+`estCalls` against `trCalls` in the user's ledger after a few days; if it is more than a few
+percent, raise the floor. Not changed yet: a longer wait delays the subtitle.
 
 ## Subtitles and translation
 

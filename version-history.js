@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.1.0", luc: "12:14 29/09/2026", ten: "Chi phí ước tính: đếm đủ mọi lượt Google tính tiền",
+            y: [
+                "Trước đây chỉ lượt dịch thành công cuối cùng được cộng vào chi phí. Lượt Gemini trả về bị hỏng rồi phải gửi lại, và lượt quá thời gian chờ (Google vẫn chạy xong và vẫn tính tiền dù tiện ích đã bỏ đi) đều bị bỏ sót, nên con số ước tính thấp hơn hóa đơn thật. Nay mọi lượt Google đã nhận đều được cộng; lượt quá giờ được tính theo ước lượng độ dài và ghi riêng.",
+                "Trang Cài đặt ghi rõ model đang dịch (Gemini 3.1 Flash-Lite) cùng giá, và số token vào, token ra của hôm nay để đối chiếu với trang sử dụng của Google AI Studio. Giá Gemini 3.8 Flash sửa theo bảng giá mới (0,75 và 3,75 USD mỗi triệu token). Bỏ các dòng nói về giọng AI trả phí và giọng hệ thống, vốn không còn đúng vì lồng tiếng chỉ dùng giọng VieNeu miễn phí."
+            ]
+        },
+        {
             v: "2.0.9", luc: "12:04 29/09/2026", ten: "Lồng tiếng: tiếng gốc tăng giảm đều tai hơn",
             y: [
                 "Tiếng gốc được hạ xuống và nâng lên theo những bước đều nhau về độ to nghe được (tai người nghe độ to theo đề-xi-ben), thay vì những bước đều nhau về âm lượng. Trước đây nhịp đầu tiên lúc nâng tiếng gốc lên nhảy mạnh (+2,9 đề-xi-ben) rồi các nhịp sau nhỏ dần; nay mỗi nhịp như nhau (1,55 đề-xi-ben ở mức hạ mặc định). Thời gian hạ hoặc nâng vẫn là 0,45 giây.",
