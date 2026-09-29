@@ -36,8 +36,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   (BACKLOG 9); a live YouTube check by the user; user: Apple Events JS off in Chrome.
 
 ## Traps hit this session
-- `costStats` in the test env returns the live ledger object, not a copy: read numbers at once.
-- Two sessions bumped at once around 2.1.1 / 2.1.2: check `git status` before a bump.
+- 68d9ebd (2.1.3, cost) swept in the duck session's unfinished `dub-engine.js` bridge change
+  (`next.pending`, "2.1.3" comment): tests passed with it; that session must renumber. Stage by path.
 - The live ledger can be read offline from Chrome's leveldb:
   `~/Library/Application Support/Google/Chrome/Profile 42/Local Extension Settings/<ext id>/*.log`.
 
