@@ -83,25 +83,46 @@
         return (String(text).match(re) || []).length;
     }
 
+    // Words Vietnamese has borrowed and writes as they are: keeping them is the right translation.
+    // "video" alone was 27 of the leftovers counted in the user's cache (2.3.2).
+    const LOANWORDS = new Set(["video", "clip", "online", "offline", "email", "internet", "website", "web", "blog", "vlog",
+        "vlogger", "podcast", "livestream", "game", "file", "link", "app", "laptop", "smartphone", "selfie", "fan", "idol",
+        "show", "camera", "marketing", "startup", "trend", "style", "menu", "wifi", "virus", "robot", "radio", "taxi",
+        "pizza", "karaoke", "yoga", "gym", "voucher", "combo", "team", "size", "playlist", "deadline", "feedback",
+        "content", "youtuber", "influencer", "sale", "shop", "shopping", "stress", "test", "logo", "slide", "font", "spa",
+        "massage", "hashtag", "emoji", "tag", "mail", "chat"]);
+    // A web address, an e-mail or a handle is copied, never translated ("betterhelp.com/malamalife"
+    // made "betterhelp" and "com" two leftovers of a sponsor line and paid for a refine, 2.3.2)
+    const ADDRESS_RE = /(?:https?:\/\/)?(?:[\w-]+\.)+[a-z]{2,}(?:\/\S*)?|[\w.-]+@[\w-]+(?:\.[\w-]+)+|@[\w.]+/gi;
+
     function englishLeftovers(vi, allow) {
         // Unicode word edges: with ASCII \b, "thuật" gave "thu" and "thảo" gave "tha"
-        const words = String(vi).match(/(?<![\p{L}\p{N}])[A-Za-z][A-Za-z'-]{2,}(?![\p{L}\p{N}])/gu) || [];
+        const words = String(vi).replace(ADDRESS_RE, " ").match(/(?<![\p{L}\p{N}])[A-Za-z][A-Za-z'-]{2,}(?![\p{L}\p{N}])/gu) || [];
         const allowSet = allow || new Set();
         return words.filter(w => {
             if (/^[A-Z0-9]{2,}$/.test(w)) return false;          // viết tắt: GPU, API
             if (/[A-Z].*[A-Z]/.test(w.slice(1))) return false;   // camelCase, PyTorch
             if (/^[A-Z]/.test(w)) return false;                  // tên riêng
+            if (LOANWORDS.has(w.toLowerCase())) return false;
             if (allowSet.has(w.toLowerCase())) return false;
             return true;
         });
     }
 
+    // Sound notes ("[Music]", "♪") are translated from a list (soundNoteLine), so they take no part in
+    // judging a line: a lyric line full of notes read as an "abnormally short" translation (2.3.2)
+    const NOTE_SPAN = /\[[^\][]*\]|[♪♫]+/g;
+
     // src: câu tiếng Anh, vi: bản dịch, opts: { terms:[{en,vi}], keep:Set(từ được giữ nguyên) }
     function assess(src, vi, opts = {}) {
         const issues = [];
-        const s = String(src || "").trim();
-        const v = String(vi || "").split("¦").join(" ").replace(/\s+/g, " ").trim();
+        const s = String(src || "").replace(NOTE_SPAN, " ").replace(/\s+/g, " ").trim();
+        const v = String(vi || "").split("¦").join(" ").replace(NOTE_SPAN, " ").replace(/\s+/g, " ").trim();
         const add = (type, severity, detail, fix) => issues.push({ type, severity, detail, fix });
+        if (!s && String(src || "").trim()) return finish(issues);        // sound notes only
+        // Beside a note, a word or four is mostly the recognizer hearing the music ("[Music] is
+        // [Music]", "S [Musik]", "mahusus in cand daya [Musik]"): leaving it out is no empty line
+        if (!v && /\[[^\][]*\]|[♪♫]/.test(String(src || "")) && s.split(" ").length <= 4) return finish(issues);
 
         if (!v) {
             add("empty", 3, "bản dịch rỗng", "dịch đầy đủ");
@@ -128,8 +149,12 @@
             if (a && a === b && REPEAT_SLIP.has(a)) { add("repeat", 3, `lặp từ "${a} ${b}"`, "bỏ từ lặp"); break; }
         }
 
-        // Tỷ lệ độ dài: tiếng Việt thường dài 0,9 đến 1,6 lần tiếng Anh (tính ký tự)
-        if (s.length >= 25) {
+        // Tỷ lệ độ dài: tiếng Việt thường dài 0,9 đến 1,6 lần tiếng Anh (tính ký tự). Only for a source
+        // in Latin or Cyrillic letters: one Chinese character is a whole syllable, and a Hindi mantra
+        // read as "abnormally short" twice in the user's cache (2.3.2)
+        const letters = s.match(/\p{L}/gu) || [];
+        const alphabetic = letters.filter(ch => /[\p{Script=Latin}\p{Script=Cyrillic}]/u.test(ch)).length >= letters.length * 0.7;
+        if (s.length >= 25 && alphabetic) {
             const r = v.length / s.length;
             if (r < 0.55) add("omission", 3, `bản dịch ngắn bất thường (${r.toFixed(2)} lần câu gốc), có thể bỏ sót ý`, "dịch đủ ý");
             else if (r > 2.3) add("addition", 2, `bản dịch dài bất thường (${r.toFixed(2)} lần câu gốc), có thể thêm ý`, "bỏ phần thêm");
@@ -333,10 +358,11 @@
     function fixSoundNotes(vi, src) {
         return (vi || []).map((text, i) => {
             const s = String((src && src[i]) || "");
-            if (!text || !/[[(♪♫]/.test(s)) return text;
+            if (!/[[(♪♫]/.test(s)) return text;
             const line = soundNoteLine(s);
+            if (line && line.vi) return line.vi;              // even when the model gave nothing
+            if (!text) return text;
             if (line) {
-                if (line.vi) return line.vi;
                 const t = String(text).replace(/¦/g, " ").replace(/\s+/g, " ").trim();
                 if (!/[\p{L}\p{N}]/u.test(t.replace(/\[[^\][]*\]|[♪♫]+/g, " "))) return t;
                 return `[${t.replace(/[[\]()]/g, "").trim()}]`;

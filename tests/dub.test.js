@@ -947,6 +947,9 @@ test("playback delivery: a fast talk keeps every line through two minutes of a s
     assert.equal(r.dropped, 0, "lines dropped");
     assert.equal(r.spoken, 66);
     assert.ok(r.gapSum < 1, `${r.gapSum} s of gaps`);
+    // every take made was heard: the simulator matches a take by the key it was made under (2.3.2;
+    // recomputed at the start without the tight-pause flag, it counted 46 played takes as unplayed)
+    assert.equal(r.unplayedGen, 0);
 });
 
 test("playback delivery: pausing never cancels the request for the lines just ahead", async () => {

@@ -578,12 +578,22 @@
             };
             // Khung chỉ có chú thích âm thanh ("(Vỗ tay)"): không đọc, để thành khoảng lặng
             for (let k = pieces.length - 1; k >= 0; k--) if (!hasWords(pieces[k].text)) pieces.splice(k, 1);
-            // Carry the open segment into this group only when the sentence plainly continues
+            // Carry the open segment into this group (free voice): the lines below then cut it by the
+            // same rules as inside one group (length, a pause, a source pause). A sentence still
+            // running is carried over a short pause, or bridged over a longer one inside a phrase.
+            // 2.3.2: so is a finished sentence when this group starts inside the caption line the
+            // last one ended in (`midLine`, content.js splitCuesAtSentenceEnds): the voice reads
+            // across that cut as it did when the line was one group (a caption line never spans two
+            // windows, youtube.js ytCanonicalWindows, so both halves arrive together). Simulated on
+            // the user's 6 punctuated videos: closed there, late starts 88 -> 124; carried, 87.
+            // Carrying every finished sentence gave 71, but the line it dropped lost 52 syllables
+            // instead of 29 (docs/DUBBING.md "Across a caption line cut")
             if (cur) {
                 const first = pieces[0];
                 const gap = first ? first.start - cur.end : Infinity;
+                const running = !endsSentence(cur.texts[cur.texts.length - 1]);
                 const carry = JOIN && first && !mark && cur.speaker === speaker &&
-                    !endsSentence(cur.texts[cur.texts.length - 1]) && (gap < PAUSE_SPLIT || (gap < BRIDGE_MAX && insidePhrase(cur, first)));
+                    ((gap < PAUSE_SPLIT && (running || g.midLine)) || (running && gap < BRIDGE_MAX && insidePhrase(cur, first)));
                 if (!carry) flush();
             }
             pieces.forEach(c => {

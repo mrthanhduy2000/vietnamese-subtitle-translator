@@ -365,6 +365,24 @@ test("sound captions: notes only are translated from a list, every note ends up 
     }
 });
 
+// 2.3.2: each of these was a severity-3 issue in the user's cache, and a paid refine in Balanced mode
+test("quality check: web addresses, loanwords and sound notes are neither leftovers nor omissions", () => {
+    const Q = require("../vi-quality.js");
+    const sponsor = ["yourself. Just fill out a questionnaire and they'll connect you with a credentialed therapist as soon as possible. Click the link in the description or go to betterhelp.com/malama life and get 10% off of your first month therapy. Thank you to BetterHelp for being a paid partner for today's video.",
+        "chính bản thân mình. Bạn chỉ cần điền vào bảng câu hỏi, họ sẽ kết nối bạn với một chuyên gia trị liệu có bằng cấp sớm nhất có thể. Hãy nhấp vào liên kết trong phần mô tả hoặc truy cập betterhelp.com/malamalife để được giảm 10% cho tháng trị liệu đầu tiên. Cảm ơn BetterHelp đã đồng hành cùng video hôm nay."];
+    assert.deepEqual(Q.assess(...sponsor).issues, [], "8MIBcFVf8g0 #29");
+    assert.deepEqual(Q.englishLeftovers("video online, gửi email tới me@site.org hoặc @handle, vào https://a.b.io/x"), []);
+    assert.deepEqual(Q.assess("[Music]", "").issues, [], "a line of notes is translated from the list");
+    assert.deepEqual(Q.fixSoundNotes([""], ["[Music]"]), ["[Âm nhạc]"], "even when the model gave nothing");
+    assert.deepEqual(Q.assess("[Music] is [Music]", "[Âm nhạc]").issues, [], "a stray word heard in the music");
+    // the length ratio is an English one: a Hindi mantra or a Chinese line is not judged by it
+    assert.deepEqual(Q.assess("खालीपन ही पदार्थ है जो पदार्थ आंखों के सामने है, वह खालीपन है खाली होना ही वस्तु है।", "Sự trống rỗng chính là vật chất").issues, []);
+    assert.deepEqual(Q.assess("我们今天要学习如何使用这个新的工具来提高工作效率和质量", "Hôm nay chúng ta sẽ học cách sử dụng công cụ mới này để nâng cao hiệu quả và chất lượng công việc").issues, []);
+    // still caught: English really left in, speech really dropped next to a note
+    assert.match(Q.assess("We will now compute the gradient descent update for the weights", "Bây giờ ta sẽ compute gradient descent update cho weights").issues.map(i => i.detail).join(), /compute/);
+    assert.deepEqual(Q.assess("[Music] hello there my friends, welcome back", "[Âm nhạc]").issues.map(i => i.type), ["empty"]);
+});
+
 test("every translation path runs the leak trim", () => {
     const read = f => require("node:fs").readFileSync(require("node:path").join(__dirname, "..", f), "utf8");
     const cs = read("content.js"), yt = read("youtube.js"), bg = read("background.js");

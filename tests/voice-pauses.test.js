@@ -96,6 +96,30 @@ test("a sentence split across two groups is one segment for the free voice, two 
     assert.equal(gap.length, 2);
 });
 
+// 2.3.2: YouTube cuts a caption line at a sentence end inside it (content.js splitCuesAtSentenceEnds)
+// and marks the group after the cut `midLine`. The free voice reads across that cut as it did when
+// the line was one group; a finished sentence anywhere else still closes the segment.
+test("a caption line cut at a sentence end (midLine) is read on as one segment by the free voice only", () => {
+    const groups = [
+        mkGroup(1, [[1, 3.2, "Chúng tôi mua nhà năm ngoái và nấu ăn ở nhà nhiều hơn."]]),
+        { ...mkGroup(3.2, [[3.2, 5.5, "Tôi thấy mình tiết kiệm được khá nhiều tiền."]]), midLine: true },
+        mkGroup(5.6, [[5.6, 8, "Đó là điều tôi muốn nói."]])
+    ];
+    const free = PLAN.buildDubScript(groups, { joinGroups: true });
+    assert.deepEqual(free.map(s => s.subtitleText), [
+        "Chúng tôi mua nhà năm ngoái và nấu ăn ở nhà nhiều hơn. Tôi thấy mình tiết kiệm được khá nhiều tiền.",
+        "Đó là điều tôi muốn nói."
+    ]);
+    assert.equal(PLAN.buildDubScript(groups, {}).length, 3, "paid voices keep the per-group cut");
+    // without the mark the finished sentence closes the segment, even with no pause at all
+    assert.equal(PLAN.buildDubScript(groups.map(g => ({ ...g, midLine: undefined })), { joinGroups: true }).length, 3);
+    // a real pause or another speaker still separates the pieces
+    const paused = [groups[0], { ...mkGroup(4, [[4, 6, "Tôi thấy mình tiết kiệm được khá nhiều tiền."]]), midLine: true }];
+    assert.equal(PLAN.buildDubScript(paused, { joinGroups: true }).length, 2);
+    const turn = [groups[0], { ...groups[1], srcCues: [{ start: 3.2, end: 5.5, text: ">> I feel like I am" }] }];
+    assert.equal(PLAN.buildDubScript(turn, { joinGroups: true }).length, 2);
+});
+
 test("wiring: 48 kHz, shaping and cleanup on the VieNeu path, engine joins groups for free voices only", () => {
     const COST = require("../cost-policy.js");
     assert.equal(COST.LOCAL_TTS.sampleRate, 48000);

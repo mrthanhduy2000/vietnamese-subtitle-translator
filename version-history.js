@@ -4,6 +4,20 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.3.2", luc: "", ten: "Phụ đề YouTube ngắt đúng chỗ hết câu, bớt lượt dịch lại tốn tiền",
+            y: [
+                "Một dòng phụ đề YouTube thường chứa cuối câu này và đầu câu sau (\"...cook more at home. I feel like I am\"). Trước đây tiện ích chỉ xét chỗ hết dòng, nên trong 6 video có dấu câu bạn đã xem, 112 trên 316 nhóm câu kết thúc giữa câu và 64 lượt gửi Gemini dừng ở một mảnh câu: Gemini hay dịch luôn phần câu của lượt sau (câu hiện và được đọc hai lần) hoặc chia một câu thành hai mục lặp nhau. Nay dòng được cắt tại chỗ hết câu, theo mốc thời gian từng chữ khi phụ đề tự động có: còn 11 nhóm và 1 lượt. Mỗi lượt gửi gom được nhiều câu hơn, nên số lượt gọi Gemini chỉ tăng khoảng 6%.",
+                "Giọng lồng tiếng miễn phí vẫn đọc liền qua chỗ cắt giữa dòng như trước, nên nhịp đọc không đổi. Mô phỏng trên 6 video đó với giọng Mỹ Duyên: đọc tách từng câu sẽ làm số câu bắt đầu trễ tăng từ 88 lên 124; đọc liền giữ ở 87 và không mất thêm chữ nào.",
+                "Bộ kiểm tra chất lượng bản dịch không còn báo lỗi nhầm: địa chỉ web, email, @tên kênh và từ mượn quen thuộc (video, email, app, livestream...) không bị coi là tiếng Anh sót lại; dòng chỉ có nhãn âm thanh như [Music] không bị coi là dịch thiếu; câu gốc tiếng Hindi, tiếng Trung không bị so độ dài như tiếng Anh. Mỗi lỗi nặng tốn thêm một lượt Gemini dịch lại ở chế độ Cân bằng.",
+                "Lỗi lặp đầu câu và nhãn âm thanh được sửa miễn phí ngay khi bản dịch về, trước khi chấm điểm, nên không còn trả tiền dịch lại cho lỗi đã tự sửa được."
+            ],
+            bang: { cot: ["Đo trên video bạn đã xem", "2.3.1", "Nay"], hang: [
+                ["531 câu đã dịch: lỗi nặng bị báo (mỗi lỗi tốn một lượt dịch lại)", "6", "1 (lỗi thật)"],
+                ["6 video có dấu câu: nhóm câu kết thúc giữa câu", "112 trên 316", "11"],
+                ["6 video có dấu câu: lượt gửi Gemini dừng ở mảnh câu", "64", "1"]
+            ] }
+        },
+        {
             v: "2.3.1", luc: "", ten: "Giọng đọc không còn đọc to \"Âm nhạc\", đặt lại chi phí luôn giữ",
             y: [
                 "Nhãn âm thanh trong phụ đề tự động như [Music], [Applause], [Musik], [Tepuk tangan], [เพลง] trước đây được gửi cho Gemini dịch và trả về lúc \"Âm nhạc\", lúc \"(Âm nhạc)\", lúc \"[Âm nhạc]\" ngay trong một video; bản không có ngoặc bị giọng lồng tiếng đọc to thành lời giữa đoạn nhạc. Nay nhãn được dịch sẵn theo danh sách và luôn nằm trong ngoặc vuông nên giọng đọc bỏ qua. Trên 531 đoạn bạn đã xem: số đoạn bị đọc to tên nhãn từ 45 xuống 1, và 50 đoạn chỉ có nhãn không còn tốn lượt gọi Gemini. Video đã lưu từ trước được sửa khi mở lại.",

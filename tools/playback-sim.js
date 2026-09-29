@@ -63,15 +63,19 @@ function run(engineMod, sc) {
     const m = { serverRuns: 0, serverDone: 0, cutRunning: 0, droppedQueued: 0, joined: 0, storeHits: 0, blockedMs: 0, generatedKeys: new Map(), playedKeys: new Set() };
 
     // ---- translation arrival ----
-    const entered = new Map();
+    // per group, or per `batch` when the groups carry one (youtube.js translates a window at once):
+    // the whole batch arrives together once its first group comes within reach
+    const entered = new Map(), batchStart = new Map();
+    for (const g of groups) if (g.batch != null && !batchStart.has(g.batch)) batchStart.set(g.batch, g.start);
     const trLat = g => (sc.trLat ? sc.trLat(g, R) : 1.5);
     const getGroups = () => {
         const t = video.currentTime, now = clock.now();
         return groups.filter(g => {
-            if (g.start > t + (sc.trAhead || 40)) return false;
+            if ((g.batch != null ? batchStart.get(g.batch) : g.start) > t + (sc.trAhead || 40)) return false;
             if (g.end < t - 200) return false;
-            if (!entered.has(g)) entered.set(g, { at: now, lat: trLat(g) * 1000 });
-            const e = entered.get(g);
+            const k = g.batch != null ? "batch " + g.batch : g;
+            if (!entered.has(k)) entered.set(k, { at: now, lat: trLat(g) * 1000 });
+            const e = entered.get(k);
             return now - e.at >= e.lat;
         });
     };
@@ -161,6 +165,15 @@ function run(engineMod, sc) {
     // sc.unique: the lecture repeats its 22 sentences, so past the first loop every line is a store
     // hit and costs the server nothing. A new video has no such luck: key each line by its place too
     if (sc.unique) { const ak = provider.audioKey.bind(provider); provider.audioKey = async p => (await ak(p)) + ":" + Math.round(p.start * 10); }
+    // The key each take was made under, by plan id and text: the engine keeps a take by those two,
+    // and a re-plan leaves tightPauses unset on the new plan object until it enters the render
+    // window again, so a key recomputed at the start named a take that did play as never played
+    const madeUnder = new Map();
+    const render0 = provider.render.bind(provider);
+    provider.render = async (plans, ctx) => {
+        for (const p of plans) madeUnder.set(p.id + "\n" + p.text, p.audioKey || await provider.audioKey(p));
+        return render0(plans, ctx);
+    };
 
     // ---- page side ----
     const audios = [];
@@ -200,7 +213,9 @@ function run(engineMod, sc) {
             const x = eng.stats.started[seenStarts++];
             starts.push({ wall: clock.now(), media: video.currentTime, id: x.id });
             const pl = eng.planById.get(x.id);
-            if (pl) pendingKeys.push(provider.audioKey(pl).then(k => m.playedKeys.add(k)));
+            const made = pl && madeUnder.get(pl.id + "\n" + pl.text);
+            if (made) m.playedKeys.add(made);
+            else if (pl) pendingKeys.push(provider.audioKey(pl).then(k => m.playedKeys.add(k)));
             for (const s of seeks) if (s.recovered == null && !s.paused) s.recovered = clock.now() - s.wall;
         }
         lastPlayingSet = new Set(playing);
@@ -298,7 +313,8 @@ function realGroups(file) {
     const gs = (c.g || []).map(g => ({
         start: g[0], end: g[1], viText: g[2],
         srcCues: g[3].map(x => ({ start: x[0], end: x[1], text: x[2] })),
-        viCues: g[4].map(x => ({ start: x[0], end: x[1], text: x[2] }))
+        viCues: g[4].map(x => ({ start: x[0], end: x[1], text: x[2] })),
+        ...(g[5] ? { midLine: true } : {})
     }));
     const src = g => g.srcCues.map(x => x.text).join(" ");
     const reseg = k => {
@@ -372,5 +388,5 @@ async function main() {
     for (const r of rows) console.log(cols.map(c => r[c] == null ? "-" : r[c]).join("\t"));
 }
 
-module.exports = { run, SCENARIOS };
+module.exports = { run, SCENARIOS, realGroups };
 if (require.main === module) main().catch(e => { console.error(e); process.exit(1); });

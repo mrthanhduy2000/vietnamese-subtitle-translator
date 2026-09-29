@@ -312,3 +312,63 @@ test("console line tells what context went with the request", () => {
     const line = vm.runInContext(`contextSummary({ prevSource: "a", prevTranslation: "", refSource: "Sam.", terms: [{}], senseHints: ["x"], phraseHints: [] })`, env);
     assert.equal(line, " · ngữ cảnh: câu trước ✓, bản dịch trước ✗, nhắc lại xa ✓, thuật ngữ 1, gợi ý 1");
 });
+
+// 2.3.2: the free fixes run before the quality check. A head repeat (the model answering a window's
+// first item with only its first words, then repeating them in the next) read as an "abnormally
+// short" first item, a severity-3 issue that paid for a refine in Balanced mode (zPSs9a0MYGw #10)
+test("quality check: a head repeat is mended for free before judging, so no refine is paid", async () => {
+    const src = ["But then I started to really like dive into this more, look at the research on this stuff, experiment with some things personally, and I realized that like this is really life-changing.",
+        "And there's also some, you know, stuff that I just want to share with you today about it."];
+    const vi = ["Nhưng rồi tôi bắt đầu thực sự đi sâu tìm hiểu",
+        "Nhưng rồi tôi bắt đầu thực sự đi sâu tìm hiểu, xem xét các nghiên cứu về vấn đề này, tự mình thử nghiệm một vài thứ và nhận ra rằng nó thực sự thay đổi cuộc sống. Và còn có một vài điều tôi muốn chia sẻ với các bạn hôm nay."];
+    const refines = [];
+    const env = contentEnv(async m => {
+        if (m.action !== "translateUnit") return { ok: true };
+        if (m.refine) { refines.push(m); return { ok: true, engine: "gemini", model: "x", latency: 1, terms: [], translations: m.refine.draft }; }
+        return { ok: true, engine: "gemini", model: "x", latency: 1, terms: [], translations: vi };
+    });
+    await ready(env);
+    const session = new env.CST_CONTEXT.ContextSession({ title: "t" });
+    session.setUnits(src);
+    const r = await env.translateWindow(session, [0, 1], {});
+    assert.equal(refines.length, 0, "nothing left for a paid refine");
+    assert.ok(r.translations[0].length > vi[0].length + 40, r.translations[0]);
+    assert.doesNotMatch(r.translations[1], /^Nhưng rồi tôi bắt đầu/);
+});
+
+// 2.3.2: grouping looked only at the end of a caption line, so a line holding one sentence's end and
+// the next one's start kept its group open until a hard limit cut mid-sentence (112 of 316 groups on
+// the user's punctuated videos). YouTube cues are cut at sentence ends first.
+test("caption lines are cut at a sentence end inside them, timed by word times or characters", async () => {
+    const env = contentEnv(async () => ({ ok: true }));
+    await ready(env);
+    const split = cues => JSON.parse(JSON.stringify(env.splitCuesAtSentenceEnds(cues)));
+    const near = (a, b) => assert.ok(Math.abs(a - b) < 1e-6, `${a} vs ${b}`);
+    // characters place the cut when there are no word times
+    const [a, b] = split([{ start: 10, end: 14, text: "cook more at home. I feel like I am" }]);
+    assert.deepEqual([a.text, b.text], ["cook more at home.", "I feel like I am"]);
+    near(a.end, 10 + 4 * 19 / 35); near(b.start, a.end); near(a.start, 10); near(b.end, 14);
+    // the piece after a cut starts inside the line (the voice reads on into it, dub-planner.js)
+    assert.deepEqual([a.midLine, b.midLine], [undefined, true]);
+    // word times (automatic captions) place it on the next sentence's first word
+    const words = ["cook", "more", "at", "home.", "I", "feel", "like", "I", "am"].map((text, k) => ({ text, t: [10, 10.4, 10.7, 10.9, 12.6, 12.8, 13.1, 13.3, 13.5][k] }));
+    const [c, d] = split([{ start: 10, end: 14, text: "cook more at home. I feel like I am", words }]);
+    near(c.end, 12.6); near(d.start, 12.6);
+    assert.deepEqual([c.words.length, d.words.length], [4, 5]);
+    assert.equal(split([{ start: 0, end: 6, text: "Yes. That is right. And then we" }]).length, 3);
+    // left whole: abbreviations, decimals, a lower-case next word, initials, a sliver under 0.3 s
+    for (const text of ["Talk to Dr. Smith about it", "some tools, e.g. This one", "the U.S. economy grew", "it grew 3.5 percent. and then", "J. K. Rowling wrote it."]) {
+        assert.equal(split([{ start: 0, end: 5, text }]).length, 1, text);
+    }
+    assert.equal(split([{ start: 0, end: 1, text: "Okay. So the thing is that we" }]).length, 1, "a 0.2 s piece");
+    // a group now closes at the sentence end inside the line
+    const cues = split([{ start: 0, end: 3, text: "We bought a house last year and" }, { start: 3, end: 6, text: "cook more at home. I feel like I am" }, { start: 6, end: 9, text: "saving a lot of money now." }]);
+    const groups = [...env.groupCuesIntoSentences(cues, false)];
+    assert.deepEqual(groups.map(g => g.text), ["We bought a house last year and cook more at home.", "I feel like I am saving a lot of money now."]);
+    assert.deepEqual(groups.map(g => !!g.midLine), [false, true]);
+    const yt = read("youtube.js");
+    assert.match(yt, /yt\.cues = splitCuesAtSentenceEnds\(cues\);/);
+    // the mark survives the per-video cache, so a second visit reads the same segments
+    assert.match(yt, /g\.viCues\.map\(c => \[r\(c\.start\), r\(c\.end\), c\.cstOrig \? c\.cstOrig\.text : c\.text\]\),\n\s+g\.midLine \? 1 : 0\n/);
+    assert.match(yt, /\.\.\.\(g\[5\] \? \{ midLine: true \} : \{\}\)/);
+});

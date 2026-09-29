@@ -39,7 +39,8 @@ purpose: put logic in the planner or the engine, not here.
 ## Data contract
 
 **group** (from the translation layer, filtered in `dub-engine.js` `refresh`)
-`{ start, end, viText, viCues[], srcCues[] }`
+`{ start, end, viText, viCues[], srcCues[], midLine? }`; `midLine` (YouTube, 2.3.2): the group starts
+inside the caption line the group before ended in, and the free voice reads on across that cut
 
 **segment** (`dub-planner.js` `buildDubScript`) - note these are *continuous speech spans*, not one
 per cue: `{ id, index, start, end, slotEnd, speaker, cueCount, subtitleText, speechSource, srcText,
@@ -326,6 +327,27 @@ read one `SEG.tokenize`, memoised; analysis is ~0.2 to 0.6 ms a line uncached.
 line boundary the model forbids ("Christopher / Nolan", "3,5 / GHz", a subject's PP) no longer cuts
 the segment; `prosodicCut` takes any legal line boundary over an illegal "here". Paid voices keep
 their per-group cuts (a moved cut re-bills stored audio).
+**Across a caption line cut at a sentence end** (2.3.2, free voice only): YouTube groups now close
+at a sentence end inside a caption line (`SUBTITLE.md` step 3), and the group after the cut is
+`midLine`. A finished sentence closes the open segment at a group edge, except into a `midLine`
+group over a pause under `PAUSE_SPLIT`: there the voice reads on as it did when the line was one
+group. Simulated on the user's 6 punctuated videos (cache repaired as on load, Mỹ Duyên 3.8 syl/s;
+all groups at once / arriving window by window, 4 s a window, 40 s ahead):
+
+| grouping, rule | late starts | syllables lost to drops | takes never played (by window) |
+|---|---|---|---|
+| before the cut | 88 / 93 | 29 / 49 | 52 |
+| cut, closed at every sentence end | 124 / 128 | 17 / 37 | 17 |
+| cut, carried into `midLine` (shipped) | 87 / 88 | 29 / 49 | 41 |
+| cut, every finished sentence carried within a window | 71 / 87 | 52 / 72 | 15 |
+
+Carrying every finished sentence starts fewer lines late, but the lines it drops are longer: more
+words lost, declined for rule 1's sake. A take never played costs the free server time, nothing
+else. `ytCanonicalWindows` never ends a window before a `midLine` group, so the two halves of such a
+segment always arrive together. Paid voices still cut at every group (per sentence now). The
+simulation's split is approximate (cached groups cut at Vietnamese sentence ends; the real cut is
+made on the English line and translated as such); the scripts are not kept, `tools/playback-sim.js`
+exports `realGroups` and takes `batch` on groups for window-by-window arrival.
 
 **Cache identity.** Paid (Gemini) key: unchanged, pinned by golden hashes in
 `tests/speech-context.test.js`; nothing of `dub-speech.js` or `dub-prosody.js` reaches it (it keys

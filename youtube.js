@@ -153,7 +153,8 @@ async function ytGhiCache(videoId) {
                 g: yt.groups.filter(g => g.translated && g.viText).map(g => [
                     r(g.start), r(g.end), g.cstOrigViText != null ? g.cstOrigViText : g.viText,
                     g.srcCues.map(c => [r(c.start), r(c.end), c.text]),
-                    g.viCues.map(c => [r(c.start), r(c.end), c.cstOrig ? c.cstOrig.text : c.text])
+                    g.viCues.map(c => [r(c.start), r(c.end), c.cstOrig ? c.cstOrig.text : c.text]),
+                    g.midLine ? 1 : 0
                 ])
             }
         });
@@ -640,7 +641,9 @@ function ytGhepViCues() {
 // WIN_SOFT_GROUPS, never grows past WIN_HARD_CHARS / WIN_HARD_GROUPS or WIN_MAX_SPAN seconds, and a
 // sentence that runs across groups stays in one window (the old rule: never a fragment alone). The
 // prefetch takes a window only when all of it lies inside the translate-ahead horizon.
-const WIN_SOFT_CHARS = 420, WIN_SOFT_GROUPS = 4, WIN_HARD_CHARS = 800, WIN_HARD_GROUPS = 6, WIN_MAX_SPAN = 45;
+// 2.3.2: groups are single sentences more often now (splitCuesAtSentenceEnds), so a window holds
+// up to 8 / 12 of them; at 4 / 6 the same text took 29% more requests, at 8 / 12 it takes 6% more.
+const WIN_SOFT_CHARS = 420, WIN_SOFT_GROUPS = 8, WIN_HARD_CHARS = 800, WIN_HARD_GROUPS = 12, WIN_MAX_SPAN = 45;
 function ytCanonicalWindows(groups) {
     const of = new Array(groups.length);
     const wins = [];
@@ -649,13 +652,17 @@ function ytCanonicalWindows(groups) {
         if (cur.length) { cur.forEach(i => { of[i] = wins.length; }); wins.push(cur); }
         cur = []; chars = 0;
     };
+    // A caption line cut at a sentence end (splitCuesAtSentenceEnds) stays in one window, past a hard
+    // limit if need be (by the rest of one line): the voice reads its pieces as one segment
+    // (dub-planner.js `midLine`), and a piece translated later grew a segment already made
     groups.forEach((g, i) => {
         const len = String(g.text || "").length + 1;
-        if (cur.length && (chars + len > WIN_HARD_CHARS || cur.length >= WIN_HARD_GROUPS ||
+        if (cur.length && !g.midLine && (chars + len > WIN_HARD_CHARS || cur.length >= WIN_HARD_GROUPS ||
             g.end - groups[cur[0]].start > WIN_MAX_SPAN)) close();
         cur.push(i);
         chars += len;
-        if (groupEndsSentence(g) && (chars >= WIN_SOFT_CHARS || cur.length >= WIN_SOFT_GROUPS)) close();
+        const next = groups[i + 1];
+        if (groupEndsSentence(g) && !(next && next.midLine) && (chars >= WIN_SOFT_CHARS || cur.length >= WIN_SOFT_GROUPS)) close();
     });
     close();
     // A short tail (a closing "Thanks for watching.") joins the window before it when that stays under
@@ -1314,7 +1321,8 @@ async function ytBatDauDich(opts = {}) {
             yt.dubGroups = (cache.g || []).map(g => ({
                 start: g[0], end: g[1], viText: g[2],
                 srcCues: g[3].map(c => ({ start: c[0], end: c[1], text: c[2] })),
-                viCues: g[4].map(c => ({ start: c[0], end: c[1], text: c[2] }))
+                viCues: g[4].map(c => ({ start: c[0], end: c[1], text: c[2] })),
+                ...(g[5] ? { midLine: true } : {})     // starts inside a caption line (2.3.2)
             }));
             ytRepairCachedLeaks();
             yt.daDichXong = true;
@@ -1344,10 +1352,11 @@ async function ytBatDauDich(opts = {}) {
             return true;
         }
 
-        yt.cues = cues;
+        // groups close where sentences do, also inside a caption line (content.js, 2.3.2)
+        yt.cues = splitCuesAtSentenceEnds(cues);
         yt.viCues = [];
         yt.dubGroups = null;
-        const groups = groupCuesIntoSentences(cues, state.perCueMode).map(g => ({ ...g, translated: false, viCues: null }));
+        const groups = groupCuesIntoSentences(yt.cues, state.perCueMode).map(g => ({ ...g, translated: false, viCues: null }));
         yt.groups = groups;
         yt.cueToGroupMap.clear();
         yt.inFlightGroups.clear();

@@ -6,40 +6,40 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · `2.3.1` whole-product review, rounds 2 and 3. Round 3 changed only
-`tools/playback-sim.js` (`--real=<dir>`) and docs; round 2 is the 2.3.1 code (see git log).
+2026-09-29 · `2.3.2` whole-product review, round 4 (lanes A and B, plus `tools/playback-sim.js`).
 
 ## What changed
-- 2.3.1: sound captions ("[Music]", "[Musik]", "[เพลง]") translated from a list and bracketed, so
-  the voice skips them (read aloud 45 -> 1 of 531 groups, 50 groups need no request); the cost
-  reset and early charges survive a waking worker; one `pageVideoTitle()`; no empty `ctxterms_*`.
-- Round 3 reviewed with no defect found: `yt-bridge.js` (the caption restore runs even after a
-  throw; JSON3 and XML both parse), cache caps (15 videos = 0.8 MB, the 30 MB unit cache makes a
-  revisit free), dubbing on the user's 15 real videos (1 drop in all, no delivery gaps), subject
-  pronoun consistency ("Tôi" throughout), the Settings cost card.
-- The paraphrased-leak remainder is now "kept on purpose" in `SUBTITLE.md` with numbers.
+- YouTube caption lines are cut at a sentence end inside them (`splitCuesAtSentenceEnds`): groups
+  ending mid-sentence 112 -> 11 of 316, windows ending on a fragment 64 -> 1 (6 punctuated videos).
+  Window caps 4/6 -> 8/12 groups (+6% requests instead of +29%). A window never ends before a
+  `midLine` group; the free voice reads across that cut as before (`dub-planner.js`, simulated late
+  starts 88 -> 87 instead of 124). The flag is the cache's 6th group field.
+- Quality check: addresses, loanwords, sound notes and non-Latin sources no longer raise false
+  severity-3 flags (6 -> 1 of 531 cached lines, each one a paid refine); `localFixes` mends sound
+  notes and head repeats before `assessAll`.
+- `playback-sim.js`: `unplayedGen` fixed (241 of 882 real takes were miscounted), `batch` groups
+  arrive together, `realGroups` exported. `SUBTITLE.md`, `DUBBING.md`, `TESTING.md` updated.
 
 ## State
-- Tests: 608 pass, 0 fail, 1 skip. Reload: **yes** for 2.3.1 (`chrome://extensions`).
+- Tests: 613 pass, 0 fail, 1 skip. Reload: **yes** for 2.3.2 (`chrome://extensions`).
 
 ## Unfinished / in progress
-- Not verified live: the warm-up after a long idle and the "có nghĩa là" reading need the local
-  server; the classifier blocks Claude there, so the user's next YouTube listen is the check (also
-  DN, NHNN read Vietnamese, 2.2.4).
+- Not verified live (the classifier blocks Claude on the local server; the user's next YouTube
+  listen is the check): the 2.3.2 cut on a new video and its voice (cached videos keep their old
+  groups; the simulation cut cached Vietnamese, not the English line), the warm-up after a long
+  idle, "có nghĩa là", DN and NHNN read Vietnamese (2.2.4).
 - Carried over: AI Studio vs cost card, compare one full Pacific day after a Reload; the live
   harness (`?script=stress`, `viewer2`) is the user's to run; "Chép chẩn đoán" right after a problem.
   Never ask about Apple Events JS or hand decisions back (memory).
-- Fast talkers with Mỹ Duyên (3.8 syllables/s): 24-30% of lines start >0.5 s late at a median rate
-  of 1.33-1.44 (dSEZriz716g, zPSs9a0MYGw, simulated). Known limit; quicker voices are suggested.
+- Fast talkers with Mỹ Duyên (3.8 syllables/s): 24-30% of lines start >0.5 s late (dSEZriz716g,
+  zPSs9a0MYGw, simulated). Known limit; quicker voices are suggested.
 
 ## Traps hit this session
-- `bg-env.js` answered `storage.local` synchronously, which hid the ledger race; use `asyncLocal`
-  for anything that loads state at worker start.
-- Measure on real data first: `node tools/ext-storage.js --prefix=ytcache4_ --out=$TMPDIR/yt`, then
-  replay a text fix over `g[k][2]` against `g[k][3]`, or `node tools/playback-sim.js --real=$TMPDIR/yt`.
-- `tests/segmenter.test.js` "every translation path runs the leak trim" pins the call text of
-  `trimTranslationLeaks`, `ytTrimLeaks` and `fixSoundNotes`: change the call, change the pin.
+- Judge a dub change on syllables lost to drops, not only lines: carrying every finished sentence
+  cut late starts 17% but its drops lost 52 syllables instead of 29 (declined, `DUBBING.md`).
+- Simulate from `realGroups` (repairs applied as on load): raw cached groups keep leaked text, which
+  invented drops. Give groups `batch` for window-by-window arrival. Window tests read `WIN_*`.
 
 ## Suggested next step
-- After a Reload, one YouTube listen of a video with music breaks (no "Âm nhạc" read aloud), one
-  after the Mac idled 10+ min (first voice time), and a full Pacific day of the cost card.
+- After a Reload, one new punctuated YouTube video with the voice on (a line like "...at home. I
+  feel..." should read as one breath), and a full Pacific day of the cost card.

@@ -221,6 +221,21 @@ test("YouTube: nhóm chưa hết câu được dịch CHUNG với nhóm kế (kh
     assert.deepEqual([...idx2], [0, 1, 2]);
 });
 
+// 2.3.2: a caption line cut at a sentence end stays in one window, so the voice, which reads its
+// pieces as one segment, never has half of that segment arrive with a later window
+test("YouTube windows never end inside a caption line cut at a sentence end (midLine)", () => {
+    const env = makeContentEnv(() => ({ ok: true, translations: [] }), { youtube: true });
+    const g = [];
+    for (let i = 0; i < 60; i++) g.push({ text: `sentence number ${i} is a whole sentence of about sixty characters.`, translated: false, start: i * 3, end: i * 3 + 3, ...(i % 3 ? { midLine: true } : {}) });
+    env.__g = g;
+    const wins = [...new Set(vm.runInContext("yt.groups = __g; yt.inFlightGroups.clear(); __g.map((_, i) => ytChonCuaSo(i).join(','))", env))].map(w => w.split(",").map(Number));
+    assert.deepEqual(wins.flat(), g.map((_, i) => i));
+    for (const w of wins) assert.ok(!g[w[0]].midLine, `a window starts inside a line: ${w}`);
+    // past a hard limit if need be: thirteen pieces of one line stay together (the cap is 12)
+    env.__h = Array.from({ length: 14 }, (_, i) => ({ text: `piece ${i}.`, translated: false, start: i, end: i + 1, ...(i ? { midLine: true } : {}) }));
+    assert.equal(vm.runInContext("yt.groups = __h; yt.inFlightGroups.clear(); ytChonCuaSo(0).length", env), 14);
+});
+
 test("YouTube windows depend on the text only: the same window from any group, any start point", () => {
     const env = makeContentEnv(() => ({ ok: true, translations: [] }), { youtube: true });
     const g = [];
@@ -230,11 +245,13 @@ test("YouTube windows depend on the text only: the same window from any group, a
     const wins = [...new Set(all)].map(w => w.split(",").map(Number));
     // every group sits in exactly one window, windows tile the list in order
     assert.deepEqual(wins.flat(), g.map((_, i) => i));
+    // the limits as the code has them (2.3.2 raised the group caps to 8 / 12)
+    const cap = vm.runInContext("WIN_HARD_GROUPS", env), hard = vm.runInContext("WIN_HARD_CHARS", env);
     for (const w of wins) {
         const chars = w.reduce((a, i) => a + g[i].text.length + 1, 0);
-        assert.ok(w.length <= 6 && chars <= 800 + 60, `window too big: ${w}`);
+        assert.ok(w.length <= cap && chars <= hard + 60, `window too big: ${w}`);
         const last = g[w[w.length - 1]].text;
-        if (w !== wins[wins.length - 1]) assert.ok(/\.$/.test(last) || w.length === 6 || chars > 740, `window ends mid-sentence: ${w}`);
+        if (w !== wins[wins.length - 1]) assert.ok(/\.$/.test(last) || w.length === cap || chars > hard - 60, `window ends mid-sentence: ${w}`);
     }
     // a group in flight blocks its whole window; a translated group is left out
     vm.runInContext("yt.inFlightGroups.add(1)", env);

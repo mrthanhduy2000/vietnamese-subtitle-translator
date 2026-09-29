@@ -578,6 +578,10 @@ async function translateWindow(session, idxs, opts = {}) {
     // Thuật ngữ chỉ xin khi đoạn có thuật ngữ mới (không phải mọi cửa sổ)
     const wantTerms = typeof session.wantsTerms === "function" ? session.wantsTerms(req) : false;
     const first = await requestUnit(req, { tier, wantTerms });
+    // The free fixes first (sound notes, a unit that opens with the one before it again), so the
+    // quality check judges the mended text: a head repeat always left its first unit "abnormally
+    // short", a severity-3 issue, and Balanced mode paid a refine for what is fixed for nothing (2.3.2)
+    first.translations = localFixes(first.translations, req.sentences);
     if (first.fromCache) {
         session.record(idxs, first);
         return first;
@@ -603,6 +607,12 @@ async function translateWindow(session, idxs, opts = {}) {
         });
     }
     return first;
+}
+
+function localFixes(translations, sources) {
+    const Q = window.CST_QUALITY;
+    if (!Q || !Q.fixSoundNotes || !Q.fixRepeatedHeads || !Array.isArray(translations)) return translations;
+    return Q.fixRepeatedHeads(Q.fixSoundNotes(translations, sources), sources);
 }
 
 // Luu thuat ngu da thong nhat theo khoa hoc / kenh de nhat quan giua cac bai
@@ -773,7 +783,7 @@ function makeGroup(cues, idxs) {
         text: plainCueText(cues[i]),
         words: cues[i].words
     }));
-    return {
+    const g = {
         text: srcCues.map(c => c.text).join(" "),
         cueIndexes: [...idxs],
         cueTexts: srcCues.map(c => c.text),
@@ -781,6 +791,63 @@ function makeGroup(cues, idxs) {
         start: srcCues[0].start,
         end: Math.max(...srcCues.map(c => c.end))
     };
+    if (cues[idxs[0]] && cues[idxs[0]].midLine) g.midLine = true;   // the voice reads on into it (dub-planner.js)
+    return g;
+}
+
+// A caption line that ends one sentence and starts the next ("cook more at home. I feel like I am")
+// is cut in two there, so a group can close where its sentence does. Grouping only looks at the end
+// of a line: measured on the user's 6 punctuated YouTube videos (2.3.2), 112 of 316 groups ended
+// mid-sentence, cut by the 24 s / 520 character limits, and 64 translation windows ended on a
+// fragment, which is where the model finished the sentence from the next window's context (a leak)
+// or split one sentence over two items (a head repeat). With the cut: 11 groups, 1 window.
+// Plain cues only ({ start, end, text, words }); word times, when the automatic captions have them,
+// place the cut, else the characters do. A piece under 0.3 s or without two letters keeps the line whole.
+// Every piece after the first is marked `midLine`: the voice still reads across the cut, as it did
+// when the line was one group, and a translation window never ends there (youtube.js).
+const SENTENCE_CUT_RE = /[.!?…]+["'”’)\]]?\s+(?=["'“‘(\[]?[\p{Lu}\p{N}¿¡])/gu;
+const SENTENCE_ABBR_RE = /(?:^|[\s(])(?:e\.g|i\.e|vs|fig|dr|prof|mr|mrs|ms|st|jr|sr|approx|dept|vol|no|etc|al|eq|sec|pp?)\.$/i;
+function splitCuesAtSentenceEnds(cues) {
+    const out = [];
+    for (const c of cues || []) {
+        const text = String((c && c.text) || "");
+        const cuts = [];
+        SENTENCE_CUT_RE.lastIndex = 0;
+        let m;
+        while ((m = SENTENCE_CUT_RE.exec(text))) {
+            if (!SENTENCE_ABBR_RE.test(text.slice(0, m.index + m[0].length).trim())) cuts.push(m.index + m[0].length);
+        }
+        if (!cuts.length || !(c.end > c.start)) { out.push(c); continue; }
+        // where each word sits in the text, for its time
+        const words = Array.isArray(c.words) ? c.words : null;
+        const at = [];
+        if (words) {
+            let pos = 0;
+            for (const w of words) { const i = text.indexOf(w.text, pos); at.push(i < 0 ? pos : i); pos = i < 0 ? pos : i + w.text.length; }
+        }
+        const timeAt = p => {
+            if (words) {
+                const k = at.findIndex(i => i >= p);
+                if (k > 0 && words[k].t > c.start && words[k].t < c.end) return words[k].t;
+            }
+            return c.start + (c.end - c.start) * p / text.length;
+        };
+        const bounds = [0, ...cuts, text.length];
+        const pieces = [];
+        for (let i = 0; i + 1 < bounds.length; i++) {
+            const a = bounds[i], b = bounds[i + 1];
+            const piece = { start: i ? timeAt(a) : c.start, end: i + 2 < bounds.length ? timeAt(b) : c.end, text: text.slice(a, b).trim() };
+            if (i) piece.midLine = true;
+            if (words) {
+                const ws = words.filter((w, k) => at[k] >= a && at[k] < b);
+                if (ws.length > 1) piece.words = ws;
+            }
+            pieces.push(piece);
+        }
+        if (pieces.some(p => p.end - p.start < 0.3 || !/\p{L}.*\p{L}/su.test(p.text))) out.push(c);
+        else out.push(...pieces);
+    }
+    return out;
 }
 
 function groupCuesIntoSentences(cues, perCueMode) {

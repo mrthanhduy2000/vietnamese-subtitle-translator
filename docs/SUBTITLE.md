@@ -100,6 +100,18 @@ of 13 everyday videos in the user's cache technical ("important" as import, "gen
 `vi-quality.js` `assess` flags a doubled word only for grammar words (`REPEAT_SLIP`) and never across
 punctuation: "tôi. Tôi" and "rần rần" were severity-3 slips that paid for a refine (15 -> 6 of 531 lines).
 
+**Quality check before a refine (2.3.2).** The last 6 severity-3 flags in the user's 531 cached
+lines were all false, and each would pay for a refine; now 1 (a real English leftover). `assess`
+leaves out web addresses, e-mails and handles (`ADDRESS_RE`) and the loanwords Vietnamese writes as
+they are (`LOANWORDS`: video, email, app, livestream...) from English leftovers; strips sound notes
+("[Music]", "♪") from both sides before judging, so a line of notes alone, or a note with at most 4
+stray heard words, is never "empty"; and applies the length ratio only when the source is Latin or
+Cyrillic script (a Hindi mantra or a Chinese line is short in characters, not in meaning).
+`translateWindow` runs `localFixes` (`fixSoundNotes`, then `fixRepeatedHeads`) on the first answer
+before `assessAll`: what the free fix mends no longer pays for a refine (zPSs9a0MYGw: the head repeat
+that cost one refine is mended first). Both fixes are idempotent, so the later passes in
+`trimTranslationLeaks` / `ytTrimLeaks` change nothing more.
+
 **Previous translation in context (1.8.3).** `ContextSession.buildRequest` sends the translation of
 the two groups before the window (`prevTranslation`), but only if they are already recorded. Coursera's
 two workers used to take windows turn about, so it was always empty; `translateAllGroups` now gives
@@ -192,12 +204,26 @@ waits (up to 10 s) for a run left over from the previous video instead of skippi
    onto the Vietnamese dub, and re-runs the opening checks when they move off it.
 3. `ytHoiNoiDungPhuDe` asks the bridge to fetch the track; `ytDocNoiDungPhuDe` parses it.
    Auto-generated tracks carry per-word timings, which the segmenter uses.
+   `splitCuesAtSentenceEnds` (`content.js`, 2.3.2) then cuts a line at a sentence end inside it
+   ("cook more at home. I feel like I am"), by word times when the track has them, else by
+   characters; abbreviations, decimals, a lower-case next word and a piece under 0.3 s keep the line
+   whole. Grouping only looks at line ends: on the user's 6 punctuated videos 112 of 316 groups ended
+   mid-sentence (the 24 s / 520 char limits cut them) and 64 windows ended on a fragment, where the
+   model finished the sentence from the next window's context (a leak) or split it over two items
+   (a head repeat). After: 11 groups, 1 window. A piece after a cut is `midLine`, and so is its
+   group: the voice reads across the cut as before (`DUBBING.md` "Across a caption line cut"), and
+   the flag is the cache's 6th group field. `yt.cues` holds the pieces, so the English line of the
+   bilingual display and the transcript rows change at the cut too. Coursera is not cut: its groups map back to the track's
+   own cues (`cueIndexes`) for `applyTranslation`, and there is no Coursera data to measure it on.
 4. `ytChayTienTrinhPrefetch` runs a 2-worker pool over `ytDichNhom`, staying `translateAhead`
    seconds ahead of playback. `ytDichKhanCap` jumps the queue after a seek. Windows are fixed by the
-   text alone (`ytCanonicalWindows`, 1.7.3: close at a sentence end from 420 chars or 4 groups, at
-   most 800 chars / 6 groups / 45 s), so a second visit from any position sends the same sentences
-   and the translation cache hits. The prefetch takes a window only when all of it is inside the
-   horizon; a failed window backs off as a whole.
+   text alone (`ytCanonicalWindows`, 1.7.3: close at a sentence end from 420 chars or 8 groups, at
+   most 800 chars / 12 groups / 45 s; 2.3.2 raised 4 / 6 because groups are single sentences more
+   often, which at 4 / 6 took 29% more requests, at 8 / 12 6% more), so a second visit from any
+   position sends the same sentences and the translation cache hits. A window never ends before a
+   `midLine` group, past a hard limit if need be (by the rest of one caption line), so the voice's
+   segment across the cut never arrives in two halves. The prefetch takes a window only when all of
+   it is inside the horizon; a failed window backs off as a whole.
 5. `ytVePhuDe` draws the subtitle itself into an overlay (YouTube's own caption layer is not used).
    `ytBatDauDongBo` drives it off `requestVideoFrameCallback`.
    While the player shows an ad (`ytAdShowing`, 1.9.3) nothing is drawn and nothing is sent for
