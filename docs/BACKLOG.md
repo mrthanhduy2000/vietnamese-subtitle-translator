@@ -15,7 +15,10 @@ How this file works:
 Closed (story in git and `version-history.js`): 1-4 (1.6.4), 6, 10 and 12 (1.9.4), 17 (1.7.8),
 25 (merged into 31), 32 and 34 (1.8.7), 35 (1.9.8), 38 (2026-09-29: every lead checked, none
 kept; the numbers are in `DUBBING.md` under the 1.9.9 buffer), 7 (2026-09-29, decided: the popup and
-the options page keep their own palettes, two designs, not duplication; the dead CSS went in 2.0.2-2.0.3).
+the options page keep their own palettes, two designs, not duplication; the dead CSS went in 2.0.2-2.0.3),
+24 (2.2.4: Vietnamese abbreviations and tickers in `VI_CAPS`; an unknown code the English source line
+lacks is read Vietnamese; `EN_SPELLED` keeps PDF, URL... English), 37, the translation timeout (2026-09-29, measured: 0 late of
+268 Gemini translation calls over Sep 28-29 in the user's ledger, so the timeout stays).
 
 Declined by the user, never re-add or re-propose: 37 (2026-09-28, the VieNeu "release the slot at
 once" server patch; real use showed 27 slow releases in 7979 takes, ~2 min of delay a week, and the
@@ -23,14 +26,7 @@ full gain needed the fragile abort path in `DANGER.md` §15. The patch was delet
 
 ## Defects
 
-**37. The translation timeout is tight.** *(found 2.1.0)* `callGeminiUnit` gives `4500 + 6 ms per
-source character`, 15 s cap (~6 s for a 250-character window). Google still finishes and bills a
-timed-out request. Since 2.1.3 its real tokens replace the estimate (`lateCalls`); since 2.2.0 its
-answer is cached and a twin request waits for it (`lateAnswerKeeper`, `lateUnits`,
-`LATE_JOIN_MS`); since 2.2.1 a lost answer's prompt is counted by countTokens (assumed free:
-the Gemini pricing page lists no price for it). What is left: the viewer of that moment still gets Google Translate. Next: read
-`lateCalls` against `trCalls` in the user's ledger; if it is more than a few percent, raise the
-floor (a longer wait delays the subtitle).
+none
 
 ## Subtitles and translation
 
@@ -159,11 +155,6 @@ English letters only on English evidence (the source line has it); VieNeu spells
 Vietnamese. A code with a vowel is left to VieNeu even though it spells "CRISPR", "NGINX", "MMORPG"
 with Vietnamese letter names: whether it is said as a word or as letters is unknown, and a wrong
 English guess is worse.
-
-**24. Unknown all-caps defaults to English letters.** *(found 1.7.8)* A 2-4 letter code VieNeu
-spells Vietnamese ("CPC") becomes `<en>c p c</en>` unless it is in `VI_CAPS` or VieNeu's own table.
-A Vietnamese code not in either (a new bank or firm) would be read English. With an English source
-line present the evidence rules still do not check caps against it: a possible refinement.
 
 **26. Conservative misses, on purpose.** *(found 1.8.0)* A lone "Dan", "Lan", "An", "Van", "Tan"
 stays Vietnamese even when the English source line names them (an English video about a Vietnamese

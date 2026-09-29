@@ -35,6 +35,19 @@ test("Vietnamese codes stay Vietnamese: VieNeu's own expansions, broadcasters an
     assert.equal(SPEECH.capsClass("CPC"), "spelled");
 });
 
+test("BACKLOG 24: Vietnamese abbreviations and tickers VieNeu misses stay Vietnamese; a code the English source lacks is the translator's", () => {
+    for (const s of ["Các DN nhỏ đang khó khăn.", "NHNN giữ nguyên lãi suất.", "Cổ phiếu HPG và VNM tăng.", "Học sinh đọc SGK.", "ThS Lan trình bày."]) {
+        assert.equal(say(s), s, s);
+    }
+    // an unknown code: English letters with no source line, or when the English source has it ...
+    assert.equal(say("Các XYZ nhỏ đang tăng."), "Các <en>x y z</en> nhỏ đang tăng.");
+    assert.equal(say("Các XYZ nhỏ đang tăng.", { source: "The XYZ firms are growing." }), "Các <en>x y z</en> nhỏ đang tăng.");
+    // ... Vietnamese when the English source line does not have it
+    assert.equal(say("Các XYZ nhỏ đang tăng.", { source: "The small firms are growing." }), "Các XYZ nhỏ đang tăng.");
+    // known English initialisms keep English letters whatever the source says
+    assert.equal(say("Mở tệp PDF rồi giảm CPC.", { source: "Open the document and cut the cost per click." }), "Mở tệp <en>p d f</en> rồi giảm <en>c p c</en>.");
+});
+
 test("a word acronym is said as a word, a possessive keeps its s", () => {
     assert.equal(say("Tôi mua bàn làm việc ở IKEA vì giá khá rẻ."), "Tôi mua bàn làm việc ở <en>ikea</en> vì giá khá rẻ.");
     assert.equal(say("Mẫu ghế này nằm trong IKEA's catalog năm nay."), "Mẫu ghế này nằm trong <en>ikea's</en> catalog năm nay.");

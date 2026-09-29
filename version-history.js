@@ -4,6 +4,15 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.2.4", luc: "", ten: "Giọng đọc chữ viết tắt tiếng Việt đúng kiểu Việt, cửa sổ bật lên rõ ràng hơn",
+            y: [
+                "Chữ viết tắt tiếng Việt mà giọng VieNeu không có sẵn trong bảng (DN, NHNN, TMCP, CTCP, SGK, HS, ThS, mã cổ phiếu HPG, VNM, MWG...) trước đây bị đọc bằng chữ cái tiếng Anh (\"đi en\"). Nay đọc kiểu Việt.",
+                "Mã in hoa lạ mà câu gốc tiếng Anh không có thì do người dịch viết ra, nên được đọc kiểu Việt; mã có trong câu gốc vẫn đọc chữ cái tiếng Anh. Các mã tiếng Anh quen thuộc (PDF, URL, CPC, ROI...) luôn đọc tiếng Anh.",
+                "Cửa sổ bật lên: sau khi bấm dịch hoặc gặp lỗi, nút không còn quay về \"Bắt đầu dịch bài giảng\" trên trang đã dịch mà ghi \"Dịch lại bài giảng\". Lỗi của Chrome (trang cửa hàng, tệp PDF, trang chưa sẵn sàng) được báo bằng câu dễ hiểu kèm cách xử lý.",
+                "Đo trên sổ chi phí thật: 0 trong 268 lượt dịch Gemini ngày 28 và 29/09 bị quá thời gian chờ, nên giữ nguyên thời gian chờ (nới ra chỉ làm phụ đề chậm hơn)."
+            ]
+        },
+        {
             v: "2.2.3", luc: "", ten: "Dịch miễn phí bằng Google chắc chắn hơn",
             y: [
                 "Khi dịch bằng Google (chưa có key, hoặc Gemini đang lỗi), cả đoạn phụ đề được gửi trong một yêu cầu thay vì mỗi câu một yêu cầu. Một đoạn 16 câu trên Coursera trước đây bắn 16 yêu cầu cùng lúc (tới 48 nếu máy chủ đầu lỗi), dễ bị Google chặn vì gọi dồn.",

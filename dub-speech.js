@@ -202,7 +202,14 @@
     // All-caps codes VieNeu spells with Vietnamese letter names, and Vietnamese say that way too
     // (broadcasters, banks, firms): left alone
     const VI_CAPS = new Set(("VTV VOV HTV VTC VNPT EVN FPT VNG SJC PNJ BIDV VCB TCB ACB VIB SHB HDB VPB MSB OCB SCB TPB " +
-        "XHCN CHXHCN VN TPHCM THPTQG").split(" "));
+        "XHCN CHXHCN VN TPHCM THPTQG " +
+        // 2.2.4 (BACKLOG 24): common Vietnamese abbreviations and stock tickers VieNeu's table misses,
+        // which were sent as English letters ("DN" doanh nghiệp read "dee en")
+        "DN DNNVV NHNN CTCP TMCP TTCK XNK SXKD QH NQ TT BYT BGD BGDĐT SGK HS GV SV ThS HNX " +
+        "HPG VNM MWG SSI VPS VIC VHM MSN VJC HVN GAS PLX VRE STB CTG").split(" "));
+    // English codes VieNeu spells with Vietnamese letter names that stay English letters even when
+    // the source line spells them out: a Vietnamese reader says these the English way
+    const EN_SPELLED = new Set("QA PDF URL NFT TCP WAN SMB USB".split(" "));
     // English initialisms said letter by letter even where VieNeu reads a word, or where its table
     // stops (5 letters)
     const INITIALISMS = new Set("HTTPS HR PR CPC CPM CPA ROI TPM SEM AWS GCP ETL CSV".split(" "));
@@ -277,6 +284,8 @@
     function analyzeUncached(text, ctx) {
         const toks = SEG ? SEG.tokenize(text) : text.split(/\s+/).filter(Boolean).map(raw => ({ raw, lead: "", trail: "" }));
         const source = String(ctx.source || "");
+        const englishSource = !!source && ENGLISH_LINE.test(source);
+        const inSource = w => new RegExp(`(^|[^\\p{L}])${esc(w)}(?![\\p{L}])`, "u").test(source);
         const tokens = toks.map((t, i) => {
             const lead = t.lead || "", trail = t.trail || "";
             const s = t.raw.slice(lead.length, t.raw.length - trail.length);
@@ -317,9 +326,12 @@
             const p = possessive(t.s), c = capsClass(p);
             if (c === "vi" || (shouting && isViet(p))) return false;
             if (c === "word") return !isViet(p);
+            // an unknown code the English source line does not have was written by the translator,
+            // so it is a Vietnamese abbreviation ("DN" for "businesses"), read with Vietnamese letters
+            if (c === "spelled" && englishSource && !INITIALISMS.has(p) && !EN_SPELLED.has(p) && !inSource(p)) return false;
             return true;
         };
-        const english = t => t.unit >= 0 || t.shape === "en" || t.shape === "camel" || englishCaps(t);
+        const english = t => t.unit >= 0 || t.shape === "en" || (t.shape === "camel" && !VI_CAPS.has(possessive(t.s))) || englishCaps(t);
         const num = t => t.shape === "num";
         const member = t => english(t) || t.shape === "code" || (t.shape === "ambig" && capitalised(t.s));
         const spans = [];
@@ -362,7 +374,6 @@
         //    brand ("Sam Altman ...", not "So Google"); a lone given name the English source line names
         //    ("Tom said" -> "Tom kể"). Vietnamese clues: a Vietnamese name word beside it ("Nguyễn Văn
         //    Dan", decisive), a title before it ("chị Kim", weak), a line in capitals (decisive).
-        const englishSource = !!source && ENGLISH_LINE.test(source);
         const pair = (x, y) => source && new RegExp(`(^|[^\\p{L}])${esc(x.s)}\\s+${esc(y.s)}([^\\p{L}]|$)`, "u").test(source);
         const named = x => englishSource && new RegExp(`(^|[^\\p{L}])${esc(possessive(x.s))}(?![\\p{L}])`, "u").test(source);
         // a capitalised Vietnamese word that is part of a name: not a title, not just the sentence's first word
@@ -422,7 +433,7 @@
             if (p.length < 5 || INITIALISMS.has(p) || capsClass(p) === "vi" || VOWEL_CAPS.test(p)) continue;
             const sp = spans[t.span];
             let score = 0;
-            if (englishSource && new RegExp(`(^|[^\\p{L}])${esc(p)}(?![\\p{L}])`, "u").test(source)) score += CONF.strong;
+            if (englishSource && inSource(p)) score += CONF.strong;
             if (tokens.slice(sp.a, sp.b + 1).some(x => x !== t && (x.shape === "en" || x.shape === "camel" || x.unit >= 0))) score += CONF.weak;
             if (/[FJWZ]/.test(p)) score += CONF.weak;
             t.score = score;
@@ -453,6 +464,7 @@
             }
             case "camel": {
                 if (LEX.has(p.toLowerCase())) return null;           // in the lexicon: VieNeu reads it well
+                if (VI_CAPS.has(p)) return null;                     // "ThS" (thạc sĩ)
                 const pieces = camelPieces(p);
                 if (pieces.some(x => /^[A-Z]{2,}$/.test(x))) return null;      // "ChatGPT": VieNeu knows the acronym
                 // a piece VieNeu would read as a Vietnamese syllable ("Di", "Le"), or cannot say ("Mc")

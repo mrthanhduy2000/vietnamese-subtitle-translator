@@ -12,6 +12,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const statusIconWrap = document.getElementById("statusIconWrap");
     const statusEl = document.getElementById("status");
     const liveStatusText = document.getElementById("liveStatusText");
+    // What the idle button says: "Dịch lại" once the page is translated (after a click too), so a
+    // success or an error no longer puts back "Bắt đầu" on a page that already shows Vietnamese
+    let idleLabel = btnLabel ? btnLabel.textContent : "";
+    const setIdleLabel = t => { idleLabel = t; if (btnLabel && !translateBtn.classList.contains("is-translating") && !translateBtn.classList.contains("is-success")) btnLabel.textContent = t; };
 
     // 1. Load saved settings from Chrome storage
     const saved = await chrome.storage.sync.get({
@@ -95,7 +99,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!st) { el.hidden = true; return; }
         if (veTheDangXem(st)) {
             el.hidden = true;
-            if (st.active && btnLabel) btnLabel.textContent = "Dịch lại bài giảng";
+            if (st.active) setIdleLabel("Dịch lại bài giảng");
             return;
         }
         const phan = [];
@@ -105,7 +109,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!phan.length) { el.hidden = true; return; }
         el.textContent = phan.join(" · ");
         el.hidden = false;
-        if (st.active && btnLabel) btnLabel.textContent = "Dịch lại bài giảng";
+        if (st.active) setIdleLabel("Dịch lại bài giảng");
     }
 
     // 5b. Detect Active Tab for Live Status Indicator
@@ -233,6 +237,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
+    // Chrome's own wording ("Cannot access contents of the page", "Receiving end does not exist")
+    // told the viewer nothing they could act on
+    function activationError(error) {
+        const m = String(error && error.message || "");
+        if (/cannot access|cannot be scripted|extensions gallery|chrome-extension|permission/i.test(m)) {
+            return "Trang này không cho tiện ích chạy (trang cửa hàng Chrome, tệp PDF hoặc trang hệ thống). Hãy mở trang video.";
+        }
+        if (/receiving end|establish connection|message port closed/i.test(m)) {
+            return "Trang chưa sẵn sàng. Tải lại trang (F5) rồi bấm lại.";
+        }
+        return `Không thể kích hoạt: ${m || "lỗi không rõ"}`;
+    }
+
     // 8. Translation Trigger with Multi-Stage Animation
     translateBtn.addEventListener("click", async () => {
         if (translateBtn.classList.contains("is-translating")) return;
@@ -284,19 +301,20 @@ document.addEventListener("DOMContentLoaded", async () => {
             // Success Transition
             translateBtn.classList.remove("is-translating");
             translateBtn.classList.add("is-success");
+            idleLabel = "Dịch lại bài giảng";
             btnLabel.textContent = "Đã kích hoạt phụ đề!";
             showStatus("Đang xử lý. Xem thanh tiến trình trên video.", "success");
 
             setTimeout(() => {
                 translateBtn.classList.remove("is-success");
-                btnLabel.textContent = "Bắt đầu dịch bài giảng";
+                btnLabel.textContent = idleLabel;
             }, 2600);
 
         } catch (error) {
             console.error("Lỗi khi kích hoạt:", error);
             translateBtn.classList.remove("is-translating");
-            btnLabel.textContent = "Bắt đầu dịch bài giảng";
-            showStatus(`Không thể kích hoạt: ${error.message}`, "error");
+            btnLabel.textContent = idleLabel;
+            showStatus(activationError(error), "error");
         }
     });
 });

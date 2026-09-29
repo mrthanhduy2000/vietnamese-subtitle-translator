@@ -88,6 +88,10 @@ module fixes:
 | name word that is a Vietnamese syllable, even inside `<en>` | Tom t̪ˈɔm, San sˈaːn | `<en>tahm</en>`, `<en>sanne</en>` |
 | model number read as an amount | RTX 5090 "năm nghìn không trăm..." | `RTX 5 0 9 0` |
 
+- Not every "spelled" code is English (2.2.4): `VI_CAPS` holds Vietnamese abbreviations and tickers
+  the table misses (DN, NHNN, TMCP, SGK, HPG, ThS...), and an unknown code the English source line
+  (`plan.srcText`) does not contain is the translator's, so it stays Vietnamese. `INITIALISMS` and
+  `EN_SPELLED` (PDF, URL, QA...) keep English letters whatever the source says.
 - `<en>...</en>` is the front end's own marker; text inside skips its acronym and camelCase rules. It
   cannot change the language of a Vietnamese-syllable word (hence the respellings), and **past 10
   tags in one normalizer call it breaks** (placeholder "ENTOKEN1" vs "ENTOKEN10": the 11th tag reads
