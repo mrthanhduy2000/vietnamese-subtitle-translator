@@ -6,13 +6,14 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · cost: `background.js`, `options.js`, `tests/hardening.test.js` (2.2.0; card and
-currency 2.1.3); dubbing: `dub-prosody.js` `BREATH`, `tests/prosody.test.js`,
-`dub-audio.js`, `dub-engine.js`, `background.js` (D, `breath` field), tests, docs (2.1.5-2.1.9) · `2.2.0`.
+2026-09-29 · cost: `background.js`, `cost-policy.js`, `options.js`, `tests/hardening.test.js`
+(2.2.0-2.2.1); dubbing: `dub-prosody.js` `BREATH`, `tests/prosody.test.js`,
+`dub-audio.js`, `dub-engine.js`, `background.js` (D, `breath` field), tests, docs (2.1.5-2.1.9) · `2.2.1`.
 
 ## What changed
-- Cost 2.1.0-2.1.3: every billed request charged (`policy.onBilled`/`onLate`), Pacific-day history, currency.
-- 2.2.0: late answer cached (`lateAnswerKeeper`), a twin waits 4 s; `estUsd`, `costTokenRatio`.
+- Cost 2.1.0-2.2.0: every billed request charged (`onBilled`/`onLate`), Pacific-day history,
+  currency, late answers cached (`lateAnswerKeeper`). 2.2.1: `countPromptTokens` (countTokens) makes a lost answer's prompt exact (`countedCalls`);
+  `lateOpened` keep-alive; `COST.priceOf` for typed ids (`how` exact/variant/family/unknown).
 - 2.1.5 / 2.1.6: `BREATH` 0.35 / 18, `minSide` 6, `longRun` 26 / `longValue` 0.1. Takes by the user's
   Terminal (`$TMPDIR/br/ab2.js`, CUR / CAND json of texts from `$TMPDIR/br/texts.js <repo>`).
 - 2.1.7: `breathText` fallback: a 15+ run with no comma takes its best boundary >= 0.35; all 184
@@ -24,9 +25,8 @@ currency 2.1.3); dubbing: `dub-prosody.js` `BREATH`, `tests/prosody.test.js`,
   made (`next.pending`, bridge only): slow-matrix pumps 197 -> 8, delivery identical.
 
 ## State
-- Tests: 582 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
+- Tests: 583 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
 - Live check 2.1.9 done (DUBBING.md "Live check"): no defect found. Not heard by ear yet.
-- `~/.cache/cst-prosody-takes` rebuilt by the user 13:55 (920 takes, no breath commas).
 
 ## Unfinished / in progress
 - User to compare the card with AI Studio; still far off: key shared elsewhere, or BACKLOG 37.

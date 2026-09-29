@@ -188,9 +188,32 @@
     const BUDGET_DEFAULTS = { daily: 1.0, video: 0.5, warnAt: 0.8 };
 
     // ---------------- Ước tính chi phí (chỉ để hiển thị và giới hạn ngân sách) ----------------
+    // Price of a model id as the catalog knows it. A typed id is matched after dropping what only
+    // names a release ("models/", "-preview", "-latest", "-001", a date), then by family and
+    // generation ("3.1" + "flash-lite"; a newer generation takes the dearest of its kind). A model
+    // of no known kind (a Pro, say) has no price here: PRICE_UNKNOWN is only a placeholder and the
+    // Settings card says the amount may be low. how: "exact" | "variant" | "family" | "unknown".
+    const PRICES_CHECKED = "2026-09-29";
+    const PRICING_URL = "https://ai.google.dev/gemini-api/docs/pricing";
+    const PRICE_UNKNOWN = { in: 0.75, out: 3.75 };
+    function priceOf(id) {
+        const exact = findModel(id);
+        if (exact && exact.estPrice) return { price: exact.estPrice, how: "exact", base: exact.id };
+        const norm = String(id || "").toLowerCase().replace(/^models\//, "")
+            .replace(/-(preview|latest|exp(erimental)?)(-[\w.-]*)?$/, "").replace(/-\d{3}$/, "").replace(/-\d{2}-\d{2,4}$/, "");
+        const variant = findModel(norm);
+        if (variant && variant.estPrice) return { price: variant.estPrice, how: "variant", base: variant.id };
+        const gen = (norm.match(/gemini-(\d+(?:\.\d+)?)/) || [])[1];
+        const kind = /flash-lite/.test(norm) ? "flash-lite" : /flash/.test(norm) ? "flash" : null;
+        const same = TRANSLATION_MODELS.filter(m => kind && (kind === "flash" ? /flash(?!-lite)/.test(m.id) : m.id.includes(kind)));
+        const sameGen = same.find(m => gen && m.id.startsWith(`gemini-${gen}-`));
+        if (sameGen) return { price: sameGen.estPrice, how: "family", base: sameGen.id };
+        if (same.length) { const top = same.reduce((a, b) => (b.estPrice.out > a.estPrice.out ? b : a)); return { price: top.estPrice, how: "family", base: top.id }; }
+        return { price: PRICE_UNKNOWN, how: "unknown", base: null };
+    }
     // cachedTok: the part of inTok Google served from its implicit cache, billed at p.cache
     function estimateTextCost(model, inTok, outTok, cachedTok = 0) {
-        const p = (findModel(model) || {}).estPrice || { in: 0.5, out: 3 };
+        const p = priceOf(model).price;
         const cached = Math.min(cachedTok || 0, inTok);
         return ((inTok - cached) * p.in + cached * (p.cache != null ? p.cache : p.in) + outTok * p.out) / 1e6;
     }
@@ -335,7 +358,7 @@
         voiceLabel, PAID_TTS,
         TRANSLATION_MODELS, TTS_MODELS, LOCAL_TTS, DEFAULT_MODELS, RETIRED_MODELS, MODELS_VERSION, AUTO, AUTO_CANDIDATES, AUDIO_TOKENS_PER_SEC,
         findModel, modelLabel, costRank, thinkingLevelFor, modelChain, migrateModelSettings, afterShutdown, liveModel,
-        estimateTextCost, estimateTtsCost, BUDGET_DEFAULTS,
+        estimateTextCost, estimateTtsCost, BUDGET_DEFAULTS, priceOf, PRICE_UNKNOWN, PRICES_CHECKED, PRICING_URL,
         FX, CURRENCIES, MONEY_DEFAULTS, moneyOpts, formatUsd, formatVnd, money,
         MODES, getMode, routeDifficulty
     };

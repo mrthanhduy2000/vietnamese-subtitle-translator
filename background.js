@@ -215,6 +215,42 @@ async function isUnavailableFn(apiKey) {
 // Trả về JSON phản hồi (HTTP 200). Lỗi: ném GeminiError có .type
 // How long a timed-out request is still listened to for its bill before it is dropped
 const LATE_WAIT_MS = 120000;
+// Chrome stops an idle service worker after ~30 s, which would drop a late answer still on its way
+// (its bill would stay an estimate and its translation would be lost). While one is awaited, a
+// cheap extension call every 20 s counts as activity; it stops with the last one.
+let lateOpen = 0, keepAliveTimer = null;
+function lateOpened() {
+    lateOpen++;
+    const rt = typeof chrome !== "undefined" && chrome.runtime;
+    if (keepAliveTimer || !rt || typeof rt.getPlatformInfo !== "function" || typeof setInterval !== "function") return;
+    keepAliveTimer = setInterval(() => { try { rt.getPlatformInfo(() => {}); } catch (e) { /* bỏ qua */ } }, 20000);
+}
+function lateClosed() {
+    lateOpen = Math.max(0, lateOpen - 1);
+    if (!lateOpen && keepAliveTimer) { clearInterval(keepAliveTimer); keepAliveTimer = null; }
+}
+// Exact prompt tokens of a request whose answer never came, from Google's token counter (no text
+// is generated; the Gemini API lists no price for it). 0 when it cannot say.
+async function countPromptTokens(model, apiKey, body) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+    if (timer && timer.unref) timer.unref();
+    try {
+        const res = await fetch(GEMINI_BASE + encodeURIComponent(model) + ":countTokens", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+            body: JSON.stringify({ generateContentRequest: { model: `models/${model}`, contents: body.contents, systemInstruction: body.system_instruction } }),
+            signal: controller.signal
+        });
+        if (!res.ok) return 0;
+        const d = await res.json().catch(() => null);
+        return Math.max(0, Math.round(Number(d && d.totalTokens) || 0));
+    } catch (e) {
+        return 0;
+    } finally {
+        clearTimeout(timer);
+    }
+}
 async function geminiCall(model, apiKey, body, policy = {}) {
     if (keyBlock && keyBlock.key === apiKey && keyBlock.until > Date.now()) throw new GeminiError(keyBlock.type, `Gemini: ${keyBlock.reason}`, { blocked: true });
     if (missingModels.has(model)) throw new GeminiError("not_found", `${model}: ${ERROR_TEXT.not_found}`, { blocked: true });
@@ -265,7 +301,8 @@ async function geminiCall(model, apiKey, body, policy = {}) {
                 if (keepLate) {
                     const cap = setTimeout(() => controller.abort(), LATE_WAIT_MS);
                     if (cap && cap.unref) cap.unref();
-                    request.then(({ res, data }) => { if (res.ok) policy.onLate(data || {}); }).catch(() => {}).finally(() => clearTimeout(cap));
+                    lateOpened();
+                    request.then(({ res, data }) => { if (res.ok) policy.onLate(data || {}); }).catch(() => {}).finally(() => { clearTimeout(cap); lateClosed(); });
                 }
             }
             else if (e && e.name === "AbortError") err = new GeminiError("aborted", "Đã hủy");
@@ -469,10 +506,25 @@ async function callGeminiUnit(req, apiKey, model, retries = 2, bill = null, onLa
     // translation is kept: a retry after a cut-off or unparsable answer was billed too
     // A timeout is charged at once with an estimate (the answer may never come); when the answer
     // still arrives, its real counts replace that estimate
-    let estimate = null;
-    const onBilled = bill && (data => { const u = usageOf(data, sys.length + user.length, srcChars); if (!data) estimate = u; bill(u); });
+    // bill(usage, replaces, late): replaces is a charge this one corrects; late marks an answer that
+    // came after the timeout. The prompt of a timed-out request is then counted exactly by Google's
+    // token counter, so only its output stays an estimate until (unless) the answer arrives.
+    let estimate = null, body = null;
+    const onBilled = bill && (data => {
+        const u = usageOf(data, sys.length + user.length, srcChars);
+        bill(u);
+        if (data) return;
+        estimate = u;
+        const sent = body;
+        countPromptTokens(model, apiKey, sent).then(n => {
+            if (!n || estimate !== u) return;                   // no count, or the real answer came first
+            const counted = { ...u, in: n, promptCounted: true };
+            estimate = counted;
+            bill(counted, u, false);
+        });
+    });
     const onLate = (bill || onLateAnswer) && (data => {
-        if (bill && estimate) bill(usageOf(data, sys.length + user.length, srcChars), estimate);
+        if (bill && estimate) { const was = estimate; estimate = null; bill(usageOf(data, sys.length + user.length, srcChars), was, true); }
         if (onLateAnswer) {
             let answer = null;
             try { answer = readUnitAnswer(data, req, allowed); } catch (e) { /* unusable: nothing to keep */ }
@@ -492,11 +544,12 @@ async function callGeminiUnit(req, apiKey, model, retries = 2, bill = null, onLa
         if (thinking) generationConfig.thinkingConfig = thinking;
         let data;
         try {
-            data = await geminiCall(model, apiKey, {
+            body = {
                 system_instruction: { parts: [{ text: sys }] },
                 contents: [{ parts: [{ text: user }] }],
                 generationConfig
-            }, { timeoutMs, retries, backoffMs: 500, timeoutCooldownMs: 15000, onBilled, onLate });
+            };
+            data = await geminiCall(model, apiKey, body, { timeoutMs, retries, backoffMs: 500, timeoutCooldownMs: 15000, onBilled, onLate });
         } catch (e) {
             if (e.type === "invalid" && /thinking/i.test(e.message) && thinking) { noThinkingCfg.add(model); continue; }
             if (e.type === "invalid" && /schema|mime/i.test(e.message) && !unitSchemaUnsupported) { unitSchemaUnsupported = true; continue; }
@@ -543,8 +596,9 @@ function localDay() {
 }
 // inTok: billed prompt tokens, cachedTok the part of them billed at the cache rate; outTok: billed
 // output tokens, thinking included (thoughtTok is that part); estCalls: requests whose tokens had
-// to be estimated (timed out, no usage in the answer). byModel splits calls / tokens / USD.
-const emptyStats = () => ({ trUsd: 0, ttsUsd: 0, trCalls: 0, ttsCalls: 0, audioSec: 0, localSec: 0, hitsTr: 0, hitsAudio: 0, avoided: 0, inTok: 0, outTok: 0, thoughtTok: 0, cachedTok: 0, estCalls: 0, estUsd: 0, lateCalls: 0, byModel: {} });
+// to be estimated (timed out, no usage in the answer); countedCalls: of those, how many had their
+// prompt counted exactly by countTokens. byModel splits calls / tokens / USD.
+const emptyStats = () => ({ trUsd: 0, ttsUsd: 0, trCalls: 0, ttsCalls: 0, audioSec: 0, localSec: 0, hitsTr: 0, hitsAudio: 0, avoided: 0, inTok: 0, outTok: 0, thoughtTok: 0, cachedTok: 0, estCalls: 0, estUsd: 0, lateCalls: 0, countedCalls: 0, byModel: {} });
 // One billed translation request into the ledger
 function usagePatch(model, u) {
     const out = u.out + u.thoughts;
@@ -553,12 +607,13 @@ function usagePatch(model, u) {
 }
 // prev: the estimate charged when this request timed out; its late answer replaces it
 // (lateCalls counts those, so the card can say how many estimates became real numbers)
-function trackText(meta, model, u, prev) {
+function trackText(meta, model, u, prev, late = true) {
     const patch = usagePatch(model, u);
     if (prev) {
         const was = usagePatch(model, prev);
         for (const k of Object.keys(patch)) patch[k] -= was[k];
-        patch.lateCalls = 1;
+        if (late) patch.lateCalls = 1;
+        else patch.countedCalls = 1;
     }
     track(meta, patch, model);
 }
@@ -763,7 +818,7 @@ async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
             if (!firstTried) firstTried = model;
             const late = request.refine ? null : lateAnswerKeeper({ ...request, sentences }, model, tier);
             try {
-                const r = await callGeminiUnit({ ...request, sentences }, cfg.geminiApiKey, model, model === firstTried ? 2 : 0, (u, prev) => trackText(meta, model, u, prev), late && late.keep);
+                const r = await callGeminiUnit({ ...request, sentences }, cfg.geminiApiKey, model, model === firstTried ? 2 : 0, (u, prev, isLate) => trackText(meta, model, u, prev, isLate), late && late.keep);
                 r.tier = tier;
                 if (model !== firstTried) r.fallbackFrom = firstTried;
                 // Lưu theo ĐÚNG model đã tạo bản dịch; chỉ lưu kết quả đã kiểm tra hợp lệ.
@@ -1421,8 +1476,8 @@ async function handleCostStats() {
     try {
         const cfg = await modelsFromCfg();
         const id = cfg.geminiApiKey ? COST.modelChain("cheap", cfg, cfg.costMode, await isUnavailableFn(cfg.geminiApiKey))[0] : null;
-        const m = id && COST.findModel(id);
-        if (id) model = { id, label: COST.modelLabel(id), price: (m && m.estPrice) || null };
+        const p = id && COST.priceOf(id);
+        if (id) model = { id, label: COST.modelLabel(id), price: p.price, how: p.how, base: p.base };
     } catch (e) { model = null; }
     return { ok: true, day: ledger, session: sessionStats, budget, model, history, pacificToday: pacificDay() };
 }

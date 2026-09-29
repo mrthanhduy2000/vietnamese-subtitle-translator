@@ -640,13 +640,19 @@ document.addEventListener("DOMContentLoaded", async () => {
             const real = Math.max(0, Math.min(100, Math.round((1 - (d.estUsd || 0) / d.trUsd) * 100)));
             notes.push(`Độ tin cậy: ${real}% số tiền hôm nay tính từ số token Google báo về${real < 100 ? `, ${100 - real}% là ước lượng` : ""}.`);
         }
-        if (d.estCalls) notes.push(`${d.estCalls} lượt hôm nay quá thời gian chờ mà Google chưa trả về: vẫn bị tính tiền, tiện ích ước lượng theo độ dài câu.`);
+        if (d.estCalls) notes.push(`${d.estCalls} lượt hôm nay quá thời gian chờ mà Google chưa trả về: vẫn bị tính tiền. ${d.countedCalls ? `${d.countedCalls} lượt trong đó đã được Google đếm đúng số token vào; ` : ""}phần còn lại ước lượng theo độ dài câu.`);
+        // Models whose price is not in the catalog under their own name
+        const unsure = Object.keys(d.byModel || {}).map(id => [id, COST.priceOf(id)]).filter(([id, p]) => p.how !== "exact" && !(m && id === m.id && p.how !== "unknown"));
+        for (const [id, p] of unsure) notes.push(p.how === "unknown"
+            ? `⚠ Chưa có giá của model ${esc(id)} trong tiện ích: số tiền của model này có thể thấp hơn thật. Xem bảng giá Google.`
+            : `Model ${esc(id)} được tính theo giá của ${esc(nameOf(p.base))}.`);
         if (d.lateCalls) notes.push(`${d.lateCalls} lượt quá thời gian chờ nhưng Google trả về muộn: đã thay số ước lượng bằng số token thật.`);
         if (d.trCalls && !d.inTok) notes.push("Số token chỉ được đếm từ bản 2.1.0; các lượt trước đó của hôm nay bị đếm thiếu.");
         if (moneyO.extraPct) notes.push(`Mọi số tiền đã cộng ${String(moneyO.extraPct).replace(".", ",")}% thuế và phí.`);
-        const price = m && m.price;
+        const price = m && m.how !== "unknown" && m.price;
+        const checked = COST.PRICES_CHECKED.split("-").reverse().join("/");
         sumEl.innerHTML = [
-            m ? `Model đang dịch: <b>${esc(m.label)}</b>${price ? `. Giá Google cho 1 triệu token: vào ${fm(price.in)}, ra ${fm(price.out)} (token ra gồm cả phần model "suy nghĩ")` : ""}.` : "Chưa có API key: không gọi Gemini, không tốn tiền.",
+            m ? `Model đang dịch: <b>${esc(m.label)}</b>${price ? `. Giá Google cho 1 triệu token: vào ${fm(price.in)}, ra ${fm(price.out)} (token ra gồm cả phần model "suy nghĩ")${m.how !== "exact" ? `, lấy theo giá của ${esc(nameOf(m.base))}` : ""}` : ". Chưa có giá của model này trong tiện ích"}. Bảng giá kiểm tra ngày ${checked}, <a href="${COST.PRICING_URL}" target="_blank" rel="noopener">xem giá mới nhất</a>.` : "Chưa có API key: không gọi Gemini, không tốn tiền.",
             line("Hôm nay, giờ máy", d),
             line("Từ lúc mở trình duyệt", r.session),
             b.dailyBudget ? `Đã dùng ${Math.round(b.spentDay / b.dailyBudget * 100)}% ngân sách ngày (${fm(b.dailyBudget)})${b.level === "over" ? ": đã chạm, thôi dịch lại bằng model mạnh" : b.level === "warn" ? ": sắp chạm" : ""}.` : "Không giới hạn ngân sách ngày.",
@@ -658,7 +664,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (models.length) html += table("Hôm nay theo model", ["Model", "Lượt", "Token vào", "Token ra", "Chi phí"],
             models.map(([id, x]) => [esc(nameOf(id)), x.calls, toks(x.inTok), toks(x.outTok), cell(x.usd)]));
         // Split by token kind only with a single model: one price applies to every row
-        const p = models.length <= 1 && (COST.findModel(models.length ? models[0][0] : m && m.id) || {}).estPrice;
+        const tokId = models.length ? models[0][0] : m && m.id;
+        const p = models.length <= 1 && tokId && COST.priceOf(tokId).how !== "unknown" && COST.priceOf(tokId).price;
         if ((d.inTok || d.outTok) && p) {
             const cached = d.cachedTok || 0, thought = d.thoughtTok || 0;
             const rows = [["Token vào: lời nhắc, ngữ cảnh, câu cần dịch", toks(d.inTok - cached), cell((d.inTok - cached) * p.in / 1e6)]];

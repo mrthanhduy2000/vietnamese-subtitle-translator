@@ -625,8 +625,13 @@ test("cost ledger charges every billed request: a thrown-away answer and a timed
     assert.equal(cleared.history[cleared.pacificToday].trCalls, 2);
 
     // A request our timer drops still runs at Google: charged with an estimate
+    let counted = null;
     const T = bgEnv(async (u, o) => {
         if (!u.includes("generativelanguage")) return GOOGLE_OK;
+        if (u.includes(":countTokens")) {
+            counted = JSON.parse(o.body);
+            return { ok: true, status: 200, json: async () => ({ totalTokens: 1234 }) };
+        }
         return new Promise((_, rej) => o.signal.addEventListener("abort", () => rej(Object.assign(new Error("aborted"), { name: "AbortError" }))));
     }, cfg({ geminiApiKey: "KEY-OLD-USER" }));
     await T.send(REQ);
@@ -634,6 +639,13 @@ test("cost ledger charges every billed request: a thrown-away answer and a timed
     assert.ok(st2.day.trCalls >= 1 && st2.day.estCalls === st2.day.trCalls, `timed-out calls ${JSON.stringify(st2.day)}`);
     assert.ok(st2.day.trUsd > 0 && st2.day.inTok > 0);
     assert.ok(Math.abs(st2.day.estUsd - st2.day.trUsd) < 1e-12, "all of it is an estimate");
+    await new Promise(r => setTimeout(r, 50));
+    const st3 = await T.send({ action: "costStats" });
+    assert.equal(st3.day.inTok, 1234 * st3.day.trCalls, "the prompt of a lost answer is counted exactly by countTokens");
+    assert.equal(st3.day.countedCalls, st3.day.trCalls);
+    assert.equal(st3.day.estCalls, st3.day.trCalls, "its output is still an estimate");
+    const g = counted.generateContentRequest;
+    assert.ok(/^models\/gemini-/.test(g.model) && g.contents[0].parts[0].text.includes("CẦN DỊCH") && g.systemInstruction.parts[0].text, "the same prompt is counted");
 });
 
 test("cost ledger: a timed-out request whose answer still arrives is re-charged with its real token counts", async () => {
@@ -641,6 +653,7 @@ test("cost ledger: a timed-out request whose answer still arrives is re-charged 
     let aborted = false;
     const E = bgEnv(async (u, o) => {
         if (!u.includes("generativelanguage")) return GOOGLE_OK;
+        if (u.includes(":countTokens")) return { ok: true, status: 200, json: async () => ({ totalTokens: 650 }) };
         o.signal.addEventListener("abort", () => { aborted = true; });
         await new Promise(r => setTimeout(r, 5600));                        // past the ~4.7 s timeout
         return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify({ t: ["muộn"] }) }] }, finishReason: "STOP" }], usageMetadata: usage }) };
@@ -666,6 +679,7 @@ test("late answer is not wasted: a twin request waits for it instead of paying a
     let calls = 0;
     const E = bgEnv(async (u, o) => {
         if (!u.includes("generativelanguage")) return GOOGLE_OK;
+        if (u.includes(":countTokens")) return { ok: true, status: 200, json: async () => ({ totalTokens: 650 }) };
         calls++;
         await new Promise(r => setTimeout(r, 5600));                        // past the ~4.7 s timeout
         return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify({ t: ["bản muộn"] }) }] }, finishReason: "STOP" }], usageMetadata: { promptTokenCount: 700, candidatesTokenCount: 40 } }) };
@@ -688,6 +702,7 @@ test("late answer that is unusable is billed, not cached, and a twin request is 
     let calls = 0;
     const E = bgEnv(async (u, o) => {
         if (!u.includes("generativelanguage")) return GOOGLE_OK;
+        if (u.includes(":countTokens")) return { ok: true, status: 200, json: async () => ({ totalTokens: 650 }) };
         calls++;
         await new Promise(r => setTimeout(r, 5600));
         return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: "không phải JSON" }] }, finishReason: "STOP" }], usageMetadata: { promptTokenCount: 700, candidatesTokenCount: 40 } }) };
@@ -701,6 +716,19 @@ test("late answer that is unusable is billed, not cached, and a twin request is 
     const st = await E.send({ action: "costStats" });
     assert.equal(st.day.trCalls, calls, "every call Google answered is billed");
     assert.equal(st.day.estCalls, 0);
+});
+
+test("price of a typed model id: release suffixes, family by generation, unknown kind flagged", () => {
+    const how = id => { const p = COST.priceOf(id); return [p.how, p.base]; };
+    assert.deepEqual(how("gemini-3.1-flash-lite"), ["exact", "gemini-3.1-flash-lite"]);
+    for (const id of ["gemini-3.1-flash-lite-preview", "models/gemini-3.1-flash-lite-preview-09-2026", "gemini-3.1-flash-lite-001", "gemini-3.1-flash-lite-latest"])
+        assert.deepEqual(how(id), ["variant", "gemini-3.1-flash-lite"], id);
+    assert.deepEqual(how("gemini-3.5-flash-lite-preview"), ["variant", "gemini-3.5-flash-lite"]);
+    assert.equal(COST.priceOf("gemini-9-flash-lite").how, "family", "a newer generation: dearest of its kind");
+    assert.ok(COST.priceOf("gemini-9-flash-lite").price.out >= Math.max(...COST.TRANSLATION_MODELS.filter(m => m.id.includes("flash-lite")).map(m => m.estPrice.out)));
+    assert.equal(COST.priceOf("gemini-3.5-pro").how, "unknown");
+    const close = (a, b) => assert.ok(Math.abs(a - b) < 1e-12, `${a} vs ${b}`);
+    close(COST.estimateTextCost("gemini-3.1-flash-lite-preview", 1e6, 1e6), 1.75);
 });
 
 test("money display: VND, USD or both, Vietnamese number format, bad settings fall back", () => {

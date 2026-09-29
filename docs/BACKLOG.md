@@ -26,7 +26,8 @@ full gain needed the fragile abort path in `DANGER.md` §15. The patch was delet
 source character`, 15 s cap (~6 s for a 250-character window). Google still finishes and bills a
 timed-out request. Since 2.1.3 its real tokens replace the estimate (`lateCalls`); since 2.2.0 its
 answer is cached and a twin request waits for it (`lateAnswerKeeper`, `lateUnits`,
-`LATE_JOIN_MS`). What is left: the viewer of that moment still gets Google Translate. Next: read
+`LATE_JOIN_MS`); since 2.2.1 a lost answer's prompt is counted by countTokens (assumed free:
+the Gemini pricing page lists no price for it). What is left: the viewer of that moment still gets Google Translate. Next: read
 `lateCalls` against `trCalls` in the user's ledger; if it is more than a few percent, raise the
 floor (a longer wait delays the subtitle).
 

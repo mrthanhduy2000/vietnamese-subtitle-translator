@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.2.1", luc: "", ten: "Chi phí: đếm đúng token của lượt quá giờ, tra giá đúng cho tên model biến thể",
+            y: [
+                "Lượt dịch quá thời gian chờ mà Google không trả lời: số token vào nay được chính Google đếm (lệnh đếm token, không tạo chữ nên không có giá trong bảng giá), chỉ còn phần token ra là ước lượng.",
+                "Trong lúc chờ câu trả lời muộn, tiện ích giữ cho mình không bị Chrome cho ngủ, nên câu trả lời không bị mất giữa chừng (mất thì số tiền phải để ước lượng và bản dịch bị bỏ phí).",
+                "Model nhập tay có đuôi như -preview, -latest, -001 hay ngày tháng được tính đúng giá của model gốc. Model chưa có giá trong tiện ích (ví dụ dòng Pro) được cảnh báo rõ là số tiền có thể thấp hơn thật, thay vì lặng lẽ tính theo một giá đoán. Thẻ ghi ngày kiểm tra bảng giá và có đường dẫn tới bảng giá mới nhất của Google."
+            ]
+        },
+        {
             v: "2.2.0", luc: "", ten: "Chi phí: không bỏ phí câu trả lời muộn, cho biết độ tin cậy của con số",
             y: [
                 "Lượt dịch quá thời gian chờ vẫn bị Google tính tiền đủ. Nay câu trả lời đến muộn được kiểm tra rồi lưu vào bộ nhớ đệm: lần sau gặp lại đúng đoạn đó (xem lại, tua lại, mở tab thứ hai) thì dùng luôn, không trả tiền lần nữa. Nếu đoạn đó được yêu cầu lại khi câu trả lời còn đang tới, tiện ích chờ nó tối đa 4 giây thay vì gọi Gemini lần hai.",
