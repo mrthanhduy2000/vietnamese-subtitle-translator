@@ -78,6 +78,42 @@ test("tải lại tiện ích (service worker mới, cùng storage): vẫn nhớ
     assert.equal(seen[0], "gemini-2.5-flash-lite");
 });
 
+test("a lapsed refusal mark: Settings name the model that really translates (3.1) and the one retried once (2.5)", async () => {
+    const local = {};
+    await bgEnv(server([]), cfg(), { local }).send(REQ);
+    for (const kh of Object.keys(local.modelAccess)) local.modelAccess[kh]["gemini-2.5-flash-lite"].until = Date.now() - 1;
+    const E = bgEnv(server([]), cfg(), { local });
+    const cost = await E.send({ action: "costStats" });
+    assert.equal(cost.model.id, "gemini-3.1-flash-lite");
+    assert.equal(cost.model.retry, "gemini-2.5-flash-lite");
+    const st = await E.send({ action: "modelStatus" });
+    assert.equal(st.effective.cheap, "gemini-3.1-flash-lite");
+    assert.equal(st.effective.cheapRetry, "gemini-2.5-flash-lite");
+    assert.equal(st.models["gemini-2.5-flash-lite"].state, "retry");
+    // Another key never refused: nothing to retry, auto still names 2.5
+    const other = await E.send({ action: "modelStatus", key: "KEY-OLD-USER" });
+    assert.equal(other.effective.cheapRetry, "");
+    assert.equal(other.models["gemini-2.5-flash-lite"].state, "unknown");
+});
+
+test("a model refused again after its mark lapsed is remembered twice as long each time, capped at 30 days", async () => {
+    const local = {};
+    const day = 24 * 3600 * 1000;
+    await bgEnv(server([]), cfg(), { local }).send(REQ);
+    const mark = () => Object.values(local.modelAccess)[0]["gemini-2.5-flash-lite"];
+    assert.equal(mark().ttl, 3 * day);
+    const spans = [];
+    for (let i = 0; i < 5; i++) {
+        mark().until = Date.now() - 1;
+        const seen = [];
+        await bgEnv(server(seen), cfg(), { local }).send({ ...REQ, sentences: [`Lapse ${i}.`] });
+        assert.equal(seen[0], "gemini-2.5-flash-lite", "a lapsed mark is retried");
+        spans.push(Math.round(mark().ttl / day));
+    }
+    assert.deepEqual(spans, [6, 12, 24, 30, 30]);
+    assert.ok(mark().until - Date.now() > 29 * day);
+});
+
 test("key/dự án KHÁC có quyền 2.5: vẫn chọn và dùng được 2.5 (trạng thái tính theo từng key)", async () => {
     const seen = [];
     const local = {};

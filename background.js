@@ -180,6 +180,11 @@ const ERROR_TEXT = {
 // nên chỉ kết quả gọi thật mới được ghi. Lưu bền vững (chrome.storage.local) theo mã băm
 // SHA-256 của key (không lưu key), có thời hạn: tải lại tiện ích vẫn nhớ, không thử lại mỗi phụ đề.
 const ACCESS_TTL_MS = 3 * 24 * 3600 * 1000;
+// A model refused again right after its mark lapsed is remembered twice as long each time, up to
+// 30 days: a key that never gains access stops paying a 404 round trip on a live line every 3 days.
+// A lapsed mark is kept (not trusted) for LAPSED_KEEP_MS so the next refusal can see the last span.
+const ACCESS_MAX_TTL_MS = 30 * 24 * 3600 * 1000;
+const LAPSED_KEEP_MS = 60 * 24 * 3600 * 1000;
 let accessMap = {};                 // { [keyHash]: { [model]: { s: "ok"|"unavailable", until, suggested, t } } }
 const accessReady = new Promise(resolve => {
     try { chrome.storage.local.get({ modelAccess: {} }, d => { accessMap = (d && d.modelAccess) || {}; resolve(); }); }
@@ -198,12 +203,30 @@ function setAccess(kh, model, s, extra = {}) {
     const cur = accessOf(kh, model);
     if (cur && cur.s === s && cur.until - Date.now() > ACCESS_TTL_MS / 2) return;   // không ghi thừa
     const now = Date.now();
-    accessMap[kh] = { ...(accessMap[kh] || {}), [model]: { s, t: now, until: now + ACCESS_TTL_MS, ...extra } };
-    for (const k of Object.keys(accessMap)) {                                         // dọn mục hết hạn
-        for (const m of Object.keys(accessMap[k])) if (accessMap[k][m].until <= now) delete accessMap[k][m];
+    const prev = accessMap[kh] && accessMap[kh][model];
+    const ttl = s === "unavailable" && prev && prev.s === "unavailable"
+        ? Math.min(ACCESS_MAX_TTL_MS, 2 * (prev.ttl || ACCESS_TTL_MS)) : ACCESS_TTL_MS;
+    accessMap[kh] = { ...(accessMap[kh] || {}), [model]: { s, t: now, until: now + ttl, ttl, ...extra } };
+    for (const k of Object.keys(accessMap)) {                                         // drop marks lapsed long ago
+        for (const m of Object.keys(accessMap[k])) if (accessMap[k][m].until + LAPSED_KEEP_MS <= now) delete accessMap[k][m];
         if (!Object.keys(accessMap[k]).length) delete accessMap[k];
     }
     try { chrome.storage.local.set({ modelAccess: accessMap }); } catch (e) { /* bỏ qua */ }
+}
+// A refusal mark that has lapsed: the next call retries that model once, but until it does, the
+// model actually translating is the next one in the chain (what the Settings cards should name)
+async function lapsedFn(apiKey) {
+    await accessReady;
+    const kh = apiKey ? await keyHash(apiKey) : "";
+    const now = Date.now();
+    return model => { const e = kh && accessMap[kh] && accessMap[kh][model]; return !!(e && e.s === "unavailable" && e.until <= now); };
+}
+// The model a new line most likely lands on, and the lapsed one it will retry first ("" if none)
+async function likelyModel(tier, cfg, apiKey) {
+    const chain = COST.modelChain(tier, cfg, cfg.costMode, await isUnavailableFn(apiKey));
+    const lapsed = await lapsedFn(apiKey);
+    const id = chain.find(m => !lapsed(m)) || chain[0] || "";
+    return { id, retry: chain[0] && chain[0] !== id ? chain[0] : "" };
 }
 async function isUnavailableFn(apiKey) {
     await accessReady;
@@ -1407,16 +1430,18 @@ async function handleModelStatus(req) {
     await accessReady;
     const kh = apiKey ? await keyHash(apiKey) : "";
     const unavailable = await isUnavailableFn(apiKey);
+    const cheap = apiKey ? await likelyModel("cheap", cfg, apiKey) : { id: COST.modelChain("cheap", cfg, cfg.costMode, unavailable)[0] || "", retry: "" };
     const models = {};
     for (const m of [...COST.TRANSLATION_MODELS, ...COST.TTS_MODELS]) {
         const a = kh ? accessOf(kh, m.id) : null;
-        models[m.id] = a ? { state: a.s, suggested: a.suggested || "", until: a.until } : { state: "unknown" };
+        models[m.id] = a ? { state: a.s, suggested: a.suggested || "", until: a.until } : { state: m.id === cheap.retry ? "retry" : "unknown" };
     }
     const tts = (await ttsModelsFor(apiKey, [cfg.dubTtsModel]))[0] || "";
     return {
         ok: true, hasKey: !!apiKey, models,
         effective: {
-            cheap: COST.modelChain("cheap", cfg, cfg.costMode, unavailable)[0] || "",
+            cheap: cheap.id,
+            cheapRetry: cheap.retry,
             strong: COST.modelChain("strong", cfg, cfg.costMode, unavailable)[0] || "",
             tts
         }
@@ -1475,9 +1500,10 @@ async function handleCostStats() {
     let model = null;
     try {
         const cfg = await modelsFromCfg();
-        const id = cfg.geminiApiKey ? COST.modelChain("cheap", cfg, cfg.costMode, await isUnavailableFn(cfg.geminiApiKey))[0] : null;
+        const pick = cfg.geminiApiKey ? await likelyModel("cheap", cfg, cfg.geminiApiKey) : { id: null };
+        const id = pick.id;
         const p = id && COST.priceOf(id);
-        if (id) model = { id, label: COST.modelLabel(id), price: p.price, how: p.how, base: p.base };
+        if (id) model = { id, label: COST.modelLabel(id), price: p.price, how: p.how, base: p.base, retry: pick.retry, retryLabel: pick.retry ? COST.modelLabel(pick.retry) : "" };
     } catch (e) { model = null; }
     return { ok: true, day: ledger, session: sessionStats, budget, model, history, pacificToday: pacificDay() };
 }

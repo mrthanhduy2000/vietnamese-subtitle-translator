@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.2.2", luc: "", ten: "Cài đặt ghi đúng model đang dịch, bớt thử lại model bị Google từ chối",
+            y: [
+                "Key bị Google từ chối Gemini 2.5 Flash-Lite: sau 3 ngày tiện ích thử lại model đó một lần. Trước đây trong lúc chờ thử lại, thẻ Chi phí và mục model ghi \"đang dịch bằng 2.5 Flash-Lite\" dù thực tế vẫn dịch bằng 3.1 Flash-Lite (trang Usage của AI Studio không có lượt 2.5 nào). Nay hai chỗ đó ghi đúng model đang dịch và nói rõ lượt tới sẽ thử lại 2.5 một lần.",
+                "Mỗi lần Google từ chối lại, tiện ích nhớ lâu gấp đôi: 3, 6, 12, 24 rồi tối đa 30 ngày. Key không bao giờ được cấp quyền thì không còn phải chờ một lượt bị từ chối mỗi 3 ngày giữa lúc đang xem. Key được cấp quyền thì lần thử lại thành công và tiện ích chuyển về model rẻ hơn ngay.",
+                "Thẻ Chi phí không còn hiện chữ \"undefined\" khi Chrome đang chạy bản cũ hơn file trên máy (trước khi bấm Tải lại)."
+            ]
+        },
+        {
             v: "2.2.1", luc: "", ten: "Chi phí: đếm đúng token của lượt quá giờ, tra giá đúng cho tên model biến thể",
             y: [
                 "Lượt dịch quá thời gian chờ mà Google không trả lời: số token vào nay được chính Google đếm (lệnh đếm token, không tạo chữ nên không có giá trong bảng giá), chỉ còn phần token ra là ước lượng.",

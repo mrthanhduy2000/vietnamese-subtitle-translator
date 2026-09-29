@@ -6,9 +6,9 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · AI Studio check (docs only) · cost: `background.js`, `cost-policy.js`, `options.js`, `tests/hardening.test.js`
+2026-09-29 · 2.2.2 model access: `background.js`, `options.js`, tests · cost: `background.js`, `cost-policy.js`, `options.js`, `tests/hardening.test.js`
 (2.2.0-2.2.1); dubbing: `dub-prosody.js` `BREATH`, `tests/prosody.test.js`,
-`dub-audio.js`, `dub-engine.js`, `background.js` (D, `breath` field), tests, docs (2.1.5-2.1.9) · `2.2.1`.
+`dub-audio.js`, `dub-engine.js`, `background.js` (D, `breath` field), tests, docs (2.1.5-2.1.9) · `2.2.2`.
 
 ## What changed
 - Cost 2.1.0-2.2.0: every billed request charged (`onBilled`/`onLate`), Pacific-day history,
@@ -19,7 +19,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 - Duck 2.1.2-2.1.4: `duckAttackTicks` 4; `nextVoiceAt` counts a take still being made (slow pumps 197 -> 8).
 
 ## State
-- Tests: 583 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
+- Tests: 585 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
 - Live check 2.1.9 done (DUBBING.md "Live check"): no defect found. Not heard by ear yet.
 
 ## Unfinished / in progress
@@ -28,8 +28,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   Sep 28 12:00 PT 4 requests = card's 28/09 row, 4 calls. Google's Sep 28 total (256 req) is larger
   because the card's history began mid-day. Net charges only Sep 18-19 (paid TTS, pre-1.8.1). Next
   real check: a full Pacific day recorded after Chrome is reloaded (Chrome still ran 2.1.9).
-- Card says "Model đang dịch: 2.5 Flash-Lite" when the key's 404 mark (`ACCESS_TTL_MS`, 3 days)
-  has lapsed; the next call pays one 404 round trip, then 3.1. Cosmetic; not fixed, ask the user.
+- 2.2.2 fixed the card naming 2.5 after the 404 mark lapsed (`likelyModel`, `lapsedFn`, `retry`
+  state) and doubles the mark on each repeat refusal (3 -> 30 days, `ACCESS_MAX_TTL_MS`).
 - BACKLOG 16: verbs outside the list. BACKLOG 7: user's call.
 - Carried over: the live harness (`?script=stress`, `viewer2`) needs the local server; the user
   said yes, but the classifier blocks it here, so the user runs it or adds a permission rule;

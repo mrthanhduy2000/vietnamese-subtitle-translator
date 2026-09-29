@@ -245,7 +245,7 @@ not stack two dubbing voices. Keep it.
 `ytcache4_*`: `ytGhiCache` stores `cstOrig` (the machine text) so a revert in Settings really reverts.
 
 
-`modelAccess` per-API-key model availability, keyed by a SHA-256 hash of the key, 3-day TTL ·
+`modelAccess` per-API-key model availability, keyed by a SHA-256 hash of the key, 3-day TTL; a refusal repeated right after a lapse doubles it (`ttl`, cap 30 days, 2.2.2); a lapsed refusal is kept 60 days so `likelyModel` names the next model and the Settings cards say it will be retried once ·
 `costLedger` daily cost ledger (2.1.0: every billed request is charged through `geminiCall`'s `policy.onBilled`, also thrown-away answers and our own timeouts, which Google still bills; `inTok`/`outTok`/`estCalls` added; 2.1.1: `thoughtTok`, `cachedTok`, `byModel`) · `costHistory` the same text-call totals keyed by Google's billing day (Pacific time, `pacificDay()`), last 31 days, kept by `costReset` · `costTokenRatio` measured characters per token for estimates · `ytcache4_<videoId>` cached YouTube translations (an older
 `ytcache` prefix exists; swept once a day, `ytSweptAt`, since the sweep reads all of storage.local) ·
 `ctxterms_<key>` agreed context terms · plus the `cst-cache` IndexedDB

@@ -423,6 +423,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const isDefault = m.id === COST.DEFAULT_MODELS[role];
         let note;
         if (state === "unavailable") note = "Không khả dụng với API key hiện tại";
+        else if (state === "retry") note = "Google từng từ chối model này với key hiện tại, sẽ thử lại một lần";
         else if (m.shutdown) note = `Google ngừng hỗ trợ ${fmtDate(m.shutdown)}, nên chuyển sang ${COST.modelLabel(m.replacement)}`;
         else if (m.access === "restricted" && state !== "ok") note = "Chỉ dành cho API key có quyền truy cập";
         else note = m.hint + (state === "ok" ? ", dùng được với key này" : "");
@@ -465,6 +466,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const eff = document.getElementById("modelEffective");
         if (eff && st && st.ok && st.hasKey && st.effective) {
             eff.textContent = `Đang dùng thực tế với key này: ${COST.modelLabel(st.effective.cheap) || "chưa có model khả dụng"}` +
+                (st.effective.cheapRetry ? ` (lượt dịch tới thử lại ${COST.modelLabel(st.effective.cheapRetry)} một lần)` : "") +
                 ` · câu khó: ${COST.modelLabel(st.effective.strong) || "không có"}` +
                 ` · giọng AI: ${COST.modelLabel(st.effective.tts) || "không có"}`;
         } else if (eff) eff.textContent = "";
@@ -652,7 +654,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const price = m && m.how !== "unknown" && m.price;
         const checked = COST.PRICES_CHECKED.split("-").reverse().join("/");
         sumEl.innerHTML = [
-            m ? `Model đang dịch: <b>${esc(m.label)}</b>${price ? `. Giá Google cho 1 triệu token: vào ${fm(price.in)}, ra ${fm(price.out)} (token ra gồm cả phần model "suy nghĩ")${m.how !== "exact" ? `, lấy theo giá của ${esc(nameOf(m.base))}` : ""}` : ". Chưa có giá của model này trong tiện ích"}. Bảng giá kiểm tra ngày ${checked}, <a href="${COST.PRICING_URL}" target="_blank" rel="noopener">xem giá mới nhất</a>.` : "Chưa có API key: không gọi Gemini, không tốn tiền.",
+            m ? `Model đang dịch: <b>${esc(m.label)}</b>${price ? `. Giá Google cho 1 triệu token: vào ${fm(price.in)}, ra ${fm(price.out)} (token ra gồm cả phần model "suy nghĩ")${m.how && m.how !== "exact" && m.base ? `, lấy theo giá của ${esc(nameOf(m.base))}` : ""}` : ". Chưa có giá của model này trong tiện ích"}${m.retry ? `. Lượt dịch tới sẽ thử lại ${esc(m.retryLabel || m.retry)} một lần: Google từng từ chối model này với key hiện tại, nếu vẫn bị từ chối thì dùng tiếp ${esc(m.label)}, không tốn tiền` : ""}. Bảng giá kiểm tra ngày ${checked}, <a href="${COST.PRICING_URL}" target="_blank" rel="noopener">xem giá mới nhất</a>.` : "Chưa có API key: không gọi Gemini, không tốn tiền.",
             line("Hôm nay, giờ máy", d),
             line("Từ lúc mở trình duyệt", r.session),
             b.dailyBudget ? `Đã dùng ${Math.round(b.spentDay / b.dailyBudget * 100)}% ngân sách ngày (${fm(b.dailyBudget)})${b.level === "over" ? ": đã chạm, thôi dịch lại bằng model mạnh" : b.level === "warn" ? ": sắp chạm" : ""}.` : "Không giới hạn ngân sách ngày.",
