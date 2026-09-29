@@ -6,40 +6,39 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · 2.2.2 model access: `background.js`, `options.js`, tests · cost: `background.js`, `cost-policy.js`, `options.js`, `tests/hardening.test.js`
-(2.2.0-2.2.1); dubbing: `dub-prosody.js` `BREATH`, `tests/prosody.test.js`,
-`dub-audio.js`, `dub-engine.js`, `background.js` (D, `breath` field), tests, docs (2.1.5-2.1.9) · `2.2.2`.
+2026-09-29 · `2.2.3` general review pass: `background.js` (Google fallback), `youtube.js` (dead-copy
+cleanup), `tests/cost.test.js` (+3 tests), `version-history.js`, `docs/DANGER.md` §layers.
 
 ## What changed
-- Cost 2.1.0-2.2.0: every billed request charged (`onBilled`/`onLate`), Pacific-day history,
-  currency, late answers cached (`lateAnswerKeeper`). 2.2.1: `countPromptTokens` (countTokens) makes a lost answer's prompt exact (`countedCalls`);
-  `lateOpened` keep-alive; `COST.priceOf` for typed ids (`how` exact/variant/family/unknown).
-- 2.1.5-2.1.9 breathing commas (`BREATH`, `breathText` fallback, `fallbackRun` 14): all 184 as sent
-  RAN-ON 39/365 -> 6/365 (rest on purpose, DUBBING §3). Takes via `$TMPDIR/br/ab2.js` in the user's Terminal.
-- Duck 2.1.2-2.1.4: `duckAttackTicks` 4, `nextVoiceAt` counts a pending take. 2.1.8: breath-length keep.
+- 2.2.3 Google fallback (`googleTranslateAll`): one request per window, one sentence per line, split
+  back by line (verified live: gtx keeps "\n" per segment); wrong line count -> per sentence as
+  before. A sentence failing everywhere is "" instead of failing the window (page retries that line).
+- `fetchSingleEndpoint`: clients5 answers `[[text, lang]]`; the old parser appended "en" to the line.
+- `youtube.js` `ytTheoDoi`: the 800 ms nav poll and its listeners stop when the copy dies (`navUnwatch`).
+- Earlier today (2.1.x-2.2.2): cost ledger exactness, breathing commas, duck, per-key model access.
 
 ## State
-- Tests: 585 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
-- Live check 2.1.9 + review pass: no defect, no dead code; gentler deep-duck attack not kept; BACKLOG 39.
+- Tests: 588 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
+- Reviewed and left as is: `geminiCall` retry/cooldown, popup, storage sweeps (`ytDonCache` daily),
+  Coursera window workers. No defect found there.
 
 ## Unfinished / in progress
-- AI Studio checked 2026-09-29 (Usage + Spend, 28 days): only the extension's models appear (3.1
-  Flash Lite, 3.5 Flash Lite, 2.5 Flash TTS), one key. The one hour both cover matches: Google
-  Sep 28 12:00 PT 4 requests = card's 28/09 row, 4 calls. Google's Sep 28 total (256 req) is larger
-  because the card's history began mid-day. Net charges only Sep 18-19 (paid TTS, pre-1.8.1). Next
-  real check: a full Pacific day recorded after Chrome is reloaded (Chrome still ran 2.1.9).
-- 2.2.2 fixed the card naming 2.5 after the 404 mark lapsed (`likelyModel`, `lapsedFn`, `retry`
-  state) and doubles the mark on each repeat refusal (3 -> 30 days, `ACCESS_MAX_TTL_MS`).
+- Carried over: AI Studio vs cost card, compare one full Pacific day after a Reload (Chrome still
+  ran 2.1.9 on 2026-09-29; Google's Sep 28 hour matched the card 4 = 4).
 - BACKLOG 16: verbs outside the list. BACKLOG 7 closed, 39 decided (not now).
 - Carried over: the live harness (`?script=stress`, `viewer2`) needs the local server; the user
   said yes, but the classifier blocks it here, so the user runs it or adds a permission rule;
   "Chép chẩn đoán" right after a problem; BACKLOG 36; glossary keep-English per term not watched
   in Chrome; BACKLOG 30, 31, 14-15, 18-24, 26, 28; verdict on the 1.9.5 A/B WAVs; Udemy / edX
   (BACKLOG 9); a live YouTube listen by the user. Never ask about Apple Events JS or hand decisions back (memory).
+- Not done, low value: popup resets its button label to "Bắt đầu dịch bài giảng" after success even
+  when the page is already translated.
 
 ## Traps hit this session
-- Two sessions in one tree: each commit swept in the other's files twice (cbcc311, 68d9ebd). Stage
-  by path, and check `git status` and the manifest version just before a bump.
+- Node's `fetch` in the sandbox fails on certificates; `curl` with `allowed_domains` works for a
+  live check of an endpoint.
+- Two sessions in one tree (earlier): stage by path, check `git status` and the manifest version
+  just before a bump.
 
 ## Suggested next step
 - After a Reload, compare one full Pacific day (card vs AI Studio Usage); a YouTube listen of 2.1.5.

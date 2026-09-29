@@ -1895,9 +1895,15 @@ function ytTheoDoi() {
         }, 300);
     };
 
-    setInterval(kiemTra, 800);
+    yt.navTimer = setInterval(kiemTra, 800);
     window.addEventListener("yt-navigate-finish", kiemTra);
     window.addEventListener("popstate", kiemTra);
+    // a dead copy (extension reloaded) drops its listeners too, not only its button observer
+    yt.navUnwatch = () => {
+        clearInterval(yt.navTimer);
+        window.removeEventListener("yt-navigate-finish", kiemTra);
+        window.removeEventListener("popstate", kiemTra);
+    };
 
     // YouTube mutates the body many times a second (comments, recommendations, live chat, the
     // progress bar), and every check queries the whole document. Run at most once per 150 ms:
@@ -1932,6 +1938,7 @@ function ytTuTatKhiMatKetNoi() {
         clearInterval(timer);
         yt.dead = true;                       // trước khi gỡ phần tử: bộ theo dõi không tạo lại nút nữa
         try { if (yt.btnObserver) yt.btnObserver.disconnect(); } catch (e) { /* bỏ qua */ }
+        try { if (yt.navUnwatch) yt.navUnwatch(); } catch (e) { /* bỏ qua */ }
         try { ytTatDich(); } catch (e) { /* bỏ qua */ }
         try { if (window.CST_DUB) window.CST_DUB.stop(); } catch (e) { /* bỏ qua */ }
         document.querySelectorAll(`${YT_OVERLAY}, ${YT_BTN}`).forEach(el => el.remove());

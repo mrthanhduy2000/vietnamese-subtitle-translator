@@ -36,7 +36,11 @@ async function fetchSingleEndpoint(url, timeoutMs = FAST_TIMEOUT_MS) {
         const res = await fetch(url, { method: "GET", signal: controller.signal });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        if (Array.isArray(data)) {
+        // clients5 (dict-chrome-ex) answers [["bản dịch", "en"]] when sl=auto: text, then the
+        // detected language. Read as segments, the language code was glued onto the line ("...xem.en")
+        if (Array.isArray(data) && Array.isArray(data[0]) && typeof data[0][0] === "string") {
+            if (data[0][0].trim()) return { text: data[0][0], detectedLang: data[0][1] || "en" };
+        } else if (Array.isArray(data)) {
             const segments = Array.isArray(data[0]) ? data[0] : [data];
             let translated = "";
             for (const seg of segments) {
@@ -100,6 +104,36 @@ async function translateWithRetry(text, sourceLang, targetLang) {
         return await callMyMemoryTranslate(text, sourceLang, targetLang);
     } catch (memErr) { /* bỏ qua */ }
     throw lastError || new Error("Không thể dịch được câu này");
+}
+
+// A whole window in one request, one sentence per line, split back by line. Sent one request per
+// sentence, a 16-line Coursera window fired 16 requests at once (48 when the first endpoint
+// failed), which is what gets an IP rate-limited. When the line count does not come back intact
+// (Google merged or split a line), each sentence is asked alone as before.
+const GOOGLE_BATCH_MAX_CHARS = 4000;
+async function googleTranslateAll(sentences) {
+    const idx = sentences.map((s, i) => (s ? i : -1)).filter(i => i >= 0);
+    const out = sentences.map(() => "");
+    if (!idx.length) return out;
+    const lines = idx.map(i => sentences[i].replace(/\s*\n+\s*/g, " "));
+    const joined = lines.join("\n");
+    if (idx.length > 1 && joined.length <= GOOGLE_BATCH_MAX_CHARS) {
+        try {
+            const back = (await callTranslateApi(joined, "auto", "vi")).text.split("\n").map(s => s.trim());
+            if (back.length === idx.length && back.every(Boolean)) {
+                idx.forEach((i, k) => { out[i] = back[k]; });
+                return out;
+            }
+        } catch (e) { /* asked one by one below */ }
+    }
+    // One sentence that fails on every endpoint comes back "" (the page leaves that line
+    // untranslated and asks again later) instead of failing the window: one bad sentence used to
+    // blank all 16, and Coursera then re-sent each line alone, a Gemini call apiece
+    const settled = await Promise.allSettled(idx.map(i => translateWithRetry(sentences[i], "auto", "vi")));
+    const failed = settled.filter(r => r.status === "rejected");
+    if (failed.length === idx.length) throw failed[0].reason;
+    idx.forEach((i, k) => { if (settled[k].status === "fulfilled") out[i] = settled[k].value.text; });
+    return out;
 }
 
 // ============================================================
@@ -874,8 +908,11 @@ async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
     // Dự phòng: Google Translate (không ngữ cảnh). Không lưu bền vững để lần sau còn thử lại Gemini.
     // One request per sentence, all at once: sent one after another, a 6-sentence window waited
     // for six round trips (each with its own retries) before the viewer saw anything
+    // A sentence that fails on every endpoint comes back "" (the page leaves that line untranslated
+    // and asks again later) instead of failing the window: one bad sentence used to blank all 16,
+    // and Coursera then re-sent each line alone, a Gemini call apiece.
     const tStart = Date.now();
-    const translations = await Promise.all(sentences.map(s => (s ? translateWithRetry(s, "auto", "vi").then(r => r.text) : "")));
+    const translations = await googleTranslateAll(sentences);
     return {
         ok: true, translations, terms: [],
         engine: byChoice ? "google" : "google_fallback",

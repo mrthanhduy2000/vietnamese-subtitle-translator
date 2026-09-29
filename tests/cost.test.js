@@ -153,6 +153,44 @@ test("lỗi 503 kéo dài: thử lại CÓ GIỚI HẠN (3 lượt ở model đ�
     assert.equal(gem, 10, "lần sau vẫn thử lại Gemini vì bản Google không được lưu");
 });
 
+test("free fallback: a sentence every endpoint refuses leaves only that line empty, not the window", async () => {
+    const f = async u => {
+        if (u.includes("Broken")) return { ok: false, status: 500, json: async () => ({}) };
+        return { ok: true, status: 200, json: async () => [[["Bản Google", "x"]], null, "en"] };
+    };
+    const E = bgEnv(f, { costMigration113: true });          // no key: Google by choice
+    const r = await E.send({ ...REQ, sentences: ["Fine one.", "Broken one.", "Fine two."] });
+    assert.equal(r.ok, true);
+    assert.deepEqual(r.translations, ["Bản Google", "", "Bản Google"]);
+    const all = await E.send({ ...REQ, sentences: ["Broken a.", "Broken b."] });
+    assert.equal(all.ok, false, "every sentence failed: the window fails as before");
+});
+
+test("free fallback: a window goes to Google as one request, split back by line", async () => {
+    const urls = [];
+    const f = async u => {
+        urls.push(u);
+        const q = decodeURIComponent(new URL(u).searchParams.get("q"));
+        // the real gtx shape: one segment per line, each but the last ending in "\n"
+        const segs = q.split("\n").map((s, i, a) => [`VI ${s}${i < a.length - 1 ? "\n" : ""}`, s]);
+        return { ok: true, status: 200, json: async () => [segs, null, "en"] };
+    };
+    const E = bgEnv(f, { costMigration113: true });
+    const r = await E.send({ ...REQ, sentences: ["One.", "", "Two\nlines.", "Three."] });
+    assert.deepEqual(r.translations, ["VI One.", "", "VI Two lines.", "VI Three."]);
+    assert.equal(urls.length, 1, "one request for the window, not one per sentence");
+});
+
+test("free fallback: clients5's [[text, lang]] answer is read without the language code", async () => {
+    const f = async u => {
+        if (u.includes("clients5")) return { ok: true, status: 200, json: async () => [["Cảm ơn đã xem.", "en"]] };
+        return { ok: false, status: 503, json: async () => ({}) };
+    };
+    const E = bgEnv(f, { costMigration113: true });
+    const r = await E.send({ ...REQ, sentences: ["Thanks for watching."] });
+    assert.deepEqual(r.translations, ["Cảm ơn đã xem."]);
+});
+
 test("chuyển model một lần: mặc định cũ (3.5 / 3.1 / 2.5 do bản 1.1.5 tự đặt) -> Tự động; lựa chọn khác giữ nguyên; tên model đã tắt được thay", async () => {
     const A = bgEnv(async () => reply({ t: ["x"] }), { geminiModel: "gemini-3.5-flash-lite" });
     assert.equal(A.syncStore.geminiModel, "auto");

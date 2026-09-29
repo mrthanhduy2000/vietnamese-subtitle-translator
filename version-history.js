@@ -4,6 +4,15 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.2.3", luc: "", ten: "Dịch miễn phí bằng Google chắc chắn hơn",
+            y: [
+                "Khi dịch bằng Google (chưa có key, hoặc Gemini đang lỗi), cả đoạn phụ đề được gửi trong một yêu cầu thay vì mỗi câu một yêu cầu. Một đoạn 16 câu trên Coursera trước đây bắn 16 yêu cầu cùng lúc (tới 48 nếu máy chủ đầu lỗi), dễ bị Google chặn vì gọi dồn.",
+                "Một câu Google không dịch được chỉ để trống đúng câu đó (dịch lại sau), không còn làm mất cả đoạn. Trên Coursera, lỗi đó trước đây còn kéo theo gọi Gemini lại từng câu một.",
+                "Máy chủ dự phòng thứ ba của Google không còn dính mã ngôn ngữ vào cuối câu (\"Cảm ơn đã xem.en\").",
+                "YouTube: sau khi bấm Tải lại tiện ích, bản mã cũ trong tab dừng hẳn bộ theo dõi chuyển video, không để chạy nền mãi."
+            ]
+        },
+        {
             v: "2.2.2", luc: "", ten: "Cài đặt ghi đúng model đang dịch, bớt thử lại model bị Google từ chối",
             y: [
                 "Key bị Google từ chối Gemini 2.5 Flash-Lite: sau 3 ngày tiện ích thử lại model đó một lần. Trước đây trong lúc chờ thử lại, thẻ Chi phí và mục model ghi \"đang dịch bằng 2.5 Flash-Lite\" dù thực tế vẫn dịch bằng 3.1 Flash-Lite (trang Usage của AI Studio không có lượt 2.5 nào). Nay hai chỗ đó ghi đúng model đang dịch và nói rõ lượt tới sẽ thử lại 2.5 một lần.",

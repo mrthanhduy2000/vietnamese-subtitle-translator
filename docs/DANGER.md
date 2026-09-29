@@ -80,7 +80,9 @@ bad output, blocked); a timeout, key, payment or request error goes straight to 
 `callGeminiUnit` (up to 3 passes: drops the JSON schema or thinking config the model refuses,
 doubles a truncated output once), inside that `geminiCall` (retries only 5xx / network, 2 for the
 first model of the chain and 0 for the models after it, plus per-model cooldowns). The Google
-fallback is `translateWithRetry` (2 tries plus MyMemory), one sentence per request, all at once.
+fallback is `googleTranslateAll` (2.2.3): the whole window in one request, one sentence per line;
+if the line count comes back wrong it asks per sentence through `translateWithRetry` (2 tries plus
+MyMemory), all at once, and a sentence that still fails is "" (the window fails only if all do).
 
 Adding one retry at the bottom multiplies latency and spend at the top. Change the count in one
 place only, and check what the other layers do with it. Measured worst case with every model
