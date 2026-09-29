@@ -70,7 +70,11 @@ In-memory only, reset on every wake: `keyBlock`, `modelCooldown`, `missingModels
 cooldown survives.
 
 Persisted: `accessMap` (`modelAccess`) and the cost `ledger`. But the ledger save is debounced, so a
-worker kill can lose the most recent cost entries.
+worker kill can lose the most recent cost entries. The first message after a wake arrives before
+the stored ledger has loaded (Chrome's storage always answers asynchronously): `track()` defers
+itself on `ledgerReady` until `ledgerLoaded`, and `handleCostReset` awaits it first. Without that
+the load replaced a reset or an early charge (2.3.1). Anything new that writes `ledger`,
+`sessionStats` or `history` must do the same; `bg-env.js` `asyncLocal` reproduces the race.
 
 ## 5. Retry layers that multiply
 

@@ -686,7 +686,11 @@ let ledger = { day: localDay(), ...emptyStats(), videos: {} };
 let sessionStats = emptyStats();
 let history = {};
 const sessionArea = (typeof chrome !== "undefined" && chrome.storage && chrome.storage.session) || null;
+// Charges that arrive before the load (the first message after the worker wakes) wait for it in
+// track(): the load replaces the ledger and would drop them
+let ledgerLoaded = false;
 const ledgerReady = new Promise(resolve => {
+    const done = () => { ledgerLoaded = true; resolve(); };
     try {
         chrome.storage.local.get({ costLedger: null, costHistory: null, costTokenRatio: null }, d => {
             // the measured characters-per-token survive a service-worker restart
@@ -695,10 +699,10 @@ const ledgerReady = new Promise(resolve => {
             if (tr && tr.outPerSrc > 0.05 && tr.outPerSrc < 5) tokenRatio.outPerSrc = tr.outPerSrc;
             if (d && d.costLedger && d.costLedger.day === localDay()) ledger = { ...emptyStats(), videos: {}, ...d.costLedger };
             if (d && d.costHistory && typeof d.costHistory === "object") history = d.costHistory;
-            if (!sessionArea) return resolve();
-            sessionArea.get({ costSession: null }, x => { if (x && x.costSession) sessionStats = { ...emptyStats(), ...x.costSession }; resolve(); });
+            if (!sessionArea) return done();
+            sessionArea.get({ costSession: null }, x => { if (x && x.costSession) sessionStats = { ...emptyStats(), ...x.costSession }; done(); });
         });
-    } catch (e) { resolve(); }
+    } catch (e) { done(); }
 });
 let ledgerTimer = null;
 function saveLedgerSoon() {
@@ -715,6 +719,7 @@ function addByModel(stats, model, patch) {
     m.calls += patch.trCalls || 0; m.inTok += patch.inTok || 0; m.outTok += patch.outTok || 0; m.usd += patch.trUsd || 0;
 }
 function track(meta, patch, model) {
+    if (!ledgerLoaded) { ledgerReady.then(() => track(meta, patch, model)); return; }
     rollDay();
     for (const [k, v] of Object.entries(patch)) { ledger[k] = (ledger[k] || 0) + v; sessionStats[k] = (sessionStats[k] || 0) + v; }
     if (model) { addByModel(ledger, model, patch); addByModel(sessionStats, model, patch); }
@@ -1582,6 +1587,7 @@ async function handleCostStats() {
 }
 
 async function handleCostReset() {
+    await ledgerReady;                     // a load that finishes after the reset brings the old numbers back
     ledger = { day: localDay(), ...emptyStats(), videos: {} };
     sessionStats = emptyStats();
     saveLedgerSoon();

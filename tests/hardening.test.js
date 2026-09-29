@@ -822,6 +822,39 @@ test("vượt gấp đôi ngân sách ngày: ngừng gọi Gemini dịch (hàng 
     void E;
 });
 
+// 2.3.1: Chrome answers storage reads asynchronously, and the worker sleeps after ~30 s idle. The
+// first message after it wakes lands before the stored ledger has loaded; the load used to replace
+// whatever that message did.
+test("cost ledger: a reset or a charge that reaches a waking worker before its ledger loads is kept", async () => {
+    const d = new Date();
+    const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    // Reset from Settings: the reply and the saved ledger are both the cleared one, history stays
+    const local = {
+        costLedger: { day: today, trUsd: 0.02, trCalls: 5, videos: { "yt:a": { usd: 0.02, audioSec: 0, videoSec: 60, title: "A", t: 1 } } },
+        costHistory: { "2026-09-28": { trCalls: 5, trUsd: 0.02, byModel: {} } }
+    };
+    const E = bgEnv(server([]), cfg(), { local, asyncLocal: 20, timeScale: 0.01 });
+    const r = await E.send({ action: "costReset" });
+    assert.equal(r.day.trCalls, 0, "the reply shows the reset, not the ledger loaded after it");
+    assert.deepEqual(Object.keys(r.day.videos), []);
+    assert.equal(r.history["2026-09-28"].trCalls, 5, "the per-day history is kept");
+    await wait(60);
+    assert.equal(local.costLedger.trCalls, 0, "and the reset is what gets saved");
+    // A charge before the load (a cached voice line fetched right as the worker wakes) is added
+    // to the stored numbers, not dropped by the load
+    const A = bgEnv(server([]), cfg());
+    await vm.runInContext("caches.audio.set('k1', { wav: new Uint8Array([1, 2, 3, 4]), duration: 1, sampleRate: 24000 })", A.sandbox);
+    const local2 = { costLedger: { day: today, hitsAudio: 3, avoided: 3, videos: {} } };
+    const B = bgEnv(server([]), cfg(), { local: local2, backend: A.backend, asyncLocal: 20, timeScale: 0.01 });
+    const g = await B.send({ action: "audioCacheGet", keys: ["k1"] });
+    assert.deepEqual(Object.keys(g.hits), ["k1"]);
+    const st = await B.send({ action: "costStats" });
+    assert.equal(st.day.hitsAudio, 4, "the stored 3 plus the hit counted before the load");
+    await wait(60);
+    assert.equal(local2.costLedger.hitsAudio, 4);
+});
+
 // ================= 6. PHÁT HIỆN TIỆN ÍCH CHƯA ĐƯỢC NẠP LẠI (1.1.7) =================
 const VC = require("../version-check.js");
 function fakeDoc(badgeText) {

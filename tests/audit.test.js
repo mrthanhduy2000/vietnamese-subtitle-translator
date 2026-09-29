@@ -338,3 +338,58 @@ test("popup: the translation progress keeps moving while the popup is open, and 
     assert.equal(el("nowCount").textContent, "Đã dịch xong", [...seen].join(" | "));
     assert.ok(seen.size >= 3, `the bar moved through ${[...seen].join(" | ")}`);
 });
+
+// 2.3.1: the cost card listed "(1) I Removed Everything I Didn't Need - YouTube" (4 of the 5 real
+// titles of one day carried the notification count). Every title read goes through one cleaner.
+test("video title: no notification count, no site name, one cleaner for every caller", () => {
+    const E = pageEnv({ youtube: true });
+    for (const [raw, want] of [["(1) I Removed Everything - YouTube", "I Removed Everything"], ["(12+) A talk - YouTube", "A talk"], ["(2024) Year in review - YouTube", "Year in review"], ["Plain title", "Plain title"]]) {
+        E.sandbox.document.title = raw;
+        assert.equal(E.run("pageVideoTitle()"), want, raw);
+        assert.equal(E.run("currentVideoMeta().videoTitle"), want, raw);
+    }
+    // Once the player has told youtube.js the title of this video, that title wins: the tab title
+    // cannot tell a count from a title that starts with "(2024) "
+    E.sandbox.URL = URL;
+    E.run("yt.currentVideoId = 'abc'; yt.videoTitle = '(2024) Year in review'");
+    E.sandbox.document.title = "(2024) Year in review - YouTube";
+    assert.equal(E.run("pageVideoTitle()"), "(2024) Year in review");
+    E.run("yt.currentVideoId = 'next'");
+    assert.equal(E.run("pageVideoTitle()"), "Year in review", "another video in the address bar: the tab title again");
+    const h1 = { textContent: "  Gradient Descent  " };
+    const C = pageEnv({ location: { href: "https://www.coursera.org/learn/ml/lecture/x", hostname: "www.coursera.org", pathname: "/learn/ml/lecture/x" }, querySelector: s => (s === "h1" ? h1 : null) });
+    assert.equal(C.run("pageVideoTitle()"), "Gradient Descent");
+    h1.textContent = "";
+    C.sandbox.document.title = "Gradient Descent | Coursera";
+    assert.equal(C.run("pageVideoTitle()"), "Gradient Descent");
+    for (const f of ["content.js", "youtube.js", "dubbing.js"]) {
+        const reads = read(f).match(/document\.title/g) || [];
+        assert.ok(reads.length <= (f === "content.js" ? 3 : f === "dubbing.js" ? 1 : 0), `${f}: a new raw document.title read (${reads.length})`);
+    }
+});
+
+// 2.3.1: 43 of the 51 real per-channel term keys were an empty list (everyday videos learn none)
+test("channel terms: a video that learned no terms writes no key", async () => {
+    const E = pageEnv({ timers: true, files: ["context-engine.js"] });
+    const writes = () => E.calls.localSet.filter(o => "ctxterms_yt_a" in o);
+    E.run("globalThis.s1 = new CST_CONTEXT.ContextSession({ title: 'x' }); s1.storageKey = 'ctxterms_yt_a'; saveSessionTermsSoon(s1)");
+    await new Promise(r => setTimeout(r, 40));
+    assert.equal(writes().length, 0);
+    E.run("s1.importTerms([['gradient descent', 'hạ gradient', 2]]); saveSessionTermsSoon(s1)");
+    await new Promise(r => setTimeout(r, 40));
+    assert.equal(writes().length, 1);
+    assert.equal(writes()[0].ctxterms_yt_a.terms[0][0], "gradient descent");
+});
+
+// 2.3.1: a window of sound captions only ("[Music]" between songs) is translated from a list: in the
+// user's cache 50 of 531 groups were nothing else, each one a paid request
+test("sound captions: a window of notes only sends no request", async () => {
+    const sent = [];
+    const E = pageEnv({ files: ["vi-quality.js"], sendMessage: (m, cb) => { sent.push(m); cb && cb({ ok: true, translations: ["x", "y"] }); } });
+    const r = await E.run("requestUnit({ sentences: ['[Music]', '[Applause] [Music]'], context: {} })");
+    assert.equal(r.engine, "sound-notes");
+    assert.deepEqual([...r.translations], ["[Âm nhạc]", "[Vỗ tay] [Âm nhạc]"]);
+    assert.equal(sent.length, 0);
+    await E.run("requestUnit({ sentences: ['[Music]', 'Hello there'], context: {} })");
+    assert.equal(sent.length, 1, "speech in the window: asked as before");
+});

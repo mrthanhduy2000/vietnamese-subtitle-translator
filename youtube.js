@@ -34,6 +34,7 @@ const yt = {
     lastSpokenVi: null,
     videoEl: null,
     currentVideoId: "",
+    videoTitle: "",                 // the player's own title of currentVideoId (content.js pageVideoTitle)
     requestSeq: 0,
     resizeObserver: null,
     classObserver: null,
@@ -707,6 +708,20 @@ function ytTrimLeaks(groups, idxs) {
     // A unit that opens with the unit before it again (CST_QUALITY.fixRepeatedHeads): the repeat is
     // dropped and the two are split again by their source lengths. Cached groups carry no .text
     const src = g => g.text || (g.srcCues || []).map(c => c.text).join(" ");
+    // A sound caption ("[Music]") in square brackets, so the voice leaves it silent (2.3.1). Counted
+    // apart from leaks, but in the return value: ytRepairCachedLeaks redraws what changed
+    let notes = 0;
+    if (Q.fixSoundNotes) {
+        for (const k of check) {
+            const g = groups[k];
+            if (!g || !g.viText) continue;
+            const [v] = Q.fixSoundNotes([g.viText], [src(g)]);
+            if (v === g.viText) continue;
+            g.viText = v;
+            g.viCues = segmentGroupVi(g, v, groups[k + 1] ? groups[k + 1].start : undefined);
+            notes++;
+        }
+    }
     if (Q.fixRepeatedHeads) {
         for (const k of check) {
             const a = groups[k], b = groups[k + 1];
@@ -732,7 +747,7 @@ function ytTrimLeaks(groups, idxs) {
         n++;
     }
     if (n) console.warn(`[AI Subtitle] Bỏ phần dịch lấn sang câu sau ở ${n} nhóm`);
-    return n;
+    return n + notes;
 }
 
 // Translations cached before the leak check existed can still carry it. Repair them on load, with
@@ -1270,6 +1285,7 @@ async function ytBatDauDich(opts = {}) {
         }
 
         yt.currentVideoId = info.videoId || "";
+        yt.videoTitle = info.title || "";
         ytLoadEdits();
         yt.videoEl = document.querySelector("#movie_player video") || document.querySelector("video");
 
@@ -1796,12 +1812,12 @@ function ytTranscriptAdapter() {
         box: () => document.querySelector("#movie_player") || document.querySelector(".html5-video-player"),
         videoEl: () => yt.videoEl || document.querySelector("video"),
         lines: () => (window.CST_TRANSCRIPT ? window.CST_TRANSCRIPT.mergeLines(yt.viCues, yt.cues) : []),
-        title: () => document.title.replace(/\s*-\s*YouTube\s*$/i, "").trim(),
+        title: () => pageVideoTitle(),
         dual: () => ytSubStyle.mode === "dual" || state.dualMode,
         theme: () => ytSettings.uiTheme || "auto",
         saveEdit: async (line, text) => {
             yt.edits = await window.CST_EDITS.save(ytEditKey(),
-                { title: document.title.replace(/\s*-\s*YouTube\s*$/i, "").trim(), url: location.href },
+                { title: pageVideoTitle(), url: location.href },
                 line.start, text, line.machine);
             ytApplyEdits();
         },
@@ -1900,6 +1916,7 @@ function ytTheoDoi() {
 
         if (yt.active || yt.busy) ytTatDich();
         yt.currentVideoId = ma;
+        yt.videoTitle = "";
         setTimeout(() => {
             ytTaoNutThanhDieuKhien();
             ytTuDongDich();

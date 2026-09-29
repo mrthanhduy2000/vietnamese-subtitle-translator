@@ -16,12 +16,12 @@ sense of weight, not an assertion.
 
 | File | ~Tests | Covers |
 |---|---|---|
-| `segmenter.test.js` | 28 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
+| `segmenter.test.js` | 29 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
 | `context.test.js` | 17 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |
 | `integration.test.js` | 24 | Runs the **real** `content.js` and `background.js` in a `vm` with a fake `chrome`, fake DOM and fake Gemini |
 | `dub.test.js` | 71 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
 | `cost.test.js` | 58 | The full LOCAL -> CACHE -> cheap -> strong -> TTS chain, plus `cst-cache`, `cost-policy`, `dub-planner`, `dub-engine` |
-| `hardening.test.js` | 104 | Per-API-key model access, options opening, language auto-detect, no-clipping dubbing, budget caps, the version-scheme rule |
+| `hardening.test.js` | 105 | Per-API-key model access, options opening, language auto-detect, no-clipping dubbing, budget caps, the version-scheme rule |
 | `bridge.test.js` | 4 | `yt-bridge.js` recovering empty captions that are missing the `pot` token, and restoring the viewer's original caption track |
 | `reload-fight.test.js` | 3 | Old and new content scripts coexisting after a reload must not loop forever recreating buttons. **The second case needs `OLD_YT=<path>` and skips without it** |
 | `backlog.test.js` | 9 | Settings with one source of truth (no condense code anywhere, `dualMode` via `CST_STYLE.resolveDual`), the single YouTube bridge, glossary loads in Node, segmenter `explain()`, the `buildPhrases` memo, throttled body observers |
@@ -30,7 +30,7 @@ sense of weight, not an assertion.
 | `voice-pauses.test.js` | 9 | `shapePauses` (unpunctuated stops closed, punctuation kept, a long unpunctuated run keeps its clause-opening stops and closes the one inside a phrase, tight cap), `joinGroups` segmenting, 48 kHz wiring, pause roles at punctuation |
 | `spoken-lang.test.js` | 9 | `spokenLanguage` (audio > ASR > title, AI dubs, Vietsub titles), `ytChonTrack` with AI-dub ASR tracks, the gate before the cache |
 | `quality.test.js` | 6 | Size scale (100% = old 70%), `lingerCues`, `denoise` (hiss down, voice kept, clean take skipped), FFT round trip, wiring |
-| `audit.test.js` | 13 | 1.7.3 audit: popup "Tiếng Anh ở trên" live, dead popup switch gone, Coursera render-loop memo, YouTube does not save a Google-fallback video, daily storage sweep, parallel Google fallback, removed dead code. 1.7.4: leaving a Coursera lecture / a YouTube video mid-load (the only **flow** tests of the two start paths; `pageEnv({ timers, tracks, sendMessage, files, sync })` runs the real `content.js` + `youtube.js` with stubbed bridge and network). 1.7.5: Coursera progressive display (first line after 1 reply), playhead-first order, switch-off mid-run, button redrawn after `busy`, popup progress loop (runs the real `popup.js` on a stub DOM) |
+| `audit.test.js` | 16 | 1.7.3 audit: popup "Tiếng Anh ở trên" live, dead popup switch gone, Coursera render-loop memo, YouTube does not save a Google-fallback video, daily storage sweep, parallel Google fallback, removed dead code. 1.7.4: leaving a Coursera lecture / a YouTube video mid-load (the only **flow** tests of the two start paths; `pageEnv({ timers, tracks, sendMessage, files, sync })` runs the real `content.js` + `youtube.js` with stubbed bridge and network). 1.7.5: Coursera progressive display (first line after 1 reply), playhead-first order, switch-off mid-run, button redrawn after `busy`, popup progress loop (runs the real `popup.js` on a stub DOM) |
 | `voice-clean.test.js` | 9 | `highPass` (rumble cut, voice band kept), the corrected hiss estimate, clause openings as the strongest boundaries and sentence pauses by length (on `dub-prosody.js` since 1.7.6), `shapePauses` keeping a clause-opening stop, lead silence skipped, the 20 ms voiced onset, engine `gapAfter` wiring, no gate |
 | `prosody.test.js` | 33 | 1.7.6 prosody model: syllables, graded levels and roles (lead, list, comma before a contrast, fronted clause, question, transition), no pause inside units / after "rằng" / before modal "nên", openers and long subjects as boundaries, the selection (budget, choppy and long runs, floor, tight), memo and determinism, breathing commas, cut values, `prosodicCut` for free voices only, engine `gapAfter` and `plainScript`, three real Mỹ Duyên takes in `tests/audio`, and two guards over the whole marked corpus (`prosody-corpus.js`): commas only at marked gaps, no unit ever chosen |
 | `speech-context.test.js` | 13 | 1.8.0: the three-state name confidence (sentence start, titles, Vietnamese name words, the source line, names Vietnamese people carry), 5+ letter codes, `numberRole`, constituents (subject PP, short predicate, purpose clause), token map, subtitle lines bridged inside a phrase, golden paid-voice keys, translation key free of speech/prosody, speed |
@@ -45,7 +45,9 @@ sense of weight, not an assertion.
 **`tests/bg-env.js`** runs the real `background.js` inside a `vm`, faking only `chrome.*` and
 `fetch`. Options let a test reuse one `storage.local` object across simulated worker restarts (so you
 can test "extension reloaded, data intact"), share a fake IndexedDB backend, and compress timeouts
-(`fastTimeouts`, `timeScale`). Used by `hardening.test.js`, `ui.test.js` and `vieneu.live.js`.
+(`fastTimeouts`, `timeScale`). `asyncLocal: ms` makes `storage.local` reads answer late, as Chrome's
+always do; the synchronous default hid a race between a waking worker and its first message (2.3.1,
+the ledger). Used by `hardening.test.js`, `ui.test.js` and `vieneu.live.js`.
 **If you add a service-worker feature, test it here, not by hand in Chrome.**
 
 **`tests/dub-sim.js`** gives a virtual `Clock` plus `FakeVideo`, `FakeAudio` and `makeFakeSpeech`, so

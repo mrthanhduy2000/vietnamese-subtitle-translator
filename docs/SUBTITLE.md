@@ -71,6 +71,24 @@ source lines share a 3-word run (chorus, mantra) or the next unit is nothing but
 trim's case). Runs in `trimTranslationLeaks` (both Coursera calls pass the source lines) and first
 in `ytTrimLeaks` (live and `ytRepairCachedLeaks`; cached groups have no `.text`, it joins `srcCues`).
 
+**Sound captions (2.3.1).** Automatic captions put "[Music]", "[Applause]" on lines of their own,
+in the caption's language ("[Musik]", "[Tepuk tangan]", "[เพลง]"); Coursera writes "[MUSIC]". The
+model returned them bare, in round or square brackets, and `dub-planner.js` `stripSoundNotes` only
+silences square brackets and a known word in round ones, so bare notes were read aloud (45 of 531
+cached groups). `CST_QUALITY.soundNoteLine(src)` translates a line of notes only from `SOUND_WORDS`
+(`requestUnit` answers a window of nothing else locally, engine `"sound-notes"`, no request: 50
+groups); `fixSoundNotes(vi, src)` brackets the rest: an unknown note's line gets the model's words in
+`[...]`, and inside speech as many list words as the source has notes, in order, when bracketed (a
+lone `]` too), capitalized or alone on the line. Lower-case words in a sentence stay ("buồn cười").
+Runs first in `trimTranslationLeaks` and `ytTrimLeaks` (counted apart from leaks, but returned, so
+`ytRepairCachedLeaks` fixes old caches). Measured after: 45 -> 1 read aloud.
+
+**Video title (2.3.1).** `content.js` `pageVideoTitle()` is the one title for the cost ledger
+(`currentVideoMeta`, `dubbing.js` `videoMeta`), `getStatus`, both transcript panels and edits. On
+YouTube it prefers `yt.videoTitle` (the player's `videoDetails.title`, set with `currentVideoId`)
+when that is the video in the address bar, else the tab title without the "(3) " notification count
+and " - YouTube". The raw tab title had reached the ledger (4 of 5 titles one day).
+
 **Domain (2.3.0).** `detectDomain` counts whole keywords (plural included; `stem*` entries are
 stems) and a field needs 3 different keywords and a score of `max(3, words / 150)`; the description
 goes in without links and sponsor lines (`cleanDescription(desc, 800)`). The old prefix match made 6

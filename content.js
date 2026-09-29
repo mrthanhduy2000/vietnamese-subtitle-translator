@@ -4,8 +4,6 @@
 // theo ty le do dai, thay vi gan ca cau vao moi dong.
 // ============================================================
 
-const TARGET_LANG = "vi";
-const MAX_CHUNK_CHARS = 1200;      // gioi han ky tu moi lan goi API
 // Gom cue thanh CAU tron ven truoc khi dich: cau tron ven thi Gemini dich tu nhien
 // hon va bo phan doan tieng Viet co du tu do chon diem cat. Cac nguong mem/cung
 // chi dung khi phu de khong co dau cau (phu de tu dong).
@@ -442,7 +440,22 @@ function currentVideoMeta() {
     let key = getCurrentSite() === "generic" ? location.hostname + location.pathname : location.pathname;
     try { const v = new URL(location.href).searchParams.get("v"); if (v) key = "yt:" + v; } catch (e) { /* bỏ qua */ }
     const video = document.querySelector("video");
-    return { videoKey: key, videoSec: video && isFinite(video.duration) ? Math.round(video.duration) : 0, videoTitle: String(document.title || "").slice(0, 80) };
+    return { videoKey: key, videoSec: video && isFinite(video.duration) ? Math.round(video.duration) : 0, videoTitle: pageVideoTitle().slice(0, 80) };
+}
+
+// The video's title as the viewer knows it, for the cost card, the popup, the transcript panel and
+// the edits list (dubbing.js and youtube.js use it too). YouTube's tab title carries the unread
+// notification count in front ("(3) ") and " - YouTube" behind; the raw title used to reach the
+// cost card with both.
+function pageVideoTitle() {
+    const site = getCurrentSite();
+    if (site !== "youtube") return (site === "generic" ? genericMeta() : courseraMeta()).title;
+    // The player's title once youtube.js has it for the video in the address bar: the tab title
+    // cannot tell a count "(3) " from a title that itself starts with "(2024) "
+    let v = "";
+    try { v = new URL(location.href).searchParams.get("v") || ""; } catch (e) { v = ""; }
+    if (typeof yt !== "undefined" && yt.videoTitle && v && yt.currentVideoId === v) return yt.videoTitle.trim();
+    return String(document.title || "").replace(/^\(\d+\+?\)\s*/, "").replace(/\s*-\s*YouTube\s*$/i, "").trim();
 }
 
 async function requestUnit(req, opts = {}) {
@@ -451,6 +464,12 @@ async function requestUnit(req, opts = {}) {
     if (LANG && !opts.refine) {
         const d = LANG.detectText(req.sentences.join(" "));
         if (d.lang === "vi" && d.confidence >= 0.9) return { ok: true, engine: "same-language", translations: req.sentences.slice(), terms: [] };
+    }
+    // A window of sound captions only ("[Music]" between songs): translated from a fixed list
+    const Q = window.CST_QUALITY;
+    if (Q && Q.soundNoteLine && !opts.refine) {
+        const notes = req.sentences.map(Q.soundNoteLine);
+        if (notes.every(n => n && n.vi)) return { ok: true, engine: "sound-notes", translations: notes.map(n => n.vi), terms: [] };
     }
     const prot = protectMany(req.sentences);
     const placeholders = prot.terms.map((term, id) => ({ id, term }));
@@ -592,7 +611,8 @@ function saveSessionTermsSoon(session) {
     if (!session || !session.storageKey) return;
     clearTimeout(termSaveTimer);
     termSaveTimer = setTimeout(() => {
-        try { chrome.storage.local.set({ [session.storageKey]: { luc: Date.now(), terms: session.exportTerms() } }); } catch (e) { /* bo qua */ }
+        // An everyday video learns no terms; 43 of 51 real keys were an empty list, one per channel
+        try { const terms = session.exportTerms(); if (terms.length) chrome.storage.local.set({ [session.storageKey]: { luc: Date.now(), terms } }); } catch (e) { /* bo qua */ }
     }, 1500);
 }
 
@@ -831,11 +851,13 @@ function groupCuesIntoSentences(cues, perCueMode) {
 // A translation that carries the next units' content too (see CST_QUALITY.trimContextLeak) shows
 // that content twice and makes the voice read it twice. Compare each unit with the next two.
 // sources: the groups' source lines; with them a unit that opens with the unit before it again is
-// fixed too (CST_QUALITY.fixRepeatedHeads, 2.3.0)
+// fixed too (CST_QUALITY.fixRepeatedHeads, 2.3.0), and a sound caption gets its square brackets so
+// the voice leaves it silent (CST_QUALITY.fixSoundNotes, 2.3.1; not counted as a leak)
 function trimTranslationLeaks(translations, quiet, sources) {
     const Q = window.CST_QUALITY;
     if (!Q || !Q.trimContextLeak) return { list: translations, trimmed: 0 };
     let trimmed = 0;
+    if (sources && Q.fixSoundNotes) translations = Q.fixSoundNotes(translations, sources);
     if (sources && Q.fixRepeatedHeads) {
         const fixed = Q.fixRepeatedHeads(translations, sources);
         trimmed += fixed.filter((t, i) => t !== translations[i]).length;
@@ -1030,7 +1052,7 @@ function courseraMeta() {
     const m = location.pathname.match(/\/learn\/([^/]+)/) || location.pathname.match(/\/courses?\/([^/]+)/);
     const slug = m ? m[1] : location.hostname;
     const h1 = document.querySelector("h1");
-    const title = (h1 && h1.textContent.trim()) || document.title.replace(/\s*[|\-]\s*Coursera.*$/i, "").trim();
+    const title = (h1 && h1.textContent.trim()) || String(document.title || "").replace(/\s*[|\-]\s*Coursera.*$/i, "").trim();
     return {
         title,
         course: slug.replace(/[-_]+/g, " "),
@@ -1643,12 +1665,12 @@ function csTranscriptAdapter() {
         box: () => csPlayerBox(),
         videoEl: () => csVideo(),
         lines: () => (window.CST_TRANSCRIPT ? window.CST_TRANSCRIPT.mergeLines(cs.viCues, cs.origCues) : []),
-        title: () => (document.querySelector("h1") || {}).textContent || document.title.replace(/\s*\|\s*Coursera.*$/i, ""),
+        title: () => pageVideoTitle(),
         dual: () => !!state.dualMode,
         theme: () => state.uiTheme || "auto",
         saveEdit: async (line, text) => {
             cs.edits = await window.CST_EDITS.save(csEditKey(),
-                { title: (document.querySelector("h1") || {}).textContent || document.title, url: location.href },
+                { title: pageVideoTitle(), url: location.href },
                 line.start, text, line.machine);
             csApplyEdits();
         },
@@ -2297,10 +2319,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const st = dubApi && dubApi.dub ? dubApi.dub.lastStatus : null;
         const health = dubApi && dubApi.describeHealth ? dubApi.describeHealth() : null;
         const dub = { on: !!(dubApi && dubApi.dub && dubApi.dub.enabled), voice: (st && st.voice) || "", label: (st && st.label) || "", health: health ? health.text : "", warn: !!(health && health.warn) };
-        const title = site === "youtube"
-            ? document.title.replace(/^\(\d+\)\s*/, "").replace(/\s*-\s*YouTube\s*$/i, "").trim()
-            : site === "generic" ? genericMeta().title
-            : ((document.querySelector("h1") || {}).textContent || document.title.replace(/\s*\|\s*Coursera.*$/i, "")).trim();
+        const title = pageVideoTitle();
         const demXong = gs => (gs || []).filter(g => g && g.viText).length;
         if (site === "youtube" && typeof yt !== "undefined") {
             const gs = (typeof ytNhomLongTieng === "function" ? ytNhomLongTieng() : yt.groups) || [];

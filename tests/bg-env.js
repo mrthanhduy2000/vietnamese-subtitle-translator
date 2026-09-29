@@ -7,6 +7,7 @@
 //   opts.fastTimeouts : thời gian chờ >= 30 giây (ví dụ TTS 60 giây) rút còn 40 ms
 //   opts.timeScale    : nhân MỌI thời gian chờ với hệ số này (ví dụ 0,01: 8 giây -> 80 ms)
 //   opts.openOptionsPage : giả lập chrome.runtime.openOptionsPage
+//   opts.asyncLocal : storage.local reads answer after this many ms (real Chrome is never synchronous)
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
@@ -15,7 +16,9 @@ const CACHE = require("../cst-cache.js");
 const ROOT = path.join(__dirname, "..");
 const read = f => fs.readFileSync(path.join(ROOT, f), "utf8");
 
-function storageArea(obj) {
+// delayMs: answer reads that late (Chrome's storage always answers asynchronously; the default
+// synchronous answer hides a race between a worker waking up and its first message)
+function storageArea(obj, delayMs) {
     return {
         get: (k, cb) => {
             let out;
@@ -23,7 +26,9 @@ function storageArea(obj) {
             else if (typeof k === "string") out = { [k]: obj[k] };
             else if (Array.isArray(k)) out = Object.fromEntries(k.map(x => [x, obj[x]]));
             else out = Object.fromEntries(Object.entries(k).map(([x, d]) => [x, obj[x] !== undefined ? obj[x] : d]));
-            cb(JSON.parse(JSON.stringify(out)));
+            const copy = JSON.parse(JSON.stringify(out));
+            if (delayMs) setTimeout(() => cb(copy), delayMs);
+            else cb(copy);
         },
         set: (x, cb) => { Object.assign(obj, JSON.parse(JSON.stringify(x))); cb && cb(); },
         remove: (keys, cb) => { [].concat(keys).forEach(k => delete obj[k]); cb && cb(); }
@@ -73,7 +78,7 @@ function bgEnv(fetchImpl, stored = {}, opts = {}) {
                         cb && cb();
                     }
                 },
-                local: storageArea(local),
+                local: storageArea(local, opts.asyncLocal),
                 onChanged: { addListener: fn => changeListeners.push(fn) }
             }
         }

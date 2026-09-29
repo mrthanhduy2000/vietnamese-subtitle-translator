@@ -281,7 +281,97 @@
         return out;
     }
 
-    const api = { assess, CALQUES, englishLeftovers, vre, trimContextLeak, fixRepeatedHeads };
+    // ---------- Sound captions ----------
+    // Automatic captions mark music, applause and laughter as lines of their own, in the caption's
+    // language ("[Music]", "[Musik]", "[Tepuk tangan]"); Coursera writes "[MUSIC]", "[SOUND]". In the
+    // user's cache (2.3.1) the model gave "Âm nhạc", "[Âm nhạc]" and "(Âm nhạc)" within one video,
+    // and the dub planner leaves only bracketed notes silent, so the bare ones were read aloud. A
+    // line of notes only is translated here from this list (a window of nothing else sends no
+    // request), and a known note inside speech gets its square brackets back. Square brackets are
+    // always a note; round ones only around a word of this list.
+    const SOUND_WORDS = {
+        "Âm nhạc": ["music", "musik", "musique", "música", "musica", "muziek", "muzyka", "musika", "muzik", "müzik", "музыка", "موسيقى", "音楽", "音乐", "音樂", "음악", "संगीत", "เพลง", "ดนตรี", "âm nhạc", "nhạc"],
+        "Vỗ tay": ["applause", "applaus", "applaudissements", "aplausos", "applausi", "oklaski", "palakpakan", "alkış", "аплодисменты", "تصفيق", "拍手", "掌声", "掌聲", "박수", "तालियाँ", "เสียงปรบมือ", "tepuk tangan", "vỗ tay"],
+        "Tiếng cười": ["laughter", "laughs", "laughing", "laugh", "gelächter", "lachen", "rires", "risas", "risos", "risate", "śmiech", "смех", "ضحك", "笑い", "笑", "笑声", "笑聲", "웃음", "हंसी", "เสียงหัวเราะ", "tertawa", "tiếng cười", "cười"],
+        "Reo hò": ["cheering", "cheers", "reo hò", "hò reo"],
+        "Âm thanh": ["sound"],
+        "Im lặng": ["silence", "blank audio", "im lặng"]
+    };
+    // How the model writes each of them inside a Vietnamese line
+    const SOUND_VI = {
+        "Âm nhạc": "(?:tiếng\\s+)?(?:âm\\s+)?nhạc(?:\\s+nền)?",
+        "Vỗ tay": "(?:tiếng\\s+)?vỗ\\s+tay",
+        "Tiếng cười": "(?:tiếng\\s+)?cười(?:\\s+lớn)?",
+        "Reo hò": "(?:tiếng\\s+)?(?:reo\\s+hò|hò\\s+reo)",
+        "Âm thanh": "(?:tiếng\\s+)?âm\\s+thanh",
+        "Im lặng": "(?:sự\\s+)?im\\s+lặng"
+    };
+    const soundKey = s => String(s || "").normalize("NFC").toLowerCase().replace(/[\s_]+/g, " ").replace(/^[\s.…,;:!?-]+|[\s.…,;:!?-]+$/g, "");
+    const SOUND_OF = new Map(Object.entries(SOUND_WORDS).flatMap(([vi, list]) => list.map(w => [soundKey(w), vi])));
+    const SOUND_VI_RE = Object.entries(SOUND_VI).map(([word, form]) =>
+        [word, new RegExp(`([\\[(]\\s*)?(?<![\\p{L}\\p{M}\\p{N}])(${form})(?![\\p{L}\\p{M}\\p{N}])(\\s*[\\])])?`, "giu")]);
+    const NOTE_RE = /\[[^\][]*\]|\([^()]*\)|[♪♫]+/g;
+
+    // A line that holds sound notes only: { vi } with the list's words, or vi "" when a note is not in
+    // the list (the model translates it, fixSoundNotes brackets its answer). null for a line of speech.
+    function soundNoteLine(src) {
+        const s = String(src || "").replace(/¦/g, " ").trim();
+        const notes = s.match(NOTE_RE);
+        if (!notes || /[\p{L}\p{N}]/u.test(s.replace(NOTE_RE, " "))) return null;
+        let known = true;
+        const vi = [];
+        for (const n of notes) {
+            if (/^[♪♫]/.test(n)) { vi.push(n); continue; }
+            const word = SOUND_OF.get(soundKey(n.slice(1, -1)));
+            if (!word && n[0] === "(") return null;            // "(for example)" is speech
+            if (!word) known = false;
+            vi.push(word ? `[${word}]` : n);
+        }
+        return { vi: known ? vi.join(" ") : "" };
+    }
+
+    function fixSoundNotes(vi, src) {
+        return (vi || []).map((text, i) => {
+            const s = String((src && src[i]) || "");
+            if (!text || !/[[(♪♫]/.test(s)) return text;
+            const line = soundNoteLine(s);
+            if (line) {
+                if (line.vi) return line.vi;
+                const t = String(text).replace(/¦/g, " ").replace(/\s+/g, " ").trim();
+                if (!/[\p{L}\p{N}]/u.test(t.replace(/\[[^\][]*\]|[♪♫]+/g, " "))) return t;
+                return `[${t.replace(/[[\]()]/g, "").trim()}]`;
+            }
+            // Speech with notes in it: a note the model left in the source language is translated,
+            // then as many of the list's words as the source has notes get square brackets, taken in
+            // order among the words that were bracketed (a lone "]" too: "Vỗ tay] Được rồi"),
+            // capitalized as a note is ("Âm nhạc maha mahaun Âm nhạc") or alone on the line;
+            // "buồn cười", "thích âm nhạc" are speech and stay.
+            const counts = new Map();
+            for (const n of s.match(NOTE_RE) || []) {
+                const word = n[0] === "[" || n[0] === "(" ? SOUND_OF.get(soundKey(n.slice(1, -1))) : null;
+                if (word) counts.set(word, (counts.get(word) || 0) + 1);
+            }
+            if (!counts.size) return text;
+            let out = String(text).replace(/\[([^\][]*)\]/g, (m, inner) => { const w = SOUND_OF.get(soundKey(inner)); return w ? `[${w}]` : m; });
+            for (const [word, re] of SOUND_VI_RE) {
+                let left = counts.get(word) || 0;
+                if (!left) continue;
+                out = out.replace(re, (m, open, w, close, at, str) => {
+                    if (left <= 0) return m;
+                    const alone = !/[\p{L}\p{N}]/u.test(str.slice(0, at) + str.slice(at + m.length));
+                    const note = open && close ? true
+                        : open || close ? /[[\]]/.test((open || "") + (close || ""))
+                            : alone || /^\p{Lu}/u.test(w);
+                    if (!note) return m;
+                    left--;
+                    return `[${word}]`;
+                });
+            }
+            return out;
+        });
+    }
+
+    const api = { assess, CALQUES, englishLeftovers, vre, trimContextLeak, fixRepeatedHeads, soundNoteLine, fixSoundNotes };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_QUALITY = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

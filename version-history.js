@@ -4,6 +4,15 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.3.1", luc: "", ten: "Giọng đọc không còn đọc to \"Âm nhạc\", đặt lại chi phí luôn giữ",
+            y: [
+                "Nhãn âm thanh trong phụ đề tự động như [Music], [Applause], [Musik], [Tepuk tangan], [เพลง] trước đây được gửi cho Gemini dịch và trả về lúc \"Âm nhạc\", lúc \"(Âm nhạc)\", lúc \"[Âm nhạc]\" ngay trong một video; bản không có ngoặc bị giọng lồng tiếng đọc to thành lời giữa đoạn nhạc. Nay nhãn được dịch sẵn theo danh sách và luôn nằm trong ngoặc vuông nên giọng đọc bỏ qua. Trên 531 đoạn bạn đã xem: số đoạn bị đọc to tên nhãn từ 45 xuống 1, và 50 đoạn chỉ có nhãn không còn tốn lượt gọi Gemini. Video đã lưu từ trước được sửa khi mở lại.",
+                "Bấm đặt lại chi phí trong Cài đặt sau khi tiện ích đã nghỉ (khoảng 30 giây không dùng) có thể không ăn thua: số cũ vừa nạp lên đè lại lên số vừa xóa rồi được lưu. Nay việc đặt lại luôn giữ. Lượt dùng lại audio đã lưu ngay lúc tiện ích vừa thức dậy cũng không còn bị mất khỏi thống kê.",
+                "Tên video trong thẻ chi phí, bảng điều khiển nhỏ và danh sách bản sửa phụ đề không còn dính số thông báo \"(1) \" ở đầu và \" - YouTube\" ở cuối (4 trong 5 video hôm nay bị). Tên lấy từ chính trình phát YouTube, nên video có tên thật bắt đầu bằng \"(2024)\" vẫn giữ đúng.",
+                "Video đời sống không học thuật ngữ nào thì không còn ghi một mục thuật ngữ rỗng cho kênh (43 trong 51 mục đang lưu là rỗng)."
+            ]
+        },
+        {
             v: "2.3.0", luc: "", ten: "Dịch sát ngữ cảnh hơn cho video đời sống, không đọc một câu hai lần",
             y: [
                 "Bộ nhận diện lĩnh vực của video trước đây so từ khóa theo phần đầu chữ, nên \"important\" bị tính là từ lập trình \"import\", \"general\" thành \"gene\" (sinh học), \"meaning\" thành \"mean\" (thống kê). Trong 13 video không phải bài giảng bạn xem gần đây, 6 video bị xếp nhầm vào toán, học máy, lập trình, marketing hoặc kinh doanh, và mọi gợi ý nghĩa gửi kèm cho Gemini đều sai (video về thói quen nhận gợi ý \"run: chạy chương trình\"). Nay so nguyên từ và cần đủ nhiều từ khóa khác nhau theo độ dài: cả 13 video được nhận là hội thoại thông thường, các bài giảng kỹ thuật vẫn nhận đúng lĩnh vực.",

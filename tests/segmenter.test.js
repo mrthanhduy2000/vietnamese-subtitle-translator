@@ -325,6 +325,46 @@ test("a repeat the source itself makes, a short overlap, or a unit that is only 
     assert.deepEqual(Q.fixRepeatedHeads(["Một câu thôi."]), ["Một câu thôi."]);
 });
 
+// 2.3.1, from the user's cache: sound captions came back as "Âm nhạc", "(Âm nhạc)" or "[Âm nhạc]"
+// within one video, and the voice read the bare ones aloud (45 of 531 groups; 4 left after)
+test("sound captions: notes only are translated from a list, every note ends up bracketed and silent", () => {
+    const Q = require("../vi-quality.js");
+    const P = require("../dub-planner.js");
+    const fix = (src, vi) => Q.fixSoundNotes([vi], [src])[0];
+    // lines of notes only, in the caption's own language: no request needed
+    assert.equal(Q.soundNoteLine("[Music]").vi, "[Âm nhạc]");
+    assert.equal(Q.soundNoteLine(" [MUSIC] ").vi, "[Âm nhạc]");
+    assert.equal(Q.soundNoteLine("[Tepuk tangan] [Musik] [Tepuk tangan]").vi, "[Vỗ tay] [Âm nhạc] [Vỗ tay]");
+    assert.equal(Q.soundNoteLine("[เพลง]").vi, "[Âm nhạc]");
+    assert.equal(Q.soundNoteLine("(Applause)").vi, "[Vỗ tay]");
+    assert.equal(Q.soundNoteLine("♪♪").vi, "♪♪");
+    assert.equal(Q.soundNoteLine("[Suara]").vi, "", "a note not in the list is left to the model");
+    for (const speech of ["Hello [Music]", "(for example)", "♪ I love you ♪", "", "We use [INAUDIBLE] here"]) assert.equal(Q.soundNoteLine(speech), null, speech);
+    // what the model gave, fixed
+    assert.equal(fix("[Music]", "Âm nhạc"), "[Âm nhạc]");
+    assert.equal(fix("[Musik]", "(Âm nhạc)"), "[Âm nhạc]");
+    assert.equal(fix("[Suara]", "Âm thanh"), "[Âm thanh]", "an unknown note: the model's words, bracketed");
+    assert.equal(fix("[Suara] [Foo]", "[Âm thanh] [Foo]"), "[Âm thanh] [Foo]");
+    assert.equal(fix("[Musik] maha mahaun [Musik]", "Âm nhạc maha mahaun Âm nhạc"), "[Âm nhạc] maha mahaun [Âm nhạc]");
+    assert.equal(fix("[Applause] your okay so", "Vỗ tay] Được rồi, vậy là"), "[Vỗ tay] Được rồi, vậy là");
+    assert.equal(fix("[Music] the", "âm nhạc"), "[Âm nhạc]", "the note alone on the line");
+    assert.equal(fix("[Music] wait go here [Music] watch", "[Nhạc] khoan, để vào đây [Nhạc] xem nào"), "[Âm nhạc] khoan, để vào đây [Âm nhạc] xem nào");
+    assert.equal(fix("He said (laughs) no", "Anh ấy nói (cười) không"), "Anh ấy nói [Tiếng cười] không");
+    assert.equal(fix("[Music] hello", "[Music] xin chào"), "[Âm nhạc] xin chào", "a note left in English");
+    // speech is never bracketed: lower case inside a sentence, a dropped note, a round aside
+    assert.equal(fix("[Laughter] That is so funny", "Buồn cười quá"), "Buồn cười quá");
+    assert.equal(fix("[Music] I love music", "Tôi yêu âm nhạc"), "Tôi yêu âm nhạc");
+    assert.equal(fix("[Music] see (more about music)", "xem (thêm về âm nhạc)"), "xem (thêm về âm nhạc)");
+    assert.equal(fix("[Music] Music is great", "[Âm nhạc] Âm nhạc thật tuyệt"), "[Âm nhạc] Âm nhạc thật tuyệt", "one note, one bracket");
+    assert.equal(fix("I love music", "Tôi yêu Âm nhạc"), "Tôi yêu Âm nhạc", "no note in the source, nothing touched");
+    // idempotent, and the voice reads none of it
+    for (const [src, vi] of [["[Musik] maha mahaun [Musik]", "Âm nhạc maha mahaun Âm nhạc"], ["[Music]", "Âm nhạc"], ["[Applause] your okay so", "Vỗ tay] Được rồi"]]) {
+        const once = fix(src, vi);
+        assert.equal(fix(src, once), once);
+        assert.doesNotMatch(P.stripSoundNotes(once), /nhạc|vỗ tay/i, once);
+    }
+});
+
 test("every translation path runs the leak trim", () => {
     const read = f => require("node:fs").readFileSync(require("node:path").join(__dirname, "..", f), "utf8");
     const cs = read("content.js"), yt = read("youtube.js"), bg = read("background.js");
@@ -334,5 +374,8 @@ test("every translation path runs the leak trim", () => {
     assert.ok(/ytTrimLeaks\(groups, idxs\);\n    ytGhepViCues\(\);/.test(yt), "YouTube live");
     assert.ok(/ytRepairCachedLeaks\(\);\n            yt\.daDichXong = true;/.test(yt), "YouTube cache");
     assert.ok(/Q\.fixRepeatedHeads\(\[a\.viText, b\.viText\]/.test(yt), "YouTube runs the head repeat fix inside ytTrimLeaks");
+    // sound captions: both paths, and a cached video is repaired on load (ytTrimLeaks counts them)
+    assert.ok(/if \(sources && Q\.fixSoundNotes\) translations = Q\.fixSoundNotes\(translations, sources\);/.test(cs), "Coursera sound notes");
+    assert.ok(/Q\.fixSoundNotes\(\[g\.viText\], \[src\(g\)\]\)/.test(yt) && /return n \+ notes;/.test(yt), "YouTube sound notes");
     assert.ok(/KHÔNG viết tiếp phần nằm trong \[NGỮ CẢNH SAU\]/.test(bg), "the prompt says so too");
 });

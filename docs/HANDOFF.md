@@ -6,23 +6,22 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · `2.3.0` whole-product review, round 1 (lane A, plus `tools/ext-storage.js`):
-`context-engine.js` `detectDomain`, `vi-quality.js` `fixRepeatedHeads` + doubled-word rule,
-`content.js` `trimTranslationLeaks(…, sources)`, `youtube.js` `ytTrimLeaks` head pass, tests, docs.
+2026-09-29 · `2.3.1` whole-product review, round 2 (lanes A and D, `dubbing.js` one line):
+`vi-quality.js` sound notes, `content.js` `requestUnit` / `pageVideoTitle`, `youtube.js`
+`ytTrimLeaks` + `yt.videoTitle`, `background.js` ledger load race, tests, docs.
 
 ## What changed
-- Measured on the user's real cache (`tools/ext-storage.js`, 15 videos, 531 groups): prefix matching
-  gave 6 of 13 everyday videos a technical domain ("important" = import) and every sense hint sent
-  with them was wrong. Now whole words, 3 distinct keywords, score >= words/150: 13/13 general,
-  11/11 lecture samples still right (11-21 points against 3). `SUBTITLE.md` "Domain (2.3.0)".
-- Head repeat: inside one window item k came back as its first words, item k+1 as those words plus
-  the rest, so it was shown and spoken twice. `fixRepeatedHeads` drops it and re-splits by source
-  share; a source that repeats itself (mantra, chorus: a shared 3-word run) is left alone.
-- Doubled word only for grammar words, never across punctuation: false severity-3 flags 9 -> 0,
-  refine-triggering lines 15 -> 6 of 531 (each was a paid refine in Balanced mode).
+- Sound captions ("[Music]", "[Musik]", "[เพลง]"): translated from a list, always in square brackets,
+  so the dub planner leaves them silent. On the user's cache the voice read a note aloud in 45 of
+  531 groups, now 1; 50 notes-only groups need no request. `SUBTITLE.md` "Sound captions (2.3.1)".
+- Cost ledger: a reset or a charge reaching a worker that just woke was replaced by the stored
+  ledger loading after it. `track()` waits for `ledgerReady`; `DANGER.md` §4.
+- One `pageVideoTitle()`: the ledger, popup, transcript panels and edits had four title variants,
+  two of them raw ("(1) … - YouTube" on 4 of 5 real titles). YouTube prefers the player's title.
+- No empty `ctxterms_*` key per channel (43 of 51 real ones); `TARGET_LANG`/`MAX_CHUNK_CHARS` removed.
 
 ## State
-- Tests: 603 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`). Round 2 follows.
+- Tests: 608 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`). Round 3 follows.
 
 ## Unfinished / in progress
 - Not verified live: the warm-up after a long idle and the "có nghĩa là" reading need the local
@@ -33,13 +32,14 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   Never ask about Apple Events JS or hand decisions back (memory).
 
 ## Traps hit this session
-- Chrome's `.ldb` tables are Snappy-compressed (`strings` shows fragments); the newest values sit in
-  the `.log`. Use `tools/ext-storage.js`, never `strings | grep` on a ledger.
-- `tests/segmenter.test.js` "every translation path runs the leak trim" pins the exact call text of
-  `trimTranslationLeaks` / `ytTrimLeaks`: change the call, change the pin.
-- Paraphrased tail leaks (the model's own wording of the next line) still pass `trimContextLeak`:
-  2 seen in 531 groups (4eY5DuqASQc #27, 7ReQFzSndj4 #14); word-pair matching cannot see them.
+- `bg-env.js` answered `storage.local` synchronously, which hid the ledger race; use `asyncLocal`
+  for anything that loads state at worker start.
+- Cached translations: `node tools/ext-storage.js --prefix=ytcache4_ --out=$TMPDIR/yt` then replay a
+  fix over `g[k][2]` against `g[k][3]`; that is how both 2.3.x rounds were measured.
+- `tests/segmenter.test.js` "every translation path runs the leak trim" pins the call text of
+  `trimTranslationLeaks`, `ytTrimLeaks` and now `fixSoundNotes`: change the call, change the pin.
+- Paraphrased tail leaks still pass `trimContextLeak` (4eY5DuqASQc #27, 7ReQFzSndj4 #14).
 
 ## Suggested next step
-- After a Reload, one YouTube listen after the Mac idled 10+ min (first voice time), and one full
-  Pacific day of the cost card against AI Studio Usage.
+- After a Reload, one YouTube listen of a video with music breaks (no "Âm nhạc" read aloud), one
+  after the Mac idled 10+ min (first voice time), and a full Pacific day of the cost card.
