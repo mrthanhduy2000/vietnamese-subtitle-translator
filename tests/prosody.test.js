@@ -142,8 +142,9 @@ test("corpus: a breathing comma only ever lands where the marks allow a pause", 
         });
     }
     // 8 on 2026-09-27; 29 since 2.1.5 (BREATH 0.35 / 18 also takes the "/" boundaries); 36 since
-    // 2.1.6 (minSide 6, a weaker boundary in a 26+ syllable stretch)
-    assert.ok(changed >= 31 && changed <= 41, `${changed} sentences got a comma`);
+    // 2.1.6 (minSide 6, a weaker boundary in a 26+ syllable stretch); 56 since 2.1.7 (minRun 16, and
+    // a 15+ run the text-only choice left whole takes its best boundary)
+    assert.ok(changed >= 50 && changed <= 62, `${changed} sentences got a comma`);
 });
 
 test("corpus: the text-only choice never splits a unit or a bound pair, and no marked boundary is a unit", () => {
@@ -321,6 +322,16 @@ test("a 26+ syllable stretch with only weak boundaries still breathes once; a sh
     assert.equal(P.breathText(short), short);
     // the shorter side may be 6 syllables now: "Do tốc độ học quá lớn, nên ..."
     assert.match(P.breathText("Do tốc độ học quá lớn nên hàm mất mát dao động liên tục và không giảm xuống được."), /^Do tốc độ học quá lớn, nên /);
+});
+
+test("a long subject before its verb gets the breath the text-only choice left out; a short sentence does not", () => {
+    // 2.1.7: syntax4-6 real takes read "subject | verb of effect" in one run on 45 of 85 takes
+    assert.equal(P.breathText("Chi phí quảng cáo trên mạng xã hội chiếm phần lớn ngân sách của doanh nghiệp."),
+        "Chi phí quảng cáo trên mạng xã hội, chiếm phần lớn ngân sách của doanh nghiệp.");
+    assert.equal(P.breathText("Trời mưa rất to từ sáng nên buổi quay ngoài trời phải dời sang ngày mai."),
+        "Trời mưa rất to từ sáng, nên buổi quay ngoài trời phải dời sang ngày mai.");
+    for (const short of ["Mô hình này học rất nhanh trên dữ liệu nhỏ.", "Chúng tôi dùng Python mỗi ngày."])
+        assert.equal(P.breathText(short), short);
 });
 
 test("VieNeu text: a long stretch gets its breathing comma, the audio key follows the text", () => {

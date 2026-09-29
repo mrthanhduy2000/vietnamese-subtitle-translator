@@ -4,6 +4,20 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.1.7", luc: "14:12 29/09/2026", ten: "Lồng tiếng: câu có chủ ngữ dài được ngắt hơi trước động từ",
+            y: [
+                "Câu kiểu \"Chi phí quảng cáo trên mạng xã hội chiếm phần lớn ngân sách\" (chủ ngữ dài rồi mới tới động từ) trước đây bị giọng VieNeu đọc liền một mạch khoảng một nửa số lần. Nay chữ gửi cho giọng đọc có một dấu phẩy lấy hơi ở chỗ ngắt tốt nhất của những đoạn từ 15 âm tiết trở lên chưa có chỗ nghỉ nào. Dấu phẩy này chỉ nằm trong chữ gửi cho giọng đọc, phụ đề trên màn hình không đổi. Chữ không đổi, không bớt từ nào.",
+                "Đo trên bản đọc thật của VieNeu trên máy (miễn phí, bạn chạy trong Terminal): 184 câu mẫu, 920 bản đọc. Chưa nghe thử trên video thật. Không gọi dịch vụ trả phí."
+            ],
+            bang: { cot: ["Bản đọc thật", "2.1.6", "Nay"], hang: [
+                ["20 câu bị ảnh hưởng: chỗ cần ngắt mà giọng đọc liền", "30 trên 55", "0 trên 55"],
+                ["20 câu bị ảnh hưởng: đoạn đọc liền dài nhất (9 trên 10 câu không vượt quá)", "17 âm tiết", "10 âm tiết"],
+                ["Cả 184 câu: chỗ cần ngắt mà giọng đọc liền", "39 trên 365", "9 trên 365"],
+                ["Cả 184 câu: chỗ giọng dừng mà không nên dừng", "1", "1"],
+                ["Cả 184 câu: tổng độ dài giọng đọc", "3847,2 giây", "3854,5 giây (+0,2%)"]
+            ] }
+        },
+        {
             v: "2.1.6", luc: "13:38 29/09/2026", ten: "Lồng tiếng: đoạn rất dài cũng có chỗ lấy hơi",
             y: [
                 "Câu dài từ 26 âm tiết mà không có chỗ ngắt mạnh nào trước đây được đọc liền một hơi, có câu tới 30 âm tiết. Nay tiện ích cho phép lấy hơi ở chỗ ngắt nhẹ hơn trong những đoạn rất dài này. Chỗ lấy hơi cũng được đặt khi một bên chỉ có 6 âm tiết, ví dụ \"Do tốc độ học quá lớn, nên hàm mất mát...\". Chữ không đổi, không bớt từ nào.",

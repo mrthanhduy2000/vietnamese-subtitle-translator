@@ -201,7 +201,15 @@ out, 35 each way): every added comma stopped the voice, longest run p90 26 -> 15
 RAN-ON 0/15 both, WRONG 0 -> 1 (the voice's own stop before "trong quý vừa qua", not at a comma),
 +1.4% length. Left in one run on purpose: the 13 "|" inside 13-17 syllable sentences (a one-breath
 length; a comma there would chop them). The slow delivery matrix is identical (its script has no
-such stretch).
+such stretch). 2.1.7 reversed that last choice on real takes: the rebuilt prosody cache (920 takes)
+showed syntax4-6 reading "subject | verb of effect" in one run on 45 of 85 takes. `breathGroups`
+keeps a pause budget and left those 15-17 syllable runs whole, so `breathText` now also gives a run
+of `fallbackRun` 15+ with no comma its best boundary of value >= 0.35 (sides >= 6), and `minRun` is
+16. 56 of 184 sentences change, every comma at a mark. The 20 it adds, 100 takes each way: RAN-ON
+30/55 -> 0/55, WRONG 0 -> 0, longest run p90 17 -> 10. All 184 as sent (920 takes, `$TMPDIR/br/prod.js`
+style scoring): RAN-ON 39/365 -> 9/365, WRONG 1 -> 1, +0.2% length. Left: 4 in corpus (l2 "trễ |
+đều", a 14-syllable run) and syntax2 L1 "thẻ | và" (a 2-syllable side). The comma is only in the
+text sent to VieNeu: a subject-verb comma is not written Vietnamese, but the subtitle never shows it.
 
 **4. `boundaryValue(left, right)`**: the value of a cut between two segments. Engine `gapAfter`: a
 part that continues the sentence without , ; : rests `SYNC.joinGapClause` when the cut's value is >=

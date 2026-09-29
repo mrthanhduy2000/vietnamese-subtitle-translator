@@ -74,10 +74,10 @@ split units ("gấp | mười", "đô | la", "chuẩn | bị"). A pause needs a 
 (`dub-prosody.js` `K.minValue`), and since 2.1.5 a breathing comma needs value >= 0.35 in an 18+
 syllable stretch (real takes of the 20 changed sentences: RAN-ON 18/60 -> 0/60, `DUBBING.md` §3);
 2.1.6 lets a 26+ syllable stretch take a weaker boundary (value >= 0.1). Left: a run with no gap of
-value >= 0.1 at all (a long English name, a repeated word) keeps no pause, and the 13 "|" inside
-13-17 syllable sentences stay one run by choice. Not heard by the user yet. The prosody-eval take
-cache (`~/.cache/cst-prosody-takes`, ~840 takes) vanished on 2026-09-29 around 13:00; rebuilding it
-is `node tools/prosody-eval.js` with the local server (the user runs it: the classifier blocks it here).
+value >= 0.1 at all (a long English name, a repeated word) keeps no pause; 2.1.7 gives a 15+ run the
+text-only choice left whole its best boundary (all 184 as sent: RAN-ON 39/365 -> 9/365). Left: runs
+under 15 syllables and a side under 6 ("thẻ | và"). Not heard by the user yet. Rendering needs the
+local server; the auto-mode classifier blocks it here, so the user runs the render command.
 
 **16. Mild pause placements the model still keeps.** *(found 1.7.6)* 1.7.8 fixed "tăng | từ 72,5%",
 "tăng mạnh | nhờ vào", "chỉ tốt | bằng", "tập thể dục | vào buổi sáng", relative "mà", topic "thì",

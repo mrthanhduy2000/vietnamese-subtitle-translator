@@ -725,7 +725,13 @@
     // one run 0/15 both, stops where the marks say none 0 -> 1 (the voice's own, before "trong quý"),
     // duration +1.4%. The weak places it takes ("các biểu diễn, từ dữ liệu thô") are ones the voice
     // chose itself on 2 of 5 takes without the comma.
-    const BREATH = { minRun: 18, minSide: 6, minValue: 0.35, longRun: 26, longValue: 0.1 };
+    // (2.1.7) minRun 18 -> 16, and a run of fallbackRun 15+ the text-only choice left whole (it keeps
+    // a pause budget, so "Chi phí quảng cáo trên mạng xã hội | chiếm phần lớn ngân sách" got none)
+    // takes its best boundary of value >= minValue. The comma is only in what the voice is sent, not
+    // in the subtitle. The 20 corpus sentences it changes, 100 real takes each way: "|" read in one
+    // run 30/55 -> 0/55, stops where the marks say none 0 -> 0, longest run p90 17 -> 10 syllables.
+    // All 184 sentences as sent (920 takes): RAN-ON 39/365 -> 9/365, WRONG 1 -> 1, length +0.2%.
+    const BREATH = { minRun: 16, fallbackRun: 15, minSide: 6, minValue: 0.35, longRun: 26, longValue: 0.1 };
     const breathMemo = new Map();
     function breathText(text) {
         const key = String(text || "");
@@ -742,6 +748,20 @@
             if (g.value < (sum(from, to) >= BREATH.longRun ? BREATH.longValue : BREATH.minValue)) continue;
             if (sum(from, to) < BREATH.minRun || sum(from, b.gap) < BREATH.minSide || sum(b.gap + 1, to) < BREATH.minSide) continue;
             add.add(b.gap);
+        }
+        // A run the text-only choice left whole: its best boundary, if strong enough (2.1.7)
+        for (let from = 0; from < a.words.length; ) {
+            let to = from; while (to < a.words.length - 1 && !a.words[to].punct) to++;
+            let best = -1;
+            if (sum(from, to) >= BREATH.fallbackRun && ![...add].some(g => g >= from && g < to)) {
+                for (let k = from; k < to; k++) {
+                    const g = a.gaps[k];
+                    if (g.punct || g.unit || g.value < BREATH.minValue || sum(from, k) < BREATH.minSide || sum(k + 1, to) < BREATH.minSide) continue;
+                    if (best < 0 || g.value > a.gaps[best].value) best = k;
+                }
+            }
+            if (best >= 0) add.add(best);
+            from = to + 1;
         }
         hit = add.size ? a.words.map((w, i) => w.raw + (add.has(i) ? "," : "")).join(" ") : key;
         if (breathMemo.size >= 600) breathMemo.clear();
