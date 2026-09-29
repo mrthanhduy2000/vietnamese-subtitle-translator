@@ -169,7 +169,7 @@
         liveStallFactor: 2.5,
         liveStallPadMs: 2000,
         maxAudio: 600,
-        duckRampPerTick: 0.09,    // how far the video's volume moves per tick: 0.2 <-> 1 takes ~0.45 s
+        duckRampTicks: 9,         // ticks from full to the duck level or back (0.45 s), in equal dB steps
         duckHold: 0.35,           // the original stays down this long (media s) after a line ends
         // (2.0.8) Before a line whose start is known (its take is in the page, or a system-voice
         // phrase), a gap shorter than this (wall seconds) keeps the original down, and after a longer
@@ -394,6 +394,20 @@
         const text = plainScript(plan);
         if (/[,;:]["”')\]]*$/.test(text)) return SYNC.joinGapClause;
         return next && PROSODY && PROSODY.boundaryValue(text, plainScript(next)) >= SYNC.joinGapValue ? SYNC.joinGapClause : SYNC.joinGap;
+    }
+
+    // (2.0.9) One tick of the duck ramp: equal steps of loudness (dB), the ear's scale, not of
+    // amplitude, so full <-> duck level takes SYNC.duckRampTicks ticks either way. The linear ramp
+    // (0.09 a tick) jumped +2.9 dB on its first step back up and crept +0.8 dB on its last, and a line
+    // that began over a loud original had it 1.6 dB louder in its first 0.45 s. A duck of 0 ramps to
+    // -40 dB, then off; a shallow one still moves at least 6 dB over the ramp.
+    function duckStep(from, target, duck) {
+        const FLOOR = 0.01;
+        const span = Math.max(6, -20 * Math.log10(Math.max(FLOOR, Math.min(1, duck))));
+        const ratio = Math.pow(10, -span / 20 / SYNC.duckRampTicks);
+        if (from > target) { const x = from * ratio; return x <= target + 1e-6 || x < FLOOR ? target : x; }
+        const x = Math.max(from, FLOOR) / ratio;
+        return x >= target - 1e-6 ? target : x;
     }
 
     function plainScript(plan) {
@@ -2076,10 +2090,9 @@
             const speaking = t <= this.speakingUntilMedia || !!(this.live && this.live.speaking);
             const active = held || (playing && (speaking || this.lineComing(t)));
             const target = active ? this.settings.duck : 1;
-            const step = SYNC.duckRampPerTick;
             if (!this.duckDirty && Math.abs(this.duckFactor - target) < 1e-3) return;
             this.duckDirty = false;
-            this.duckFactor = this.duckFactor < target ? Math.min(target, this.duckFactor + step) : Math.max(target, this.duckFactor - step);
+            this.duckFactor = duckStep(this.duckFactor, target, this.settings.duck);
             this.setVideoVolume((this.baseVolume == null ? 1 : this.baseVolume) * this.duckFactor);
         }
 
@@ -2093,7 +2106,7 @@
             const next = this.nextVoiceAt(t);
             if (!next || t > next.at + SYNC.duckHold) return false;    // due and still silent: let it up
             const vr = Math.max(0.25, this.d.video.playbackRate || 1);
-            const ramp = Math.ceil((1 - this.settings.duck) / SYNC.duckRampPerTick) * SYNC.tickMs / 1000;
+            const ramp = SYNC.duckRampTicks * SYNC.tickMs / 1000;
             return (next.end != null && (next.at - next.end) / vr <= SYNC.duckBridge) || t >= next.at - ramp * vr;
         }
 

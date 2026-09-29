@@ -478,7 +478,12 @@ Knobs you will actually reach for:
   warm). `background.js` `localIsCold()` (>10 min since a good render, kept in `chrome.storage.session`)
   gives that first line a 60 s limit and keeps it out of the speed log. No warm-up line (1.2.6 test).
 - **Ducking**: voice cannot be separated from music, so the original track is ramped down
-  (`duckRampPerTick` 0.09, `duckHold` 0.35) in `updateDuck`. Any volume write that is not ours
+  (`duckRampTicks` 9, `duckHold` 0.35) in `updateDuck`. The ramp (`duckStep`, 2.0.9) moves in equal
+  steps of loudness: 1.55 dB a tick at the default 0.2, full <-> duck in 0.45 s either way; a duck of
+  0 ramps to -40 dB, then off. The linear ramp before it (0.09 a tick) jumped +2.9 dB on its first
+  step back up and crept +0.8 dB on its last; on eleven playback-sim scenarios the largest one-tick
+  change went 3.23 -> 1.55 dB, and the 20 lines that began over a loud original (a start, a seek, a
+  late take) had it at -4.5 -> -6.1 dB mean power in their first 0.45 s. Any volume write that is not ours
   (`onVolume`) resets the base and sets `duckDirty`, so the duck is re-applied next tick. On YouTube
   (`playerOwnsVolume`, set in `dubbing.js`) the written value IS the new base: the player writes its
   own full level (Stable Volume after a seek, measured 0.1 -> 0.89). Elsewhere it is divided by the

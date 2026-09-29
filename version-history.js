@@ -4,6 +4,17 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.0.9", luc: "12:04 29/09/2026", ten: "Lồng tiếng: tiếng gốc tăng giảm đều tai hơn",
+            y: [
+                "Tiếng gốc được hạ xuống và nâng lên theo những bước đều nhau về độ to nghe được (tai người nghe độ to theo đề-xi-ben), thay vì những bước đều nhau về âm lượng. Trước đây nhịp đầu tiên lúc nâng tiếng gốc lên nhảy mạnh (+2,9 đề-xi-ben) rồi các nhịp sau nhỏ dần; nay mỗi nhịp như nhau (1,55 đề-xi-ben ở mức hạ mặc định). Thời gian hạ hoặc nâng vẫn là 0,45 giây.",
+                "Câu bắt đầu khi tiếng gốc còn to (câu đầu tiên sau khi bắt đầu xem hoặc tua, hoặc audio về trễ): tiếng gốc nhỏ đi nhanh hơn ở đầu câu, nên mấy chữ đầu của giọng Việt ít bị lấn hơn. Cách đọc không đổi. Đo ngoại tuyến, chưa nghe thử bằng tai, không gọi dịch vụ trả phí."
+            ],
+            bang: { cot: ["11 tình huống mô phỏng", "2.0.8", "Nay"], hang: [
+                ["Bước đổi độ to lớn nhất trong một nhịp", "3,23 đề-xi-ben", "1,55 đề-xi-ben"],
+                ["Tiếng gốc trong 0,45 giây đầu của câu bắt đầu lúc tiếng gốc còn to", "-4,5 đề-xi-ben", "-6,1 đề-xi-ben"]
+            ] }
+        },
+        {
             v: "2.0.8", luc: "06:47 29/09/2026", ten: "Lồng tiếng: tiếng gốc không còn bật lên giữa hai câu",
             y: [
                 "Trước đây giọng Việt dừng quá 0,35 giây là tiếng gốc bắt đầu to lại. Với khoảng nghỉ 0,8 giây giữa hai câu, tiếng gốc vừa về đủ to đúng lúc câu sau bắt đầu, nên mấy chữ đầu của câu Việt bị tiếng gốc đè lên rồi mới hạ xuống. Nay khi đã biết câu sau bắt đầu lúc nào (audio của nó đã có sẵn), khoảng nghỉ dưới 2 giây giữ nguyên mức hạ; khoảng nghỉ dài hơn thì tiếng gốc được hạ xuống trước khi câu sau bắt đầu.",

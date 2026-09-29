@@ -6,19 +6,19 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · `dub-engine.js` (B), `tests/dub.test.js`, `tools/syntax-eval.js` (D), docs · `2.0.8`.
+2026-09-29 · `dub-engine.js` (B), `tests/dub.test.js`, `tools/syntax-eval.js` (D), docs · `2.0.9`.
 
 ## What changed
-- 2.0.8: ducking between lines. `lineComing` / `nextVoiceAt` know when the next line starts (its
-  take is in the page, or the system voice's next phrase): a gap under `SYNC.duckBridge` 2.0 wall s
-  stays ducked, a longer one comes down ~0.45 s before the line; a pause mid-line holds the duck.
-  Nine scenarios: pumps 88/180 -> 2, loud line starts 163/265 -> 11, delivery identical on both
-  paths. `DUBBING.md` "Ducking between lines (2.0.8)". Not heard by ear.
+- 2.0.9: the duck ramps in equal dB steps (`duckStep`, `SYNC.duckRampTicks` 9, replaces
+  `duckRampPerTick`): largest one-tick change 3.23 -> 1.55 dB; the smoothness test now bounds dB.
+- 2.0.8: `lineComing` / `nextVoiceAt` know when the next line starts: a gap under
+  `SYNC.duckBridge` 2.0 wall s stays ducked, a longer one comes down ~0.45 s before the line, a
+  pause mid-line holds the duck. Pumps 88/180 -> 2, loud line starts 163/265 -> 11, delivery
+  identical. `DUBBING.md` "Ducking between lines (2.0.8)". Neither 2.0.8 nor 2.0.9 heard by ear.
 - No bump: `syntax-eval --breath=` scores breathing commas, a lead is in BACKLOG 15 (needs real
   takes); a between-sentence pace hold was tried and not kept (`DUBBING.md`, Rate).
-- 2.0.7: in-sentence pace step <= 0.03. 2.0.6: head cuts at a phrase boundary near the middle; the
-  24-run slow test guard is 275 / 140 s (paired 144-run evidence in its comment). 2.0.4 / 2.0.5:
-  BACKLOG 16 predicate verbs and guards (`DUBBING.md` "2.0.4").
+- 2.0.7: in-sentence pace step <= 0.03. 2.0.6: head cuts at a phrase boundary; the 24-run slow
+  test guard is 275 / 140 s (paired 144-run evidence in its comment).
 
 ## State
 - Tests: 572 pass, 0 fail, 1 skip. Reload: **yes**, at `chrome://extensions`.
