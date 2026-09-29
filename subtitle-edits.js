@@ -44,6 +44,10 @@
         if (meta && meta.url) rec.url = meta.url;
         const t = clean(text);
         const k = msOf(start);
+        // the stored line may sit a few ms away (found by editFor's tolerance after a re-translation
+        // moved the cue): replace or revert that one, or a revert left the old edit showing
+        const old = keyNear(rec.lines, start);
+        if (old != null && old !== k) delete rec.lines[old];
         if (!t || t === clean(orig)) delete rec.lines[k];
         else rec.lines[k] = { text: t, orig: clean(orig) };
         rec.updated = Date.now();
@@ -54,7 +58,7 @@
 
     async function removeLine(videoKey, start) {
         const rec = await load(videoKey);
-        if (!rec || !rec.lines[msOf(start)]) return rec;
+        if (!rec || keyNear(rec.lines, start) == null) return rec;
         return save(videoKey, null, start, "", "");
     }
 
@@ -75,12 +79,22 @@
             .sort((a, b) => (b.updated || 0) - (a.updated || 0));
     }
 
-    function editFor(lines, start) {
+    // The stored key of the line at `start`: exact, else the nearest within TOLERANCE
+    function keyNear(lines, start) {
         if (!lines) return null;
-        const exact = lines[msOf(start)];
-        if (exact) return exact;
-        for (const k of Object.keys(lines)) if (Math.abs(Number(k) / 1000 - start) <= TOLERANCE) return lines[k];
-        return null;
+        const k = msOf(start);
+        if (lines[k]) return k;
+        let best = null, bestD = Infinity;
+        for (const key of Object.keys(lines)) {
+            const d = Math.abs(Number(key) / 1000 - start);
+            if (d <= TOLERANCE && d < bestD) { best = key; bestD = d; }
+        }
+        return best;
+    }
+
+    function editFor(lines, start) {
+        const k = keyNear(lines, start);
+        return k == null ? null : lines[k];
     }
 
     function breakInto(text) {

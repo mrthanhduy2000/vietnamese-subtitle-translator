@@ -80,7 +80,8 @@
     }
 
     function englishLeftovers(vi, allow) {
-        const words = String(vi).match(/\b[A-Za-z][A-Za-z'-]{2,}\b/g) || [];
+        // Unicode word edges: with ASCII \b, "thuật" gave "thu" and "thảo" gave "tha"
+        const words = String(vi).match(/(?<![\p{L}\p{N}])[A-Za-z][A-Za-z'-]{2,}(?![\p{L}\p{N}])/gu) || [];
         const allowSet = allow || new Set();
         return words.filter(w => {
             if (/^[A-Z0-9]{2,}$/.test(w)) return false;          // viết tắt: GPU, API

@@ -43,6 +43,28 @@ function fakeLocal() {
     };
 }
 
+test("store: a line moved a few ms by a re-translation is replaced or reverted, not duplicated", async () => {
+    const local = fakeLocal();
+    globalThis.chrome = { storage: { local } };
+    try {
+        await E.save("yt:mv", {}, 2.4, "sửa lần một", "máy");
+        // the cue now starts at 2.43 s: a second edit replaces the first instead of adding a key
+        let rec = await E.save("yt:mv", {}, 2.43, "sửa lần hai", "máy");
+        assert.deepEqual(Object.keys(rec.lines), ["2430"]);
+        assert.equal(E.editFor(rec.lines, 2.43).text, "sửa lần hai");
+        // a revert at the moved time removes it (before, the edit at 2.4 kept showing)
+        await E.save("yt:mv", {}, 2.4, "sửa lần một", "máy");
+        rec = await E.save("yt:mv", {}, 2.41, "máy", "máy");
+        assert.equal(rec.lines && Object.keys(rec.lines).length || 0, 0);
+        assert.equal(local.data["edits:yt:mv"], undefined);
+        await E.save("yt:mv", {}, 5, "x", "y");
+        await E.removeLine("yt:mv", 5.02);
+        assert.equal(local.data["edits:yt:mv"], undefined, "removeLine finds a moved line too");
+        // two stored lines in range: the nearest one answers
+        assert.equal(E.editFor({ "1000": { text: "a" }, "1050": { text: "b" } }, 1.04).text, "b");
+    } finally { delete globalThis.chrome; }
+});
+
 test("store: save, find again by start time, revert by saving the machine text, list all videos", async () => {
     const local = fakeLocal();
     globalThis.chrome = { storage: { local } };

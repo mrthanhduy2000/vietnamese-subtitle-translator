@@ -23,11 +23,13 @@
 
     // .srt wants hh:mm:ss,mmm
     function srtClock(seconds) {
-        const s = Math.max(0, seconds || 0);
-        const h = Math.floor(s / 3600);
-        const m = Math.floor((s % 3600) / 60);
-        const sec = Math.floor(s % 60);
-        const ms = Math.round((s - Math.floor(s)) * 1000);
+        // whole milliseconds first: rounding the fraction alone gave "00:00:01,1000" at 1.9996 s,
+        // a stamp players reject (the cue was dropped)
+        const total = Math.round(Math.max(0, seconds || 0) * 1000);
+        const h = Math.floor(total / 3600000);
+        const m = Math.floor((total % 3600000) / 60000);
+        const sec = Math.floor((total % 60000) / 1000);
+        const ms = total % 1000;
         return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")},${String(ms).padStart(3, "0")}`;
     }
 
@@ -86,6 +88,7 @@
 
     function fileName(title) {
         const base = String(title || "")
+            .replace(/đ/g, "d").replace(/Đ/g, "D")          // NFD does not split đ: "Đường" became "uong"
             .normalize("NFD").replace(/[̀-ͯ]/g, "")
             .replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-").slice(0, 60);
         return `${base || "ban-chep-loi"}.srt`;

@@ -210,3 +210,9 @@ test("thuật ngữ chỉ được xin khi đoạn có thuật ngữ MỚI, và 
     for (const k of ["gradient", "loss", "batch", "dataset", "model", "train"]) s3.terms.set(k, { en: k, vi: "x", count: 1, alt: {} });
     assert.equal(s3.wantsTerms({ sentences: ["We train the model with gradient descent and compute the loss on each batch of the dataset."] }), false);
 });
+
+test("English leftovers: whole words only, never an ASCII piece of an accented Vietnamese word", () => {
+    const got = Q.englishLeftovers("Kỹ thuật này dùng thuật toán, the model và training data");
+    assert.deepEqual(got, ["the", "model", "training", "data"]);
+    assert.ok(!got.includes("thu"), "'thu' cut out of 'thuật'");
+});

@@ -17,7 +17,7 @@ sense of weight, not an assertion.
 | File | ~Tests | Covers |
 |---|---|---|
 | `segmenter.test.js` | 26 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
-| `context.test.js` | 13 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |
+| `context.test.js` | 14 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |
 | `integration.test.js` | 24 | Runs the **real** `content.js` and `background.js` in a `vm` with a fake `chrome`, fake DOM and fake Gemini |
 | `dub.test.js` | 70 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
 | `cost.test.js` | 58 | The full LOCAL -> CACHE -> cheap -> strong -> TTS chain, plus `cst-cache`, `cost-policy`, `dub-planner`, `dub-engine` |
@@ -28,7 +28,7 @@ sense of weight, not an assertion.
 | `generic-site.test.js` | 5 | Unlisted sites: shortcut injects the ISOLATED group once through `activeTab` then delivers the command, `chrome://` left alone, no all-sites permission, generic track path, host-prefixed keys |
 | `settings.test.js` | 6 | Backup build/parse (key optional, caches excluded, foreign files refused), the Settings wiring, `dubMaxRate` capping every rate, `skipSameLang` on all three sites |
 | `voice-pauses.test.js` | 9 | `shapePauses` (unpunctuated stops closed, punctuation kept, a long unpunctuated run keeps its clause-opening stops and closes the one inside a phrase, tight cap), `joinGroups` segmenting, 48 kHz wiring, pause roles at punctuation |
-| `spoken-lang.test.js` | 8 | `spokenLanguage` (audio > ASR > title, AI dubs, Vietsub titles), `ytChonTrack` with AI-dub ASR tracks, the gate before the cache |
+| `spoken-lang.test.js` | 9 | `spokenLanguage` (audio > ASR > title, AI dubs, Vietsub titles), `ytChonTrack` with AI-dub ASR tracks, the gate before the cache |
 | `quality.test.js` | 6 | Size scale (100% = old 70%), `lingerCues`, `denoise` (hiss down, voice kept, clean take skipped), FFT round trip, wiring |
 | `audit.test.js` | 13 | 1.7.3 audit: popup "Tiếng Anh ở trên" live, dead popup switch gone, Coursera render-loop memo, YouTube does not save a Google-fallback video, daily storage sweep, parallel Google fallback, removed dead code. 1.7.4: leaving a Coursera lecture / a YouTube video mid-load (the only **flow** tests of the two start paths; `pageEnv({ timers, tracks, sendMessage, files, sync })` runs the real `content.js` + `youtube.js` with stubbed bridge and network). 1.7.5: Coursera progressive display (first line after 1 reply), playhead-first order, switch-off mid-run, button redrawn after `busy`, popup progress loop (runs the real `popup.js` on a stub DOM) |
 | `voice-clean.test.js` | 9 | `highPass` (rumble cut, voice band kept), the corrected hiss estimate, clause openings as the strongest boundaries and sentence pauses by length (on `dub-prosody.js` since 1.7.6), `shapePauses` keeping a clause-opening stop, lead silence skipped, the 20 ms voiced onset, engine `gapAfter` wiring, no gate |
@@ -37,7 +37,7 @@ sense of weight, not an assertion.
 | `context-package.test.js` | 16 | 1.8.3/1.8.4: what reaches Gemini, on `context-corpus.js`: a clause across cues is one group, the context package for pronoun / ellipsis / discourse / entity / terms, sense hints without the general fallback, Coursera and YouTube windows carrying the previous translation, short tail windows merged, the cache key's contents; 1.8.4 far antecedents, description cleaning, the realtime 20 s rule, a scaled-time playback check that windows stay ready ahead, the console summary |
 | `speech.test.js` | 23 | 1.7.8 English in speech (`dub-speech.js`): what VieNeu is sent for unknown codes, word acronyms, camelCase and Vietnamese-syllable names, model numbers; what stays untouched (VieNeu's own tables, Vietnamese codes, A4, U23, shouting, "Con AI", a lone "Tom"); evidence from the English source; unchanged text = same string; 8-tag cap; consistency; the user's adversarial list; the version reading of `adaptForSpeech`; spans as prosody units; the backlog-16 pause rules; engine `speakScript` + the `speak` field; no network; speed; custom entries; the unseen split's fingerprint; three subtitle lines read as one take |
 | `ui.test.js` | 36 | Shortcuts (Alt+S / Alt+D / Alt+Shift+V), no blocking `alert`/`confirm` on the user's page, focus rings and reduced-motion, `role=status` toasts, the YouTube quick menu built on a mini-DOM, light/dark theme wiring, the VieNeu autostart script, auto-switch back to VieNeu when the server appears, and the release-history data |
-| `edits.test.js` | 6 | `subtitle-edits.js`: a viewer's correction is stored per video, reaches both the overlay and the voice text, re-voices only the edited sentence, and the transcript panel's edit box |
+| `edits.test.js` | 7 | `subtitle-edits.js`: a viewer's correction is stored per video, reaches both the overlay and the voice text, re-voices only the edited sentence, and the transcript panel's edit box |
 | `glossary.test.js` | 10 | `glossary.js` data and the protect -> restore round trip in `content.js`: settled renderings, plurals, sentence-start capitals, user rules, groups added after a saved list |
 
 ## The two harnesses that make offline testing possible

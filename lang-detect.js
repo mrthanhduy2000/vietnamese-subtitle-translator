@@ -11,8 +11,10 @@
 (function (root) {
     "use strict";
 
-    // Chữ cái chỉ tiếng Việt dùng (loại á à é è... vì tiếng Pháp/Tây Ban Nha/Bồ Đào Nha cũng có)
-    const VI_ONLY = /[ăđơưạảãằắẳẵặầấẩẫậẹẻẽềếểễệỉĩịọỏồốổỗộờớởỡợụủừứửữựỳỷỹỵ]/gi;
+    // Chữ cái chỉ tiếng Việt dùng (loại á à é è... vì tiếng Pháp/Tây Ban Nha/Bồ Đào Nha cũng có).
+    // Not ã (Portuguese "não", "então") nor ă (Romanian "să"): with them a Portuguese lecture read as
+    // Vietnamese at 0.94 and was skipped, every line returned untranslated
+    const VI_ONLY = /[đơưạảằắẳẵặầấẩẫậẹẻẽềếểễệỉĩịọỏồốổỗộờớởỡợụủừứửữựỳỷỹỵ]/gi;
     const SCRIPTS = [
         ["ko", /[가-힯ᄀ-ᇿ㄰-㆏]/g],
         ["ja", /[぀-ヿ]/g],

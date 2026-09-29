@@ -49,13 +49,13 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `yt-bridge.js` | 299 | MAIN-world page bridge: reads YouTube's internal player response, fetches timedtext with the player's `pot` token | none (postMessage protocol only) |
 | `subtitle-style.js` | 293 | Shared subtitle font/stroke/position styling and its defaults | `CST_STYLE` |
 | `player-ui.js` | 424 | The product mark, the control-bar button and the quick-menu stylesheet, shared by both players | `CST_PLAYER_UI` |
-| `subtitle-edits.js` | 166 | The viewer's corrections to translated lines, per video in `storage.local`; `sync` lays them over the overlay cues and the dubbing groups | `CST_EDITS` |
-| `transcript.js` | 378 | Transcript panel beside the player: jump to a line, search, edit a line, export .srt | `CST_TRANSCRIPT` |
+| `subtitle-edits.js` | 180 | The viewer's corrections to translated lines, per video in `storage.local`; `sync` lays them over the overlay cues and the dubbing groups | `CST_EDITS` |
+| `transcript.js` | 381 | Transcript panel beside the player: jump to a line, search, edit a line, export .srt | `CST_TRANSCRIPT` |
 | `chrome-shim.js` | 174 | Fakes `chrome.*` so `popup.html` / `options.html` open outside the extension. Self-disables inside it | `window.chrome` |
 | `popup.html` | 165 | Popup markup | n/a |
-| `vi-quality.js` | 213 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
-| `lang-detect.js` | 130 | Source-language decision without an API call | `CST_LANG` |
-| `version-history.js` | 1350 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
+| `vi-quality.js` | 214 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
+| `lang-detect.js` | 132 | Source-language decision without an API call | `CST_LANG` |
+| `version-history.js` | 1359 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
 | `version-check.js` | 55 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
 | `theme.js` | 42 | Light/Dark theme for the popup and settings page. Applies instantly from `localStorage` to avoid a flash, then syncs from `storage.sync`. Loaded by `popup.html` and `options.html` only, not a content script | `window.CST_THEME` |
 | `build-info.js` | 6 | **Generated** by `tools/bump-version.js`. Never edit | `CST_BUILD` |
@@ -91,7 +91,7 @@ Shared and settings pages:
 - `CST_CACHE` -> `background.js`, `dub-engine.js`
 - `CST_THEME`, `CST_HISTORY`, `CST_BACKUP` -> `options.js`; `CST_VERSION_CHECK` -> `options.js`, `popup.js`
 
-## Tests and tooling (`tests/*.js`: 36 files, ~11,000 lines)
+## Tests and tooling (`tests/*.js`: 36 files, ~11,100 lines)
 
 See `TESTING.md`. Short version: 23 files in `npm test` (listed in `package.json`: a new test file must be added there), all offline; 4 manual scripts;
 8 browser harness pages under `tests/harness/` (`live.html` has its own server, `live-server.js`); `tools/bump-version.js` owns the version number;

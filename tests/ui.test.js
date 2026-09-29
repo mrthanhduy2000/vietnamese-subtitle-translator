@@ -543,11 +543,14 @@ test("bản chép lời: dựng .srt đúng định dạng và ghép đúng dòn
     // .srt: số thứ tự từ 1, mốc thời gian hh:mm:ss,mmm, một dòng trống giữa các khối
     const srt = T.buildSrt(lines);
     assert.equal(T.srtClock(3661.5), "01:01:01,500");
+    assert.equal(T.srtClock(1.9996), "00:00:02,000", "a rounded-up millisecond carries into the second");
+    assert.equal(T.srtClock(3599.9999), "01:00:00,000");
     assert.match(srt, /^1\n00:00:00,000 --> 00:00:02,000\nXin chào các bạn\.\n\n2\n/);
     assert.ok(!srt.includes("Hello everyone"), "chế độ một thứ tiếng không được kèm dòng gốc");
     assert.ok(T.buildSrt(lines, { keepOriginal: true }).includes("Hello everyone."), "chế độ song ngữ phải kèm dòng gốc");
     // tên tệp bỏ dấu và ký tự lạ để mọi hệ điều hành nhận
     assert.equal(T.fileName("Bài giảng: Mạng nơ-ron / phần 1"), "Bai-giang-Mang-no-ron-phan-1.srt");
+    assert.equal(T.fileName("Đường đi của dữ liệu"), "Duong-di-cua-du-lieu.srt");
 });
 
 test("bản chép lời: mở trong trình phát, bấm một dòng thì video nhảy tới, dòng đang phát được đánh dấu", async t => {

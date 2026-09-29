@@ -92,3 +92,13 @@ test("wiring: gate, audio-switch messages and the switch back to the original au
     assert.match(bridge, /data\.cstType === "CHON_AM_THANH_GOC"/);
     assert.match(bridge, /player\.setAudioTrack\(orig\)/);
 });
+
+test("Portuguese and Romanian text is not taken for Vietnamese (ã, ă are not Vietnamese-only letters)", () => {
+    const pt = "Não é possível. Então vamos começar a aula de hoje, são muitas coisas para ver.";
+    assert.equal(L.detectText(pt).lang, "pt");
+    assert.equal(L.decide({ metaLang: "pt", sample: pt }).action, "translate");
+    assert.notEqual(L.detectText("Bună ziua, astăzi vă voi arăta această metodă simplă pentru că este importantă.").lang, "vi");
+    for (const vi of ["Xin chào các bạn, hôm nay chúng ta sẽ học về lập trình.", "Năm nay tăng trưởng mạnh, cảm ơn các bạn đã theo dõi."]) {
+        assert.equal(L.detectText(vi).lang, "vi", vi);
+    }
+});

@@ -6,8 +6,9 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · `2.2.5` review passes 2.2.3-2.2.5: `background.js` (Google fallback, key test),
-`youtube.js` (dead copy), `dub-speech.js` (Vietnamese caps), `popup.js`, tests, `docs/BACKLOG.md`.
+2026-09-29 · `2.2.6` review passes 2.2.3-2.2.6: `background.js` (Google fallback, key test),
+`youtube.js`, `dub-speech.js`, `popup.js`, `lang-detect.js`, `subtitle-edits.js`, `transcript.js`,
+`vi-quality.js`, tests, `docs/BACKLOG.md`.
 
 ## What changed
 - 2.2.3 `googleTranslateAll`: one Google request per window, split by line (gtx keeps "\n", checked
@@ -16,10 +17,12 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   `englishCaps` reads an unknown code the English source lacks as Vietnamese; `EN_SPELLED` keeps
   PDF, URL, QA... English. Popup: `idleLabel` keeps "Dịch lại", `activationError` plain Vietnamese.
 - 2.2.5 `handleTestKey` clears `keyBlock` for that key first (a real re-check after fixing billing).
+- 2.2.6 `VI_ONLY` drops ã, ă (Portuguese was read as Vietnamese and skipped); `keyNear` in
+  `subtitle-edits.js` (save/revert/remove find a moved line); `srtClock` carries ms; `fileName` đ.
 - BACKLOG 24 and 37 closed (37 measured: 0 late of 268 calls, Sep 28-29 ledger).
 
 ## State
-- Tests: 590 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
+- Tests: 593 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
 - Ledger read-only at `~/Library/Application Support/Google/Chrome/Profile 42/Local Extension
   Settings/<id>/` with `strings | grep`: ~940 input tokens per call, 0 thinking, 0 cached (prompt
   under Gemini's implicit-cache minimum, nothing to gain there).
@@ -37,7 +40,6 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 ## Traps hit this session
 - Node `fetch` in the sandbox fails on certificates; `curl` with `allowed_domains` works.
 - BACKLOG uses 37 twice (declined VieNeu patch, closed timeout): cite it with its title.
-- Two sessions in one tree (earlier): stage by path, check `git status` before a bump.
 
 ## Suggested next step
 - After a Reload, compare one full Pacific day (card vs AI Studio Usage); a YouTube listen.

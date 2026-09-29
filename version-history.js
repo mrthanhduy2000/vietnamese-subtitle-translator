@@ -4,6 +4,15 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.2.6", luc: "", ten: "Không nhầm tiếng Bồ Đào Nha thành tiếng Việt, sửa dòng phụ đề chắc chắn hơn, tệp .srt đúng chuẩn",
+            y: [
+                "Video tiếng Bồ Đào Nha (và tiếng Romania) trước đây bị nhận là tiếng Việt vì chữ \"ã\", \"ă\" (não, então, să): tiện ích bỏ qua không dịch và trả nguyên văn từng câu. Nay nhận đúng và dịch bình thường; tiếng Việt vẫn được nhận chắc chắn như cũ.",
+                "Dòng phụ đề bạn đã sửa mà sau đó bị dịch lại lệch vài mili giây: hoàn tác hoặc sửa lần nữa trước đây không xóa được bản sửa cũ (nó cứ hiện lại). Nay sửa, hoàn tác và xóa đều tìm đúng dòng.",
+                "Xuất .srt: mốc thời gian có thể ra dạng sai \"00:00:01,1000\" khiến trình phát bỏ qua dòng đó; tên tệp từ tiêu đề tiếng Việt không còn mất chữ \"đ\" (\"Đường\" thành \"Duong\" thay vì \"uong\").",
+                "Bộ phát hiện dịch máy không còn cắt mảnh \"thu\" từ \"thuật\" khi tìm từ tiếng Anh còn sót."
+            ]
+        },
+        {
             v: "2.2.5", luc: "", ten: "Nút Kiểm tra API Key kiểm tra lại thật",
             y: [
                 "Khi Google từ chối key (sai quyền, hết tiền trả trước, dự án chưa bật thanh toán), tiện ích tạm chặn key đó 10 phút để khỏi gọi phí. Trước đây nếu bạn sửa xong trong AI Studio rồi bấm Kiểm tra trong Cài đặt, nút vẫn báo lỗi cũ suốt 10 phút mà không hỏi Google. Nay bấm Kiểm tra luôn gọi Google thật; qua được thì dịch dùng key ngay."
