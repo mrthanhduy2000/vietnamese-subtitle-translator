@@ -67,7 +67,12 @@ split units ("gấp | mười", "đô | la", "chuẩn | bị"). A pause now need
 (`dub-prosody.js` `K.minValue`), and a breathing comma needs value >= 0.6 in a 20+ syllable stretch.
 A run of words with no such gap (a long English name, a repeated word) keeps no pause. In the corpus
 6 of 140 marked "|" boundaries got no voice stop at all (RAN-ON), same as 1.7.5. The 1.7.5 case
-(`speech-bench.live.js` `ky-thuat`) now keeps "phi tuyến | giữa đầu vào".
+(`speech-bench.live.js` `ky-thuat`) now keeps "phi tuyến | giữa đầu vào". A lead, checked on text
+only (2.0.8, not shipped; `node tools/syntax-eval.js --breath=0.35,18`): `BREATH` minValue 0.35 and
+minRun 18 (now 0.6 / 20) put a breathing comma at 12 of the 25 "|" with no punctuation (3 now) and
+at 18 "/" (7 now), never at an unmarked gap, changing 29 of 184 corpus sentences ("... thương mại
+điện tử, ảnh hưởng đến"). It changes what VieNeu reads, so it needs real takes of the new text (the
+local server, outside the sandbox) and an ear before it ships.
 
 **16. Mild pause placements the model still keeps.** *(found 1.7.6)* 1.7.8 fixed "tăng | từ 72,5%",
 "tăng mạnh | nhờ vào", "chỉ tốt | bằng", "tập thể dục | vào buổi sáng", relative "mà", topic "thì",

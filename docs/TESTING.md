@@ -89,6 +89,7 @@ needs a new `blind-corpus-3.js`. `hold` = the word must be left as is (`pron-eva
 ```bash
 node tools/pron-eval.js --split=dev,validation --old=HEAD --detail   # VieNeu phonemes, no server
 node tools/syntax-eval.js --old=HEAD --detail                         # prosody text decisions, no server
+node tools/syntax-eval.js --breath=0.35,18 --detail                   # breathing commas at other thresholds
 node tools/pron-eval.js --corpus=tests/blind-corpus.js --old=<rev>    # blind split: once, at the end
 node tools/speech-ab.js --split=dev,validation --wav=$TMPDIR/ab        # real takes, sandbox off
 node tools/build-speech-tables.js                                     # regenerate dub-speech.js data

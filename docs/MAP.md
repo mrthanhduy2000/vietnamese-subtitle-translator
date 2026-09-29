@@ -55,7 +55,7 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `popup.html` | 164 | Popup markup | n/a |
 | `vi-quality.js` | 213 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
 | `lang-detect.js` | 130 | Source-language decision without an API call | `CST_LANG` |
-| `version-history.js` | 1162 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
+| `version-history.js` | 1176 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
 | `version-check.js` | 55 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
 | `theme.js` | 42 | Light/Dark theme for the popup and settings page. Applies instantly from `localStorage` to avoid a flash, then syncs from `storage.sync`. Loaded by `popup.html` and `options.html` only, not a content script | `window.CST_THEME` |
 | `build-info.js` | 6 | **Generated** by `tools/bump-version.js`. Never edit | `CST_BUILD` |
@@ -120,7 +120,8 @@ slow translation or TTS, cached / mixed stores; `OLD=<engine.js>` compares; also
 `dub.test.js`. No server, no API. See `DUBBING.md` "Delivery".
 `tools/context-eval.js` (1.8.3) prints, offline, the average size of every part of the translation
 request over `tests/context-corpus.js`. `tools/syntax-eval.js` (1.8.0) scores the prosody model's text-only decisions against the marks, and
-where the free voice's segments are cut for sentences given as subtitle lines; no server.
+where the free voice's segments are cut for sentences given as subtitle lines, and (2.0.8) where
+`breathText` forces a stop with a comma (`--breath=` tries other thresholds); no server.
 `tests/blind-corpus.js` (1.8.0) and `tests/blind-corpus-2.js` (1.8.2) are blind splits written by a
 separate agent that never read the rules, each scored once (`pron-eval --corpus=`, `syntax-eval
 --corpus=`); both are seen now, a new one is needed per round.

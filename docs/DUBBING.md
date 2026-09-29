@@ -424,7 +424,12 @@ Knobs you will actually reach for:
   may still slow down freely: finishing early there left a 0.38 s silence mid-sentence in the
   hidden-tab test). Not when the voice is more than `lagBoostAt` behind. Rapid-seek matrix: parts
   of one sentence that changed pace by 0.05 or more 23 -> 6 of 53, mean change 0.032 -> 0.021;
-  every delivery number of the rapid and slow matrices and of the scenarios identical. `baseTempo` comes from the voice's **measured** syllables per second (`measureVoice`,
+  every delivery number of the rapid and slow matrices and of the scenarios identical. Between
+  sentences a fast talk see-saws (1.30 1.24 1.30, each line's own need). Checked in 2.0.8 and not
+  kept: holding the last pace when one of the next two lines needs it back (capped by `earliest`)
+  took the steady matrix from 111 to 94 see-saws of 813 and 393 to 357 changes of 0.05 or more of
+  876, late 280 -> 276; a small gain for steps that fall at a sentence end, where a reader's pace
+  moves as much. `baseTempo` comes from the voice's **measured** syllables per second (`measureVoice`,
   EMA 0.25), not a constant. `floorRate` divides by `video.playbackRate`.
 - **Chaining**: `chainLead` was cut from 2.0s to 0.8s because starting early accumulated error
   across chained segments. `continuesNext` treats gaps up to 1.5s as one continuous span.

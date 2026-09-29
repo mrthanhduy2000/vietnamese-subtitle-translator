@@ -6,7 +6,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · `dub-engine.js` (lane B), `tests/dub.test.js`, docs · `2.0.8`.
+2026-09-29 · `dub-engine.js` (B), `tests/dub.test.js`, `tools/syntax-eval.js` (D), docs · `2.0.8`.
 
 ## What changed
 - 2.0.8: ducking between lines. `lineComing` / `nextVoiceAt` know when the next line starts (its
@@ -14,10 +14,11 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   stays ducked, a longer one comes down ~0.45 s before the line; a pause mid-line holds the duck.
   Nine scenarios: pumps 88/180 -> 2, loud line starts 163/265 -> 11, delivery identical on both
   paths. `DUBBING.md` "Ducking between lines (2.0.8)". Not heard by ear.
-- 2.0.7: the next part of a sentence changes pace by at most `SYNC.rateStepInSentence` 0.03.
-- 2.0.6: head cuts go to a phrase boundary near the middle (`lineGapValues`, `HEAD_CUT`); the
-  24-run slow test guard is 275 / 140 s, the paired 144-run evidence is in its comment.
-- 2.0.4 / 2.0.5, BACKLOG 16: more predicate verbs, guards, `SUBJECT_PP` (`DUBBING.md` "2.0.4").
+- No bump: `syntax-eval --breath=` scores breathing commas, a lead is in BACKLOG 15 (needs real
+  takes); a between-sentence pace hold was tried and not kept (`DUBBING.md`, Rate).
+- 2.0.7: in-sentence pace step <= 0.03. 2.0.6: head cuts at a phrase boundary near the middle; the
+  24-run slow test guard is 275 / 140 s (paired 144-run evidence in its comment). 2.0.4 / 2.0.5:
+  BACKLOG 16 predicate verbs and guards (`DUBBING.md` "2.0.4").
 
 ## State
 - Tests: 572 pass, 0 fail, 1 skip. Reload: **yes**, at `chrome://extensions`.
@@ -25,14 +26,13 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   (`t7367` missing): rerun `smooth-prep.js`.
 
 ## Unfinished / in progress
-- BACKLOG 16 left: verbs outside the list; RAN-ON is out of reach. BACKLOG 7: palette, user's call.
+- BACKLOG 16: verbs outside the list; RAN-ON needs the BACKLOG 15 lead. BACKLOG 7: user's call.
 - Carried over: ask the user for "Chép chẩn đoán" right after a problem; BACKLOG 36; glossary
   keep-English per term not watched in Chrome; real Gemini output before/after 1.8.3/1.8.4 not
   compared; BACKLOG 30, 31, 14-15, 18-24, 26, 28 (20 outside); the user's verdict on the 1.9.5 A/B
   WAVs; 1.7.9 duck fix not confirmed; Udemy / edX (BACKLOG 9); a live YouTube check by the user.
-- The user should turn Chrome's "Allow JavaScript from Apple Events" back off.
-- A stray backup `~/VieNeu-TTS/apps/openai_speech.py.cst-before-fast-release` (harmless) may be
-  deleted by the user.
+- The user: Chrome's "Allow JavaScript from Apple Events" back off; may delete the harmless backup
+  `~/VieNeu-TTS/apps/openai_speech.py.cst-before-fast-release`.
 
 ## Traps hit this session
 - Read `git log` before continuing after a break: another session may have recorded a decision.

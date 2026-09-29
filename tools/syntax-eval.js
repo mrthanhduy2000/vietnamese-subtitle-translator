@@ -7,13 +7,17 @@
 //             there is likely kept. Lower is better, 0 is not the goal (the voice rarely stops there)
 //   BLOCKED   a "|" the model forbids outright (value < 0): the voice's stop there is closed
 //   HARD      an unmarked gap inside a unit (name, number + unit, term) the model does NOT forbid
+//   BREATH    where breathText puts a comma in what the free voice is sent (2.0.8): at a "|" with no
+//             punctuation (of how many), at a "/", and BREATH-WRONG at an unmarked gap. The voice
+//             stops at such a comma (35 of 35 in 1.7.6), so this is where a stop is forced.
+//             --breath=<minValue>,<minRun>[,<minSide>] scores the working tree with other thresholds
 // and, for sentences given as subtitle lines (tests/blind-corpus.js "cues"), where the free voice's
 // segments are cut (a cut restarts the voice: a pause at the cut), with lines back to back (0.1 s)
 // and with a 0.7 s gap between lines (the speaker paused there):
 //   CUT-WRONG a segment cut at an unmarked gap
 // This is a proxy: it measures agreement with one reader's marks, not how the speech sounds. Real
 // takes: tools/prosody-eval.js.
-//   node tools/syntax-eval.js [--set=syntax,syntaxval] [--old=<git rev>] [--detail]
+//   node tools/syntax-eval.js [--set=syntax,syntaxval] [--old=<git rev>] [--breath=0.35,18] [--detail]
 //   node tools/syntax-eval.js --corpus=tests/blind-corpus.js     (its "prosody" and "cues" lists)
 const path = require("path"), fs = require("fs"), os = require("os");
 const { execFileSync } = require("child_process");
@@ -36,7 +40,7 @@ function parse(PLAN, marked) {
 }
 
 function scoreSentences(M, items) {
-    const out = { n: 0, wrong: 0, missed: 0, invite: 0, blocked: 0, hard: 0, gaps: 0, faults: [] };
+    const out = { n: 0, wrong: 0, missed: 0, invite: 0, blocked: 0, hard: 0, gaps: 0, faults: [], bars: 0, breathBar: 0, breathSlash: 0, breathWrong: 0, breathSentences: 0 };
     for (const [id, , m] of items) {
         const { words, gold, text } = parse(M.PLAN, m);
         const a = M.P.analyze(text);
@@ -52,7 +56,21 @@ function scoreSentences(M, items) {
             if (mark === 0 && g.value >= 0.3) { out.invite++; out.faults.push(`${id} INVITE  ${at} (${g.value.toFixed(2)})`); }
             if (mark === 2 && g.value < 0) { out.blocked++; out.faults.push(`${id} BLOCKED ${at} (${g.value.toFixed(2)})`); }
             if (mark === 0 && g.unit && g.value >= 0) { out.hard++; out.faults.push(`${id} HARD    ${at}`); }
+            if (mark === 2) out.bars++;
         });
+        const sent = M.P.breathText(text).split(/\s+/);
+        if (sent.length !== words.length) { out.faults.push(`${id}: breathText changed the words, skipped`); continue; }
+        let added = false;
+        sent.forEach((w, i) => {
+            if (w === words[i]) return;
+            added = true;
+            const at = `${words[i]} | ${words[i + 1]}`;
+            if (gold[i] === 2) out.breathBar++;
+            else if (gold[i] === 1) out.breathSlash++;
+            else { out.breathWrong++; out.faults.push(`${id} BREATH-WRONG ${at}`); }
+            if (gold[i]) out.faults.push(`${id} BREATH  ${at} (${gold[i] === 2 ? "|" : "/"})`);
+        });
+        if (added) out.breathSentences++;
     }
     return out;
 }
@@ -122,14 +140,33 @@ function moduleDir(rev) {
 }
 const child = dir => JSON.parse(execFileSync(process.execPath, [__filename, `--modules=${dir}`, ...process.argv.slice(2).filter(a => !a.startsWith("--old="))], { maxBuffer: 1 << 26 }).toString());
 
+// The working tree with other breathing-comma thresholds (dub-prosody.js BREATH), in a copy
+function breathDir(spec) {
+    const [minValue, minRun, minSide] = spec.split(",").map(Number);
+    const dir = path.join(os.tmpdir(), `cst-syntax-breath-${spec.replace(/[^\w.]/g, "_")}`);
+    fs.mkdirSync(dir, { recursive: true });
+    for (const f of ["vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-speech.js"]) {
+        let src = fs.readFileSync(path.join(REPO, f), "utf8");
+        if (f === "dub-prosody.js") {
+            const re = /const BREATH = \{ minRun: [\d.]+, minSide: ([\d.]+), minValue: [\d.]+ \};/;
+            if (!re.test(src)) throw new Error("dub-prosody.js: the BREATH line changed, update syntax-eval.js");
+            src = src.replace(re, (all, side) => `const BREATH = { minRun: ${minRun}, minSide: ${isFinite(minSide) ? minSide : side}, minValue: ${minValue} };`);
+        }
+        fs.writeFileSync(path.join(dir, f), src);
+    }
+    return dir;
+}
+
 const runs = [];
 if (arg("old")) runs.push([`old (${arg("old")})`, child(moduleDir(arg("old")))]);
 runs.push(["current", child(REPO)]);
+if (arg("breath")) runs.push([`current, breath ${arg("breath")}`, child(breathDir(arg("breath")))]);
 for (const [label, res] of runs) {
     console.log(`\n== ${label}`);
     for (const [name, r] of Object.entries(res)) {
         if (name === "cues") console.log(`cues: ${r.n} runs, ${r.cuts} cuts, CUT-WRONG ${r.wrong}`);
-        else console.log(`${name}: ${r.n} sentences, ${r.gaps} gaps | WRONG ${r.wrong}  MISSED ${r.missed}  INVITE ${r.invite}  BLOCKED ${r.blocked}  HARD ${r.hard}`);
+        else console.log(`${name}: ${r.n} sentences, ${r.gaps} gaps | WRONG ${r.wrong}  MISSED ${r.missed}  INVITE ${r.invite}  BLOCKED ${r.blocked}  HARD ${r.hard}` +
+            ` | BREATH at | ${r.breathBar}/${r.bars}, at / ${r.breathSlash}, WRONG ${r.breathWrong} (${r.breathSentences} sentences)`);
         if (detail) for (const f of r.faults) console.log("   " + f);
     }
 }
