@@ -6,7 +6,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · cost: `background.js`, `cost-policy.js`, `options.js`, `tests/hardening.test.js`
+2026-09-29 · AI Studio check (docs only) · cost: `background.js`, `cost-policy.js`, `options.js`, `tests/hardening.test.js`
 (2.2.0-2.2.1); dubbing: `dub-prosody.js` `BREATH`, `tests/prosody.test.js`,
 `dub-audio.js`, `dub-engine.js`, `background.js` (D, `breath` field), tests, docs (2.1.5-2.1.9) · `2.2.1`.
 
@@ -14,22 +14,22 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 - Cost 2.1.0-2.2.0: every billed request charged (`onBilled`/`onLate`), Pacific-day history,
   currency, late answers cached (`lateAnswerKeeper`). 2.2.1: `countPromptTokens` (countTokens) makes a lost answer's prompt exact (`countedCalls`);
   `lateOpened` keep-alive; `COST.priceOf` for typed ids (`how` exact/variant/family/unknown).
-- 2.1.5 / 2.1.6: `BREATH` 0.35 / 18, `minSide` 6, `longRun` 26 / `longValue` 0.1. Takes by the user's
-  Terminal (`$TMPDIR/br/ab2.js`, CUR / CAND json of texts from `$TMPDIR/br/texts.js <repo>`).
-- 2.1.7: `breathText` fallback: a 15+ run with no comma takes its best boundary >= 0.35; all 184
-  sentences as sent (920 takes): RAN-ON 39/365 -> 9/365, WRONG 1 -> 1, +0.2% length.
-- 2.1.8: breathing commas shaped as breaths (`breathAdded`, request `breath`, `K.breathKeep`):
-  same stops, mean kept 0.23 -> 0.21 s, -0.3% length. `LOCAL_STYLE_VERSION` not bumped.
-  2.1.9: `fallbackRun` 14; all 184 as sent: RAN-ON 6/365 (the rest is left on purpose, DUBBING §3).
-- Duck: 2.1.2 `duckAttackTicks` 4; 2.1.4 (code in 2.1.3) `nextVoiceAt` counts a take still being
-  made (`next.pending`, bridge only): slow-matrix pumps 197 -> 8, delivery identical.
+- 2.1.5-2.1.9 breathing commas (`BREATH`, `breathText` fallback, `fallbackRun` 14): all 184 as sent
+  RAN-ON 39/365 -> 6/365 (rest on purpose, DUBBING §3). Takes via `$TMPDIR/br/ab2.js` in the user's Terminal.
+- Duck 2.1.2-2.1.4: `duckAttackTicks` 4; `nextVoiceAt` counts a take still being made (slow pumps 197 -> 8).
 
 ## State
 - Tests: 583 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
 - Live check 2.1.9 done (DUBBING.md "Live check"): no defect found. Not heard by ear yet.
 
 ## Unfinished / in progress
-- User to compare the card with AI Studio; still far off: key shared elsewhere, or BACKLOG 37.
+- AI Studio checked 2026-09-29 (Usage + Spend, 28 days): only the extension's models appear (3.1
+  Flash Lite, 3.5 Flash Lite, 2.5 Flash TTS), one key. The one hour both cover matches: Google
+  Sep 28 12:00 PT 4 requests = card's 28/09 row, 4 calls. Google's Sep 28 total (256 req) is larger
+  because the card's history began mid-day. Net charges only Sep 18-19 (paid TTS, pre-1.8.1). Next
+  real check: a full Pacific day recorded after Chrome is reloaded (Chrome still ran 2.1.9).
+- Card says "Model đang dịch: 2.5 Flash-Lite" when the key's 404 mark (`ACCESS_TTL_MS`, 3 days)
+  has lapsed; the next call pays one 404 round trip, then 3.1. Cosmetic; not fixed, ask the user.
 - BACKLOG 16: verbs outside the list. BACKLOG 7: user's call.
 - Carried over: the live harness (`?script=stress`, `viewer2`) needs the local server; the user
   said yes, but the classifier blocks it here, so the user runs it or adds a permission rule;
@@ -42,4 +42,4 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   by path, and check `git status` and the manifest version just before a bump.
 
 ## Suggested next step
-- Compare the card's Google-day table with AI Studio for one day; a YouTube listen of 2.1.5.
+- After a Reload, compare one full Pacific day (card vs AI Studio Usage); a YouTube listen of 2.1.5.
