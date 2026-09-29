@@ -483,7 +483,13 @@ Knobs you will actually reach for:
   0 ramps to -40 dB, then off. The linear ramp before it (0.09 a tick) jumped +2.9 dB on its first
   step back up and crept +0.8 dB on its last; on eleven playback-sim scenarios the largest one-tick
   change went 3.23 -> 1.55 dB, and the 20 lines that began over a loud original (a start, a seek, a
-  late take) had it at -4.5 -> -6.1 dB mean power in their first 0.45 s. Any volume write that is not ours
+  late take) had it at -4.5 -> -6.1 dB mean power in their first 0.45 s. 2.1.1: once a voice is
+  already sounding over an original above the duck level (`this.speech` past its `mediaStart`, or a
+  system-voice phrase speaking), the way down is the attack, `duckAttackTicks` 4 (3.5 dB a tick);
+  a line announced ahead (`lineComing`) still comes down at the gentle 9 ticks before it starts, and
+  the way up is unchanged. Those 20 lines: -6.1 -> -9.6 dB (3 ticks -10.9 at 4.7 dB a step, 5 -8.7,
+  6 -7.9); loud share of voiced time 0.3 -> 0.1%; delivery and every pump count identical (slow
+  matrix and system-voice logs compared line by line). Any volume write that is not ours
   (`onVolume`) resets the base and sets `duckDirty`, so the duck is re-applied next tick. On YouTube
   (`playerOwnsVolume`, set in `dubbing.js`) the written value IS the new base: the player writes its
   own full level (Stable Volume after a seek, measured 0.1 -> 0.89). Elsewhere it is divided by the

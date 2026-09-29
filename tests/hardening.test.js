@@ -605,7 +605,24 @@ test("cost ledger charges every billed request: a thrown-away answer and a timed
     assert.equal(st.day.inTok, 2000);
     assert.equal(st.day.outTok, 240, "thinking tokens are billed as output");
     assert.equal(st.day.estCalls, 0);
+    assert.equal(st.day.thoughtTok, 40);
     assert.ok(st.model && st.model.price, "the card is told which model and price the estimate uses");
+    // the unusable answer came from the first model of the chain, the kept one from the next
+    const per = st.day.byModel;
+    assert.deepEqual(Object.keys(per).sort(), ["gemini-2.5-flash-lite", "gemini-3.1-flash-lite"]);
+    for (const id of Object.keys(per)) {
+        assert.deepEqual([per[id].calls, per[id].inTok, per[id].outTok], [1, 1000, 120], id);
+        assert.ok(Math.abs(per[id].usd - COST.estimateTextCost(id, 1000, 120)) < 1e-12, id);
+    }
+    const want = COST.estimateTextCost("gemini-2.5-flash-lite", 1000, 120) + COST.estimateTextCost("gemini-3.1-flash-lite", 1000, 120);
+    assert.ok(Math.abs(st.day.trUsd - want) < 1e-12);
+    const pd = st.history[st.pacificToday];
+    assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(st.pacificToday) && pd, "a ledger keyed by Google's (Pacific) billing day");
+    assert.deepEqual([pd.trCalls, pd.inTok, pd.outTok], [2, 2000, 240]);
+    // costReset clears today and the session, keeps the per-day history for comparing with Google
+    const cleared = await E.send({ action: "costReset" });
+    assert.equal(cleared.day.trCalls, 0);
+    assert.equal(cleared.history[cleared.pacificToday].trCalls, 2);
 
     // A request our timer drops still runs at Google: charged with an estimate
     const T = bgEnv(async (u, o) => {
@@ -616,6 +633,17 @@ test("cost ledger charges every billed request: a thrown-away answer and a timed
     const st2 = await T.send({ action: "costStats" });
     assert.ok(st2.day.trCalls >= 1 && st2.day.estCalls === st2.day.trCalls, `timed-out calls ${JSON.stringify(st2.day)}`);
     assert.ok(st2.day.trUsd > 0 && st2.day.inTok > 0);
+});
+
+test("cost estimate: implicit-cache tokens are billed at the cache rate, never below zero or above the prompt", () => {
+    const id = "gemini-3.1-flash-lite";
+    const p = COST.findModel(id).estPrice;
+    assert.equal(p.in, 0.25); assert.equal(p.out, 1.5); assert.equal(p.cache, 0.025);
+    const close = (a, b) => assert.ok(Math.abs(a - b) < 1e-12, `${a} vs ${b}`);
+    close(COST.estimateTextCost(id, 1e6, 1e6), 1.75);
+    close(COST.estimateTextCost(id, 1e6, 0, 4e5), 0.6 * 0.25 + 0.4 * 0.025);
+    close(COST.estimateTextCost(id, 1000, 0, 5000), 1000 * 0.025 / 1e6);
+    for (const m of COST.TRANSLATION_MODELS) assert.ok(m.estPrice.cache < m.estPrice.in, m.id);
 });
 
 test("vượt gấp đôi ngân sách ngày: ngừng gọi Gemini dịch (hàng rào cứng), dùng bản miễn phí", async () => {

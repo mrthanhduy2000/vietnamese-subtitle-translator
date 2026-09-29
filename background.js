@@ -396,16 +396,24 @@ function parseUnitJson(raw) {
 let unitSchemaUnsupported = false;
 
 // Billed tokens of one request: the server's own counts; when they are missing, or the request
-// timed out (data null), estimated from length. ~3 characters per token: the prompt is mostly
-// Vietnamese, which splits into more tokens than English (the old guess of 4 undercounted).
-function usageOf(data, promptChars, outGuess) {
+// timed out (data null), estimated from length. The characters-per-token ratios start from what
+// this prompt shape measures (mostly Vietnamese instructions, ~3 characters a token) and follow
+// the real counts of this session's answered calls, so an estimate tracks the actual prompt.
+const tokenRatio = { prompt: 3, outPerSrc: 0.5 };
+function usageOf(data, promptChars, srcChars) {
     const u = (data && data.usageMetadata) || {};
-    const estimated = !u.promptTokenCount;
+    const real = !!u.promptTokenCount;
+    const thoughts = u.thoughtsTokenCount || 0;
+    const out = data ? (u.candidatesTokenCount != null ? u.candidatesTokenCount : Math.ceil(responseText(data).length / 3)) : 0;
+    if (real && promptChars > 200) tokenRatio.prompt = tokenRatio.prompt * 0.8 + (promptChars / u.promptTokenCount) * 0.2;
+    if (real && srcChars > 40) tokenRatio.outPerSrc = tokenRatio.outPerSrc * 0.8 + ((out + thoughts) / srcChars) * 0.2;
     return {
-        in: u.promptTokenCount || Math.ceil(promptChars / 3),
-        out: data ? (u.candidatesTokenCount != null ? u.candidatesTokenCount : Math.ceil(responseText(data).length / 3)) : outGuess,
-        thoughts: u.thoughtsTokenCount || 0,
-        estimated
+        in: u.promptTokenCount || Math.ceil(promptChars / tokenRatio.prompt),
+        // promptTokenCount includes the part Google served from its implicit cache (billed lower)
+        cached: Math.min(u.cachedContentTokenCount || 0, u.promptTokenCount || 0),
+        out: data ? out : Math.ceil(srcChars * tokenRatio.outPerSrc) + 20,
+        thoughts,
+        estimated: !real
     };
 }
 
@@ -421,7 +429,7 @@ async function callGeminiUnit(req, apiKey, model, retries = 2, bill = null) {
     const t0 = Date.now();
     // Every request Google answered or timed out on is charged, not only the pass whose
     // translation is kept: a retry after a cut-off or unparsable answer was billed too
-    const onBilled = bill && (data => bill(usageOf(data, sys.length + user.length, Math.ceil(srcChars * 1.3 / 3) + 60)));
+    const onBilled = bill && (data => bill(usageOf(data, sys.length + user.length, srcChars)));
 
     // Tối đa 3 lượt gửi: model không nhận JSON schema / cấu hình suy nghĩ (bỏ tính năng đó),
     // hoặc bản dịch bị cắt cụt vì chạm trần token (gửi lại một lần với trần gấp đôi).
@@ -462,7 +470,7 @@ async function callGeminiUnit(req, apiKey, model, retries = 2, bill = null) {
             else throw new GeminiError("bad_output", `Số mục không khớp (gửi ${req.sentences.length}, nhận ${translations.length})`);
         }
         if (translations.some(t => !t)) throw new GeminiError("bad_output", "Có mục dịch rỗng");
-        const usage = usageOf(data, sys.length + user.length, 0);
+        const usage = usageOf(data, 0, 0);
         return {
             translations,
             terms: Array.isArray(obj.terms) ? obj.terms.filter(t => t && t.en && t.vi).slice(0, 5) : [],
@@ -495,21 +503,32 @@ function localDay() {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
-// inTok / outTok: billed text tokens (output includes thinking), comparable with AI Studio's usage
-// page; estCalls: requests whose tokens had to be estimated (timed out, no usage in the answer)
-const emptyStats = () => ({ trUsd: 0, ttsUsd: 0, trCalls: 0, ttsCalls: 0, audioSec: 0, localSec: 0, hitsTr: 0, hitsAudio: 0, avoided: 0, inTok: 0, outTok: 0, estCalls: 0 });
+// inTok: billed prompt tokens, cachedTok the part of them billed at the cache rate; outTok: billed
+// output tokens, thinking included (thoughtTok is that part); estCalls: requests whose tokens had
+// to be estimated (timed out, no usage in the answer). byModel splits calls / tokens / USD.
+const emptyStats = () => ({ trUsd: 0, ttsUsd: 0, trCalls: 0, ttsCalls: 0, audioSec: 0, localSec: 0, hitsTr: 0, hitsAudio: 0, avoided: 0, inTok: 0, outTok: 0, thoughtTok: 0, cachedTok: 0, estCalls: 0, byModel: {} });
 // One billed translation request into the ledger
 function trackText(meta, model, u) {
     const out = u.out + u.thoughts;
-    track(meta, { trUsd: COST.estimateTextCost(model, u.in, out), trCalls: 1, inTok: u.in, outTok: out, estCalls: u.estimated ? 1 : 0 });
+    track(meta, { trUsd: COST.estimateTextCost(model, u.in, out, u.cached), trCalls: 1, inTok: u.in, outTok: out, thoughtTok: u.thoughts, cachedTok: u.cached, estCalls: u.estimated ? 1 : 0 }, model);
+}
+// Google bills by the day in Pacific time, so a second ledger keyed by that day lines up with
+// AI Studio's usage page. Last HISTORY_DAYS days, text calls only (TTS is off, PAID_TTS).
+const HISTORY_DAYS = 31;
+const HISTORY_KEYS = ["trUsd", "ttsUsd", "trCalls", "inTok", "outTok", "thoughtTok", "cachedTok", "estCalls"];
+function pacificDay(now = new Date()) {
+    try { return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(now); }
+    catch (e) { return new Date(now.getTime() - 7 * 3600e3).toISOString().slice(0, 10); }
 }
 let ledger = { day: localDay(), ...emptyStats(), videos: {} };
 let sessionStats = emptyStats();
+let history = {};
 const sessionArea = (typeof chrome !== "undefined" && chrome.storage && chrome.storage.session) || null;
 const ledgerReady = new Promise(resolve => {
     try {
-        chrome.storage.local.get({ costLedger: null }, d => {
+        chrome.storage.local.get({ costLedger: null, costHistory: null }, d => {
             if (d && d.costLedger && d.costLedger.day === localDay()) ledger = { ...emptyStats(), videos: {}, ...d.costLedger };
+            if (d && d.costHistory && typeof d.costHistory === "object") history = d.costHistory;
             if (!sessionArea) return resolve();
             sessionArea.get({ costSession: null }, x => { if (x && x.costSession) sessionStats = { ...emptyStats(), ...x.costSession }; resolve(); });
         });
@@ -520,14 +539,27 @@ function saveLedgerSoon() {
     if (ledgerTimer) return;
     ledgerTimer = setTimeout(() => {
         ledgerTimer = null;
-        try { chrome.storage.local.set({ costLedger: ledger }); if (sessionArea) sessionArea.set({ costSession: sessionStats }); } catch (e) { /* bỏ qua */ }
+        try { chrome.storage.local.set({ costLedger: ledger, costHistory: history }); if (sessionArea) sessionArea.set({ costSession: sessionStats }); } catch (e) { /* bỏ qua */ }
     }, 1500);
 }
 function rollDay() { if (ledger.day !== localDay()) ledger = { day: localDay(), ...emptyStats(), videos: {} }; }
 // meta: { videoKey, videoSec, title }
-function track(meta, patch) {
+function addByModel(stats, model, patch) {
+    const m = (stats.byModel || (stats.byModel = {}))[model] || (stats.byModel[model] = { calls: 0, inTok: 0, outTok: 0, usd: 0 });
+    m.calls += patch.trCalls || 0; m.inTok += patch.inTok || 0; m.outTok += patch.outTok || 0; m.usd += patch.trUsd || 0;
+}
+function track(meta, patch, model) {
     rollDay();
     for (const [k, v] of Object.entries(patch)) { ledger[k] = (ledger[k] || 0) + v; sessionStats[k] = (sessionStats[k] || 0) + v; }
+    if (model) { addByModel(ledger, model, patch); addByModel(sessionStats, model, patch); }
+    if (HISTORY_KEYS.some(k => patch[k])) {
+        const pd = pacificDay();
+        const h = history[pd] || (history[pd] = { byModel: {} });
+        for (const k of HISTORY_KEYS) if (patch[k]) h[k] = (h[k] || 0) + patch[k];
+        if (model) addByModel(h, model, patch);
+        const days = Object.keys(history).sort();
+        days.slice(0, Math.max(0, days.length - HISTORY_DAYS)).forEach(k => delete history[k]);
+    }
     const vk = meta && meta.videoKey;
     if (vk) {
         const v = ledger.videos[vk] || (ledger.videos[vk] = { usd: 0, audioSec: 0, videoSec: 0, title: "" });
@@ -1244,6 +1276,7 @@ async function handleModelStatus(req) {
 // Kiểm tra khóa bằng một lượt generateContent THẬT (nguồn sự thật về quyền truy cập),
 // theo đúng chuỗi model sẽ dùng; ghi nhận model nào gọi được / không.
 async function handleTestKey(req) {
+    await ledgerReady;                     // its call is charged; the ledger must be loaded first
     const apiKey = String(req.key || "").trim();
     if (!apiKey) return { ok: false, error: "Chưa nhập API Key" };
     const cfg = { ...(await modelsFromCfg()), cheap: req.model || COST.DEFAULT_MODELS.cheap };
@@ -1258,7 +1291,7 @@ async function handleTestKey(req) {
             const data = await geminiCall(model, apiKey, {
                 contents: [{ parts: [{ text: "Dịch sang tiếng Việt, chỉ trả bản dịch: 'Artificial Intelligence'" }] }],
                 generationConfig: { maxOutputTokens: 40, temperature: 0.1 }
-            }, { timeoutMs: 15000, retries: 1, onBilled: data => trackText({}, model, usageOf(data, 80, 40)) });
+            }, { timeoutMs: 15000, retries: 1, onBilled: data => trackText({}, model, usageOf(data, 80, 25)) });
             return { ok: true, model, sample: responseText(data).trim(), latency: Date.now() - t0, skipped: tried.slice(0, -1) };
         } catch (e) {
             if (e.type !== "not_found" && e.type !== "unavailable_for_key") return { ok: false, model, errorType: e.type, error: e.message, skipped: tried.slice(0, -1) };
@@ -1296,7 +1329,7 @@ async function handleCostStats() {
         const m = id && COST.findModel(id);
         if (id) model = { id, label: COST.modelLabel(id), price: (m && m.estPrice) || null };
     } catch (e) { model = null; }
-    return { ok: true, day: ledger, session: sessionStats, budget, model };
+    return { ok: true, day: ledger, session: sessionStats, budget, model, history, pacificToday: pacificDay() };
 }
 
 async function handleCostReset() {

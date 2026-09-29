@@ -175,7 +175,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const usd = (d.trUsd || 0) + (d.ttsUsd || 0);
         const pct = b.dailyBudget ? Math.min(100, Math.round(usd / b.dailyBudget * 100)) : 0;
         const fmt = x => (x >= 1 ? x.toFixed(2) : x.toFixed(3)).replace(".", ",");
-        costEl.innerHTML = `<span>Hôm nay: <strong>~${fmt(usd)} USD</strong> · ${((d.audioSec || 0) / 60).toFixed(1).replace(".", ",")} phút giọng AI${d.localSec ? ` · ${(d.localSec / 60).toFixed(1).replace(".", ",")} phút VieNeu (miễn phí)` : ""} · tránh ${d.avoided || 0} lượt gọi</span>` +
+        costEl.innerHTML = `<span>Hôm nay: <strong>~${fmt(usd)} USD</strong> · ${d.trCalls || 0} lượt dịch Gemini${d.audioSec ? ` · ${(d.audioSec / 60).toFixed(1).replace(".", ",")} phút giọng AI` : ""}${d.localSec ? ` · ${(d.localSec / 60).toFixed(1).replace(".", ",")} phút VieNeu (miễn phí)` : ""} · tránh được ${d.avoided || 0} lượt gọi</span>` +
             (b.dailyBudget ? `<span class="cost-bar" title="${pct}% ngân sách ngày"><i style="width:${pct}%"></i></span>` : "");
         costEl.classList.toggle("warn", b.level === "warn");
         costEl.classList.toggle("over", b.level === "over");

@@ -4,6 +4,26 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.1.1", luc: "12:22 29/09/2026", ten: "Lồng tiếng: tiếng gốc nhường chỗ nhanh hơn khi giọng Việt cất lên bất ngờ",
+            y: [
+                "Khi audio của câu về vừa kịp lúc (câu đầu tiên sau khi bắt đầu xem hoặc tua, máy chủ giọng chậm), giọng Việt cất lên lúc tiếng gốc còn to. Trước đây tiếng gốc cần 0,45 giây mới hạ hết nên lấn mấy chữ đầu; nay nó hạ trong 0,2 giây. Câu biết trước vẫn được hạ tiếng gốc từ từ trước khi bắt đầu, và lúc nâng tiếng gốc lên vẫn đều và chậm như bản 2.0.9.",
+                "Cách đọc (câu nào, lúc nào, nhanh hay chậm) không đổi. Đo ngoại tuyến bằng mô phỏng, chưa nghe thử bằng tai, không gọi dịch vụ trả phí."
+            ],
+            bang: { cot: ["11 tình huống mô phỏng", "2.1.0", "Nay"], hang: [
+                ["Tiếng gốc trong 0,45 giây đầu của 20 câu bắt đầu lúc tiếng gốc còn to", "-6,1 đề-xi-ben", "-9,6 đề-xi-ben"],
+                ["Thời gian giọng Việt đọc đè lên tiếng gốc còn to", "0,3%", "0,1%"],
+                ["Bước hạ lớn nhất trong một nhịp (chỉ khi giọng đã cất lên)", "1,55 đề-xi-ben", "3,49 đề-xi-ben"]
+            ] }
+        },
+        {
+            v: "2.1.1", luc: "12:21 29/09/2026", ten: "Chi phí ước tính: chi tiết theo model và theo ngày của Google",
+            y: [
+                "Thẻ Chi phí trong Cài đặt có thêm bảng theo từng model (số lượt, token vào, token ra, tiền), bảng tách token vào, token ra và token \"suy nghĩ\" của model, và bảng 7 ngày gần nhất tính theo ngày của Google (giờ Thái Bình Dương), để so trực tiếp với trang sử dụng của Google AI Studio. Nút Xóa thống kê giữ lại bảng theo ngày này.",
+                "Phần câu lệnh Google lấy từ bộ nhớ đệm của Google được tính theo giá rẻ hơn (0,025 USD mỗi triệu token với 3.1 Flash-Lite), không còn tính như token vào thường. Lượt quá thời gian chờ được ước lượng theo tỉ lệ ký tự trên token đo từ chính các lượt thật trong phiên, thay vì một con số đoán cố định.",
+                "Cửa sổ nhỏ của tiện ích ghi số lượt dịch Gemini hôm nay thay cho dòng \"0,0 phút giọng AI\" (giọng AI trả phí đang tắt)."
+            ]
+        },
+        {
             v: "2.1.0", luc: "12:14 29/09/2026", ten: "Chi phí ước tính: đếm đủ mọi lượt Google tính tiền",
             y: [
                 "Trước đây chỉ lượt dịch thành công cuối cùng được cộng vào chi phí. Lượt Gemini trả về bị hỏng rồi phải gửi lại, và lượt quá thời gian chờ (Google vẫn chạy xong và vẫn tính tiền dù tiện ích đã bỏ đi) đều bị bỏ sót, nên con số ước tính thấp hơn hóa đơn thật. Nay mọi lượt Google đã nhận đều được cộng; lượt quá giờ được tính theo ước lượng độ dài và ghi riêng.",
