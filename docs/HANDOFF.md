@@ -22,15 +22,14 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 
 ## State
 - Tests: 572 pass, 0 fail, 1 skip. Reload: **yes**, at `chrome://extensions`.
-- Takes cached: `~/.cache/cst-prosody-takes` (11 sets). `tests/harness/smooth/` predates 2.0.6
-  (`t7367` missing): rerun `smooth-prep.js`.
+- Takes cached in `~/.cache/cst-prosody-takes` (11 sets); `tests/harness/smooth/` predates 2.0.6.
 
 ## Unfinished / in progress
 - BACKLOG 16: verbs outside the list; RAN-ON needs the BACKLOG 15 lead. BACKLOG 7: user's call.
-- Carried over: ask the user for "Chép chẩn đoán" right after a problem; BACKLOG 36; glossary
-  keep-English per term not watched in Chrome; real Gemini output before/after 1.8.3/1.8.4 not
-  compared; BACKLOG 30, 31, 14-15, 18-24, 26, 28 (20 outside); the user's verdict on the 1.9.5 A/B
-  WAVs; 1.7.9 duck fix not confirmed; Udemy / edX (BACKLOG 9); a live YouTube check by the user.
+- Carried over: "Chép chẩn đoán" right after a problem; BACKLOG 36; glossary keep-English per term
+  not watched in Chrome; Gemini output around 1.8.3/1.8.4 not compared; BACKLOG 30, 31, 14-15,
+  18-24, 26, 28 (20 outside); verdict on the 1.9.5 A/B WAVs; Udemy / edX (BACKLOG 9); a live
+  YouTube check by the user, which also confirms the 1.7.9 duck fix.
 - The user: Chrome's "Allow JavaScript from Apple Events" back off; may delete the harmless backup
   `~/VieNeu-TTS/apps/openai_speech.py.cst-before-fast-release`.
 
@@ -42,4 +41,5 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   globals, so a second engine loaded in one process silently runs the first one's planner.
 
 ## Suggested next step
-- `?script=stress` and `?script=viewer2` on the live harness after any engine change.
+- Ask the user first: VieNeu renders (BACKLOG 15 breath lead) and the live harness (`?script=stress`,
+  `viewer2`, after 2.0.6 to 2.0.9) both need the local server, i.e. work outside the sandbox.
