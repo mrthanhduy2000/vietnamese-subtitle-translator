@@ -19,11 +19,9 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   the state). Popup loads `cost-policy.js` and reads the same keys.
 - 2.1.3: a timed-out translation is not aborted: `policy.onLate` + `LATE_WAIT_MS` 120 s; the
   late answer's real usage replaces the estimate (`trackText(meta, model, u, prev)`, `lateCalls`).
-- 2.1.3: KPI tiles (today, month by Google day, projection from 3 recorded days, per call), a
-  daily budget meter; `.content-area { min-width: 0 }` stops wide tables overflowing the page.
-- 2.1.2 (duck session): `SYNC.duckAttackTicks` 4, duck under a voice already sounding.
-- 2.1.4 (duck session; code went out in 2.1.3): `nextVoiceAt` counts a take still being made
-  (`next.pending`, bridge only). Slow matrix pumps 197 -> 8, slowTts 2 -> 0; delivery identical.
+- 2.1.3: KPI tiles, daily budget meter; `.content-area { min-width: 0 }` stops table overflow.
+- Duck: 2.1.2 `duckAttackTicks` 4; 2.1.4 (code in 2.1.3) `nextVoiceAt` counts a take still being
+  made (`next.pending`, bridge only): slow-matrix pumps 197 -> 8, delivery identical.
 
 ## State
 - Tests: 577 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
@@ -41,8 +39,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 ## Traps hit this session
 - Two sessions in one tree: each commit swept in the other's files twice (cbcc311, 68d9ebd). Stage
   by path, and check `git status` and the manifest version just before a bump.
-- The live ledger can be read offline from Chrome's leveldb:
-  `~/Library/Application Support/Google/Chrome/Profile 42/Local Extension Settings/<ext id>/*.log`.
+- Live ledger offline: Chrome leveldb, `Profile 42/Local Extension Settings/<ext id>/*.log`.
 
 ## Suggested next step
 - Compare the card's Google-day table with AI Studio for one day.
