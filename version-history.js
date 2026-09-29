@@ -4,6 +4,20 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.1.6", luc: "13:38 29/09/2026", ten: "Lồng tiếng: đoạn rất dài cũng có chỗ lấy hơi",
+            y: [
+                "Câu dài từ 26 âm tiết mà không có chỗ ngắt mạnh nào trước đây được đọc liền một hơi, có câu tới 30 âm tiết. Nay tiện ích cho phép lấy hơi ở chỗ ngắt nhẹ hơn trong những đoạn rất dài này. Chỗ lấy hơi cũng được đặt khi một bên chỉ có 6 âm tiết, ví dụ \"Do tốc độ học quá lớn, nên hàm mất mát...\". Chữ không đổi, không bớt từ nào.",
+                "Đo trên bản đọc thật của VieNeu trên máy (miễn phí, bạn chạy trong Terminal): 7 câu mẫu bị ảnh hưởng, mỗi câu 5 lần với 2 giọng, trước và sau. Giọng dừng đúng ở cả 35 trên 35 dấu phẩy thêm vào. Có 1 chỗ giọng tự dừng ở nơi không cần, không phải ở dấu phẩy thêm vào. Chưa nghe thử trên video thật. Không gọi dịch vụ trả phí."
+            ],
+            bang: { cot: ["7 câu mẫu, 35 bản đọc mỗi bên", "2.1.5", "Nay"], hang: [
+                ["Đoạn đọc liền dài nhất (9 trên 10 câu không vượt quá)", "26 âm tiết", "15 âm tiết"],
+                ["Đoạn đọc liền dài nhất trong cả 7 câu", "30 âm tiết", "17 âm tiết"],
+                ["Chỗ cần ngắt mà giọng đọc liền một mạch", "0 trên 15", "0 trên 15"],
+                ["Chỗ giọng dừng mà không nên dừng", "0", "1"],
+                ["Tổng độ dài giọng đọc", "242,6 giây", "246,0 giây (+1,4%)"]
+            ] }
+        },
+        {
             v: "2.1.5", luc: "13:01 29/09/2026", ten: "Lồng tiếng: câu dài có chỗ lấy hơi đúng chỗ",
             y: [
                 "Giọng VieNeu chỉ dừng chắc chắn ở dấu câu. Câu dài không có dấu phẩy trước đây hay bị đọc liền một mạch qua chỗ lẽ ra phải ngắt. Nay tiện ích thêm dấu phẩy lấy hơi ở nhiều chỗ ngắt tự nhiên hơn (trước chỉ ở chỗ ngắt rất mạnh), trong đoạn từ 18 âm tiết trở lên. Chữ không đổi, không bớt từ nào.",

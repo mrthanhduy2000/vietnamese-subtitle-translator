@@ -141,8 +141,9 @@ test("corpus: a breathing comma only ever lands where the marks allow a pause", 
             if (/,$/.test(w) && !/,$/.test(words[i])) assert.ok(gold[i] > 0, `${id}: comma after "${words[i]}"`);
         });
     }
-    // 8 on 2026-09-27; 29 since 2.1.5 (BREATH 0.35 / 18 also takes the "/" boundaries)
-    assert.ok(changed >= 24 && changed <= 34, `${changed} sentences got a comma`);
+    // 8 on 2026-09-27; 29 since 2.1.5 (BREATH 0.35 / 18 also takes the "/" boundaries); 36 since
+    // 2.1.6 (minSide 6, a weaker boundary in a 26+ syllable stretch)
+    assert.ok(changed >= 31 && changed <= 41, `${changed} sentences got a comma`);
 });
 
 test("corpus: the text-only choice never splits a unit or a bound pair, and no marked boundary is a unit", () => {
@@ -308,6 +309,18 @@ test("engine: after a cut at a clause boundary without a comma the voice rests l
     assert.equal(E.gapAfter(plan("năm 2012 một nhóm nghiên cứu nhỏ tại Toronto", true), plan("đã tạo ra một mô hình mới.", false)), E.SYNC.joinGapClause);
     assert.equal(E.gapAfter(plan("để hiểu cách mô hình đưa ra", true), plan("quyết định cuối cùng.", false)), E.SYNC.joinGap);
     assert.equal(E.gapAfter(plan("khi chúng ta nhìn vào đường cong", true)), E.SYNC.joinGap, "no next plan known");
+});
+
+test("a 26+ syllable stretch with only weak boundaries still breathes once; a shorter one keeps its run", () => {
+    // 2.1.6: corpus v2 (36 syllables, no boundary of value 0.35) was read in one run of up to 30
+    const long = "Một trong những lý do khiến mô hình này hoạt động tốt là vì nó có thể tận dụng thông tin từ cả phía trước lẫn phía sau của câu trong cùng một lần xử lý.";
+    const b = P.breathText(long);
+    assert.equal((b.match(/,/g) || []).length, 1, b);
+    assert.equal(b.replace(/,/g, ""), long, "only a comma is added");
+    const short = "Các nhà nghiên cứu phát hiện ra rằng mô hình lớn hơn không phải lúc nào cũng tốt hơn.";
+    assert.equal(P.breathText(short), short);
+    // the shorter side may be 6 syllables now: "Do tốc độ học quá lớn, nên ..."
+    assert.match(P.breathText("Do tốc độ học quá lớn nên hàm mất mát dao động liên tục và không giảm xuống được."), /^Do tốc độ học quá lớn, nên /);
 });
 
 test("VieNeu text: a long stretch gets its breathing comma, the audio key follows the text", () => {

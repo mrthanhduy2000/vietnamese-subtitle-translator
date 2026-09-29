@@ -718,7 +718,14 @@
     // On the 20 of 184 corpus sentences it changes (6 of them held out), 100 real takes each way:
     // "|" read in one run 18/60 -> 0/60, stops where the marks say none 2 -> 0, longest run p90
     // 22 -> 17 syllables (max 38 -> 26), kept pause mean 0.18 -> 0.24 s, duration +0.7%.
-    const BREATH = { minRun: 18, minSide: 7, minValue: 0.35 };
+    // (2.1.6) minSide 7 -> 6 ("Do tốc độ học quá lớn, nên ..."), and a stretch of 26+ syllables may
+    // breathe at a weaker boundary (longValue 0.1): it had no gap of 0.35 and was read in one run of
+    // up to 36. The 7 corpus sentences this changes (3 held out), 35 real takes each way: every added
+    // comma stopped the voice (35/35), longest run p90 26 -> 15 syllables (max 30 -> 17), "|" read in
+    // one run 0/15 both, stops where the marks say none 0 -> 1 (the voice's own, before "trong quý"),
+    // duration +1.4%. The weak places it takes ("các biểu diễn, từ dữ liệu thô") are ones the voice
+    // chose itself on 2 of 5 takes without the comma.
+    const BREATH = { minRun: 18, minSide: 6, minValue: 0.35, longRun: 26, longValue: 0.1 };
     const breathMemo = new Map();
     function breathText(text) {
         const key = String(text || "");
@@ -729,9 +736,10 @@
         const sum = (x, y) => { let n = 0; for (let k = x; k <= y; k++) n += a.words[k].syl; return n; };
         for (const b of breathGroups(key)) {
             const g = a.gaps[b.gap];
-            if (b.role !== "phrase" || g.value < BREATH.minValue) continue;
+            if (b.role !== "phrase") continue;
             let from = b.gap; while (from > 0 && !a.words[from - 1].punct) from--;
             let to = b.gap + 1; while (to < a.words.length - 1 && !a.words[to].punct) to++;
+            if (g.value < (sum(from, to) >= BREATH.longRun ? BREATH.longValue : BREATH.minValue)) continue;
             if (sum(from, to) < BREATH.minRun || sum(from, b.gap) < BREATH.minSide || sum(b.gap + 1, to) < BREATH.minSide) continue;
             add.add(b.gap);
         }

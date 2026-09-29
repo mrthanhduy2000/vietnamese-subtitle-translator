@@ -194,6 +194,14 @@ kept stops where the marks say none 2 -> 0, longest run p90 22 -> 17 syllables (
 pause mean 0.18 -> 0.24 s, total length +0.7%. The "/" commas ("Performance Max này, đã tăng",
 "PyTorch, để xây dựng") sit where the voice already stopped on 4-5 of 5 takes without them; the comma
 makes it every take and 0.05 s longer. A changed text is a new audio key, so those lines re-render.
+2.1.6: `minSide` 7 -> 6, and a stretch of `longRun` 26+ syllables may take a boundary of value >=
+`longValue` 0.1 (it had none of 0.35: corpus v2, 36 syllables, was read in runs of up to 30). 36 of
+184 corpus sentences now change, still every comma at a mark. Real takes of the 7 it adds (3 held
+out, 35 each way): every added comma stopped the voice, longest run p90 26 -> 15 (max 30 -> 17),
+RAN-ON 0/15 both, WRONG 0 -> 1 (the voice's own stop before "trong quý vừa qua", not at a comma),
++1.4% length. Left in one run on purpose: the 13 "|" inside 13-17 syllable sentences (a one-breath
+length; a comma there would chop them). The slow delivery matrix is identical (its script has no
+such stretch).
 
 **4. `boundaryValue(left, right)`**: the value of a cut between two segments. Engine `gapAfter`: a
 part that continues the sentence without , ; : rests `SYNC.joinGapClause` when the cut's value is >=
