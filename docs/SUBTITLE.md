@@ -60,7 +60,10 @@ model sometimes translates them into the unit before (measured: one unit held th
 content, shown and spoken twice). `CST_QUALITY.trimContextLeak(text, next)` cuts a tail whose word
 pairs repeat the next units' translation; it runs in `applyTranslation` (Coursera, via
 `trimTranslationLeaks`), `ytGanBanDich` (`ytTrimLeaks`, both directions) and on cache load
-(`ytRepairCachedLeaks`). A paraphrased leak shares words, not word pairs, and is not caught.
+(`ytRepairCachedLeaks`). The verbatim part of a leak is cut; a clause the model paraphrased right
+at the seam stays (it shares words, not word pairs). Measured 2.3.1: 2 of 531 cached groups keep one
+such clause (4eY5DuqASQc #27: 630 -> 382 chars, 7ReQFzSndj4 #14: 741 -> 429). Catching it needs single
+shared words, which real content next to its neighbour also has: kept on purpose.
 The prompt now forbids finishing the last item's sentence; `TR_PROMPT_VERSION` was deliberately
 not bumped, since that would re-bill every cached translation for an additive instruction.
 The reverse (2.3.0): a unit that opens with the unit before it again (seen inside one window: the

@@ -12,6 +12,8 @@
 //   node tools/playback-sim.js --json            machine-readable
 //   git show HEAD:dub-engine.js > $TMPDIR/old-engine.js && OLD=$TMPDIR/old-engine.js node tools/playback-sim.js
 //   OLD_BG=queued compares against an engine from 1.8.6 on (the old one runs with the old abort policy)
+//   node tools/playback-sim.js --real=$TMPDIR/yt [--sps=3.8]   the user's own videos, one row each
+//     (dump them first: node tools/ext-storage.js --prefix=ytcache4_ --out=$TMPDIR/yt)
 //
 // The background policy is a parameter (bgAbort): "running" = a running request is cut when its page
 // job is aborted (before 1.8.6); "queued" = only a request that has not reached the server is cut.
@@ -56,7 +58,7 @@ function run(engineMod, sc) {
     const clock = new Clock(), video = new FakeVideo();
     video.playbackRate = sc.rate || 1;
     // sc.scale < 1: the same lecture spoken faster (0.6 = 1.67x), the Vietnamese unchanged
-    const groups = scaleGroups(longLecture(sc.minutes || 6), sc.scale || 1);
+    const groups = sc.groups || scaleGroups(longLecture(sc.minutes || 6), sc.scale || 1);
     const store = new Map(sc.store ? sc.store : []);        // service worker audio store: key -> duration
     const m = { serverRuns: 0, serverDone: 0, cutRunning: 0, droppedQueued: 0, joined: 0, storeHits: 0, blockedMs: 0, generatedKeys: new Map(), playedKeys: new Set() };
 
@@ -244,6 +246,7 @@ function run(engineMod, sc) {
             if (g > 0.12 && g < 30) { gapSum += g; gapN++; gapMax = Math.max(gapMax, g); }
         }
         const late = st.filter(x => x.lag > 0.5).length;
+        const rates = st.map(x => x.rate).filter(Number.isFinite).sort((a, b) => a - b);
         const gen = [...m.generatedKeys.values()];
         const dup = gen.reduce((a, n) => a + n - 1, 0);
         const rec = seeks.filter(s => !s.first && s.recovered != null).map(s => s.recovered / 1000);
@@ -259,6 +262,9 @@ function run(engineMod, sc) {
             storeHits: m.storeHits, blockedS: +(m.blockedMs / 1000).toFixed(2),
             unplayedGen: [...m.generatedKeys.keys()].filter(k => !m.playedKeys.has(k)).length,
             maxRendered, maxHeld: +maxHeld.toFixed(1), maxEls, maxUrls,
+            rateP50: rates.length ? +rates[Math.floor(rates.length * 0.5)].toFixed(2) : null,
+            rateP90: rates.length ? +rates[Math.floor(rates.length * 0.9)].toFixed(2) : null,
+            rateMax: rates.length ? +rates[rates.length - 1].toFixed(2) : null,
             store: [...store.entries()]
         };
     })();
@@ -283,8 +289,59 @@ const SCENARIOS = {
     seekWhileSlow: { wall: 90, rtf: () => 0.9, steps: [{ at: 15, do: "seek", v: 200 }, { at: 40, do: "seek", v: 60 }] }
 };
 
+// A cached video as youtube.js dubs it: every group translated from the start, and the fixes
+// ytRepairCachedLeaks applies on load (sound notes, head repeats, tail leaks) applied here too
+function realGroups(file) {
+    const Q = require(path.join(REPO, "vi-quality.js"));
+    const SEG = require(path.join(REPO, "vi-segmenter.js"));
+    const c = JSON.parse(require("fs").readFileSync(file, "utf8"));
+    const gs = (c.g || []).map(g => ({
+        start: g[0], end: g[1], viText: g[2],
+        srcCues: g[3].map(x => ({ start: x[0], end: x[1], text: x[2] })),
+        viCues: g[4].map(x => ({ start: x[0], end: x[1], text: x[2] }))
+    }));
+    const src = g => g.srcCues.map(x => x.text).join(" ");
+    const reseg = k => {
+        const g = gs[k], next = gs[k + 1];
+        const maxEnd = next ? Math.min(g.end + 1.5, Math.max(g.end, next.start - 0.04)) : g.end + 1.5;
+        g.viCues = SEG.segmentGroupSafe(g.viText, g.srcCues, { maxEnd });
+    };
+    gs.forEach((g, k) => { const [v] = Q.fixSoundNotes([g.viText], [src(g)]); if (v !== g.viText) { g.viText = v; reseg(k); } });
+    for (let k = 0; k + 1 < gs.length; k++) {
+        const [a, b] = Q.fixRepeatedHeads([gs[k].viText, gs[k + 1].viText], [src(gs[k]), src(gs[k + 1])]);
+        if (a !== gs[k].viText || b !== gs[k + 1].viText) { gs[k].viText = a; gs[k + 1].viText = b; reseg(k); reseg(k + 1); }
+    }
+    gs.forEach((g, k) => {
+        const next = [gs[k + 1], gs[k + 2]].filter(Boolean).map(x => x.viText).join(" ");
+        const cut = next ? Q.trimContextLeak(g.viText, next) : g.viText;
+        if (cut !== g.viText) { g.viText = cut; reseg(k); }
+    });
+    return gs;
+}
+
+async function realMain(dir, json) {
+    const fs = require("fs");
+    const cur = require(path.join(REPO, "dub-engine.js"));
+    const arg = n => { const a = process.argv.find(x => x.startsWith(`--${n}=`)); return a ? a.slice(n.length + 3) : ""; };
+    const sps = Number(arg("sps")) || 3.8;
+    const rows = [];
+    for (const f of fs.readdirSync(dir).filter(x => /^ytcache4_.*\.json$/.test(x)).sort()) {
+        const groups = realGroups(path.join(dir, f));
+        if (!groups.length) continue;
+        const r = await run(cur, { groups, wall: groups[groups.length - 1].end + 5, sps, trAhead: 1e9, trLat: () => 0, bgAbort: "queued" });
+        delete r.store;
+        rows.push({ video: f.slice(9, 20), groups: groups.length, minutes: +(groups[groups.length - 1].end / 60).toFixed(1), ...r });
+    }
+    if (json) { console.log(JSON.stringify(rows, null, 1)); return; }
+    const cols = ["video", "minutes", "groups", "spoken", "dropped", "late", "gapN", "gapSum", "gapMax", "firstAudio", "rateP50", "rateP90", "rateMax", "serverRuns", "maxHeld"];
+    console.log(cols.join("\t"));
+    for (const r of rows) console.log(cols.map(c => r[c] == null ? "-" : r[c]).join("\t"));
+}
+
 async function main() {
     const json = process.argv.includes("--json");
+    const real = process.argv.find(x => x.startsWith("--real="));
+    if (real) return realMain(real.slice(7), json);
     const cur = require(path.join(REPO, "dub-engine.js"));
     const old = process.env.OLD ? require(path.resolve(process.env.OLD)) : null;
     const rows = [];

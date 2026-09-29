@@ -60,6 +60,11 @@ unchanged); `sps` sets the voice's pace; `unique: true` keys every line by its p
 repeats 22 sentences, so without `unique` everything after the first minute is a store hit and the
 server's speed never shows. `maxHeld` is the most audio seconds the page held at once.
 `tools/sim-matrix.js` runs many seeks per engine: judge an engine change there, never on one scenario.
+`--real=<dir>` (2.3.1) runs the engine over the user's cached videos instead (a `tools/ext-storage.js`
+dump), with the load-time fixes applied and every group available, one row per video; `--sps=` sets
+the voice pace (Mỹ Duyên, the user's voice, is 3.8). Measured 2026-09-29 on 15 videos: 1 line dropped
+in all, no delivery gaps; the two fast talkers (dSEZriz716g, zPSs9a0MYGw) start 24-30% of lines more
+than 0.5 s late at a median rate of 1.33-1.44, the others 0-9% at about 1.1.
 `OLD=` rows run the older engine under the older abort policy, so seek rows differ even for an
 identical engine (`cutRunning`, `blockedS`). To prove a change is neutral, run the tool twice with
 the old and the new `dub-engine.js` in place and diff the `new` rows (2.2.9: all 14 identical).
