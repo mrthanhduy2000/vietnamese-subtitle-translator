@@ -148,9 +148,10 @@ function breathDir(spec) {
     for (const f of ["vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-speech.js"]) {
         let src = fs.readFileSync(path.join(REPO, f), "utf8");
         if (f === "dub-prosody.js") {
-            const re = /const BREATH = \{ minRun: [\d.]+, minSide: ([\d.]+), minValue: [\d.]+ \};/;
+            // minRun, minSide and minValue are replaced; any later fields (longRun, longValue) are kept
+            const re = /const BREATH = \{ minRun: [\d.]+, minSide: ([\d.]+), minValue: [\d.]+(,[^}]*)? \};/;
             if (!re.test(src)) throw new Error("dub-prosody.js: the BREATH line changed, update syntax-eval.js");
-            src = src.replace(re, (all, side) => `const BREATH = { minRun: ${minRun}, minSide: ${isFinite(minSide) ? minSide : side}, minValue: ${minValue} };`);
+            src = src.replace(re, (all, side, rest) => `const BREATH = { minRun: ${minRun}, minSide: ${isFinite(minSide) ? minSide : side}, minValue: ${minValue}${rest || ""} };`);
         }
         fs.writeFileSync(path.join(dir, f), src);
     }

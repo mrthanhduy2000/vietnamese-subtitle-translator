@@ -26,7 +26,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 ## State
 - Tests: 578 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
 - Not heard by ear yet: duck changes 2.0.8 to 2.1.4, breath commas 2.1.5 / 2.1.6.
-- `~/.cache/cst-prosody-takes` vanished ~13:00 (not deleted by the duck session); BACKLOG 15.
+- `~/.cache/cst-prosody-takes` rebuilt by the user 13:55 (920 takes). Next lead: `$TMPDIR/bmC`.
 
 ## Unfinished / in progress
 - User to compare the card with AI Studio; still far off: key shared elsewhere, or BACKLOG 37.
