@@ -4,12 +4,12 @@
 (function (root) {
     const HISTORY = [
         {
-            v: "2.1.1", luc: "12:22 29/09/2026", ten: "Lồng tiếng: tiếng gốc nhường chỗ nhanh hơn khi giọng Việt cất lên bất ngờ",
+            v: "2.1.2", luc: "12:22 29/09/2026", ten: "Lồng tiếng: tiếng gốc nhường chỗ nhanh hơn khi giọng Việt cất lên bất ngờ",
             y: [
                 "Khi audio của câu về vừa kịp lúc (câu đầu tiên sau khi bắt đầu xem hoặc tua, máy chủ giọng chậm), giọng Việt cất lên lúc tiếng gốc còn to. Trước đây tiếng gốc cần 0,45 giây mới hạ hết nên lấn mấy chữ đầu; nay nó hạ trong 0,2 giây. Câu biết trước vẫn được hạ tiếng gốc từ từ trước khi bắt đầu, và lúc nâng tiếng gốc lên vẫn đều và chậm như bản 2.0.9.",
                 "Cách đọc (câu nào, lúc nào, nhanh hay chậm) không đổi. Đo ngoại tuyến bằng mô phỏng, chưa nghe thử bằng tai, không gọi dịch vụ trả phí."
             ],
-            bang: { cot: ["11 tình huống mô phỏng", "2.1.0", "Nay"], hang: [
+            bang: { cot: ["11 tình huống mô phỏng", "2.1.1", "Nay"], hang: [
                 ["Tiếng gốc trong 0,45 giây đầu của 20 câu bắt đầu lúc tiếng gốc còn to", "-6,1 đề-xi-ben", "-9,6 đề-xi-ben"],
                 ["Thời gian giọng Việt đọc đè lên tiếng gốc còn to", "0,3%", "0,1%"],
                 ["Bước hạ lớn nhất trong một nhịp (chỉ khi giọng đã cất lên)", "1,55 đề-xi-ben", "3,49 đề-xi-ben"]

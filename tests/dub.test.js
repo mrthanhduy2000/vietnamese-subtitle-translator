@@ -524,12 +524,17 @@ test("âm lượng gốc hạ/nâng mượt (không giật), tôn trọng ngư�
     const p = S.eng.plans[3];
     for (let t = 0; t < (p.start + 2) * 20; t++) { S.run(50); vols.push(S.video.volume); }
     // 2.0.9: a step is judged in loudness (dB), the ear's scale: 1.55 dB each at the default duck. The
-    // linear ramp before it (0.09 a tick) passed an amplitude bound but moved up to 2.9 dB in one tick
-    for (let i = 1; i < vols.length; i++) assert.ok(Math.abs(20 * Math.log10(vols[i] / vols[i - 1])) <= 1.6, `bước ${vols[i - 1]} -> ${vols[i]}`);
+    // linear ramp before it (0.09 a tick) passed an amplitude bound but moved up to 2.9 dB in one tick.
+    // 2.1.2: coming down under a voice already sounding (this first phrase: nothing announced it) is
+    // the 4-tick attack, 3.5 dB a tick; going back up stays at the gentle 1.55 dB
+    for (let i = 1; i < vols.length; i++) {
+        const db = 20 * Math.log10(vols[i] / vols[i - 1]);
+        assert.ok(db <= 1.6 && db >= -3.6, `bước ${vols[i - 1]} -> ${vols[i]}`);
+    }
     assert.ok(Math.min(...vols) < 0.8 * 0.3, "chưa hạ tiếng gốc khi có lời Việt");
-    // ... and the whole way down still takes the ramp's 0.45 s, not one jump
+    // ... and the whole way down is still a ramp, not one jump
     const first = vols.findIndex(v => v < 0.8 - 1e-9), low = vols.findIndex(v => v <= 0.8 * 0.2 + 1e-9);
-    assert.ok(first >= 0 && low - first >= 8, `ramp down in ${low - first + 1} ticks`);
+    assert.ok(first >= 0 && low - first >= 3, `ramp down in ${low - first + 1} ticks`);
     // Người dùng tự giảm âm lượng trong lúc đang hạ tiếng gốc
     const f = S.eng.duckFactor;
     S.video.volume = 0.3;

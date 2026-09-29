@@ -170,6 +170,10 @@
         liveStallPadMs: 2000,
         maxAudio: 600,
         duckRampTicks: 9,         // ticks from full to the duck level or back (0.45 s), in equal dB steps
+        // (2.1.2) Ticks from full to the duck level once a voice is already sounding over it (a take
+        // that came just in time: the first line after a start or a seek, a slow server). A line
+        // announced ahead has the original down before it starts, at the slower duckRampTicks
+        duckAttackTicks: 4,
         duckHold: 0.35,           // the original stays down this long (media s) after a line ends
         // (2.0.8) Before a line whose start is known (its take is in the page, or a system-voice
         // phrase), a gap shorter than this (wall seconds) keeps the original down, and after a longer
@@ -401,10 +405,10 @@
     // (0.09 a tick) jumped +2.9 dB on its first step back up and crept +0.8 dB on its last, and a line
     // that began over a loud original had it 1.6 dB louder in its first 0.45 s. A duck of 0 ramps to
     // -40 dB, then off; a shallow one still moves at least 6 dB over the ramp.
-    function duckStep(from, target, duck) {
+    function duckStep(from, target, duck, ticks) {
         const FLOOR = 0.01;
         const span = Math.max(6, -20 * Math.log10(Math.max(FLOOR, Math.min(1, duck))));
-        const ratio = Math.pow(10, -span / 20 / SYNC.duckRampTicks);
+        const ratio = Math.pow(10, -span / 20 / (ticks || SYNC.duckRampTicks));
         if (from > target) { const x = from * ratio; return x <= target + 1e-6 || x < FLOOR ? target : x; }
         const x = Math.max(from, FLOOR) / ratio;
         return x >= target - 1e-6 ? target : x;
@@ -2092,7 +2096,9 @@
             const target = active ? this.settings.duck : 1;
             if (!this.duckDirty && Math.abs(this.duckFactor - target) < 1e-3) return;
             this.duckDirty = false;
-            this.duckFactor = duckStep(this.duckFactor, target, this.settings.duck);
+            // A voice already sounding over a loud original: it comes down at the attack speed
+            const over = playing && target < this.duckFactor && ((this.speech && t >= this.speech.mediaStart) || !!(this.live && this.live.speaking));
+            this.duckFactor = duckStep(this.duckFactor, target, this.settings.duck, over ? SYNC.duckAttackTicks : 0);
             this.setVideoVolume((this.baseVolume == null ? 1 : this.baseVolume) * this.duckFactor);
         }
 

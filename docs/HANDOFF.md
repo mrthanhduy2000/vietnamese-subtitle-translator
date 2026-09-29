@@ -6,8 +6,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · `background.js` (D), `cost-policy.js` (D), `options.html` / `options.js` / `popup.js`
-/ `version-history.js` (C, cost card), `tests/hardening.test.js` · `2.1.1`.
+2026-09-29 · two sessions: cost card (`background.js`, `cost-policy.js`, `options.*`, `popup.js`,
+2.1.1) and the duck attack (`dub-engine.js`, `tests/dub.test.js`, 2.1.2) · `2.1.2`.
 
 ## What changed
 - 2.1.0: the ledger undercounted (user: real bill much higher). `geminiCall` now calls
@@ -19,12 +19,12 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   `costStats` returns `model`, `history`, `pacificToday`. Settings: per-model table, token-kind
   table (only with one model), 7-day Google-day table. Popup: calls instead of "phút giọng AI".
 - Prices checked 2026-09-29: 3.1 Flash-Lite 0.25 / 1.50 / cache 0.025; 3.8 Flash 0.75 / 3.75.
+- 2.1.2: `SYNC.duckAttackTicks` 4: under a voice already sounding the original comes down in 0.2 s
+  (lines not announced ahead: -6.1 -> -9.6 dB in their first 0.45 s); pre-duck and way up unchanged.
 
 ## State
-- Tests: my paths 574 pass, 0 fail, 1 skip (checked in a clean copy). In the shared tree one
-  dub test fails from another session's uncommitted `dub-engine.js` / `tests/dub.test.js` work,
-  which this commit leaves out. Reload: **yes** (`chrome://extensions`).
-- 2.0.8 / 2.0.9 duck ramps not heard by ear yet.
+- Tests: 574 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
+- 2.0.8 / 2.0.9 / 2.1.2 duck changes not heard by ear yet.
 
 ## Unfinished / in progress
 - User to compare the card with AI Studio; still far off: key shared elsewhere, or BACKLOG 37.
@@ -36,8 +36,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   (BACKLOG 9); a live YouTube check by the user; user: Apple Events JS off in Chrome.
 
 ## Traps hit this session
-- A parallel session's `docs/DUBBING.md` note (duck attack, "2.1.1") went out in cbcc311 by
-  mistake; its `dub-engine.js` is not committed yet and 2.1.1 is the cost card: it must renumber.
+- Two sessions bumped at once: cbcc311 (2.1.1) carried the duck session's manifest 2.1.2 and its
+  doc and history lines; the duck code followed in the next commit. Check `git status` before a bump.
 - The live ledger can be read offline from Chrome's leveldb:
   `~/Library/Application Support/Google/Chrome/Profile 42/Local Extension Settings/<ext id>/*.log`.
 
