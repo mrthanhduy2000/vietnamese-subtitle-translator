@@ -6,25 +6,23 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · `2.2.9` dub-engine review: `dub-engine.js` (`refresh` text signature `textSeen`/`textRev`,
-element release, `gapTimer` cleared in `stop`, cache key by the voice that made the take),
-`dubbing.js` (`clearTimeout` dep), tests, `docs/TESTING.md`. 2.2.3-2.2.8 earlier today.
+2026-09-29 · `2.3.0` whole-product review, round 1 (lane A, plus `tools/ext-storage.js`):
+`context-engine.js` `detectDomain`, `vi-quality.js` `fixRepeatedHeads` + doubled-word rule,
+`content.js` `trimTranslationLeaks(…, sources)`, `youtube.js` `ytTrimLeaks` head pass, tests, docs.
 
 ## What changed
-- BACKLOG is empty: every entry decided (Closed / Declined lines at its top). Kept-on-purpose
-  behaviour now lives in `DUBBING.md` "Known limits kept on purpose"; 9 and 39 declined.
-- 2.2.7 cold VieNeu warm-up: `dubbing.js` `buildProviders` sends `localWarm` once VieNeu answers;
-  the service worker renders "Xin chào." through the serial queue only when `localIsCold()` and the
-  queue is empty. Not counted in the ledger.
-- 2.2.7 `dub-prosody.js`: "có nghĩa là", "nghĩa là", "tức là" after a short subject join like "là"
-  (corpus e1 WRONG 1 -> 0, every other set and both blind corpora unchanged, `tools/syntax-eval.js`).
-- 2.2.3-2.2.6: Google fallback batching, Vietnamese caps, key test, Portuguese detection, edits
-  `keyNear`, .srt clock (see git and `version-history.js`).
+- Measured on the user's real cache (`tools/ext-storage.js`, 15 videos, 531 groups): prefix matching
+  gave 6 of 13 everyday videos a technical domain ("important" = import) and every sense hint sent
+  with them was wrong. Now whole words, 3 distinct keywords, score >= words/150: 13/13 general,
+  11/11 lecture samples still right (11-21 points against 3). `SUBTITLE.md` "Domain (2.3.0)".
+- Head repeat: inside one window item k came back as its first words, item k+1 as those words plus
+  the rest, so it was shown and spoken twice. `fixRepeatedHeads` drops it and re-splits by source
+  share; a source that repeats itself (mantra, chorus: a shared 3-word run) is left alone.
+- Doubled word only for grammar words, never across punctuation: false severity-3 flags 9 -> 0,
+  refine-triggering lines 15 -> 6 of 531 (each was a paid refine in Balanced mode).
 
 ## State
-- Tests: 598 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
-- Ledger read-only at `~/Library/Application Support/Google/Chrome/Profile 42/Local Extension
-  Settings/<id>/` with `strings | grep`.
+- Tests: 603 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`). Round 2 follows.
 
 ## Unfinished / in progress
 - Not verified live: the warm-up after a long idle and the "có nghĩa là" reading need the local
@@ -35,10 +33,12 @@ element release, `gapTimer` cleared in `stop`, cache key by the voice that made 
   Never ask about Apple Events JS or hand decisions back (memory).
 
 ## Traps hit this session
-- Node `fetch` in the sandbox fails on certificates; `curl` with `allowed_domains` works.
-- `tools/syntax-eval.js` MISSED at subject | verb is a text-only proxy: real takes keep those stops.
-- BACKLOG used 37 twice (declined VieNeu patch, closed timeout): cite it with its title.
-- `playback-sim` `OLD=` seek rows differ for an identical engine: diff `new` rows instead (TESTING.md).
+- Chrome's `.ldb` tables are Snappy-compressed (`strings` shows fragments); the newest values sit in
+  the `.log`. Use `tools/ext-storage.js`, never `strings | grep` on a ledger.
+- `tests/segmenter.test.js` "every translation path runs the leak trim" pins the exact call text of
+  `trimTranslationLeaks` / `ytTrimLeaks`: change the call, change the pin.
+- Paraphrased tail leaks (the model's own wording of the next line) still pass `trimContextLeak`:
+  2 seen in 531 groups (4eY5DuqASQc #27, 7ReQFzSndj4 #14); word-pair matching cannot see them.
 
 ## Suggested next step
 - After a Reload, one YouTube listen after the Mac idled 10+ min (first voice time), and one full

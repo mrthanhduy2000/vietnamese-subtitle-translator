@@ -276,11 +276,63 @@ test("a translation that leaked the next units is trimmed, and a clean one is le
     assert.equal(Q.trimContextLeak(own, "Mạng nơ-ron gồm nhiều lớp, và chúng ta sẽ học từng lớp."), own);
 });
 
+// From the user's cache (2.3.0): the middle item of a window was a sentence fragment; the model gave
+// it only its first words, then opened the next item with those words and the rest of the sentence
+const HEAD_REPEAT = {
+    src: ["But then I started to really like dive into this more, look at the research on this stuff, experiment with some things personally, and I realized that like this is really life-changing. And there's also some,",
+        "you know, dark stuff going on. All right. So, get this. [music] The depression rates have basically doubled since the 1980s. Do [music] you know what else doubled? The amount of stuff that we have. Now, obviously, there's a bunch of factors, but like life,"],
+    vi: ["Nhưng rồi tôi bắt đầu thực sự đi sâu tìm hiểu",
+        "Nhưng rồi tôi bắt đầu thực sự đi sâu tìm hiểu, xem xét các nghiên cứu về vấn đề này, tự mình thử nghiệm một vài thứ và nhận ra rằng nó thực sự thay đổi cuộc sống. Và còn có một vài, bạn biết đấy, những mặt tối đang diễn ra. Được rồi, hãy nghe đây. Tỷ lệ trầm cảm về cơ bản đã tăng gấp đôi kể từ những năm 1980. Bạn có biết điều gì khác cũng tăng gấp đôi không? Đó là lượng đồ đạc chúng ta sở hữu. Tất nhiên, có rất nhiều yếu tố, nhưng cuộc sống,"]
+};
+const wordsOf = t => String(t).toLowerCase().match(/[\p{L}\p{M}\p{N}]+/gu) || [];
+
+test("a unit that opens with the unit before it again loses the repeat, and the two are split by their source", () => {
+    const Q = require("../vi-quality.js");
+    const [a, b] = Q.fixRepeatedHeads(HEAD_REPEAT.vi, HEAD_REPEAT.src);
+    // said once: the words of the pair are exactly the words of the longer answer, in order
+    assert.deepEqual(wordsOf(a + " " + b), wordsOf(HEAD_REPEAT.vi[1]));
+    assert.ok(!/^Nhưng rồi tôi bắt đầu/.test(b), b);
+    // the first unit gets back what its source says (the research, life-changing), at a clause end
+    assert.ok(/xem xét các nghiên cứu/.test(a) && /thay đổi cuộc sống\./.test(a), a);
+    assert.ok(/^những mặt tối đang diễn ra\./.test(b), b);
+    // shares near the source's (48% / 52%), not 9% / 91% as the model left them
+    const share = a.length / (a.length + b.length);
+    assert.ok(share > 0.4 && share < 0.56, share);
+    // idempotent: a second pass changes nothing
+    assert.deepEqual(Q.fixRepeatedHeads([a, b], HEAD_REPEAT.src), [a, b]);
+    // without the source lines the repeat still goes, nothing is moved
+    const [a2, b2] = Q.fixRepeatedHeads(HEAD_REPEAT.vi);
+    assert.equal(a2, HEAD_REPEAT.vi[0]);
+    assert.ok(/^xem xét các nghiên cứu/.test(b2), b2);
+});
+
+test("a repeat the source itself makes, a short overlap, or a unit that is only the repeat is left alone", () => {
+    const Q = require("../vi-quality.js");
+    // a mantra from the same cache: the Hindi says the line again (Devanagari vowel signs are \p{M})
+    const mantra = {
+        src: ["जो कुछ आंखों के सामने है, वह खालीपन है, और खालीपन ही वस्तु है। जो पदार्थ आंखों के सामने है, वह खालीपन है, और खालीपन ही पदार्थ है।", "जो कुछ आंखों के सामने है, वह खालीपन है, और खालीपन ही वस्तु है।"],
+        vi: ["Mọi sự vật hiện hữu trước mắt đều là sự trống rỗng", "Mọi sự vật hiện hữu trước mắt đều là sự trống rỗng, và sự trống rỗng chính là vạn vật."]
+    };
+    assert.deepEqual(Q.fixRepeatedHeads(mantra.vi, mantra.src), mantra.vi);
+    // five words in common at the seam is not a repeat
+    const short = ["Tôi đã học được rất nhiều điều từ bà tôi nghĩ vậy", "tôi nghĩ vậy nên tôi viết lại tất cả mọi thứ vào sổ."];
+    assert.deepEqual(Q.fixRepeatedHeads(short, ["I learned a lot from her, I think", "so I wrote everything down."]), short);
+    // the next unit is nothing but the repeat: a line twice beats a line missing (the tail trim's case)
+    const whole = ["Chúng tôi đã dọn sạch cả căn bếp trong một buổi chiều", "Chúng tôi đã dọn sạch cả căn bếp trong một buổi chiều."];
+    assert.deepEqual(Q.fixRepeatedHeads(whole, ["We cleared the whole kitchen", "in one afternoon."]), whole);
+    // empty, missing, single
+    assert.deepEqual(Q.fixRepeatedHeads(["", "Xin chào"], ["", "Hello"]), ["", "Xin chào"]);
+    assert.deepEqual(Q.fixRepeatedHeads(["Một câu thôi."]), ["Một câu thôi."]);
+});
+
 test("every translation path runs the leak trim", () => {
     const read = f => require("node:fs").readFileSync(require("node:path").join(__dirname, "..", f), "utf8");
     const cs = read("content.js"), yt = read("youtube.js"), bg = read("background.js");
-    assert.ok(/translations = trimTranslationLeaks\(translations\)\.list;/.test(cs), "Coursera");
+    assert.ok(/translations = trimTranslationLeaks\(translations, false, groups\.map\(g => g\.text\)\)\.list;/.test(cs), "Coursera");
+    // the progressive display fixes head repeats too (it gets the source lines)
+    assert.ok(/trimTranslationLeaks\(translations, true, groups\.map\(g => g\.text\)\)/.test(cs), "Coursera progressive");
     assert.ok(/ytTrimLeaks\(groups, idxs\);\n    ytGhepViCues\(\);/.test(yt), "YouTube live");
     assert.ok(/ytRepairCachedLeaks\(\);\n            yt\.daDichXong = true;/.test(yt), "YouTube cache");
+    assert.ok(/Q\.fixRepeatedHeads\(\[a\.viText, b\.viText\]/.test(yt), "YouTube runs the head repeat fix inside ytTrimLeaks");
     assert.ok(/KHÔNG viết tiếp phần nằm trong \[NGỮ CẢNH SAU\]/.test(bg), "the prompt says so too");
 });

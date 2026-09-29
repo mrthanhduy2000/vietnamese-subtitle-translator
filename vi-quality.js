@@ -72,8 +72,12 @@
     ];
     const CALQUES = CALQUES_RAW.map(([re, sev, d, f]) => [vre(re), sev, d, f]);
 
-    // Lặp từ không tự nhiên (trừ từ láy thông dụng)
-    const REDUP_OK = new Set(["từ", "luôn", "nhanh", "chầm", "dần", "đều", "rất", "thường", "mãi", "xa", "gần", "nhiều", "lâu", "chút"]);
+    // A word said twice in a row is a slip only for grammar words, which Vietnamese never doubles, and
+    // for English ones left in ("the the"). Content words double on purpose ("nổi rần rần", "ầm ầm",
+    // "chung chung"): the old allow list of 14 of them flagged "rần rần" as a severity-3 slip (2.3.0).
+    const REPEAT_SLIP = new Set(["của", "là", "và", "được", "bị", "những", "các", "một", "cho", "với", "trong", "này", "để",
+        "thì", "mà", "đã", "đang", "sẽ", "về", "khi", "nếu", "vì", "nhưng", "hoặc", "rằng", "tôi", "bạn", "chúng", "họ", "nó",
+        "không", "có", "ở", "tại", "theo", "như", "cũng", "đó", "the", "of", "to", "and", "is", "that"]);
 
     function countMatches(text, re) {
         return (String(text).match(re) || []).length;
@@ -116,9 +120,12 @@
             add("pronoun", 1, "'It/This' dịch máy móc thành 'Nó'", "nêu rõ đối tượng (mô hình, hàm...) nếu ngữ cảnh cho phép");
         }
         for (let i = 1; i < words.length; i++) {
+            // "...của tôi. Tôi thích..." is two sentences, not "tôi tôi": a repeat across punctuation
+            // flagged 9 of 531 real lines, each a severity-3 issue that paid for a refine (2.3.0)
+            if (/[,.;:!?…)"”'\]]$/.test(words[i - 1]) || /^[("“'[]/.test(words[i])) continue;
             const a = words[i - 1].toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
             const b = words[i].toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
-            if (a && a === b && !REDUP_OK.has(a)) { add("repeat", 3, `lặp từ "${a} ${b}"`, "bỏ từ lặp"); break; }
+            if (a && a === b && REPEAT_SLIP.has(a)) { add("repeat", 3, `lặp từ "${a} ${b}"`, "bỏ từ lặp"); break; }
         }
 
         // Tỷ lệ độ dài: tiếng Việt thường dài 0,9 đến 1,6 lần tiếng Anh (tính ký tự)
@@ -208,7 +215,73 @@
         return t.slice(0, cut).replace(/[,;:\s]+$/, "");
     }
 
-    const api = { assess, CALQUES, englishLeftovers, vre, trimContextLeak };
+    // ---------- A unit that opens by translating the one before it again ----------
+    // Seen in the user's cache (2.3.0): a window's middle item was a sentence fragment; the model
+    // answered it with only the fragment's first words, then opened the next item with those same
+    // words and the rest of the sentence. The line was shown and spoken twice. trimContextLeak
+    // looks at a unit's tail only, so this head repeat passed.
+    const REPEAT_MIN_WORDS = 6;
+    function wordSpans(t) {
+        const out = [];
+        const re = /[\p{L}\p{M}\p{N}]+/gu;              // \p{M}: Devanagari vowel signs, decomposed accents
+        let m;
+        while ((m = re.exec(t))) out.push({ w: m[0].toLowerCase(), e: m.index + m[0].length });
+        return out;
+    }
+    // The two source lines share a run of three words: the source repeats itself (a chorus, a
+    // mantra that says a line twice with one word changed), so a repeat in the translation is its own
+    function sourceRepeats(x, y) {
+        const tri = s => { const w = wordSpans(String(s || "")).map(o => o.w); const out = new Set(); for (let i = 2; i < w.length; i++) out.add(w[i - 2] + " " + w[i - 1] + " " + w[i]); return out; };
+        const a = tri(x);
+        for (const t of tri(y)) if (a.has(t)) return true;
+        return false;
+    }
+    // Largest m >= min such that the last m words of A are the first m words of B (0 if none)
+    function headRepeat(A, B, min) {
+        for (let m = Math.min(A.length, B.length); m >= min; m--) {
+            let same = true;
+            for (let i = 0; i < m && same; i++) same = A[A.length - m + i].w === B[i].w;
+            if (same) return m;
+        }
+        return 0;
+    }
+    // vi: the translations of consecutive units, src: their source lines (same order). Returns a new
+    // array. When unit k+1 opens with unit k's last REPEAT_MIN_WORDS+ words word for word, and the
+    // source lines do not repeat each other (a chorus, a mantra), the repeat is dropped from k+1 and
+    // the text between them is split again at the clause end that gives unit k its share of the
+    // source: left short, unit k had a few words in its slot and k+1 twice its text to fit.
+    function fixRepeatedHeads(vi, src) {
+        const out = (vi || []).slice();
+        const srcLen = i => String((src && src[i]) || "").trim().length;
+        for (let k = 0; k + 1 < out.length; k++) {
+            const a = String(out[k] || "").trim(), b = String(out[k + 1] || "");
+            const A = wordSpans(a), B = wordSpans(b);
+            const m = headRepeat(A, B, REPEAT_MIN_WORDS);
+            if (!m || m >= B.length) continue;              // nothing repeated, or b is only the repeat
+            if (src && sourceRepeats(src[k], src[k + 1])) continue;
+            const rest = b.slice(B[m - 1].e);
+            const glue = /^[\s¦]*[,;:.!?…]/.test(rest) ? "" : " ";
+            // candidate cuts: every clause end of rest but its last, and 0 (move nothing)
+            const cuts = [0];
+            const re = /[,.;:!?…]["”')\]]*[\s¦]+(?=\S)/g;
+            let c;
+            while ((c = re.exec(rest))) cuts.push(c.index + c[0].length);
+            let best = 0;
+            const la = srcLen(k), lb = srcLen(k + 1);
+            if (la && lb) {
+                const share = la / (la + lb);
+                const total = a.length + glue.length + rest.trim().length;
+                const cost = p => Math.abs((p ? a.length + glue.length + rest.slice(0, p).trim().length : a.length) / total - share) +
+                    (p && !/[.!?…]["”')\]]*[\s¦]+$/.test(rest.slice(0, p)) ? 0.03 : 0);
+                for (const p of cuts) if (cost(p) < cost(best)) best = p;
+            }
+            out[k] = best ? (a + glue + rest.slice(0, best).replace(/^[\s¦]+/, "")).trim() : a;
+            out[k + 1] = rest.slice(best).replace(/^[\s¦,;:.…]+/, "").trim();
+        }
+        return out;
+    }
+
+    const api = { assess, CALQUES, englishLeftovers, vre, trimContextLeak, fixRepeatedHeads };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_QUALITY = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

@@ -16,8 +16,8 @@ sense of weight, not an assertion.
 
 | File | ~Tests | Covers |
 |---|---|---|
-| `segmenter.test.js` | 26 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
-| `context.test.js` | 14 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |
+| `segmenter.test.js` | 28 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
+| `context.test.js` | 17 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |
 | `integration.test.js` | 24 | Runs the **real** `content.js` and `background.js` in a `vm` with a fake `chrome`, fake DOM and fake Gemini |
 | `dub.test.js` | 71 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
 | `cost.test.js` | 58 | The full LOCAL -> CACHE -> cheap -> strong -> TTS chain, plus `cst-cache`, `cost-policy`, `dub-planner`, `dub-engine` |
@@ -201,3 +201,6 @@ Two traps in `ui.test.js` that cost a session real time:
   Remove `cstDubDebug` and clear the interval when done.
 - `chrome://extensions` and `chrome-extension://` pages cannot be opened by the tools: only the user can Reload.
 - Prefer a cached video (`ytcache4_*`): no Gemini cost.
+- Real translations without Chrome: `node tools/ext-storage.js --prefix=ytcache4_ --out=$TMPDIR/yt` dumps the
+  user's cached videos (2.3.0 measured the domain detector, the doubled-word rule and the head repeat on
+  them: 15 videos, 531 groups). Read-only; score old against new with `git show HEAD:<file>`.

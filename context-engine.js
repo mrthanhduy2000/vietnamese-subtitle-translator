@@ -20,29 +20,33 @@
 (function (root) {
     "use strict";
 
+    // kw: a word counts as a whole word with its plural ("layer" is also "layers", "query" also
+    // "queries"); "stem*" counts every word that starts with the stem; a phrase counts as written
+    // (keywordRegex below)
     const DOMAINS = {
         ml: {
             label: "Trí tuệ nhân tạo, học máy, học sâu",
             kw: ["neural", "network", "model", "training", "train", "dataset", "gradient", "loss", "layer", "deep learning",
                 "machine learning", "transformer", "attention", "embedding", "llm", "gpt", "classifier", "regression",
-                "overfitting", "epoch", "batch", "convolution", "backprop", "inference", "fine-tun", "prompt", "token",
-                "reinforcement", "supervised", "feature", "label", "weights", "activation", "optimizer", "ai "]
+                "overfitting", "epoch", "batch", "convolution*", "backprop*", "inference", "fine-tun*", "prompt", "token",
+                "reinforcement", "supervised", "feature", "label", "weights", "activation", "optimizer", "ai"]
         },
         programming: {
             label: "Lập trình, phát triển phần mềm",
-            kw: ["python", "javascript", "function", "variable", "code", "compile", "debug", "api", "class", "object",
-                "method", "loop", "array", "string", "library", "framework", "git", "repository", "deploy", "server",
-                "database", "syntax", "runtime", "terminal", "install", "package", "import", "return", "parameter"]
+            kw: ["python", "javascript", "function", "variable", "code", "compil*", "debug*", "api", "class", "object",
+                "method", "loop", "array", "string", "library", "framework", "git", "repository", "deploy*", "server",
+                "database", "syntax", "runtime", "terminal", "install*", "package", "import", "return", "parameter"]
         },
         data: {
             label: "Khoa học dữ liệu, phân tích dữ liệu",
-            kw: ["data", "pandas", "sql", "query", "table", "column", "row", "dashboard", "visualiz", "analytics",
-                "statistic", "correlation", "distribution", "sample", "dataframe", "csv", "etl", "warehouse"]
+            kw: ["data", "pandas", "sql", "query", "table", "column", "row", "dashboard", "visualiz*", "analytics",
+                "statistic*", "correlation", "distribution", "sample", "dataframe", "csv", "etl", "warehouse"]
         },
         math: {
             label: "Toán học, thống kê",
-            kw: ["equation", "derivative", "integral", "matrix", "vector", "theorem", "proof", "probability", "function",
-                "variance", "mean", "linear", "polynomial", "calculus", "algebra", "eigen", "limit", "sum of", "squared"]
+            kw: ["equation", "derivative", "integral", "matrix", "matrices", "vector", "theorem", "proof", "probability", "function",
+                "variance", "mean", "linear", "polynomial", "calculus", "algebra", "eigen*", "limit", "sum of", "squared",
+                "standard deviation", "hypothesis"]
         },
         business: {
             label: "Kinh doanh, quản trị, tài chính",
@@ -51,7 +55,7 @@
         },
         marketing: {
             label: "Marketing, quảng cáo số",
-            kw: ["marketing", "brand", "campaign", "audience", "conversion", "funnel", "seo", "ads", "advertis", "engagement",
+            kw: ["marketing", "brand", "campaign", "audience", "conversion", "funnel", "seo", "ads", "advertis*", "engagement",
                 "social media", "content", "lead", "ctr", "impression", "persona", "retention", "customer journey"]
         },
         science: {
@@ -163,27 +167,54 @@
     const stripHints = s => String(s || "").split("¦").join(" ").replace(/\s{2,}/g, " ").trim();
     const escapeRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+    // Keywords were matched as prefixes, so "important" counted as import, "general" and
+    // "generation" as gene, "meaning" and "meanwhile" as mean, "objective" as object, "classic" as
+    // class. Measured on the 13 English videos in the user's cache (vlogs, self-help, a money talk):
+    // 6 were given a technical field (math, ml, programming, marketing, business) on 3 or 4 points,
+    // and every sense hint sent with their windows was wrong ("run: execute (a program)" for a video
+    // about habits). Now a keyword is a whole word, and a field needs 3 different keywords and a
+    // score that grows with the sample (one point per ~150 words): those 13 stay general, while
+    // lecture-style samples of every field score 11 to 21 against 3 needed (2.3.0).
+    const kwRe = new Map();
+    function keywordRegex(k) {
+        let re = kwRe.get(k);
+        if (!re) {
+            const w = k.trim().toLowerCase();
+            const body = w.endsWith("*") ? escapeRe(w.slice(0, -1))
+                : w.includes(" ") ? escapeRe(w) + "(?![a-z])"
+                    : /[^aeiou]y$/.test(w) ? escapeRe(w.slice(0, -1)) + "(?:y|ies)(?![a-z])"
+                        : escapeRe(w) + "(?:e?s)?(?![a-z])";
+            re = new RegExp(`(?<![a-z])${body}`, "g");
+            kwRe.set(k, re);
+        }
+        return re;
+    }
+    function keywordHits(t, k) {
+        const m = t.match(keywordRegex(k));
+        return m ? m.length : 0;
+    }
+    const DOMAIN_MIN_KEYWORDS = 3;
+    const DOMAIN_WORDS_PER_POINT = 150;
     function detectDomain(text) {
         const t = " " + String(text || "").toLowerCase() + " ";
-        const scores = {};
+        const need = Math.max(3, (t.match(/[a-z]+/g) || []).length / DOMAIN_WORDS_PER_POINT);
+        const scores = {}, distinct = {};
         for (const [key, d] of Object.entries(DOMAINS)) {
-            let s = 0;
+            let s = 0, n = 0;
             for (const k of d.kw) {
-                const re = new RegExp(`(?<![a-z])${escapeRe(k.trim())}`, "g");
-                const m = t.match(re);
-                if (m) s += Math.min(m.length, 6);
+                const h = keywordHits(t, k);
+                if (h) { s += Math.min(h, 4); n++; }
             }
             scores[key] = s;
+            distinct[key] = n;
         }
-        const ranked = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+        const ranked = Object.entries(scores)
+            .filter(([k, s]) => distinct[k] >= DOMAIN_MIN_KEYWORDS && s >= need)
+            .sort((a, b) => b[1] - a[1]);
+        if (!ranked.length) return { primary: "general", secondary: null, scores };
         const [primary, top] = ranked[0];
         const second = ranked[1];
-        if (top < 3) return { primary: "general", secondary: null, scores };
-        return {
-            primary,
-            secondary: second && second[1] >= Math.max(3, top * 0.5) ? second[0] : null,
-            scores
-        };
+        return { primary, secondary: second && second[1] >= top * 0.5 ? second[0] : null, scores };
     }
 
     function domainLabel(key) {
@@ -239,9 +270,9 @@
     // A YouTube description often opens with links, social handles, sponsor lines and chapter
     // timestamps; sent as the topic, that was up to ~250 characters of noise on every request.
     const DESC_NOISE = /https?:\/\/|www\.|@\w|^\s*#|\b\d{1,2}:\d{2}\b|\b(?:subscrib\w*|follow (?:me|us)|sponsor\w*|patreon|merch|affiliate|discount|promo code|coupon|instagram|twitter|tiktok|discord|linkedin|facebook|newsletter|membership|join (?:this|my|our) channel)\b/i;
-    function cleanDescription(text) {
+    function cleanDescription(text, max = 200) {
         const lines = String(text || "").split(/\n+/).map(l => l.trim()).filter(l => l && !DESC_NOISE.test(l));
-        return clip(lines.join(" "), 200);
+        return clip(lines.join(" "), max);
     }
 
     // ---------------- Antecedents further back than the previous two units ----------------
@@ -309,7 +340,9 @@
             this.units = texts.map(t => String(t || ""));
             this.results.clear();
             const sample = this.units.join(" ").slice(0, 6000);
-            const metaText = [this.meta.title, this.meta.course, this.meta.channel, this.meta.description, ...(this.meta.keywords || [])].join(" ");
+            // the description without its links, handles and sponsor lines: a sponsor read is about the
+            // sponsor, not the talk (its "brand", "content", "social media" pointed vlogs at marketing)
+            const metaText = [this.meta.title, this.meta.course, this.meta.channel, cleanDescription(this.meta.description, 800), ...(this.meta.keywords || [])].join(" ");
             // Tiêu đề/mô tả nặng ký hơn phụ đề mẫu
             this.domain = detectDomain(`${metaText} ${metaText} ${sample}`);
             return this.domain;
@@ -336,7 +369,10 @@
             if (!d) return false;
             const text = " " + (req.sentences || []).join(" ").toLowerCase() + " ";
             const known = [...this.terms.keys()].join(" | ");
-            const fresh = d.kw.filter(k => k.trim().length > 3 && text.includes(k.trim()) && !known.includes(k.trim()));
+            const fresh = d.kw.filter(k => {
+                const w = k.replace(/\*$/, "").trim();
+                return w.length > 3 && keywordHits(text, k) > 0 && !known.includes(w);
+            });
             if (fresh.length < 2) return false;
             this.lastTermsAt = this.windowCount;
             return true;

@@ -830,10 +830,17 @@ function groupCuesIntoSentences(cues, perCueMode) {
 // ============================================================
 // A translation that carries the next units' content too (see CST_QUALITY.trimContextLeak) shows
 // that content twice and makes the voice read it twice. Compare each unit with the next two.
-function trimTranslationLeaks(translations, quiet) {
+// sources: the groups' source lines; with them a unit that opens with the unit before it again is
+// fixed too (CST_QUALITY.fixRepeatedHeads, 2.3.0)
+function trimTranslationLeaks(translations, quiet, sources) {
     const Q = window.CST_QUALITY;
     if (!Q || !Q.trimContextLeak) return { list: translations, trimmed: 0 };
     let trimmed = 0;
+    if (sources && Q.fixRepeatedHeads) {
+        const fixed = Q.fixRepeatedHeads(translations, sources);
+        trimmed += fixed.filter((t, i) => t !== translations[i]).length;
+        translations = fixed;
+    }
     const list = translations.map((t, i) => {
         if (!t) return t;
         const next = [translations[i + 1], translations[i + 2]].filter(Boolean).join(" ");
@@ -918,7 +925,7 @@ function csGroupCues(groups, gi, vi) {
 // voice now (the overlay shows the English line where there is no Vietnamese yet). The track's own
 // cues are rewritten once, by applyTranslation, at the end.
 function csShowTranslated(track, groups, translations) {
-    const list = trimTranslationLeaks(translations, true).list;
+    const list = trimTranslationLeaks(translations, true, groups.map(g => g.text)).list;
     const dub = [];
     groups.forEach((group, gi) => {
         if (list[gi]) dub.push({ start: group.start, end: group.end, srcCues: group.srcCues, viText: list[gi], viCues: csGroupCues(groups, gi, list[gi]) });
@@ -954,7 +961,7 @@ function csShowGroups(track) {
 }
 
 function applyTranslation(track, groups, translations) {
-    translations = trimTranslationLeaks(translations).list;
+    translations = trimTranslationLeaks(translations, false, groups.map(g => g.text)).list;
     const originals = state.originalCues || [];
     removeAllCues(track);
     state.dubGroups = [];

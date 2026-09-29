@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.3.0", luc: "", ten: "Dịch sát ngữ cảnh hơn cho video đời sống, không đọc một câu hai lần",
+            y: [
+                "Bộ nhận diện lĩnh vực của video trước đây so từ khóa theo phần đầu chữ, nên \"important\" bị tính là từ lập trình \"import\", \"general\" thành \"gene\" (sinh học), \"meaning\" thành \"mean\" (thống kê). Trong 13 video không phải bài giảng bạn xem gần đây, 6 video bị xếp nhầm vào toán, học máy, lập trình, marketing hoặc kinh doanh, và mọi gợi ý nghĩa gửi kèm cho Gemini đều sai (video về thói quen nhận gợi ý \"run: chạy chương trình\"). Nay so nguyên từ và cần đủ nhiều từ khóa khác nhau theo độ dài: cả 13 video được nhận là hội thoại thông thường, các bài giảng kỹ thuật vẫn nhận đúng lĩnh vực.",
+                "Gemini đôi khi trả một mục là mảnh đầu câu, rồi mở đầu mục sau bằng chính mảnh đó cùng phần còn lại, nên phụ đề hiện và giọng đọc đọc câu đó hai lần. Nay phần lặp được bỏ và hai mục được chia lại theo độ dài câu gốc, tại chỗ ngắt câu gần nhất (YouTube, Coursera, trang khác, cả bản dịch đã lưu từ trước). Câu gốc tự lặp lại (bài hát, câu kinh) thì giữ nguyên.",
+                "Bộ phát hiện dịch máy không còn coi \"...của tôi. Tôi thích...\" là lặp từ \"tôi tôi\", và không coi từ láy như \"rần rần\", \"ầm ầm\" là lỗi. Trên 531 câu bạn đã dịch: báo nhầm lặp từ từ 9 xuống 0, số câu bị gửi dịch lại (tốn thêm một lượt Gemini ở chế độ Cân bằng) từ 15 xuống 6."
+            ]
+        },
+        {
             v: "2.2.9", luc: "", ten: "Bộ máy lồng tiếng: không bỏ sót bản dịch lại cùng độ dài, dọn tài nguyên gọn hơn",
             y: [
                 "Bản dịch lại (hoặc bản sửa) có cùng số ký tự với bản cũ, ví dụ đổi \"bước\" thành \"khâu\", trước đây không được bộ máy lồng tiếng nhận ra nên giọng vẫn đọc câu cũ. Nay mọi thay đổi nội dung đều được nhận ra, với chi phí như trước.",

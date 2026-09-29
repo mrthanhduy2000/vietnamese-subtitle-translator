@@ -63,6 +63,21 @@ pairs repeat the next units' translation; it runs in `applyTranslation` (Courser
 (`ytRepairCachedLeaks`). A paraphrased leak shares words, not word pairs, and is not caught.
 The prompt now forbids finishing the last item's sentence; `TR_PROMPT_VERSION` was deliberately
 not bumped, since that would re-bill every cached translation for an additive instruction.
+The reverse (2.3.0): a unit that opens with the unit before it again (seen inside one window: the
+middle item came back as its first words only, the next item repeated them with the rest of the
+sentence). `CST_QUALITY.fixRepeatedHeads(vi, src)` drops a word-for-word repeat of 6+ words at the
+seam and re-splits the pair at the clause end nearest the source-length share. Skipped when the two
+source lines share a 3-word run (chorus, mantra) or the next unit is nothing but the repeat (the tail
+trim's case). Runs in `trimTranslationLeaks` (both Coursera calls pass the source lines) and first
+in `ytTrimLeaks` (live and `ytRepairCachedLeaks`; cached groups have no `.text`, it joins `srcCues`).
+
+**Domain (2.3.0).** `detectDomain` counts whole keywords (plural included; `stem*` entries are
+stems) and a field needs 3 different keywords and a score of `max(3, words / 150)`; the description
+goes in without links and sponsor lines (`cleanDescription(desc, 800)`). The old prefix match made 6
+of 13 everyday videos in the user's cache technical ("important" as import, "general" as gene), and
+`senseHintsFor` then sent a wrong sense with every window. `wantsTerms` uses the same matcher.
+`vi-quality.js` `assess` flags a doubled word only for grammar words (`REPEAT_SLIP`) and never across
+punctuation: "tôi. Tôi" and "rần rần" were severity-3 slips that paid for a refine (15 -> 6 of 531 lines).
 
 **Previous translation in context (1.8.3).** `ContextSession.buildRequest` sends the translation of
 the two groups before the window (`prevTranslation`), but only if they are already recorded. Coursera's

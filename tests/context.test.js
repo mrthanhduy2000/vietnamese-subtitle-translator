@@ -16,6 +16,33 @@ test("lĩnh vực: nhận đúng AI, lập trình, marketing, kinh doanh, toán,
     assert.equal(d("Hey guys welcome back, today I went to the beach with my family"), "general");
 });
 
+test("domain: everyday speech stays general (whole words, 3 distinct keywords, score grows with length)", () => {
+    const d = t => C.detectDomain(t).primary;
+    // prefix matching read "important" / "imported" / "return" as programming and "meaning" /
+    // "means" / "limited" as math: this vlog paragraph was "programming" before 2.3.0
+    const vlog = "It is important to remember that meaning comes from small things. In general, my objective is simple: a classic, limited wardrobe. Most people of my generation think that success means having more. The importance of rest is often ignored, and a good leader knows it. I mean, what does it really mean to be rich? It means having time. So I started to return things I did not need, and I imported nothing new for a year.";
+    assert.equal(d(vlog), "general");
+    // one word repeated is not a field: "means" twenty times is still one keyword
+    assert.equal(d("That means a lot. ".repeat(20)), "general");
+    // a few real keywords lost in a long everyday talk (~1000 words, the size of the 6000-character
+    // sample setUnits reads) do not make it technical
+    const talk = "We walked along the river and talked about the week. ".repeat(90) + "My friend works on a neural network model with a big dataset.";
+    assert.equal(d(talk), "general");
+    // inflected and stem forms still count: layers, queries, fine-tuning, debugging
+    assert.equal(d("We stack more layers, run fine-tuning on the dataset, and the gradient of the loss flows back through every layer."), "ml");
+    assert.equal(d("Write the queries, check each column, visualize the distribution in a dashboard with pandas."), "data");
+    assert.equal(d("Start debugging: set a breakpoint, inspect the variable, fix the syntax, then deploy the code to the server."), "programming");
+});
+
+test("domain: sponsor lines and links in the description are not evidence", () => {
+    const s = new C.ContextSession({
+        title: "Why I stopped buying things",
+        description: "This video is sponsored by BrandCo, grow your brand audience with content campaigns.\nFollow me on Instagram @me\nhttps://example.com/marketing-funnel\nA quiet talk about owning less."
+    });
+    s.setUnits(["I used to buy a lot of things.", "Now I keep only what I use every week.", "It changed how I spend my weekends."]);
+    assert.equal(s.domain.primary, "general");
+});
+
 // ---------- Từ đa nghĩa theo ngữ cảnh ----------
 test("từ đa nghĩa: 'channel', 'run', 'model', 'lead' được gợi ý đúng nghĩa theo lĩnh vực", () => {
     const hint = (text, domain) => C.senseHintsFor(text, { primary: domain, secondary: null }).join(" | ");
@@ -209,6 +236,20 @@ test("thuật ngữ chỉ được xin khi đoạn có thuật ngữ MỚI, và 
     const s3 = lecture();
     for (const k of ["gradient", "loss", "batch", "dataset", "model", "train"]) s3.terms.set(k, { en: k, vi: "x", count: 1, alt: {} });
     assert.equal(s3.wantsTerms({ sentences: ["We train the model with gradient descent and compute the loss on each batch of the dataset."] }), false);
+});
+
+test("a doubled word is a slip only for grammar words, never across punctuation", () => {
+    const repeat = (en, vi) => Q.assess(en, vi, {}).issues.filter(i => i.type === "repeat").length;
+    // two sentences, not "tôi tôi" / "đó đó": each of these once cost a refine call (severity 3)
+    assert.equal(repeat("I love my home. I cleaned it today.", "Tôi yêu ngôi nhà của tôi. Tôi đã dọn nó hôm nay."), 0);
+    assert.equal(repeat("That was the plan. That is how we did it.", "Kế hoạch là như vậy đó. Đó là cách chúng tôi làm."), 0);
+    assert.equal(repeat("Books, books everywhere.", "Sách, sách ở khắp mọi nơi."), 0);
+    // a doubled content word is Vietnamese style
+    assert.equal(repeat("I bought it because it went viral online.", "Tôi mua vì thấy nó nổi rần rần trên mạng."), 0);
+    assert.equal(repeat("The rain was pouring down.", "Mưa rơi ầm ầm suốt đêm."), 0);
+    // a doubled grammar word is still a slip
+    assert.equal(repeat("This is the way we learn.", "Đây là là cách chúng ta học."), 1);
+    assert.equal(repeat("The value of the model.", "Giá trị của của mô hình."), 1);
 });
 
 test("English leftovers: whole words only, never an ASCII piece of an accented Vietnamese word", () => {

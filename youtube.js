@@ -704,6 +704,22 @@ function ytTrimLeaks(groups, idxs) {
     const check = new Set();
     for (const i of idxs) { check.add(i - 1); check.add(i); }
     let n = 0;
+    // A unit that opens with the unit before it again (CST_QUALITY.fixRepeatedHeads): the repeat is
+    // dropped and the two are split again by their source lengths. Cached groups carry no .text
+    const src = g => g.text || (g.srcCues || []).map(c => c.text).join(" ");
+    if (Q.fixRepeatedHeads) {
+        for (const k of check) {
+            const a = groups[k], b = groups[k + 1];
+            if (!a || !b || !a.viText || !b.viText) continue;
+            const [va, vb] = Q.fixRepeatedHeads([a.viText, b.viText], [src(a), src(b)]);
+            if (va === a.viText && vb === b.viText) continue;
+            a.viText = va;
+            b.viText = vb;
+            a.viCues = segmentGroupVi(a, va, b.start);
+            b.viCues = segmentGroupVi(b, vb, groups[k + 2] ? groups[k + 2].start : undefined);
+            n++;
+        }
+    }
     for (const k of check) {
         const g = groups[k];
         if (!g || !g.viText) continue;
