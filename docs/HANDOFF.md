@@ -34,7 +34,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   said yes, but the classifier blocks it here, so the user runs it or adds a permission rule;
   "Chép chẩn đoán" right after a problem; BACKLOG 36; glossary keep-English per term not watched
   in Chrome; BACKLOG 30, 31, 14-15, 18-24, 26, 28; verdict on the 1.9.5 A/B WAVs; Udemy / edX
-  (BACKLOG 9); a live YouTube check by the user; user: Apple Events JS off in Chrome.
+  (BACKLOG 9); a live YouTube check by the user (Apple Events JS: off again, 2026-09-29).
 
 ## Traps hit this session
 - Two sessions in one tree: each commit swept in the other's files twice (cbcc311, 68d9ebd). Stage
