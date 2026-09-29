@@ -633,6 +633,7 @@ test("cost ledger charges every billed request: a thrown-away answer and a timed
     const st2 = await T.send({ action: "costStats" });
     assert.ok(st2.day.trCalls >= 1 && st2.day.estCalls === st2.day.trCalls, `timed-out calls ${JSON.stringify(st2.day)}`);
     assert.ok(st2.day.trUsd > 0 && st2.day.inTok > 0);
+    assert.ok(Math.abs(st2.day.estUsd - st2.day.trUsd) < 1e-12, "all of it is an estimate");
 });
 
 test("cost ledger: a timed-out request whose answer still arrives is re-charged with its real token counts", async () => {
@@ -654,10 +655,52 @@ test("cost ledger: a timed-out request whose answer still arrives is re-charged 
     assert.equal(st.day.trCalls, 1);
     assert.equal(st.day.estCalls, 0);
     assert.equal(st.day.lateCalls, 1);
+    assert.ok(Math.abs(st.day.estUsd) < 1e-12, "the estimate became real numbers");
     assert.deepEqual([st.day.inTok, st.day.outTok, st.day.thoughtTok], [777, 60, 5]);
     const id = Object.keys(st.day.byModel)[0];
     assert.ok(Math.abs(st.day.trUsd - COST.estimateTextCost(id, 777, 60)) < 1e-12, "the estimate is replaced, not added to");
     assert.equal(st.history[st.pacificToday].inTok, 777);
+});
+
+test("late answer is not wasted: a twin request waits for it instead of paying again, and it is cached for the next visit", async () => {
+    let calls = 0;
+    const E = bgEnv(async (u, o) => {
+        if (!u.includes("generativelanguage")) return GOOGLE_OK;
+        calls++;
+        await new Promise(r => setTimeout(r, 5600));                        // past the ~4.7 s timeout
+        return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify({ t: ["bản muộn"] }) }] }, finishReason: "STOP" }], usageMetadata: { promptTokenCount: 700, candidatesTokenCount: 40 } }) };
+    }, cfg({ geminiApiKey: "KEY-OLD-USER" }));
+    const first = await E.send(REQ);
+    assert.equal(first.engine, "google_fallback", "the viewer is not kept waiting");
+    const twin = await E.send(REQ);                                          // sent while the answer is on its way
+    assert.equal(twin.engine, "gemini");
+    assert.deepEqual(twin.translations, ["bản muộn"]);
+    assert.equal(calls, 1, "no second paid call for the same window");
+    const again = await E.send(REQ);
+    assert.ok(again.fromCache && again.engine === "gemini", "kept in the cache");
+    assert.equal(calls, 1);
+    const st = await E.send({ action: "costStats" });
+    assert.equal(st.day.trCalls, 1);
+    assert.equal(st.day.estCalls, 0);
+});
+
+test("late answer that is unusable is billed, not cached, and a twin request is not kept waiting for it", async () => {
+    let calls = 0;
+    const E = bgEnv(async (u, o) => {
+        if (!u.includes("generativelanguage")) return GOOGLE_OK;
+        calls++;
+        await new Promise(r => setTimeout(r, 5600));
+        return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: "không phải JSON" }] }, finishReason: "STOP" }], usageMetadata: { promptTokenCount: 700, candidatesTokenCount: 40 } }) };
+    }, cfg({ geminiApiKey: "KEY-OLD-USER" }));
+    await E.send(REQ);
+    await new Promise(r => setTimeout(r, 1200));                             // the unusable answer has come
+    const t0 = Date.now();
+    const next = await E.send(REQ);
+    assert.ok(Date.now() - t0 < 2000, `waited ${Date.now() - t0} ms for nothing`);
+    assert.notEqual(next.fromCache, true, "nothing unusable was cached");
+    const st = await E.send({ action: "costStats" });
+    assert.equal(st.day.trCalls, calls, "every call Google answered is billed");
+    assert.equal(st.day.estCalls, 0);
 });
 
 test("money display: VND, USD or both, Vietnamese number format, bad settings fall back", () => {

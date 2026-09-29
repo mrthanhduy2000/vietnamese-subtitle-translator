@@ -432,7 +432,32 @@ function usageOf(data, promptChars, srcChars) {
 
 // retries: geminiCall's retries for a 5xx / network error. The first model of a chain gets 2; a model
 // tried after another one failed gets none, so falling through the chain adds one quick call each.
-async function callGeminiUnit(req, apiKey, model, retries = 2, bill = null) {
+// The checked translation of one answer; throws a GeminiError when it is unusable (cutOff: the
+// answer hit the output cap, worth one more pass with a larger cap)
+function readUnitAnswer(data, req, allowed) {
+    const cand = data.candidates?.[0] || {};
+    let obj;
+    try {
+        obj = parseUnitJson(responseText(data));
+    } catch (e) {
+        if (cand.finishReason === "MAX_TOKENS") throw new GeminiError("bad_output", e.message, { cutOff: true });
+        if (cand.finishReason && cand.finishReason !== "STOP") throw new GeminiError("blocked", `Gemini dừng sớm (${cand.finishReason})`);
+        throw new GeminiError("bad_output", e.message);
+    }
+    const arr = Array.isArray(obj.t) ? obj.t : (Array.isArray(obj.translations) ? obj.translations : []);
+    let translations = arr.map(x => sanitizeModelOutput(x, allowed));
+    if (translations.length !== req.sentences.length) {
+        if (req.sentences.length === 1 && translations.length > 1) translations = [translations.join(" ")];
+        else throw new GeminiError("bad_output", `Số mục không khớp (gửi ${req.sentences.length}, nhận ${translations.length})`);
+    }
+    if (translations.some(t => !t)) throw new GeminiError("bad_output", "Có mục dịch rỗng");
+    return { translations, terms: Array.isArray(obj.terms) ? obj.terms.filter(t => t && t.en && t.vi).slice(0, 5) : [] };
+}
+
+// onLateAnswer(answer): a timed-out request's answer that still came and passed readUnitAnswer
+// (null when it came but was unusable, so nobody keeps waiting for it).
+// It was paid for, so the caller keeps it (cache) instead of letting it go to waste.
+async function callGeminiUnit(req, apiKey, model, retries = 2, bill = null, onLateAnswer = null) {
     const { sys, user } = buildUnitPrompt(req);
     const srcChars = req.sentences.join(" ").length;
     const timeoutMs = Math.min(15000, 4500 + srcChars * 6 + (req.refine ? 2000 : 0));
@@ -446,7 +471,14 @@ async function callGeminiUnit(req, apiKey, model, retries = 2, bill = null) {
     // still arrives, its real counts replace that estimate
     let estimate = null;
     const onBilled = bill && (data => { const u = usageOf(data, sys.length + user.length, srcChars); if (!data) estimate = u; bill(u); });
-    const onLate = bill && (data => { if (estimate) bill(usageOf(data, sys.length + user.length, srcChars), estimate); });
+    const onLate = (bill || onLateAnswer) && (data => {
+        if (bill && estimate) bill(usageOf(data, sys.length + user.length, srcChars), estimate);
+        if (onLateAnswer) {
+            let answer = null;
+            try { answer = readUnitAnswer(data, req, allowed); } catch (e) { /* unusable: nothing to keep */ }
+            onLateAnswer(answer);
+        }
+    });
 
     // Tối đa 3 lượt gửi: model không nhận JSON schema / cấu hình suy nghĩ (bỏ tính năng đó),
     // hoặc bản dịch bị cắt cụt vì chạm trần token (gửi lại một lần với trần gấp đôi).
@@ -470,27 +502,16 @@ async function callGeminiUnit(req, apiKey, model, retries = 2, bill = null) {
             if (e.type === "invalid" && /schema|mime/i.test(e.message) && !unitSchemaUnsupported) { unitSchemaUnsupported = true; continue; }
             throw e;
         }
-        const cand = data.candidates?.[0] || {};
-        const raw = responseText(data);
-        let obj;
+        let answer;
         try {
-            obj = parseUnitJson(raw);
+            answer = readUnitAnswer(data, req, allowed);
         } catch (e) {
-            if (cand.finishReason === "MAX_TOKENS" && maxTokens < 8192) { maxTokens = Math.min(8192, maxTokens * 2); continue; }
-            if (cand.finishReason && cand.finishReason !== "STOP") throw new GeminiError("blocked", `Gemini dừng sớm (${cand.finishReason})`);
-            throw new GeminiError("bad_output", e.message);
+            if (e.cutOff && maxTokens < 8192) { maxTokens = Math.min(8192, maxTokens * 2); continue; }
+            throw e;
         }
-        const arr = Array.isArray(obj.t) ? obj.t : (Array.isArray(obj.translations) ? obj.translations : []);
-        let translations = arr.map(x => sanitizeModelOutput(x, allowed));
-        if (translations.length !== req.sentences.length) {
-            if (req.sentences.length === 1 && translations.length > 1) translations = [translations.join(" ")];
-            else throw new GeminiError("bad_output", `Số mục không khớp (gửi ${req.sentences.length}, nhận ${translations.length})`);
-        }
-        if (translations.some(t => !t)) throw new GeminiError("bad_output", "Có mục dịch rỗng");
         const usage = usageOf(data, 0, 0);
         return {
-            translations,
-            terms: Array.isArray(obj.terms) ? obj.terms.filter(t => t && t.en && t.vi).slice(0, 5) : [],
+            ...answer,
             engine: "gemini",
             model,
             latency: Date.now() - t0,
@@ -523,11 +544,12 @@ function localDay() {
 // inTok: billed prompt tokens, cachedTok the part of them billed at the cache rate; outTok: billed
 // output tokens, thinking included (thoughtTok is that part); estCalls: requests whose tokens had
 // to be estimated (timed out, no usage in the answer). byModel splits calls / tokens / USD.
-const emptyStats = () => ({ trUsd: 0, ttsUsd: 0, trCalls: 0, ttsCalls: 0, audioSec: 0, localSec: 0, hitsTr: 0, hitsAudio: 0, avoided: 0, inTok: 0, outTok: 0, thoughtTok: 0, cachedTok: 0, estCalls: 0, lateCalls: 0, byModel: {} });
+const emptyStats = () => ({ trUsd: 0, ttsUsd: 0, trCalls: 0, ttsCalls: 0, audioSec: 0, localSec: 0, hitsTr: 0, hitsAudio: 0, avoided: 0, inTok: 0, outTok: 0, thoughtTok: 0, cachedTok: 0, estCalls: 0, estUsd: 0, lateCalls: 0, byModel: {} });
 // One billed translation request into the ledger
 function usagePatch(model, u) {
     const out = u.out + u.thoughts;
-    return { trUsd: COST.estimateTextCost(model, u.in, out, u.cached), trCalls: 1, inTok: u.in, outTok: out, thoughtTok: u.thoughts, cachedTok: u.cached, estCalls: u.estimated ? 1 : 0 };
+    const usd = COST.estimateTextCost(model, u.in, out, u.cached);
+    return { trUsd: usd, trCalls: 1, inTok: u.in, outTok: out, thoughtTok: u.thoughts, cachedTok: u.cached, estCalls: u.estimated ? 1 : 0, estUsd: u.estimated ? usd : 0 };
 }
 // prev: the estimate charged when this request timed out; its late answer replaces it
 // (lateCalls counts those, so the card can say how many estimates became real numbers)
@@ -543,7 +565,7 @@ function trackText(meta, model, u, prev) {
 // Google bills by the day in Pacific time, so a second ledger keyed by that day lines up with
 // AI Studio's usage page. Last HISTORY_DAYS days, text calls only (TTS is off, PAID_TTS).
 const HISTORY_DAYS = 31;
-const HISTORY_KEYS = ["trUsd", "ttsUsd", "trCalls", "inTok", "outTok", "thoughtTok", "cachedTok", "estCalls", "lateCalls"];
+const HISTORY_KEYS = ["trUsd", "ttsUsd", "trCalls", "inTok", "outTok", "thoughtTok", "cachedTok", "estCalls", "estUsd", "lateCalls"];
 function pacificDay(now = new Date()) {
     try { return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(now); }
     catch (e) { return new Date(now.getTime() - 7 * 3600e3).toISOString().slice(0, 10); }
@@ -554,7 +576,11 @@ let history = {};
 const sessionArea = (typeof chrome !== "undefined" && chrome.storage && chrome.storage.session) || null;
 const ledgerReady = new Promise(resolve => {
     try {
-        chrome.storage.local.get({ costLedger: null, costHistory: null }, d => {
+        chrome.storage.local.get({ costLedger: null, costHistory: null, costTokenRatio: null }, d => {
+            // the measured characters-per-token survive a service-worker restart
+            const tr = d && d.costTokenRatio;
+            if (tr && tr.prompt > 1 && tr.prompt < 8) tokenRatio.prompt = tr.prompt;
+            if (tr && tr.outPerSrc > 0.05 && tr.outPerSrc < 5) tokenRatio.outPerSrc = tr.outPerSrc;
             if (d && d.costLedger && d.costLedger.day === localDay()) ledger = { ...emptyStats(), videos: {}, ...d.costLedger };
             if (d && d.costHistory && typeof d.costHistory === "object") history = d.costHistory;
             if (!sessionArea) return resolve();
@@ -567,7 +593,7 @@ function saveLedgerSoon() {
     if (ledgerTimer) return;
     ledgerTimer = setTimeout(() => {
         ledgerTimer = null;
-        try { chrome.storage.local.set({ costLedger: ledger, costHistory: history }); if (sessionArea) sessionArea.set({ costSession: sessionStats }); } catch (e) { /* bỏ qua */ }
+        try { chrome.storage.local.set({ costLedger: ledger, costHistory: history, costTokenRatio: tokenRatio }); if (sessionArea) sessionArea.set({ costSession: sessionStats }); } catch (e) { /* bỏ qua */ }
     }, 1500);
 }
 function rollDay() { if (ledger.day !== localDay()) ledger = { day: localDay(), ...emptyStats(), videos: {} }; }
@@ -666,6 +692,12 @@ async function handleTranslateUnit(request) {
             const at = first ? 0 : rest.findIndex(Boolean) + 1;
             const hit = first || rest[at - 1];
             if (hit) { track(meta, { hitsTr: 1, avoided: 1 }); return { ok: true, ...hit, fromCache: true, latency: 0, cacheKey: keys[at] }; }
+            const late = !request.refine && lateUnits.get(key);
+            if (late) {
+                const t0 = Date.now();
+                const got = await Promise.race([late, sleep(LATE_JOIN_MS).then(() => null)]);
+                if (got) { track(meta, { hitsTr: 1, avoided: 1 }); return { ok: true, ...got, fromCache: true, latency: Date.now() - t0, cacheKey: key }; }
+            }
             const flightKey = `${key}|${tier}|${!!request.wantTerms}`;
             if (unitInFlight.has(flightKey)) { track(meta, { avoided: 1 }); return unitInFlight.get(flightKey); }
             const p = translateUnitMiss(req, sentences, cfg, tier, meta, budget).finally(() => unitInFlight.delete(flightKey));
@@ -674,6 +706,36 @@ async function handleTranslateUnit(request) {
         }
     }
     return translateUnitMiss(req, sentences, cfg, tier, meta, budget);
+}
+
+// ---- Answers that come after our timeout (2.2.0) ----
+// A timed-out translation is still running at Google and is billed in full. When its answer
+// arrives it goes into the translation cache, so the next request for the same window (a
+// revisit, a second tab, a seek back) uses it for free. While it is still on its way, a request
+// for the same window waits up to LATE_JOIN_MS for it instead of paying for a second call.
+const LATE_JOIN_MS = 4000;
+const lateUnits = new Map();                 // cache key -> Promise<cache entry | null>
+function lateAnswerKeeper(req, model, tier) {
+    let settle = () => {};
+    const done = new Promise(r => { settle = r; });
+    let key = null;
+    const keyP = caches ? unitCacheKey(req, model).then(k => (key = k)).catch(() => null) : Promise.resolve(null);
+    return {
+        keep(answer) {
+            if (!answer) return settle(null);
+            const entry = { ...answer, engine: "gemini", model, tier };
+            keyP.then(k => { if (k && caches) caches.tr.set(k, entry); settle(entry); });
+        },
+        // called when the request timed out: from now on a twin request can wait for this answer
+        async expect() {
+            const k = key || await keyP;
+            if (!k) return;
+            lateUnits.set(k, done);
+            const drop = setTimeout(() => settle(null), LATE_WAIT_MS + 1000);
+            if (drop && drop.unref) drop.unref();
+            done.then(() => { clearTimeout(drop); if (lateUnits.get(k) === done) lateUnits.delete(k); });
+        }
+    };
 }
 
 const NEXT_MODEL_ON = new Set(["not_found", "unavailable_for_key", "rate_limit", "quota", "unavailable", "bad_output", "blocked"]);
@@ -699,8 +761,9 @@ async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
             if (!model) break;
             tried.add(model);
             if (!firstTried) firstTried = model;
+            const late = request.refine ? null : lateAnswerKeeper({ ...request, sentences }, model, tier);
             try {
-                const r = await callGeminiUnit({ ...request, sentences }, cfg.geminiApiKey, model, model === firstTried ? 2 : 0, (u, prev) => trackText(meta, model, u, prev));
+                const r = await callGeminiUnit({ ...request, sentences }, cfg.geminiApiKey, model, model === firstTried ? 2 : 0, (u, prev) => trackText(meta, model, u, prev), late && late.keep);
                 r.tier = tier;
                 if (model !== firstTried) r.fallbackFrom = firstTried;
                 // Lưu theo ĐÚNG model đã tạo bản dịch; chỉ lưu kết quả đã kiểm tra hợp lệ.
@@ -713,6 +776,7 @@ async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
                 return { ok: true, ...r, cacheKey: key, budget: budget.level };
             } catch (e) {
                 aiFailedReason = e.message;
+                if (e.type === "timeout" && late) late.expect();
                 // The next model of the chain is tried when this failure belongs to this model and
                 // passes: gone for this key (404), its own rate limit or daily quota, overloaded
                 // after geminiCall's retries, or an unusable answer. The chain never goes above the

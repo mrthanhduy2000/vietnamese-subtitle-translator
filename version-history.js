@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.2.0", luc: "", ten: "Chi phí: không bỏ phí câu trả lời muộn, cho biết độ tin cậy của con số",
+            y: [
+                "Lượt dịch quá thời gian chờ vẫn bị Google tính tiền đủ. Nay câu trả lời đến muộn được kiểm tra rồi lưu vào bộ nhớ đệm: lần sau gặp lại đúng đoạn đó (xem lại, tua lại, mở tab thứ hai) thì dùng luôn, không trả tiền lần nữa. Nếu đoạn đó được yêu cầu lại khi câu trả lời còn đang tới, tiện ích chờ nó tối đa 4 giây thay vì gọi Gemini lần hai.",
+                "Thẻ Chi phí ghi độ tin cậy: bao nhiêu phần trăm số tiền hôm nay tính từ số token Google báo về, bao nhiêu phần trăm là ước lượng.",
+                "Tỉ lệ ký tự trên token đo từ các lượt thật được nhớ lại sau khi trình duyệt hoặc tiện ích khởi động lại, nên ước lượng cho lượt quá giờ sát ngay từ đầu."
+            ]
+        },
+        {
             v: "2.1.9", luc: "14:31 29/09/2026", ten: "Lồng tiếng: thêm chỗ lấy hơi cho đoạn 14 âm tiết",
             y: [
                 "Chỗ lấy hơi được thêm cho cả đoạn 14 âm tiết chưa có chỗ nghỉ nào (trước từ 15). Ví dụ \"CPU, bộ nhớ, tốc độ mạng và độ trễ, đều ảnh hưởng đến trải nghiệm người dùng\" trước đây bị đọc liền qua chỗ trước \"đều\" 3 trên 5 lần. Câu 13 âm tiết trở xuống vẫn đọc một hơi. Chữ không đổi, không bớt từ nào; dấu phẩy chỉ nằm trong chữ gửi cho giọng đọc.",

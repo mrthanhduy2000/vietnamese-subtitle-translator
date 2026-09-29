@@ -635,6 +635,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             return parts.join(" · ");
         };
         const notes = [];
+        // How much of today's amount rests on Google's own token counts rather than an estimate
+        if (d.trUsd > 0 && d.inTok) {
+            const real = Math.max(0, Math.min(100, Math.round((1 - (d.estUsd || 0) / d.trUsd) * 100)));
+            notes.push(`Độ tin cậy: ${real}% số tiền hôm nay tính từ số token Google báo về${real < 100 ? `, ${100 - real}% là ước lượng` : ""}.`);
+        }
         if (d.estCalls) notes.push(`${d.estCalls} lượt hôm nay quá thời gian chờ mà Google chưa trả về: vẫn bị tính tiền, tiện ích ước lượng theo độ dài câu.`);
         if (d.lateCalls) notes.push(`${d.lateCalls} lượt quá thời gian chờ nhưng Google trả về muộn: đã thay số ước lượng bằng số token thật.`);
         if (d.trCalls && !d.inTok) notes.push("Số token chỉ được đếm từ bản 2.1.0; các lượt trước đó của hôm nay bị đếm thiếu.");
