@@ -6,24 +6,24 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-29 · two sessions: cost card (`background.js`, `cost-policy.js`, `options.*`, `popup.js`,
-2.1.1) and the duck attack (`dub-engine.js`, `tests/dub.test.js`, 2.1.2) · `2.1.2`.
+2026-09-29 · cost card: `background.js`, `cost-policy.js`, `options.html` / `options.js`,
+`popup.html` / `popup.js`, `version-history.js`, `tests/hardening.test.js` · `2.1.3`.
 
 ## What changed
-- 2.1.0: the ledger undercounted (user: real bill much higher). `geminiCall` now calls
-  `policy.onBilled(data)` for every answered request and `onBilled(null)` on our own timeout
-  (Google still bills it); `usageOf()` -> tokens, `trackText()` -> ledger. Test-key calls count.
-- 2.1.1: `usageOf` learns chars-per-token from real calls (`tokenRatio`) for the estimates;
-  `estPrice.cache` + `estimateTextCost(..., cachedTok)` for implicit-cache tokens; stats gain
-  `thoughtTok`, `cachedTok`, `byModel`; `costHistory` by Pacific day (31 days, survives Reset);
-  `costStats` returns `model`, `history`, `pacificToday`. Settings: per-model table, token-kind
-  table (only with one model), 7-day Google-day table. Popup: calls instead of "phút giọng AI".
-- Prices checked 2026-09-29: 3.1 Flash-Lite 0.25 / 1.50 / cache 0.025; 3.8 Flash 0.75 / 3.75.
-- 2.1.2: `SYNC.duckAttackTicks` 4: under a voice already sounding the original comes down in 0.2 s
-  (lines not announced ahead: -6.1 -> -9.6 dB in their first 0.45 s); pre-duck and way up unchanged.
+- 2.1.0 to 2.1.1: the ledger charges every billed request (`geminiCall` `policy.onBilled`,
+  `usageOf`, `trackText`), tokens by kind and `byModel`, `costHistory` by Google's Pacific day.
+- 2.1.3: display currency. `cost-policy.js` owns `FX` (26,020 on 2026-09-29), `MONEY_DEFAULTS`
+  (`costCurrency` both, `costUsdVnd`, `costExtraPct`), `moneyOpts`, `money`, `formatUsd/Vnd`.
+  Budgets stay USD in storage; in the VND view `options.js` shows and takes đồng (`budgetUsd` is
+  the state). Popup loads `cost-policy.js` and reads the same keys.
+- 2.1.3: a timed-out translation is not aborted: `policy.onLate` + `LATE_WAIT_MS` 120 s; the
+  late answer's real usage replaces the estimate (`trackText(meta, model, u, prev)`, `lateCalls`).
+- 2.1.3: KPI tiles (today, month by Google day, projection from 3 recorded days, per call), a
+  daily budget meter; `.content-area { min-width: 0 }` stops wide tables overflowing the page.
+- 2.1.2 (other session): `SYNC.duckAttackTicks` 4, duck under a voice already sounding.
 
 ## State
-- Tests: 574 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
+- Tests: 576 pass, 0 fail, 1 skip. Reload: **yes** (`chrome://extensions`).
 - 2.0.8 / 2.0.9 / 2.1.2 duck changes not heard by ear yet.
 
 ## Unfinished / in progress
@@ -36,8 +36,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   (BACKLOG 9); a live YouTube check by the user; user: Apple Events JS off in Chrome.
 
 ## Traps hit this session
-- Two sessions bumped at once: cbcc311 (2.1.1) carried the duck session's manifest 2.1.2 and its
-  doc and history lines; the duck code followed in the next commit. Check `git status` before a bump.
+- `costStats` in the test env returns the live ledger object, not a copy: read numbers at once.
+- Two sessions bumped at once around 2.1.1 / 2.1.2: check `git status` before a bump.
 - The live ledger can be read offline from Chrome's leveldb:
   `~/Library/Application Support/Google/Chrome/Profile 42/Local Extension Settings/<ext id>/*.log`.
 

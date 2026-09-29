@@ -2113,6 +2113,7 @@
             if (!next || t > next.at + SYNC.duckHold) return false;    // due and still silent: let it up
             const vr = Math.max(0.25, this.d.video.playbackRate || 1);
             const ramp = SYNC.duckRampTicks * SYNC.tickMs / 1000;
+            if (next.pending) return (next.at - next.end) / vr <= SYNC.duckBridge;
             return (next.end != null && (next.at - next.end) / vr <= SYNC.duckBridge) || t >= next.at - ramp * vr;
         }
 
@@ -2133,7 +2134,16 @@
             }
             const end = this.lastSpeechEnd, fresh = this.lastSpokenStart == null;
             const q = this.plans[this.planAt(fresh ? t + SYNC.startTolerance : this.lastSpokenStart + 1e-6) + 1];
-            if (!q || !this.rendered.has(q.id)) return null;
+            if (!q) return null;
+            if (!this.rendered.has(q.id)) {
+                // (2.1.3) Its take is on the way: the line can start once it is made, by the speed
+                // measured. Only the bridge uses this (lineComing), so a take that overruns its
+                // estimate still lets the original up duckBridge after the last line
+                const jobId = this.pending.get(q.id), job = jobId != null && this.jobs.get(jobId);
+                if (end == null || !job || job.orphan) return null;
+                const vr = Math.max(0.25, this.d.video.playbackRate || 1);
+                return { end, at: Math.max(q.start - SYNC.startTolerance, t + this.jobRemain(job) * vr), pending: true };
+            }
             const prev = end != null && this.lastSpokenId ? this.planById.get(this.lastSpokenId) : null;
             const chain = !!(prev && prev.continuesNext && this.plans[this.plans.indexOf(prev) + 1] === q);
             const rest = this.lastSpeechGap != null ? this.lastSpeechGap : (this.lastSpeechJoined ? SYNC.joinGap : SYNC.sentenceGap);

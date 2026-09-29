@@ -4,6 +4,15 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.1.3", luc: "12:35 29/09/2026", ten: "Chi phí: chọn hiển thị VNĐ, USD hoặc cả hai; ước tính sát hơn",
+            y: [
+                "Thẻ Chi phí có nút chọn đơn vị tiền: VNĐ, USD, hoặc VNĐ và USD song song. Cửa sổ nhỏ của tiện ích cũng theo lựa chọn này. Tỷ giá mặc định 26.020 đ cho 1 USD (giá giữa thị trường ngày 29/09/2026), sửa được cho khớp sao kê thẻ; có thêm ô thuế và phí cộng thêm (%). Ở chế độ VNĐ, ngân sách nhập bằng đồng.",
+                "Bốn ô tổng quan ở đầu thẻ: hôm nay, tháng này theo ngày tính tiền của Google, dự kiến cả tháng (chỉ hiện khi có từ 3 ngày số liệu, ghi rõ là suy từ mức dùng trung bình), và trung bình mỗi lượt dịch. Thêm thanh ngân sách ngày.",
+                "Lượt dịch quá thời gian chờ không còn bị cắt ngang: phụ đề vẫn chuyển sang bản dự phòng ngay như trước, nhưng tiện ích tiếp tục nghe câu trả lời của Google thêm tối đa 2 phút. Nếu Google trả về, số token thật thay cho số ước lượng, nên chi phí sát hóa đơn hơn.",
+                "Trang Cài đặt không còn bị tràn ngang ở cửa sổ hẹp vì các bảng chi phí."
+            ]
+        },
+        {
             v: "2.1.2", luc: "12:22 29/09/2026", ten: "Lồng tiếng: tiếng gốc nhường chỗ nhanh hơn khi giọng Việt cất lên bất ngờ",
             y: [
                 "Khi audio của câu về vừa kịp lúc (câu đầu tiên sau khi bắt đầu xem hoặc tua, máy chủ giọng chậm), giọng Việt cất lên lúc tiếng gốc còn to. Trước đây tiếng gốc cần 0,45 giây mới hạ hết nên lấn mấy chữ đầu; nay nó hạ trong 0,2 giây. Câu biết trước vẫn được hạ tiếng gốc từ từ trước khi bắt đầu, và lúc nâng tiếng gốc lên vẫn đều và chậm như bản 2.0.9.",

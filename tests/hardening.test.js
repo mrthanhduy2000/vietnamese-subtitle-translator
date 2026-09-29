@@ -635,6 +635,46 @@ test("cost ledger charges every billed request: a thrown-away answer and a timed
     assert.ok(st2.day.trUsd > 0 && st2.day.inTok > 0);
 });
 
+test("cost ledger: a timed-out request whose answer still arrives is re-charged with its real token counts", async () => {
+    const usage = { promptTokenCount: 777, candidatesTokenCount: 55, thoughtsTokenCount: 5 };
+    let aborted = false;
+    const E = bgEnv(async (u, o) => {
+        if (!u.includes("generativelanguage")) return GOOGLE_OK;
+        o.signal.addEventListener("abort", () => { aborted = true; });
+        await new Promise(r => setTimeout(r, 5600));                        // past the ~4.7 s timeout
+        return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify({ t: ["muộn"] }) }] }, finishReason: "STOP" }], usageMetadata: usage }) };
+    }, cfg({ geminiApiKey: "KEY-OLD-USER" }));
+    const r = await E.send(REQ);
+    assert.notEqual(r.engine, "gemini", "the viewer does not wait for it");
+    const early = await E.send({ action: "costStats" });
+    assert.equal(early.day.estCalls, early.day.trCalls, "charged with an estimate at the timeout");
+    await new Promise(r => setTimeout(r, 1200));
+    const st = await E.send({ action: "costStats" });
+    assert.equal(aborted, false, "the request is not cut off, so its bill can be read");
+    assert.equal(st.day.trCalls, 1);
+    assert.equal(st.day.estCalls, 0);
+    assert.equal(st.day.lateCalls, 1);
+    assert.deepEqual([st.day.inTok, st.day.outTok, st.day.thoughtTok], [777, 60, 5]);
+    const id = Object.keys(st.day.byModel)[0];
+    assert.ok(Math.abs(st.day.trUsd - COST.estimateTextCost(id, 777, 60)) < 1e-12, "the estimate is replaced, not added to");
+    assert.equal(st.history[st.pacificToday].inTok, 777);
+});
+
+test("money display: VND, USD or both, Vietnamese number format, bad settings fall back", () => {
+    const o = COST.moneyOpts({});
+    assert.deepEqual(o, { currency: "both", rate: COST.FX.usdVnd, extraPct: 0 });
+    assert.equal(COST.money(1, { costCurrency: "usd" }).text, "1,00 USD");
+    assert.equal(COST.money(1, { costCurrency: "vnd", costUsdVnd: 26500 }).text, "26.500 đ");
+    assert.equal(COST.money(0.2126, { costCurrency: "both", costUsdVnd: 26000 }).text, "5.528 đ (0,213 USD)");
+    assert.equal(COST.money(0.0004, { costCurrency: "vnd", costUsdVnd: 26000 }).text, "10,4 đ", "one call never rounds to 0");
+    assert.equal(COST.money(1, { costCurrency: "vnd", costUsdVnd: 26000, costExtraPct: 10 }).text, "28.600 đ");
+    assert.equal(COST.money(1234.5, { costCurrency: "usd" }).text, "1.235 USD");
+    for (const bad of [{ costUsdVnd: 12 }, { costUsdVnd: "abc" }, { costExtraPct: -5 }, { costExtraPct: 500 }, { costCurrency: "eur" }]) {
+        const b = COST.moneyOpts(bad);
+        assert.ok(b.rate === COST.FX.usdVnd && b.extraPct === 0 && COST.CURRENCIES.includes(b.currency), JSON.stringify(bad));
+    }
+});
+
 test("cost estimate: implicit-cache tokens are billed at the cache rate, never below zero or above the prompt", () => {
     const id = "gemini-3.1-flash-lite";
     const p = COST.findModel(id).estPrice;

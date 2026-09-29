@@ -24,10 +24,12 @@ full gain needed the fragile abort path in `DANGER.md` §15. The patch was delet
 
 **37. The translation timeout is tight and a timed-out call is paid for nothing.** *(found 2.1.0)*
 `callGeminiUnit` gives `4500 + 6 ms per source character`, 15 s cap (~6 s for a 250-character
-window). Google finishes and bills a request we abort; since 2.1.0 the ledger counts it
-(`estCalls`), but the money is still wasted and the line falls to Google Translate. Next: read
-`estCalls` against `trCalls` in the user's ledger after a few days; if it is more than a few
-percent, raise the floor. Not changed yet: a longer wait delays the subtitle.
+window). Google finishes and bills the request anyway. Since 2.1.3 a timed-out translation is
+not aborted: `geminiCall` (`policy.onLate`) keeps listening up to `LATE_WAIT_MS` and the real
+tokens replace the estimate (`lateCalls`). The money is still wasted, since the line already fell
+to Google Translate: the late answer could be validated and put in the cache (the next visit
+would use it). Next: read `lateCalls` + `estCalls` against `trCalls` in the user's ledger; if it
+is more than a few percent, raise the floor or cache the late answer.
 
 ## Subtitles and translation
 

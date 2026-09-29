@@ -213,6 +213,8 @@ async function isUnavailableFn(apiKey) {
 
 // policy: { timeoutMs, retries, backoffMs, signal, timeoutCooldownMs }
 // Trả về JSON phản hồi (HTTP 200). Lỗi: ném GeminiError có .type
+// How long a timed-out request is still listened to for its bill before it is dropped
+const LATE_WAIT_MS = 120000;
 async function geminiCall(model, apiKey, body, policy = {}) {
     if (keyBlock && keyBlock.key === apiKey && keyBlock.until > Date.now()) throw new GeminiError(keyBlock.type, `Gemini: ${keyBlock.reason}`, { blocked: true });
     if (missingModels.has(model)) throw new GeminiError("not_found", `${model}: ${ERROR_TEXT.not_found}`, { blocked: true });
@@ -228,19 +230,25 @@ async function geminiCall(model, apiKey, body, policy = {}) {
         if (policy.signal && policy.signal.aborted) throw new GeminiError("aborted", "Đã hủy");
         const controller = new AbortController();
         let timedOut = false;
-        const timer = setTimeout(() => { timedOut = true; controller.abort(); }, timeoutMs);
+        // policy.onLate: on our timeout the caller stops waiting, but the request is left running so
+        // the answer Google bills for still arrives and its real token counts replace the estimate
+        const keepLate = typeof policy.onLate === "function";
+        let timer = null;
         const onOuterAbort = () => controller.abort();
         if (policy.signal) policy.signal.addEventListener("abort", onOuterAbort, { once: true });
+        const request = fetch(GEMINI_BASE + encodeURIComponent(model) + ":generateContent", {
+            method: "POST",
+            // Khóa gửi qua header (khuyến nghị của tài liệu): không lộ trong URL, lịch sử, nhật ký mạng
+            headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+            body: JSON.stringify(body),
+            signal: controller.signal
+        }).then(async res => ({ res, data: await res.json().catch(() => null) }));
+        const expired = new Promise((_, reject) => {
+            timer = setTimeout(() => { timedOut = true; if (!keepLate) controller.abort(); reject(new Error("timeout")); }, timeoutMs);
+        });
         let err;
         try {
-            const res = await fetch(GEMINI_BASE + encodeURIComponent(model) + ":generateContent", {
-                method: "POST",
-                // Khóa gửi qua header (khuyến nghị của tài liệu): không lộ trong URL, lịch sử, nhật ký mạng
-                headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-                body: JSON.stringify(body),
-                signal: controller.signal
-            });
-            const data = await res.json().catch(() => null);
+            const { res, data } = await Promise.race([request, expired]);
             // Google bills every answered request, also one whose text is later thrown away
             if (res.ok && policy.onBilled) policy.onBilled(data || {});
             if (res.ok) { setAccess(kh, model, "ok"); return data || {}; }
@@ -254,6 +262,11 @@ async function geminiCall(model, apiKey, body, policy = {}) {
                 // A request dropped by our own timer still runs to the end at Google and is billed;
                 // the answer never arrives, so the caller estimates its tokens (null data)
                 if (policy.onBilled) policy.onBilled(null);
+                if (keepLate) {
+                    const cap = setTimeout(() => controller.abort(), LATE_WAIT_MS);
+                    if (cap && cap.unref) cap.unref();
+                    request.then(({ res, data }) => { if (res.ok) policy.onLate(data || {}); }).catch(() => {}).finally(() => clearTimeout(cap));
+                }
             }
             else if (e && e.name === "AbortError") err = new GeminiError("aborted", "Đã hủy");
             else err = new GeminiError("network", `${model}: ${ERROR_TEXT.network}`);
@@ -429,7 +442,11 @@ async function callGeminiUnit(req, apiKey, model, retries = 2, bill = null) {
     const t0 = Date.now();
     // Every request Google answered or timed out on is charged, not only the pass whose
     // translation is kept: a retry after a cut-off or unparsable answer was billed too
-    const onBilled = bill && (data => bill(usageOf(data, sys.length + user.length, srcChars)));
+    // A timeout is charged at once with an estimate (the answer may never come); when the answer
+    // still arrives, its real counts replace that estimate
+    let estimate = null;
+    const onBilled = bill && (data => { const u = usageOf(data, sys.length + user.length, srcChars); if (!data) estimate = u; bill(u); });
+    const onLate = bill && (data => { if (estimate) bill(usageOf(data, sys.length + user.length, srcChars), estimate); });
 
     // Tối đa 3 lượt gửi: model không nhận JSON schema / cấu hình suy nghĩ (bỏ tính năng đó),
     // hoặc bản dịch bị cắt cụt vì chạm trần token (gửi lại một lần với trần gấp đôi).
@@ -447,7 +464,7 @@ async function callGeminiUnit(req, apiKey, model, retries = 2, bill = null) {
                 system_instruction: { parts: [{ text: sys }] },
                 contents: [{ parts: [{ text: user }] }],
                 generationConfig
-            }, { timeoutMs, retries, backoffMs: 500, timeoutCooldownMs: 15000, onBilled });
+            }, { timeoutMs, retries, backoffMs: 500, timeoutCooldownMs: 15000, onBilled, onLate });
         } catch (e) {
             if (e.type === "invalid" && /thinking/i.test(e.message) && thinking) { noThinkingCfg.add(model); continue; }
             if (e.type === "invalid" && /schema|mime/i.test(e.message) && !unitSchemaUnsupported) { unitSchemaUnsupported = true; continue; }
@@ -506,16 +523,27 @@ function localDay() {
 // inTok: billed prompt tokens, cachedTok the part of them billed at the cache rate; outTok: billed
 // output tokens, thinking included (thoughtTok is that part); estCalls: requests whose tokens had
 // to be estimated (timed out, no usage in the answer). byModel splits calls / tokens / USD.
-const emptyStats = () => ({ trUsd: 0, ttsUsd: 0, trCalls: 0, ttsCalls: 0, audioSec: 0, localSec: 0, hitsTr: 0, hitsAudio: 0, avoided: 0, inTok: 0, outTok: 0, thoughtTok: 0, cachedTok: 0, estCalls: 0, byModel: {} });
+const emptyStats = () => ({ trUsd: 0, ttsUsd: 0, trCalls: 0, ttsCalls: 0, audioSec: 0, localSec: 0, hitsTr: 0, hitsAudio: 0, avoided: 0, inTok: 0, outTok: 0, thoughtTok: 0, cachedTok: 0, estCalls: 0, lateCalls: 0, byModel: {} });
 // One billed translation request into the ledger
-function trackText(meta, model, u) {
+function usagePatch(model, u) {
     const out = u.out + u.thoughts;
-    track(meta, { trUsd: COST.estimateTextCost(model, u.in, out, u.cached), trCalls: 1, inTok: u.in, outTok: out, thoughtTok: u.thoughts, cachedTok: u.cached, estCalls: u.estimated ? 1 : 0 }, model);
+    return { trUsd: COST.estimateTextCost(model, u.in, out, u.cached), trCalls: 1, inTok: u.in, outTok: out, thoughtTok: u.thoughts, cachedTok: u.cached, estCalls: u.estimated ? 1 : 0 };
+}
+// prev: the estimate charged when this request timed out; its late answer replaces it
+// (lateCalls counts those, so the card can say how many estimates became real numbers)
+function trackText(meta, model, u, prev) {
+    const patch = usagePatch(model, u);
+    if (prev) {
+        const was = usagePatch(model, prev);
+        for (const k of Object.keys(patch)) patch[k] -= was[k];
+        patch.lateCalls = 1;
+    }
+    track(meta, patch, model);
 }
 // Google bills by the day in Pacific time, so a second ledger keyed by that day lines up with
 // AI Studio's usage page. Last HISTORY_DAYS days, text calls only (TTS is off, PAID_TTS).
 const HISTORY_DAYS = 31;
-const HISTORY_KEYS = ["trUsd", "ttsUsd", "trCalls", "inTok", "outTok", "thoughtTok", "cachedTok", "estCalls"];
+const HISTORY_KEYS = ["trUsd", "ttsUsd", "trCalls", "inTok", "outTok", "thoughtTok", "cachedTok", "estCalls", "lateCalls"];
 function pacificDay(now = new Date()) {
     try { return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(now); }
     catch (e) { return new Date(now.getTime() - 7 * 3600e3).toISOString().slice(0, 10); }
@@ -672,7 +700,7 @@ async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
             tried.add(model);
             if (!firstTried) firstTried = model;
             try {
-                const r = await callGeminiUnit({ ...request, sentences }, cfg.geminiApiKey, model, model === firstTried ? 2 : 0, u => trackText(meta, model, u));
+                const r = await callGeminiUnit({ ...request, sentences }, cfg.geminiApiKey, model, model === firstTried ? 2 : 0, (u, prev) => trackText(meta, model, u, prev));
                 r.tier = tier;
                 if (model !== firstTried) r.fallbackFrom = firstTried;
                 // Lưu theo ĐÚNG model đã tạo bản dịch; chỉ lưu kết quả đã kiểm tra hợp lệ.

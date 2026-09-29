@@ -199,6 +199,46 @@
         return (Math.ceil(textChars / 4) * p.in + audioSec * AUDIO_TOKENS_PER_SEC * p.out) / 1e6;
     }
 
+    // ---------------- Money display (Settings cost card, popup) ----------------
+    // Google bills in USD; the VND figure is a conversion for reading only. FX.usdVnd is the
+    // mid-market reference on FX.asOf (Wise / Yahoo, 26,022.5 on 2026-09-29); a card is charged
+    // at its bank's selling rate, a little higher, which the viewer can type in instead.
+    // costExtraPct: tax or bank fee the viewer sees on the real bill, added to every amount shown.
+    // Display only: budgets and the ledger stay in plain USD.
+    const FX = { usdVnd: 26020, asOf: "2026-09-29", min: 5000, max: 100000 };
+    const CURRENCIES = ["vnd", "usd", "both"];
+    const MONEY_DEFAULTS = { costCurrency: "both", costUsdVnd: FX.usdVnd, costExtraPct: 0 };
+    function moneyOpts(cfg = {}) {
+        const rate = Number(cfg.costUsdVnd);
+        const extra = Number(cfg.costExtraPct);
+        return {
+            currency: CURRENCIES.includes(cfg.costCurrency) ? cfg.costCurrency : MONEY_DEFAULTS.costCurrency,
+            rate: rate >= FX.min && rate <= FX.max ? rate : FX.usdVnd,
+            extraPct: extra > 0 && extra <= 50 ? extra : 0
+        };
+    }
+    // Decimal comma, thousands dot (vi-VN), without depending on the runtime's locale data
+    function viNumber(x, digits) {
+        const [int, frac] = Math.abs(x).toFixed(digits).split(".");
+        return (x < 0 ? "-" : "") + int.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + (frac ? "," + frac : "");
+    }
+    // Enough digits that a single call (~0.0005 USD, ~13 đ) never shows as 0
+    function formatUsd(usd) {
+        const a = Math.abs(usd || 0);
+        return `${viNumber(usd || 0, a === 0 ? 0 : a >= 100 ? 0 : a >= 1 ? 2 : a >= 0.01 ? 3 : 4)} USD`;
+    }
+    function formatVnd(vnd) {
+        const a = Math.abs(vnd || 0);
+        return `${viNumber(vnd || 0, a === 0 || a >= 100 ? 0 : 1)} đ`;
+    }
+    // { usd, vnd, text }: text follows the chosen currency; "both" puts đồng first, USD in brackets
+    function money(usd, opts) {
+        const o = opts && opts.rate ? opts : moneyOpts(opts);
+        const billed = (usd || 0) * (1 + o.extraPct / 100);
+        const u = formatUsd(billed), v = formatVnd(billed * o.rate);
+        return { usd: u, vnd: v, text: o.currency === "usd" ? u : o.currency === "vnd" ? v : `${v} (${u})` };
+    }
+
     // Chế độ sử dụng (tên dễ hiểu cho người dùng)
     //   escalate : cho phép đưa câu khó lên model mạnh
     //   refine   : "strong" dịch lại bằng model mạnh | "cheap" chỉ khi lỗi nặng | "none"
@@ -296,6 +336,7 @@
         TRANSLATION_MODELS, TTS_MODELS, LOCAL_TTS, DEFAULT_MODELS, RETIRED_MODELS, MODELS_VERSION, AUTO, AUTO_CANDIDATES, AUDIO_TOKENS_PER_SEC,
         findModel, modelLabel, costRank, thinkingLevelFor, modelChain, migrateModelSettings, afterShutdown, liveModel,
         estimateTextCost, estimateTtsCost, BUDGET_DEFAULTS,
+        FX, CURRENCIES, MONEY_DEFAULTS, moneyOpts, formatUsd, formatVnd, money,
         MODES, getMode, routeDifficulty
     };
     if (typeof module === "object" && module.exports) module.exports = api;

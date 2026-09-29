@@ -174,13 +174,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         const d = r.day, b = r.budget;
         const usd = (d.trUsd || 0) + (d.ttsUsd || 0);
         const pct = b.dailyBudget ? Math.min(100, Math.round(usd / b.dailyBudget * 100)) : 0;
-        const fmt = x => (x >= 1 ? x.toFixed(2) : x.toFixed(3)).replace(".", ",");
-        costEl.innerHTML = `<span>Hôm nay: <strong>~${fmt(usd)} USD</strong> · ${d.trCalls || 0} lượt dịch Gemini${d.audioSec ? ` · ${(d.audioSec / 60).toFixed(1).replace(".", ",")} phút giọng AI` : ""}${d.localSec ? ` · ${(d.localSec / 60).toFixed(1).replace(".", ",")} phút VieNeu (miễn phí)` : ""} · tránh được ${d.avoided || 0} lượt gọi</span>` +
+        costEl.innerHTML = `<span>Hôm nay: <strong>~${esc(money(usd))}</strong> · ${d.trCalls || 0} lượt dịch Gemini${d.audioSec ? ` · ${(d.audioSec / 60).toFixed(1).replace(".", ",")} phút giọng AI` : ""}${d.localSec ? ` · ${(d.localSec / 60).toFixed(1).replace(".", ",")} phút VieNeu (miễn phí)` : ""} · tránh được ${d.avoided || 0} lượt gọi</span>` +
             (b.dailyBudget ? `<span class="cost-bar" title="${pct}% ngân sách ngày"><i style="width:${pct}%"></i></span>` : "");
         costEl.classList.toggle("warn", b.level === "warn");
         costEl.classList.toggle("over", b.level === "over");
         costEl.hidden = false;
     }
+    // The currency chosen in Settings (VND / USD / both), shown by cost-policy.js
+    const COST = window.CST_COST;
+    const esc = x => String(x).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+    let money = x => `${x.toFixed(3).replace(".", ",")} USD`;
+    try {
+        const mcfg = COST ? await chrome.storage.sync.get(COST.MONEY_DEFAULTS) : null;
+        if (mcfg) { const o = COST.moneyOpts(mcfg); money = x => COST.money(x, o).text; }
+    } catch (e) { /* ngoài tiện ích */ }
     try { chrome.runtime.sendMessage({ action: "costStats" }, r => { if (!chrome.runtime.lastError) renderCostToday(r); }); } catch (e) { /* ngoài tiện ích */ }
 
     // 7. Open Options Page (Multi-tier resilient fallback)

@@ -211,7 +211,8 @@ the source track; YouTube, Coursera, generic), and `originalFirst`, which only t
 read by the page and was removed in 1.7.3; old stored values are ignored.
 
 AI and cost: `useAi`, `geminiApiKey`, `geminiModel`, `geminiStrongModel`, `costMode`,
-`autoTranslate`, `budgetDailyUsd`, `budgetVideoUsd`
+`autoTranslate`, `budgetDailyUsd`, `budgetVideoUsd` (always USD; the VND view converts), `costCurrency`
+(`vnd` / `usd` / `both`), `costUsdVnd`, `costExtraPct` (display only; `COST.moneyOpts`, `COST.money`)
 
 Glossary: `glossaryEnabled`, `userKeep`, `userNormalize`, `enabledGroups`, `knownGroups` (1.8.5:
 group keys the user had seen at the last Save; a group missing from it starts enabled, see
