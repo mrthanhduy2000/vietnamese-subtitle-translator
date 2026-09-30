@@ -424,8 +424,13 @@ const TR_PROMPT_VERSION = 4;
 const AUDIO_CACHE_VERSION = 1;
 const PLACEHOLDER_RE = /\[\[\s*(?:\\?_){2}\s*T\s*(\d+)\s*(?:\\?_){2}\s*\]\]/gi;
 
+// The dubbing audio store: 3 GB (2.4.0, was 200 MB), the user's own ceiling. One second of voice is
+// 96 KB (48 kHz, 16 bit, mono) and the voice speaks 0.85 s per second of video (8,353 s over 9,845 s
+// on 2026-09-30), so a 13-minute video is ~61 MB: 200 MB held 3 videos, 3 GB holds ~50 (100 would
+// need ~6 GB). Least recently used goes first (cst-cache.js evict).
+const AUDIO_CACHE_MAX_BYTES = 3 * 1024 * 1024 * 1024;
 const caches = (typeof CST_CACHE !== "undefined")
-    ? CST_CACHE.createCaches({ trVersion: TR_PROMPT_VERSION, audioVersion: AUDIO_CACHE_VERSION })
+    ? CST_CACHE.createCaches({ trVersion: TR_PROMPT_VERSION, audioVersion: AUDIO_CACHE_VERSION, audioMaxBytes: AUDIO_CACHE_MAX_BYTES })
     : null;
 
 // Làm sạch đầu ra của mô hình nhưng GIỮ các mã giữ chỗ có thật trong đầu vào
@@ -1467,7 +1472,7 @@ async function handleAudioCacheGet(req) {
 // --prefix=ytcache4_), `videos` = how many were reviewed in all. A video saved after `until` is new.
 // YT_SAVED_MAX mirrors youtube.js YT_CACHE_TOI_DA (a test keeps the two equal).
 const REVIEW_MARK = { until: 1790735951912, videos: 21 };      // 2026-09-30, round 7 and the 2.3.8 check
-const YT_SAVED_MAX = 50;
+const YT_SAVED_MAX = 100;
 async function localCacheBytes() {
     const all = await new Promise(r => chrome.storage.local.get(null, r));
     let bytes = 0, count = 0;

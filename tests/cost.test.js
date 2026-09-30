@@ -702,7 +702,8 @@ test("cache stats: saved videos, their size, and how many are new since the revi
     assert.equal(st.ok, true);
     assert.equal(st.videos.count, 4);
     assert.equal(st.videos.fresh, 2, "the video the review ended on is not new");
-    assert.equal(st.videos.max, 50);
+    assert.equal(st.videos.max, 100);
+    assert.equal(st.audio.maxBytes, 3 * 1024 ** 3, "the audio store holds 3 GB");
     assert.ok(st.videos.reviewed >= 21 && st.videos.until === mark);
     assert.ok(st.videos.bytes > 100 && st.videos.bytes < 1000);
     assert.equal(st.local.count, 6, "the older total still counts every cache key");

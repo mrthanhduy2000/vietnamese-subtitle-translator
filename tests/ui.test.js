@@ -18,7 +18,8 @@ test("phím tắt: manifest khai báo Alt+S (phụ đề) và Alt+D (lồng ti�
     assert.ok(Object.values(m.commands).every(c => c.description && /[\u00C0-\u1EF9]/.test(c.description)), "mô tả phím tắt phải bằng tiếng Việt");
     assert.ok(Object.keys(m.commands).length <= 4, "Chrome chỉ cho phép ít phím tắt gợi ý");
     // Không thêm quyền nào cho phím tắt (chrome.commands không cần quyền)
-    assert.equal(JSON.stringify(m.permissions), JSON.stringify(["storage", "activeTab", "scripting"]));
+    // "unlimitedStorage" (2.4.0): 100 saved videos pass the 10 MB of storage.local; no install warning
+    assert.equal(JSON.stringify(m.permissions), JSON.stringify(["storage", "unlimitedStorage", "activeTab", "scripting"]));
     // Người dùng phải biết là có phím tắt
     assert.match(R("options.html"), /Alt\+S/);
     assert.match(R("popup.html"), /Alt<\/kbd>\+<kbd>S/);

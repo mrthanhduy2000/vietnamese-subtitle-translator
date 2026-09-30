@@ -1067,7 +1067,7 @@ Keys are SHA-256 over the content-determining fields only, **never the video id*
 audio is reused across videos. The audio key includes the style version, model, voice, text,
 intent, emphasis and a pace bucket.
 
-Budgets: `tr` 30MB, `audio` 200MB; memory tier 400 entries for `tr`, 24 for `audio`. Eviction is
+Budgets: `tr` 30MB, `audio` 3 GB (2.4.0, `background.js` `AUDIO_CACHE_MAX_BYTES`; 200MB held 3 videos at ~61 MB each); memory tier 400 entries for `tr`, 24 for `audio`. Eviction is
 LRU plus version-mismatch victims, down to 85% of the cap. A single item larger than half the cap
 is not stored. Reads time out at 1500ms and writes at 3000ms, degrading to a cache miss rather than
 blocking playback. `dubbing.js` keeps a small page-side mirror; per-video purge goes through

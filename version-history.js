@@ -4,6 +4,18 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.4.0", luc: "", ten: "Lưu tới 100 video, kho audio lồng tiếng lên 3 GB",
+            y: [
+                "Số video YouTube được giữ bản dịch tăng từ 50 lên 100, để một đợt xem dài hơn rồi mới rà soát. 100 video cỡ 13 phút chiếm khoảng 9 MB, vượt mức 10 MB mà trình duyệt cho sẵn nếu video dài hơn, nên tiện ích xin thêm quyền lưu trữ không giới hạn. Quyền này không hiện cảnh báo và không cho tiện ích truy cập thêm gì.",
+                "Kho audio lồng tiếng tăng từ 200 MB lên 3 GB. Một giây giọng đọc chiếm 96 KB và giọng nói khoảng 85% thời lượng video, nên một video 13 phút cần khoảng 61 MB: mức cũ chỉ đủ 3 video, mức mới đủ khoảng 50 video. Muốn đủ audio cho cả 100 video thì cần khoảng 6 GB. Khi đầy, audio lâu không dùng nhất bị xóa trước; video đó vẫn xem được, giọng sẽ được tạo lại.",
+                "Dòng Audio lồng tiếng trong trang Cài đặt ghi thêm số video ước tính mà kho đang chứa."
+            ],
+            bang: { cot: ["Sức chứa", "2.3.9", "Nay"], hang: [
+                ["Bản dịch video", "50 video", "100 video"],
+                ["Audio lồng tiếng", "200 MB (khoảng 3 video)", "3 GB (khoảng 50 video)"]
+            ] }
+        },
+        {
             v: "2.3.9", luc: "", ten: "Lưu tới 50 video, có bộ đếm video mới chờ rà soát",
             y: [
                 "Tiện ích trước đây chỉ giữ bản dịch của 15 video YouTube gần nhất. Nay giữ 50 video, để bạn xem một đợt dài rồi mới nhờ rà soát cả đợt trên dữ liệu thật. Đo trên 15 video đang lưu: 1,32 MB, trung bình 90 KB mỗi video (khoảng 6,8 KB mỗi phút video), nên 50 video cỡ đó chiếm khoảng 4,4 MB. Trình duyệt chỉ cho tiện ích 10 MB, vì vậy có thêm trần 8 MB: nếu bạn xem toàn video rất dài, video cũ nhất sẽ nhường chỗ sớm hơn mốc 50.",

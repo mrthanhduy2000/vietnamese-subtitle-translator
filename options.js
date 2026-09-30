@@ -480,13 +480,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     refreshModelStatus();
 
     // ---- Bộ nhớ đệm ----
-    const fmtMB = b => (b / 1048576 < 0.1 ? `${Math.round(b / 1024)} KB` : `${(b / 1048576).toFixed(1)} MB`);
+    const fmtMB = b => (b / 1048576 < 0.1 ? `${Math.round(b / 1024)} KB` : b >= 1073741824 ? `${(b / 1073741824).toFixed(1)} GB` : `${(b / 1048576).toFixed(1)} MB`);
     async function showCacheStats(res) {
         const r = res || await new Promise(rs => chrome.runtime.sendMessage({ action: "cacheStats" }, rs));
         const trEl = document.getElementById("cacheTr"), auEl = document.getElementById("cacheAudio");
         if (!r || !r.ok || !r.tr || !r.audio) { if (trEl) trEl.textContent = "Chưa đọc được (mở trang này từ trong tiện ích)."; if (auEl) auEl.textContent = ""; return; }
         if (trEl) trEl.textContent = `${fmtMB(r.tr.bytes + (r.local ? r.local.bytes : 0))} · ${r.tr.count} đoạn (tối đa ${fmtMB(r.tr.maxBytes)})`;
-        if (auEl) auEl.textContent = `${fmtMB(r.audio.bytes)} · ${r.audio.count} đoạn audio (tối đa ${fmtMB(r.audio.maxBytes)})`;
+        // ~61 MB of voice for a 13-minute video (background.js AUDIO_CACHE_MAX_BYTES)
+        if (auEl) auEl.textContent = `${fmtMB(r.audio.bytes)} · ${r.audio.count} đoạn audio, khoảng ${Math.round(r.audio.bytes / 64e6)} video (tối đa ${fmtMB(r.audio.maxBytes)})`;
         // Saved videos and how many are new since the last quality review (background.js REVIEW_MARK)
         const v = r.videos, vidEl = document.getElementById("cacheVideos"), revEl = document.getElementById("cacheReview");
         if (!v) return;

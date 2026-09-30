@@ -27,13 +27,13 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 
 | File | Lines | Role | Global export |
 |---|---|---|---|
-| `youtube.js` | 2082 | YouTube engine: bridge handshake, track pick, timedtext parse, self-drawn overlay, prefetch pool, controls + quick menu | none (same-world sibling of `content.js`, reads its `state`) |
+| `youtube.js` | 2083 | YouTube engine: bridge handshake, track pick, timedtext parse, self-drawn overlay, prefetch pool, controls + quick menu | none (same-world sibling of `content.js`, reads its `state`) |
 | `content.js` | 2448 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
 | `options.html` | 1498 | Settings page, 4 tabs. ~850 lines are inline `<style>`; markup is only the rest | n/a |
 | `dub-engine.js` | 2259 | TTS providers + scheduler + video-clock sync + audio ducking | `CST_DUB_ENGINE` |
-| `background.js` | 1788 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access | n/a (message router) |
+| `background.js` | 1793 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access | n/a (message router) |
 | `popup.css` | 995 | Popup styling only | n/a |
-| `options.js` | 1348 | Settings logic. No Save button: debounced autosave every 350ms, flushed on `pagehide` | n/a |
+| `options.js` | 1349 | Settings logic. No Save button: debounced autosave every 350ms, flushed on `pagehide` | n/a |
 | `settings-backup.js` | 76 | Pure build/parse of the settings backup file (all of `storage.sync` + `edits:*`, key optional) | `CST_BACKUP` (options page only) |
 | `vi-segmenter.js` | 890 | Vietnamese cue segmentation + line breaking, two-stage dynamic programming over syllable gaps | `CST_VI_SEG` |
 | `dub-planner.js` | 950 | Pure function: text -> speech script -> prosody and timing. No I/O | `CST_DUB_PLAN` |
@@ -55,7 +55,7 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `popup.html` | 165 | Popup markup | n/a |
 | `vi-quality.js` | 419 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
 | `lang-detect.js` | 132 | Source-language decision without an API call | `CST_LANG` |
-| `version-history.js` | 1483 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
+| `version-history.js` | 1495 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
 | `version-check.js` | 55 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
 | `theme.js` | 42 | Light/Dark theme for the popup and settings page. Applies instantly from `localStorage` to avoid a flash, then syncs from `storage.sync`. Loaded by `popup.html` and `options.html` only, not a content script | `window.CST_THEME` |
 | `build-info.js` | 6 | **Generated** by `tools/bump-version.js`. Never edit | `CST_BUILD` |

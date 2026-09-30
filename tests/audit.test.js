@@ -373,25 +373,26 @@ test("channel terms: the cache sweep drops empty and old lists, keeps a live one
     assert.deepEqual(Object.keys(E.store).filter(k => k.startsWith("ctxterms_")).sort(), ["ctxterms_coursera_course", "ctxterms_yt_live"]);
 });
 
-// 2.3.9: the user watches a batch of up to 50 new videos, then has the batch reviewed from the cache
-test("saved videos: 50 are kept, the oldest go first, and bytes are capped below the storage quota", async () => {
+// 2.3.9, 2.4.0: the user watches a batch of up to 100 new videos, then has it reviewed from the cache
+test("saved videos: 100 are kept, the oldest go first, and bytes are capped", async () => {
     const video = (luc, chars) => ({ luc, cues: [[0, 1, "a"]], vi: [[0, 1, "b"]], g: [], pad: "x".repeat(chars || 0) });
     const local = {};
-    for (let i = 1; i <= 53; i++) local[`ytcache4_v${i}`] = video(i);
+    for (let i = 1; i <= 103; i++) local[`ytcache4_v${i}`] = video(i);
     const E = pageEnv({ youtube: true, local });
     await E.run("ytDonCache()");
     const left = Object.keys(E.store).filter(k => k.startsWith("ytcache4_"));
-    assert.equal(left.length, 50);
-    assert.ok(!left.includes("ytcache4_v3") && left.includes("ytcache4_v4") && left.includes("ytcache4_v53"));
-    // three long videos of ~3.5 MB: two fit under 8 MB, the oldest goes
-    const B = pageEnv({ youtube: true, local: { ytcache4_old: video(1, 3e6), ytcache4_mid: video(2, 3e6), ytcache4_new: video(3, 3e6) } });
+    assert.equal(left.length, 100);
+    assert.ok(!left.includes("ytcache4_v3") && left.includes("ytcache4_v4") && left.includes("ytcache4_v103"));
+    // three stores of ~29 MB: two fit under 64 MB, the oldest goes
+    const B = pageEnv({ youtube: true, local: { ytcache4_old: video(1, 25e6), ytcache4_mid: video(2, 25e6), ytcache4_new: video(3, 25e6) } });
     await B.run("ytDonCache()");
     assert.deepEqual(Object.keys(B.store).filter(k => k.startsWith("ytcache4_")).sort(), ["ytcache4_mid", "ytcache4_new"]);
     // one video over the cap alone is still kept: it is the one being watched
-    const O = pageEnv({ youtube: true, local: { ytcache4_huge: video(1, 8e6) } });
+    const O = pageEnv({ youtube: true, local: { ytcache4_huge: video(1, 60e6) } });
     await O.run("ytDonCache()");
     assert.deepEqual(Object.keys(O.store).filter(k => k.startsWith("ytcache4_")), ["ytcache4_huge"]);
     assert.equal(Number(read("youtube.js").match(/const YT_CACHE_TOI_DA = (\d+);/)[1]), Number(read("background.js").match(/const YT_SAVED_MAX = (\d+);/)[1]), "Settings shows the real limit");
+    assert.ok(JSON.parse(read("manifest.json")).permissions.includes("unlimitedStorage"), "100 videos pass the 10 MB of storage.local");
 });
 
 test("channel terms: an unstamped YouTube list is not read, a stamped one and a course list are", async () => {
