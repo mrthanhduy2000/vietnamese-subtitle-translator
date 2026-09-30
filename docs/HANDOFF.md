@@ -27,8 +27,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 - Waiting for the user's batch. Then measure per video: words lost and late starts
   (`playback-sim --real`), empty lines, refine flags, music notes inside a sentence, ">>", cost,
   and whether the hinted phrases ("in my 20s", "dresser", "declutter") came out right.
-- The counter in Settings was not seen in a real browser (the stats need the extension context).
-- Not done: a performance profile of a 35-minute video (needs the browser, not the simulator).
+- Not seen in a real browser: the counter in Settings; a 35-minute video's performance profile.
 - Not verified live: the voice reading "...at home. I feel..." in one breath (the user's ear), "có
   nghĩa là", DN and NHNN read Vietnamese (2.2.4).
 - Carried over: AI Studio vs cost card over one full Pacific day; the live harness (`?script=stress`,
@@ -39,8 +38,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 ## Traps hit this session
 - Decided against, do not redo: a system-prompt rule for dropped hedges and stiff register (no
   offline way to compare); segmenter changes for 3 compound splits in 444 groups.
-- A video is saved only once fully translated and with no Google fallback: one left halfway is in
-  the cost ledger but not in the cache (3 of 12 on 2026-09-30).
+- A video is saved only once fully translated, with no Google fallback (3 of 12 were not, 09-30).
 - "Xóa bản dịch đã lưu" / "Xóa tất cả" in Settings also removes the saved videos of a batch.
 
 ## Suggested next step
