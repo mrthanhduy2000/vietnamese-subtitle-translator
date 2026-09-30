@@ -170,9 +170,11 @@ async function ytDonCache() {
         const tatCa = await chrome.storage.local.get(null);
         const cu = Object.keys(tatCa).filter(k => k.startsWith(YT_CACHE_CU) && !k.startsWith(YT_CACHE_PREFIX));
         // Terms unused for 60 days go, and so does an empty list: none is written since 2.3.1, and
-        // 43 of the user's 51 lists were left empty from before (a missing list reads the same)
+        // 43 of the user's 51 lists were left empty from before (a missing list reads the same).
+        // So does a channel list from before the stamp (content.js YT_TERMS_STAMP, 2.3.8)
         const ctxCu = Object.keys(tatCa).filter(k => k.startsWith("ctxterms_") &&
-            (Date.now() - ((tatCa[k] || {}).luc || 0) > 60 * 864e5 || !((tatCa[k] || {}).terms || []).length));
+            (Date.now() - ((tatCa[k] || {}).luc || 0) > 60 * 864e5 || !((tatCa[k] || {}).terms || []).length ||
+                !termsListUsable(k, tatCa[k])));
         cu.push(...ctxCu);
         if (cu.length) await chrome.storage.local.remove(cu);
         const keys = Object.keys(tatCa).filter(k => k.startsWith(YT_CACHE_PREFIX));

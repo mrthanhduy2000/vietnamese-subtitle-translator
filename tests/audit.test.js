@@ -364,10 +364,25 @@ test("channel terms: the cache sweep drops empty and old lists, keeps a live one
     const E = pageEnv({ youtube: true, local: {
         ctxterms_yt_empty: { luc: Date.now(), terms: [] },
         ctxterms_yt_old: { luc: Date.now() - 61 * day, terms: [["a b", "c", 1]] },
-        ctxterms_yt_live: { luc: Date.now(), terms: [["gradient descent", "hạ gradient", 2]] }
+        ctxterms_yt_live: { luc: Date.now(), v: 2, terms: [["gradient descent", "hạ gradient", 2]] },
+        // 2.3.8: a channel list from before the stamp was learned while vlogs passed for lectures
+        ctxterms_yt_unstamped: { luc: Date.now(), terms: [["Whole Foods", "thực phẩm hữu cơ", 1], ["pricey", "giá thành cao", 1]] },
+        ctxterms_coursera_course: { luc: Date.now(), terms: [["slash commands", "lệnh gạch chéo", 1]] }
     } });
     await E.run("ytDonCache()");
-    assert.deepEqual(Object.keys(E.store).filter(k => k.startsWith("ctxterms_")), ["ctxterms_yt_live"]);
+    assert.deepEqual(Object.keys(E.store).filter(k => k.startsWith("ctxterms_")).sort(), ["ctxterms_coursera_course", "ctxterms_yt_live"]);
+});
+
+test("channel terms: an unstamped YouTube list is not read, a stamped one and a course list are", async () => {
+    const E = pageEnv({ files: ["context-engine.js"], local: {
+        ctxterms_yt_old: { luc: Date.now(), terms: [["pricey", "giá thành cao", 1]] },
+        ctxterms_yt_new: { luc: Date.now(), v: 2, terms: [["gradient descent", "hạ gradient", 2]] },
+        ctxterms_course: { luc: Date.now(), terms: [["slash commands", "lệnh gạch chéo", 1], ["model context protocol", "[[__T1__]]", 1]] }
+    } });
+    const terms = async key => JSON.parse(await E.run(`createContextSession({ title: "x" }, ${JSON.stringify(key)}).then(s => JSON.stringify(s.exportTerms()))`));
+    assert.deepEqual(await terms("yt_old"), []);
+    assert.deepEqual(await terms("yt_new"), [["gradient descent", "hạ gradient", 2]]);
+    assert.deepEqual(await terms("course"), [["slash commands", "lệnh gạch chéo", 1]], "a placeholder is no translation");
 });
 
 // 2.3.3: left open, Settings asked the local voice server twice every 5 s for hours (5,082 requests
@@ -419,6 +434,7 @@ test("channel terms: a video that learned no terms writes no key", async () => {
     await new Promise(r => setTimeout(r, 40));
     assert.equal(writes().length, 1);
     assert.equal(writes()[0].ctxterms_yt_a.terms[0][0], "gradient descent");
+    assert.equal(writes()[0].ctxterms_yt_a.v, 2, "stamped, or the next video would not read it");
 });
 
 // 2.3.1: a window of sound captions only ("[Music]" between songs) is translated from a list: in the

@@ -23,12 +23,12 @@ syllable count and, 1.7.8, the English spans).
 it to `manifest.json` in dependency order (and to `importScripts`, `options.html`, the harness pages
 under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tests if it is a dubbing file).
 
-## Source (32 files, ~23,700 lines)
+## Source (32 files, ~23,800 lines)
 
 | File | Lines | Role | Global export |
 |---|---|---|---|
-| `youtube.js` | 2068 | YouTube engine: bridge handshake, track pick, timedtext parse, self-drawn overlay, prefetch pool, controls + quick menu | none (same-world sibling of `content.js`, reads its `state`) |
-| `content.js` | 2440 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
+| `youtube.js` | 2070 | YouTube engine: bridge handshake, track pick, timedtext parse, self-drawn overlay, prefetch pool, controls + quick menu | none (same-world sibling of `content.js`, reads its `state`) |
+| `content.js` | 2448 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
 | `options.html` | 1490 | Settings page, 4 tabs. ~850 lines are inline `<style>`; markup is only the rest | n/a |
 | `dub-engine.js` | 2259 | TTS providers + scheduler + video-clock sync + audio ducking | `CST_DUB_ENGINE` |
 | `background.js` | 1775 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access | n/a (message router) |
@@ -39,7 +39,7 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `dub-planner.js` | 950 | Pure function: text -> speech script -> prosody and timing. No I/O | `CST_DUB_PLAN` |
 | `glossary.js` | 1338 | Pure data: 19 domain term groups, `GLOSSARY_VI` settled Vietnamese renderings, normalize rules, proper nouns never to translate, `resolveEnabledGroups` | `CST_GLOSSARY_GROUPS` and friends (globalThis + module.exports) |
 | `dubbing.js` | 561 | Thin page-level dubbing controller: settings, provider pick, badge, hold-video-while-preparing, health line and diagnostics text (`describeHealth`, `diagnostics`) | `window.CST_DUB` |
-| `context-engine.js` | 507 | Domain detection + per-video sliding-window context sent with each translation | `CST_CONTEXT` |
+| `context-engine.js` | 536 | Domain detection + per-video sliding-window context sent with each translation | `CST_CONTEXT` |
 | `cst-cache.js` | 322 | Two-tier LRU cache (RAM -> IndexedDB) for translations and audio | `CST_CACHE` |
 | `dub-audio.js` | 609 | Pure WAV/PCM work: decode, rumble cut, hiss removal, normalize, silence, split; pause shaping (`alignStops` places the voice's stops on the text, `shapePauses` applies the prosody model's decisions) | `CST_DUB_AUDIO` |
 | `dub-prosody.js` | 831 | Pure prosody model (1.7.6): boundary value of every gap between words, pause roles and lengths, which of a take's stops to keep (dynamic program), breathing commas, the value of a segment cut; 1.8.0 clause frames (`constituents`), gap tiers, `signature` (VieNeu cache key), `tokenMap`. See `DUBBING.md` "Prosody model" | `CST_DUB_PROSODY` |
@@ -53,9 +53,9 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `transcript.js` | 391 | Transcript panel beside the player: jump to a line, search, edit a line, export .srt | `CST_TRANSCRIPT` |
 | `chrome-shim.js` | 174 | Fakes `chrome.*` so `popup.html` / `options.html` open outside the extension. Self-disables inside it | `window.chrome` |
 | `popup.html` | 165 | Popup markup | n/a |
-| `vi-quality.js` | 403 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
+| `vi-quality.js` | 419 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
 | `lang-detect.js` | 132 | Source-language decision without an API call | `CST_LANG` |
-| `version-history.js` | 1452 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
+| `version-history.js` | 1471 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
 | `version-check.js` | 55 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
 | `theme.js` | 42 | Light/Dark theme for the popup and settings page. Applies instantly from `localStorage` to avoid a flash, then syncs from `storage.sync`. Loaded by `popup.html` and `options.html` only, not a content script | `window.CST_THEME` |
 | `build-info.js` | 6 | **Generated** by `tools/bump-version.js`. Never edit | `CST_BUILD` |

@@ -616,13 +616,21 @@ function localFixes(translations, sources) {
 }
 
 // Luu thuat ngu da thong nhat theo khoa hoc / kenh de nhat quan giua cac bai
+// A YouTube channel's list carries this stamp; one without it is not read and the daily sweep drops
+// it (youtube.js ytDonCache). Every channel list in the user's storage was learned before 2.3.0,
+// while everyday videos were taken for technical ones, and held everyday words and a brand as
+// agreed terms ("Whole Foods = thực phẩm hữu cơ", "pricey = giá thành cao", "declutter = dọn dẹp").
+// Each later video of the channel sent them as [THUẬT NGỮ ĐÃ THỐNG NHẤT] and saved the list again,
+// so it never aged out. An everyday video learns no terms now (ContextSession.wantsTerms).
+const YT_TERMS_STAMP = 2;
+const termsListUsable = (key, list) => !!list && (!/^ctxterms_yt_/.test(key) || list.v === YT_TERMS_STAMP);
 let termSaveTimer = null;
 function saveSessionTermsSoon(session) {
     if (!session || !session.storageKey) return;
     clearTimeout(termSaveTimer);
     termSaveTimer = setTimeout(() => {
         // An everyday video learns no terms; 43 of 51 real keys were an empty list, one per channel
-        try { const terms = session.exportTerms(); if (terms.length) chrome.storage.local.set({ [session.storageKey]: { luc: Date.now(), terms } }); } catch (e) { /* bo qua */ }
+        try { const terms = session.exportTerms(); if (terms.length) chrome.storage.local.set({ [session.storageKey]: { luc: Date.now(), v: YT_TERMS_STAMP, terms } }); } catch (e) { /* bo qua */ }
     }, 1500);
 }
 
@@ -634,7 +642,7 @@ async function createContextSession(meta, storageKey) {
     if (session.storageKey) {
         try {
             const kq = await chrome.storage.local.get(session.storageKey);
-            if (kq && kq[session.storageKey]) session.importTerms(kq[session.storageKey].terms);
+            if (kq && termsListUsable(session.storageKey, kq[session.storageKey])) session.importTerms(kq[session.storageKey].terms);
         } catch (e) { /* bo qua */ }
     }
     return session;

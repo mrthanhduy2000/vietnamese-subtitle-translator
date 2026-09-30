@@ -4,6 +4,19 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.3.8", luc: "", ten: "Phụ đề sạch ghi chú nhạc giữa câu, gợi ý dịch cho video đời sống, bỏ thuật ngữ học sai",
+            y: [
+                "Phụ đề tự động của YouTube chèn \"[music]\" vào bất cứ chỗ nào có nhạc nền, kể cả giữa câu. Bản dịch thường bỏ đi nhưng đôi khi giữ lại, làm cụm từ bị cắt đôi trên màn hình (\"dễ dàng [nhạc] vệ sinh\"): 10 dòng trong 5 video bạn đã xem. Nay ghi chú nhạc nằm giữa câu được bỏ; ghi chú ở đầu dòng, cuối dòng hoặc giữa hai câu vẫn giữ. Dấu \">>\" (ký hiệu đổi người nói của phụ đề tiếng Anh) cũng được bỏ khỏi bản dịch: trước đây còn sót ở 5 trong 27 dòng. Video đã lưu được sửa khi mở lại, không tốn lượt dịch.",
+                "Danh sách gợi ý thành ngữ gửi kèm mỗi lượt dịch trước đây chỉ có cách nói của bài giảng. Đọc kỹ từng dòng 3 video đời sống bạn đã xem thì thấy nhiều cụm bị dịch từng chữ hoặc sai nghĩa: \"in my 20s\" thành \"ở độ tuổi 20\" (đúng ra là cả những năm ngoài hai mươi), \"dresser\" thành tủ quần áo, \"go viral\" thành \"trở nên phổ biến\", \"logistics\" của chuyến đi thành \"hậu cần\", \"declutter\" thành dọn dẹp nhà cửa. Nay có thêm 51 gợi ý cho các cụm này, xếp trước để không bị cắt khi đoạn có nhiều cụm. Trên 21 video đã lưu, chúng được gửi 74 lần. Chưa đo được trên video thật: mô hình có theo gợi ý hay không phải xem ở video kế tiếp.",
+                "Danh sách thuật ngữ đã thống nhất lưu theo kênh YouTube: cả 6 danh sách trong máy bạn được học từ trước bản 2.3.0, lúc video đời sống còn bị nhận nhầm là bài giảng kỹ thuật, nên chứa từ thường ngày và cả tên thương hiệu bị dịch (\"Whole Foods = thực phẩm hữu cơ\", \"pricey = giá thành cao\"). Mỗi video sau của kênh đó lại gửi chúng kèm lượt dịch như thuật ngữ bắt buộc và lưu lại, nên chúng không bao giờ hết hạn. Nay các danh sách cũ này không còn được dùng và bị xóa ở lần dọn hằng ngày; danh sách của khóa học Coursera giữ nguyên. Một thuật ngữ có bản dịch là mã giữ chỗ cũng không còn được lưu."
+            ],
+            bang: { cot: ["21 video bạn đã xem", "2.3.7", "Nay"], hang: [
+                ["Dòng có ghi chú nhạc cắt giữa câu", "10", "0"],
+                ["Dòng còn dấu \">>\"", "5", "0"],
+                ["Danh sách thuật ngữ kênh YouTube học sai còn được gửi đi", "6", "0"]
+            ] }
+        },
+        {
             v: "2.3.7", luc: "", ten: "Chữ cuối câu không còn thành nhóm câu riêng",
             y: [
                 "Khi một câu tiếng Anh dài chạm giới hạn 24 giây của nhóm câu ngay trước chữ cuối, chữ đó (\"mind.\", 0,72 giây) thành một nhóm riêng và bản dịch dồn nửa sau câu tiếng Việt vào đó. Trên video \"From Chaos to Calm...\" bạn xem sáng nay, giọng đọc phải nói 29 âm tiết trong 0,72 giây, trễ 6 giây và bỏ câu kế tiếp ở phút 31:43. Nay mẩu cuối câu ngắn (tới 40 ký tự, 2 giây) được nhập vào nhóm trước, chỉ khoảng lặng thật mới tách nó ra. Trên 16 video của bạn, thay đổi này chỉ chạm đúng 2 nhóm câu bị nhồi như vậy."

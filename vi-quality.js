@@ -355,9 +355,25 @@
         return { vi: known ? vi.join(" ") : "" };
     }
 
+    // ">>" is how the captions mark a new speaker. The model drops it from most lines and keeps it in
+    // a few (27 source lines with it in the user's cache, 5 kept), so the rest lose it here too; the
+    // voice takes its speaker turns from the source line (dub-planner.js detectSpeakerMark).
+    function dropTurnMarks(text, src) {
+        if (!text || !/>>/.test(src) || !/>>/.test(text)) return text;
+        const t = String(text).replace(/\s*>>+\s*/g, " ").replace(/\s{2,}/g, " ").trim();
+        return /[\p{L}\p{N}]/u.test(t) ? t : text;
+    }
+    // Automatic captions drop "[music]" wherever the background music is, inside a sentence too
+    // ("pays [music] for a gym membership"). The model leaves most of them out; the one it keeps
+    // cuts a phrase in two on screen ("dễ dàng [Âm nhạc] vệ sinh": 10 lines in 5 of the user's 21
+    // cached videos). Inside a sentence = after a word or a comma and before a lower-case word; a
+    // note at the start, at the end or between two sentences stays.
+    const MUSIC_INSIDE = /(?<=[\p{L}\p{N},])\s+\[Âm nhạc\]\s+(?=\p{Ll})/gu;
+
     function fixSoundNotes(vi, src) {
         return (vi || []).map((text, i) => {
             const s = String((src && src[i]) || "");
+            text = dropTurnMarks(text, s);
             if (!/[[(♪♫]/.test(s)) return text;
             const line = soundNoteLine(s);
             if (line && line.vi) return line.vi;              // even when the model gave nothing
@@ -393,7 +409,7 @@
                     return `[${word}]`;
                 });
             }
-            return out;
+            return counts.has("Âm nhạc") ? out.replace(MUSIC_INSIDE, " ") : out;
         });
     }
 

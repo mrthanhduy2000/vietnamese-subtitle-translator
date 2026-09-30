@@ -133,7 +133,33 @@
     };
 
     // Cụm động từ và thành ngữ: dịch theo nghĩa, không theo từng chữ
+    // Everyday talk first, so that the limit of phraseHintsFor never drops one of these for "kind of"
+    // or "a lot of". The user watches vlogs about home, money and habits far more than lectures, and
+    // every entry here came out word for word or with the wrong sense in the 3 videos read line by
+    // line for 2.3.8 ("in my 20s" as "ở độ tuổi 20" three times in one video, "dresser" as a
+    // wardrobe, "go viral" as "trở nên phổ biến", "the logistics of traveling" as "hậu cần"). Only
+    // phrases with one meaning: a hint is sent whenever the words appear.
+    const DECADES = {};      // "in my 20s" is a decade of one's life, not the age of 20
+    for (const who of ["my", "your", "our", "their", "his", "her"]) {
+        for (const [n, vi] of [["20", "hai mươi"], ["30", "ba mươi"], ["40", "bốn mươi"], ["50", "năm mươi"], ["60", "sáu mươi"]]) {
+            DECADES[`in ${who} ${n}s`] = `hồi ngoài ${vi}, những năm tuổi ${vi} (cả chục năm, không phải đúng ${n} tuổi)`;
+        }
+    }
     const PHRASES = {
+        ...DECADES,
+        "go viral": "gây sốt, lan truyền rầm rộ trên mạng", "went viral": "gây sốt, lan truyền rầm rộ trên mạng",
+        "going viral": "gây sốt, lan truyền rầm rộ trên mạng",
+        "jokes aside": "nói nghiêm túc thì", "a lot of the time": "nhiều khi, thường thì",
+        "feels off": "thấy có gì đó không ổn",
+        "add up": "cộng dồn lại thành nhiều ('doesn't add up' là không hợp lý)",
+        "adds up": "cộng dồn lại thành nhiều ('doesn't add up' là không hợp lý)",
+        "let go of": "thôi giữ, chia tay (món đồ); buông bỏ (cảm xúc)", "letting go": "thôi giữ, chia tay (món đồ); buông bỏ (cảm xúc)",
+        "limiting beliefs": "niềm tin tự giới hạn bản thân", "the logistics of": "khâu thu xếp (đi lại, ăn ở), không phải 'hậu cần'",
+        "declutter": "dọn bớt đồ, bỏ bớt đồ thừa (không phải lau chùi, dọn dẹp nhà cửa)",
+        "decluttering": "dọn bớt đồ, bỏ bớt đồ thừa (không phải lau chùi, dọn dẹp nhà cửa)",
+        "decluttered": "đã dọn bớt đồ, bỏ bớt đồ thừa", "storage unit": "kho thuê ngoài để chứa đồ",
+        "nightstand": "tủ đầu giường", "dresser": "tủ ngăn kéo (không phải tủ quần áo)", "chamomile": "cúc La Mã",
+        "audiobook": "sách nói", "audio book": "sách nói",
         "go over": "xem lại, rà lại", "go through": "đi qua từng phần, xem qua", "come up with": "nghĩ ra",
         "figure out": "tìm ra, hiểu ra", "set up": "thiết lập, cài đặt", "break down": "chia nhỏ, phân tích",
         "carry out": "thực hiện", "point out": "chỉ ra", "end up": "rốt cuộc lại", "turn out": "hóa ra",
@@ -313,6 +339,7 @@
     const personMention = t => hasName(t) || PERSON_NOUNS.some(n => new RegExp(`\\b(?:the|a|an|this|our|my) ${n}\\b`, "i").test(t));
 
     // ---------------- Trạng thái ngữ cảnh của một video / bài giảng ----------------
+    const PLACEHOLDER = /\[\[\s*\\?_*\s*T\s*\d+/i;
     const BUDGET = {
         topic: 320,          // tiêu đề + kênh/khóa + mô tả
         prevSource: 480,     // tiếng Anh ngay trước (tối đa 2 đơn vị)
@@ -471,7 +498,9 @@
                 if (!t || !t.en || !t.vi) continue;
                 const en = String(t.en).trim();
                 const vi = String(t.vi).trim();
-                if (en.length < 2 || en.length > 60 || vi.length > 80) continue;
+                // a glossary placeholder is no translation: "model context protocol = [[__T1__]]" was
+                // stored for a course and would name another term in a later request
+                if (en.length < 2 || en.length > 60 || vi.length > 80 || PLACEHOLDER.test(vi) || PLACEHOLDER.test(en)) continue;
                 const key = en.toLowerCase();
                 const cur = this.terms.get(key);
                 if (!cur) this.terms.set(key, { en, vi, count: 1, alt: {} });
@@ -494,7 +523,7 @@
 
         importTerms(list) {
             for (const item of list || []) {
-                if (!Array.isArray(item) || !item[0] || !item[1]) continue;
+                if (!Array.isArray(item) || !item[0] || !item[1] || PLACEHOLDER.test(item[1])) continue;
                 const key = String(item[0]).toLowerCase();
                 if (!this.terms.has(key)) this.terms.set(key, { en: item[0], vi: item[1], count: Number(item[2]) || 1, alt: {} });
             }

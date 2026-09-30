@@ -6,26 +6,27 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-30 · `2.3.7` review round 7 (lane A), from the user's two new videos on 2.3.6.
+2026-09-30 · `2.3.8` full check (lane A, plus `content.js` term storage), acting on round 7.
 
 ## What changed
-- Live check of 2.3.6 on H6k6I__93JM (10 min, 05:51) and krPKW8J6JSM (35 min, 06:03-06:37): no
-  line left whole at an inner sentence end, 0 quality flags / leaks / head repeats, windows within
-  limits (max 768 chars, 45 s), VieNeu 349 renders (simulator: 348), 1 slow, no errors.
-- `groupCuesIntoSentences`: a sentence's short last piece (<= 40 chars, <= 2 s) joins its group
-  past the 24 s / 520 char / 12 cue limits (by up to 3 s / 40 chars); only a pause closes before
-  it. The 24 s limit had closed a group 0.16 s before "mind." (krPKW8J6JSM, 1900.64 s): the model
-  put 29 syllables there, the voice fell 6 s behind and dropped the next line. Changes 2 groups on
-  the 16 videos, both crammed ones (the other: zPSs9a0MYGw, 15 syllables on 1.72 s).
+- Round 7 workflow `wf_d12e8ea3-347` died at the session limit (241 raw translation findings, no
+  synthesis, no engineering lens): synthesized by hand from its result file.
+- `fixSoundNotes`: a `[Âm nhạc]` inside a sentence is removed (10 lines in 5 of 21 cached videos),
+  so is ">>" when the source has it (kept in 5 of 27). Cached videos are repaired on load.
+- `context-engine.js` `PHRASES`: 51 everyday hints first ("in my 20s", "dresser", "go viral",
+  "declutter", "let go of"...), 74 fires on the cached videos, at most 6 in a window.
+- YouTube channel term lists need `v: 2` (`YT_TERMS_STAMP`): the 6 stored ones were learned before
+  2.3.0 ("Whole Foods = thực phẩm hữu cơ") and re-saved by every later video. A term whose
+  Vietnamese is a glossary placeholder is never stored.
 
 ## State
-- Tests: 620 pass, 0 fail, 1 skip. Reload: **yes** for 2.3.7 (`chrome://extensions`).
-- In progress: workflow `wf_d12e8ea3-347` (round 7 deep review: translation quality on the 3
-  newest videos by 13 readers + pattern verification; dub timing causes, 2.3.6 code, long-video
-  performance, storage growth, each finding verified by 3 skeptics). Its results are not acted on
-  yet; if this session ends, rerun it or read its journal under the session's `subagents/workflows`.
+- Tests: 623 pass, 0 fail, 1 skip. Reload: **yes** for 2.3.8 (`chrome://extensions`).
+- Checked and clean: the 2.3.6/2.3.7 diff; the 6 videos watched after 2.3.7 (0 refine flags, 0
+  words lost in `playback-sim --real`, 1-8 late starts each); storage 1.4 MB of the 10 MB quota.
 
 ## Unfinished / in progress
+- Not measured live: whether Gemini follows the new hints. Not done: a performance profile of a
+  35-minute video (needs the browser, not the simulator).
 - Not verified live: the voice reading "...at home. I feel..." in one breath (the user's ear), "có
   nghĩa là", DN and NHNN read Vietnamese (2.2.4).
 - Carried over: AI Studio vs cost card over one full Pacific day; the live harness (`?script=stress`,
@@ -34,10 +35,11 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 - Fast talkers with Mỹ Duyên: 24-30% of lines start >0.5 s late (known limit, quicker voices).
 
 ## Traps hit this session
-- Stored cues carry no `midLine`; rebuild it from each `midLine` group's first source cue before
-  regrouping cached lines (`/tmp` scripts `grpcmp.js`, `regroup.js` do this; not kept).
-- zsh does not word-split `set -- $var`: loop over `a:b` pairs with `${p%%:*}` / `${p##*:}`.
-- The simulator's render count matched the user's server log (348 vs 349): trust `--real` rows.
+- Decided against, do not redo: a system-prompt rule for dropped hedges and stiff register (no
+  offline way to compare, and a longer answer costs the voice time); segmenter changes for 3
+  compound splits in 444 groups ("dây | thần kinh"); "no." as an abbreviation (0 cases in the cache).
+- `$TMPDIR/yt` keeps dumps of videos already swept from storage: 21 files, 15 live keys.
+- krPKW8J6JSM, zPSs9a0MYGw: 1 dropped line each in the simulator, cached groups predate 2.3.7.
 
 ## Suggested next step
-- Act on the verified findings of the round 7 workflow, then a new punctuated video with the voice.
+- One new everyday video on 2.3.8, then dump the cache and read the hinted phrases ("in my 20s").

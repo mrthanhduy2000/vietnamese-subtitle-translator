@@ -348,7 +348,7 @@ test("sound captions: notes only are translated from a list, every note ends up 
     assert.equal(fix("[Musik] maha mahaun [Musik]", "Âm nhạc maha mahaun Âm nhạc"), "[Âm nhạc] maha mahaun [Âm nhạc]");
     assert.equal(fix("[Applause] your okay so", "Vỗ tay] Được rồi, vậy là"), "[Vỗ tay] Được rồi, vậy là");
     assert.equal(fix("[Music] the", "âm nhạc"), "[Âm nhạc]", "the note alone on the line");
-    assert.equal(fix("[Music] wait go here [Music] watch", "[Nhạc] khoan, để vào đây [Nhạc] xem nào"), "[Âm nhạc] khoan, để vào đây [Âm nhạc] xem nào");
+    assert.equal(fix("[Music] wait go here. [Music] Watch", "[Nhạc] khoan, để vào đây. [Nhạc] Xem nào"), "[Âm nhạc] khoan, để vào đây. [Âm nhạc] Xem nào");
     assert.equal(fix("He said (laughs) no", "Anh ấy nói (cười) không"), "Anh ấy nói [Tiếng cười] không");
     assert.equal(fix("[Music] hello", "[Music] xin chào"), "[Âm nhạc] xin chào", "a note left in English");
     // speech is never bracketed: lower case inside a sentence, a dropped note, a round aside
@@ -362,6 +362,33 @@ test("sound captions: notes only are translated from a list, every note ends up 
         const once = fix(src, vi);
         assert.equal(fix(src, once), once);
         assert.doesNotMatch(P.stripSoundNotes(once), /nhạc|vỗ tay/i, once);
+    }
+});
+
+// 2.3.8, from the user's cache: the recognizer writes "[music]" wherever the background music is and
+// ">>" at every speaker it hears; the model left most out and kept some (10 notes cutting a phrase in
+// two in 5 videos, ">>" in 5 of 27 lines)
+test("sound captions: a music note inside a sentence and the speaker marks are dropped", () => {
+    const Q = require("../vi-quality.js");
+    const fix = (src, vi) => Q.fixSoundNotes([vi], [src])[0];
+    assert.equal(fix("my friend who pays [music] for a gym membership", "cô ấy trả tiền [Âm nhạc] cho gói thành viên"), "cô ấy trả tiền cho gói thành viên");
+    assert.equal(fix("it's solid wood and it's easy [music] to clean. Check", "làm từ gỗ và dễ dàng [nhạc] vệ sinh. Bạn"), "làm từ gỗ và dễ dàng vệ sinh. Bạn");
+    assert.equal(fix("it is now [music] just an elaborate thing", "thì giờ đây, [âm nhạc] chúng chỉ là cái bẫy"), "thì giờ đây, chúng chỉ là cái bẫy");
+    assert.equal(fix("[Music] wait go here [Music] watch", "[Nhạc] khoan, để vào đây [Nhạc] xem nào"), "[Âm nhạc] khoan, để vào đây xem nào");
+    // at the start, at the end, between two sentences: the note stays
+    assert.equal(fix("[Music] I have become that plant lady", "[Âm nhạc] Tôi đã thành người mê cây"), "[Âm nhạc] Tôi đã thành người mê cây");
+    assert.equal(fix("purchase them myself [Music] it's quite easy", "tự mua nữa. [Âm nhạc] Việc tự làm khá dễ"), "tự mua nữa. [Âm nhạc] Việc tự làm khá dễ");
+    assert.equal(fix("take care [Music] bye [Music]", "giữ sức khỏe nhé. [Âm nhạc] Tạm biệt. [Âm nhạc]"), "giữ sức khỏe nhé. [Âm nhạc] Tạm biệt. [Âm nhạc]");
+    // only music: laughter or applause inside a sentence is something that happened
+    assert.equal(fix("He said [laughter] no", "Anh ấy nói [Tiếng cười] không"), "Anh ấy nói [Tiếng cười] không");
+    // ">>": dropped when the source line has it, with or without a note beside it
+    assert.equal(fix(">> [music] >> And of course, there are seasons", ">> [Âm nhạc] >> Và tất nhiên, có những lúc"), "[Âm nhạc] Và tất nhiên, có những lúc");
+    assert.equal(fix("I have no idea. >> Um, around $8,000. >> How many days?", "Tôi không rõ. >> Ừm, khoảng 8.000 đô la. >> Bao nhiêu ngày?"), "Tôi không rõ. Ừm, khoảng 8.000 đô la. Bao nhiêu ngày?");
+    assert.equal(fix("x > y means more", "x >> y nghĩa là lớn hơn nhiều"), "x >> y nghĩa là lớn hơn nhiều", "no mark in the source, nothing touched");
+    assert.equal(fix(">> >>", ">>"), ">>", "never an empty line");
+    for (const [src, vi] of [["pays [music] for it", "trả tiền [Âm nhạc] cho nó"], [">> [music] >> And so", ">> [Âm nhạc] >> Và thế là"]]) {
+        const once = fix(src, vi);
+        assert.equal(fix(src, once), once, "idempotent");
     }
 });
 

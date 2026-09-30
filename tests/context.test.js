@@ -67,6 +67,19 @@ test("cụm động từ / thành ngữ được nhận diện để dịch theo
     assert.match(h, /go over: xem lại/);
 });
 
+// 2.3.8: the user's vlogs got lecture idioms only; these came out word for word in real videos
+test("everyday phrases get a hint, and come before the common ones at the limit", () => {
+    const h = t => C.phraseHintsFor(t).join(" | ");
+    assert.match(h("In my 20s, I feel like I was constantly trying to improve myself."), /in my 20s: hồi ngoài hai mươi.*không phải đúng 20 tuổi/);
+    assert.match(h("She was in her 30s when a video went viral."), /in her 30s: .*ba mươi.* \| went viral: gây sốt/);
+    assert.match(h("The flowers sat on top of my dresser, next to the nightstand."), /nightstand: tủ đầu giường \| dresser: tủ ngăn kéo/);
+    assert.match(h("I love decluttering and I let go of those dried flowers."), /let go of: thôi giữ.*decluttering: dọn bớt đồ/);
+    assert.equal(h("I turned 20 in the 20s of the last century."), "", "only the decade of a life");
+    const many = C.phraseHintsFor("It kind of turns out that a lot of, a bunch of, sort of, we end up and figure out and set up and go over, in my 40s, the dresser.");
+    assert.equal(many.length, 8);
+    assert.ok(many.some(x => x.startsWith("in my 40s")) && many.some(x => x.startsWith("dresser")), many.join(" | "));
+});
+
 // ---------- Gói ngữ cảnh ----------
 function lecture() {
     const s = new C.ContextSession({ title: "Convolutional Neural Networks", course: "deep learning specialization", channel: "DeepLearning.AI" });

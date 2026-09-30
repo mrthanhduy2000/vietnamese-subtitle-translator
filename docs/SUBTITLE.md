@@ -90,6 +90,22 @@ groups); `fixSoundNotes(vi, src)` brackets the rest: an unknown note's line gets
 lone `]` too), capitalized or alone on the line. Lower-case words in a sentence stay ("buồn cười").
 Runs first in `trimTranslationLeaks` and `ytTrimLeaks` (counted apart from leaks, but returned, so
 `ytRepairCachedLeaks` fixes old caches). Measured after: 45 -> 1 read aloud.
+2.3.8, same function: a `[Âm nhạc]` inside a sentence (after a word or a comma, before a lower-case
+word) is removed, because the recognizer writes "[music]" wherever the background music is and the
+note cut a phrase in two on screen ("dễ dàng [nhạc] vệ sinh": 10 lines in 5 of 21 cached videos); at
+the start, at the end or between two sentences it stays, and so does laughter or applause anywhere.
+The speaker mark ">>" is removed from a translation whose source has it (kept in 5 of 27 lines, so
+it told the viewer nothing); the voice takes its turns from the source line.
+
+**Everyday phrase hints (2.3.8).** `context-engine.js` `PHRASES` held lecture idioms only, while the
+user watches vlogs about home, money and habits. The round 7 reading of 3 real videos (241 findings
+by 14 readers, 155 of them severity 2 or 3) found these word for word or in the wrong sense: "in my 20s" as
+"ở độ tuổi 20", "dresser" as a wardrobe, "go viral", "the logistics of", "declutter" as housework,
+"let go of" as "loại bỏ". They now lead `PHRASES` (so the limit of 8 never drops one for "kind of")
+and fire 74 times over the 21 cached videos, 6 at most in a window. **Not measured live**: whether
+Gemini follows each hint shows only on the next video. The rest of those findings (dropped hedges,
+stiff register, a term drifting inside one video, brand names the recognizer misheard) have no local
+fix; a system-prompt change for them was not made because it cannot be compared offline.
 
 **Video title (2.3.1).** `content.js` `pageVideoTitle()` is the one title for the cost ledger
 (`currentVideoMeta`, `dubbing.js` `videoMeta`), `getStatus`, both transcript panels and edits. On
@@ -326,8 +342,11 @@ not stack two dubbing voices. Keep it.
 `modelAccess` per-API-key model availability, keyed by a SHA-256 hash of the key, 3-day TTL; a refusal repeated right after a lapse doubles it (`ttl`, cap 30 days, 2.2.2); a lapsed refusal is kept 60 days so `likelyModel` names the next model and the Settings cards say it will be retried once ·
 `costLedger` daily cost ledger (2.1.0: every billed request is charged through `geminiCall`'s `policy.onBilled`, also thrown-away answers and our own timeouts, which Google still bills; `inTok`/`outTok`/`estCalls` added; 2.1.1: `thoughtTok`, `cachedTok`, `byModel`) · `costHistory` the same text-call totals keyed by Google's billing day (Pacific time, `pacificDay()`), last 31 days, kept by `costReset` · `costTokenRatio` measured characters per token for estimates · `ytcache4_<videoId>` cached YouTube translations (an older
 `ytcache` prefix exists; swept once a day, `ytSweptAt`, since the sweep reads all of storage.local) ·
-`ctxterms_<key>` agreed context terms (an empty list is never written, 2.3.1; the sweep drops one
-left from before, 2.3.3) · plus the `cst-cache` IndexedDB
+`ctxterms_<key>` agreed context terms `{ luc, v, terms }` (an empty list is never written, 2.3.1; the
+sweep drops one left from before, 2.3.3; a `ctxterms_yt_` list without `v: 2` is neither read nor
+kept, 2.3.8: all 6 of the user's were learned before 2.3.0 fixed domain detection, held "Whole Foods
+= thực phẩm hữu cơ", "pricey = giá thành cao", and every later video of the channel re-saved them; a
+term whose Vietnamese is a glossary placeholder is never stored) · plus the `cst-cache` IndexedDB
 database, which is separate (see `DUBBING.md`).
 
 ### `chrome.storage.session`
