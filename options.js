@@ -487,6 +487,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!r || !r.ok || !r.tr || !r.audio) { if (trEl) trEl.textContent = "Chưa đọc được (mở trang này từ trong tiện ích)."; if (auEl) auEl.textContent = ""; return; }
         if (trEl) trEl.textContent = `${fmtMB(r.tr.bytes + (r.local ? r.local.bytes : 0))} · ${r.tr.count} đoạn (tối đa ${fmtMB(r.tr.maxBytes)})`;
         if (auEl) auEl.textContent = `${fmtMB(r.audio.bytes)} · ${r.audio.count} đoạn audio (tối đa ${fmtMB(r.audio.maxBytes)})`;
+        // Saved videos and how many are new since the last quality review (background.js REVIEW_MARK)
+        const v = r.videos, vidEl = document.getElementById("cacheVideos"), revEl = document.getElementById("cacheReview");
+        if (!v) return;
+        if (vidEl) vidEl.textContent = `${v.count} / ${v.max} video · khoảng ${fmtMB(v.bytes)}. Video thứ ${v.max + 1} sẽ thay video cũ nhất.`;
+        if (revEl) {
+            const day = new Date(v.until).toLocaleDateString("vi-VN");
+            const range = v.fresh > 1 ? ` (số ${v.reviewed + 1} đến ${v.reviewed + v.fresh})` : v.fresh === 1 ? ` (số ${v.reviewed + 1})` : "";
+            revEl.textContent = `Đã rà soát video số 1 đến ${v.reviewed}, tới ngày ${day}. Video mới chưa rà soát: ${v.fresh} / ${v.max}${range}.` +
+                (v.fresh >= v.max ? " Đã đủ, hãy nhắn Claude rà soát." : "");
+        }
     }
     const clearCache = which => async () => {
         const label = { tr: "bản dịch", audio: "audio", all: "toàn bộ bộ nhớ đệm" }[which];

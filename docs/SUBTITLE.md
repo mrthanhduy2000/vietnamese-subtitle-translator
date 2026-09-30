@@ -341,7 +341,11 @@ not stack two dubbing voices. Keep it.
 
 `modelAccess` per-API-key model availability, keyed by a SHA-256 hash of the key, 3-day TTL; a refusal repeated right after a lapse doubles it (`ttl`, cap 30 days, 2.2.2); a lapsed refusal is kept 60 days so `likelyModel` names the next model and the Settings cards say it will be retried once ·
 `costLedger` daily cost ledger (2.1.0: every billed request is charged through `geminiCall`'s `policy.onBilled`, also thrown-away answers and our own timeouts, which Google still bills; `inTok`/`outTok`/`estCalls` added; 2.1.1: `thoughtTok`, `cachedTok`, `byModel`) · `costHistory` the same text-call totals keyed by Google's billing day (Pacific time, `pacificDay()`), last 31 days, kept by `costReset` · `costTokenRatio` measured characters per token for estimates · `ytcache4_<videoId>` cached YouTube translations (an older
-`ytcache` prefix exists; swept once a day, `ytSweptAt`, since the sweep reads all of storage.local) ·
+`ytcache` prefix exists; swept once a day, `ytSweptAt`, since the sweep reads all of storage.local;
+the newest 50 are kept and at most 8 MB, 2.3.9: measured 90 KB a video, 6.8 KB a minute, against the
+10 MB of storage.local. Saved only once the whole video is translated and no group fell back to
+Google. Settings shows the count and how many were saved since the last review: `background.js`
+`REVIEW_MARK` `{ until, videos }`, **moved by the session that finishes a batch review**) ·
 `ctxterms_<key>` agreed context terms `{ luc, v, terms }` (an empty list is never written, 2.3.1; the
 sweep drops one left from before, 2.3.3; a `ctxterms_yt_` list without `v: 2` is neither read nor
 kept, 2.3.8: all 6 of the user's were learned before 2.3.0 fixed domain detection, held "Whole Foods

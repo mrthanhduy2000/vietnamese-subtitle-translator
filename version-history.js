@@ -4,6 +4,18 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.3.9", luc: "", ten: "Lưu tới 50 video, có bộ đếm video mới chờ rà soát",
+            y: [
+                "Tiện ích trước đây chỉ giữ bản dịch của 15 video YouTube gần nhất. Nay giữ 50 video, để bạn xem một đợt dài rồi mới nhờ rà soát cả đợt trên dữ liệu thật. Đo trên 15 video đang lưu: 1,32 MB, trung bình 90 KB mỗi video (khoảng 6,8 KB mỗi phút video), nên 50 video cỡ đó chiếm khoảng 4,4 MB. Trình duyệt chỉ cho tiện ích 10 MB, vì vậy có thêm trần 8 MB: nếu bạn xem toàn video rất dài, video cũ nhất sẽ nhường chỗ sớm hơn mốc 50.",
+                "Trang Cài đặt, thẻ Bộ nhớ đệm có thêm hai dòng: số video YouTube đang lưu kèm dung lượng, và số video mới chưa rà soát. Mốc hiện tại: đã rà soát video số 1 đến 21, tới ngày 30/09/2026. Khi số video mới đủ nhiều (tối đa 50), bạn nhắn để rà soát; rà xong thì mốc được dời lên."
+            ],
+            bang: { cot: ["Bộ nhớ bản dịch video", "2.3.8", "Nay"], hang: [
+                ["Số video giữ lại", "15", "50"],
+                ["Dung lượng ước tính khi đầy (video 13 phút)", "1,3 MB", "4,4 MB"],
+                ["Trần dung lượng", "không có", "8 MB"]
+            ] }
+        },
+        {
             v: "2.3.8", luc: "", ten: "Phụ đề sạch ghi chú nhạc giữa câu, gợi ý dịch cho video đời sống, bỏ thuật ngữ học sai",
             y: [
                 "Phụ đề tự động của YouTube chèn \"[music]\" vào bất cứ chỗ nào có nhạc nền, kể cả giữa câu. Bản dịch thường bỏ đi nhưng đôi khi giữ lại, làm cụm từ bị cắt đôi trên màn hình (\"dễ dàng [nhạc] vệ sinh\"): 10 dòng trong 5 video bạn đã xem. Nay ghi chú nhạc nằm giữa câu được bỏ; ghi chú ở đầu dòng, cuối dòng hoặc giữa hai câu vẫn giữ. Dấu \">>\" (ký hiệu đổi người nói của phụ đề tiếng Anh) cũng được bỏ khỏi bản dịch: trước đây còn sót ở 5 trong 27 dòng. Video đã lưu được sửa khi mở lại, không tốn lượt dịch.",

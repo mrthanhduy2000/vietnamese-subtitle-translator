@@ -687,6 +687,31 @@ test("hai yêu cầu dịch GIỐNG HỆT nhau cùng lúc (luồng dịch trư�
     assert.equal(gem, 1);
 });
 
+// 2.3.9: Settings counts the saved videos and the ones saved since the last quality review
+test("cache stats: saved videos, their size, and how many are new since the review mark", async () => {
+    const mark = Number(fs.readFileSync(path.join(__dirname, "../background.js"), "utf8").match(/const REVIEW_MARK = \{ until: (\d+), videos: (\d+) \}/)[1]);
+    const local = {
+        ytcache4_old: { luc: mark - 1000, cues: [], vi: [], g: [] },
+        ytcache4_last: { luc: mark, cues: [], vi: [], g: [] },
+        ytcache4_new1: { luc: mark + 1, cues: [], vi: [[0, 1, "xin chào"]], g: [] },
+        ytcache4_new2: { luc: mark + 5000, cues: [], vi: [], g: [] },
+        ytcache_legacy: { luc: mark + 9000 },
+        ctxterms_yt_a: { luc: mark + 9000, v: 2, terms: [] }
+    };
+    const st = await bgEnv(async () => reply({ t: ["x"] }), cfgK, { local }).send({ action: "cacheStats" });
+    assert.equal(st.ok, true);
+    assert.equal(st.videos.count, 4);
+    assert.equal(st.videos.fresh, 2, "the video the review ended on is not new");
+    assert.equal(st.videos.max, 50);
+    assert.ok(st.videos.reviewed >= 21 && st.videos.until === mark);
+    assert.ok(st.videos.bytes > 100 && st.videos.bytes < 1000);
+    assert.equal(st.local.count, 6, "the older total still counts every cache key");
+    const js = fs.readFileSync(path.join(__dirname, "../options.js"), "utf8"), html = fs.readFileSync(path.join(__dirname, "../options.html"), "utf8");
+    assert.match(html, /id="cacheVideos"/);
+    assert.match(html, /id="cacheReview"/);
+    assert.match(js, /Video mới chưa rà soát: \$\{v\.fresh\} \/ \$\{v\.max\}/);
+});
+
 test("IndexedDB hỏng (mọi thao tác lỗi): vẫn dịch bằng API bình thường, không làm chết tiện ích", async () => {
     const broken = new Proxy({}, { get: () => async () => { throw new Error("QuotaExceededError"); } });
     let gem = 0;

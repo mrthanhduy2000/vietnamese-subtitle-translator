@@ -1461,21 +1461,34 @@ async function handleAudioCacheGet(req) {
 }
 
 // ---- Quản lý bộ nhớ đệm (trang Cài đặt) ----
+// The saved-video counter in Settings. The user watches a batch of new videos, then asks for a review
+// of the whole batch from the cache; REVIEW_MARK is where the last review stopped. The session that
+// finishes a review moves it: `until` = the newest reviewed video's `luc` (node tools/ext-storage.js
+// --prefix=ytcache4_), `videos` = how many were reviewed in all. A video saved after `until` is new.
+// YT_SAVED_MAX mirrors youtube.js YT_CACHE_TOI_DA (a test keeps the two equal).
+const REVIEW_MARK = { until: 1790735951912, videos: 21 };      // 2026-09-30, round 7 and the 2.3.8 check
+const YT_SAVED_MAX = 50;
 async function localCacheBytes() {
     const all = await new Promise(r => chrome.storage.local.get(null, r));
     let bytes = 0, count = 0;
+    const videos = { count: 0, bytes: 0, fresh: 0, max: YT_SAVED_MAX, reviewed: REVIEW_MARK.videos, until: REVIEW_MARK.until };
     for (const [k, v] of Object.entries(all)) {
         if (!/^ytcache|^ctxterms_/.test(k)) continue;
-        bytes += JSON.stringify(v).length * 2;
+        const chars = JSON.stringify(v).length;
+        bytes += chars * 2;
         count++;
+        if (!/^ytcache4_/.test(k)) continue;
+        videos.count++;
+        videos.bytes += Math.round(chars * 1.15);              // UTF-8, as youtube.js ytCacheBytes
+        if (((v && v.luc) || 0) > REVIEW_MARK.until) videos.fresh++;
     }
-    return { bytes, count, keys: Object.keys(all).filter(k => /^ytcache|^ctxterms_/.test(k)) };
+    return { bytes, count, videos, keys: Object.keys(all).filter(k => /^ytcache|^ctxterms_/.test(k)) };
 }
 
 async function handleCacheStats() {
     if (!caches) return { ok: false, error: "Không có IndexedDB" };
     const [tr, audio, local] = await Promise.all([caches.tr.info(), caches.audio.info(), localCacheBytes()]);
-    return { ok: true, tr, audio, local: { bytes: local.bytes, count: local.count } };
+    return { ok: true, tr, audio, local: { bytes: local.bytes, count: local.count }, videos: local.videos };
 }
 
 async function handleCacheClear(req) {

@@ -6,27 +6,29 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-30 · `2.3.8` full check (lane A, plus `content.js` term storage), acting on round 7.
+2026-09-30 · `2.3.9` saved-video counter (lanes A, C, D), after the `2.3.8` full check.
 
 ## What changed
-- Round 7 workflow `wf_d12e8ea3-347` died at the session limit (241 raw translation findings, no
-  synthesis, no engineering lens): synthesized by hand from its result file.
-- `fixSoundNotes`: a `[Âm nhạc]` inside a sentence is removed (10 lines in 5 of 21 cached videos),
-  so is ">>" when the source has it (kept in 5 of 27). Cached videos are repaired on load.
-- `context-engine.js` `PHRASES`: 51 everyday hints first ("in my 20s", "dresser", "go viral",
-  "declutter", "let go of"...), 74 fires on the cached videos, at most 6 in a window.
-- YouTube channel term lists need `v: 2` (`YT_TERMS_STAMP`): the 6 stored ones were learned before
-  2.3.0 ("Whole Foods = thực phẩm hữu cơ") and re-saved by every later video. A term whose
-  Vietnamese is a glossary placeholder is never stored.
+- 2.3.9: the video cache keeps 50 videos (was 15) and at most 8 MB (`youtube.js` `ytDonCache`).
+  Settings, cache card: saved videos with size, and videos new since the last review
+  (`background.js` `REVIEW_MARK { until, videos }`, now 21 videos up to 2026-09-30).
+- 2.3.8: `fixSoundNotes` drops a `[Âm nhạc]` inside a sentence and ">>"; 51 everyday phrase hints
+  lead `PHRASES`; YouTube channel term lists need `v: 2` (the 6 stored ones were learned wrongly).
 
 ## State
-- Tests: 623 pass, 0 fail, 1 skip. Reload: **yes** for 2.3.8 (`chrome://extensions`).
-- Checked and clean: the 2.3.6/2.3.7 diff; the 6 videos watched after 2.3.7 (0 refine flags, 0
-  words lost in `playback-sim --real`, 1-8 late starts each); storage 1.4 MB of the 10 MB quota.
+- Tests: 625 pass, 0 fail, 1 skip. Reload: **yes** for 2.3.9 (`chrome://extensions`).
+- The user judges the extension saturated: **no more unasked fixes**. The agreed way of working: the
+  user watches a batch of new videos (up to 50), then asks for a review of the batch. Review =
+  report numbers against the thresholds first; change code only when the user says so.
+- The session that finishes a batch review moves `REVIEW_MARK`: `until` = the newest reviewed
+  video's `luc`, `videos` = the running total (`node tools/ext-storage.js --prefix=ytcache4_`).
 
 ## Unfinished / in progress
-- Not measured live: whether Gemini follows the new hints. Not done: a performance profile of a
-  35-minute video (needs the browser, not the simulator).
+- Waiting for the user's batch. Then measure per video: words lost and late starts
+  (`playback-sim --real`), empty lines, refine flags, music notes inside a sentence, ">>", cost,
+  and whether the hinted phrases ("in my 20s", "dresser", "declutter") came out right.
+- The counter in Settings was not seen in a real browser (the stats need the extension context).
+- Not done: a performance profile of a 35-minute video (needs the browser, not the simulator).
 - Not verified live: the voice reading "...at home. I feel..." in one breath (the user's ear), "có
   nghĩa là", DN and NHNN read Vietnamese (2.2.4).
 - Carried over: AI Studio vs cost card over one full Pacific day; the live harness (`?script=stress`,
@@ -36,10 +38,10 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 
 ## Traps hit this session
 - Decided against, do not redo: a system-prompt rule for dropped hedges and stiff register (no
-  offline way to compare, and a longer answer costs the voice time); segmenter changes for 3
-  compound splits in 444 groups ("dây | thần kinh"); "no." as an abbreviation (0 cases in the cache).
-- `$TMPDIR/yt` keeps dumps of videos already swept from storage: 21 files, 15 live keys.
-- krPKW8J6JSM, zPSs9a0MYGw: 1 dropped line each in the simulator, cached groups predate 2.3.7.
+  offline way to compare); segmenter changes for 3 compound splits in 444 groups.
+- A video is saved only once fully translated and with no Google fallback: one left halfway is in
+  the cost ledger but not in the cache (3 of 12 on 2026-09-30).
+- "Xóa bản dịch đã lưu" / "Xóa tất cả" in Settings also removes the saved videos of a batch.
 
 ## Suggested next step
-- One new everyday video on 2.3.8, then dump the cache and read the hinted phrases ("in my 20s").
+- Nothing until the user asks. Then the batch review above, and move `REVIEW_MARK`.

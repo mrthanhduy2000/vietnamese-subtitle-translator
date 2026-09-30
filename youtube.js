@@ -118,7 +118,14 @@ function ytApDungKieuPhuDe(overlay) {
 // chua ma "[[__T0__]]" bi lot) duoc xoa bo.
 const YT_CACHE_PREFIX = "ytcache4_";   // v4: kem nhom cau + ban dich co ngu canh cho long tieng (1.1.2)
 const YT_CACHE_CU = "ytcache";
-const YT_CACHE_TOI_DA = 15;
+// 50 videos (2.3.9, was 15): the user watches a batch, then has the whole batch reviewed from this
+// cache (background.js REVIEW_MARK counts the ones saved since the last review). Measured on the 15
+// saved on 2026-09-30: 1.32 MB, 90 KB a video, 6.8 KB a minute; 50 such videos are ~4.4 MB, but 50
+// of 35 minutes would be ~12 MB and storage.local holds 10 MB in all, so bytes are capped too.
+const YT_CACHE_TOI_DA = 50;
+const YT_CACHE_MAX_BYTES = 8 * 1048576;
+// UTF-8 bytes of a stored value, near enough: Vietnamese text is 1.15 bytes a character (measured)
+const ytCacheBytes = v => Math.round(JSON.stringify(v).length * 1.15);
 
 async function ytDocCache(videoId) {
     if (!videoId) return null;
@@ -178,14 +185,19 @@ async function ytDonCache() {
         cu.push(...ctxCu);
         if (cu.length) await chrome.storage.local.remove(cu);
         const keys = Object.keys(tatCa).filter(k => k.startsWith(YT_CACHE_PREFIX));
-        if (keys.length <= YT_CACHE_TOI_DA) return;
         keys.sort((a, b) => (tatCa[a].luc || 0) - (tatCa[b].luc || 0));
-        const xoa = keys.slice(0, keys.length - YT_CACHE_TOI_DA);
-        await chrome.storage.local.remove(xoa);
+        // oldest first, until both the count and the bytes fit; the newest video always stays
+        let bytes = keys.reduce((n, k) => n + ytCacheBytes(tatCa[k]), 0);
+        const xoa = [];
+        while (keys.length - xoa.length > 1 && (keys.length - xoa.length > YT_CACHE_TOI_DA || bytes > YT_CACHE_MAX_BYTES)) {
+            bytes -= ytCacheBytes(tatCa[keys[xoa.length]]);
+            xoa.push(keys[xoa.length]);
+        }
+        if (xoa.length) await chrome.storage.local.remove(xoa);
     } catch (e) { /* bo qua */ }
 }
 
-// Every YouTube tab ran ytDonCache on load, and it reads ALL of storage.local (up to 15 saved videos,
+// Every YouTube tab ran ytDonCache on load, and it reads ALL of storage.local (up to 50 saved videos,
 // the viewer's edits, the cost ledger: megabytes) only to find stale keys. Once a day is enough; a
 // save (ytGhiCache) still sweeps after itself.
 async function ytSweepCacheDaily() {
