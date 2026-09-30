@@ -387,3 +387,20 @@ test("caption lines are cut at a sentence end inside them, timed by word times o
     assert.match(yt, /g\.viCues\.map\(c => \[r\(c\.start\), r\(c\.end\), c\.cstOrig \? c\.cstOrig\.text : c\.text\]\),\n\s+g\.midLine \? 1 : 0\n/);
     assert.match(yt, /\.\.\.\(g\[5\] \? \{ midLine: true \} : \{\}\)/);
 });
+
+// 2.3.7: the 24 s limit closed a group 0.16 s before its sentence's last word ("mind."), which then
+// made a group of its own; the model put half the sentence's Vietnamese there and the voice, with
+// 29 syllables for 0.72 s, fell 6 s behind and dropped the next line (krPKW8J6JSM)
+test("a sentence's short last piece joins its group past the length limits, not past a pause", async () => {
+    const env = contentEnv(async () => ({ ok: true }));
+    await ready(env);
+    const run = (n, dur) => Array.from({ length: n }, (_, k) => ({ start: k * dur, end: (k + 1) * dur, text: `part ${k} of one long sentence that runs on` }));
+    const lines = [...run(10, 2.34), { start: 23.4, end: 24.12, text: "mind." }, { start: 24.12, end: 26, text: "Number 14 is spillover clutter." }];
+    const groups = [...env.groupCuesIntoSentences(lines, false)];
+    assert.deepEqual(groups.map(g => g.text.split(" ").slice(-1)[0]), ["mind.", "clutter."]);
+    // a pause still closes the group, and a longer last piece does not stretch it
+    const paused = [...run(10, 2.34), { start: 25.5, end: 26.2, text: "mind." }];
+    assert.equal([...env.groupCuesIntoSentences(paused, false)].length, 2);
+    const long = [...run(10, 2.34), { start: 23.4, end: 25.9, text: "and every other thing that you keep around." }];
+    assert.equal([...env.groupCuesIntoSentences(long, false)].length, 2);
+});

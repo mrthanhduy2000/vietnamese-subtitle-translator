@@ -28,7 +28,7 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | File | Lines | Role | Global export |
 |---|---|---|---|
 | `youtube.js` | 2068 | YouTube engine: bridge handshake, track pick, timedtext parse, self-drawn overlay, prefetch pool, controls + quick menu | none (same-world sibling of `content.js`, reads its `state`) |
-| `content.js` | 2432 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
+| `content.js` | 2440 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
 | `options.html` | 1490 | Settings page, 4 tabs. ~850 lines are inline `<style>`; markup is only the rest | n/a |
 | `dub-engine.js` | 2259 | TTS providers + scheduler + video-clock sync + audio ducking | `CST_DUB_ENGINE` |
 | `background.js` | 1775 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access | n/a (message router) |

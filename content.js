@@ -898,15 +898,26 @@ function groupCuesIntoSentences(cues, perCueMode) {
         const text = plainCueText(cues[i]);
         if (!text) continue;
 
+        const isAbbr = /\b(?:e\.g|i\.e|vs|fig|dr|prof|mr|ms|approx|dept|vol|no|etc|al|eq|sec|pp?)\.$/i.test(text);
+        const isEllipsis = /(?:\.{3,}|…)$/.test(text);
+        const endsSentence = /[.!?]["')\]]?$/.test(text) && !isAbbr && !isEllipsis;
+
         if (cur.length > 0) {
             const prev = cues[cur[cur.length - 1]];
             const gap = cueStart(cues[i]) - cueEnd(prev);
             const span = cueEnd(cues[i]) - cueStart(cues[cur[0]]);
+            // A sentence's short last piece ("mind.", 0.72 s) joins the group a limit would close
+            // before it, by a little: alone it made a group of its own, and the model put half the
+            // sentence's Vietnamese there (2.3.7: krPKW8J6JSM 29 syllables on 0.72 s, the voice fell
+            // 6 s behind and dropped the next line; zPSs9a0MYGw 15 on 1.72 s). Those are the only 2
+            // groups this changes on the user's 16 videos. Only a pause still closes before it.
+            const lastPiece = endsSentence && text.length <= 40 && cueEnd(cues[i]) - cueStart(cues[i]) <= 2 &&
+                span <= GROUP_MAX_SECONDS + 3 && chars + text.length + 1 <= GROUP_HARD_CHARS + 40 && cur.length <= GROUP_HARD_CUES;
             // Khoang lang dai (chuyen slide, doi y) hoac nhom da cham gioi han cung
-            if ((typeof gap === "number" && gap > GROUP_PAUSE_SECONDS) ||
+            if ((typeof gap === "number" && gap > GROUP_PAUSE_SECONDS) || (!lastPiece && (
                 chars + text.length + 1 > GROUP_HARD_CHARS ||
                 cur.length >= GROUP_HARD_CUES ||
-                span > GROUP_MAX_SECONDS) {
+                span > GROUP_MAX_SECONDS))) {
                 closeGroup();
             }
         }
@@ -914,9 +925,6 @@ function groupCuesIntoSentences(cues, perCueMode) {
         cur.push(i);
         chars += text.length + 1;
 
-        const isAbbr = /\b(?:e\.g|i\.e|vs|fig|dr|prof|mr|ms|approx|dept|vol|no|etc|al|eq|sec|pp?)\.$/i.test(text);
-        const isEllipsis = /(?:\.{3,}|…)$/.test(text);
-        const endsSentence = /[.!?]["')\]]?$/.test(text) && !isAbbr && !isEllipsis;
         if (endsSentence) {
             closeGroup();
             continue;

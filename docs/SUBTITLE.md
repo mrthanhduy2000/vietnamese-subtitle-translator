@@ -18,6 +18,11 @@ runs in the same world, reading `content.js`'s `state` and `CST_UI` directly (no
    `vi` map (from `GLOSSARY_VI`, 1.8.5) is restored as that Vietnamese, not the English
    (`translateAsFor` folds plurals; user keep-list and `=>` rules override it).
 3. `groupCuesIntoSentences` merges cues into sentence units (or keeps them per-cue if `perCueMode`).
+   A group closes at a sentence end, a pause over 1.5 s, or 24 s / 520 characters / 12 cues. A
+   sentence's short last piece (up to 40 characters and 2 s) joins past those limits, by up to 3 s /
+   40 characters (2.3.7): alone it was a group of its own ("mind.", 0.72 s) and the model put half
+   the sentence's Vietnamese there, 29 syllables the voice could not fit (krPKW8J6JSM dropped the
+   next line). It changes 2 groups on the user's 16 videos, the 2 crammed ones.
 4. `translateAllGroups` / `translateWindow` -> `requestUnit`, the **only** bridge to the service
    worker. `CST_CONTEXT` attaches a sliding window of 2 previous and 2 next cues plus domain and
    term hints, char-budgeted.

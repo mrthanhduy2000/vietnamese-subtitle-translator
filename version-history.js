@@ -4,6 +4,12 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.3.7", luc: "", ten: "Chữ cuối câu không còn thành nhóm câu riêng",
+            y: [
+                "Khi một câu tiếng Anh dài chạm giới hạn 24 giây của nhóm câu ngay trước chữ cuối, chữ đó (\"mind.\", 0,72 giây) thành một nhóm riêng và bản dịch dồn nửa sau câu tiếng Việt vào đó. Trên video \"From Chaos to Calm...\" bạn xem sáng nay, giọng đọc phải nói 29 âm tiết trong 0,72 giây, trễ 6 giây và bỏ câu kế tiếp ở phút 31:43. Nay mẩu cuối câu ngắn (tới 40 ký tự, 2 giây) được nhập vào nhóm trước, chỉ khoảng lặng thật mới tách nó ra. Trên 16 video của bạn, thay đổi này chỉ chạm đúng 2 nhóm câu bị nhồi như vậy."
+            ]
+        },
+        {
             v: "2.3.6", luc: "", ten: "Giọng đọc không bỏ sót câu đến muộn, lượt dịch YouTube không còn phình to",
             y: [
                 "Khi bản dịch của đoạn kế tiếp về đúng lúc giọng đang đọc câu ngay trước nó, phần đầu đoạn mới từng bị ghép vào câu đang đọc và không bao giờ được đọc. Lỗi có từ bản 1.6.7 và chỉ xảy ra khi bản dịch về sát giờ (sau khi tua, mạng chậm). Nay phần đó được đọc thành câu riêng. Mô phỏng trên video bạn vừa xem với bản dịch về trễ: số chữ không được đọc từ 18-38 còn 4-24, không chữ nào bị đọc hai lần; bản dịch về sớm như thường lệ thì giọng đọc y như cũ.",
