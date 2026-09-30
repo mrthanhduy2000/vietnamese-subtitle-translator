@@ -222,3 +222,7 @@ Two traps in `ui.test.js` that cost a session real time:
 - Real translations without Chrome: `node tools/ext-storage.js --prefix=ytcache4_ --out=$TMPDIR/yt` dumps the
   user's cached videos (2.3.0 measured the domain detector, the doubled-word rule and the head repeat on
   them: 15 videos, 531 groups). Read-only; score old against new with `git show HEAD:<file>`.
+- `review-archive/<date>-videos-<a>-<b>/` (git-ignored, local only): the dumps of every batch already
+  reviewed. The user may delete reviewed videos from the extension (Settings, "Xóa video đã rà soát",
+  2.4.1), so **copy a batch here before moving `REVIEW_MARK`**: it is the baseline a later change is
+  scored against (`node tools/playback-sim.js --real=review-archive/<folder>`).

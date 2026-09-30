@@ -495,7 +495,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (revEl) {
             const day = new Date(v.until).toLocaleDateString("vi-VN");
             const range = v.fresh > 1 ? ` (số ${v.reviewed + 1} đến ${v.reviewed + v.fresh})` : v.fresh === 1 ? ` (số ${v.reviewed + 1})` : "";
-            revEl.textContent = `Đã rà soát video số 1 đến ${v.reviewed}, tới ngày ${day}. Video mới chưa rà soát: ${v.fresh} / ${v.max}${range}.` +
+            revEl.textContent = `Đã rà soát video số 1 đến ${v.reviewed}, tới ngày ${day} (còn lưu ${v.count - v.fresh}). Video mới chưa rà soát: ${v.fresh} / ${v.max}${range}.` +
                 (v.fresh >= v.max ? " Đã đủ, hãy nhắn Claude rà soát." : "");
         }
     }
@@ -509,6 +509,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("clearTrCache")?.addEventListener("click", clearCache("tr"));
     document.getElementById("clearAudioCache")?.addEventListener("click", clearCache("audio"));
     document.getElementById("clearAllCache")?.addEventListener("click", clearCache("all"));
+    // Only the saved videos the last quality review covered; the new batch stays
+    document.getElementById("clearReviewedVideos")?.addEventListener("click", async () => {
+        if (!confirm("Xóa bản dịch của những video đã được rà soát? Video mới chưa rà soát được giữ nguyên. Xem lại một video đã xóa sẽ phải dịch lại (tốn phí Gemini).")) return;
+        const r = await new Promise(rs => chrome.runtime.sendMessage({ action: "cacheClear", which: "reviewed" }, rs));
+        showCacheStats(r);
+        flashStatus(`✓ Đã xóa ${(r && r.removed) || 0} video đã rà soát.`);
+    });
     try { showCacheStats(); } catch (e) { /* ngoài extension */ }
 
     if (optUseAiBox) optUseAiBox.checked = savedAi.useAi !== false;

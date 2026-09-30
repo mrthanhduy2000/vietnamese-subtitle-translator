@@ -4,6 +4,12 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.4.1", luc: "", ten: "Nút xóa những video đã rà soát",
+            y: [
+                "Thẻ Bộ nhớ đệm trong trang Cài đặt có thêm nút \"Xóa video đã rà soát\": chỉ xóa bản dịch của những video mà lần rà soát gần nhất đã xem qua, giữ nguyên các video mới đang chờ rà soát. Dòng Rà soát chất lượng ghi thêm số video đã rà soát còn đang lưu. Xem lại một video đã xóa thì phải dịch lại. Audio lồng tiếng không bị xóa theo; nó tự nhường chỗ khi kho đầy."
+            ]
+        },
+        {
             v: "2.4.0", luc: "", ten: "Lưu tới 100 video, kho audio lồng tiếng lên 3 GB",
             y: [
                 "Số video YouTube được giữ bản dịch tăng từ 50 lên 100, để một đợt xem dài hơn rồi mới rà soát. 100 video cỡ 13 phút chiếm khoảng 9 MB, vượt mức 10 MB mà trình duyệt cho sẵn nếu video dài hơn, nên tiện ích xin thêm quyền lưu trữ không giới hạn. Quyền này không hiện cảnh báo và không cho tiện ích truy cập thêm gì.",

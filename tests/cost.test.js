@@ -711,6 +711,15 @@ test("cache stats: saved videos, their size, and how many are new since the revi
     assert.match(html, /id="cacheVideos"/);
     assert.match(html, /id="cacheReview"/);
     assert.match(js, /Video mới chưa rà soát: \$\{v\.fresh\} \/ \$\{v\.max\}/);
+    // 2.4.1: one button removes the reviewed videos only; the new batch, the terms and the audio stay
+    const E = bgEnv(async () => reply({ t: ["x"] }), cfgK, { local });
+    const cleared = await E.send({ action: "cacheClear", which: "reviewed" });
+    assert.equal(cleared.removed, 2);
+    assert.equal(cleared.videos.count, 2);
+    assert.equal(cleared.videos.fresh, 2);
+    assert.deepEqual(Object.keys(local).sort(), ["ctxterms_yt_a", "ytcache4_new1", "ytcache4_new2", "ytcache_legacy"]);
+    assert.match(html, /id="clearReviewedVideos">Xóa video đã rà soát</);
+    assert.match(js, /which: "reviewed"/);
 });
 
 test("IndexedDB hỏng (mọi thao tác lỗi): vẫn dịch bằng API bình thường, không làm chết tiện ích", async () => {

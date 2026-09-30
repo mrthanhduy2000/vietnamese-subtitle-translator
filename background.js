@@ -1498,6 +1498,14 @@ async function handleCacheStats() {
 
 async function handleCacheClear(req) {
     const which = req.which || "all";
+    // "reviewed" (2.4.1): only the saved videos the last review already covered, so that the store
+    // holds the new batch alone. Their audio stays (keyed by text, not by video) and ages out.
+    if (which === "reviewed") {
+        const all = await new Promise(r => chrome.storage.local.get(null, r));
+        const keys = Object.keys(all).filter(k => /^ytcache4_/.test(k) && ((all[k] && all[k].luc) || 0) <= REVIEW_MARK.until);
+        if (keys.length) await new Promise(r => chrome.storage.local.remove(keys, r));
+        return { ...(await handleCacheStats()), removed: keys.length };
+    }
     if (caches && (which === "tr" || which === "all")) await caches.tr.clear();
     if (caches && (which === "audio" || which === "all")) await caches.audio.clear();
     if (which === "tr" || which === "all") {
