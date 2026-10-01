@@ -38,8 +38,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 ## Traps hit this session
 - The planner returns segments with `subtitleText`, not `texts`: a check on `texts` reads nothing.
 - `trimContextLeak` also runs on load (`ytRepairCachedLeaks`): a false cut there repeats every load.
-- Checked and left (too rare): a unit translating into the one before (3 of 6845), "tăng tăng" slips
-  (most doubled words are real: vân vân, dần dần), per-frame lookups are binary searches.
+- Left as too rare: a unit translated into the one before (3 of 6845), doubled-word slips ("tăng tăng").
 
 ## Suggested next step
 - Next batch: `node tools/ext-storage.js --prefix=ytcache4_ --out=<dir>`, then
