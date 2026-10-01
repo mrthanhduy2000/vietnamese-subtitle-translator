@@ -517,10 +517,17 @@ function qualityKeepSet() {
 function assessAll(req, translations) {
     const Q = window.CST_QUALITY;
     if (!Q) return translations.map(() => ({ score: 0, issues: [], needsRefine: false }));
-    return translations.map((vi, k) => Q.assess(req.sentences[k], vi, {
+    const out = translations.map((vi, k) => Q.assess(req.sentences[k], vi, {
         terms: req.context.terms,
         keep: qualityKeepSet()
     }));
+    // Answers that slid by one item (CST_QUALITY.misalignedItems): told to the refine as such
+    for (const k of Q.misalignedItems ? Q.misalignedItems(req.sentences, translations) : []) {
+        out[k].issues.push({ type: "misaligned", severity: 3, detail: "bản dịch lệch dòng, khớp với câu gốc của mục liền trước hoặc liền sau", fix: "mỗi mục dịch đúng câu gốc của chính nó, không tách hay gộp sang mục khác" });
+        out[k].score += 3;
+        out[k].needsRefine = true;
+    }
+    return out;
 }
 
 function costMode() {
@@ -552,7 +559,9 @@ async function refineUnit(req, first, quality, plan) {
             refine: { draft: first.translations.map(stripHints), issues: issues.slice(0, 10) }
         });
         const q2 = assessAll(req, again.translations);
-        const pick = first.translations.map((t, k) => (q2[k].score < quality[k].score ? again.translations[k] : t));
+        const pick = window.CST_QUALITY && window.CST_QUALITY.pickRefined
+            ? window.CST_QUALITY.pickRefined(first.translations, again.translations, quality, q2)
+            : first.translations.map((t, k) => (q2[k].score < quality[k].score ? again.translations[k] : t));
         const improved = pick.some((t, k) => t !== first.translations[k]);
         if (!improved) return null;
         if (first.cacheKey) {

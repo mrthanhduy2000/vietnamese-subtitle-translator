@@ -446,6 +446,56 @@ test("a unit that took the next unit's content gives it back at the clause end i
     assert.deepEqual(Q.fixRepeatedHeads(short, ["Yes, I agree.", "Yes."]), short);
 });
 
+// 2.4.5, from the user's cache: in a window of short podcast lines the model split one line in two,
+// and the next answers each sat one item late until two were merged
+const SLID = {
+    src: ["You committed to this.", "You've got to get out of here.", "Someone who will be like, no, no. It's drop everything and read.",
+        "It's 8:00.", "You're supposed to be reading.", "You got to go.", "You're going to check back in on that.", "Check back again every week."],
+    vi: ["Anh đã cam kết làm việc này rồi.", "Anh phải đi ngay thôi.", "Một người sẽ kiểu như: không, không được.",
+        "Mọi việc phải dừng lại hết để đọc sách.", "Đã 8 giờ rồi.", "Đến giờ anh phải đọc sách rồi.", "Anh phải đi ngay thôi.", "Anh sẽ kiểm tra lại việc đó."],
+    fixed: ["Anh đã cam kết làm việc này rồi.", "Anh phải đi ngay thôi.", "Một người sẽ kiểu như: không, không. Gác lại mọi thứ để đọc sách.",
+        "Đã 8 giờ rồi.", "Anh phải đang đọc sách mới đúng.", "Anh phải đi thôi.", "Anh sẽ kiểm tra lại việc đó.", "Hằng tuần kiểm tra lại."]
+};
+
+test("a window whose answers slid by one item is found by length, a right one is not", () => {
+    const Q = require("../vi-quality.js");
+    assert.deepEqual(Q.misalignedItems(SLID.src, SLID.vi), [3, 4, 5]);
+    assert.deepEqual(Q.misalignedItems(SLID.src, SLID.fixed), []);
+    // too few items, a count that differs, a script whose length says little
+    assert.deepEqual(Q.misalignedItems(SLID.src.slice(0, 2), SLID.vi.slice(0, 2)), []);
+    assert.deepEqual(Q.misalignedItems(SLID.src, SLID.vi.slice(1)), []);
+    assert.deepEqual(Q.misalignedItems(["今天", "我们", "开始", "学习"], ["Hôm nay chúng ta", "bắt đầu", "học", "nhé các bạn"]), []);
+});
+
+test("a refine keeps the better item, but takes a slid window whole or not at all", () => {
+    const Q = require("../vi-quality.js");
+    const q = list => list.map((v, k) => Q.assess(SLID.src[k], v));
+    const mark = (qs, items) => { for (const k of items) { qs[k].issues.push({ type: "misaligned", severity: 3 }); qs[k].score += 3; } return qs; };
+    const q1 = mark(q(SLID.vi), Q.misalignedItems(SLID.src, SLID.vi));
+    const q2 = mark(q(SLID.fixed), Q.misalignedItems(SLID.src, SLID.fixed));
+    // item by item would keep the slid "Mọi việc phải dừng lại..." beside the realigned items
+    assert.deepEqual(Q.pickRefined(SLID.vi, SLID.fixed, q1, q2), SLID.fixed);
+    // a refine that slides too is not taken
+    assert.deepEqual(Q.pickRefined(SLID.vi, SLID.vi.slice(), q1, q1), SLID.vi);
+    // no slide: item by item, as before
+    const a = ["Bản dịch tốt.", "x"], b = ["Bản dịch khác.", "Bản dịch đầy đủ hơn."];
+    const qa = [{ score: 0, issues: [] }, { score: 3, issues: [{ type: "omission", severity: 3 }] }], qb = [{ score: 0, issues: [] }, { score: 0, issues: [] }];
+    assert.deepEqual(Q.pickRefined(a, b, qa, qb), ["Bản dịch tốt.", "Bản dịch đầy đủ hơn."]);
+    // both refine paths use it
+    const content = require("fs").readFileSync(require("path").join(__dirname, "..", "content.js"), "utf8");
+    assert.ok(/Q\.misalignedItems\(req\.sentences, translations\)/.test(content), "assessAll flags a slid window");
+    assert.ok(/CST_QUALITY\.pickRefined\(first\.translations, again\.translations, quality, q2\)/.test(content), "refineUnit picks with pickRefined");
+});
+
+test("a Vietnamese word written without marks is no English leftover", () => {
+    const Q = require("../vi-quality.js");
+    const issues = Q.assess("Some use brushless motors, which last longer than the cheaper brushed motors.",
+        "Một số loại dùng động cơ không chổi than, bền hơn so với động cơ chổi than giá rẻ.").issues;
+    assert.ok(!issues.some(i => i.type === "untranslated"), JSON.stringify(issues));
+    assert.deepEqual(Q.englishLeftovers("động cơ chổi than, con mèo, tin nhắn"), []);
+    assert.deepEqual(Q.englishLeftovers("bạn có thể save the draft"), ["save", "the", "draft"]);
+});
+
 // 2.3.1, from the user's cache: sound captions came back as "Âm nhạc", "(Âm nhạc)" or "[Âm nhạc]"
 // within one video, and the voice read the bare ones aloud (45 of 531 groups; 4 left after)
 test("sound captions: notes only are translated from a list, every note ends up bracketed and silent", () => {

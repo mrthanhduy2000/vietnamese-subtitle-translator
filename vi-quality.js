@@ -102,6 +102,11 @@
         "amphetamine", "cocaine", "cardio", "squat", "deadlift", "golf", "tennis", "guitar", "piano", "marathon",
         "kickboxing", "jujitsu", "sandwich", "hamburger", "burger", "latte", "cappuccino", "max", "rep", "reps",
         "euro", "lux"]);
+    // Vietnamese words with no diacritics that English also has: "động cơ chổi than" for "brushed
+    // motors ... longer than" read as "than" left in English twice (2.4.5). Not one of them in the
+    // translation is evidence of English left in; an untranslated English phrase has other words.
+    const VI_PLAIN = new Set(["than", "can", "tin", "ban", "bang", "hang", "long", "sang", "song", "hay", "may", "con",
+        "tan", "son", "man", "cam", "pin", "ham", "lam", "rang", "tim", "chi", "lan", "nam", "bao", "sau", "mai", "nay", "tao"]);
     // A web address, an e-mail or a handle is copied, never translated ("betterhelp.com/malamalife"
     // made "betterhelp" and "com" two leftovers of a sponsor line and paid for a refine, 2.3.2)
     const ADDRESS_RE = /(?:https?:\/\/)?(?:[\w-]+\.)+[a-z]{2,}(?:\/\S*)?|[\w.-]+@[\w-]+(?:\.[\w-]+)+|@[\w.]+/gi;
@@ -114,7 +119,7 @@
             if (/^[A-Z0-9]{2,}$/.test(w)) return false;          // viết tắt: GPU, API
             if (/[A-Z].*[A-Z]/.test(w.slice(1))) return false;   // camelCase, PyTorch
             if (/^[A-Z]/.test(w)) return false;                  // tên riêng
-            if (LOANWORDS.has(w.toLowerCase())) return false;
+            if (LOANWORDS.has(w.toLowerCase()) || VI_PLAIN.has(w)) return false;
             if (allowSet.has(w.toLowerCase())) return false;
             return true;
         });
@@ -406,6 +411,48 @@
         return out;
     }
 
+    // ---------- A window whose answers slid by one item (2.4.5) ----------
+    // Seen in a podcast window of short lines: the model split one line in two ("no, no." / "It's
+    // drop everything and read."), so the next answers each sat one item late ("It's 8:00." showed
+    // "Mọi việc phải dừng lại hết để đọc sách.", "You're supposed to be reading." showed "Đã 8 giờ
+    // rồi."), until two lines were merged and one was lost. Only one item looked short, and its
+    // flag asked the refine to "translate in full", not to realign. Found by length: in a run of
+    // SLIDE_MIN_RUN+ items, each answer's length fits the neighbouring item's source clearly better
+    // than its own. Over the user's 40 videos (6873 units) one run, this one; number anchors (a
+    // number in the source missing from its answer, present in the neighbour's) agree: 1 of 736.
+    const SLIDE_MIN_RUN = 3;
+    const SLIDE_MARGIN = 0.25;
+    const SLIDE_GAIN = 0.5;
+    const lenMiss = (v, s) => Math.abs(Math.log((v + 8) / (s + 8)));   // +8: short lines are noisy
+    const latinShare = t => { const l = String(t).match(/\p{L}/gu) || []; return l.length ? l.filter(ch => /[\p{Script=Latin}\p{Script=Cyrillic}]/u.test(ch)).length / l.length : 0; };
+    // src, vi: one window's items. Returns the indices whose answer slid, ascending.
+    function misalignedItems(src, vi) {
+        const S = (src || []).map(plainLen), V = (vi || []).map(plainLen);
+        const hit = new Set();
+        if (S.length < SLIDE_MIN_RUN || V.length !== S.length || latinShare((src || []).join(" ")) < 0.7) return [];
+        for (const d of [1, -1]) {                    // 1: answer i is item i-1's; -1: item i+1's
+            let run = 0, gain = 0;
+            for (let i = 0; i <= S.length; i++) {
+                const j = i - d;
+                const g = i < S.length && j >= 0 && j < S.length && V[i] && S[i] ? lenMiss(V[i], S[i]) - lenMiss(V[i], S[j]) : 0;
+                if (g > SLIDE_MARGIN) { run++; gain += g; continue; }
+                if (run >= SLIDE_MIN_RUN && gain / run > SLIDE_GAIN) for (let k = i - run; k < i; k++) hit.add(k);
+                run = 0; gain = 0;
+            }
+        }
+        return [...hit].sort((a, b) => a - b);
+    }
+
+    // Which answers a refine keeps. Item by item, the one that scores better, so a refine never makes
+    // a line worse. Not when the first answer slid: mixed items of a slid answer and a realigned one
+    // show a line twice and lose another, so the whole refined window is taken, if it scores better.
+    function pickRefined(first, again, q1, q2) {
+        const slid = q1.some(q => q.issues.some(i => i.type === "misaligned"));
+        if (!slid) return first.map((t, k) => (q2[k].score < q1[k].score ? again[k] : t));
+        const total = qs => qs.reduce((a, q) => a + q.score, 0);
+        return total(q2) < total(q1) ? again.slice() : first.slice();
+    }
+
     // ---------- Sound captions ----------
     // Automatic captions mark music, applause and laughter as lines of their own, in the caption's
     // language ("[Music]", "[Musik]", "[Tepuk tangan]"); Coursera writes "[MUSIC]", "[SOUND]". In the
@@ -524,7 +571,7 @@
         });
     }
 
-    const api = { assess, CALQUES, englishLeftovers, vre, trimContextLeak, fixRepeatedHeads, soundNoteLine, fixSoundNotes };
+    const api = { assess, CALQUES, englishLeftovers, vre, trimContextLeak, fixRepeatedHeads, soundNoteLine, fixSoundNotes, misalignedItems, pickRefined };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_QUALITY = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

@@ -530,11 +530,14 @@ Knobs you will actually reach for:
   EMA 0.25), not a constant. `floorRate` divides by `video.playbackRate`.
 - **Chaining**: `chainLead` was cut from 2.0s to 0.8s because starting early accumulated error
   across chained segments. `continuesNext` treats gaps up to 1.5s as one continuous span.
-- **Skipping**: whole sentences only, never mid-sentence. 2.4.2: a line past `maxQueueLag` is still
-  read when it gives time back (`absorbsLag`: at the pace `chooseRate` may reach, the next line starts
-  within `maxQueueLag` or `rescueGain` 0.5 s less late), never past `maxQueueLagHard` 8. On the 39
-  saved videos lines dropped 17 -> 9, words lost 436 -> 173, starts over 4.5 s late 7 -> 11 (max 6.7 s);
-  the drops left are lines too dense to fit themselves.
+- **Skipping**: whole sentences only, never mid-sentence. 2.4.2: a line past `maxQueueLag` was read
+  only when it gave time back (`absorbsLag`): 17 -> 9 drops on 39 videos. 2.4.5 (`readsLate`): a line
+  whose audio is ready is always read up to `maxQueueLagHard` 8 s late, because dropping bought no
+  sync back. On the 40 saved videos: drops 8 -> 0, words lost 113 -> 0, latest start 6.68 -> 6.70 s,
+  starts over 4.5 s late 11 -> 38 of 7271, none over 8. `maxQueueLag` still drops a line with no
+  audio (a slow server). The slow and rapid matrices and the 14 delivery scenarios are identical.
+  What is left is lateness on fast talkers: 13% of lines start over 1 s late (yZfhCQwCWT4 100 of
+  191). The voice is already at its rate ceiling, so only slowing the video would cut that.
   `maxQueueLag` 4.5, `dropLag` 4.0 for the
   live provider. Gating happens in `nextSpeech`.
 - **Overload (added 1.4.7)**: when the TTS server is slower than real time, waiting for the next

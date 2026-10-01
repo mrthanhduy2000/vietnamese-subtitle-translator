@@ -98,6 +98,15 @@ clause end nearest the source share, so words are moved, never dropped. Over the
 (6873 units) they fire on 2 and 1 seams. The 45 lookalikes (a speaker repeating or echoing,
 "Any average?" | "An average."; a sentence split right, "Chẳng ai" | "cần tất cả chúng cả.") pass.
 Measured with the dubbing simulation, words lost went 173 -> 113.
+2.4.5, a slid window: the model split one short item in two, so the next answers sat one item late
+until two were merged (a podcast, "It's 8:00." -> "Mọi việc phải dừng lại hết để đọc sách."). Only
+one item looked short, and per-item refine picking would then mix slid and realigned answers.
+`CST_QUALITY.misalignedItems(src, vi)` finds a run of >= 3 items whose answers fit a neighbour's
+source length clearly better than their own. In all 40 saved videos it finds 1 run and no false
+hit at window sizes 4 to 12. `assessAll` adds a severity-3 `misaligned` issue that tells the refine
+what is wrong. `pickRefined` then takes the refined window whole, if its total score is lower,
+instead of item by item. `englishLeftovers` skips `VI_PLAIN`, Vietnamese words with no marks that
+English also has ("chổi than", "con", "tin").
 
 **Sound captions (2.3.1).** Automatic captions put "[Music]", "[Applause]" on lines of their own,
 in the caption's language ("[Musik]", "[Tepuk tangan]", "[เพลง]"); Coursera writes "[MUSIC]". The

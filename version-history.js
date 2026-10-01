@@ -4,6 +4,20 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.4.5", luc: "", ten: "Lồng tiếng không bỏ câu nào, sửa lỗi lệch dòng khi dịch lại",
+            y: [
+                "Giọng đọc không còn bỏ câu khi đang trễ. Trước đây câu nào tới lượt mà giọng đã trễ quá 4,5 giây thì bị bỏ nguyên câu để đuổi kịp hình. Đo trên 40 video đã xem thì việc bỏ câu gần như không giúp đuổi kịp: đọc hết mọi câu thì lúc trễ nhất vẫn chỉ 6,7 giây như cũ. Nay câu đã có sẵn giọng thì luôn được đọc, chỉ bỏ khi trễ quá 8 giây (40 video chưa lần nào tới mức đó) hoặc khi máy tạo giọng quá chậm chưa kịp làm ra câu đó.",
+                "Lỗi lệch dòng: ở podcast nhiều câu ngắn, đôi khi mô hình tách một câu làm hai, khiến các câu sau hiện bản dịch của câu trước đó vài giây (\"It's 8:00.\" hiện \"Mọi việc phải dừng lại hết để đọc sách.\"). Trước đây bộ kiểm tra chỉ thấy một dòng ngắn bất thường và bảo dịch đủ ý; nay nó nhận ra cả lượt bị lệch, nói rõ cho mô hình khi dịch lại, và nhận nguyên bản dịch lại nếu tốt hơn thay vì ghép từng dòng của hai bản (ghép như vậy sẽ hiện một câu hai lần và mất một câu khác). Trên 40 video: bắt đúng 1 lượt lệch, không gắn cờ nhầm lượt nào.",
+                "Chữ tiếng Việt viết không dấu trùng với chữ tiếng Anh (\"chổi than\", \"con\", \"tin\") không còn bị tính là sót tiếng Anh."
+            ],
+            bang: { cot: ["40 video đã xem (745 phút), mô phỏng lồng tiếng", "2.4.4", "Nay"], hang: [
+                ["Câu bị bỏ không đọc", "8", "0"],
+                ["Chữ bị mất", "113", "0"],
+                ["Lúc trễ nhất", "6,68 giây", "6,70 giây"],
+                ["Câu bắt đầu trễ hơn 4,5 giây", "11", "38 trên 7271"]
+            ] }
+        },
+        {
             v: "2.4.4", luc: "", ten: "Chỗ nối giữa hai lượt dịch: không lặp câu, không dồn nội dung",
             y: [
                 "Tiện ích dịch video theo từng lượt vài đoạn. Khi câu tiếng Anh bị cắt ngang ở cuối một lượt (\"you can put it in a\" | \"charger or in a box\"), mô hình dịch trọn câu ở lượt trước rồi lượt sau dịch lại phần cuối câu bằng lời khác, nên phụ đề hiện và giọng đọc nói câu đó hai lần (\"... để khuất tầm mắt, khuất tâm trí.\" rồi lại \"ngăn kéo hoặc trong hộp để khuất tầm mắt, khuất tâm trí.\"). Nay câu kể lại đó được bỏ. Quy tắc này áp dụng cho mọi video, không phải riêng một video: trên 40 video đã xem (6873 đoạn) nó bắt đúng 2 chỗ như vậy và không đụng 45 chỗ trông giống nhưng đúng (người nói tự lặp, hỏi lại, câu chia đúng giữa hai đoạn).",

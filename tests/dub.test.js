@@ -993,7 +993,7 @@ test("playback delivery: the second half of a cut caption line, translated while
 // 2.4.2, the user's 2026-10-01 batch: after a line too dense to fit, the next one was due more than
 // maxQueueLag ago and was dropped whole, though it was sparse enough to give the time back (nm1TxQj9IsQ
 // lost a 10-second line that way at 20:52). 2.4.1 drops the third line here.
-test("playback delivery: a sparse line after a dense one is read late rather than dropped", async () => {
+test("playback delivery: a line late after a dense one is read rather than dropped", async () => {
     const POOL = "chúng tôi đã thử nhiều cách khác nhau trong suốt mấy năm qua để tìm ra điều thật sự hiệu quả cho cả gia đình mình và bạn bè xung quanh".split(" ");
     const mk = (start, end, n) => {
         const text = Array.from({ length: n }, (_, i) => POOL[i % POOL.length]).join(" ") + ".";
@@ -1003,6 +1003,11 @@ test("playback delivery: a sparse line after a dense one is read late rather tha
     const r = await SIM.run(require("../dub-engine.js"), { groups, wall: 45, sps: 3.8, bgAbort: "queued", trAhead: 1e9, trLat: () => 0 });
     assert.deepEqual([r.dropped, r.wordsLost], [0, 0]);
     assert.equal(r.spoken, 5);
+    // 2.4.5: dense lines right behind it give no time back, and are read late all the same (2.4.4
+    // dropped the first of them, 14 words)
+    const tight = [mk(1, 7, 22), mk(7.2, 13, 70), mk(13.2, 15, 14), mk(15.2, 17, 14), mk(17.2, 40, 20)];
+    const r2 = await SIM.run(require("../dub-engine.js"), { groups: tight, wall: 60, sps: 3.8, bgAbort: "queued", trAhead: 1e9, trLat: () => 0 });
+    assert.deepEqual([r2.dropped, r2.wordsLost, r2.spoken], [0, 0, 6]);
 });
 
 test("playback delivery: pausing never cancels the request for the lines just ahead", async () => {
