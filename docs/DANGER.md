@@ -186,3 +186,15 @@ holds every later request until then. Forwarding the abort again looks harmless 
 server frees at once) and brings back 3-5 s of silence after every seek. The engine side
 (`hardReset` keeping the cut via `audioReadyAt`/`headPinned`) is the other half: a new head cut after
 a seek re-renders audio the page already holds.
+
+## 16. A voice element that is still starting is not drift (2.4.6)
+
+`dub-engine.js` `driveSpeech` / `settleSpeech`. After `play()` or a seek, Chrome's `currentTime` stands
+still while it starts the element (`paused` is already false): 0.16 to 0.96 s in the user's Chrome
+while VieNeu worked. Any rule that compares that standing still with the line's timeline and seeks
+(`driftCorrect`) restarts the wait and loops: 7 seeks in 1.1 s on one line, a pop each, the voice on
+and off. Only compare once the element has moved (`S.moving`), absorb the wait into the timeline, and
+keep `reseekSpacing`. Node fakes started at once until 2.4.6, so no test saw it: `FakeAudio` now takes
+`startLatency`, `tools/playback-sim.js` `LATENCY=busy`, and `tests/dub.test.js` "a voice Chrome is
+slow to start is never seeked" runs every scenario with it. A live check needs chrome://media-internals
+(each voice is a `blob:` player: `seek_target` rows while it plays are seeks of a sounding voice).

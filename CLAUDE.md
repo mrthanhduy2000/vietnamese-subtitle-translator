@@ -66,7 +66,7 @@ Reading all source is ~500KB, roughly 145k tokens. Don't. A normal task should l
 - Never `Read` a file over ~400 lines whole. `grep -n <symbol>` first, then read with offset/limit.
 - Line numbers in `docs/` are anchors and they drift. Confirm with grep before editing.
 - **Grep only, never read whole:** `options.html` (~1600, ~850 of them inline CSS),
-  `youtube.js` (~2000), `content.js` (~2300), `dub-engine.js` (~1950), `background.js` (~1700),
+  `youtube.js` (~2000), `content.js` (~2300), `dub-engine.js` (~2400), `background.js` (~1700),
   `glossary.js` (~1340, pure data), `dub-speech.js` (~550, a third of it a generated table),
   `tests/hardening.test.js` (~2100), `tests/cost.test.js` (~1000).
 - Safe to read whole when you need them: `cost-policy.js` (~370), `popup.js` (~300), `yt-bridge.js`

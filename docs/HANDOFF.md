@@ -6,39 +6,38 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-10-01 · `2.4.5` no dubbed line dropped for lag, slid windows refined whole (after `2.4.4` seams).
+2026-10-02 · `2.4.6` a voice Chrome is slow to start is no longer seeked: the user's "bụp bụp" pops.
 
 ## What changed
-- 2.4.4: `fixRepeatedHeads` also drops a retold sentence end (`retoldHead`) and moves back a tail
-  that took the next unit's content (`shiftedTail`). 3 real seams of 6873, 0 of 45 lookalikes.
-- 2.4.5 `readsLate` replaces `absorbsLag`: a line with audio ready is read up to `maxQueueLagHard`
-  8 s late. 40 videos: drops 8 -> 0, words lost 113 -> 0, latest start 6.68 -> 6.70 s. Matrices
-  and the 14 scenarios identical. A line with no audio still drops at `maxQueueLag` (slow server).
-- 2.4.5 `misalignedItems` (a window's answers slid by one item, length test) -> `misaligned`
-  severity 3 in `assessAll`; `pickRefined` takes a slid window's refine whole, not item by item.
-  1 run in 40 videos, 0 false hits at window sizes 4-12. `VI_PLAIN`: "than", "con"... not English.
+- Cause (the user's `chrome://media-internals`, AF9Gnn2tVJw): Chrome holds a fresh or idle voice
+  0.16 to 0.96 s after `play()` / a seek while VieNeu renders; `driveSpeech` took that for drift
+  and reseeked, which restarts the start: up to 7 seeks in 1.1 s on one voice.
+- `settleSpeech`: a voice not yet moving is not drift, the wait moves the line later (`startWaitMax`
+  2.5 s; drift seeks `reseekSpacing` 2 s apart). Fade in when resumed inside a take, `quietPause`
+  before a pause (40 ms squared steps); `onVolume` re-ducks YouTube's own volume write at once.
+- Sim `startLatency` / `LATENCY=busy`, 34 videos busy: seeks 1599 -> 0, skipped 253 s -> 0, hard
+  starts 213 -> 0, read / dropped 7165 / 0 both, > 0.5 s late 1689 -> 1715 (the wait is lateness).
+- `startUp` in "Chép chẩn đoán". `tests/harness/headless.js` runs a harness page in headless Chrome.
 
 ## State
-- Tests: 636 pass, 0 fail, 1 skip. Reload: **yes** for 2.4.5 (`chrome://extensions`).
-- `REVIEW_MARK` not moved: only 1 new video (679UtcE_k6c) since 39; it joins the next batch.
-- **The user's view (2026-10-01):** they watch new videos only; every fix must be a rule for all
-  future videos, and they reject "leaving a small pinch". Fix every class a safe rule can catch
-  (measure false hits on all saved videos); name what cannot be fixed and why, with numbers.
-- Left, by design: 13% of lines start > 1 s late, all on fast talkers (yZfhCQwCWT4 100 of 191).
-  The voice is at its ceiling and condensing is forbidden: only slowing the video would cut it.
-  Offered to the user as an option, not built. Omission flags left are lines cut before 2.4.2.
+- Tests: 640 pass, 0 fail, 1 skip. Reload: **yes** for 2.4.6 (`chrome://extensions`), then F5 the tab.
+- `REVIEW_MARK` not moved: 679UtcE_k6c and AF9Gnn2tVJw join the next batch.
+- **The user's view (2026-10-01):** new videos only; every fix is a rule for all future videos
+  (false hits measured on all saved videos), no "small pinch" left; name what cannot be fixed, with
+  numbers. On a sound report dig yourself (`docs/TESTING.md` "Live measurement"), never ask them.
+- By design: 13% of lines start > 1 s late, all fast talkers (yZfhCQwCWT4 100 of 191); the voice is
+  at its ceiling, condensing is forbidden. Slowing the video was offered, not built.
 - `pickRefined` / the `misaligned` refine are not seen against live Gemini (no refine data offline).
 
 ## Unfinished / in progress
-- The user's "bụp bụp, lúc được lúc không" on Q4JWEtq23h8 (2.4.1) is not explained: delivery was clean,
-  the simulator shows the original up 11 times in 10 min (no pump). Their duck went 0.05 -> 0.3. Next
-  report: read `delivery.reseeks / nudges / duckUps` in their "Chép chẩn đoán".
+- 2.4.6 not heard by the user yet; if pops remain, read media-internals `seek_target` rows first. A
+  seek or stop still cuts a sounding voice at once (`releaseAudio` drops the fade): unmeasured.
 - Not seen in a real browser: the Settings counter and button, a 3-hour video's performance.
 - Carried: voice items for the user's ear ("có nghĩa là", DN, NHNN). Never ask about Apple Events JS.
 
 ## Traps hit this session
-- Cached `srcCues` are `[start, end, text]` arrays: `c[2]`, not `c.text`.
-- An old engine copy outside the repo loads only after `./dub-engine.js` (globals stand in for it).
+- Control_Chrome scripts run in an isolated world (no `yt`, no `CST_DUB`) and return nothing for a
+  Promise: store in `window.__x`, read it in a second call. Headless Chrome needs the sandbox off.
 
 ## Suggested next step
 - Next batch: `node tools/ext-storage.js --prefix=ytcache4_ --out=<dir>`, then

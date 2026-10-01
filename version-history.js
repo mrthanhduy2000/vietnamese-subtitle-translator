@@ -4,6 +4,23 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.4.6", luc: "", ten: "Hết tiếng \"bụp bụp\" và giọng lúc có lúc mất khi lồng tiếng",
+            y: [
+                "Nguyên nhân tìm được trong nhật ký trình phát của chính Chrome (chrome://media-internals) lúc bạn nghe video WalkingPad: khi máy đang bận tạo giọng, Chrome cần từ 0,16 đến gần 1 giây mới bắt đầu phát một câu. Bộ đồng bộ tưởng giọng bị chậm nên tua tới, mà mỗi lần tua lại bắt Chrome khởi động lại từ đầu, nên lại bị coi là chậm và lại bị tua: một câu 3 giây bị tua 7 lần trong 1 giây, mỗi lần là một tiếng \"bụp\", giọng lúc có lúc mất. Nay câu được chờ tới khi Chrome thật sự phát, rồi mốc của câu dời theo đúng khoảng chờ đó: câu vào muộn vài phần mười giây nhưng đủ chữ, không tua, không bụp.",
+                "Lỗi này không hiện ra lúc kiểm tra trước đây vì bộ mô phỏng coi mọi câu đều phát được ngay. Nay bộ mô phỏng có độ trễ khởi động như Chrome thật, và có bài kiểm tra riêng để lỗi không quay lại.",
+                "Khi video tạm dừng hoặc khựng lại để tải, giọng nhỏ dần trong 0,04 giây rồi mới dừng, thay vì bị cắt ngang giữa chữ. Khi phát tiếp từ giữa câu, giọng lên dần từ im lặng thay vì bật lên đột ngột. Đo trên Chrome thật: mép âm lúc dừng nhỏ hơn trước 26 đến 46 dB, lúc phát lại nhỏ hơn khoảng 15 dB.",
+                "YouTube thỉnh thoảng tự đặt lại âm lượng của nó (đo được: 2 giây sau khi bấm phát). Tiếng gốc từng vọt lên mức đầy trong tối đa 0,05 giây trước khi được hạ lại. Nay được hạ lại ngay lập tức.",
+                "\"Chép chẩn đoán\" ghi thêm thời gian Chrome cần để bắt đầu phát mỗi câu (startUp)."
+            ],
+            bang: { cot: ["34 video đã xem (712 phút), mô phỏng với độ trễ khởi động như Chrome thật", "2.4.5", "Nay"], hang: [
+                ["Số lần tua giọng đang phát (mỗi lần một tiếng bụp)", "1599", "0"],
+                ["Giọng bị nhảy cóc (mất chữ giữa câu)", "253 giây", "0"],
+                ["Giọng bật lên đột ngột giữa chữ", "213 lần", "0"],
+                ["Câu đọc / câu bỏ", "7165 / 0", "7165 / 0"],
+                ["Câu bắt đầu trễ hơn 0,5 giây", "1689", "1715"]
+            ] }
+        },
+        {
             v: "2.4.5", luc: "", ten: "Lồng tiếng không bỏ câu nào, sửa lỗi lệch dòng khi dịch lại",
             y: [
                 "Giọng đọc không còn bỏ câu khi đang trễ. Trước đây câu nào tới lượt mà giọng đã trễ quá 4,5 giây thì bị bỏ nguyên câu để đuổi kịp hình. Đo trên 40 video đã xem thì việc bỏ câu gần như không giúp đuổi kịp: đọc hết mọi câu thì lúc trễ nhất vẫn chỉ 6,7 giây như cũ. Nay câu đã có sẵn giọng thì luôn được đọc, chỉ bỏ khi trễ quá 8 giây (40 video chưa lần nào tới mức đó) hoặc khi máy tạo giọng quá chậm chưa kịp làm ra câu đó.",

@@ -503,9 +503,31 @@ The comments in it record why each value is what it is; read them before changin
 
 Knobs you will actually reach for:
 
+- **Start-up (2.4.6), read this before touching `driveSpeech`**: Chrome needs time to start a media
+  element after `play()` or a seek: ~20 to 100 ms on a quiet machine, **0.16 to 0.96 s** in the user's
+  Chrome while VieNeu was making takes (a fresh element made at its line's start, one Chrome idled
+  after 15 s, `kSuspended`). Until then `currentTime` stands still and `paused` is false. Before
+  2.4.6 that wait read as drift: past `driftCorrect` the voice was seeked, the seek restarted the wait,
+  and the loop repeated (chrome://media-internals: one 3 s line seeked 7 times in 1.1 s, HAVE_ENOUGH
+  only at 0.96 s) = the user's "bụp bụp, lúc được lúc không". Now a start or a seek is complete only
+  once the element is seen moving (`settleSpeech`, `startMoved` 0.015); the wait is absorbed into the
+  line's timeline (`mediaStart` / `end` move later, nothing skipped) after every start and every
+  seek; a playing voice is seeked at most once per `reseekSpacing` 2 s; a line whose element has not
+  started is not ended at its planned end (`startWaitMax` 2.5 s wall). Edges: a start inside the take
+  (`fadeFrom` 0.02: a resume, a mid-line entry, a drift seek) stays at volume 0 until it moves, then
+  `speechVolume` ramps it in over `restartFade` 0.04 s, squared; a sounding voice that must stop (the
+  video paused or stalled, the next line due) goes through `quietPause`: 64/36/16/4% at
+  `fadeStepMs` 10 ms, then the pause (`el.cstFade` token; `driveSpeech` calls it off). A seek or a
+  stop still cuts at once (`releaseAudio`). `watchSpeech` polls every 10 ms while starting or fading
+  (ticks are 50 ms). Measured: 34 saved videos (712 min) in the simulator with `LATENCY=busy`, 2.4.5
+  -> 2.4.6: playing-voice seeks 1599 -> 0, take seconds passed over 253 -> 0, voices up inside a take
+  at full volume 213 -> 0, lines 7165 -> 7165, drops 0 -> 0, late starts 1689 -> 1715. Real Chrome
+  (headless, voice output captured through WebAudio around scripted pauses): level in the last 5 ms
+  before a pause 1.38-2.13x the voice -> 0.01-0.07x, first 5 ms of a resume 0.63-0.75x -> 0.11-0.12x,
+  voice back 30 -> 80 ms after play. Without start latency every delivery number is unchanged.
 - **Drift (1.6.8)**: `driftCorrect` 0.15s re-seeks the audio. Below that, `driveSpeech` first absorbs
   the element's start-up latency into the sentence's timeline (`driftAnchor` 0.12, once per
-  sentence), smooths the drift (EMA), and nudges by one fixed 3% step with hysteresis
+  sentence; since 2.4.6 after every start and seek, uncapped, see Start-up), smooths the drift (EMA), and nudges by one fixed 3% step with hysteresis
   (`driftNudge` 0.08 on, `driftNudgeOff` 0.02 off, `nudgeSpacing` 0.8 s). Measured in real Chrome
   (`tests/harness/smooth.html`, 120 s of real VieNeu audio): the old per-tick nudge changed
   `playbackRate` 510 times on playing voices (~21 per sentence), each one restarting Chrome's
@@ -599,7 +621,9 @@ Knobs you will actually reach for:
   (`playerOwnsVolume`, set in `dubbing.js`) the written value IS the new base: the player writes its
   own full level (Stable Volume after a seek, measured 0.1 -> 0.89). Elsewhere it is divided by the
   duck factor (a native slider shows the ducked value). Before 1.7.9 a YouTube write mid-speech left
-  the original loud until the voice paused.
+  the original loud until the voice paused. 2.4.6: on YouTube the duck goes back inside `onVolume`
+  itself while ducked; waiting for the tick left the original at full for up to 50 ms (a probe on the
+  user's tab caught the player writing 0.825 over a 0.2475 duck 2 s after play).
 - **Live check, 2026-09-29 (2.1.9, H9yU-Y22vGI, a fast English talker, cached translation, VieNeu
   RTF 0.22, the user's duck 0.05)**: ~4 min with a seek to 300 s, a 5 s pause, then 1.5x. 0 drops, 0
   errors, 66 requests; voice back 0.78 s and 2.08 s after the two seeks; the pause kept the original
@@ -706,7 +730,10 @@ What changed, each for a measured cause:
   2.4.2, for a reported "pop" the simulator cannot hear: `reseeks` (a sounding voice moved by
   `driftCorrect`, a jump each), `nudges`, `duckUps` (the original back at full between lines), and
   `settings.duck` / `volume` in "Chép chẩn đoán". The simulator on Q4JWEtq23h8 (the report, 2.4.1): the
-  original came up 11 times in 10 minutes, 1 for under 1.5 s; not a pump.
+  original came up 11 times in 10 minutes, 1 for under 1.5 s; not a pump. That "pop" was the start-up
+  seek loop (see Start-up in the SYNC section), which the simulator could not show while its elements
+  started at once. 2.4.6 adds `startUp` { n, slow (> 150 ms), maxMs, avgMs }: Chrome's start time
+  per voice start, the cause behind a future "pop" report on a busy machine.
 Not changed on purpose: prefetch horizon (`prefetchAhead` already scales with latency and rate: no
 gap at 1.5x / 2x), rate choice, drift, ducking, prosody, the paid-voice cache keys.
 

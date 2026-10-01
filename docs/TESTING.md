@@ -19,7 +19,7 @@ sense of weight, not an assertion.
 | `segmenter.test.js` | 40 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
 | `context.test.js` | 18 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |
 | `integration.test.js` | 25 | Runs the **real** `content.js` and `background.js` in a `vm` with a fake `chrome`, fake DOM and fake Gemini |
-| `dub.test.js` | 74 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
+| `dub.test.js` | 78 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
 | `cost.test.js` | 59 | The full LOCAL -> CACHE -> cheap -> strong -> TTS chain, plus `cst-cache`, `cost-policy`, `dub-planner`, `dub-engine` |
 | `hardening.test.js` | 105 | Per-API-key model access, options opening, language auto-detect, no-clipping dubbing, budget caps, the version-scheme rule |
 | `bridge.test.js` | 4 | `yt-bridge.js` recovering empty captions that are missing the `pot` token, and restoring the viewer's original caption track |
@@ -60,8 +60,17 @@ unchanged); `sps` sets the voice's pace; `unique: true` keys every line by its p
 repeats 22 sentences, so without `unique` everything after the first minute is a store hit and the
 server's speed never shows. `maxHeld` is the most audio seconds the page held at once.
 `tools/sim-matrix.js` runs many seeks per engine: judge an engine change there, never on one scenario.
+Start-up (2.4.6): `FakeAudio` takes `startLatency` (ms, or a function of the element and "play" /
+"seek"): `currentTime` stands still that long after `play()` and after each seek while playing, as
+in Chrome. Before 2.4.6 every fake started at once, which hid the seek loop behind the user's pops
+for weeks. `LATENCY=busy` (or scenario `latency`) models what media-internals showed: a cold start
+(an element made < 0.5 s before, a seek, one idle > 15 s) 250 to 750 ms while the server generates,
+a warm one 40 to 120 ms. Rows gain `reseeks`, `elSeeks`, `skippedS` (take seconds passed over by
+forward seeks: words lost inside lines, which `wordsLost` cannot see), `cuts` (a sounding voice
+paused above 0.3 volume) and `hardStarts` (a voice coming up inside its take above 0.3).
 `--real=<dir>` (2.3.1) runs the engine over the user's cached videos instead (a `tools/ext-storage.js`
-dump), with the load-time fixes applied and every group available, one row per video; `--sps=` sets
+dump), with the load-time fixes applied and every group available, one row per video (with `OLD=`,
+2.4.6: one row per engine per video, both under the same abort policy); `--sps=` sets
 the voice pace (Mỹ Duyên, the user's voice, is 3.8). Measured 2026-09-29 on 15 videos: 1 line dropped
 in all, no delivery gaps; the two fast talkers (dSEZriz716g, zPSs9a0MYGw) start 24-30% of lines more
 than 0.5 s late at a median rate of 1.33-1.44, the others 0-9% at about 1.1.
@@ -77,7 +86,9 @@ line cut") counted as spoken while its new words were never read. Filled only fo
 every group without a seek or pause (`--real`, `fastSlowdown`); on the 15 real videos: 29 lost, all
 in the one line dropped on zPSs9a0MYGw, none read twice.
 `OLD=` rows run the older engine under the older abort policy, so seek rows differ even for an
-identical engine (`cutRunning`, `blockedS`). To prove a change is neutral, run the tool twice with
+identical engine (`cutRunning`, `blockedS`). `OLD_BG=queued` puts the old engine under the current
+policy, which an engine-only A/B needs (2.4.6: seekWhileSlow read 16 vs 15 lines from the policy
+alone). To prove a change is neutral, run the tool twice with
 the old and the new `dub-engine.js` in place and diff the `new` rows (2.2.9: all 14 identical).
 Loading it replaces `CST_CACHE.hashKey` with Node's synchronous SHA-256 (same hex digest):
 `crypto.subtle` answers from a worker thread, and on a busy machine a store key missed the one
@@ -142,6 +153,10 @@ runs the VieNeu path of `background.js` (`cleanTake`, `shapePauses`, `prepareSpe
 step when that path changes. The browser tool times out at 45 s: poll `H.done`, do not await it.
 The takes there predate 2.0.6: the lecture's second line is now cut "xem xét | mạng nơ-ron", so
 `t7367` is missing (the line is skipped) until the prep runs again.
+`headless.js` (2.4.6) runs a harness page in a headless Chrome from Node, with no browser tool and
+no 45 s limit: `PAGE=tests/harness/smooth.html EXPR='runSmooth(60)' POLL='summary()' node
+tests/harness/headless.js` (sandbox off: loopback). `CPU=6` throttles the renderer. Add
+`H.engine.stats.startUp` to the poll to see how long Chrome took to start each voice.
 
 `live.html` + `live-server.js` (1.9.7): the real `DubEngine` and VieNeu provider in Chrome. The
 page's messages are answered by the real `background.js` (through `bg-env.js`) in the Node server.
@@ -204,10 +219,34 @@ Two traps in `ui.test.js` that cost a session real time:
 
 - A tab opened by automation is often hidden (`document.hidden`): Chrome then does not load the video
   at all (readyState 0). Bring it to the front with Control_Chrome `switch_to_tab` first.
-- First ask the user for the quick menu's **"Chép chẩn đoán"** (1.9.9): one JSON text with the
-  version, health line, settings, player state and the engine's snapshot. `engine.events` holds the
-  last 150 drops (with why), skips, resets (with why), errors and late starts, with media time. It is
-  always on, so the problem the user just saw is already in it.
+- **Investigate yourself before asking the user for anything** (2026-10-01: asked for "Chép chẩn
+  đoán" on a sound report, the user was upset; they expect the digging done for them). What works
+  without them, all measured on the "bụp bụp" report:
+  - `chrome://media-internals`: Control_Chrome `open_url` opens it and `execute_javascript` runs in it.
+    Every dubbing voice is a `blob:https://www.youtube.com/...` player (PCM, 48 kHz mono) with its own
+    log: `seek_target` rows while it plays (a seek of a sounding voice), `kPlay` / `kPause`, "Effective
+    playback rate changed", `audio_buffering_state`, `kSuspended`. Destroyed players stay listed. Click
+    each `#player-list` item's `.tree-item-header`, read `#log tr` rows (async loops: store the result
+    in a `window` variable and read it in a second call, a returned Promise comes back empty).
+  - Control_Chrome scripts run in an isolated world: page globals (`yt`, the player API) and the
+    content script's `CST_DUB` are not visible, but DOM events are. A `volumechange` listener on the
+    `<video>` logged YouTube's own volume writes against the duck; `play()` / `pause()` / `currentTime`
+    on the `<video>` drive the user's tab (say so first: it makes sound).
+  - The voice takes the user heard are on disk: `Profile 42/IndexedDB/chrome-extension_<id>_0.indexeddb.blob/`,
+    newest files first; the WAV starts at the bytes "RIFF" (V8 serialization header before it).
+  - What Chrome really plays: `tests/harness/headless.js` (Browser harness pages) on a copy of
+    `smooth.html` whose `createAudio` also routes each element through `createMediaElementSource`
+    into an `AudioWorklet` recorder; pull the samples back with `Runtime.evaluate` (base64 Int16 in
+    chunks). At rate 1.0
+    the capture matched the take bit for bit; this measured the 2.4.6 pause and resume edges. Name
+    the recorder something else than `rec`: `createAudio` has a `const rec` (a silent capture).
+  - Headless Chrome under CPU load or DevTools CPU throttling did not slow element start-up (under
+    0.11 s): the user's 0.16 to 0.96 s came from their real Chrome (speakers, YouTube, fresh elements).
+- The quick menu's **"Chép chẩn đoán"** (1.9.9): one JSON text with the version, health line,
+  settings, player state and the engine's snapshot. `engine.events` holds the last 150 drops (with
+  why), skips, resets (with why), errors and late starts, with media time. It is always on. A
+  synthetic `click()` on the button cannot write the clipboard (no user gesture); `data-cst-dub`
+  below needs no clipboard.
 - Dubbing diagnostics: set `localStorage.cstDubDebug = "1"` on youtube.com, reload; the engine writes
   a JSON snapshot to `<html data-cst-dub>` every 500 ms (`started` has due time, start, rate, overrun).
 - Recording over minutes (1.9.9): Control_Chrome `execute_javascript` needs Chrome's "View >

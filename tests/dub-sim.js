@@ -82,20 +82,53 @@ function makeFakeSpeech(clock, video, trueModel, log) {
 }
 
 // Audio giả: tiến theo đồng hồ, có thể trôi nhịp (drift) so với video
+// opts.startLatency (ms, or a function returning ms): like Chrome, the element needs time to start
+// after play() and again after every seek while it plays; until then currentTime stays where it was
+// set and paused is false. Measured in the user's Chrome while the voice server was busy (2.4.6,
+// chrome://media-internals): 0.16 to 0.96 s. The function gets the element and the reason ("play" or
+// "seek"). `seeks` counts writes to currentTime while playing: each one is a jump the listener hears
+// (a pop); `skipped` sums the take seconds such forward jumps passed over (words not heard). `cuts`
+// counts pauses of a voice sounding above 0.3 (a hard cut), `hardStarts` a voice coming up inside its
+// take above 0.3 (a click; a take's own start has its fade).
 class FakeAudio {
-    constructor(clock, meta, drift) {
+    constructor(clock, meta, drift, opts = {}) {
         this.clock = clock; this.meta = meta; this.drift = drift || 0;
-        this.paused = true; this.currentTime = 0; this.playbackRate = 1; this.volume = 1; this.preservesPitch = true;
+        this.paused = true; this.time = 0; this.playbackRate = 1; this.volume = 1; this.preservesPitch = true;
+        const lat = opts.startLatency;
+        this.startLatency = typeof lat === "function" ? lat : () => lat || 0;
+        this.createdAt = clock.now();
+        this.holdUntil = 0; this.seeks = 0; this.skipped = 0; this.cuts = 0; this.hardStarts = 0; this.sounding = false;
     }
-    play() { this.paused = false; this.ended = false; return Promise.resolve(); }
-    pause() { this.paused = true; }
+    get currentTime() { return this.time; }
+    set currentTime(v) {
+        const to = Math.max(0, Math.min(this.meta.duration, v));
+        if (!this.paused) {
+            this.seeks++;
+            if (to > this.time) this.skipped += to - this.time;
+            this.sounding = false;
+            this.holdUntil = this.clock.now() + this.startLatency(this, "seek");
+        }
+        this.time = to;
+    }
+    play() {
+        if (this.paused) { this.holdUntil = this.clock.now() + this.startLatency(this, "play"); this.lastActive = this.clock.now(); }
+        this.paused = false; this.ended = false;
+        return Promise.resolve();
+    }
+    pause() {
+        if (!this.paused && this.sounding && this.volume > 0.3) this.cuts++;
+        if (!this.paused) this.lastActive = this.clock.now();
+        this.paused = true; this.sounding = false;
+    }
     addEventListener(n, f) { (this.listeners = this.listeners || {}); (this.listeners[n] = this.listeners[n] || []).push(f); }
     // Như trình duyệt: phát tới hết thì ended = true, tự dừng và bắn sự kiện "ended"
     step(ms) {
-        if (this.paused) return;
-        this.currentTime = Math.min(this.meta.duration, this.currentTime + ms / 1000 * this.playbackRate * (1 + this.drift));
+        if (this.paused || this.clock.now() < this.holdUntil) return;
+        if (!this.sounding && this.time > 0.02 && this.volume > 0.3) this.hardStarts++;
+        this.sounding = true;
+        this.time = Math.min(this.meta.duration, this.time + ms / 1000 * this.playbackRate * (1 + this.drift));
         if (this.currentTime >= this.meta.duration) {
-            this.ended = true; this.paused = true;
+            this.ended = true; this.paused = true; this.sounding = false;
             ((this.listeners || {}).ended || []).forEach(f => f());
         }
     }

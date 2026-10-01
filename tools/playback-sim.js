@@ -177,6 +177,22 @@ function run(engineMod, sc) {
     };
 
     // ---- page side ----
+    // How long Chrome takes to start a voice element after play() or a seek (2.4.6). sc.latency (or
+    // LATENCY=): a number of ms, or "busy", from chrome://media-internals in the user's Chrome: an
+    // element made just before its line (the take came late), one just seeked, or one Chrome put to
+    // sleep after 15 s idle (kSuspended) took 0.16 to 0.96 s to start while VieNeu made takes; the
+    // ones prepared during the line before started without a single seek (under ~0.11 s). Here a
+    // cold start is 250 to 750 ms while the server generates (40 to 80 ms idle), a warm one 40 to
+    // 120 ms (20 to 40 idle). Unset: 0, every element starts at once (every run before 2.4.6)
+    const lat = sc.latency != null ? sc.latency : process.env.LATENCY;
+    const startLatency = lat === "busy"
+        ? (a, why) => {
+            const now = clock.now();
+            const cold = why === "seek" || now - a.createdAt < 500 || now - (a.lastActive != null ? a.lastActive : a.createdAt) > 15000;
+            if (cold) return running ? 250 + R() * 500 : 40 + R() * 40;
+            return running ? 40 + R() * 80 : 20 + R() * 20;
+        }
+        : () => Number(lat) || 0;
     const audios = [];
     const urlDur = new Map(), urlKey = new Map();
     let urlSeq = 0, liveUrls = 0, maxUrls = 0;
@@ -187,7 +203,7 @@ function run(engineMod, sc) {
         createObjectURL: bytes => { const u = "blob:" + (++urlSeq); urlDur.set(u, durOf(bytes)); liveUrls++; maxUrls = Math.max(maxUrls, liveUrls); return u; },
         revokeObjectURL: () => { liveUrls--; },
         createAudio: url => {
-            const a = new FakeAudio(clock, { duration: urlDur.get(url) || 1 });
+            const a = new FakeAudio(clock, { duration: urlDur.get(url) || 1 }, 0, { startLatency: startLatency });
             a.url = url;
             const play = a.play.bind(a);
             a.play = () => { if (a.paused) a.startedAt = clock.now(); return play(); };
@@ -297,6 +313,10 @@ function run(engineMod, sc) {
             storeHits: m.storeHits, blockedS: +(m.blockedMs / 1000).toFixed(2),
             unplayedGen: [...m.generatedKeys.keys()].filter(k => !m.playedKeys.has(k)).length,
             maxRendered, maxHeld: +maxHeld.toFixed(1), maxEls, maxUrls,
+            // a voice moved while it played (each one a jump the ear hears as a pop), and a sounding
+            // voice paused (a seek, a viewer's pause, a stall: a cut)
+            reseeks: eng.stats.corrections || 0, elSeeks: audios.reduce((a, x) => a + x.seeks, 0), cuts: audios.reduce((a, x) => a + x.cuts, 0),
+            skippedS: +audios.reduce((a, x) => a + x.skipped, 0).toFixed(1), hardStarts: audios.reduce((a, x) => a + x.hardStarts, 0),
             rateP50: rates.length ? +rates[Math.floor(rates.length * 0.5)].toFixed(2) : null,
             rateP90: rates.length ? +rates[Math.floor(rates.length * 0.9)].toFixed(2) : null,
             rateMax: rates.length ? +rates[rates.length - 1].toFixed(2) : null,
@@ -360,16 +380,20 @@ async function realMain(dir, json) {
     const cur = require(path.join(REPO, "dub-engine.js"));
     const arg = n => { const a = process.argv.find(x => x.startsWith(`--${n}=`)); return a ? a.slice(n.length + 3) : ""; };
     const sps = Number(arg("sps")) || 3.8;
+    // OLD=<old dub-engine.js>: each video on the older engine too, one row each
+    const old = process.env.OLD ? require(path.resolve(process.env.OLD)) : null;
     const rows = [];
     for (const f of fs.readdirSync(dir).filter(x => /^ytcache4_.*\.json$/.test(x)).sort()) {
         const groups = realGroups(path.join(dir, f));
         if (!groups.length) continue;
-        const r = await run(cur, { groups, wall: groups[groups.length - 1].end + 5, sps, trAhead: 1e9, trLat: () => 0, bgAbort: "queued" });
-        delete r.store;
-        rows.push({ video: f.slice(9, 20), groups: groups.length, minutes: +(groups[groups.length - 1].end / 60).toFixed(1), ...r });
+        for (const [v, mod] of old ? [["old", old], ["new", cur]] : [["new", cur]]) {
+            const r = await run(mod, { groups, wall: groups[groups.length - 1].end + 5, sps, trAhead: 1e9, trLat: () => 0, bgAbort: "queued" });
+            delete r.store;
+            rows.push({ video: f.slice(9, 20) + (old ? " " + v : ""), groups: groups.length, minutes: +(groups[groups.length - 1].end / 60).toFixed(1), ...r });
+        }
     }
     if (json) { console.log(JSON.stringify(rows, null, 1)); return; }
-    const cols = ["video", "minutes", "groups", "spoken", "dropped", "late", "wordsLost", "wordsTwice", "gapN", "gapSum", "gapMax", "firstAudio", "rateP50", "rateP90", "rateMax", "serverRuns", "maxHeld"];
+    const cols = ["video", "minutes", "groups", "spoken", "dropped", "late", "wordsLost", "wordsTwice", "gapN", "gapSum", "gapMax", "firstAudio", "rateP50", "rateP90", "rateMax", "serverRuns", "maxHeld", "reseeks", "elSeeks", "skippedS", "cuts", "hardStarts"];
     console.log(cols.join("\t"));
     for (const r of rows) console.log(cols.map(c => r[c] == null ? "-" : r[c]).join("\t"));
 }
@@ -403,7 +427,7 @@ async function main() {
         rows.push({ scenario: "mixedCache", v: label, ...r2 });
     }
     if (json) { console.log(JSON.stringify(rows, null, 1)); return; }
-    const cols = ["scenario", "v", "spoken", "dropped", "late", "wordsLost", "wordsTwice", "gapN", "gapSum", "gapMax", "firstAudio", "seekRecover", "seekRecoverMax", "overlapTicks", "serverRuns", "cutRunning", "blockedS", "duplicateGen", "unplayedGen", "storeHits", "maxRendered", "maxHeld", "maxEls", "maxUrls"];
+    const cols = ["scenario", "v", "spoken", "dropped", "late", "wordsLost", "wordsTwice", "gapN", "gapSum", "gapMax", "firstAudio", "seekRecover", "seekRecoverMax", "overlapTicks", "reseeks", "elSeeks", "skippedS", "cuts", "hardStarts", "serverRuns", "cutRunning", "blockedS", "duplicateGen", "unplayedGen", "storeHits", "maxRendered", "maxHeld", "maxEls", "maxUrls"];
     console.log(cols.join("\t"));
     for (const r of rows) console.log(cols.map(c => r[c] == null ? "-" : r[c]).join("\t"));
 }

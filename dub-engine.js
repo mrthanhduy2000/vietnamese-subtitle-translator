@@ -39,7 +39,25 @@
         driftNudgeOff: 0.02,      // ... which ends once the drift is back within this
         nudgeMax: 0.03,           // a nudge is one fixed step of 3% (pitch kept)
         nudgeSpacing: 0.8,        // seconds (media) between two rate changes on one voice
-        driftAnchor: 0.12,        // start-up offset up to this is absorbed into the timeline, not chased
+        driftAnchor: 0.12,        // an element that came up ahead by up to this is absorbed, not chased
+        // Start-up (2.4.6). Chrome needs time to start a media element (a fresh one, one it idled, one
+        // just seeked): ~20 ms on a quiet machine, 0.16 to 0.96 s in the user's Chrome while the voice
+        // server made takes (chrome://media-internals). driftCorrect read that wait as drift and
+        // seeked again, which restarts the wait: one 1.4x line was seeked 7 times in 1.1 s, each seek
+        // a pop, the voice on and off ("bụp bụp, lúc được lúc không"). A start or a seek is now
+        // complete only once the element is seen moving; the wait is absorbed into the line's
+        // timeline (it starts that much later, every word kept), never chased.
+        startMoved: 0.015,        // moved this far past where it was set: the element is playing
+        startWaitMax: 2.5,        // wall s a line waits for its element to start before it may end unheard
+        reseekSpacing: 2.0,       // wall s between two drift seeks of one playing voice
+        // Edges without a click (2.4.6): Chrome cuts a media element's wave wherever a pause, a seek
+        // or a start lands, and applies its volume once per audio buffer (~10 ms) without a ramp. A
+        // voice resumed inside its take stays silent until it moves, then fades in; a sounding voice
+        // that must stop (the video paused or stalled, the next line due) steps down first.
+        fadeFrom: 0.02,           // a start this far into a take is inside it (the take's own start fades in)
+        restartFade: 0.04,        // s, fade-in of a voice resumed inside its take
+        pauseFade: 0.04,          // s, fade-out before a sounding voice is paused
+        fadeStepMs: 10,           // ms between two volume steps (about one audio buffer)
         snapToNatural: 0.05,      // a sentence rate within 5% of 1.0 plays at exactly 1.0 (no stretch at all)
         maxLagBoost: 0.25,        // tăng tốc tối đa để đuổi kịp khi trễ
         maxSpeechRate: 1.3,       // tốc độ phát audio tối đa (giữ cao độ) kể cả khi đuổi kịp
@@ -549,6 +567,10 @@
                 // A plain <video> control shows the ducked value, so a drag there is scaled back up.
                 this.baseVolume = this.settings.playerOwnsVolume ? v.volume : Math.min(1, v.volume / Math.max(0.05, this.duckFactor));
                 this.duckDirty = true;
+                // (2.4.6) Measured in the user's YouTube tab: the player wrote its full level (0.825
+                // over a 0.2475 duck) 2 s after play and the original sounded at full until the next
+                // tick, up to 50 ms, a loud blip. The duck goes back at once
+                if (this.settings.playerOwnsVolume && this.duckFactor < 1 && this.ownsVolume()) this.setVideoVolume(this.baseVolume * this.duckFactor);
             };
             // an ad swapping into the element seeks it too: the ad gate resets once the ad is over
             this.onSeek = () => { if (!this.isAdShowing()) this.hardReset("seek"); };
@@ -928,7 +950,10 @@
                 const r = this.rendered.get(S.id);
                 // Audio tự phát tới HẾT (sự kiện ended); chỉ ép dừng khi đã quá mốc dự kiến rõ rệt
                 // (audio lỗi / bị treo), để không bao giờ mất âm cuối vì lệch vài chục mili giây
-                const finished = !r || !r.el || r.el.ended || t >= S.end + SYNC.endGrace;
+                // (2.4.6) An element Chrome is still starting has not said a word yet: it is not over
+                // at its planned end, only once it has waited SYNC.startWaitMax for nothing
+                const starting = !S.moving && S.cueWall != null && this.d.now() - S.cueWall < SYNC.startWaitMax * 1000;
+                const finished = !r || !r.el || r.el.ended || (t >= S.end + SYNC.endGrace && !starting);
                 if (!finished) {
                     this.driveSpeech(S, r, t, videoRate);
                     this.speakingUntilMedia = S.end + SYNC.duckHold;
@@ -955,7 +980,7 @@
             this.lastSpokenId = p.id;
             this.stats.started.push({ id: p.id, t, due: p.start, lag, rate, speechEnd: S.end, cueEnd: p.end });
             if (lag > SYNC.lateStart) this.note("late", { id: p.id, lag: Math.round(lag * 100) / 100, rate: Math.round(rate * 100) / 100 });
-            for (const [id, x] of this.rendered) if (x.el && id !== p.id && !x.el.paused) x.el.pause();
+            for (const [id, x] of this.rendered) if (x.el && id !== p.id && !x.el.paused) this.quietPause(x.el);
             if (!r.el) r.el = this.makeAudio(r.url);
             this.driveSpeech(S, r, t, videoRate, true);
             this.speakingUntilMedia = S.end + SYNC.duckHold;
@@ -1003,7 +1028,7 @@
         releaseAudio(r) {
             const el = r.el;
             r.el = null;
-            try { el.pause(); if (el.removeAttribute) el.removeAttribute("src"); if (el.load) el.load(); } catch (e) { /* bỏ qua */ }
+            try { el.cstFade = null; el.pause(); if (el.removeAttribute) el.removeAttribute("src"); if (el.load) el.load(); } catch (e) { /* bỏ qua */ }
         }
 
         // Scorecard (debug only): time from start / seek to the first voice, late starts, and silences
@@ -1453,7 +1478,9 @@
                 delivery: { recoverMs: (this.stats.recoverMs || []).slice(-5), late: this.stats.late || 0, gaps: this.stats.gaps || 0, gapSec: r2(this.stats.gapSec || 0), requests: this.stats.requests, cacheHits: this.stats.cacheHits, aborted: this.stats.aborted, detached: this.stats.detached || 0, held: this.rendered.size, elements: [...this.rendered.values()].filter(x => x.el).length,
                     // what a "pop" heard while the voice plays can be (2.4.2): a re-seek of a sounding
                     // voice (each a jump), a rate nudge, the original coming back up between lines
-                    reseeks: this.stats.corrections || 0, nudges: this.stats.nudges || 0, duckUps: this.stats.duckUps || 0 },
+                    reseeks: this.stats.corrections || 0, nudges: this.stats.nudges || 0, duckUps: this.stats.duckUps || 0,
+                    // (2.4.6) how long Chrome took to start a voice (play() or a seek until it moved)
+                    startUp: this.stats.startUp ? { n: this.stats.startUp.n, slow: this.stats.startUp.slow, maxMs: this.stats.startUp.maxMs, avgMs: Math.round(this.stats.startUp.sumMs / Math.max(1, this.stats.startUp.n)) } : null },
                 plans: this.plans.filter(p => p.end > t - 15 && p.start < t + 30).map(p => ({
                     id: p.id, s: r2(p.start), e: r2(p.end), cont: !!p.continuesNext, syl: p.phrases.reduce((a, ph) => a + ph.syl, 0),
                     st: this.rendered.has(p.id) ? "ok" : this.pending.has(p.id) ? "tao" : (this.failed.get(p.id) || 0) >= 2 ? "loi" : "chua",
@@ -1468,38 +1495,37 @@
         }
 
         // Giữ audio khớp với dòng thời gian lời nói (không phải mốc phụ đề)
+        // (2.4.6) A play() or a seek is complete only once the element is seen moving (settleSpeech):
+        // until then its standing still is Chrome starting it, never drift to chase (SYNC startMoved)
         driveSpeech(S, r, t, videoRate, starting) {
             const el = r.el || (r.el = this.makeAudio(r.url));
-            const expected = S.offset + (t - S.mediaStart) * S.rate;
             const baseRate = S.rate * videoRate;
             try { el.preservesPitch = true; } catch (e) { /* bỏ qua */ }
-            el.volume = this.settings.volume;
+            el.cstFade = null;                                        // a stop on its way down is called off: the voice goes on
             if (el.paused || starting) {
                 if (el.paused && !starting && S.retryAt && this.d.now() < S.retryAt) return;
                 if (Math.abs(el.playbackRate - baseRate) > 0.001) el.playbackRate = baseRate;
-                el.currentTime = Math.max(0, expected);
+                el.currentTime = Math.max(0, S.offset + (t - S.mediaStart) * S.rate);
+                this.cueSpeech(S, el);
                 if (el.paused) {
                     const pr = el.play();
                     if (pr && pr.then) pr.then(() => this.onPlayStarted(), e => this.onPlayFailed(S, el, e));
                 }
                 return;
             }
+            if (!this.settleSpeech(S, el, t)) return;                // still starting: nothing to chase yet
+            const expected = S.offset + (t - S.mediaStart) * S.rate;
             let drift = el.currentTime - expected;                    // dương: audio đi trước
-            // The first reading after the voice really started: the element's start-up latency (tens
-            // of ms) is not drift. Shift this sentence's timeline by it once instead of chasing it.
-            if (!S.anchored && el.currentTime > 0.03) {
-                S.anchored = true;
-                if (Math.abs(drift) <= SYNC.driftAnchor) {
-                    S.mediaStart -= drift / S.rate;
-                    S.end -= drift / S.rate;
-                    drift = 0;
-                }
-            }
-            if (Math.abs(drift) > SYNC.driftCorrect) {
+            // A seek restarts Chrome's start-up wait, so a playing voice is moved at most once per
+            // SYNC.reseekSpacing; a drift in between is left to the rate nudge below
+            const spaced = S.reseekWall == null || this.d.now() - S.reseekWall >= SYNC.reseekSpacing * 1000;
+            if (Math.abs(drift) > SYNC.driftCorrect && spaced) {
                 el.currentTime = expected;                            // lệch lớn: đặt lại đúng chỗ
                 if (Math.abs(el.playbackRate - baseRate) > 0.001) el.playbackRate = baseRate;
                 S.nudge = 0; S.driftEma = 0;
+                S.reseekWall = this.d.now();
                 this.stats.corrections++;
+                this.cueSpeech(S, el);
                 return;
             }
             // currentTime of a media element moves in steps: smooth before deciding anything
@@ -1517,6 +1543,106 @@
                 S.nudge = nudge;
                 if (nudge) this.stats.nudges = (this.stats.nudges || 0) + 1;
             }
+        }
+
+        // (2.4.6) The element was just set to a place and asked to play (a line's start, a resume
+        // after a pause or a stall, a drift seek). A place inside the take would start on a sounding
+        // sample, a click: the voice stays silent until it moves, then fades in
+        cueSpeech(S, el) {
+            S.moving = false;
+            S.cuePos = el.currentTime || 0;
+            S.cueWall = this.d.now();
+            S.fadeHeld = S.cuePos > SYNC.fadeFrom;
+            S.fadeAt = null;
+            this.speechVolume(S, el);
+            this.watchSpeech(S, el);
+        }
+
+        // The start is complete once the element has moved past where it was set. The time that took
+        // is absorbed into the line's timeline (the old once-per-line anchor, now after every start and
+        // every seek, and without its 0.12 s cap: a seek there skipped words and restarted the wait).
+        // An element that came up ahead is absorbed only within driftAnchor. False while it starts.
+        settleSpeech(S, el, t) {
+            if (!S.moving) {
+                const from = S.cuePos != null ? S.cuePos : S.offset || 0;
+                if (!(el.currentTime > from + SYNC.startMoved)) { this.speechVolume(S, el); return false; }
+                S.moving = true;
+                const late = S.offset + (t - S.mediaStart) * S.rate - el.currentTime;
+                if (late > 0 || -late <= SYNC.driftAnchor) {
+                    S.mediaStart += late / S.rate;
+                    S.end += late / S.rate;
+                }
+                if (S.cueWall != null) this.noteStartUp(this.d.now() - S.cueWall);
+                if (S.fadeHeld) { S.fadeHeld = false; S.fadeAt = this.d.now(); }
+            }
+            this.speechVolume(S, el);
+            return true;
+        }
+
+        // The voice's volume: the user's level, 0 while a start inside the take waits to move, a ramp
+        // over SYNC.restartFade once it does. The ramp is squared: its first step is 6% of the level,
+        // not 25% (measured in Chrome on the first samples after a resume: a straight ramp left the
+        // voice coming up at 0.4x its level in its first 5 ms)
+        speechVolume(S, el) {
+            const level = this.settings.volume;
+            let v = level;
+            if (S.fadeHeld) v = 0;
+            else if (S.fadeAt != null) {
+                const k = (this.d.now() - S.fadeAt) / (SYNC.restartFade * 1000);
+                if (k >= 1) S.fadeAt = null;
+                else v = level * Math.max(0, k) * Math.max(0, k);
+            }
+            el.volume = v;
+        }
+
+        // While the element starts and while it fades in, look every SYNC.fadeStepMs rather than every
+        // tick (50 ms): the fade begins within ~10 ms of the first sound and moves in small steps
+        watchSpeech(S, el) {
+            if (!this.d.setTimeout || S.watching) return;
+            S.watching = true;
+            const step = () => {
+                S.watching = false;
+                const r = this.rendered.get(S.id);
+                if (!this.running || this.speech !== S || !r || r.el !== el || el.paused) return;
+                this.settleSpeech(S, el, this.d.video.currentTime);
+                if (!S.moving || S.fadeAt != null) { S.watching = true; this.d.setTimeout(step, SYNC.fadeStepMs); }
+            };
+            this.d.setTimeout(step, SYNC.fadeStepMs);
+        }
+
+        // (2.4.6) Stop a voice that may be sounding without a click: its volume steps down over
+        // SYNC.pauseFade, then it pauses. For the video pausing or stalling and a line giving way to
+        // the next; a seek or a stop lets the element go at once (the video's own sound jumps too).
+        // tick() calls silence() every 50 ms while the video is stopped: a stop already on its way
+        // down is left to finish, and driveSpeech calls it off when the voice goes on (el.cstFade).
+        // The steps are squared, (1 - k/n)^2: 64%, 36%, 16%, 4%, then the pause. Straight steps (75,
+        // 50, 25%) still cut the wave at a third of the voice's level (measured in Chrome).
+        quietPause(el) {
+            if (el.paused) return;
+            const n = Math.round(SYNC.pauseFade * 1000 / SYNC.fadeStepMs) + 1;
+            if (!this.d.setTimeout || n < 3 || !(el.volume > 0)) { el.cstFade = null; el.pause(); return; }
+            if (el.cstFade) return;
+            const v0 = el.volume, token = {};
+            el.cstFade = token;
+            let k = 0;
+            const step = () => {
+                if (el.cstFade !== token) return;
+                if (el.paused) { el.cstFade = null; return; }
+                if (++k >= n) { el.cstFade = null; el.pause(); return; }
+                el.volume = v0 * (1 - k / n) * (1 - k / n);
+                this.d.setTimeout(step, SYNC.fadeStepMs);
+            };
+            step();
+        }
+
+        // How long Chrome took to start a voice element (play() or a seek until it moved), for
+        // "Chép chẩn đoán": a slow machine shows here, not as pops any more
+        noteStartUp(ms) {
+            const s = this.stats.startUp || (this.stats.startUp = { n: 0, slow: 0, maxMs: 0, sumMs: 0 });
+            s.n++;
+            s.sumMs += ms;
+            if (ms > s.maxMs) s.maxMs = Math.round(ms);
+            if (ms > 150) s.slow++;
         }
 
         // ---------------- Lập lịch tạo audio quanh vị trí đang phát ----------------
@@ -2024,7 +2150,7 @@
                 this.live.finished = false;
             }
             try { this.provider.stopAll && this.provider.stopAll(); } catch (e) { /* bỏ qua */ }
-            for (const r of this.rendered.values()) if (r.el && !r.el.paused) r.el.pause();
+            for (const r of this.rendered.values()) if (r.el && !r.el.paused) this.quietPause(r.el);
             this.speakingUntilMedia = -1;
         }
 

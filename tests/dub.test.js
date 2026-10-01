@@ -587,6 +587,25 @@ test("YouTube re-applying its own volume mid-speech does not undo the duck", () 
     assert.ok(Math.abs(S.video.volume - 0.75) < 0.01, `restored to ${S.video.volume}`);
 });
 
+// 2.4.6, measured with a volumechange probe on the user's YouTube <video>: the player wrote its full
+// level (0.825 over a 0.2475 duck) 2 s after play, and the duck came back only at the next tick, so
+// the original sounded at full for up to 50 ms, a loud blip. It goes back in the event itself.
+test("YouTube re-applying its own volume is ducked again at once, not at the next tick", () => {
+    const S = runLive();
+    S.eng.settings.playerOwnsVolume = true;
+    S.eng.settings.duck = 0.3;
+    const p = S.eng.plans[3];
+    let settled = false;
+    for (let i = 0; i < (p.start + 2) * 20 && !settled; i++) {
+        S.run(50);
+        settled = S.eng.speakingUntilMedia >= S.video.currentTime && Math.abs(S.eng.duckFactor - 0.3) < 1e-3;
+    }
+    assert.ok(settled, "the duck never reached its target");
+    S.video.volume = 0.825;
+    S.video.emit("volumechange");
+    assert.ok(Math.abs(S.video.volume - 0.825 * 0.3) < 0.005, `original track at ${S.video.volume} until the next tick`);
+});
+
 // 2.0.8, the system voice, the same cases before: 10 of 30 short gaps pumped, 18 of 38 phrases began
 // over the original above 30%, it rose under 6 to 8% of the voice (phrases running past their
 // predicted end), and the phrase cut by the pause went on over it at 91%.
@@ -1028,6 +1047,89 @@ test("playback delivery: in every scenario no two voices overlap, no line is gen
         assert.ok(r.maxHeld <= 210, `${name}: ${r.maxHeld} s of audio held`);
         assert.ok(r.maxRendered <= 45, `${name}: ${r.maxRendered} lines held`);
     }
+});
+
+// 2.4.6, the user's "bụp bụp, lúc được lúc không" (two videos): chrome://media-internals showed a
+// voice element Chrome was slow to start (0.16 to 0.96 s while VieNeu made takes) seeked 7 times in
+// 1.1 s by driftCorrect, each seek a pop that restarted the wait. The simulator's elements started
+// at once, so no run ever showed it. With Chrome's start-up modelled (LATENCY=busy), 2.4.5 seeked
+// playing voices 0 to 238 times per scenario, passed over up to 34.5 s of takes, and brought voices
+// up inside a take at full volume up to 10 times.
+test("playback delivery: a voice Chrome is slow to start is never seeked: 0 seeks, 0 take seconds skipped, 0 clicks, in every scenario", async () => {
+    for (const name of Object.keys(SIM.SCENARIOS)) {
+        const quick = await simRun(name);
+        const r = await simRun(name, { latency: "busy" });
+        assert.equal(r.reseeks, 0, `${name}: ${r.reseeks} seeks of a playing voice`);
+        assert.equal(r.skippedS, 0, `${name}: ${r.skippedS} s of takes passed over`);
+        assert.equal(r.hardStarts, 0, `${name}: ${r.hardStarts} voices came up inside a take at full volume`);
+        assert.equal(r.overlapTicks, 0, `${name}: overlap`);
+        assert.ok(r.spoken >= quick.spoken - 1, `${name}: ${r.spoken} lines spoken, ${quick.spoken} when every element starts at once`);
+    }
+});
+
+test("a voice Chrome takes 0.4 s to start at 1.4x is not seeked: the wait moves the line later, every word kept", () => {
+    const eng = Object.create(DubEngine.prototype);
+    let wall = 0, time = 0, holdUntil = 0, writes = 0;
+    eng.d = { now: () => wall };
+    eng.settings = { volume: 1 };
+    eng.stats = { corrections: 0 };
+    // Chrome-like: currentTime stays where it was set until the element has started, after play()
+    // and after every seek while it plays
+    const el = {
+        paused: true, volume: 1, playbackRate: 1,
+        get currentTime() { return time; },
+        set currentTime(v) { if (!this.paused) { writes++; holdUntil = wall + 400; } time = v; },
+        play() { this.paused = false; holdUntil = wall + 400; return Promise.resolve(); }
+    };
+    const S = { id: "a", mediaStart: 10, offset: 0, rate: 1.4, end: 10 + 3 / 1.4 };
+    for (let k = 0; k <= 60; k++) {
+        wall = k * 50;
+        if (k > 0 && !el.paused && wall > holdUntil) time += 0.05 * el.playbackRate;
+        eng.driveSpeech(S, { el }, 10 + wall / 1000, 1, k === 0);
+    }
+    assert.equal(writes, 0, `the starting voice was seeked ${writes} times (2.4.5: every 150 ms, 7 in 1.1 s live)`);
+    assert.equal(eng.stats.corrections, 0);
+    assert.ok(Math.abs(S.mediaStart - 10.45) < 0.06, `the line moved ${(S.mediaStart - 10).toFixed(2)} s for a 0.4 s start`);
+    assert.ok(Math.abs(S.end - (10.45 + 3 / 1.4)) < 0.06, "its end moved with it");
+    assert.equal(eng.stats.startUp.n, 1);
+});
+
+test("a voice resumed inside its take stays silent until it moves, then fades in; a sounding voice steps down before it pauses", () => {
+    const clock = new Clock();
+    const eng = Object.create(DubEngine.prototype);
+    const video = { currentTime: 20 };
+    eng.d = { now: () => clock.now(), setTimeout: (f, ms) => clock.setTimeout(f, ms), video };
+    eng.settings = { volume: 0.9 };
+    eng.stats = { corrections: 0 };
+    eng.running = true;
+    const el = new FakeAudio(clock, { duration: 5 }, 0, { startLatency: 120 });
+    const r = { el };
+    eng.rendered = new Map([["a", r]]);
+    // the video resumes at 20 s, 2.4 s into this take: mid-word
+    const S = eng.speech = { id: "a", mediaStart: 18, offset: 0, rate: 1.2, end: 18 + 5 / 1.2 };
+    eng.driveSpeech(S, r, 20, 1);
+    assert.equal(el.paused, false);
+    assert.equal(el.volume, 0, "a resume inside the take starts silent");
+    const vols = [];
+    for (let k = 0; k < 40; k++) {
+        clock.advance(5, st => { video.currentTime += st / 1000; el.step(st); });
+        vols.push(el.volume);
+    }
+    assert.equal(el.hardStarts, 0, "the voice came up inside its take at full volume (a click)");
+    const first = vols.find(v => v > 0);
+    assert.ok(first <= 0.9 * 0.1, `the first sound came up at ${(first / 0.9).toFixed(2)} of the level`);
+    for (let i = 1; i < vols.length; i++) assert.ok(vols[i] >= vols[i - 1], "the fade went down");
+    assert.ok(Math.abs(vols[vols.length - 1] - 0.9) < 1e-9, `left at ${vols[vols.length - 1]}`);
+    // the video pauses: the voice steps down over SYNC.pauseFade, then pauses
+    let atPause = null;
+    const pause0 = el.pause.bind(el);
+    el.pause = () => { atPause = el.volume; pause0(); };
+    eng.quietPause(el);
+    assert.equal(el.paused, false, "a sounding voice cut at once");
+    clock.advance(60, st => el.step(st));
+    assert.equal(el.paused, true);
+    assert.ok(atPause <= 0.9 * 0.05, `paused at ${(atPause / 0.9).toFixed(2)} of the level`);
+    assert.equal(el.cuts, 0, "paused while still loud");
 });
 
 // 2.0.8: the original track came back after duckHold whatever came next. In a 0.8 s sentence gap it
