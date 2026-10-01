@@ -6,39 +6,39 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-10-01 · `2.4.3` speaker labels restored in subtitles, after `2.4.2` (second batch review).
+2026-10-01 · `2.4.4` two more window-seam repairs in `fixRepeatedHeads` (after 2.4.2/2.4.3 batch fixes).
 
 ## What changed
-- `trimContextLeak(text, next, { src })`: refused when the translation is under 1.3x its source
-  (parallel clauses were cut as leaks: 9 lines when translated, 7 saved lines at every load).
-- Speaker labels ("ANDREW HUBERMAN:") stay in the subtitle, are not read (`dub-planner.js`).
-- `absorbsLag`: a line past `maxQueueLag` that gives time back is read, up to `maxQueueLagHard` 8.
-- `assess`: substance and sport loanwords, "(Laughter)" lines, labels out of the length ratio.
-- Diagnostics gain `reseeks`, `nudges`, `duckUps`, `settings.duck`. New `tools/batch-review.js`.
-- 2.4.3: `fixSoundNotes` puts a dropped leading label back (`restoreLabel`): 239 -> 311 of 311.
-- `REVIEW_MARK` = 39 videos to 2026-10-01 02:45 UTC; dumps in `review-archive/2026-10-01-videos-22-39`.
+- `retoldHead`: the source unit runs on, its translation closes the sentence anyway, the next unit
+  opens by retelling that sentence's end in other words: that first sentence is dropped.
+- `shiftedTail`: one unit >= 1.6x its source, the next <= 0.45x: the tail moves over at the clause
+  end nearest the source share (words moved, never dropped).
+- Both run wherever `fixRepeatedHeads` runs (live, on load of a saved video, Coursera). Need `src`.
+- Measured on all 40 saved videos (6873 units): fire on 2 + 1 real seams, 0 of 45 lookalikes.
+  Simulated words lost 173 -> 113, dropped 9 -> 8. Details: `docs/SUBTITLE.md` after the 2.3.0 note.
 
 ## State
-- Tests: 630 pass, 0 fail, 1 skip. Reload: **yes** for 2.4.3 (`chrome://extensions`).
-- 18 new videos, simulated: dropped 65 -> 8, words lost 1015 -> 153, late 1548 -> 1396; refine
-  flags 36 -> 13. Scenarios and rapid matrix identical; slow matrix +3 spoken, +12 s gaps / 144 runs.
-- The user pasted "keep improving, fix all backlog" twice. BACKLOG is empty; the second pass found
-  only micro items (below). Default stays: report numbers first, change code when asked.
+- Tests: 633 pass, 0 fail, 1 skip. Reload: **yes** for 2.4.4 (`chrome://extensions`).
+- `REVIEW_MARK` not moved: only 1 new video (679UtcE_k6c) since 39; it joins the next batch.
+- **The user's view (2026-10-01):** they watch new videos, never old ones, so a fix must be a rule for
+  every future video. Every fix so far is one; say so plainly, and do not dismiss a class as
+  "too rare" when a safe rule exists: measure false positives on all saved videos and ship it.
+- All-40 sweep, nothing general left: leftovers are names, URLs, gym jargon, loanwords ("than" in
+  "chổi than" is a harmless severity-2 flag); omission flags are lines cut before 2.4.2 and saved.
 
 ## Unfinished / in progress
 - The user's "bụp bụp, lúc được lúc không" on Q4JWEtq23h8 (2.4.1) is not explained: delivery was clean,
   the simulator shows the original up 11 times in 10 min (no pump). Their duck went 0.05 -> 0.3. Next
   report: read `delivery.reseeks / nudges / duckUps` in their "Chép chẩn đoán".
-- 9 saved lines stay cut (the cache holds only the cut text); a re-watch after "Xóa video đã rà soát"
-  re-translates them from the unit cache with the new guard.
 - Not seen in a real browser: the Settings counter and button, a 3-hour video's performance.
 - Carried: voice items for the user's ear ("có nghĩa là", DN, NHNN); fast talkers start many lines
-  late (yZfhCQwCWT4 61%, rate at the 1.55 cap: known limit). Never ask about Apple Events JS.
+  late (yZfhCQwCWT4 116 of 190, rate at the 1.55 cap: known limit; the 8 drops left are all
+  `lag` drops in such stretches). Never ask about Apple Events JS.
 
 ## Traps hit this session
-- The planner returns segments with `subtitleText`, not `texts`: a check on `texts` reads nothing.
-- `trimContextLeak` also runs on load (`ytRepairCachedLeaks`): a false cut there repeats every load.
-- Left as too rare: a unit translated into the one before (3 of 6845), doubled-word slips ("tăng tăng").
+- Cached `srcCues` are `[start, end, text]` arrays, not objects: `c[2]`, not `c.text`.
+- Seam scans: most "same words across a seam" are the speaker repeating ("Meal prep." | "Meal
+  prep."). The tell for a real repeat is a source unit with no sentence end.
 
 ## Suggested next step
 - Next batch: `node tools/ext-storage.js --prefix=ytcache4_ --out=<dir>`, then

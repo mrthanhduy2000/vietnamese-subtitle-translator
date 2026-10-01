@@ -378,6 +378,74 @@ test("a repeat the source itself makes, a short overlap, or a unit that is only 
     assert.deepEqual(Q.fixRepeatedHeads(["Một câu thôi."]), ["Một câu thôi."]);
 });
 
+// 2.4.4, from the user's cache: a source unit that stops mid-sentence ends a window, the model
+// finishes the sentence there, and the next window translates the sentence's end again in other words
+const RETOLD = {
+    src: ["conversation with each other now more cafes are embracing this concept and I think it's hugely beneficial to us these third spaces encourage us to disconnect and helps us to focus on meaningful interactions this really shouldn't be limited to cafes we should all have Tech free zones at home you can put it in a",
+        "charger or in a box so it's out of sight out of mind as James Clear said in atomic habits we can design our environments to make good habits easier and add friction to the bad habits before we continue I want to thank better heal for sponsoring today's video I've been in therapy for a couple"],
+    vi: ["Hiện nay, ngày càng nhiều quán cà phê áp dụng mô hình này và tôi nghĩ nó mang lại lợi ích rất lớn cho chúng ta. Những không gian thứ ba này khuyến khích chúng ta ngắt kết nối và tập trung vào các tương tác ý nghĩa. Điều này thực sự không nên chỉ giới hạn ở các quán cà phê; tất cả chúng ta đều nên có những khu vực không công nghệ tại nhà. Bạn có thể cất thiết bị vào chỗ sạc hoặc trong một chiếc hộp để khuất tầm mắt, khuất tâm trí.",
+        "ngăn kéo hoặc trong hộp để khuất tầm mắt, khuất tâm trí. Như James Clear đã nói trong cuốn Atomic Habits, chúng ta có thể thiết kế môi trường sống để hình thành thói quen tốt dễ dàng hơn và tạo thêm trở ngại cho những thói quen xấu. Trước khi tiếp tục, tôi muốn cảm ơn BetterHelp đã tài trợ cho video hôm nay. Tôi đã tham gia trị liệu được vài"]
+};
+
+test("a unit that retells the end of the sentence the unit before it finished loses that first sentence", () => {
+    const Q = require("../vi-quality.js");
+    const [a, b] = Q.fixRepeatedHeads(RETOLD.vi, RETOLD.src);
+    assert.equal(a, RETOLD.vi[0]);
+    assert.ok(/^Như James Clear đã nói/.test(b), b);
+    assert.equal(b, RETOLD.vi[1].slice(RETOLD.vi[1].indexOf("Như James")));
+    assert.deepEqual(Q.fixRepeatedHeads([a, b], RETOLD.src), [a, b]);
+    // the same seam in a second video: "so that's a warm-up in and of" | "itself and by the way"
+    const warm = ["Tôi sẽ xuất phát từ nhà, đạp xe khoảng 10 đến 15 phút đến địa điểm tập leo dốc, đó chính là phần khởi động của tôi.",
+        "đó là phần khởi động. Nhân tiện, trên đường đi cũng có vài đoạn dốc ngắn."];
+    const [, w] = Q.fixRepeatedHeads(warm, ["I'm going to ride 10 to 15 minutes to the place where I do my Hill repeat so that's a warm-up in and of", "itself and by the way getting there there are a couple of short little climbs"]);
+    assert.equal(w, "Nhân tiện, trên đường đi cũng có vài đoạn dốc ngắn.");
+    // without the source lines nothing is known about the seam: unchanged
+    assert.deepEqual(Q.fixRepeatedHeads(RETOLD.vi), RETOLD.vi);
+});
+
+test("an answer that echoes a question, a sentence split right, or a source that repeats is no retelling", () => {
+    const Q = require("../vi-quality.js");
+    // the source unit closes its sentence: the next one is a new sentence, another speaker's echo
+    const echo = ["Có con số trung bình nào không?", "Một con số trung bình. Tôi chỉ hỏi vậy thôi."];
+    assert.deepEqual(Q.fixRepeatedHeads(echo, ["Any average?", "An average. I'm just asking."]), echo);
+    // the translation runs on as its source does: the next unit finishes the sentence, once
+    const split = ["Bạn không cần tất cả chúng. Tôi cũng vậy. Chẳng ai", "cần tất cả chúng cả. Vậy mà hầu hết mọi người đều có."];
+    assert.deepEqual(Q.fixRepeatedHeads(split, ["You do not need them all. I do not need them all. Nobody", "needs them all. And yet, most people have most of them."]), split);
+    // the speaker says it again
+    const again = ["Thứ Tư thay vì chạy 3 dặm, tôi đã chạy 4 dặm.", "Thứ Sáu thay vì chạy 3 dặm, tôi đã chạy 4 dặm. Rồi tôi nghỉ."];
+    assert.deepEqual(Q.fixRepeatedHeads(again, ["So Wednesday instead of doing three I did", "four Friday instead of doing three I did four then I rested"]), again);
+    // the next unit is nothing but the retelling: a line twice beats a line missing
+    const only = [RETOLD.vi[0], "ngăn kéo hoặc trong hộp để khuất tầm mắt, khuất tâm trí."];
+    assert.deepEqual(Q.fixRepeatedHeads(only, RETOLD.src), only);
+});
+
+// 2.4.4, from the user's cache: one unit translated the next unit's content too, and the next window
+// answered its unit with only the last words; the voice fell behind and dropped a 60-word line
+const SHIFTED = {
+    src: ["minutes at 300 watts um of course you're Outdoors so you don't have complete control it's always jumping around but but I'm really watching the the 3 second power tracing and the average power to keep it there well after the first minute I barely know I'm on the bike like it's it should be really easy after a minute if you're dying after the first",
+        "minute you've set your target too high um um 2 minutes in you know two and a half minutes in when I'm halfway done I still feel pretty good my heart rate is now going to be within about five beats of what it's maximum is um but I still feel pretty good it's really at about minute 3 3 3 and a half that the Pain Train starts to leave the station and"],
+    vi: ["phút ở mức 300 watt. Tất nhiên khi tập ngoài trời, bạn không thể kiểm soát hoàn toàn nên các chỉ số sẽ luôn dao động, nhưng tôi luôn theo dõi biểu đồ công suất 3 giây và công suất trung bình để giữ mức đó ổn định. Sau phút đầu tiên, tôi gần như không cảm thấy mình đang đạp xe nữa, vì sau một phút thì mọi thứ phải rất nhẹ nhàng. Nếu bạn đã thấy kiệt sức ngay sau phút đầu tiên thì nghĩa là bạn đã đặt mục tiêu quá cao. Khi bước sang phút thứ hai, rồi đến phút thứ hai rưỡi, lúc tôi đã hoàn thành được một nửa chặng đường, tôi vẫn cảm thấy khá ổn. Nhịp tim lúc này sẽ đạt mức gần sát nhịp tim tối đa, nhưng tôi vẫn thấy ổn. Phải đến khoảng phút thứ 3, 3 phút rưỡi...",
+        "cơn đau mới thực sự ập đến và"]
+};
+
+test("a unit that took the next unit's content gives it back at the clause end its source asks for", () => {
+    const Q = require("../vi-quality.js");
+    const [a, b] = Q.fixRepeatedHeads(SHIFTED.vi, SHIFTED.src);
+    // only moved: the words of the pair, in order, are the words the model gave
+    assert.deepEqual(wordsOf(a + " " + b), wordsOf(SHIFTED.vi.join(" ")));
+    // cut where the sources meet ("if you're dying after the first" | "minute you've set your target too high")
+    assert.ok(/mọi thứ phải rất nhẹ nhàng\.$/.test(a), a);
+    assert.ok(/^Nếu bạn đã thấy kiệt sức/.test(b) && /cơn đau mới thực sự ập đến và$/.test(b), b);
+    const share = a.length / (a.length + b.length);
+    assert.ok(share > 0.45 && share < 0.6, share);
+    assert.deepEqual(Q.fixRepeatedHeads([a, b], SHIFTED.src), [a, b]);
+    // an ordinary seam, or a short source line ("Yes."), is left where the model put it
+    const even = ["Tôi đạp xe tới chân dốc, mất khoảng mười lăm phút, rồi bắt đầu leo.", "Lượt đầu tôi giữ sức, lượt sau mới tăng dần công suất."];
+    assert.deepEqual(Q.fixRepeatedHeads(even, ["I ride to the bottom of the hill, about fifteen minutes, then start climbing.", "The first run I hold back, then I build the power up."]), even);
+    const short = ["Vâng, đúng vậy, tôi hoàn toàn đồng ý với anh về chuyện tập luyện đều đặn mỗi ngày.", "Vâng."];
+    assert.deepEqual(Q.fixRepeatedHeads(short, ["Yes, I agree.", "Yes."]), short);
+});
+
 // 2.3.1, from the user's cache: sound captions came back as "Âm nhạc", "(Âm nhạc)" or "[Âm nhạc]"
 // within one video, and the voice read the bare ones aloud (45 of 531 groups; 4 left after)
 test("sound captions: notes only are translated from a list, every note ends up bracketed and silent", () => {

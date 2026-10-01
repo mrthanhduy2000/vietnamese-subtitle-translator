@@ -87,6 +87,17 @@ seam and re-splits the pair at the clause end nearest the source-length share. S
 source lines share a 3-word run (chorus, mantra) or the next unit is nothing but the repeat (the tail
 trim's case). Runs in `trimTranslationLeaks` (both Coursera calls pass the source lines) and first
 in `ytTrimLeaks` (live and `ytRepairCachedLeaks`; cached groups have no `.text`, it joins `srcCues`).
+2.4.4, two more seam shapes inside `fixRepeatedHeads`, both need `src`. These happen at a window
+seam where the prompt rule above was ignored. `retoldHead`: the source unit runs on (no sentence
+end), its translation closes a sentence anyway, and the next unit's first sentence is shorter than
+that sentence and shares >= 3 word pairs, >= 60% of its own. That first sentence is dropped
+("... khuất tâm trí." | "ngăn kéo hoặc trong hộp để khuất tầm mắt, khuất tâm trí."). `shiftedTail`:
+one unit's translation is >= 1.6x its source, the next one's <= 0.45x (sources >= 40 chars; the
+1st/99th percentiles over 5000 units are 0.65/1.60). The tail is moved to the next unit at the
+clause end nearest the source share, so words are moved, never dropped. Over the 40 saved videos
+(6873 units) they fire on 2 and 1 seams. The 45 lookalikes (a speaker repeating or echoing,
+"Any average?" | "An average."; a sentence split right, "Chẳng ai" | "cần tất cả chúng cả.") pass.
+Measured with the dubbing simulation, words lost went 173 -> 113.
 
 **Sound captions (2.3.1).** Automatic captions put "[Music]", "[Applause]" on lines of their own,
 in the caption's language ("[Musik]", "[Tepuk tangan]", "[เพลง]"); Coursera writes "[MUSIC]". The

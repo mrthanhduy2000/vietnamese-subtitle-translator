@@ -4,6 +4,19 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.4.4", luc: "", ten: "Chỗ nối giữa hai lượt dịch: không lặp câu, không dồn nội dung",
+            y: [
+                "Tiện ích dịch video theo từng lượt vài đoạn. Khi câu tiếng Anh bị cắt ngang ở cuối một lượt (\"you can put it in a\" | \"charger or in a box\"), mô hình dịch trọn câu ở lượt trước rồi lượt sau dịch lại phần cuối câu bằng lời khác, nên phụ đề hiện và giọng đọc nói câu đó hai lần (\"... để khuất tầm mắt, khuất tâm trí.\" rồi lại \"ngăn kéo hoặc trong hộp để khuất tầm mắt, khuất tâm trí.\"). Nay câu kể lại đó được bỏ. Quy tắc này áp dụng cho mọi video, không phải riêng một video: trên 40 video đã xem (6873 đoạn) nó bắt đúng 2 chỗ như vậy và không đụng 45 chỗ trông giống nhưng đúng (người nói tự lặp, hỏi lại, câu chia đúng giữa hai đoạn).",
+                "Cùng chỗ nối đó, đôi khi lượt trước dịch luôn nội dung của đoạn sau, còn đoạn sau chỉ còn vài chữ (\"cơn đau mới thực sự ập đến và\"). Một đoạn phải đọc gấp đôi lời trong khung giờ của mình, giọng trễ gần 5 giây rồi bỏ cả một câu 60 chữ. Nay phần thừa được chuyển về đúng đoạn sau, cắt ở dấu câu khớp với độ dài câu gốc. Không chữ nào bị thêm hay bớt, chỉ dời chỗ.",
+                "Cả hai quy tắc cũng tự sửa các video đã lưu khi mở lại, không tốn lượt dịch."
+            ],
+            bang: { cot: ["40 video đã xem (745 phút), mô phỏng lồng tiếng", "2.4.3", "Nay"], hang: [
+                ["Câu bị đọc hai lần ở chỗ nối", "2", "0"],
+                ["Câu bị bỏ không đọc", "9", "8"],
+                ["Chữ bị mất", "173", "113"]
+            ] }
+        },
+        {
             v: "2.4.3", luc: "", ten: "Tên người nói hiện đều trên phụ đề podcast",
             y: [
                 "Podcast ghi tên người nói ở đầu lời thoại (\"ANDREW HUBERMAN: ...\"): bản dịch lúc giữ tên, lúc bỏ, nên phụ đề chỉ thỉnh thoảng cho biết ai đang nói. Video 3 tiếng của Huberman giữ tên ở 239 trên 311 lời thoại. Nay tên được ghép lại vào đầu bản dịch khi bị bỏ: 311 trên 311, kể cả với video đã lưu. Giọng đọc vẫn không đọc tên."

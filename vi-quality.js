@@ -306,11 +306,64 @@
         }
         return 0;
     }
+    // The same seam the other way round, in other words (2.4.4). A source unit that stops mid-sentence
+    // ends a window ("you can put it in a" | "charger or in a box so it's out of sight out of mind"):
+    // the model finished the sentence in that unit anyway, and the next window translated the
+    // sentence's end again ("... chiếc hộp để khuất tầm mắt, khuất tâm trí." | "ngăn kéo hoặc trong
+    // hộp để khuất tầm mắt, khuất tâm trí."), so it was shown and read twice. Not word for word, so
+    // headRepeat misses it. Measured on the user's 40 cached videos (6873 units): 2 such seams, and
+    // 45 lookalikes that are not: a speaker repeating or answering ("Any average?" | "An average."),
+    // a sentence split right ("Chẳng ai" | "cần tất cả chúng cả."). Those are told apart by the seam:
+    // the source unit runs on (no sentence end), its translation closes a sentence anyway, and the
+    // next unit's first sentence is shorter than that sentence and shares most of its word pairs.
+    const RETOLD_MIN_PAIRS = 3;
+    const RETOLD_SHARE = 0.6;
+    const SENTENCE_END = /[.!?…]+["”')\]]*/;
+    function retoldHead(a, b, srcA, srcB) {
+        if (!srcA || !srcB || sourceRepeats(srcA, srcB)) return 0;
+        const tail = String(srcA).replace(/[\s¦]+$/, "");
+        if (new RegExp(SENTENCE_END.source + "$").test(tail) || !new RegExp(SENTENCE_END.source + "$").test(a)) return 0;
+        const head = b.match(new RegExp("^[^.!?…]*" + SENTENCE_END.source));
+        if (!head || !/[\p{L}\p{N}]/u.test(b.slice(head[0].length))) return 0;   // b would be left empty
+        const sentences = a.split(new RegExp("(?<=" + SENTENCE_END.source + ")\\s+")).filter(Boolean);
+        const last = wordSpans(sentences[sentences.length - 1]).map(o => o.w);
+        const H = wordSpans(head[0]).map(o => o.w);
+        if (H.length >= last.length) return 0;
+        const own = new Set(); for (let i = 1; i < last.length; i++) own.add(last[i - 1] + " " + last[i]);
+        let hit = 0; for (let i = 1; i < H.length; i++) if (own.has(H[i - 1] + " " + H[i])) hit++;
+        return hit >= RETOLD_MIN_PAIRS && hit / (H.length - 1) >= RETOLD_SHARE ? head[0].length : 0;
+    }
+
+    // The seam moved, nothing repeated (2.4.4): a unit translated the next unit's content too, and the
+    // next window, given that translation as context, answered its unit with only the last words.
+    // Seen once in the user's 40 videos: 1.91 times its source on one side, 0.08 on the other ("cơn
+    // đau mới thực sự ập đến và"); the voice had to fit both in the first slot, fell 4.6 s behind and
+    // dropped a 60-word line. Over 5000 units the ratio's 1st and 99th percentiles are 0.65 and 1.60,
+    // so a seam past SHIFT_HI on one side and under SHIFT_LO on the other is split again at the clause
+    // end that gives each unit its source's share. Words are only moved, never added or dropped.
+    const SHIFT_HI = 1.6;
+    const SHIFT_LO = 0.45;
+    const SHIFT_MIN_SRC = 40;
+    const CLAUSE_END = /[,.;:!?…]["”')\]]*[\s¦]+(?=\S)/g;
+    const plainLen = t => String(t || "").split("¦").join(" ").replace(NOTE_SPAN, " ").replace(/>>/g, " ").replace(/\s+/g, " ").trim().length;
+    function shiftedTail(a, b, srcA, srcB) {
+        const la = plainLen(srcA), lb = plainLen(srcB);
+        if (la < SHIFT_MIN_SRC || lb < SHIFT_MIN_SRC || plainLen(a) < la * SHIFT_HI || plainLen(b) > lb * SHIFT_LO) return -1;
+        const share = la / (la + lb), total = a.length + 1 + b.length;
+        const cost = p => Math.abs(p / total - share) + (p < a.length && !/[.!?…]["”')\]]*[\s¦]+$/.test(a.slice(0, p)) ? 0.03 : 0);
+        let best = a.length;
+        const re = new RegExp(CLAUSE_END.source, "g");
+        let c;
+        while ((c = re.exec(a))) if (cost(c.index + c[0].length) < cost(best)) best = c.index + c[0].length;
+        return best < a.length ? best : -1;
+    }
     // vi: the translations of consecutive units, src: their source lines (same order). Returns a new
     // array. When unit k+1 opens with unit k's last REPEAT_MIN_WORDS+ words word for word, and the
     // source lines do not repeat each other (a chorus, a mantra), the repeat is dropped from k+1 and
     // the text between them is split again at the clause end that gives unit k its share of the
-    // source: left short, unit k had a few words in its slot and k+1 twice its text to fit.
+    // source: left short, unit k had a few words in its slot and k+1 twice its text to fit. When k+1
+    // opens by retelling the end of k's sentence (retoldHead), that first sentence is dropped; when
+    // k holds k+1's content and k+1 is nearly empty (shiftedTail), k's tail moves over to k+1.
     function fixRepeatedHeads(vi, src) {
         const out = (vi || []).slice();
         const srcLen = i => String((src && src[i]) || "").trim().length;
@@ -318,7 +371,18 @@
             const a = String(out[k] || "").trim(), b = String(out[k + 1] || "");
             const A = wordSpans(a), B = wordSpans(b);
             const m = headRepeat(A, B, REPEAT_MIN_WORDS);
-            if (!m || m >= B.length) continue;              // nothing repeated, or b is only the repeat
+            if (!m) {
+                if (!src || !a || !b.trim()) continue;
+                const cut = retoldHead(a, b.trim(), src[k], src[k + 1]);
+                if (cut) { out[k + 1] = b.trim().slice(cut).replace(/^[\s¦,;:.…]+/, "").trim(); continue; }
+                const p = shiftedTail(a, b.trim(), src[k], src[k + 1]);
+                if (p > 0) {
+                    out[k] = a.slice(0, p).replace(/[\s¦]+$/, "");
+                    out[k + 1] = (a.slice(p).replace(/^[\s¦]+/, "") + " " + b.trim()).trim();
+                }
+                continue;
+            }
+            if (m >= B.length) continue;                    // b is only the repeat
             if (src && sourceRepeats(src[k], src[k + 1])) continue;
             const rest = b.slice(B[m - 1].e);
             const glue = /^[\s¦]*[,;:.!?…]/.test(rest) ? "" : " ";
