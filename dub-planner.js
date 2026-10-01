@@ -413,6 +413,23 @@
     }
     const hasWords = t => /[\p{L}\p{N}]/u.test(String(t || "").replace(/¦/g, ""));
 
+    // A speaker label of edited captions ("ANDREW HUBERMAN: Welcome to...") stays in the translation,
+    // so the subtitle still says who speaks, but it is not read: the voice said "Andy Galpin" and
+    // "Andrew Huberman" 262 times in one 3-hour podcast (the user's 2026-10-01 batch), each one heard
+    // as words of the sentence, on a fast talk that dropped lines for time. Only a label in capitals
+    // that the group's own source carries is taken out, where a line or a sentence starts.
+    // (a line may end on the label: "... vì-- ANDY GALPIN:"; a hint mark ¦ may stand before it)
+    const LABEL_RE = /(^[\s¦]*|[.!?…—–-]["”')\]]*[\s¦]+)(\p{Lu}[\p{Lu}\p{M}.'’-]*(?:\s+\p{Lu}[\p{Lu}\p{M}.'’-]*){0,3}):(?:\s+|$)/gmu;
+    function speakerLabels(src) {
+        const out = new Set();
+        for (const m of String(src || "").matchAll(LABEL_RE)) if (/\p{Lu}{2}/u.test(m[2])) out.add(m[2]);
+        return out;
+    }
+    function stripSpeakerLabels(text, labels) {
+        if (!labels || !labels.size) return text;
+        return String(text || "").replace(LABEL_RE, (m, lead, name) => (labels.has(name) ? lead : m));
+    }
+
     // Who is speaking at the start of a window: replays the speaker marks of every translated group
     // that starts before t0 (a regex on one line per group, cheap). Lets the engine build the script
     // for a window around playback only and still get the same S1/S2 as a whole-video build.
@@ -497,12 +514,13 @@
             const tokens = SEG ? SEG.tokenize(g.viText) : [];
             const cueTok = g.viCues.map(c => (SEG ? SEG.tokenize(c.text).length : 0));
             let ti = 0;
+            const labels = speakerLabels((g.srcCues || []).map(c => c.text).join("\n"));
             const cueTexts = g.viCues.map((c, k) => {
                 if (!SEG) return c.text;
                 const part = tokens.slice(ti, ti + cueTok[k]);
                 ti += cueTok[k];
                 return part.map(t => (t.hint ? "¦ " : "") + t.raw).join(" ");
-            }).map(stripSoundNotes);
+            }).map(t => stripSpeakerLabels(stripSoundNotes(t), labels));
 
             // Lời gốc có khoảng lặng thật ngay sau thời điểm t hay không
             const src = g.srcCues || [];
@@ -942,7 +960,7 @@
 
     const api = {
         numberToVietnamese, countSyllables, adaptForSpeech, numberRole, classifyIntent, buildPhrases, speakerStateBefore,
-        buildDubScript, stripSoundNotes, planSegment, planAll, smoothRates, speechSeconds, pauseSeconds, rateForSps, rateForSpeedup, speedMultiplier,
+        buildDubScript, stripSoundNotes, speakerLabels, stripSpeakerLabels, planSegment, planAll, smoothRates, speechSeconds, pauseSeconds, rateForSps, rateForSpeedup, speedMultiplier,
         DEFAULT_VOICE_MODEL, LIMITS, INTENT_PROSODY, PAUSE
     };
     if (typeof module === "object" && module.exports) module.exports = api;

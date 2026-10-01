@@ -4,6 +4,22 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.4.2", luc: "", ten: "Rà soát đợt 18 video: không cắt mất ý, không đọc tên người nói, ít bỏ câu",
+            y: [
+                "Câu bị cắt mất nửa sau: khi người nói lặp lại một ý hoặc nói hai vế song song (\"tiêu tiền này cho bản thân\" rồi \"cho người khác\"), bộ lọc chống dịch lấn sang câu sau tưởng vế của chính câu đó là phần lấn và cắt đi, phụ đề còn \"Bạn phải nhớ rằng\" và giọng đọc cũng mất vế đó. Đợt này có 9 câu như vậy lúc dịch, và 7 câu đã lưu bị cắt lại mỗi lần mở video. Nay bộ lọc so với độ dài câu gốc: bản dịch không dài hơn bình thường thì không có gì lấn để cắt. Những câu đã lưu bị cắt từ trước vẫn giữ nguyên, vì bản đã lưu chỉ còn phần đó.",
+                "Podcast có ghi tên người nói trong phụ đề (\"ANDREW HUBERMAN: ...\"): tên vẫn hiện trên phụ đề nhưng giọng không đọc nữa. Video 3 tiếng của Huberman bị đọc tên 262 lần, vừa nghe lạ vừa làm giọng chậm nhịp tới mức phải bỏ câu.",
+                "Lồng tiếng ít bỏ câu hơn: sau một câu quá dày, câu kế tiếp từng bị bỏ nguyên câu khi giọng đã trễ quá 4,5 giây, kể cả khi câu đó thưa và đọc nhanh một chút là bắt kịp. Nay câu như vậy vẫn được đọc (trễ tối đa 8 giây). Chỉ còn bỏ những câu tự nó quá dày để đọc kịp.",
+                "Kiểm tra chất lượng bớt báo nhầm, nên bớt lượt dịch lại tốn phí ở chế độ Cân bằng: tên chất giữ nguyên tiếng Anh như caffeine, melatonin, cortisol, dopamine và các từ thể thao như golf, squat, cardio không còn bị coi là sót tiếng Anh; dòng \"(Laughter)\" thành \"[Tiếng cười]\" không còn bị coi là bản dịch rỗng; tên người nói bị lược khỏi bản dịch không còn bị coi là thiếu ý. Trên đợt này: 36 dòng cần dịch lại giảm còn 13, phần lớn số còn lại là các câu bị cắt nói ở trên.",
+                "\"Chép chẩn đoán\" ghi thêm số lần giọng bị tua lại giữa câu, số lần chỉnh nhịp, số lần tiếng gốc trở lại to giữa hai câu và mức hạ tiếng gốc bạn đang đặt, để lần sau nghe thấy tiếng \"bụp\" thì biết ngay nó từ đâu."
+            ],
+            bang: { cot: ["18 video mới (505 phút), mô phỏng lồng tiếng", "2.4.1", "Nay"], hang: [
+                ["Câu bị bỏ không đọc", "65", "8"],
+                ["Chữ bị mất", "1015", "153"],
+                ["Câu bắt đầu trễ hơn 0,5 giây", "1548", "1396"],
+                ["Dòng bị đánh dấu cần dịch lại", "36", "13"]
+            ] }
+        },
+        {
             v: "2.4.1", luc: "", ten: "Nút xóa những video đã rà soát",
             y: [
                 "Thẻ Bộ nhớ đệm trong trang Cài đặt có thêm nút \"Xóa video đã rà soát\": chỉ xóa bản dịch của những video mà lần rà soát gần nhất đã xem qua, giữ nguyên các video mới đang chờ rà soát. Dòng Rà soát chất lượng ghi thêm số video đã rà soát còn đang lưu. Xem lại một video đã xóa thì phải dịch lại. Audio lồng tiếng không bị xóa theo; nó tự nhường chỗ khi kho đầy."

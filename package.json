@@ -1,6 +1,6 @@
 {
   "name": "vietnamese-subtitle-translator",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "private": true,
   "description": "Tiện ích Chrome dịch phụ đề YouTube/Coursera sang tiếng Việt (không cần cài gói nào để chạy test)",
   "scripts": {

@@ -69,6 +69,15 @@ pairs repeat the next units' translation; it runs in `applyTranslation` (Courser
 at the seam stays (it shares words, not word pairs). Measured 2.3.1: 2 of 531 cached groups keep one
 such clause (4eY5DuqASQc #27: 630 -> 382 chars, 7ReQFzSndj4 #14: 741 -> 429). Catching it needs single
 shared words, which real content next to its neighbour also has: kept on purpose.
+2.4.2: every caller passes the unit's source (`trimContextLeak(text, next, { src })`). A speaker who
+says a thing twice or in parallel clauses ("spend this money on yourself" / "... on someone else")
+made the unit's own clause look like a leak: 9 lines of the 2026-10-01 batch were cut to 0.22-0.54 of
+their source when translated ("Bạn phải nhớ rằng"), and the repair on load cut 7 more saved lines in
+long units, at every load. With the source a cut is refused when the whole translation is under
+`LEAK_ROOM` 1.3 times the source's length (no room for a leaked unit; 1.29 is the 90th percentile of
+4934 real units, the leaks measured 2.0-2.4), or when it would leave under `LEAK_KEEP_MIN` 0.7 and the
+whole is under `LEAK_FULL_MIN` 1.8. On the 39 saved videos the load-time cuts went 8 -> 1 (the one
+real leak, 7ReQFzSndj4). Lines already saved cut stay cut (the saved text is all there is).
 The prompt now forbids finishing the last item's sentence; `TR_PROMPT_VERSION` was deliberately
 not bumped, since that would re-bill every cached translation for an additive instruction.
 The reverse (2.3.0): a unit that opens with the unit before it again (seen inside one window: the
@@ -128,6 +137,12 @@ they are (`LOANWORDS`: video, email, app, livestream...) from English leftovers;
 ("[Music]", "♪") from both sides before judging, so a line of notes alone, or a note with at most 4
 stray heard words, is never "empty"; and applies the length ratio only when the source is Latin or
 Cyrillic script (a Hindi mantra or a Chinese line is short in characters, not in meaning).
+2.4.2, from the 2026-10-01 batch (refine flags 36 -> 13 of 5638 lines): `LOANWORDS` also holds the
+substances Vietnamese health writing names as they are (caffeine, melatonin, cortisol, dopamine...)
+and sport and food words (golf, squat, cardio, sandwich): 16 of one sleep lecture's 17 flags. A line
+of notes in round brackets ("(Laughter)" -> "[Tiếng cười]", `soundNoteLine`) is not judged, it read
+as empty. A speaker label in capitals ("ANDREW HUBERMAN: Number six.") is left out of the length ratio
+on both sides: the model drops it from some lines, which then read as omissions.
 `translateWindow` runs `localFixes` (`fixSoundNotes`, then `fixRepeatedHeads`) on the first answer
 before `assessAll`: what the free fix mends no longer pays for a refine (zPSs9a0MYGw: the head repeat
 that cost one refine is mended first). Both fixes are idempotent, so the later passes in

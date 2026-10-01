@@ -70,7 +70,7 @@ Reading all source is ~500KB, roughly 145k tokens. Don't. A normal task should l
   `glossary.js` (~1340, pure data), `dub-speech.js` (~550, a third of it a generated table),
   `tests/hardening.test.js` (~2100), `tests/cost.test.js` (~1000).
 - Safe to read whole when you need them: `cost-policy.js` (~370), `popup.js` (~300), `yt-bridge.js`
-  (~300), `subtitle-style.js` (~300), `vi-quality.js` (~380), `lang-detect.js` (~130), any `docs/` file.
+  (~300), `subtitle-style.js` (~300), `vi-quality.js` (~450), `lang-detect.js` (~130), any `docs/` file.
 - These sizes drift. `node tools/doc-sizes.js` rewrites the line and test counts in `docs/MAP.md`
   and `docs/TESTING.md`, and lists any size quoted here that is off by more than 15%.
 
@@ -125,6 +125,7 @@ npm test                       # fully offline, ~14s. The bar is 0 fail. 1 skip 
 npm run compare                # old vs new segmenter over the fixtures
 node tools/bump-version.js     # run at the end of every code change
 git push                       # after every commit: private repo on GitHub (see Definition of done)
+node tools/batch-review.js <dump> --since=<ms> --sim   # first pass of a batch review (docs/TESTING.md)
 node tests/vieneu.live.js      # needs the local TTS server running
 curl 127.0.0.1:8000/health     # is the VieNeu TTS server up?
 open ~/VieNeu-TTS/cst-start.command   # start it (lives outside this repo)

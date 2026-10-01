@@ -45,6 +45,26 @@ test("kịch bản: '>>' đổi người nói, giọng được gán theo ngư�
     assert.deepEqual(s.map(x => x.speaker), ["S1", "S2", "S1"]);
 });
 
+// UIy-WQCZd4M, the user's 2026-10-01 batch: the labels of an edited podcast caption were read 262 times
+test("script: a speaker label the source carries stays in the subtitle and is not read", () => {
+    const a = group("ANDREW HUBERMAN: Nhưng tôi nghĩ mình sẽ giữ mức 5 cho công việc và 2 cho các mối quan hệ.", [
+        { start: 0, end: 2.5, text: "ANDREW HUBERMAN: But I think I'm going to hold to 5, 2," },
+        { start: 2.5, end: 4, text: "business, relationships." }
+    ]);
+    const b = group("Nhưng ranh giới giữa các ô đó lại khá mờ nhạt, bởi vì-- ANDY GALPIN: Tất nhiên rồi.", [
+        { start: 5, end: 7, text: "But the boundaries between those boxes are blurry, because--" },
+        { start: 7, end: 8, text: "ANDY GALPIN: Of course." }
+    ]);
+    // a name in capitals that is no label of the source is read
+    const c = group("Tôi nói: ANDY GALPIN là người đúng.", [{ start: 9, end: 11, text: "I said: Andy Galpin is right." }]);
+    assert.ok(a.viCues[0].text.startsWith("ANDREW HUBERMAN:"), "the subtitle keeps it");
+    const said = PLAN.buildDubScript([a, b, c], { joinGroups: true }).map(s => s.subtitleText).join(" | ");
+    assert.ok(!/HUBERMAN|ANDY GALPIN:/.test(said), said);
+    assert.match(said, /^Nhưng tôi nghĩ mình sẽ giữ mức 5/);
+    assert.match(said, /bởi vì-- +Tất nhiên rồi\./);
+    assert.match(said, /Tôi nói: ANDY GALPIN là người đúng/);
+});
+
 // ================= 2. VĂN BẢN ĐỂ NÓI & NGỮ ĐIỆU =================
 // Measured against the VieNeu server's own normalizer (sea_g2p): each "before" was what the voice
 // actually said. 1.500.000 was stripped to 1500000, which the server reads digit by digit.
@@ -968,6 +988,21 @@ test("playback delivery: the second half of a cut caption line, translated while
             trLat: g => (g.batch % 2 ? groups[g.batch - 1].start + into : 0) });
         assert.deepEqual([r.spoken, r.wordsLost, r.wordsTwice], [6, 0, 0], `second half ${into} s into the first`);
     }
+});
+
+// 2.4.2, the user's 2026-10-01 batch: after a line too dense to fit, the next one was due more than
+// maxQueueLag ago and was dropped whole, though it was sparse enough to give the time back (nm1TxQj9IsQ
+// lost a 10-second line that way at 20:52). 2.4.1 drops the third line here.
+test("playback delivery: a sparse line after a dense one is read late rather than dropped", async () => {
+    const POOL = "chúng tôi đã thử nhiều cách khác nhau trong suốt mấy năm qua để tìm ra điều thật sự hiệu quả cho cả gia đình mình và bạn bè xung quanh".split(" ");
+    const mk = (start, end, n) => {
+        const text = Array.from({ length: n }, (_, i) => POOL[i % POOL.length]).join(" ") + ".";
+        return { start, end, viText: text, viCues: [{ start, end, text, lines: [text] }], srcCues: [{ start, end, text: "src" }] };
+    };
+    const groups = [mk(1, 7, 22), mk(7.2, 13, 66), mk(13.2, 25, 22), mk(25.5, 31, 18)];
+    const r = await SIM.run(require("../dub-engine.js"), { groups, wall: 45, sps: 3.8, bgAbort: "queued", trAhead: 1e9, trLat: () => 0 });
+    assert.deepEqual([r.dropped, r.wordsLost], [0, 0]);
+    assert.equal(r.spoken, 5);
 });
 
 test("playback delivery: pausing never cancels the request for the lines just ahead", async () => {

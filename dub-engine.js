@@ -66,6 +66,14 @@
                                   // CỘNG DỒN qua chuỗi đoạn -> đo thật giọng đi trước phụ đề tới 2,0 giây
         rateMemory: 4,            // câu trước kết thúc cách đây quá bấy nhiêu giây thì không cần nối nhịp
         maxQueueLag: 4.5,
+        // ... unless the line gives time back (absorbsLag, 2.4.2): read at the pace chooseRate may
+        // reach, the next line starts within maxQueueLag, or at least rescueGain sooner after it
+        // than this one did. Never past maxQueueLagHard. Simulated on the user's 39 saved videos
+        // (healthy server, Mỹ Duyên): lines dropped 17 -> 9, words lost 436 -> 173, lines started
+        // more than 4.5 s late 7 -> 11 (max 6.05 -> 6.68 s); the delivery scenarios and the rapid
+        // matrix identical, the slow matrix 2098 -> 2101 spoken, gaps 741 -> 753 s over 144 runs.
+        maxQueueLagHard: 8,
+        rescueGain: 0.5,
         keepBehind: 90,           // giữ audio các câu vừa qua trong 90 giây (tua lùi ngắn phát ngay)
         keepAhead: 240,           // audio quá xa phía trước (sau khi tua lùi) cũng được giải phóng
         releaseEvery: 5000,       // kiểm tra giải phóng mỗi 5 giây (ms)         // câu chờ trong hàng quá mức này (giây): bỏ nguyên câu, không cắt giữa
@@ -1113,6 +1121,24 @@
             return { ceiling, lagCeiling, floor };
         }
 
+        // A line due more than maxQueueLag ago is still read when reading it gives time back: at the
+        // fastest pace chooseRate may take from here, it ends early enough that the next line starts
+        // within maxQueueLag, or rescueGain less late than this one (a sparse line after a dense
+        // one). Only with its audio ready, and never past maxQueueLagHard (SYNC).
+        absorbsLag(p, t) {
+            if (t - p.start > SYNC.maxQueueLagHard) return false;
+            const r = this.rendered.get(p.id);
+            if (!r || !(r.duration > 0)) return false;
+            const prerender = this.provider.caps && this.provider.caps.prerender;
+            let rate = prerender ? this.paceLimits(p, t).lagCeiling : Math.min(SYNC.lagMaxSpeechRate, this.userMaxRate() || 9);
+            if (this.lastRate && t - this.lastRateEnd < SYNC.rateMemory) rate = Math.min(rate, this.lastRate + SYNC.rateStepUp);
+            const i = this.plans.indexOf(p);
+            const next = i >= 0 ? this.plans[i + 1] : null;
+            const nextAt = next ? next.start : p.end;
+            const after = t + r.duration / Math.max(0.5, rate) + SYNC.sentenceGap - nextAt;
+            return after <= Math.max(SYNC.maxQueueLag, t - p.start - SYNC.rescueGain);
+        }
+
         // The viewer's "fastest the voice may read" setting (dubMaxRate), or null for automatic.
         // It wins over every adaptive ceiling: a capped voice falls behind instead of rushing, and
         // no word is ever dropped to make up for it.
@@ -1307,7 +1333,7 @@
                     return { p, r: this.rendered.get(p.id), offset: 0, lag: t - p.start };
                 }
                 const lag = t - p.start;
-                if (lag > SYNC.maxQueueLag) {                         // trễ quá xa: bỏ NGUYÊN câu
+                if (lag > SYNC.maxQueueLag && !this.absorbsLag(p, t)) {   // trễ quá xa: bỏ NGUYÊN câu
                     this.lastSpokenStart = p.start;
                     this.stats.dropped++;
                     this.note("drop", { id: p.id, why: this.rendered.has(p.id) ? "lag" : "lag-no-audio", lag: Math.round(lag * 100) / 100 });
@@ -1435,7 +1461,10 @@
                 t: r2(t), provider: this.provider.id, gate: this.stats.gate || null, waiting: !!this.waiting, rs: this.d.video.readyState,
                 lastSpoken: this.lastSpokenStart, headAt: this.headAt, speech: this.speech ? { id: this.speech.id, end: r2(this.speech.end), rate: r2(this.speech.rate) } : null,
                 ahead: r2(this.prefetchAhead()), jobs: this.jobs.size, dropped: this.stats.dropped, errors: this.stats.errors, chained: this.stats.chained || 0,
-                delivery: { recoverMs: (this.stats.recoverMs || []).slice(-5), late: this.stats.late || 0, gaps: this.stats.gaps || 0, gapSec: r2(this.stats.gapSec || 0), requests: this.stats.requests, cacheHits: this.stats.cacheHits, aborted: this.stats.aborted, detached: this.stats.detached || 0, held: this.rendered.size, elements: [...this.rendered.values()].filter(x => x.el).length },
+                delivery: { recoverMs: (this.stats.recoverMs || []).slice(-5), late: this.stats.late || 0, gaps: this.stats.gaps || 0, gapSec: r2(this.stats.gapSec || 0), requests: this.stats.requests, cacheHits: this.stats.cacheHits, aborted: this.stats.aborted, detached: this.stats.detached || 0, held: this.rendered.size, elements: [...this.rendered.values()].filter(x => x.el).length,
+                    // what a "pop" heard while the voice plays can be (2.4.2): a re-seek of a sounding
+                    // voice (each a jump), a rate nudge, the original coming back up between lines
+                    reseeks: this.stats.corrections || 0, nudges: this.stats.nudges || 0, duckUps: this.stats.duckUps || 0 },
                 plans: this.plans.filter(p => p.end > t - 15 && p.start < t + 30).map(p => ({
                     id: p.id, s: r2(p.start), e: r2(p.end), cont: !!p.continuesNext, syl: p.phrases.reduce((a, ph) => a + ph.syl, 0),
                     st: this.rendered.has(p.id) ? "ok" : this.pending.has(p.id) ? "tao" : (this.failed.get(p.id) || 0) >= 2 ? "loi" : "chua",
@@ -2127,7 +2156,9 @@
             this.duckDirty = false;
             // A voice already sounding over a loud original: it comes down at the attack speed
             const over = playing && target < this.duckFactor && ((this.speech && t >= this.speech.mediaStart) || !!(this.live && this.live.speaking));
+            const was = this.duckFactor;
             this.duckFactor = duckStep(this.duckFactor, target, this.settings.duck, over ? SYNC.duckAttackTicks : 0);
+            if (this.duckFactor === 1 && was < 1) this.stats.duckUps = (this.stats.duckUps || 0) + 1;
             this.setVideoVolume((this.baseVolume == null ? 1 : this.baseVolume) * this.duckFactor);
         }
 

@@ -975,7 +975,7 @@ function trimTranslationLeaks(translations, quiet, sources) {
         if (!t) return t;
         const next = [translations[i + 1], translations[i + 2]].filter(Boolean).join(" ");
         if (!next) return t;
-        const out = Q.trimContextLeak(t, next);
+        const out = Q.trimContextLeak(t, next, sources ? { src: sources[i] } : undefined);
         if (out !== t) trimmed++;
         return out;
     });

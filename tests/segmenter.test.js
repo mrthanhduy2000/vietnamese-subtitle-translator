@@ -276,6 +276,59 @@ test("a translation that leaked the next units is trimmed, and a clean one is le
     assert.equal(Q.trimContextLeak(own, "Mạng nơ-ron gồm nhiều lớp, và chúng ta sẽ học từng lớp."), own);
 });
 
+// The user's 2026-10-01 batch: a speaker who says a thing twice, or in two parallel clauses, made the
+// unit's own clause look like the next units, and 9 lines lost it ("Bạn phải nhớ rằng"). The cached
+// lines are the cut ones; each case here is that line with its clause back, against the real
+// neighbours. Without the source each one is still cut, as before; with it, none is.
+const PARALLEL = [
+    ["One of the envelopes had things in it that said, \"By 5pm today, spend this money on yourself.\"",
+        "Một loại phong bì có ghi dòng chữ: \"Trước 5 giờ chiều nay, hãy dùng số tiền này cho bản thân.\"",
+        "Chúng tôi còn gợi ý một vài món đồ họ có thể mua. Những người khác nhận được mảnh giấy ghi: \"Trước 5 giờ chiều nay, hãy dùng số tiền này cho người khác.\""],
+    ["That is, in order to fall asleep at night, your body needs to drop by about 1 to 3 degrees in terms of core body temperature.",
+        "Cụ thể là để chìm vào giấc ngủ vào ban đêm, nhiệt độ cốt lõi của cơ thể cần giảm khoảng 1 đến 3 độ.",
+        "Ngược lại, khi thức dậy, nhiệt độ cốt lõi của cơ thể sẽ tăng từ 1 đến 3 độ. Với tấm phủ nệm Eight Sleep, bạn có thể điều chỉnh nhiệt độ môi trường ngủ theo ý muốn: một mức nhiệt khi bắt đầu đêm, một mức khác vào giữa đêm,"],
+    ["ANDREW HUBERMAN: Before we begin, I'd like to emphasize that this podcast is separate from my teaching and research roles at Stanford.",
+        "ANDREW HUBERMAN: Trước khi bắt đầu, tôi muốn nhấn mạnh rằng podcast này tách biệt với vai trò giảng dạy và nghiên cứu của tôi tại Stanford.",
+        "Nó cũng tách biệt với vai trò giảng dạy và nghiên cứu của Tiến sĩ Andy Galpin tại Cal State Fullerton. Tuy nhiên, đây là một phần trong mong muốn và nỗ lực của chúng tôi nhằm mang đến thông tin khoa học và các công cụ liên quan đến khoa học hoàn toàn miễn phí cho công chúng."],
+    ["If I asked a question like, \"How fast can a child learn how to read in a classroom?\"",
+        "Nếu tôi đặt câu hỏi kiểu như: \"Một đứa trẻ có thể học đọc nhanh đến mức nào trong lớp học đó?\"",
+        "các nhà khoa học lại đổi câu trả lời thành: \"Đứa trẻ trung bình trong lớp học đó học đọc nhanh đến mức nào?\" và chúng ta điều chỉnh lớp học theo mức trung bình đó."],
+    ["You have to remember, people who come on this show actually care about money.",
+        "Bạn phải nhớ rằng, những người tham gia chương trình này thực sự quan tâm đến tiền bạc.",
+        "Những người tham gia chương trình của tôi thực sự quan tâm đến tiền bạc. Tuy nhiên, có rất nhiều người, tôi đang nói đến hàng chục triệu người, không hề biết những kiến thức tài chính cơ bản, cũng chẳng muốn tìm hiểu."],
+    // a long unit, as saved (intact): the repair on load cut its last clause every time it opened
+    ["drama any kind of relationship you have will carry its share of drama but you also want to carve out spaces where the drama that you deal with is Meaningful drama it's contextualized by shared values in a higher purpose that makes the drama worth it and if you've got relationships that are not",
+        "những rắc rối. Bất kỳ mối quan hệ nào cũng sẽ có những rắc rối riêng, nhưng bạn cần tạo ra những không gian mà ở đó những rắc rối bạn đối mặt phải có ý nghĩa. Chúng cần được đặt trong bối cảnh của những giá trị chung và mục đích cao cả hơn, điều khiến những rắc rối đó trở nên xứng đáng. Và nếu bạn đang có những mối quan hệ không",
+        "được khuếch đại bởi việc kết nối với những người khác. Nếu bạn có những mối quan hệ cản trở việc gặp gỡ người mới và kết bạn, thì đó có thể là một dấu hiệu cảnh báo. Trong cuốn sách \"Bốn tình yêu\", C.S. Lewis mô tả tình bạn là tình yêu ít đố kỵ nhất, bởi vì tình bạn là kiểu tình yêu được nâng tầm nhờ việc có thêm những người khác tham gia. Vì vậy, tôi nghĩ nếu bạn đang đối mặt với những người bạn này và họ là bạn thực sự, thì tình bạn giữa hai người nên được củng cố khi bạn muốn kết nối với những người khác. Tôi sẽ xem xét lại các mối quan hệ đó và tự hỏi tại sao mình lại gắn bó với họ. Có phải vì chúng ta học cùng nhau từ hồi lớp năm nên tôi cảm thấy tội lỗi, hay tôi đang tự huyễn hoặc bản thân rằng việc này sẽ"]
+];
+
+test("a clause that only parallels the next units is kept when the unit's source is known", () => {
+    const Q = require("../vi-quality.js");
+    for (const [src, vi, next] of PARALLEL) {
+        assert.notEqual(Q.trimContextLeak(vi, next), vi, "the case no longer reproduces the old cut: " + vi);
+        assert.equal(Q.trimContextLeak(vi, next, { src }), vi);
+    }
+});
+
+test("a real leak is still trimmed with the source known, even when the unit's own part is short", () => {
+    const Q = require("../vi-quality.js");
+    const next = "nhưng số tiền đó cũng gần bằng với tiền thuê nhà chúng tôi từng trả. Ngoài ra, chúng tôi không còn bất kỳ khoản nợ nào khác, nhất là những khoản nợ do chi tiêu quá mức cho những thứ nằm ngoài khả năng chi trả.";
+    // the unit's own part keeps its source's length: cut as before
+    const own = "Tôi dùng thẻ tín dụng vì có thể tích điểm khách sạn, điểm chuyến bay và nhiều ưu đãi khác. Chúng tôi có một khoản vay thế chấp,";
+    const leaked = own + " nhưng số tiền trả hàng tháng cũng tương đương với tiền thuê nhà trước đây. Ngoài khoản đó ra, chúng tôi không còn bất kỳ khoản nợ nào khác, đặc biệt là nợ do chi tiêu quá mức cho những thứ nằm ngoài khả năng chi trả.";
+    const src = "I use credit cards because I can earn hotel points, flight points and lots of other perks. And we have a mortgage,";
+    const cut = Q.trimContextLeak(leaked, next, { src });
+    assert.ok(cut !== leaked && !/bất kỳ khoản nợ nào khác/.test(cut) && cut.startsWith(own.replace(/,$/, "")), cut);
+    assert.equal(cut, Q.trimContextLeak(leaked, next), "the source changed a cut it should not");
+    // a terse own part, left under 0.7 of its source, still loses a leak that makes the whole 1.8
+    // times the source or more
+    const terse = "Tôi dùng thẻ tín dụng để tích điểm. Chúng tôi có khoản vay thế chấp,";
+    const terseLeak = terse + " nhưng số tiền đó cũng gần bằng với tiền thuê nhà chúng tôi từng trả. Ngoài ra, chúng tôi không còn bất kỳ khoản nợ nào khác, nhất là những khoản nợ do chi tiêu quá mức cho những thứ nằm ngoài khả năng chi trả.";
+    const terseCut = Q.trimContextLeak(terseLeak, next, { src });
+    assert.ok(terseCut.length < src.length * 0.7 && terseLeak.length >= src.length * 1.8, terseCut);
+    assert.equal(terseCut, terse.replace(/,$/, ""));
+});
+
 // From the user's cache (2.3.0): the middle item of a window was a sentence fragment; the model gave
 // it only its first words, then opened the next item with those words and the rest of the sentence
 const HEAD_REPEAT = {
@@ -402,9 +455,18 @@ test("quality check: web addresses, loanwords and sound notes are neither leftov
     assert.deepEqual(Q.assess("[Music]", "").issues, [], "a line of notes is translated from the list");
     assert.deepEqual(Q.fixSoundNotes([""], ["[Music]"]), ["[Âm nhạc]"], "even when the model gave nothing");
     assert.deepEqual(Q.assess("[Music] is [Music]", "[Âm nhạc]").issues, [], "a stray word heard in the music");
+    assert.deepEqual(Q.assess("(Laughter)", "[Tiếng cười]").issues, [], "a note in round brackets (TED)");
+    assert.deepEqual(Q.assess("(Applause)", "[Vỗ tay]").issues, []);
+    // a speaker label the translation leaves out is no omission (UIy-WQCZd4M)
+    assert.deepEqual(Q.assess("ANDREW HUBERMAN: Number six.", "Số sáu.").issues, []);
+    assert.deepEqual(Q.assess("ANDREW HUBERMAN: Before we begin, I'd like to emphasize that this podcast is separate from my teaching and research roles at Stanford.",
+        "ANDREW HUBERMAN: Trước khi bắt đầu").issues.map(i => i.type), ["omission"]);
     // the length ratio is an English one: a Hindi mantra or a Chinese line is not judged by it
     assert.deepEqual(Q.assess("खालीपन ही पदार्थ है जो पदार्थ आंखों के सामने है, वह खालीपन है खाली होना ही वस्तु है।", "Sự trống rỗng chính là vật chất").issues, []);
     assert.deepEqual(Q.assess("我们今天要学习如何使用这个新的工具来提高工作效率和质量", "Hôm nay chúng ta sẽ học cách sử dụng công cụ mới này để nâng cao hiệu quả và chất lượng công việc").issues, []);
+    // substance names kept as they are (nm1TxQj9IsQ, 2026-10-01: 16 refine flags on lines like this)
+    assert.deepEqual(Q.assess("Caffeine acts as an adenosine antagonist, what that means is that when you ingest caffeine, whether or not it's coffee or soda or tea, or in any other form, it binds to the adenosine receptor,",
+        "Caffeine đóng vai trò là chất đối kháng adenosine, nghĩa là khi bạn nạp caffeine vào cơ thể, dù là từ cà phê, nước ngọt, trà hay bất kỳ dạng nào khác, nó sẽ liên kết với thụ thể adenosine,").issues, []);
     // still caught: English really left in, speech really dropped next to a note
     assert.match(Q.assess("We will now compute the gradient descent update for the weights", "Bây giờ ta sẽ compute gradient descent update cho weights").issues.map(i => i.detail).join(), /compute/);
     assert.deepEqual(Q.assess("[Music] hello there my friends, welcome back", "[Âm nhạc]").issues.map(i => i.type), ["empty"]);

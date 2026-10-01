@@ -769,7 +769,7 @@ function ytTrimLeaks(groups, idxs) {
         if (!g || !g.viText) continue;
         const next = [groups[k + 1], groups[k + 2]].filter(x => x && x.viText).map(x => x.viText).join(" ");
         if (!next) continue;
-        const cut = Q.trimContextLeak(g.viText, next);
+        const cut = Q.trimContextLeak(g.viText, next, { src: src(g) });
         if (cut === g.viText) continue;
         g.viText = cut;
         g.viCues = segmentGroupVi(g, cut, groups[k + 1] ? groups[k + 1].start : undefined);

@@ -446,7 +446,7 @@
         return JSON.stringify({
             version, at: new Date().toISOString(), host: location.hostname, video,
             status: dub.lastStatus || null, health,
-            settings: e ? { maxRate: e.settings.maxRate || null, secondVoice: !!e.settings.secondVoice, prefetchMax: e.settings.prefetchMax } : null,
+            settings: e ? { maxRate: e.settings.maxRate || null, secondVoice: !!e.settings.secondVoice, prefetchMax: e.settings.prefetchMax, duck: e.settings.duck, volume: e.settings.volume } : null,
             player: v ? { t: Math.round((v.currentTime || 0) * 100) / 100, rate: v.playbackRate, paused: !!v.paused, readyState: v.readyState, hidden: !!document.hidden } : null,
             engine: snap
         });

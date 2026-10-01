@@ -73,6 +73,12 @@ numbers are read with "chấm", a decimal with "phẩy". Test: `tests/dub.test.j
 "phẩy"); a version after any non-Vietnamese word with a capital counts ("iOS 18.2"). Ranges
 ("2020-2021", "10-15") and word pairs ("Wi-Fi", "machine-learning") are untouched. Every provider
 gets this. Test: `tests/speech.test.js` "a version is read with chấm".
+2.4.2: a speaker label of edited captions ("ANDREW HUBERMAN: ...") stays in the subtitle and is not
+read. `buildDubScript` takes the labels in capitals that the group's own source carries
+(`speakerLabels`) out of every subtitle line it reads (`stripSpeakerLabels`, at a line start or after
+a sentence end or a "--", also when a line ends on the label). The 3-hour podcast UIy-WQCZd4M read
+262 of them; on the simulator its dropped lines went 54 -> 4. Test: `tests/dub.test.js` "script: a
+speaker label". `playback-sim.js` counts lost words against the same stripped text.
 
 ## English inside Vietnamese speech (1.7.8, `dub-speech.js`)
 
@@ -524,7 +530,12 @@ Knobs you will actually reach for:
   EMA 0.25), not a constant. `floorRate` divides by `video.playbackRate`.
 - **Chaining**: `chainLead` was cut from 2.0s to 0.8s because starting early accumulated error
   across chained segments. `continuesNext` treats gaps up to 1.5s as one continuous span.
-- **Skipping**: whole sentences only, never mid-sentence. `maxQueueLag` 4.5, `dropLag` 4.0 for the
+- **Skipping**: whole sentences only, never mid-sentence. 2.4.2: a line past `maxQueueLag` is still
+  read when it gives time back (`absorbsLag`: at the pace `chooseRate` may reach, the next line starts
+  within `maxQueueLag` or `rescueGain` 0.5 s less late), never past `maxQueueLagHard` 8. On the 39
+  saved videos lines dropped 17 -> 9, words lost 436 -> 173, starts over 4.5 s late 7 -> 11 (max 6.7 s);
+  the drops left are lines too dense to fit themselves.
+  `maxQueueLag` 4.5, `dropLag` 4.0 for the
   live provider. Gating happens in `nextSpeech`.
 - **Overload (added 1.4.7)**: when the TTS server is slower than real time, waiting for the next
   sentence's audio is hopeless and the old code stood silent 4.5s per sentence, dropping them one
@@ -689,6 +700,10 @@ What changed, each for a measured cause:
 - **Scorecard** (debug only): `debugSnapshot().delivery` = `recoverMs` (start/seek -> first voice),
   `late` (lag > `SYNC.lateStart`), `gaps` / `gapSec` (silence beyond the intended rest, `SYNC.gapMin`),
   requests, cache hits, aborted, detached, lines held, live elements. Intended pauses never count.
+  2.4.2, for a reported "pop" the simulator cannot hear: `reseeks` (a sounding voice moved by
+  `driftCorrect`, a jump each), `nudges`, `duckUps` (the original back at full between lines), and
+  `settings.duck` / `volume` in "Chép chẩn đoán". The simulator on Q4JWEtq23h8 (the report, 2.4.1): the
+  original came up 11 times in 10 minutes, 1 for under 1.5 s; not a pump.
 Not changed on purpose: prefetch horizon (`prefetchAhead` already scales with latency and rate: no
 gap at 1.5x / 2x), rate choice, drift, ducking, prosody, the paid-voice cache keys.
 

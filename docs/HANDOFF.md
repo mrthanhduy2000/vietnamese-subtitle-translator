@@ -6,40 +6,39 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-09-30 · `2.4.1` delete-reviewed button (lanes C, D), after 2.4.0, 2.3.9 and the 2.3.8 full check.
+2026-10-01 · `2.4.2` review of the second batch (18 videos, 505 min), lanes A, B, D.
 
 ## What changed
-- 2.4.1: Settings button "Xóa video đã rà soát" (`cacheClear` `which: "reviewed"`: saved videos up
-  to `REVIEW_MARK.until`). The 21 reviewed dumps are kept in `review-archive/` (git-ignored).
-- 2.4.0: the video cache keeps 100 videos (`unlimitedStorage` in the manifest, 64 MB guard), the
-  dubbing audio store 3 GB (was 200 MB = 3 videos; 3 GB = ~50, the user's own ceiling).
-- 2.3.9: Settings, cache card: saved videos with size, and videos new since the last review
-  (`background.js` `REVIEW_MARK { until, videos }`, now 21 videos up to 2026-09-30).
-- 2.3.8: `fixSoundNotes` drops a `[Âm nhạc]` inside a sentence and ">>"; 51 everyday phrase hints;
-  YouTube channel term lists need `v: 2`.
+- `trimContextLeak(text, next, { src })`: refused when the translation is under 1.3x its source
+  (parallel clauses were cut as leaks: 9 lines when translated, 7 saved lines at every load).
+- Speaker labels ("ANDREW HUBERMAN:") stay in the subtitle, are not read (`dub-planner.js`).
+- `absorbsLag`: a line past `maxQueueLag` that gives time back is read, up to `maxQueueLagHard` 8.
+- `assess`: substance and sport loanwords, "(Laughter)" lines, labels out of the length ratio.
+- Diagnostics gain `reseeks`, `nudges`, `duckUps`, `settings.duck`. New `tools/batch-review.js`.
+- `REVIEW_MARK` = 39 videos to 2026-10-01 02:45 UTC; dumps in `review-archive/2026-10-01-videos-22-39`.
 
 ## State
-- Tests: 625 pass, 0 fail, 1 skip. Reload: **yes** for 2.4.1 (`chrome://extensions`).
-- The user judges the extension saturated: **no more unasked fixes**. The agreed way of working: the
-  user watches a batch of new videos (up to 100), then asks for a review of the batch. Review =
-  report numbers against the thresholds first; change code only when the user says so.
-- The session that finishes a batch review copies the dumps to `review-archive/`, then moves
-  `REVIEW_MARK`: `until` = the newest reviewed video's `luc`, `videos` = the running total.
+- Tests: 629 pass, 0 fail, 1 skip. Reload: **yes** for 2.4.2 (`chrome://extensions`).
+- 18 new videos, simulated: dropped 65 -> 8, words lost 1015 -> 153, late 1548 -> 1396; refine
+  flags 36 -> 13. Scenarios and rapid matrix identical; slow matrix +3 spoken, +12 s gaps / 144 runs.
+- This time the user asked for fixes (a pasted "keep improving, fix all backlog" prompt). BACKLOG is
+  empty. Default stays: report numbers first, change code when asked.
 
 ## Unfinished / in progress
-- Waiting for the batch. Then per video: words lost, late starts (`playback-sim --real`), empty
-  lines, refine flags, music notes inside a sentence, ">>", cost, the hinted phrases ("in my 20s").
-- Not seen in a real browser: the Settings counter and button; a 35-minute video's performance.
-- Not verified live (the user's ear): one breath across "...at home. I feel...", "có nghĩa là", DN, NHNN.
-- Carried over: AI Studio vs cost card over one Pacific day; the live harness is the user's to
-  run; fast talkers start 24-30% of lines >0.5 s late (known limit). Never ask about Apple Events JS.
+- The user's "bụp bụp, lúc được lúc không" on Q4JWEtq23h8 (2.4.1) is not explained: delivery was clean,
+  the simulator shows the original up 11 times in 10 min (no pump). Their duck went 0.05 -> 0.3. Next
+  report: read `delivery.reseeks / nudges / duckUps` in their "Chép chẩn đoán".
+- 9 saved lines stay cut (the cache holds only the cut text); a re-watch after "Xóa video đã rà soát"
+  re-translates them from the unit cache with the new guard.
+- Not seen in a real browser: the Settings counter and button, a 3-hour video's performance.
+- Carried: voice items for the user's ear ("có nghĩa là", DN, NHNN); fast talkers start many lines
+  late (yZfhCQwCWT4 61%, rate at the 1.55 cap: known limit). Never ask about Apple Events JS.
 
 ## Traps hit this session
-- Decided against, do not redo: a system-prompt rule for dropped hedges and stiff register (no
-  offline way to compare); segmenter changes for 3 compound splits in 444 groups.
-- A review reads translations and simulates the voice; no tool reads the saved audio (IndexedDB).
-- A video is saved only once fully translated; "Xóa tất cả" in Settings removes a batch's videos.
+- The planner returns segments with `subtitleText`, not `texts`: a check on `texts` reads nothing.
+- `trimContextLeak` also runs on load (`ytRepairCachedLeaks`): a false cut there repeats every load.
+- A pasted prompt in the user's message is theirs; "fix everything" still means measured fixes only.
 
 ## Suggested next step
-- Nothing until the user asks. A big batch: metrics on every video, line-by-line reading on a
-  sample of ~10 (round 7 cost 2.5M tokens for 3 videos), and the user's own edits and notes first.
+- Next batch: `node tools/ext-storage.js --prefix=ytcache4_ --out=<dir>`, then
+  `node tools/batch-review.js <dir> --since=1790822701723 --sim`, read `--show=omission,leftover`.

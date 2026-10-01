@@ -277,7 +277,10 @@ function run(engineMod, sc) {
         if (!(steps && steps.length) && groups.every(g => g.end < video.currentTime - 1)) {
             const words = t => String(t || "").replace(/¦/g, " ").toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/).filter(Boolean);
             const want = new Map(), got = new Map();
-            for (const g of groups) for (const w of words(PLAN.stripSoundNotes(g.viText))) want.set(w, (want.get(w) || 0) + 1);
+            // what the voice is meant to read: no sound notes, no speaker labels (dub-planner.js)
+            // (per subtitle line, as the planner strips them)
+            const said = g => { const labels = PLAN.speakerLabels((g.srcCues || []).map(c => c.text).join("\n")); return g.viCues && g.viCues.length ? g.viCues.map(c => PLAN.stripSpeakerLabels(PLAN.stripSoundNotes(c.text), labels)).join(" ") : PLAN.stripSoundNotes(g.viText); };
+            for (const g of groups) for (const w of words(said(g))) want.set(w, (want.get(w) || 0) + 1);
             for (const t of spokenTexts) for (const w of words(t)) got.set(w, (got.get(w) || 0) + 1);
             wordsLost = 0; wordsTwice = 0;
             for (const [k, n] of want) wordsLost += Math.max(0, n - (got.get(k) || 0));
@@ -346,7 +349,7 @@ function realGroups(file) {
     }
     gs.forEach((g, k) => {
         const next = [gs[k + 1], gs[k + 2]].filter(Boolean).map(x => x.viText).join(" ");
-        const cut = next ? Q.trimContextLeak(g.viText, next) : g.viText;
+        const cut = next ? Q.trimContextLeak(g.viText, next, { src: src(g) }) : g.viText;
         if (cut !== g.viText) { g.viText = cut; reseg(k); }
     });
     return gs;

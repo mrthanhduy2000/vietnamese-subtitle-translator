@@ -90,7 +90,18 @@
         "show", "camera", "marketing", "startup", "trend", "style", "menu", "wifi", "virus", "robot", "radio", "taxi",
         "pizza", "karaoke", "yoga", "gym", "voucher", "combo", "team", "size", "playlist", "deadline", "feedback",
         "content", "youtuber", "influencer", "sale", "shop", "shopping", "stress", "test", "logo", "slide", "font", "spa",
-        "massage", "hashtag", "emoji", "tag", "mail", "chat"]);
+        "massage", "hashtag", "emoji", "tag", "mail", "chat",
+        // Substances Vietnamese health writing names as they are, and sport and food words used as
+        // they are. In the user's 2026-10-01 batch the first five alone were 148 of 340 leftover
+        // words, and 16 of the 17 refine flags of one sleep lecture (a refine request each in
+        // Balanced mode, the user's), on lines that were right
+        "caffeine", "melatonin", "cortisol", "adenosine", "dopamine", "serotonin", "adrenaline", "noradrenaline",
+        "epinephrine", "norepinephrine", "testosterone", "estrogen", "progesterone", "insulin", "glucose", "glycogen",
+        "cholesterol", "collagen", "creatine", "taurine", "theanine", "apigenin", "melanopsin", "lactate", "ketone",
+        "hormone", "vitamin", "protein", "omega", "aspirin", "ibuprofen", "nicotine", "modafinil", "armodafinil",
+        "amphetamine", "cocaine", "cardio", "squat", "deadlift", "golf", "tennis", "guitar", "piano", "marathon",
+        "kickboxing", "jujitsu", "sandwich", "hamburger", "burger", "latte", "cappuccino", "max", "rep", "reps",
+        "euro", "lux"]);
     // A web address, an e-mail or a handle is copied, never translated ("betterhelp.com/malamalife"
     // made "betterhelp" and "com" two leftovers of a sponsor line and paid for a refine, 2.3.2)
     const ADDRESS_RE = /(?:https?:\/\/)?(?:[\w-]+\.)+[a-z]{2,}(?:\/\S*)?|[\w.-]+@[\w-]+(?:\.[\w-]+)+|@[\w.]+/gi;
@@ -112,14 +123,21 @@
     // Sound notes ("[Music]", "♪") are translated from a list (soundNoteLine), so they take no part in
     // judging a line: a lyric line full of notes read as an "abnormally short" translation (2.3.2)
     const NOTE_SPAN = /\[[^\][]*\]|[♪♫]+/g;
+    // ... nor do speaker labels of edited captions ("ANDREW HUBERMAN: Number six."), which the model
+    // keeps in some lines and drops in others: dropped, "Số sáu." read as an omission (2026-10-01)
+    const LABEL_SPAN = /(^|[.!?…-]\s+)(\p{Lu}[\p{Lu}\p{M}.'’-]*(?:\s+\p{Lu}[\p{Lu}\p{M}.'’-]*){0,3}):\s+/gu;
+    const dropLabels = t => t.replace(LABEL_SPAN, (m, lead, name) => (/\p{Lu}{2}/u.test(name) ? lead : m));
 
     // src: câu tiếng Anh, vi: bản dịch, opts: { terms:[{en,vi}], keep:Set(từ được giữ nguyên) }
     function assess(src, vi, opts = {}) {
         const issues = [];
-        const s = String(src || "").replace(NOTE_SPAN, " ").replace(/\s+/g, " ").trim();
-        const v = String(vi || "").split("¦").join(" ").replace(NOTE_SPAN, " ").replace(/\s+/g, " ").trim();
+        const s = dropLabels(String(src || "").replace(NOTE_SPAN, " ").replace(/\s+/g, " ").trim());
+        const v = dropLabels(String(vi || "").split("¦").join(" ").replace(NOTE_SPAN, " ").replace(/\s+/g, " ").trim());
         const add = (type, severity, detail, fix) => issues.push({ type, severity, detail, fix });
         if (!s && String(src || "").trim()) return finish(issues);        // sound notes only
+        // ... in round brackets too: "(Laughter)" left "[Tiếng cười]", read as an empty translation, a
+        // severity-3 issue and a refine request in Balanced mode (4 TED lines, 2026-10-01 batch)
+        if (soundNoteLine(src)) return finish(issues);
         // Beside a note, a word or four is mostly the recognizer hearing the music ("[Music] is
         // [Music]", "S [Musik]", "mahusus in cand daya [Musik]"): leaving it out is no empty line
         if (!v && /\[[^\][]*\]|[♪♫]/.test(String(src || "")) && s.split(" ").length <= 4) return finish(issues);
@@ -209,8 +227,23 @@
         return out;
     }
 
+    // A tail can look like the next units without being theirs: the speaker says a thing twice, or in
+    // two parallel clauses ("spend this money on yourself" / "... on someone else", "drop by 1 to 3
+    // degrees" / "a 1 to 3 degree increase"). In the user's 2026-10-01 batch 9 lines lost a clause
+    // that way when translated, each cut to 0.22-0.54 of its source's length ("Bạn phải nhớ rằng"),
+    // and the repair on load cut 7 more saved lines, in long units ("Và nếu bạn đang có những mối
+    // quan hệ không"), every time the video opened. A leak adds the next units on top of the unit's
+    // own text, so with the source known a cut is refused when the whole translation is under
+    // LEAK_ROOM times the source's length (no room for a leaked unit: 1.29 is the 90th percentile of
+    // 4934 real units, the leaks measured were 2 to 2.4), or when it would leave less than
+    // LEAK_KEEP_MIN of that length and the whole is under LEAK_FULL_MIN.
+    const LEAK_ROOM = 1.3;
+    const LEAK_KEEP_MIN = 0.7;
+    const LEAK_FULL_MIN = 1.8;
+
     // Returns text without the leaked tail, or text unchanged. next: the following unit(s)' translation.
-    function trimContextLeak(text, next) {
+    // opts.src: this unit's source line (enables the guard above).
+    function trimContextLeak(text, next, opts) {
         const t = String(text || "");
         const nextPairs = new Set(pairs(syllables(next)));
         const nextWords = new Set(syllables(next));
@@ -237,7 +270,10 @@
             if (syllables(t.slice(0, from)).length < 4) break;
             cut = from;
         }
-        return t.slice(0, cut).replace(/[,;:\s]+$/, "");
+        const out = t.slice(0, cut).replace(/[,;:\s]+$/, "");
+        const own = opts && opts.src ? String(opts.src).replace(NOTE_SPAN, " ").replace(/\s+/g, " ").trim().length : 0;
+        if (own >= 20 && (t.length < own * LEAK_ROOM || (out.length < own * LEAK_KEEP_MIN && t.length < own * LEAK_FULL_MIN))) return t;
+        return out;
     }
 
     // ---------- A unit that opens by translating the one before it again ----------

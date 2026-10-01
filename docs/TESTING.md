@@ -16,10 +16,10 @@ sense of weight, not an assertion.
 
 | File | ~Tests | Covers |
 |---|---|---|
-| `segmenter.test.js` | 31 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
+| `segmenter.test.js` | 33 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
 | `context.test.js` | 18 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |
 | `integration.test.js` | 25 | Runs the **real** `content.js` and `background.js` in a `vm` with a fake `chrome`, fake DOM and fake Gemini |
-| `dub.test.js` | 72 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
+| `dub.test.js` | 74 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
 | `cost.test.js` | 59 | The full LOCAL -> CACHE -> cheap -> strong -> TTS chain, plus `cst-cache`, `cost-policy`, `dub-planner`, `dub-engine` |
 | `hardening.test.js` | 105 | Per-API-key model access, options opening, language auto-detect, no-clipping dubbing, budget caps, the version-scheme rule |
 | `bridge.test.js` | 4 | `yt-bridge.js` recovering empty captions that are missing the `pot` token, and restoring the viewer's original caption track |
@@ -225,4 +225,9 @@ Two traps in `ui.test.js` that cost a session real time:
 - `review-archive/<date>-videos-<a>-<b>/` (git-ignored, local only): the dumps of every batch already
   reviewed. The user may delete reviewed videos from the extension (Settings, "Xóa video đã rà soát",
   2.4.1), so **copy a batch here before moving `REVIEW_MARK`**: it is the baseline a later change is
-  scored against (`node tools/playback-sim.js --real=review-archive/<folder>`).
+  scored against (`node tools/playback-sim.js --real=review-archive/<folder>`). Two so far:
+  `2026-09-30-videos-1-21`, `2026-10-01-videos-22-39` (18 videos, 505 minutes, one of 186).
+- `node tools/batch-review.js <dump> --since=<REVIEW_MARK.until> [--sim] [--show=omission,leftover]`
+  (2.4.2) is a batch review's first pass: per video the quality check's flags, English left in, music
+  notes inside a sentence, ">>", speaker labels, repeats, and with `--sim` the voice (spoken, dropped,
+  late, words lost). Then read the flagged lines (`--show`) before changing anything.
