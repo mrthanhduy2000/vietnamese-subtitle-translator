@@ -37,10 +37,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 - Carried: voice items for the user's ear ("có nghĩa là", DN, NHNN). Never ask about Apple Events JS.
 
 ## Traps hit this session
-- Cached `srcCues` are `[start, end, text]` arrays, not objects: `c[2]`, not `c.text`.
-- Seam scans: most "same words across a seam" are the speaker repeating ("Meal prep." twice).
-- An old engine copy outside the repo loads only after the current one (globals stand in for its
-  `require("./cost-policy.js")`); require `./dub-engine.js` first in ad-hoc comparisons.
+- Cached `srcCues` are `[start, end, text]` arrays: `c[2]`, not `c.text`.
+- An old engine copy outside the repo loads only after `./dub-engine.js` (globals stand in for it).
 
 ## Suggested next step
 - Next batch: `node tools/ext-storage.js --prefix=ytcache4_ --out=<dir>`, then
