@@ -4,6 +4,12 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.4.3", luc: "", ten: "Tên người nói hiện đều trên phụ đề podcast",
+            y: [
+                "Podcast ghi tên người nói ở đầu lời thoại (\"ANDREW HUBERMAN: ...\"): bản dịch lúc giữ tên, lúc bỏ, nên phụ đề chỉ thỉnh thoảng cho biết ai đang nói. Video 3 tiếng của Huberman giữ tên ở 239 trên 311 lời thoại. Nay tên được ghép lại vào đầu bản dịch khi bị bỏ: 311 trên 311, kể cả với video đã lưu. Giọng đọc vẫn không đọc tên."
+            ]
+        },
+        {
             v: "2.4.2", luc: "", ten: "Rà soát đợt 18 video: không cắt mất ý, không đọc tên người nói, ít bỏ câu",
             y: [
                 "Câu bị cắt mất nửa sau: khi người nói lặp lại một ý hoặc nói hai vế song song (\"tiêu tiền này cho bản thân\" rồi \"cho người khác\"), bộ lọc chống dịch lấn sang câu sau tưởng vế của chính câu đó là phần lấn và cắt đi, phụ đề còn \"Bạn phải nhớ rằng\" và giọng đọc cũng mất vế đó. Đợt này có 9 câu như vậy lúc dịch, và 7 câu đã lưu bị cắt lại mỗi lần mở video. Nay bộ lọc so với độ dài câu gốc: bản dịch không dài hơn bình thường thì không có gì lấn để cắt. Những câu đã lưu bị cắt từ trước vẫn giữ nguyên, vì bản đã lưu chỉ còn phần đó.",

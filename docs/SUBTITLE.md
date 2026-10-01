@@ -105,6 +105,10 @@ note cut a phrase in two on screen ("dễ dàng [nhạc] vệ sinh": 10 lines in
 the start, at the end or between two sentences it stays, and so does laughter or applause anywhere.
 The speaker mark ">>" is removed from a translation whose source has it (kept in 5 of 27 lines, so
 it told the viewer nothing); the voice takes its turns from the source line.
+2.4.3: the other way for a speaker label in capitals that opens the source ("ANDREW HUBERMAN:
+Fantastic."): it says who speaks, and the model kept it in 239 of 311 such lines of UIy-WQCZd4M, so
+`fixSoundNotes` (`restoreLabel`) puts it back in front when the translation lacks it: 311 of 311. The
+voice never reads a label (`DUBBING.md` "Speech text").
 
 **Everyday phrase hints (2.3.8).** `context-engine.js` `PHRASES` held lecture idioms only, while the
 user watches vlogs about home, money and habits. The round 7 reading of 3 real videos (241 findings

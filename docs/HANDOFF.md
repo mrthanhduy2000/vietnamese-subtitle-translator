@@ -6,7 +6,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-10-01 · `2.4.2` review of the second batch (18 videos, 505 min), lanes A, B, D.
+2026-10-01 · `2.4.3` speaker labels restored in subtitles, after `2.4.2` (second batch review).
 
 ## What changed
 - `trimContextLeak(text, next, { src })`: refused when the translation is under 1.3x its source
@@ -15,14 +15,15 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 - `absorbsLag`: a line past `maxQueueLag` that gives time back is read, up to `maxQueueLagHard` 8.
 - `assess`: substance and sport loanwords, "(Laughter)" lines, labels out of the length ratio.
 - Diagnostics gain `reseeks`, `nudges`, `duckUps`, `settings.duck`. New `tools/batch-review.js`.
+- 2.4.3: `fixSoundNotes` puts a dropped leading label back (`restoreLabel`): 239 -> 311 of 311.
 - `REVIEW_MARK` = 39 videos to 2026-10-01 02:45 UTC; dumps in `review-archive/2026-10-01-videos-22-39`.
 
 ## State
-- Tests: 629 pass, 0 fail, 1 skip. Reload: **yes** for 2.4.2 (`chrome://extensions`).
+- Tests: 630 pass, 0 fail, 1 skip. Reload: **yes** for 2.4.3 (`chrome://extensions`).
 - 18 new videos, simulated: dropped 65 -> 8, words lost 1015 -> 153, late 1548 -> 1396; refine
   flags 36 -> 13. Scenarios and rapid matrix identical; slow matrix +3 spoken, +12 s gaps / 144 runs.
-- This time the user asked for fixes (a pasted "keep improving, fix all backlog" prompt). BACKLOG is
-  empty. Default stays: report numbers first, change code when asked.
+- The user pasted "keep improving, fix all backlog" twice. BACKLOG is empty; the second pass found
+  only micro items (below). Default stays: report numbers first, change code when asked.
 
 ## Unfinished / in progress
 - The user's "bụp bụp, lúc được lúc không" on Q4JWEtq23h8 (2.4.1) is not explained: delivery was clean,
@@ -37,7 +38,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 ## Traps hit this session
 - The planner returns segments with `subtitleText`, not `texts`: a check on `texts` reads nothing.
 - `trimContextLeak` also runs on load (`ytRepairCachedLeaks`): a false cut there repeats every load.
-- A pasted prompt in the user's message is theirs; "fix everything" still means measured fixes only.
+- Checked and left (too rare): a unit translating into the one before (3 of 6845), "tăng tăng" slips
+  (most doubled words are real: vân vân, dần dần), per-frame lookups are binary searches.
 
 ## Suggested next step
 - Next batch: `node tools/ext-storage.js --prefix=ytcache4_ --out=<dir>`, then

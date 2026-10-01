@@ -421,6 +421,19 @@ test("sound captions: notes only are translated from a list, every note ends up 
 // 2.3.8, from the user's cache: the recognizer writes "[music]" wherever the background music is and
 // ">>" at every speaker it hears; the model left most out and kept some (10 notes cutting a phrase in
 // two in 5 videos, ">>" in 5 of 27 lines)
+// UIy-WQCZd4M (2026-10-01): the model kept the label in 239 of 311 lines that open with one
+test("a speaker label that opens the source is put back in front of a translation that dropped it", () => {
+    const Q = require("../vi-quality.js");
+    const fix = (src, vi) => Q.fixSoundNotes([vi], [src])[0];
+    assert.equal(fix("ANDREW HUBERMAN: Number six.", "Số sáu."), "ANDREW HUBERMAN: Số sáu.");
+    assert.equal(fix("ANDREW HUBERMAN: Fantastic.", "ANDREW HUBERMAN: Tuyệt vời."), "ANDREW HUBERMAN: Tuyệt vời.");
+    // not a label: mixed case, one capital letter, or not at the start
+    assert.equal(fix("So here's the thing: we wait.", "Vấn đề là: ta chờ."), "Vấn đề là: ta chờ.");
+    assert.equal(fix("A: yes.", "Có."), "Có.");
+    assert.equal(fix("And then ANDY GALPIN: yes.", "Rồi thì có."), "Rồi thì có.");
+    assert.equal(fix("ANDY GALPIN: Yes.", ""), "", "nothing to put it on");
+});
+
 test("sound captions: a music note inside a sentence and the speaker marks are dropped", () => {
     const Q = require("../vi-quality.js");
     const fix = (src, vi) => Q.fixSoundNotes([vi], [src])[0];

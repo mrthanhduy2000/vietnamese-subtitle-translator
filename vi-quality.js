@@ -406,10 +406,21 @@
     // note at the start, at the end or between two sentences stays.
     const MUSIC_INSIDE = /(?<=[\p{L}\p{N},])\s+\[Âm nhạc\]\s+(?=\p{Ll})/gu;
 
+    // A speaker label that opens the source ("ANDREW HUBERMAN: Fantastic.") was kept by the model in
+    // some lines and dropped in others (77 of 339 in UIy-WQCZd4M, 2026-10-01), so the subtitle named
+    // the speaker now and then. It goes back in front when the translation lacks it. The voice never
+    // reads a label (dub-planner.js stripSpeakerLabels).
+    const LEAD_LABEL = /^\s*(\p{Lu}[\p{Lu}\p{M}.'’-]*(?:\s+\p{Lu}[\p{Lu}\p{M}.'’-]*){0,3}):\s+\S/u;
+    function restoreLabel(text, src) {
+        const m = String(src || "").match(LEAD_LABEL);
+        if (!m || !/\p{Lu}{2}/u.test(m[1]) || !text || !/[\p{L}\p{N}]/u.test(text) || String(text).includes(m[1] + ":")) return text;
+        return `${m[1]}: ${String(text).replace(/^\s+/, "")}`;
+    }
+
     function fixSoundNotes(vi, src) {
         return (vi || []).map((text, i) => {
             const s = String((src && src[i]) || "");
-            text = dropTurnMarks(text, s);
+            text = restoreLabel(dropTurnMarks(text, s), s);
             if (!/[[(♪♫]/.test(s)) return text;
             const line = soundNoteLine(s);
             if (line && line.vi) return line.vi;              // even when the model gave nothing
