@@ -1471,7 +1471,7 @@ async function handleAudioCacheGet(req) {
 // finishes a review moves it: `until` = the newest reviewed video's `luc` (node tools/ext-storage.js
 // --prefix=ytcache4_), `videos` = how many were reviewed in all. A video saved after `until` is new.
 // YT_SAVED_MAX mirrors youtube.js YT_CACHE_TOI_DA (a test keeps the two equal).
-const REVIEW_MARK = { until: 1790822701723, videos: 39 };      // 2026-10-01, the 18-video batch (2.4.2)
+const REVIEW_MARK = { until: 1791127534084, videos: 45 };      // 2026-10-05, the 6-video batch (2.4.7)
 const YT_SAVED_MAX = 100;
 async function localCacheBytes() {
     const all = await new Promise(r => chrome.storage.local.get(null, r));

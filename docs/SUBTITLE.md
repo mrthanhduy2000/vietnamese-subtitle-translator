@@ -107,6 +107,21 @@ hit at window sizes 4 to 12. `assessAll` adds a severity-3 `misaligned` issue th
 what is wrong. `pickRefined` then takes the refined window whole, if its total score is lower,
 instead of item by item. `englishLeftovers` skips `VI_PLAIN`, Vietnamese words with no marks that
 English also has ("chổi than", "con", "tin").
+2.4.7, a slid run `misalignedItems` misses: one 20 s item held three speaker turns, the model put the
+second turn into the next item, and each next answer sat one item late until two were merged (three
+sentences in the 1.6 s of ">> Creapure is from Germany."). One item of the run fit both neighbours by
+length, so the run was under 3. `CST_QUALITY.realignSentences(src, vi)` deals the answers' sentences
+to the items again, in order (a DP over where each item's sentences end, each end moving at most 3
+sentences): an item costs its length's distance from its source's (log ratio / 0.18, median ratio
+1.04) plus 1.5 for each kept word or number that sits in a neighbour's source and not its own ("NSF").
+A run is moved only if it saves >= 20; over the 45 saved videos (7513 groups, after the other fixes,
+whole videos and windows of 4 to 12) it moves 2 runs: this one and a garbled song seam. The 10
+lookalikes all score under 10 ("Lean mass. | Lean mass, yeah." over two turns). Non-Latin sources
+are skipped. It runs in `localFixes` after `fixRepeatedHeads` (so a slid window pays no refine), in
+`trimTranslationLeaks` (Coursera) and in `ytTrimLeaks` over the translated stretch 6 groups around
+the new window (crosses a seam; a cached video whole on load). Words are only moved.
+Same release: an inner capital is a brand (`iPad`, `eBay`, `eGFR`), and 29 substances, foods and things joined
+`LOANWORDS` (gluten, creatinine, monohydrate...): 50 of the batch's 53 leftover words, one paid refine.
 
 **Sound captions (2.3.1).** Automatic captions put "[Music]", "[Applause]" on lines of their own,
 in the caption's language ("[Musik]", "[Tepuk tangan]", "[เพลง]"); Coursera writes "[MUSIC]". The

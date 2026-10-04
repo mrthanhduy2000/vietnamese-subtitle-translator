@@ -101,7 +101,13 @@
         "hormone", "vitamin", "protein", "omega", "aspirin", "ibuprofen", "nicotine", "modafinil", "armodafinil",
         "amphetamine", "cocaine", "cardio", "squat", "deadlift", "golf", "tennis", "guitar", "piano", "marathon",
         "kickboxing", "jujitsu", "sandwich", "hamburger", "burger", "latte", "cappuccino", "max", "rep", "reps",
-        "euro", "lux"]);
+        "euro", "lux",
+        // The 2026-10-05 batch, two supplement podcasts and a nutrition talk: with the inner-capital
+        // rule, 50 of its 53 leftover words, all substances, foods and things Vietnamese writes as
+        // they are (one paid refine). Earlier batches' kept words of the same kind too
+        "gluten", "celiac", "glutathione", "creatinine", "monohydrate", "hydrochloride", "methyl", "threonate",
+        "curcumin", "dextrose", "melanin", "niacin", "folate", "glyphosate", "urolithin", "heme", "serum",
+        "granola", "soda", "sofa", "salad", "album", "hoodie", "jeans", "sedan", "diesel", "ukulele", "martini", "paleo"]);
     // Vietnamese words with no diacritics that English also has: "động cơ chổi than" for "brushed
     // motors ... longer than" read as "than" left in English twice (2.4.5). Not one of them in the
     // translation is evidence of English left in; an untranslated English phrase has other words.
@@ -119,6 +125,7 @@
             if (/^[A-Z0-9]{2,}$/.test(w)) return false;          // viết tắt: GPU, API
             if (/[A-Z].*[A-Z]/.test(w.slice(1))) return false;   // camelCase, PyTorch
             if (/^[A-Z]/.test(w)) return false;                  // tên riêng
+            if (/^[a-z]+[A-Z]/.test(w)) return false;            // a brand with an inner capital: iPad, eBay, eGFR
             if (LOANWORDS.has(w.toLowerCase()) || VI_PLAIN.has(w)) return false;
             if (allowSet.has(w.toLowerCase())) return false;
             return true;
@@ -453,6 +460,93 @@
         return total(q2) < total(q1) ? again.slice() : first.slice();
     }
 
+    // ---------- Realigning a slid run by its sentences (2.4.7) ----------
+    // A podcast window: one 20 s item held three speaker turns, the model answered only the first and
+    // put the second turn into the next item, so every next answer sat one item late until two were
+    // merged ("Creapure là thương hiệu đến từ Đức." under "It has the highest standard...", and three
+    // sentences squeezed into the 1.6 s of ">> Creapure is from Germany."). misalignedItems missed it:
+    // one item in the run fit both neighbours equally by length. The answers are all there, only cut
+    // in the wrong places, so the cuts are moved back for free: the answers' sentences are dealt to
+    // the items again, in order, by a dynamic program over where each item's sentences end, scoring
+    // each item by how far its length is from its source's (the log ratio's spread over 6496 units is
+    // 0.18) and by kept words or numbers ("NSF", "1832") that sit under a neighbour's source instead
+    // of their own. A run is moved only when that saves REALIGN_MIN_GAIN: over the user's 45 videos
+    // the cases above 4 were 10 below 10 (lookalikes: "Lean mass. Lean mass, yeah." over two turns)
+    // and 4 above 40 (two of them seams fixRepeatedHeads mends first). Words are only moved.
+    const REALIGN_MIN_GAIN = 20;
+    const REALIGN_DRIFT = 3;            // an item's last sentence moves at most this many sentences
+    const REALIGN_SPREAD = 0.18;
+    const REALIGN_RATIO = 1.04;         // median Vietnamese / English length over the same units
+    const REALIGN_ANCHOR = 1.5;
+    const SENTENCE_GAP = /(?<=[.!?…]["”')\]]*)[\s¦]+(?=[^\s¦])/;
+    const anchorWords = t => String(t || "").replace(NOTE_SPAN, " ").toLowerCase()
+        .match(/(?<![\p{L}\p{N}])(?:[a-z][a-z'-]{2,}|\d(?:[\d.,]*\d)?)(?![\p{L}\p{N}])/gu) || [];
+    // src, vi: items in order (a window, or a whole video's groups). Returns vi, or a new array.
+    function realignSentences(src, vi) {
+        const N = (src || []).length;
+        if (N < 2 || !Array.isArray(vi) || vi.length !== N || latinShare(src.join(" ")) < 0.7) return vi;
+        const items = vi.map(t => String(t || "").trim() ? String(t).trim().split(SENTENCE_GAP) : []);
+        const sents = [], orig = [0];
+        items.forEach(x => { sents.push(...x); orig.push(sents.length); });
+        const M = sents.length;
+        const pre = [0];
+        sents.forEach(s => pre.push(pre[pre.length - 1] + plainLen(s) + 1));
+        const S = src.map(plainLen);
+        const srcWords = src.map(s => new Set(anchorWords(s)));
+        const sentWords = sents.map(anchorWords);
+        const memo = new Map();
+        const cost = (i, a, b) => {
+            const key = (i * (M + 1) + a) * (M + 1) + b;
+            if (memo.has(key)) return memo.get(key);
+            const V = Math.max(0, pre[b] - pre[a] - 1);
+            const z = !S[i] && !V ? 0 : Math.log((V + 8) / (REALIGN_RATIO * S[i] + 8)) / REALIGN_SPREAD;
+            let c = z * z;
+            for (let k = a; k < b; k++) for (const w of sentWords[k]) {
+                if (srcWords[i].has(w)) continue;
+                for (let j = Math.max(0, i - REALIGN_DRIFT); j <= Math.min(N - 1, i + REALIGN_DRIFT); j++) {
+                    if (j !== i && srcWords[j].has(w)) { c += REALIGN_ANCHOR; break; }
+                }
+            }
+            memo.set(key, c);
+            return c;
+        };
+        // best[i]: sentence count consumed by items 0..i-1 -> { c, prev }
+        let layer = new Map([[0, { c: 0, prev: -1 }]]);
+        const back = [layer];
+        for (let i = 0; i < N; i++) {
+            const next = new Map();
+            const need = items[i].length ? 1 : 0;       // an answered item keeps a sentence
+            for (const [j, st] of layer) {
+                const lo = Math.max(j + need, orig[i + 1] - REALIGN_DRIFT), hi = Math.min(M, orig[i + 1] + REALIGN_DRIFT);
+                for (let k = lo; k <= hi; k++) {
+                    if (i === N - 1 && k !== M) continue;
+                    const c = st.c + cost(i, j, k);
+                    const cur = next.get(k);
+                    if (!cur || c < cur.c) next.set(k, { c, prev: j });
+                }
+            }
+            back.push(layer = next);
+        }
+        if (!layer.has(M)) return vi;
+        const cuts = new Array(N + 1);
+        cuts[N] = M;
+        for (let i = N; i > 0; i--) cuts[i - 1] = back[i].get(cuts[i]).prev;
+        let out = vi;
+        for (let b = 1; b < N; b++) {
+            if (cuts[b] === orig[b]) continue;
+            let e = b;
+            while (e + 1 < N && cuts[e + 1] !== orig[e + 1]) e++;
+            let gain = 0;
+            for (let i = b - 1; i <= e; i++) gain += cost(i, orig[i], orig[i + 1]) - cost(i, cuts[i], cuts[i + 1]);
+            if (gain >= REALIGN_MIN_GAIN) {
+                if (out === vi) out = vi.slice();
+                for (let i = b - 1; i <= e; i++) out[i] = sents.slice(cuts[i], cuts[i + 1]).join(" ");
+            }
+            b = e;
+        }
+        return out;
+    }
+
     // ---------- Sound captions ----------
     // Automatic captions mark music, applause and laughter as lines of their own, in the caption's
     // language ("[Music]", "[Musik]", "[Tepuk tangan]"); Coursera writes "[MUSIC]", "[SOUND]". In the
@@ -571,7 +665,7 @@
         });
     }
 
-    const api = { assess, CALQUES, englishLeftovers, vre, trimContextLeak, fixRepeatedHeads, soundNoteLine, fixSoundNotes, misalignedItems, pickRefined };
+    const api = { assess, CALQUES, englishLeftovers, vre, trimContextLeak, fixRepeatedHeads, soundNoteLine, fixSoundNotes, misalignedItems, pickRefined, realignSentences };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_QUALITY = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

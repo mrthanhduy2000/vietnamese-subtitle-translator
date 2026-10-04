@@ -517,8 +517,11 @@ Knobs you will actually reach for:
   (`fadeFrom` 0.02: a resume, a mid-line entry, a drift seek) stays at volume 0 until it moves, then
   `speechVolume` ramps it in over `restartFade` 0.04 s, squared; a sounding voice that must stop (the
   video paused or stalled, the next line due) goes through `quietPause`: 64/36/16/4% at
-  `fadeStepMs` 10 ms, then the pause (`el.cstFade` token; `driveSpeech` calls it off). A seek or a
-  stop still cuts at once (`releaseAudio`). `watchSpeech` polls every 10 ms while starting or fading
+  `fadeStepMs` 10 ms, then the pause (`el.cstFade` token; `driveSpeech` calls it off). Since 2.4.7 a
+  seek, an ad and dubbing off fade too: `releaseAudio(r, true, after)` clears `r.el` at once, lets the
+  element go when its fade ends (`quietPause(el, then)`, a fade already running takes the callback) and
+  `stop()` revokes the URL only then. Simulator, all scenarios, `LATENCY=busy`: voices paused while
+  loud 18 -> 0 (8 seeks, 10 stops), every delivery number unchanged; 45 saved videos unchanged. `watchSpeech` polls every 10 ms while starting or fading
   (ticks are 50 ms). Measured: 34 saved videos (712 min) in the simulator with `LATENCY=busy`, 2.4.5
   -> 2.4.6: playing-voice seeks 1599 -> 0, take seconds passed over 253 -> 0, voices up inside a take
   at full volume 213 -> 0, lines 7165 -> 7165, drops 0 -> 0, late starts 1689 -> 1715. Real Chrome

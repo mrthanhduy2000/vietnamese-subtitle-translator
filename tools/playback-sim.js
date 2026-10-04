@@ -266,6 +266,8 @@ function run(engineMod, sc) {
             await new Promise(r => setImmediate(r));
         }
         eng.stop();
+        // a sounding voice fades out before it is let go (2.4.7): the page's clock runs on meanwhile
+        clock.advance(100, st => audios.forEach(a => a.step(st)));
         await Promise.all(pendingKeys);
 
         // delivery gap: the next line was due (subtitle start passed, rest after the previous line
@@ -345,7 +347,7 @@ const SCENARIOS = {
 };
 
 // A cached video as youtube.js dubs it: every group translated from the start, and the fixes
-// ytRepairCachedLeaks applies on load (sound notes, head repeats, tail leaks) applied here too
+// ytRepairCachedLeaks applies on load (sound notes, head repeats, slid runs, tail leaks) applied here too
 function realGroups(file) {
     const Q = require(path.join(REPO, "vi-quality.js"));
     const SEG = require(path.join(REPO, "vi-segmenter.js"));
@@ -366,6 +368,10 @@ function realGroups(file) {
     for (let k = 0; k + 1 < gs.length; k++) {
         const [a, b] = Q.fixRepeatedHeads([gs[k].viText, gs[k + 1].viText], [src(gs[k]), src(gs[k + 1])]);
         if (a !== gs[k].viText || b !== gs[k + 1].viText) { gs[k].viText = a; gs[k + 1].viText = b; reseg(k); reseg(k + 1); }
+    }
+    if (Q.realignSentences) {
+        const out = Q.realignSentences(gs.map(src), gs.map(g => g.viText));
+        out.forEach((v, k) => { if (v !== gs[k].viText) { gs[k].viText = v; reseg(k); } });
     }
     gs.forEach((g, k) => {
         const next = [gs[k + 1], gs[k + 2]].filter(Boolean).map(x => x.viText).join(" ");

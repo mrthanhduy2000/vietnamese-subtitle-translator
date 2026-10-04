@@ -28,9 +28,13 @@ const showN = Number(arg("n")) || 20;
 const LABEL = /(?:^|[.!?…-]\s+)\p{Lu}[\p{Lu}.'-]+(?:\s+\p{Lu}[\p{Lu}.'-]+){0,3}:\s/u;
 const syllables = t => String(t || "").replace(/\[[^\]]*\]/g, " ").split(/\s+/).filter(w => /[\p{L}\p{N}]/u.test(w)).length;
 
+// Judged as the user sees a saved video now: with the free fixes ytRepairCachedLeaks applies on load
+const SIM = require(path.join(REPO, "tools/playback-sim.js"));
+
 function review(file) {
     const v = JSON.parse(fs.readFileSync(file, "utf8"));
-    const g = v.g || [];
+    const mended = SIM.realGroups(file);
+    const g = (v.g || []).map((x, k) => (mended[k] ? [x[0], x[1], mended[k].viText, x[3]] : x));
     const span = g.length ? g[g.length - 1][1] - g[0][0] : 0;
     const row = { video: path.basename(file).replace(/^ytcache4_|\.json$/g, ""), saved: new Date(v.luc || 0).toISOString().slice(0, 16), minutes: +(span / 60).toFixed(1), groups: g.length };
     const n = { refine: 0, omission: 0, untranslated: 0, empty: 0, leftover: 0, noteInside: 0, turns: 0, labels: 0, dup: 0 };
@@ -62,7 +66,6 @@ function review(file) {
         .filter(f => !since || (JSON.parse(fs.readFileSync(f, "utf8")).luc || 0) > since);
     const out = files.map(review).sort((a, b) => (a.row.saved < b.row.saved ? -1 : 1));
     if (process.argv.includes("--sim")) {
-        const SIM = require(path.join(REPO, "tools/playback-sim.js"));
         const ENG = require(path.join(REPO, "dub-engine.js"));
         for (const o of out) {
             const groups = SIM.realGroups(path.join(dir, `ytcache4_${o.row.video}.json`));

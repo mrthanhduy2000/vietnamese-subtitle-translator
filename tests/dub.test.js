@@ -1132,6 +1132,45 @@ test("a voice resumed inside its take stays silent until it moves, then fades in
     assert.equal(el.cuts, 0, "paused while still loud");
 });
 
+// 2.4.7: a seek, an ad or dubbing off let a sounding voice go at once (pause, src removed): a click
+// on every seek while the voice spoke (simulator: 8 of 18 cuts were seeks, the rest dubbing off)
+test("a voice let go while sounding (a seek, dubbing off) fades out first, then is released", () => {
+    const clock = new Clock();
+    const eng = Object.create(DubEngine.prototype);
+    eng.d = { now: () => clock.now(), setTimeout: (f, ms) => clock.setTimeout(f, ms) };
+    const make = () => {
+        const el = new FakeAudio(clock, { duration: 5 });
+        el.volume = 0.9;
+        el.play();
+        el.step(100);
+        el.attrs = { src: "blob:1" };
+        el.removeAttribute = n => { delete el.attrs[n]; };
+        el.load = () => {};
+        return el;
+    };
+    for (const already of [false, true]) {
+        const el = make(), r = { el };
+        let after = 0;
+        if (already) eng.quietPause(el);                 // hardReset: silence() began the fade
+        eng.releaseAudio(r, true, () => after++);
+        assert.equal(r.el, null, "the line still holds the element");
+        assert.equal(el.paused, false, "cut at once");
+        clock.advance(60, st => el.step(st));
+        assert.equal(el.paused, true);
+        assert.equal(el.cuts, 0, "paused while still loud");
+        assert.equal(el.attrs.src, undefined, "src kept after the fade");
+        assert.equal(after, 1);
+    }
+    // a voice already silent, or no fade asked: let go at once, as before
+    const el = make();
+    eng.releaseAudio({ el });
+    assert.equal(el.paused, true);
+    assert.equal(el.attrs.src, undefined);
+    const src = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "dub-engine.js"), "utf8");
+    assert.match(src, /if \(r\.el\) this\.releaseAudio\(r, true\);/, "hardReset fades");
+    assert.match(src, /if \(r\.el\) this\.releaseAudio\(r, true, revoke\);/, "stop() fades and revokes after");
+});
+
 // 2.0.8: the original track came back after duckHold whatever came next. In a 0.8 s sentence gap it
 // was at full just as the next line began and was ducked again under that line's first words (a
 // pump), and after a pause the line went on over it at full. These three scenarios before: 25 of 40
@@ -1359,6 +1398,8 @@ async function resilienceRun({ get, render, seconds = 60, groups = lectureGroups
         await new Promise(r => setImmediate(r));
     }
     eng.stop();
+    // a sounding voice fades out before it is let go (2.4.7): give the fade its 40 ms
+    clock.advance(100, st => audios.forEach(a => a.step(st)));
     return { eng, spoken: eng.stats.started.length, live: () => urls - revoked, audios };
 }
 const okRender = async plans => plans.map(p => ({ planId: p.id, wav: new Uint8Array(8), duration: 2.5 }));

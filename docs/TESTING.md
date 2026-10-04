@@ -264,9 +264,12 @@ Two traps in `ui.test.js` that cost a session real time:
 - `review-archive/<date>-videos-<a>-<b>/` (git-ignored, local only): the dumps of every batch already
   reviewed. The user may delete reviewed videos from the extension (Settings, "Xóa video đã rà soát",
   2.4.1), so **copy a batch here before moving `REVIEW_MARK`**: it is the baseline a later change is
-  scored against (`node tools/playback-sim.js --real=review-archive/<folder>`). Two so far:
-  `2026-09-30-videos-1-21`, `2026-10-01-videos-22-39` (18 videos, 505 minutes, one of 186).
+  scored against (`node tools/playback-sim.js --real=review-archive/<folder>`). Three so far:
+  `2026-09-30-videos-1-21`, `2026-10-01-videos-22-39` (18 videos, 505 minutes, one of 186),
+  `2026-10-05-videos-40-45` (6 videos, 64 minutes). Copy all folders into one to score every video.
 - `node tools/batch-review.js <dump> --since=<REVIEW_MARK.until> [--sim] [--show=omission,leftover]`
   (2.4.2) is a batch review's first pass: per video the quality check's flags, English left in, music
   notes inside a sentence, ">>", speaker labels, repeats, and with `--sim` the voice (spoken, dropped,
-  late, words lost). Then read the flagged lines (`--show`) before changing anything.
+  late, words lost). Then read the flagged lines (`--show`) before changing anything. Since 2.4.7
+  the text is judged as the user now sees it: `playback-sim.js` `realGroups` applies the repairs a
+  cached video gets on load (sound notes, head repeats, slid runs, leaks) first.

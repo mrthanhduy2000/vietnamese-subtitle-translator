@@ -621,7 +621,9 @@ async function translateWindow(session, idxs, opts = {}) {
 function localFixes(translations, sources) {
     const Q = window.CST_QUALITY;
     if (!Q || !Q.fixSoundNotes || !Q.fixRepeatedHeads || !Array.isArray(translations)) return translations;
-    return Q.fixRepeatedHeads(Q.fixSoundNotes(translations, sources), sources);
+    const mended = Q.fixRepeatedHeads(Q.fixSoundNotes(translations, sources), sources);
+    // A slid run is mended for free here, so it no longer pays for a refine (2.4.7)
+    return Q.realignSentences ? Q.realignSentences(sources, mended) : mended;
 }
 
 // Luu thuat ngu da thong nhat theo khoa hoc / kenh de nhat quan giua cac bai
@@ -977,6 +979,12 @@ function trimTranslationLeaks(translations, quiet, sources) {
     if (sources && Q.fixSoundNotes) translations = Q.fixSoundNotes(translations, sources);
     if (sources && Q.fixRepeatedHeads) {
         const fixed = Q.fixRepeatedHeads(translations, sources);
+        trimmed += fixed.filter((t, i) => t !== translations[i]).length;
+        translations = fixed;
+    }
+    // A run of answers that slid by an item gets its sentences dealt back (CST_QUALITY.realignSentences)
+    if (sources && Q.realignSentences) {
+        const fixed = Q.realignSentences(sources, translations);
         trimmed += fixed.filter((t, i) => t !== translations[i]).length;
         translations = fixed;
     }

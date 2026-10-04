@@ -764,6 +764,27 @@ function ytTrimLeaks(groups, idxs) {
             n++;
         }
     }
+    // A run of answers that slid by an item (CST_QUALITY.realignSentences), also across a window seam:
+    // each stretch of translated groups around the new ones is dealt its sentences again
+    if (Q.realignSentences) {
+        const lo = Math.max(0, Math.min(...idxs) - 6), hi = Math.min(groups.length - 1, Math.max(...idxs) + 6);
+        for (let a = lo; a <= hi; a++) {
+            if (!groups[a] || !groups[a].viText) continue;
+            let b = a;
+            while (b + 1 <= hi && groups[b + 1] && groups[b + 1].viText) b++;
+            const run = groups.slice(a, b + 1);
+            const before = run.map(g => g.viText);
+            const after = Q.realignSentences(run.map(src), before);
+            after.forEach((v, k) => {
+                if (v === before[k]) return;
+                const g = run[k];
+                g.viText = v;
+                g.viCues = segmentGroupVi(g, v, groups[a + k + 1] ? groups[a + k + 1].start : undefined);
+                n++;
+            });
+            a = b;
+        }
+    }
     for (const k of check) {
         const g = groups[k];
         if (!g || !g.viText) continue;

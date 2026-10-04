@@ -487,6 +487,53 @@ test("a refine keeps the better item, but takes a slid window whole or not at al
     assert.ok(/CST_QUALITY\.pickRefined\(first\.translations, again\.translations, quality, q2\)/.test(content), "refineUnit picks with pickRefined");
 });
 
+// 2.4.7, from the user's cache (rtAi3qa8UtQ): one 20 s item held three speaker turns, the model
+// answered the first and put the second into the next item, so each next answer sat one item late
+// until two were merged. misalignedItems missed it; the sentences are dealt back to their items.
+const SLID_TURNS = {
+    src: ["There's many other forms, but the only downfall with all these marketed forms is it's never been shown to be safer or more effective than creatine monohydrate. >> [snorts] >> The other big thing for your viewers is make sure it has Creapure or some form of creatine monohydrate on uh the label and then and that it's also third-party tested. >> Creapure?",
+        ">> Creapure is from Germany.", "It has the highest um standard uh of qualification and and um a scrutiny.",
+        "And then NSF certified or another third-party certified.", "So those are the three things that I personally would look for."],
+    vi: ["Còn nhiều dạng khác nữa, nhưng nhược điểm duy nhất của tất cả các loại được quảng cáo này là chưa bao giờ chứng minh được chúng an toàn hay hiệu quả hơn creatine monohydrate.",
+        "Một điều quan trọng nữa cho khán giả của bạn là hãy đảm bảo trên nhãn có ghi Creapure hoặc một dạng creatine monohydrate nào đó, đồng thời sản phẩm phải được kiểm định bởi bên thứ ba.",
+        "Creapure là thương hiệu đến từ Đức.", "Nó đạt tiêu chuẩn chất lượng và quy trình kiểm định khắt khe nhất.",
+        "Tiếp theo là chứng nhận NSF hoặc chứng nhận từ bên thứ ba khác. Đó là ba yếu tố mà cá nhân tôi sẽ tìm kiếm."]
+};
+
+test("a slid run is dealt its sentences back, words only moved; a right window is left alone", () => {
+    const Q = require("../vi-quality.js");
+    const out = Q.realignSentences(SLID_TURNS.src, SLID_TURNS.vi);
+    assert.equal(out[0], SLID_TURNS.vi[0] + " " + SLID_TURNS.vi[1]);
+    assert.deepEqual(out.slice(1), ["Creapure là thương hiệu đến từ Đức.", "Nó đạt tiêu chuẩn chất lượng và quy trình kiểm định khắt khe nhất.",
+        "Tiếp theo là chứng nhận NSF hoặc chứng nhận từ bên thứ ba khác.", "Đó là ba yếu tố mà cá nhân tôi sẽ tìm kiếm."]);
+    assert.equal(out.join(" "), SLID_TURNS.vi.join(" "), "a word was added or dropped");
+    assert.deepEqual(Q.realignSentences(SLID_TURNS.src, out), out, "not idempotent");
+    // lookalikes from the same video: an echo over two turns, a short reply, stay where the model put them
+    const echo = ["So, at the end of the day, you know, a pound and a half is not a lot.", ">> Lean mass. >> Lean mass, yeah."];
+    const echoVi = ["Suy cho cùng thì, bạn biết đấy, khoảng 0,7 kg không phải là nhiều.", "Khối lượng cơ nạc. Đúng vậy, khối lượng cơ nạc."];
+    assert.equal(Q.realignSentences(echo, echoVi), echoVi);
+    assert.equal(Q.realignSentences(SLID.src, SLID.fixed), SLID.fixed);
+    // a count that differs, one item, a script whose length says little
+    const fewer = SLID_TURNS.vi.slice(1), one = SLID_TURNS.vi.slice(0, 1);
+    assert.equal(Q.realignSentences(SLID_TURNS.src, fewer), fewer);
+    assert.equal(Q.realignSentences(SLID_TURNS.src.slice(0, 1), one), one);
+    const zh = ["Hôm nay. Chúng ta bắt đầu học công cụ này rồi nhé các bạn.", "Được"];
+    assert.equal(Q.realignSentences(["今天我们开始学习这个工具", "好"], zh), zh);
+    // both pipelines and both repair paths run it
+    const read = f => require("node:fs").readFileSync(require("node:path").join(__dirname, "..", f), "utf8");
+    assert.ok(/Q\.realignSentences\(sources, mended\)/.test(read("content.js")), "localFixes, before the quality check");
+    assert.ok(/Q\.realignSentences\(sources, translations\)/.test(read("content.js")), "Coursera trimTranslationLeaks");
+    assert.ok(/Q\.realignSentences\(run\.map\(src\), before\)/.test(read("youtube.js")), "YouTube ytTrimLeaks (live and cache)");
+});
+
+test("a brand written with an inner capital is no English leftover", () => {
+    const Q = require("../vi-quality.js");
+    assert.deepEqual(Q.englishLeftovers("dùng iPad lớn hơn, đặt trên eBay, chỉ số eGFR"), []);
+    // substances and foods kept as they are (2026-10-05 batch: one paid refine on a line like this)
+    assert.deepEqual(Q.assess("If you don't have a gluten sensitivity or you don't have celiac disease, there is no reason for you to avoid gluten.",
+        "Nếu bạn không bị nhạy cảm với gluten hoặc không mắc bệnh celiac thì chẳng có lý do gì để bạn phải tránh gluten cả.").issues, []);
+});
+
 test("a Vietnamese word written without marks is no English leftover", () => {
     const Q = require("../vi-quality.js");
     const issues = Q.assess("Some use brushless motors, which last longer than the cheaper brushed motors.",

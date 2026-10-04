@@ -4,6 +4,21 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.4.7", luc: "", ten: "Phụ đề không còn trượt dòng ở đoạn hội thoại nhiều lượt, tua video không còn tiếng \"bụp\"",
+            y: [
+                "Rà soát 6 video mới (64 phút). Ở một đoạn phỏng vấn, một dòng dài 20 giây chứa ba lượt nói; bản dịch chỉ dịch lượt đầu và đẩy lượt sau xuống dòng kế tiếp, kéo theo mọi câu sau đó hiện muộn đúng một dòng, rồi ba câu bị dồn vào 1,6 giây. Bộ kiểm tra lệch dòng cũ không bắt được vì một câu trong chuỗi dài vừa với cả hai dòng bên cạnh. Nay tiện ích tự chia lại các câu đã dịch về đúng dòng của chúng, dựa vào độ dài và những từ giữ nguyên như tên riêng, con số. Chỉ dời chữ, không thêm không bớt, không tốn lượt gọi Gemini.",
+                "Quy tắc này đo trên toàn bộ 45 video đã lưu (7513 dòng): dời đúng 2 chỗ, không dời nhầm chỗ nào trong 10 chỗ trông giống (ví dụ hai người nói lặp lại cùng một câu). Video đã lưu cũng được sửa khi mở lại.",
+                "Khi tua video, khi có quảng cáo xen vào hoặc khi tắt lồng tiếng lúc giọng đang đọc, giọng nay nhỏ dần trong 0,04 giây rồi mới dừng, thay vì bị cắt phụt.",
+                "Tên chất và món ăn mà tiếng Việt vẫn giữ nguyên (gluten, creatinine, monohydrate, granola...) và tên hãng có chữ hoa ở giữa (iPad, eBay) không còn bị coi là sót tiếng Anh, nên không còn tốn lượt dịch lại vô ích."
+            ],
+            bang: { cot: ["Số đo", "2.4.6", "Nay"], hang: [
+                ["Đợt 6 video mới: câu nghi bỏ sót ý / lượt dịch lại bị gọi", "2 / 3", "0 / 0"],
+                ["Đợt 6 video mới: từ bị coi là sót tiếng Anh", "53", "3"],
+                ["Mô phỏng tua, quảng cáo, tắt lồng tiếng: giọng bị cắt khi còn to", "18 lần", "0"],
+                ["45 video đã lưu: câu đọc / câu bỏ", "7752 / 0", "7752 / 0"]
+            ] }
+        },
+        {
             v: "2.4.6", luc: "", ten: "Hết tiếng \"bụp bụp\" và giọng lúc có lúc mất khi lồng tiếng",
             y: [
                 "Nguyên nhân tìm được trong nhật ký trình phát của chính Chrome (chrome://media-internals) lúc bạn nghe video WalkingPad: khi máy đang bận tạo giọng, Chrome cần từ 0,16 đến gần 1 giây mới bắt đầu phát một câu. Bộ đồng bộ tưởng giọng bị chậm nên tua tới, mà mỗi lần tua lại bắt Chrome khởi động lại từ đầu, nên lại bị coi là chậm và lại bị tua: một câu 3 giây bị tua 7 lần trong 1 giây, mỗi lần là một tiếng \"bụp\", giọng lúc có lúc mất. Nay câu được chờ tới khi Chrome thật sự phát, rồi mốc của câu dời theo đúng khoảng chờ đó: câu vào muộn vài phần mười giây nhưng đủ chữ, không tua, không bụp.",

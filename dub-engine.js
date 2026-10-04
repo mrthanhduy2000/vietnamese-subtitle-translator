@@ -618,10 +618,12 @@
                 job.orphanAt = this.d.now();
                 if (this.provider.abort) { try { this.provider.abort(jobId); } catch (e) { /* bỏ qua */ } }
             }
-            // released, not just paused (1.9.4): a paused element keeps its media player until GC
+            // released, not just paused (1.9.4): a paused element keeps its media player until GC. A
+            // sounding one fades out first (2.4.7) and its URL goes after it, not under it
             for (const r of this.rendered.values()) {
-                if (r.el) this.releaseAudio(r);
-                if (r.url && this.d.revokeObjectURL) this.d.revokeObjectURL(r.url);
+                const url = r.url, revoke = () => { if (url && this.d.revokeObjectURL) this.d.revokeObjectURL(url); };
+                if (r.el) this.releaseAudio(r, true, revoke);
+                else revoke();
             }
             this.rendered.clear();
             this.setVideoVolume(this.baseVolume == null ? v.volume : this.baseVolume, true);
@@ -1025,10 +1027,18 @@
             if (this.lastSpokenId === S.id) { this.lastSpokenStart = S.prevSpokenStart; this.lastSpokenId = S.prevSpokenId; }
         }
 
-        releaseAudio(r) {
+        // fade: a voice still sounding steps down first (quietPause), then lets go (2.4.7: a seek, an
+        // ad, dubbing off). The line is forgotten at once either way: r.el is cleared before the fade
+        // begins. after: called once the element is let go (stop() revokes its URL there)
+        releaseAudio(r, fade, after) {
             const el = r.el;
             r.el = null;
-            try { el.cstFade = null; el.pause(); if (el.removeAttribute) el.removeAttribute("src"); if (el.load) el.load(); } catch (e) { /* bỏ qua */ }
+            const drop = () => {
+                try { el.cstFade = null; el.pause(); if (el.removeAttribute) el.removeAttribute("src"); if (el.load) el.load(); } catch (e) { /* bỏ qua */ }
+                if (after) after();
+            };
+            if (fade && !el.paused) this.quietPause(el, drop);
+            else drop();
         }
 
         // Scorecard (debug only): time from start / seek to the first voice, late starts, and silences
@@ -1617,18 +1627,23 @@
         // down is left to finish, and driveSpeech calls it off when the voice goes on (el.cstFade).
         // The steps are squared, (1 - k/n)^2: 64%, 36%, 16%, 4%, then the pause. Straight steps (75,
         // 50, 25%) still cut the wave at a third of the voice's level (measured in Chrome).
-        quietPause(el) {
-            if (el.paused) return;
+        // then: called once the voice is paused (releaseAudio lets the element go after its fade). A
+        // fade already on its way down takes it too; a fade called off by driveSpeech never calls it,
+        // but driveSpeech only drives an element still held by its line, and a released one is not.
+        quietPause(el, then) {
+            const done = () => { if (then) then(); };
+            if (el.paused) return done();
             const n = Math.round(SYNC.pauseFade * 1000 / SYNC.fadeStepMs) + 1;
-            if (!this.d.setTimeout || n < 3 || !(el.volume > 0)) { el.cstFade = null; el.pause(); return; }
-            if (el.cstFade) return;
-            const v0 = el.volume, token = {};
+            if (!this.d.setTimeout || n < 3 || !(el.volume > 0)) { el.cstFade = null; el.pause(); return done(); }
+            if (el.cstFade) { if (then) (el.cstFade.then || (el.cstFade.then = [])).push(then); return; }
+            const v0 = el.volume, token = { then: then ? [then] : [] };
             el.cstFade = token;
             let k = 0;
+            const finish = () => { el.cstFade = null; for (const f of token.then) f(); };
             const step = () => {
                 if (el.cstFade !== token) return;
-                if (el.paused) { el.cstFade = null; return; }
-                if (++k >= n) { el.cstFade = null; el.pause(); return; }
+                if (el.paused) return finish();
+                if (++k >= n) { el.pause(); return finish(); }
                 el.volume = v0 * (1 - k / n) * (1 - k / n);
                 this.d.setTimeout(step, SYNC.fadeStepMs);
             };
@@ -2193,8 +2208,9 @@
             this.silence();
             this.speech = null;                 // lời đang nói không còn đúng vị trí: bỏ
             this.adResume = null;               // a seek after an ad: the cut line is not taken up again
-            // elements made for where we were (the line cut off, the one prepared after it) go too
-            for (const r of this.rendered.values()) if (r.el) this.releaseAudio(r);
+            // elements made for where we were (the line cut off, the one prepared after it) go too,
+            // a sounding one after the fade silence() began (a cut at once was a click on every seek)
+            for (const r of this.rendered.values()) if (r.el) this.releaseAudio(r, true);
             this.lastSpokenStart = null;
             this.entryWait = null;              // a line waited on before the seek was the viewer's skip
             this.lastRate = null;               // vị trí mới: không nối nhịp với câu cũ
