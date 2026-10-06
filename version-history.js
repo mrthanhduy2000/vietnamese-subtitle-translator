@@ -4,6 +4,22 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.4.8", luc: "", ten: "Giọng thứ hai biết đâu là video một người nói",
+            y: [
+                "Trước đây giọng thứ hai đổi giọng mỗi khi phụ đề có dấu \">>\". Phụ đề tự động của YouTube lại hay chèn dấu này quanh đoạn nhạc nền hay tiếng thở dài ngay giữa lời của một người, nên video chỉ có một người nói vẫn bị đọc bằng hai giọng: có video 35 phút bị đọc 94% bằng giọng thứ hai chỉ vì một tiếng thở dài.",
+                "Nay tiện ích bỏ qua dấu đổi người nói nằm cạnh đoạn nhạc hay tiếng động, và chỉ dùng giọng thứ hai khi video thật sự là một cuộc trò chuyện, tức là có những lượt hỏi đáp qua lại trong vòng vài giây. Vài dấu lẻ loi cách nhau nhiều phút trong một bài độc thoại không còn làm đổi giọng.",
+                "Lượt đổi người nói nằm giữa một câu phụ đề (ví dụ \"Bạn muốn nóng hay đá? >> Nóng.\") trước đây bị bỏ sót, làm hai giọng bị tráo cho tới hết video. Nay giọng đổi đúng chỗ đó.",
+                "Người nói nhiều nhất (người dẫn vlog, khách mời chính) luôn dùng giọng chính. Nếu phụ đề bỏ sót một lượt đổi người nói, hai giọng chỉ bị tráo tới khi người chính nói một đoạn dài, không còn tới hết video.",
+                "Phụ đề có ghi tên người nói (\"ANDREW HUBERMAN:\") vẫn được dùng, nhưng dòng ghi công người dịch của TED (\"Translator: ...\") hay câu có dấu hai chấm không còn bị coi là tên người.",
+                "Khi tắt giọng thứ hai, cách đọc giữ nguyên như trước."
+            ],
+            bang: { cot: ["46 video đã lưu", "2.4.7", "Nay"], hang: [
+                ["Video một người nói bị đọc bằng hai giọng", "10 video (2% đến 94% thời lượng)", "0"],
+                ["Lượt đổi người nói trong video phỏng vấn creatine", "54", "97"],
+                ["Vlog có tiểu phẩm: người dẫn bị đọc bằng giọng thứ hai", "50% thời lượng", "1%"]
+            ] }
+        },
+        {
             v: "2.4.7", luc: "", ten: "Phụ đề không còn trượt dòng ở đoạn hội thoại nhiều lượt, tua video không còn tiếng \"bụp\"",
             y: [
                 "Rà soát 6 video mới (64 phút). Ở một đoạn phỏng vấn, một dòng dài 20 giây chứa ba lượt nói; bản dịch chỉ dịch lượt đầu và đẩy lượt sau xuống dòng kế tiếp, kéo theo mọi câu sau đó hiện muộn đúng một dòng, rồi ba câu bị dồn vào 1,6 giây. Bộ kiểm tra lệch dòng cũ không bắt được vì một câu trong chuỗi dài vừa với cả hai dòng bên cạnh. Nay tiện ích tự chia lại các câu đã dịch về đúng dòng của chúng, dựa vào độ dài và những từ giữ nguyên như tên riêng, con số. Chỉ dời chữ, không thêm không bớt, không tốn lượt gọi Gemini.",

@@ -214,7 +214,7 @@ function run(engineMod, sc) {
             async get(keys) { const out = {}; for (const k of keys) if (store.has(k)) { const d = store.get(k); out[k] = { wav: AUDIO.base64ToBytes(wavFor(d)), duration: d }; m.storeHits++; } return out; },
             put() {}
         }
-    });
+    }, sc.settings);                    // sc.settings: the engine's settings ({ secondVoice: true }, 2.4.8)
 
     // ---- measurements ----
     const pendingKeys = [];

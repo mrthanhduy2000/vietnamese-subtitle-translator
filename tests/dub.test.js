@@ -37,12 +37,70 @@ test("kịch bản: khoảng lặng thật trong lời gốc tách thành đoạ
     assert.ok(script[1].start >= 2.9);
 });
 
+// A conversation: four turns answered within seconds (2.4.8 reads ">>" only in a video that is one)
+const talk = () => [
+    group("Bạn nghĩ sao về cách này?", [{ start: 0, end: 1.5, text: "What do you think about this?" }]),
+    group("Tôi nghĩ nó rất hiệu quả.", [{ start: 2, end: 3.5, text: ">> I think it works really well." }]),
+    group("Vậy thì thử luôn nhé.", [{ start: 4, end: 5, text: ">> Let's try it then." }]),
+    group("Được, làm ngay thôi.", [{ start: 6, end: 7, text: ">> Sure, right now." }]),
+    group("Tuyệt vời.", [{ start: 8, end: 9, text: ">> Great." }])
+];
 test("kịch bản: '>>' đổi người nói, giọng được gán theo người nói", () => {
-    const a = group("Bạn nghĩ sao về cách này?", [{ start: 0, end: 1.5, text: "What do you think about this?" }]);
-    const b = group("Tôi nghĩ nó rất hiệu quả.", [{ start: 2, end: 3.5, text: ">> I think it works really well." }]);
-    const c = group("Vậy thì thử luôn nhé.", [{ start: 4, end: 5, text: ">> Let's try it then." }]);
-    const s = PLAN.buildDubScript([a, b, c]);
-    assert.deepEqual(s.map(x => x.speaker), ["S1", "S2", "S1"]);
+    const s = PLAN.buildDubScript(talk());
+    assert.deepEqual(s.map(x => x.speaker), ["S1", "S2", "S1", "S2", "S1"]);
+});
+
+// 2.4.8, from the user's 46 saved videos: the second voice switched at stray marks of one-person
+// videos (54-94% of a vlog in the other voice) and missed the turns inside a group
+const S = (vi, start, end, text) => group(vi, [{ start, end, text }]);
+const voices = (groups, opts) => PLAN.buildDubScript(groups, opts).map(x => x.speaker);
+
+test("who speaks: a one-person video stays in one voice (music marks, lone marks, a credit, a colon)", () => {
+    // lzXgzP1Dayw: the recognizer marks the music inside a sentence
+    const music = [S("Những bữa ăn vội,", 56, 57, "Last-minute meals,"), S("[Âm nhạc]", 57, 58, ">> [music]"),
+        S("những lần mua sắm vội.", 58, 60, ">> last-minute shopping, last-minute days out."),
+        S("Thói quen số hai là lên kế hoạch vui chơi.", 61, 63, "being intentional. >> [music] >> Habit number two is to plan fun.")];
+    assert.deepEqual([...new Set(voices(music))], ["S1"]);
+    // Q4JWEtq23h8: four lone marks over five minutes of one woman talking
+    const lone = [0, 128, 367, 393, 422].map((t, k) => S(`Câu số ${k + 1} của người nói.`, t, t + 3, `${k ? ">> " : ""}Sentence ${k + 1} of the talk.`));
+    assert.deepEqual([...new Set(voices(lone))], ["S1"]);
+    // krPKW8J6JSM: one sigh put 94% of a 35-minute vlog in the other voice
+    const sigh = [S("Tôi thở dài.", 130, 133, "[sighs and gasps]"), S("[Thở dài]", 134, 135, ">> [sighs]"), S("Tôi có hộp kẹo này từ lâu.", 135, 138, ">> I'd had this box of pop rocks in here"), S("Và tôi vẫn còn giữ nó.", 200, 203, "and I still have it.")];
+    assert.deepEqual([...new Set(voices(sigh))], ["S1"]);
+    // PsihkFWDt3Y (TED): a credit line and sentences that end on a colon are no speaker labels
+    const ted = [S("Người dịch: Jenny Zurawell", 0, 2, "Translator: Jenny Zurawell"), S("Hôm nay tôi nói về tiền.", 2, 5, "So I want to talk today about money."),
+        S("Còn tệ hơn: tôi sẽ chụp ảnh.", 118, 121, "This is even worse: I'd have a picture taken"), S("Một cách nghĩ là: cho đi.", 522, 525, "One way to think of it is: give it away.")];
+    assert.deepEqual([...new Set(voices(ted))], ["S1"]);
+});
+
+test("who speaks: a turn inside a group switches the voice there; a question across laughter is one turn", () => {
+    // dSEZriz716g: "You want hot or ice? >> Uh, hot." sat inside one group, never read as a turn
+    const shop = [S("Bạn bị cướp à?", 10, 12, "Did you get robbed?"), S("Cho tôi một ly latte bí ngô được không?", 13, 15, ">> Uh, would I be able to get a pumpkin spice latte?"),
+        group("Có ngay. Bạn muốn nóng hay đá? Nóng.", [{ start: 15, end: 17, text: ">> Yeah, you got it. You want hot or ice?" }, { start: 17, end: 18, text: ">> Uh, hot." }]),
+        S("Tuyệt. Còn gì nữa không?", 19, 20, ">> Sweet. Anything else for you, bro?"), S("Vậy thôi.", 20.5, 21.5, ">> All right.")];
+    const s = PLAN.buildDubScript(shop);
+    const hot = s.find(x => /Nóng\.$/.test(x.subtitleText));
+    assert.ok(hot, "the reply inside the group was not a segment of its own: " + JSON.stringify(s.map(x => x.subtitleText)));
+    assert.deepEqual(s.map(x => x.speaker), ["S1", "S2", "S1", "S2", "S1", "S2"]);
+    // rtAi3qa8UtQ: ">> [laughter] >>" after a question: the other one answers
+    const T = PLAN.speakerTurns([...talk(), S("Nó không có vị gì nhỉ?", 1100, 1101.5, "Not a lot of taste to it, is there? >> [laughter]"), S("Không ngon lắm.", 1102, 1104, ">> It's not the best tasting thing.")]);
+    assert.notEqual(PLAN.speakerAt(T, 1100.5), PLAN.speakerAt(T, 1103));
+});
+
+test("who speaks: the one who talks longest has the main voice, named or not", () => {
+    // dSEZriz716g: a vlogger back from a five-line sketch (an odd number of turns) stays the main voice
+    const sketch = [S("Hôm nay tôi thử một việc.", 0, 3, "Today I try something."), S("Một ly latte nhé?", 4, 5, ">> A latte?"), S("Có ngay.", 6, 7, ">> Sure."),
+        S("Nóng hay đá?", 8, 9, ">> Hot or iced?"), S("Nóng.", 10, 11, ">> Hot."),
+        S("Quay lại chuyện chính, tôi đã tiêu 9 đô.", 12, 70, ">> So back to the point, I spent nine dollars on that and here is why it matters to me.")];
+    const v = voices(sketch);
+    assert.equal(v[v.length - 1], "S1", "the main speaker came back in the second voice");
+    // three people, two voices: the turn back to the vlogger is the one that keeps its voice
+    assert.deepEqual(v.slice(0, 5), ["S1", "S2", "S1", "S2", "S1"]);
+    assert.deepEqual([...new Set(v.slice(5))], ["S1"]);
+    // UIy-WQCZd4M: the guest talks most; three named people still get two voices
+    const pod = [S("Chào mừng.", 0, 5, "ANDREW HUBERMAN: Welcome."), S("Cảm ơn anh.", 6, 60, "ANDY GALPIN: Thanks for having me, here is a long answer."),
+        S("Câu hỏi tiếp.", 61, 65, "ANDREW HUBERMAN: Next question."), S("Trả lời dài.", 66, 120, "ANDY GALPIN: A long answer again."), S("Xin chào.", 121, 123, "GUEST TWO: Hello.")];
+    assert.deepEqual(voices(pod), ["S2", "S1", "S2", "S1", "S2"]);
 });
 
 // UIy-WQCZd4M, the user's 2026-10-01 batch: the labels of an edited podcast caption were read 262 times
@@ -834,19 +892,17 @@ test("slow voice on a fast speaker: speeds up early and evenly, and a slow speak
 // A second voice for a second speaker is optional and off by default (the user: not every viewer
 // wants a voice switching in the middle of a video).
 test("second voice: off by default reads every speaker with the main voice; on keeps S1/S2", () => {
-    const a = group("Bạn nghĩ sao về cách này?", [{ start: 0, end: 1.5, text: "What do you think about this?" }]);
-    const b = group("Tôi nghĩ nó rất hiệu quả.", [{ start: 2, end: 3.5, text: ">> I think it works really well." }]);
-    const c = group("Vậy thì thử luôn nhé.", [{ start: 4, end: 5, text: ">> Let's try it then." }]);
+    const groups = talk();
     const make = settings => {
         const clock = new Clock();
         const prov = { id: "x", caps: { prerender: true }, voiceModel: PLAN.DEFAULT_VOICE_MODEL, render: async () => [] };
-        const eng = new DubEngine({ video: new FakeVideo(), getGroups: () => [a, b, c], providers: { primary: prov },
+        const eng = new DubEngine({ video: new FakeVideo(), getGroups: () => groups, providers: { primary: prov },
             now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id) }, settings);
         eng.refresh(true);
         return eng.plans.map(p => p.speaker);
     };
     assert.deepEqual([...new Set(make({}))], ["S1"], "default must be one voice");
-    assert.deepEqual(make({ secondVoice: true }), ["S1", "S2", "S1"]);
+    assert.deepEqual(make({ secondVoice: true }), ["S1", "S2", "S1", "S2", "S1"]);
     const html = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "options.html"), "utf8");
     const js = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "options.js"), "utf8");
     const dj = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "dubbing.js"), "utf8");
@@ -863,7 +919,8 @@ function longLecture(minutes, marks) {
     const out = [];
     for (let k = 0; out.length === 0 || out[out.length - 1].end < minutes * 60; k++) base.forEach((g, i) => {
         const o = k * span;
-        const src = g.srcCues.map((c, j) => ({ ...c, start: c.start + o, end: c.end + o, text: marks && j === 0 && (k + i) % 3 === 0 ? ">> " + c.text : c.text }));
+        // two turns in a row, then none: a question and its answer (2.4.8: lone marks are no turns)
+        const src = g.srcCues.map((c, j) => ({ ...c, start: c.start + o, end: c.end + o, text: marks && j === 0 && (k + i) % 3 !== 2 ? ">> " + c.text : c.text }));
         out.push({ ...g, start: g.start + o, end: g.end + o, srcCues: src, viCues: g.viCues.map(c => ({ ...c, start: c.start + o, end: c.end + o })) });
     });
     return out;

@@ -26,7 +26,7 @@ const FORMAT = 1;                   // bump when a metric changes meaning; an ol
 // lower is better, except these
 const HIGHER_BETTER = new Set(["spoken"]);
 // reported when they move, never a failure: a repair count or a size says nothing good or bad alone
-const NEUTRAL = new Set(["mended", "groups", "minutes", "viSylPerSec", "rateP50", "rateP90", "rateMax", "firstAudio", "generated", "serverRuns", "storeHits", "maxRendered", "maxHeld", "joined"]);
+const NEUTRAL = new Set(["mended", "voiceSwitch", "voice2", "groups", "minutes", "viSylPerSec", "rateP50", "rateP90", "rateMax", "firstAudio", "generated", "serverRuns", "storeHits", "maxRendered", "maxHeld", "joined"]);
 const VIDEO_SIM = ["spoken", "dropped", "late", "wordsLost", "wordsTwice", "gapN", "gapSum", "cuts", "hardStarts", "elSeeks", "skippedS", "rateP50", "rateMax"];
 const SCEN_COLS = ["spoken", "dropped", "late", "wordsLost", "wordsTwice", "gapN", "gapSum", "gapMax", "seekRecover", "seekRecoverMax", "overlapTicks", "reseeks", "elSeeks", "skippedS", "cuts", "hardStarts", "cutRunning", "duplicateGen", "unplayedGen", "maxEls", "maxUrls"];
 

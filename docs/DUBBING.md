@@ -494,6 +494,33 @@ full text). Reopen only with a new failing example, measured on real takes.
 - **Checks (19, 22).** `pron-eval` compares phonemes, not sound; corpus marks are one reader's. The
   user's live listen is the final check (HANDOFF).
 
+## Who speaks: the second voice (2.4.8)
+
+Off by default (`dubSecondVoice`); on, `DubEngine` passes `PLAN.speakerTurns(given)` to
+`buildDubScript` (off: `PLAN.NO_TURNS`, nothing changes for one voice). Before 2.4.8 the voice
+toggled at a ">>", "- " or "NAME:" opening a group's first caption line, which over the user's 46
+saved videos was wrong both ways: the recognizer writes ">>" around music and sighs in one person's
+talk, and lone marks minutes apart (10 one-person videos read 2 to 94% in the second voice; one sigh
+did 94% of a 35-minute vlog), while half the real turns sit inside a group (rtAi3qa8UtQ: 57 of 111)
+and were never seen, so the alternation fell out of step. `speakerTurns(groups)` (memo per array):
+- every mark of the source with its time (inside a line by its share of the characters);
+- a mark next to a sound note (`TURN_NOTE`) is none, except one turn after a question
+  ("is there? >> [laughter] >> It's not...");
+- anonymous marks (">>", "- ") count only in a conversation: `TURN_MIN_PAIRED` 4 of them within
+  `TURN_PAIR_S` 12 s of another. A "NAME:" label (up to 4 capitalized words, not a credit like
+  "Translator:", not a sentence before a colon) counts when the video has `TURN_MIN_NAMED` 3;
+- anonymous turns alternate; whoever talks `TURN_MAIN_S` 45 s without a turn is the main speaker
+  and gets the main voice, so a missed turn swaps the voices only until then. Named: the longest
+  talker is S1, everyone else S2.
+`buildDubScript` gives each piece the speaker at its middle, cuts a piece at the sentence end
+nearest a turn inside it, and ends a segment at every turn. 46 videos: the 10 one-person videos 0
+switches; the 5 conversations keep theirs (dSEZriz716g: the vlogger stays S1 around two sketches).
+Simulated with two voices on, a turn is a new take: late starts rtAi 20 -> 21%, Zq7 23 -> 26%,
+yZfh 71 -> 75%, dSEZ 25 -> 27%, nothing dropped or lost. `batch-review.js` shows `voiceSwitch` and
+`voice2` (second voice's share) per video, so a one-person video showing a switch stands out.
+Limits: without names who is who is only alternation (three people share two voices; a turn the
+recognizer did not mark is not seen); without audio there is no telling voices apart.
+
 ## The SYNC block is the tuning bible
 
 `dub-engine.js`, one object named `SYNC` (`grep -n "const SYNC"`, ~140 lines). **Every timing
@@ -668,8 +695,8 @@ Knobs you will actually reach for:
 **Planning window (1.6.3).** `refresh` plans only groups overlapping
 `[step*planStep - planBehind, (step+1)*planStep + planAhead]` (60 / 150 / 300 s) plus one group past
 the edge (for `continuesNext`); the step number is in the signature, so it rebuilds at most once a
-minute while nothing new arrives. Speaker parity for the window comes from
-`PLAN.speakerStateBefore(all, first)`. Whole-video planning cost ~90 ms per new group on a 60-minute
+minute while nothing new arrives. Who speaks comes from `PLAN.speakerTurns(given)` over every group
+(see "Who speaks" above), so a window and a whole-video build agree. Whole-video planning cost ~90 ms per new group on a 60-minute
 talk; now ~15 ms. `releaseOld` frees audio whose plan left the window (it used to skip them: a leak).
 `audioKeysForVideo` still plans the whole video, on purpose (forget-audio needs every key).
 

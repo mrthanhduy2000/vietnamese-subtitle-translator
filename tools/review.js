@@ -22,7 +22,7 @@ const REG = require("./regress.js");
 
 const arg = n => { const a = process.argv.find(x => x.startsWith(`--${n}=`)); return a ? a.slice(n.length + 3) : ""; };
 const has = n => process.argv.includes(`--${n}`);
-const CLASSES = ["refine", "omission", "untranslated", "empty", "leftover", "noteInside", "turns", "labels", "dup", "mended", "calque", "repeat", "addition"];
+const CLASSES = ["refine", "omission", "untranslated", "empty", "leftover", "noteInside", "turns", "labels", "dup", "mended", "voiceSwitch", "calque", "repeat", "addition"];
 const MARK_RE = /const REVIEW_MARK = \{ until: (\d+), videos: (\d+) \};[^\n]*/;
 const DEFAULT_STORE = path.join(os.homedir(), "Library/Application Support/Google/Chrome/Profile 42/Local Extension Settings/lpknjhmnlocilmkmooomffknibghibao");
 

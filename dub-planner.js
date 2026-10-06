@@ -366,15 +366,6 @@
     // Đầu vào mỗi nhóm: { start, end, srcCues:[{start,end,text,words}], viText, viCues:[{start,end,text}] }
     // Một đoạn nói = một hoặc nhiều cue phụ đề liền mạch; tách khi lời gốc có
     // khoảng lặng thật (>= 0,55 giây). Cue phụ đề chỉ là mốc thời gian.
-    function detectSpeakerMark(text) {
-        const t = String(text || "").trim();
-        if (/^>>/.test(t)) return { turn: true };
-        const named = t.match(/^([A-Z][A-Za-z.' -]{1,24}):\s/);
-        if (named && !/^(?:Note|Step|Example|Tip|Warning|Q|A)$/i.test(named[1])) return { turn: true, name: named[1].trim() };
-        if (/^-\s+\S/.test(t)) return { turn: true };
-        return null;
-    }
-
     function sourcePausesIn(srcCues, start, end) {
         const pauses = [];
         const span = Math.max(0.01, end - start);
@@ -430,35 +421,148 @@
         return String(text || "").replace(LABEL_RE, (m, lead, name) => (labels.has(name) ? lead : m));
     }
 
-    // Who is speaking at the start of a window: replays the speaker marks of every translated group
-    // that starts before t0 (a regex on one line per group, cheap). Lets the engine build the script
-    // for a window around playback only and still get the same S1/S2 as a whole-video build.
-    function speakerStateBefore(groups, t0) {
-        let speakerIdx = 0, count = 0;
-        const named = new Map();
-        const list = (groups || []).filter(g => g && g.viText && g.viCues && g.viCues.length && g.start < t0);
-        list.sort((a, b) => a.start - b.start);
-        for (const g of list) {
-            const mark = detectSpeakerMark(g.srcCues && g.srcCues[0] && g.srcCues[0].text);
-            if (mark) {
-                if (mark.name) {
-                    if (!named.has(mark.name)) named.set(mark.name, named.size);
-                    speakerIdx = named.get(mark.name);
-                } else if (count > 0) {
-                    speakerIdx = speakerIdx === 0 ? 1 : 0;
-                }
-            }
-            count++;
+    // ---------------- Who speaks (2.4.8) ----------------
+    // The second voice used to switch at every ">>", "- " or "NAME:" that opened a group's first
+    // caption line, and nowhere else. Over the user's 46 saved videos that was wrong both ways:
+    // - YouTube's recognizer writes ">>" around music and sighs inside one person's talk ("Last-minute
+    //   meals, >> [music] >> last-minute shopping"): 82 of the 457 marks, in 7 one-person vlogs, and
+    //   a few lone marks in other monologues (2 to 4 a video, minutes apart). One stray mark put the
+    //   rest of a one-person video in the other voice: the user turned the second voice off.
+    // - Half the real turns sit inside a group (rtAi3qa8UtQ: 57 of 111, "You want hot or ice? >> Uh,
+    //   hot."). Never seen, they left the alternation out of step for the rest of the talk.
+    // Now every mark of the source is read, with its time (a mark inside a caption line by its share
+    // of the line's characters). A mark next to a sound note is no turn. Anonymous marks (">>", "- ")
+    // count only in a video that is a conversation: at least TURN_MIN_PAIRED of them answered by
+    // another within TURN_PAIR_S (a question and its answer, a reply). Lone marks minutes apart are a
+    // monologue. A "NAME:" label counts when the video uses such labels (below). Built from the source alone, over all groups (the
+    // translated ones or not), so the voice of a line never changes as the translation fills in.
+    const TURN_PAIR_S = 12;
+    const TURN_MIN_PAIRED = 4;
+    const TURN_MAIN_S = 45;
+    const TURN_NOTE = /^\s*(?:(?:\[[^\][]*\]|\((?:music|applause|laughter|laughs|sighs?|inaudible)\)|[♪♫]+)\s*)+$/i;
+    // "ANDREW HUBERMAN:", "Dr. Galpin:": up to 4 words, each capitalized (or a name particle). Not a
+    // sentence that ends on a colon ("This is even worse: ..."), not a credit ("Translator: Jenny
+    // Zurawell" opens every TED talk): in PsihkFWDt3Y those three put 83% of a one-person talk in the
+    // other voice. And a label used fewer than TURN_MIN_NAMED times in the whole video is no system.
+    const NAMED_RE = /^([A-Z][A-Za-z.'’ -]{0,28}[A-Za-z.]):\s/;
+    const NOT_A_NAME = /^(?:Note|Step|Example|Tip|Warning|Q|A|Translator|Reviewer|Transcriber|Transcript|Subtitles?|Captions?|Source|Credits?|Update|Edit|Disclaimer)$/i;
+    const NAME_PARTICLE = /^(?:de|da|del|der|di|du|la|le|van|von|bin|al|y)$/;
+    const TURN_MIN_NAMED = 3;
+    const nameOf = text => {
+        const m = String(text || "").match(NAMED_RE);
+        if (!m || NOT_A_NAME.test(m[1].trim())) return null;
+        const words = m[1].trim().split(/\s+/);
+        return words.length <= 4 && words.every(w => /^[A-Z]/.test(w) || NAME_PARTICLE.test(w)) ? m[1].trim() : null;
+    };
+    const turnsMemo = typeof WeakMap === "function" ? new WeakMap() : null;
+    function speakerTurns(groups) {
+        const memo = turnsMemo && Array.isArray(groups) ? turnsMemo.get(groups) : null;
+        if (memo && memo.n === groups.length) return memo.turns;
+        const list = (groups || []).filter(g => g && g.srcCues && g.srcCues.length).sort((a, b) => a.start - b.start);
+        const pieces = [];                       // { t, text, kind: null | "anon" | "named", name }
+        let endT = 0;
+        for (const g of list) for (const c of g.srcCues) {
+            endT = Math.max(endT, c.end);
+            const text = String(c.text || "");
+            const parts = text.split(">>");
+            let at = 0;
+            parts.forEach((part, k) => {
+                // a mark's time: where its ">>" stands in the line, by characters
+                const t = c.start + (c.end - c.start) * (text.length ? Math.max(0, at - 2) / text.length : 0);
+                at += part.length + 2;
+                const p = part.trim();
+                const name = nameOf(p);
+                let kind = k > 0 ? "anon" : null;
+                if (name) kind = "named";
+                else if (/^-\s+\S/.test(p)) kind = "anon";
+                pieces.push({ t, text: p, kind, name });
+            });
         }
-        return { speakerIdx, named, count };
+        const speech = p => !!p && !!p.text && !TURN_NOTE.test(p.text);
+        const anon = [];
+        for (let j = 0; j < pieces.length; j++) {
+            const p = pieces[j];
+            if (p.kind !== "anon") continue;
+            let b = j - 1;
+            while (b >= 0 && !pieces[b].text) b--;
+            let a = j;
+            while (a < pieces.length && !pieces[a].text) a++;
+            // ">> [music] >> ...": the recognizer marks the note itself, so the mark into it and the one
+            // out of it are no turn, except that a question before it is answered by the other one
+            // ("is there? >> [laughter] >> It's not the best tasting thing."): then one turn
+            if (b >= 0 && TURN_NOTE.test(pieces[b].text)) { p.kind = "noise"; continue; }
+            if (a < pieces.length && TURN_NOTE.test(pieces[a].text)) {
+                let q = j - 1;
+                while (q >= 0 && !speech(pieces[q])) q--;
+                if (!(q >= 0 && /\?["”')\]]*$/.test(pieces[q].text))) { p.kind = "noise"; continue; }
+            }
+            anon.push(p);
+        }
+        const paired = anon.filter((p, k) => (k > 0 && p.t - anon[k - 1].t <= TURN_PAIR_S) || (k + 1 < anon.length && anon[k + 1].t - p.t <= TURN_PAIR_S)).length;
+        const conversation = paired >= TURN_MIN_PAIRED;
+        const labelled = pieces.filter(p => p.kind === "named").length >= TURN_MIN_NAMED;
+        const marks = [];
+        const named = new Map();
+        let idx = 0, spoken = false;
+        for (const p of pieces) {
+            if (p.kind === "named" && labelled) {
+                if (!named.has(p.name)) named.set(p.name, named.size);
+                idx = named.get(p.name);
+                marks.push({ t: p.t, idx });
+            } else if (p.kind === "anon" && conversation) {
+                if (spoken) idx = idx === 0 ? 1 : 0;
+                marks.push({ t: p.t, idx });
+            }
+            if (speech(p)) spoken = true;
+        }
+        // Anonymous turns only alternate, so one turn the recognizer missed swaps the two voices for
+        // the rest of the video (a vlogger back from a 5-line sketch in the other voice). Whoever
+        // talks on for TURN_MAIN_S without a turn is taken for the video's main speaker and read in
+        // the main voice; the alternation goes on from there. A swap now lasts until the next long
+        // stretch, not to the end.
+        // Named speakers: the one who talks longest gets the main voice (UIy-WQCZd4M: the guest, 69%
+        // of the talk, was the second voice because the host spoke first)
+        if (labelled && marks.length > 1) {
+            const talk = new Map();
+            marks.forEach((m, k) => talk.set(m.idx, (talk.get(m.idx) || 0) + (k + 1 < marks.length ? marks[k + 1].t : endT) - m.t));
+            const main = [...talk].sort((a, b) => b[1] - a[1])[0][0];
+            // two voices: everyone but the main speaker shares the second
+            for (const m of marks) m.idx = m.idx === main ? 0 : 1;
+        }
+        if (!labelled && marks.length) {
+            let flip = false;
+            marks.forEach((m, k) => {
+                let i = m.idx ^ (flip ? 1 : 0);
+                if ((k + 1 < marks.length ? marks[k + 1].t : endT) - m.t >= TURN_MAIN_S && i !== 0) { flip = !flip; i = 0; }
+                m.idx = i;
+            });
+        }
+        const turns = { marks, conversation, labelled, anon: anon.length, paired };
+        if (turnsMemo && Array.isArray(groups)) turnsMemo.set(groups, { n: groups.length, turns });
+        return turns;
+    }
+    // One voice: nobody's turn ends a segment
+    const NO_TURNS = Object.freeze({ marks: Object.freeze([]), conversation: false, labelled: false, anon: 0, paired: 0 });
+    // The speaker at time t: the last mark at or before it
+    function speakerAt(turns, t) {
+        const m = turns.marks;
+        let lo = 0, hi = m.length - 1, k = -1;
+        while (lo <= hi) { const mid = (lo + hi) >> 1; if (m[mid].t <= t + 1e-6) { k = mid; lo = mid + 1; } else hi = mid - 1; }
+        return k < 0 ? 0 : m[k].idx;
+    }
+    // A mark after a and at or before b (a turn between two pieces, even back to the same voice)
+    function turnBetween(turns, a, b) {
+        const m = turns.marks;
+        let lo = 0, hi = m.length;
+        while (lo < hi) { const mid = (lo + hi) >> 1; if (m[mid].t <= a + 1e-6) lo = mid + 1; else hi = mid; }
+        return lo < m.length && m[lo].t <= b + 1e-6;
     }
 
     function buildDubScript(groups, opts = {}) {
         const segments = [];
-        const st0 = opts.speakerState || null;
-        let speakerIdx = st0 ? st0.speakerIdx : 0;
-        const named = st0 ? new Map(st0.named) : new Map();
-        const before = st0 ? st0.count : 0;
+        // who speaks when: from every group of the video (the engine passes it for a window)
+        const TURNS = opts.speakerTurns || speakerTurns(groups);
+        const mid = c => (c.start + c.end) / 2;
         const PAUSE_SPLIT = opts.pauseSplit || 0.55;
         const SEG_SOFT = opts.segSoft || 6;       // đoạn đã >= 6 giây và dòng trước kết thúc bằng dấu câu: cắt
         const SEG_HARD = opts.segHard || 8;       // thêm dòng này sẽ vượt 8 giây: cắt ở ranh giới dòng
@@ -498,17 +602,6 @@
 
         for (let gi = 0; gi < list.length; gi++) {
             const g = list[gi];
-            // Người nói: đổi lượt khi phụ đề có ">>", "- ", "TÊN:"
-            const mark = detectSpeakerMark(g.srcCues && g.srcCues[0] && g.srcCues[0].text);
-            if (mark) {
-                if (mark.name) {
-                    if (!named.has(mark.name)) named.set(mark.name, named.size);
-                    speakerIdx = named.get(mark.name);
-                } else if (gi + before > 0) {
-                    speakerIdx = speakerIdx === 0 ? 1 : 0;
-                }
-            }
-            const speaker = `S${speakerIdx + 1}`;
 
             // Phân bổ token của bản dịch (còn dấu gợi ý ¦) cho từng cue theo thứ tự
             const tokens = SEG ? SEG.tokenize(g.viText) : [];
@@ -597,7 +690,7 @@
                     from = to; t0 = t1;
                 });
             });
-            const open = c => ({ start: c.start, end: c.end, texts: [], parts: [], cueCount: 0, groupIndex: gi, speaker, srcCues: g.srcCues || [], group: g });
+            const open = c => ({ start: c.start, end: c.end, texts: [], parts: [], cueCount: 0, groupIndex: gi, speaker: c.speaker, srcCues: g.srcCues || [], group: g });
             const add = c => {
                 // a segment carried over from the previous group takes this group's source lines too
                 if (cur.group !== g) { cur.srcCues = [...cur.srcCues, ...(g.srcCues || [])]; cur.group = g; }
@@ -605,6 +698,31 @@
             };
             // Khung chỉ có chú thích âm thanh ("(Vỗ tay)"): không đọc, để thành khoảng lặng
             for (let k = pieces.length - 1; k >= 0; k--) if (!hasWords(pieces[k].text)) pieces.splice(k, 1);
+            // A turn inside a piece ("Có ngay. Bạn muốn nóng hay đá? Nóng." over "...hot or ice? >> Uh,
+            // hot."): the piece is cut at the sentence end nearest the turn's share of its time
+            for (let k = 0; k < pieces.length; k++) {
+                const c = pieces[k];
+                const inside = TURNS.marks.find(m => m.t > c.start + 0.15 && m.t < c.end - 0.15);
+                if (!inside) continue;
+                const words = String(c.text).split(/\s+/).filter(Boolean);
+                const syl = words.map(w => Math.max(1, tokenSyllables(w.replace(/¦/g, ""))));
+                const total = syl.reduce((a, b) => a + b, 0) || 1;
+                const share = (inside.t - c.start) / (c.end - c.start);
+                let best = -1, bestCost = Infinity, acc = 0;
+                for (let w = 0; w < words.length - 1; w++) {
+                    acc += syl[w];
+                    if (!/[.!?…]["”')\]]*$/.test(words[w])) continue;
+                    const cost = Math.abs(acc / total - share);
+                    if (cost < bestCost && cost < 0.3) { bestCost = cost; best = w + 1; }
+                }
+                if (best < 0) continue;
+                const at = c.start + (c.end - c.start) * syl.slice(0, best).reduce((a, b) => a + b, 0) / total;
+                pieces.splice(k, 1, { start: c.start, end: at, text: words.slice(0, best).join(" ") }, { start: at, end: c.end, text: words.slice(best).join(" "), turnAt: inside.t });
+            }
+            // each piece is read by whoever speaks at its middle (a piece cut at a turn: just after the
+            // turn); a turn between two pieces ends a segment
+            for (const c of pieces) c.speaker = `S${speakerAt(TURNS, c.turnAt != null ? Math.max(c.turnAt, mid(c)) : mid(c)) + 1}`;
+            const turnAfter = (seg, c) => c.speaker !== seg.speaker || turnBetween(TURNS, mid(seg.parts[seg.parts.length - 1]), mid(c));
             // Carry the open segment into this group (free voice): the lines below then cut it by the
             // same rules as inside one group (length, a pause, a source pause). A sentence still
             // running is carried over a short pause, or bridged over a longer one inside a phrase.
@@ -620,12 +738,12 @@
                 const first = pieces[0];
                 const gap = first ? first.start - cur.end : Infinity;
                 const running = !endsSentence(cur.texts[cur.texts.length - 1]);
-                const carry = JOIN && first && !mark && cur.speaker === speaker &&
+                const carry = JOIN && first && !turnAfter(cur, first) &&
                     ((gap < PAUSE_SPLIT && (running || g.midLine)) || (running && gap < BRIDGE_MAX && insidePhrase(cur, first)));
                 if (!carry) flush();
             }
             pieces.forEach(c => {
-                if (cur && pastSpoken(cur, c.end)) flush();
+                if (cur && (pastSpoken(cur, c.end) || turnAfter(cur, c))) flush();
                 const gapBefore = cur ? c.start - cur.end : 0;
                 const len = cur ? c.end - cur.start : 0;
                 const hard = cur && len > hardFor(cur.start);
@@ -959,7 +1077,7 @@
     }
 
     const api = {
-        numberToVietnamese, countSyllables, adaptForSpeech, numberRole, classifyIntent, buildPhrases, speakerStateBefore,
+        numberToVietnamese, countSyllables, adaptForSpeech, numberRole, classifyIntent, buildPhrases, speakerTurns, speakerAt, NO_TURNS,
         buildDubScript, stripSoundNotes, speakerLabels, stripSpeakerLabels, planSegment, planAll, smoothRates, speechSeconds, pauseSeconds, rateForSps, rateForSpeedup, speedMultiplier,
         DEFAULT_VOICE_MODEL, LIMITS, INTENT_PROSODY, PAUSE
     };

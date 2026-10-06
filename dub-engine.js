@@ -631,7 +631,8 @@
 
         // ---------------- Dựng kịch bản & kế hoạch từ bản dịch có ngữ cảnh ----------------
         refresh(force) {
-            const all = (this.d.getGroups() || []).filter(g => g && g.viText && g.viCues && g.viCues.length);
+            const given = this.d.getGroups() || [];
+            const all = given.filter(g => g && g.viText && g.viCues && g.viCues.length);
             // Only a window around playback is planned. Measured on a 60-minute lecture: planning the
             // whole video took ~90 ms on the page's main thread, and it ran again every time one more
             // group finished translating, i.e. hundreds of visible stutters. The window moves in
@@ -662,13 +663,15 @@
             // Chỉ giọng MIỄN PHÍ (VieNeu) mới cắt đoạn đầu ngắn: đổi điểm cắt sau khi tua có thể phải
             // tạo lại vài đoạn; với Gemini TTS (tính tiền) giữ nguyên cách cắt để không tạo trùng
             const free = !!(this.provider && this.provider.caps && this.provider.caps.free);
-            const first = groups.reduce((m, g) => Math.min(m, g.start), Infinity);
-            const speakerState = this.settings.secondVoice && isFinite(first) ? PLAN.speakerStateBefore(all, first) : null;
+            // who speaks when, from the source of every group, translated or not (2.4.8). With one
+            // voice no turn at all: a reply inside a group is read on in the same breath, as before
+            // (cut there, 45 saved videos: 53 more late starts, 2 s more silence, nothing gained)
+            const speakerTurns = this.settings.secondVoice ? PLAN.speakerTurns(given) : PLAN.NO_TURNS;
             // what the queue has spoken or passed never changes (buildDubScript opts.spoken)
             const s0 = this.lastSpokenStart;
             const passed = s0 == null ? null : (this.plans || []).find(p => Math.abs(p.start - s0) < 1e-6);
             const spoken = s0 == null ? null : { start: s0, end: passed ? passed.end : s0 };
-            const script = this.oneVoice(PLAN.buildDubScript(groups, { headAt: free ? this.headAt : null, speakerState, spoken, ...(free ? FREE_SEGMENTS : {}) }));
+            const script = this.oneVoice(PLAN.buildDubScript(groups, { headAt: free ? this.headAt : null, speakerTurns, spoken, ...(free ? FREE_SEGMENTS : {}) }));
             const opts = { voiceModel: this.provider.voiceModel };
             this.plans = PLAN.planAll(script, opts);
             this.planById = new Map(this.plans.map(p => [p.id, p]));

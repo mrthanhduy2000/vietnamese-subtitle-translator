@@ -6,39 +6,40 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-10-06 · still `2.4.7` (tools, tests, docs only): the review loop got its own tools.
+2026-10-06 · `2.4.8` the second voice knows a one-person video (`docs/DUBBING.md` "Who speaks").
 
 ## What changed
-- `node tools/review.js`: a whole batch review in one command (reads Chrome's storage, new videos
-  after `REVIEW_MARK`, rows, rates per 100 groups against every reviewed video, flagged lines by
-  class, the regression net). `--close` archives the batch, moves `REVIEW_MARK`, saves a baseline.
-- `node tools/regress.js` (~75 s): every reviewed video + all sim scenarios against the local
-  `review-archive/baseline.json`; fails on anything worse. Proven: the 2.4.6 engine shows 22 cuts.
-- `tools/batch-review.js` is a module now; `mended` column; a run of "[Âm nhạc]" is no duplicate.
-- Real Chrome (headless, `PRELOAD=` + page errors in `headless.js`): Settings counter and "Xóa video
-  đã rà soát" work end to end (`options-preload.js`); a 186-min video costs 161 ms once at open,
-  31 ms per planning window (`long-video.html`). Numbers in `docs/TESTING.md`.
-- `tests/review.test.js`: the realign runs inside the real `content.js` / `youtube.js` (over a seam).
-- Flaky VieNeu test fixed: the two requests raced to the queue under load (2 of 12 runs); 0 of 42.
-- Declined by the user: slowing the video for fast talkers (`BACKLOG.md` 41).
+- `dub-planner.js` `speakerTurns(groups)` replaces `speakerStateBefore` and the per-group toggle:
+  every ">>" / "- " / "NAME:" of the source with its time; a mark beside a sound note is none (one
+  turn after a question); anonymous marks only in a conversation (4 within 12 s of another); a
+  label only if 3+ and name-shaped (not "Translator:"); a 45 s stretch = main speaker = S1; named:
+  longest talker S1, the rest S2. `buildDubScript` cuts a piece at a turn inside it.
+- Engine: `speakerTurns` with the second voice on, `PLAN.NO_TURNS` off (one voice unchanged:
+  45 videos late 1812 -> 1802, nothing dropped or lost).
+- 46 videos: 10 one-person videos 0 switches (were 2-94% second voice); 5 conversations keep
+  theirs. Two voices cost 1-4 points more late starts in conversations.
+- `batch-review.js` columns `voiceSwitch`, `voice2`; `playback-sim.js` takes `sc.settings`.
+- Settings hint for "Dùng giọng thứ hai" rewritten; real-Chrome Settings check still 0 errors.
+- Earlier today, no bump: `tools/review.js`, `tools/regress.js` (see `docs/TESTING.md`).
 
 ## State
-- Tests: 646 pass, 0 fail, 1 skip. No runtime file changed: no bump, no Reload needed.
-- `regress.js`: baseline saved on this commit, 0 moved.
-- 1 video saved after the mark (2bosouX_d8Y, music only, nothing flagged): not closed, joins next batch.
+- Tests: 649 pass, 0 fail, 1 skip. Reload: **yes** for 2.4.8 (`chrome://extensions`), then F5.
+- `regress.js` baseline saved after this change (labelled 2.4.7: saved just before the bump).
+- 1 video after `REVIEW_MARK` (2bosouX_d8Y, music only): joins the next batch.
 - **The user's view (2026-10-01):** new videos only; every fix is a rule for all future videos
   (false hits measured on all saved videos), no "small pinch" left; name what cannot be fixed, with
   numbers. On a sound report dig yourself (`docs/TESTING.md` "Live measurement"), never ask them.
-- By design: lines > 0.5 s late are fast talkers; condensing is forbidden, slowing declined.
-- `pickRefined` / the `misaligned` refine are still not seen against live Gemini.
+- By design: lines > 0.5 s late are fast talkers; condensing is forbidden, slowing declined (41).
 
 ## Unfinished / in progress
-- 2.4.6 and 2.4.7 not heard by the user yet; if pops remain, read media-internals `seek_target` rows.
+- The user has not tried the second voice since 2.4.8, nor heard 2.4.6 / 2.4.7. Without names who
+  is who is alternation only: 3 people share 2 voices, an unmarked turn is not seen.
 - Carried: voice items for the user's ear ("có nghĩa là", DN, NHNN). Never ask about Apple Events JS.
 
 ## Traps hit this session
-- `headless.js` needs the sandbox off (loopback). The Settings counter sits on the Gemini tab:
-  click `[data-tab="tab-gemini"]` before judging visibility.
+- `voiceSwitch` / `voice2` are neutral in `regress.js`: a one-person video showing a switch must be
+  read by hand (`tools/review.js` section 3 lists them).
+- `pieces[].t` is a cue's start: a run's end needs the last cue's `end` (the 45 s rule missed it).
 
 ## Suggested next step
 - On "Đã có dữ liệu rà soát mới": `node tools/review.js`, read section 3, fix as rules, measure on

@@ -116,8 +116,10 @@ test("a caption line cut at a sentence end (midLine) is read on as one segment b
     // a real pause or another speaker still separates the pieces
     const paused = [groups[0], { ...mkGroup(4, [[4, 6, "Tôi thấy mình tiết kiệm được khá nhiều tiền."]]), midLine: true }];
     assert.equal(PLAN.buildDubScript(paused, { joinGroups: true }).length, 2);
-    const turn = [groups[0], { ...groups[1], srcCues: [{ start: 3.2, end: 5.5, text: ">> I feel like I am" }] }];
-    assert.equal(PLAN.buildDubScript(turn, { joinGroups: true }).length, 2);
+    // a speaker label of a video that labels its speakers (2.4.8: a lone ">>" is no turn)
+    const lab = (g, name, text) => ({ ...g, srcCues: [{ start: g.start, end: g.end, text: `${name}: ${text}` }] });
+    const turn = [lab(groups[0], "ANNA", "We bought a house"), { ...lab(groups[1], "BOB", "I feel like I am"), midLine: true }, lab(groups[2], "ANNA", "That is it")];
+    assert.equal(PLAN.buildDubScript(turn, { joinGroups: true }).length, 3);
 });
 
 // 2.3.6: the engine goes on from the first segment that starts after the last one it spoke, so a
@@ -152,7 +154,7 @@ test("wiring: 48 kHz, shaping and cleanup on the VieNeu path, engine joins group
     assert.match(bg, /splitTtsAudio\(bytes, mime, sr, parts, \{ maxPause, text, breath, clean: true, hpHz: localHighPass\(req\.voice\) \}\)/);
     assert.match(bg, /AUDIO\.shapePauses\(piece, sr, opts\.text, \{ maxPause: opts\.maxPause, breath: opts\.breath \}\)/);
     const eng = read("dub-engine.js");
-    assert.match(eng, /speakerState, spoken, \.\.\.\(free \? FREE_SEGMENTS : \{\}\) \}/);
+    assert.match(eng, /speakerTurns, spoken, \.\.\.\(free \? FREE_SEGMENTS : \{\}\) \}/);
     assert.match(eng, /const FREE_SEGMENTS = \{ joinGroups: true, segSoft: 8, segHard: 11 \};/);
     assert.match(eng, /const LOCAL_STYLE_VERSION = 11;/);
     assert.match(eng, /const natural = ph\.breakKind === "opener";/);

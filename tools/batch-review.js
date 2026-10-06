@@ -14,7 +14,8 @@
 //   node tools/batch-review.js $TMPDIR/yt --show=omission,leftover --n=20   the flagged lines themselves
 //
 // --show takes any flag type of assess (omission, untranslated, empty, calque, repeat, addition) and
-// refine, leftover, noteInside, turns, dup, mended. Read only; nothing is written anywhere.
+// refine, leftover, noteInside, turns, dup, mended, voiceSwitch. voice2 is the second voice's share
+// of the talk in % (were it switched on). Read only; nothing is written anywhere.
 const fs = require("fs");
 const path = require("path");
 const REPO = path.join(__dirname, "..");
@@ -24,7 +25,8 @@ const SIM = require(path.join(REPO, "tools/playback-sim.js"));
 
 const LABEL = /(?:^|[.!?…-]\s+)\p{Lu}[\p{Lu}.'-]+(?:\s+\p{Lu}[\p{Lu}.'-]+){0,3}:\s/u;
 const syllables = t => String(t || "").replace(/\[[^\]]*\]/g, " ").split(/\s+/).filter(w => /[\p{L}\p{N}]/u.test(w)).length;
-const TEXT_COLS = ["refine", "omission", "untranslated", "empty", "leftover", "noteInside", "turns", "labels", "dup", "mended"];
+const TEXT_COLS = ["refine", "omission", "untranslated", "empty", "leftover", "noteInside", "turns", "labels", "dup", "mended", "voiceSwitch", "voice2"];
+const PLAN = require(path.join(REPO, "dub-planner.js"));
 const SIM_COLS = ["spoken", "dropped", "late", "wordsLost", "rateP50", "rateMax"];
 
 function review(file) {
@@ -56,6 +58,16 @@ function review(file) {
         prev = vi;
     });
     row.viSylPerSec = +(viSyl / (span || 1)).toFixed(2);
+    // the second voice, if switched on (2.4.8): how often it changes and its share of the talk. A
+    // one-person video must show 0 and 0
+    const script = PLAN.buildDubScript(mended, { joinGroups: true, segSoft: 8, segHard: 11, speakerTurns: PLAN.speakerTurns(mended) });
+    let s2 = 0, all = 0;
+    script.forEach((x, k) => {
+        if (k && x.speaker !== script[k - 1].speaker) { n.voiceSwitch++; keep("voiceSwitch", { video: row.video, t: x.start, src: x.srcText, vi: `${x.speaker}: ${x.subtitleText}` }); }
+        all += x.end - x.start;
+        if (x.speaker !== "S1") s2 += x.end - x.start;
+    });
+    n.voice2 = Math.round(100 * s2 / (all || 1));
     return { row: { ...row, ...n }, lines };
 }
 

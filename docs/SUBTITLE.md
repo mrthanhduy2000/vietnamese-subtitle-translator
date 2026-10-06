@@ -371,7 +371,7 @@ also mirrored into `localStorage` as `cstUiTheme` so the page can paint before s
 
 Dubbing: `dubEnabled`, `dubProvider`, `dubTtsModel`, `dubVoiceName`, `dubGeminiVoice`,
 `dubGeminiVoice2`, `dubLocalVoice`, `dubLocalVoice2`, `dubSecondVoice` (off by default: every speaker is S1,
-see `DubEngine.oneVoice`), `dubDuck`, `dubVolume`, `dubPrepareWait`.
+see `DubEngine.oneVoice`; who speaks: `DUBBING.md` "Who speaks", 2.4.8), `dubDuck`, `dubVolume`, `dubPrepareWait`.
 `dubMaxRate` (0 = automatic, else 1.1 to 1.5: caps every rate in `DubEngine.chooseRate` /
 `paceLimits` through `userMaxRate()`, applied live). `dubCondense` is retired (condensing is
 permanently off, see `DUBBING.md`); old stored values are ignored.
