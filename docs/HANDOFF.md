@@ -20,7 +20,6 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   theirs. Two voices cost 1-4 points more late starts in conversations.
 - `batch-review.js` columns `voiceSwitch`, `voice2`; `playback-sim.js` takes `sc.settings`.
 - Settings hint for "Dùng giọng thứ hai" rewritten; real-Chrome Settings check still 0 errors.
-- Earlier today, no bump: `tools/review.js`, `tools/regress.js` (see `docs/TESTING.md`).
 
 ## State
 - Tests: 649 pass, 0 fail, 1 skip. Reload: **yes** for 2.4.8 (`chrome://extensions`), then F5.
