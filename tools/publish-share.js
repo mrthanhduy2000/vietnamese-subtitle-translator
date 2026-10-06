@@ -12,10 +12,13 @@ const { execFileSync } = require("node:child_process");
 const ROOT = path.join(__dirname, "..");
 const SHARE = path.join(__dirname, "share");
 const RUNTIME_DIRS = ["icons", "images"];
-// The autostart helpers ride inside the extension: the Settings page points the user at them
-const EXT_TOOLS = ["vieneu-autostart.command", "vieneu-autostart.ps1", "vieneu-autostart.cmd"];
+// The autostart helpers (and the Windows runner they install) ride inside the extension: the
+// Settings page points the user at them
+const EXT_TOOLS = ["vieneu-autostart.command", "vieneu-autostart.ps1", "vieneu-autostart.cmd", "vieneu-runner.pyw"];
 const SHARE_FILES = ["README.md", "install-mac.sh", "install-windows.ps1",
-    "vieneu/openai_speech.py", "vieneu/openai_speech.patch"];
+    "vieneu/openai_speech.py", "vieneu/openai_speech.patch",
+    // the install test: the one-line install on clean Windows and macOS machines at every push
+    ".github/workflows/install-test.yml"];
 
 function runtimeFiles() {
     return fs.readdirSync(ROOT).filter(f => f === "manifest.json" || /\.(js|html|css)$/.test(f))
