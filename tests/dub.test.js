@@ -1650,3 +1650,79 @@ test("engine stop: the next-line wake-up timer is cancelled; the page passes cle
     assert.equal(fired, 0, "the old wake-up still fired after stop");
     assert.match(fs.readFileSync(path.join(__dirname, "..", "dubbing.js"), "utf8"), /clearTimeout: id => clearTimeout\(id\)/);
 });
+
+// ================= Coursera start hold (2.5.0) =================
+// Coursera autoplays a lecture before its first lines are voiced (measured: the greeting never
+// spoken, the first voice on the second line). courseraHoldFirstPlay is run for real, lifted out of
+// content.js into a small fake page.
+function courseraHoldEnv({ dubEnabled = true, prepareWait = true, playing = false } = {}) {
+    const vm = require("node:vm");
+    const src = fs.readFileSync(path.join(__dirname, "..", "content.js"), "utf8");
+    const fn = src.slice(src.indexOf("function courseraHoldFirstPlay"), src.indexOf("async function courseraAutoTranslateNow"));
+    class HTMLVideoElement { constructor() { this.paused = !playing; this.currentTime = 0; this.parentElement = {}; } }
+    const listeners = new Map();
+    const holds = [];
+    const api = { dub: { engine: null }, hold: { active: false, release() { this.active = false; holds.push("released"); } },
+        prepareHold(v, ready, opts) { holds.push({ v, ready, opts }); this.hold.active = true; return true; } };
+    api.prepareHold = api.prepareHold.bind(api);
+    const video = new HTMLVideoElement();
+    const ctx = {
+        state: { dubEnabled, prepareWait }, location: { href: "https://www.coursera.org/learn/x/lecture/a" },
+        window: { CST_DUB: api }, HTMLVideoElement,
+        document: { addEventListener: (t, f) => listeners.set(t, f), removeEventListener: (t, f) => { if (listeners.get(t) === f) listeners.delete(t); } },
+        csVideo: () => video, csPlayerBox: () => ({ box: true }),
+    };
+    vm.createContext(ctx);
+    vm.runInContext(fn, ctx);
+    const play = () => { const f = listeners.get("play"); if (f) f({ target: video }); };
+    return { ctx, api, video, holds, listeners, play, arm: () => vm.runInContext(`courseraHoldFirstPlay(location.href)`, ctx) };
+}
+
+test("Coursera: the lecture's first play waits for the voice of its line, from 0, like YouTube", () => {
+    const E = courseraHoldEnv();
+    E.arm();
+    assert.equal(E.holds.length, 0, "nothing held before the video plays");
+    E.play();                                                    // Coursera's own autoplay
+    assert.equal(E.holds.length, 1);
+    assert.equal(E.holds[0].v, E.video);
+    assert.equal(E.holds[0].opts.initial, true, "initial: re-pauses a quick second play, restarts from 0");
+    assert.deepEqual(E.holds[0].opts.container, { box: true });
+    // ready only once the engine has the voice for where the video stands
+    assert.equal(E.holds[0].ready(), false, "no engine yet");
+    E.api.dub.engine = { isReadyAt: t => t === 0 };
+    assert.equal(E.holds[0].ready(), true);
+    E.play();                                                    // later plays are the viewer's: no new hold
+    assert.equal(E.holds.length, 1);
+    assert.equal(E.listeners.has("play"), false, "the listener is gone after the first play");
+});
+
+test("Coursera: a lecture already playing is held at once; no hold when the setting or dubbing is off", () => {
+    const A = courseraHoldEnv({ playing: true });
+    A.arm();
+    assert.equal(A.holds.length, 1);
+    for (const opts of [{ prepareWait: false }, { dubEnabled: false }]) {
+        const B = courseraHoldEnv(opts);
+        B.arm();
+        B.play();
+        assert.equal(B.holds.length, 0, JSON.stringify(opts));
+        assert.equal(B.listeners.has("play"), false);
+    }
+});
+
+test("Coursera: no translation or no voice releases the hold and stops listening", () => {
+    const E = courseraHoldEnv();
+    const release = E.arm();
+    release();                                                   // nothing played yet
+    assert.equal(E.listeners.has("play"), false);
+    E.play();
+    assert.equal(E.holds.length, 0);
+    const F = courseraHoldEnv();
+    const releaseF = F.arm();
+    F.play();
+    releaseF();                                                  // held, then translation failed
+    assert.equal(F.holds.at(-1), "released");
+    assert.equal(F.api.hold.active, false);
+    // the auto path wraps it: released unless dubbing came up
+    assert.match(fs.readFileSync(path.join(__dirname, "..", "content.js"), "utf8"),
+        /const release = courseraHoldFirstPlay\(location\.href\);[\s\S]{0,200}finally \{[\s\S]{0,120}if \(!\(window\.CST_DUB && window\.CST_DUB\.dub\.enabled\)\) release\(\);/);
+});

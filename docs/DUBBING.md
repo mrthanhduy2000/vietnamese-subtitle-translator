@@ -768,6 +768,18 @@ What changed, each for a measured cause:
 Not changed on purpose: prefetch horizon (`prefetchAhead` already scales with latency and rate: no
 gap at 1.5x / 2x), rate choice, drift, ducking, prosody, the paid-voice cache keys.
 
+### The start hold on each site (2.5.0)
+
+"Chờ chuẩn bị" (`dubPrepareWait`, `dubbing.js` `prepareHold`, at most 5 s, `initial` restarts from 0
+when the video is under 1.5 s in) holds a video until the engine `isReadyAt` its current time.
+YouTube arms it in `ytTuDongDich` before the caption list is fetched; seeks arm it in `dubbing.js`.
+Coursera had no start hold until 2.5.0: it autoplays 2-3 s after a lecture opens, and live on
+2026-10-06 (cached lecture) the engine came up with the video at 1.7 s, the greeting was never
+voiced and the first voice landed on line two (uncached, around 7 s). `content.js`
+`courseraHoldFirstPlay` now holds the lecture's first `play` (a capturing listener on the
+document: media events do not bubble), or at once if it already plays; `courseraAutoTranslate`
+releases it when no voice came up. Generic pages and the manual dub button still have none.
+
 ### Entering a line (1.8.7)
 
 **1.8.7 additions** (1.8.6 vs 1.8.7 on the same simulator, `OLD_BG=queued`):
