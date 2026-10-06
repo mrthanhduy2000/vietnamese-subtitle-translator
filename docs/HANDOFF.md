@@ -19,11 +19,11 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 
 ## State
 - Tests: 653 pass, 0 fail, 1 skip. Reload: **yes** for 2.4.9 (only a Settings hint changed).
-- Mac installer run end to end in a scratch folder: extension, VieNeu download, `uv sync`, patch.
+- Published at 2f6e224. Mac installer run from the public URL into a scratch folder: install, then
+  re-run as update (VieNeu not re-downloaded); model 591 MB in 52 s; a line synthesized at RTF 0.24.
 - Windows scripts: parsed with PowerShell 7 on this Mac and the generated runner too; **never run on
   Windows**. The first friend on Windows is the real test.
-- **The user's view (2026-10-01):** new videos only; every fix is a rule for all future videos; on a
-  sound report dig yourself (`docs/TESTING.md` "Live measurement"), never ask them.
+- **User (2026-10-01):** every fix is a rule for all future videos; on a sound report dig yourself.
 
 ## Unfinished / in progress
 - Windows untested in practice: Startup shortcut, hidden runner, VC++ runtime check, power
@@ -34,8 +34,9 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 ## Traps hit this session
 - macOS `unzip` mangles VieNeu's Vietnamese file names: the installer uses `ditto -x -k`.
 - `curl | bash` reads the script from stdin: the Mac installer body is one `main` function.
-- Sandbox: `mktemp -d` without a template ignores `TMPDIR`; HF model files come from
-  `us.aws.cdn.hf.co` (allow `*.aws.cdn.hf.co`, `*.hf.co` is not enough).
+- Sandbox: `mktemp -d` ignores `TMPDIR` without a template; no local port binding (test VieNeu
+  in-process with FastAPI `TestClient`); HF needs `*.aws.cdn.hf.co` + `HF_HUB_DISABLE_XET=1`.
+- GitHub timed out for hours (TLS handshake), then pushed fine: wait and retry, it is not the repo.
 - Windows PowerShell 5.1: ASCII-only scripts, no `exit` under `irm | iex`, `2>$null` on a native
   command with `ErrorActionPreference=Stop` is fatal.
 
