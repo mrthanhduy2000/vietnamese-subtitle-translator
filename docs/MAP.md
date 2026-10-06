@@ -103,8 +103,10 @@ in `CLAUDE.md` (`--check` changes nothing, exits 1 when off). `/ban-giao` runs i
 `com.damduy.vieneu` that starts the VieNeu TTS server at login and restarts it if it dies.
 Double-click installs; `--uninstall` removes. It is a user-machine utility, not part of
 the extension.
-`tools/vieneu-autostart.ps1` + `.cmd` are its Windows twin: a Startup-folder shortcut to
-`.venv\Scripts\pythonw.exe run-vieneu.pyw` (copied from `tools/vieneu-runner.pyw`): no window, no
+`tools/vieneu-autostart.ps1` + `.cmd` are its Windows twin: a value `DichPhuDe VieNeu` under
+HKCU `...\CurrentVersion\Run` (not a Startup `.lnk`: WScript.Shell rejects non-ANSI paths, and a
+Vietnamese user name failed in CI) runs `.venv\Scripts\pythonw.exe run-vieneu.pyw` (copied from
+`tools/vieneu-runner.pyw`): no window, no
 hidden PowerShell for an antivirus to flag; a supervisor (one per user, mutex) restarts
 `run-vieneu.pyw --serve`, which sets AboveNormal priority, leaves power throttling and runs
 `apps.openai_speech` in-process with its log in `server.log`. `-Stop`, `-Uninstall`; only processes
