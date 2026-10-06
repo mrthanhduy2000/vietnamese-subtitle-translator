@@ -6,38 +6,39 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-10-06 · `2.5.0` Coursera start hold (`docs/DUBBING.md` "The start hold on each site").
+2026-10-07 · `2.5.0` share installers proven on clean machines (`docs/MAP.md` "Share build").
 
 ## What changed
-- 2.5.0: `content.js` `courseraHoldFirstPlay`: a lecture's first play waits up to 5 s for the voice
-  of its line (`prepareHold` initial, setting `dubPrepareWait`), released when no voice comes up.
-  Measured live before the fix: Coursera autoplays at 2.8 s, engine up with the video at 1.7 s, the
-  greeting never voiced. 3 tests in `tests/dub.test.js`. `regress.js` unchanged, baseline saved.
-- 2.4.9 (same day): public share repo `mrthanhduy2000/dich-phu-de-long-tieng`, built by
-  `node tools/publish-share.js --push` (`docs/MAP.md` "Share build"). Publish only when asked;
-  it still holds 2.4.9, so friends do not have the Coursera fix yet.
+- Public repo `mrthanhduy2000/dich-phu-de-long-tieng` now at 2.5.0 (Coursera start hold included),
+  with `.github/workflows/install-test.yml`: every push runs the one-line install on Windows x64,
+  x64 with a Vietnamese path, Windows ARM, macOS Apple chip, macOS Intel (install, spoken line,
+  restart after kill, update, uninstall). Run 37525271928: **all 5 green**.
+- Windows autostart: HKCU Run value `DichPhuDe VieNeu` -> `pythonw.exe run-vieneu.pyw`
+  (`tools/vieneu-runner.pyw`), no window; updater is a desktop `.cmd`. No WScript.Shell anywhere.
+- Both installers: uninstall mode, port 8000 owner named, `/health` must be VieNeu's, VC++ runtime
+  installed when missing, a foreign VieNeu folder or service never touched.
+- 2.5.0 itself (previous turn): Coursera lecture's first play waits for its first voice.
 
 ## State
-- Tests: 656 pass, 0 fail, 1 skip. Reload: **yes** for 2.5.0, then F5 the Coursera tab.
-- The fix is not yet seen live (only the user can Reload). To check: `localStorage.cstDubDebug="1"`
-  on coursera.org, open a lecture in-page (SPA link click keeps a recorder alive), read
-  `data-cst-dub` + `.cst-cs-overlay` + `.cst-prepare-note` every 100 ms; remove the flag after.
-- Windows installer never run on Windows: the first friend on Windows is the real test.
+- Tests: 656 pass, 0 fail, 1 skip. No runtime change this turn: no bump, no Reload needed.
+- CI timings: install 1-2 min; restart after kill 7-9 s; a 2 s line in 1.2-2.5 s (weak CI CPUs).
 - **User (2026-10-01):** every fix is a rule for all future videos; on a sound report dig yourself.
 
 ## Unfinished / in progress
-- Verify 2.5.0 live on Coursera after the user's Reload (expected: hold note, voice on line one).
-- Windows untested in practice: Startup shortcut, hidden runner, VC++ check, power throttling.
+- 2.5.0 Coursera hold not yet seen live in the user's Chrome (only they can Reload).
+- Not covered by CI: missing VC++ runtime (runners have it), the Chrome steps (manual by design),
+  a real Vietnamese Windows user profile (CI fakes it with DPD_EXT_DIR / DPD_VIENEU_DIR).
 - Carried: the user has not tried the second voice since 2.4.8, nor heard 2.4.6 / 2.4.7. Voice items
   for the user's ear ("có nghĩa là", DN, NHNN). Never ask about Apple Events JS.
 
 ## Traps hit this session
-- Coursera resumes a lecture where it was left (332 s): a "start" measurement needs a lecture opened
-  fresh, or the next lecture by an in-page link. `data-cst-dub` updates every 500 ms only.
-- A full navigation drops a recorder installed by Control_Chrome; it lands on the old page if run
-  too early (check `location.href` first). A hidden tab does not navigate: `switch_to_tab` first.
-- macOS `unzip` mangles Vietnamese file names (installer uses `ditto`); `curl | bash` needs `main`.
-- Windows PowerShell 5.1: ASCII-only scripts, no `exit` under `irm | iex`, `2>$null` + `Stop` fatal.
+- **The author's own LaunchAgent is also `com.damduy.vieneu`**: a local test uninstall took it down
+  (restored with `tools/vieneu-autostart.command`). Test locally only with `DPD_NO_AUTOSTART=1`;
+  the installers now refuse a plist that runs another folder.
+- The sandbox cannot reach 127.0.0.1: local installer tests run outside it.
+- WScript.Shell `CreateShortcut` throws "Value does not fall within the expected range" on a
+  non-ANSI target path (a Vietnamese user name).
+- bash `-e` ignores a failing `! cmd`: CI negative checks use `if cmd; then exit 1; fi`.
 
 ## Suggested next step
 - On "Đã có dữ liệu rà soát mới": `node tools/review.js`, read section 3, fix as rules, measure on
