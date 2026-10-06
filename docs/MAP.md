@@ -103,22 +103,34 @@ in `CLAUDE.md` (`--check` changes nothing, exits 1 when off). `/ban-giao` runs i
 `com.damduy.vieneu` that starts the VieNeu TTS server at login and restarts it if it dies.
 Double-click installs; `--uninstall` removes. It is a user-machine utility, not part of
 the extension.
-`tools/vieneu-autostart.ps1` + `.cmd` (2.4.9) are its Windows twin: a Startup-folder shortcut runs a
-hidden PowerShell loop (`run-vieneu.ps1`, written into the VieNeu folder) that restarts the server;
-`-Stop`, `-Uninstall`. ASCII only (Windows PowerShell 5.1 reads BOM-less files as ANSI).
+`tools/vieneu-autostart.ps1` + `.cmd` are its Windows twin: a Startup-folder shortcut to
+`.venv\Scripts\pythonw.exe run-vieneu.pyw` (copied from `tools/vieneu-runner.pyw`): no window, no
+hidden PowerShell for an antivirus to flag; a supervisor (one per user, mutex) restarts
+`run-vieneu.pyw --serve`, which sets AboveNormal priority, leaves power throttling and runs
+`apps.openai_speech` in-process with its log in `server.log`. `-Stop`, `-Uninstall`; only processes
+whose command line holds that VieNeu folder are touched. ASCII only (5.1 reads BOM-less as ANSI).
 
-**Share build (2.4.9).** Friends install from a separate **public** repo,
+**Share build.** Friends install from a separate **public** repo,
 `github.com/mrthanhduy2000/dich-phu-de-long-tieng`, cloned next to this one as
 `../dich-phu-de-long-tieng`. `node tools/publish-share.js --push` rebuilds it from here: the runtime
-files under `extension/` (plus the three autostart helpers in `extension/tools/`), and from
-`tools/share/` the Vietnamese `README.md` (with the prompt friends give their AI), `install-mac.sh`,
-`install-windows.ps1` and `vieneu/openai_speech.py` (our patched VieNeu server file; `.patch` is the
-diff). The installers need no git and no admin: they download zips, keep the extension in a fixed
-`~/DichPhuDe` (Chrome keys settings to the path), pin VieNeu to one commit, run `uv sync`, install the
-autostart and wait for `/health`; re-running one is the update. Only publish when the user asks
-("cập nhật cho bạn bè"): friends should not get every untested change. If `~/VieNeu-TTS` moves to a
-new upstream commit, update the pin in both installers and copy the patched file again.
-`tests/share.test.js` guards the file list, the ASCII rule and the pin.
+files under `extension/` (plus the autostart helpers and the runner in `extension/tools/`), and from
+`tools/share/` the Vietnamese `README.md` (the prompt friends give their AI, an error table),
+`install-mac.sh`, `install-windows.ps1`, `vieneu/openai_speech.py` (our patched VieNeu server file;
+`.patch` is the diff) and `.github/workflows/install-test.yml`. The installers need no git and no
+admin: they download zips, keep the extension in a fixed `~/DichPhuDe` (Chrome keys settings to the
+path), pin VieNeu to one commit, run `uv sync`, install the autostart and wait until `/health`
+answers with a `sample_rate`; re-running one is the update, `--uninstall` (Mac) / `DPD_UNINSTALL=1`
+(Windows) removes. Guards: a port 8000 owner that is not VieNeu is named and stops the install; a
+`VieNeu-TTS` folder without `.dichphude-vieneu` is never overwritten; on the Mac the
+`com.damduy.vieneu` service is touched only when its plist runs that folder (the author's machine has
+its own: a test uninstall once took it down). **Every push runs the install test** on clean GitHub
+machines (Windows x64, x64 with a Vietnamese path, Windows ARM, macOS Apple chip, macOS Intel): the
+one-line install, a spoken line, restart after a kill, update, uninstall. Check it after publishing
+(`gh run list -R mrthanhduy2000/dich-phu-de-long-tieng`). Only publish when the user asks
+("cập nhật cho bạn bè"). If `~/VieNeu-TTS` moves to a new upstream commit, update the pin in both
+installers and copy the patched file again. `tests/share.test.js` guards the file list, the ASCII
+rule and the pin. Test the Mac installer locally only with `DPD_NO_AUTOSTART=1` and outside the
+sandbox (it cannot reach 127.0.0.1).
 
 `tools/prosody-eval.js` renders the marked sentences of `tests/prosody-corpus.js` on the VieNeu
 server once (cached outside the repo) and scores the pause shaping against the marks; `OLD=` scores
