@@ -39,7 +39,6 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 ## Traps hit this session
 - `headless.js` needs the sandbox off (loopback). The Settings counter sits on the Gemini tab:
   click `[data-tab="tab-gemini"]` before judging visibility.
-- `$TMPDIR` changes between sessions: never rely on a file left there by an earlier turn.
 
 ## Suggested next step
 - On "Đã có dữ liệu rà soát mới": `node tools/review.js`, read section 3, fix as rules, measure on
