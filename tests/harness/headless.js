@@ -4,6 +4,9 @@
 // (start-up, time-stretch, volume steps) without the user's browser; see docs/TESTING.md.
 //   PAGE=tests/harness/smooth.html EXPR='runSmooth(60)' POLL='summary()' node tests/harness/headless.js
 //   CPU=6 ...            DevTools CPU throttling of the renderer (x6)
+//   PRELOAD=<file> ...   a script run before the page's own (2.4.7: options-preload.js stands in
+//                        for the extension under the real options.html)
+//   Uncaught exceptions and console errors of the page are printed at the end (exit 1 if any).
 //   CHROME=<binary> ...  another Chrome (default: the macOS app)
 // From Claude's sandbox: run with the sandbox off (listening on loopback is refused inside it).
 const fs = require("fs");
@@ -43,9 +46,12 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
     await new Promise(r => ws.addEventListener("open", r));
     let lastId = 0;
     const pending = new Map();
+    const pageErrors = [];
     ws.addEventListener("message", e => {
         const m = JSON.parse(e.data);
         if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); }
+        if (m.method === "Runtime.exceptionThrown") pageErrors.push(((m.params.exceptionDetails.exception || {}).description || m.params.exceptionDetails.text).split("\n").slice(0, 3).join(" | "));
+        if (m.method === "Runtime.consoleAPICalled" && m.params.type === "error") pageErrors.push("console.error: " + m.params.args.map(a => a.value != null ? a.value : a.description).join(" ").slice(0, 300));
     });
     const send = (method, params = {}) => new Promise(r => { const id = ++lastId; pending.set(id, r); ws.send(JSON.stringify({ id, method, params })); });
     const evaluate = async expression => {
@@ -56,6 +62,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
     await send("Page.enable");
     await send("Runtime.enable");
     if (process.env.CPU) await send("Emulation.setCPUThrottlingRate", { rate: Number(process.env.CPU) });
+    if (process.env.PRELOAD) await send("Page.addScriptToEvaluateOnNewDocument", { source: fs.readFileSync(path.resolve(ROOT, process.env.PRELOAD), "utf8") });
     await send("Page.navigate", { url: `http://127.0.0.1:${srv.address().port}/${PAGE}` });
     await wait(2000);
     console.log("start:", JSON.stringify(await evaluate(EXPR)));
@@ -65,9 +72,10 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
         result = await evaluate(POLL);
     }
     console.log(JSON.stringify(result));
+    if (pageErrors.length) console.log("page errors:\n  " + pageErrors.join("\n  "));
     ws.close();
     await new Promise(r => { chrome.once("exit", r); chrome.kill(); });
     srv.close();
     try { fs.rmSync(profile, { recursive: true, force: true }); } catch (e) { /* left in the temp dir */ }
-    process.exit(result && result.done ? 0 : 1);
+    process.exit(result && result.done && !pageErrors.length ? 0 : 1);
 })().catch(e => { console.error(e); process.exit(1); });

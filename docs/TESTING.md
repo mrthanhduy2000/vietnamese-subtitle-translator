@@ -16,10 +16,10 @@ sense of weight, not an assertion.
 
 | File | ~Tests | Covers |
 |---|---|---|
-| `segmenter.test.js` | 40 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
+| `segmenter.test.js` | 42 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
 | `context.test.js` | 18 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |
 | `integration.test.js` | 25 | Runs the **real** `content.js` and `background.js` in a `vm` with a fake `chrome`, fake DOM and fake Gemini |
-| `dub.test.js` | 78 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
+| `dub.test.js` | 79 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
 | `cost.test.js` | 59 | The full LOCAL -> CACHE -> cheap -> strong -> TTS chain, plus `cst-cache`, `cost-policy`, `dub-planner`, `dub-engine` |
 | `hardening.test.js` | 105 | Per-API-key model access, options opening, language auto-detect, no-clipping dubbing, budget caps, the version-scheme rule |
 | `bridge.test.js` | 4 | `yt-bridge.js` recovering empty captions that are missing the `pot` token, and restoring the viewer's original caption track |
@@ -38,6 +38,7 @@ sense of weight, not an assertion.
 | `speech.test.js` | 23 | 1.7.8 English in speech (`dub-speech.js`): what VieNeu is sent for unknown codes, word acronyms, camelCase and Vietnamese-syllable names, model numbers; what stays untouched (VieNeu's own tables, Vietnamese codes, A4, U23, shouting, "Con AI", a lone "Tom"); evidence from the English source; unchanged text = same string; 8-tag cap; consistency; the user's adversarial list; the version reading of `adaptForSpeech`; spans as prosody units; the backlog-16 pause rules; engine `speakScript` + the `speak` field; no network; speed; custom entries; the unseen split's fingerprint; three subtitle lines read as one take |
 | `ui.test.js` | 38 | Shortcuts (Alt+S / Alt+D / Alt+Shift+V), no blocking `alert`/`confirm` on the user's page, focus rings and reduced-motion, `role=status` toasts, the YouTube quick menu built on a mini-DOM, light/dark theme wiring, the VieNeu autostart script, auto-switch back to VieNeu when the server appears, and the release-history data |
 | `edits.test.js` | 8 | `subtitle-edits.js`: a viewer's correction is stored per video, reaches both the overlay and the voice text, re-voices only the edited sentence, and the transcript panel's edit box |
+| `review.test.js` | 3 | 2.4.7: the slid-run realignment run inside the real `content.js` (`translateWindow`: realigned before the quality check, no refine) and `youtube.js` (`ytGanBanDich` over a window seam, cues redrawn); the review tools' contracts (`REVIEW_MARK` pattern, `tools/regress.js` `compare`) |
 | `glossary.test.js` | 10 | `glossary.js` data and the protect -> restore round trip in `content.js`: settled renderings, plurals, sentence-start capitals, user rules, groups added after a saved list |
 
 ## The two harnesses that make offline testing possible
@@ -157,6 +158,21 @@ The takes there predate 2.0.6: the lecture's second line is now cut "xem xét | 
 no 45 s limit: `PAGE=tests/harness/smooth.html EXPR='runSmooth(60)' POLL='summary()' node
 tests/harness/headless.js` (sandbox off: loopback). `CPU=6` throttles the renderer. Add
 `H.engine.stats.startUp` to the poll to see how long Chrome took to start each voice.
+2.4.7: `PRELOAD=<file>` runs a script before the page's own, and the page's uncaught exceptions and
+console errors are printed (exit 1 if any). Two checks use it, both run on 2.4.7 with 0 page errors:
+- The real Settings page: `PAGE=options.html PRELOAD=tests/harness/options-preload.js
+  EXPR='window.__r = null; __runOptionsCheck().then(r => window.__r = r); 1' POLL='window.__r'`.
+  The preload stands in for the extension (`chrome.runtime.id` makes `chrome-shim.js` stand aside)
+  and answers `cacheStats` / `cacheClear` with background.js's own saved-video section. It opens the
+  Gemini tab, reads the counter ("Đã rà soát video số 1 đến 45 ... Video mới chưa rà soát: 3 / 100
+  (số 46 đến 48)"), clicks "Xóa video đã rà soát": 5 reviewed videos gone, 3 new kept, the counter
+  redrawn ("còn lưu 0"), toast "✓ Đã xóa 5 video đã rà soát.".
+- A long saved video: `PAGE=tests/harness/long-video.html EXPR='runLong("review-archive/2026-10-01-videos-22-39/ytcache4_UIy-WQCZd4M.json")'
+  POLL='window.__long'` times the extension's own code on what opening it costs. The 186-minute
+  podcast (2793 groups, 3922 cues), on the user's Mac / with `CPU=4`: load repairs 161 / 579 ms (one
+  task, once; realign 42 of it), one dubbing planning window 31 / 119 ms (once per 60 s step), the
+  cue lookup 0.09 / 0.3 µs a frame, heap 34 MB. The whole-video plan (379 / 1459 ms) is never done by
+  the engine, which plans a window; nothing here needs work.
 
 `live.html` + `live-server.js` (1.9.7): the real `DubEngine` and VieNeu provider in Chrome. The
 page's messages are answered by the real `background.js` (through `bg-env.js`) in the Node server.
@@ -267,8 +283,21 @@ Two traps in `ui.test.js` that cost a session real time:
   scored against (`node tools/playback-sim.js --real=review-archive/<folder>`). Three so far:
   `2026-09-30-videos-1-21`, `2026-10-01-videos-22-39` (18 videos, 505 minutes, one of 186),
   `2026-10-05-videos-40-45` (6 videos, 64 minutes). Copy all folders into one to score every video.
+- **A batch review is one command (2.4.7): `node tools/review.js`.** It reads Chrome's storage itself,
+  takes the videos saved after `REVIEW_MARK`, prints their rows (text flags, `mended`, the voice with
+  `LATENCY=busy`), the batch's rates per 100 groups beside every reviewed video's (marked when
+  clearly higher), the flagged lines class by class, and the regression net below. Once the batch is
+  dealt with, `node tools/review.js --close` archives it, moves `REVIEW_MARK` and saves a new
+  baseline (then bump the version: background.js changed). `--dump=<dir>` reuses a dump.
+- **Regression net (2.4.7): `node tools/regress.js`** (~75 s), after any change to translation or
+  dubbing code. Every reviewed video in `review-archive/` (text flags, voice with `LATENCY=busy`) and
+  every simulator scenario (with and without latency) against `review-archive/baseline.json`; lists
+  each number that moved and fails on one that got worse (`spoken` higher is better, everything else
+  lower; repair counts and sizes are neutral). Deterministic, so any move is a real change.
+  `--save` after a change whose moves are all understood. Checked: the 2.4.6 engine against the 2.4.7
+  baseline names the 22 loud cuts at once.
 - `node tools/batch-review.js <dump> --since=<REVIEW_MARK.until> [--sim] [--show=omission,leftover]`
-  (2.4.2) is a batch review's first pass: per video the quality check's flags, English left in, music
+  (2.4.2) is a batch review's first pass (`tools/review.js` uses it): per video the quality check's flags, English left in, music
   notes inside a sentence, ">>", speaker labels, repeats, and with `--sim` the voice (spoken, dropped,
   late, words lost). Then read the flagged lines (`--show`) before changing anything. Since 2.4.7
   the text is judged as the user now sees it: `playback-sim.js` `realGroups` applies the repairs a

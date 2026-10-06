@@ -125,7 +125,8 @@ npm test                       # fully offline, ~14s. The bar is 0 fail. 1 skip 
 npm run compare                # old vs new segmenter over the fixtures
 node tools/bump-version.js     # run at the end of every code change
 git push                       # after every commit: private repo on GitHub (see Definition of done)
-node tools/batch-review.js <dump> --since=<ms> --sim   # first pass of a batch review (docs/TESTING.md)
+node tools/review.js           # a batch review in one command ("Đã có dữ liệu rà soát mới"); --close when done
+node tools/regress.js          # regression net over every reviewed video, ~75 s (docs/TESTING.md)
 node tests/vieneu.live.js      # needs the local TTS server running
 curl 127.0.0.1:8000/health     # is the VieNeu TTS server up?
 open ~/VieNeu-TTS/cst-start.command   # start it (lives outside this repo)
@@ -144,7 +145,8 @@ By hand, `/ban-giao` is:
 
 1. `npm test` shows **0 fail**. A new failure is yours; fix it before finishing. Do not compare
    pass counts against a number in a doc, they go stale: use `git stash` if you need to know
-   whether a failure predates you.
+   whether a failure predates you. If translation or dubbing runtime code changed, also
+   `node tools/regress.js`: nothing worse, or every worse number explained, then `--save`.
 2. `node tools/bump-version.js`, but **only if a runtime file changed**: `manifest.json`, or a
    `.js` / `.html` / `.css` in the repo root. Docs, `tools/` and `tests/` do not earn a bump.
 3. Rewrite `docs/HANDOFF.md`: current state, what is unfinished, traps that cost you time. Replace

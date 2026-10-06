@@ -1537,9 +1537,13 @@ test("VieNeu: a dropped request the server has started finishes and is stored; a
     }, cfg());
     const req = key => ({ action: "synthesizeSpeech", engine: "vieneu", text: "Câu này đang được máy chủ tạo.", voice: "Mỹ Duyên", jobId: "job-" + key, parts: [{ key, weight: 7 }] });
     const running = E.send(req("run1"));
-    const queued = E.send({ ...req("wait1"), text: "Câu này còn chờ trong hàng." });
+    // the second request is sent once the server holds the first: sent together, the two hash
+    // their keys concurrently and under load the second could reach the queue first (2.4.7: the
+    // test then dropped the request the server had not started and failed 2 runs in 12)
     for (let i = 0; i < 200 && !release; i++) await new Promise(r => setTimeout(r, 5));
     assert.ok(release, "the first request never reached the server");
+    const queued = E.send({ ...req("wait1"), text: "Câu này còn chờ trong hàng." });
+    for (let i = 0; i < 20; i++) await new Promise(r => setImmediate(r));
     await E.send({ action: "ttsAbort", jobId: "job-run1" });
     await E.send({ action: "ttsAbort", jobId: "job-wait1" });
     release();

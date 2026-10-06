@@ -562,7 +562,8 @@ Knobs you will actually reach for:
   starts over 4.5 s late 11 -> 38 of 7271, none over 8. `maxQueueLag` still drops a line with no
   audio (a slow server). The slow and rapid matrices and the 14 delivery scenarios are identical.
   What is left is lateness on fast talkers: 13% of lines start over 1 s late (yZfhCQwCWT4 100 of
-  191). The voice is already at its rate ceiling, so only slowing the video would cut that.
+  191). The voice is already at its rate ceiling, so only slowing the video would cut that, and the
+  user declined that (2026-10-06, `BACKLOG.md` 41): kept on purpose.
   `maxQueueLag` 4.5, `dropLag` 4.0 for the
   live provider. Gating happens in `nextSpeech`.
 - **Overload (added 1.4.7)**: when the TTS server is slower than real time, waiting for the next

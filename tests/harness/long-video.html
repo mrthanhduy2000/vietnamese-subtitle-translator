@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head><meta charset="utf-8"><title>Video dài: thời gian xử lý khi mở</title></head>
+<body style="font-family: system-ui; background:#111; color:#eee; padding:16px">
+<p>2.4.7: what the page does with a long saved video, timed in a real Chrome with the extension's own
+code. Opening a saved video: the repairs ytRepairCachedLeaks applies on load (sound notes, head
+repeats, slid runs, leaks) and the re-cut of what changed, the merge of every cue (ytGhepViCues), then
+the dubbing plan for one planning window (dub-engine refreshSource: planStep 60 s, 150 s behind, 300 s
+ahead) and, as an upper bound, for the whole video. Each step is one synchronous task: over ~200 ms the
+tab would stutter. Run: PAGE=tests/harness/long-video.html EXPR='runLong("review-archive/&lt;folder&gt;/ytcache4_UIy-WQCZd4M.json")'
+POLL='window.__long' node tests/harness/headless.js (CPU=4 for a slower machine).</p>
+<pre id="out"></pre>
+<script src="../../glossary.js"></script>
+<script src="../../vi-segmenter.js"></script>
+<script src="../../subtitle-style.js"></script>
+<script src="../../vi-quality.js"></script>
+<script src="../../cost-policy.js"></script>
+<script src="../../dub-planner.js"></script>
+<script src="../../dub-prosody.js"></script>
+<script src="../../dub-speech.js"></script>
+<script>
+  const Q = window.CST_QUALITY, SEG = window.CST_VI_SEG, PLAN = window.CST_DUB_PLAN, STYLE = window.CST_STYLE;
+  const time = (out, name, f) => { const t0 = performance.now(); const r = f(); out[name] = +(performance.now() - t0).toFixed(1); return r; };
+  // the same arithmetic as content.js segmentGroupVi
+  const reseg = (gs, k) => {
+    const g = gs[k], next = gs[k + 1];
+    const maxEnd = next ? Math.min(g.end + 1.5, Math.max(g.end, next.start - 0.04)) : g.end + 1.5;
+    g.viCues = SEG.segmentGroupSafe(g.viText, g.srcCues, { maxEnd, keepTerms: [] });
+  };
+  window.runLong = async url => {
+    window.__long = null;
+    const ms = {};
+    const raw = await (await fetch("/" + url)).text();
+    const c = time(ms, "parse", () => JSON.parse(raw));
+    const gs = time(ms, "groups", () => (c.g || []).map(g => ({
+      start: g[0], end: g[1], viText: g[2],
+      srcCues: g[3].map(x => ({ start: x[0], end: x[1], text: x[2] })),
+      viCues: g[4].map(x => ({ start: x[0], end: x[1], text: x[2], lines: x[2] ? [x[2]] : [] }))
+    })));
+    const src = g => g.srcCues.map(x => x.text).join(" ");
+    let changed = 0;
+    time(ms, "repair", () => {
+      const touched = new Set();
+      gs.forEach((g, k) => { const [v] = Q.fixSoundNotes([g.viText], [src(g)]); if (v !== g.viText) { g.viText = v; touched.add(k); } });
+      for (let k = 0; k + 1 < gs.length; k++) {
+        const [a, b] = Q.fixRepeatedHeads([gs[k].viText, gs[k + 1].viText], [src(gs[k]), src(gs[k + 1])]);
+        if (a !== gs[k].viText || b !== gs[k + 1].viText) { gs[k].viText = a; gs[k + 1].viText = b; touched.add(k); touched.add(k + 1); }
+      }
+      const re = Q.realignSentences(gs.map(src), gs.map(g => g.viText));
+      re.forEach((v, k) => { if (v !== gs[k].viText) { gs[k].viText = v; touched.add(k); } });
+      gs.forEach((g, k) => {
+        const next = [gs[k + 1], gs[k + 2]].filter(Boolean).map(x => x.viText).join(" ");
+        const cut = next ? Q.trimContextLeak(g.viText, next, { src: src(g) }) : g.viText;
+        if (cut !== g.viText) { g.viText = cut; touched.add(k); }
+      });
+      for (const k of touched) reseg(gs, k);
+      changed = touched.size;
+    });
+    // the realign pass alone, the newest part of the repair
+    time(ms, "realignOnly", () => Q.realignSentences(gs.map(src), gs.map(g => g.viText)));
+    // every group cut again (an upper bound: a fresh translation of the whole video)
+    time(ms, "resegAll", () => gs.forEach((g, k) => reseg(gs, k)));
+    const cues = time(ms, "mergeCues", () => {
+      const all = [];
+      for (const g of gs) all.push(...g.viCues);
+      all.sort((a, b) => a.start - b.start);
+      for (let i = 1; i < all.length; i++) if (all[i].start < all[i - 1].end) all[i - 1].end = Math.max(all[i - 1].start + 0.05, all[i].start);
+      return STYLE.lingerCues ? STYLE.lingerCues(all.map(x => ({ ...x }))) : all;
+    });
+    const mid = gs[Math.floor(gs.length / 2)].start;
+    const win = gs.filter(g => g.end >= mid - 150 && g.start <= mid + 60 + 300);
+    time(ms, "planWindow", () => PLAN.planAll(PLAN.buildDubScript(win, { headAt: mid, joinGroups: true, segSoft: 8, segHard: 11 }), {}));
+    const plans = time(ms, "planWhole", () => PLAN.planAll(PLAN.buildDubScript(gs, { headAt: 0, joinGroups: true, segSoft: 8, segHard: 11 }), {}));
+    // a frame: the cue under the playhead (youtube.js ytTimTrong), 10 000 times
+    time(ms, "lookup10k", () => {
+      let hit = 0;
+      for (let i = 0; i < 10000; i++) {
+        const t = (i * 7.31) % gs[gs.length - 1].end;
+        let lo = 0, hi = cues.length - 1;
+        while (lo <= hi) { const m = (lo + hi) >> 1; if (cues[m].start > t) hi = m - 1; else if (cues[m].end <= t) lo = m + 1; else { hit++; break; } }
+      }
+      return hit;
+    });
+    const minutes = +((gs[gs.length - 1].end - gs[0].start) / 60).toFixed(1);
+    window.__long = { done: true, minutes, groups: gs.length, cues: cues.length, plans: plans.length, windowGroups: win.length, repaired: changed,
+      heapMB: performance.memory ? +(performance.memory.usedJSHeapSize / 1e6).toFixed(1) : null, ms };
+    document.getElementById("out").textContent = JSON.stringify(window.__long, null, 1);
+    return 1;
+  };
+</script>
+</body>
+</html>

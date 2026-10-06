@@ -7,7 +7,7 @@ user hands these decisions to Claude: decide, record the outcome here, never han
 How this file works:
 - Grouped by **area**, not by when it was found; *(found 1.x.y)* after a title says when.
 - Numbers are permanent: code comments and `version-history.js` cite them. Never renumber. The next
-  free number is **41**.
+  free number is **42**.
 - Add an entry whenever you find something out of scope for your task. Once decided, delete it and
   add its number to "Closed" or "Declined" below. An entry that is only partly fixed keeps what is
   left, not the story of the fix (that is in git and `DUBBING.md`).
@@ -36,6 +36,8 @@ Declined, never re-add or re-propose:
   model switch to v3nano (another timbre, unmeasured speed on the 16 GB Mac); the free voice works.
 - 9, Udemy and edX caption sources (2026-09-29): both need a logged-in sample page to build against
   and none is available; any player with standard text tracks already works (`SUBTITLE.md` generic).
+- 41, slowing the video a little while the voice cannot keep up with a fast talker (2026-10-06): the
+  user decided against it; the lines that start late stay as they are (`DUBBING.md` known limits).
 - 40, removing the sync key `dubCondense` left by the condensing taken out in 1.7.3 (2026-09-30): no
   code reads it, it is 5 bytes, and a removal costs a storage call at every service-worker start.
 
