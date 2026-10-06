@@ -125,6 +125,7 @@ npm test                       # fully offline, ~14s. The bar is 0 fail. 1 skip 
 npm run compare                # old vs new segmenter over the fixtures
 node tools/bump-version.js     # run at the end of every code change
 git push                       # after every commit: private repo on GitHub (see Definition of done)
+node tools/publish-share.js --push  # update the PUBLIC repo friends install from (only when asked; docs/MAP.md)
 node tools/review.js           # a batch review in one command ("Đã có dữ liệu rà soát mới"); --close when done
 node tools/regress.js          # regression net over every reviewed video, ~75 s (docs/TESTING.md)
 node tests/vieneu.live.js      # needs the local TTS server running

@@ -814,7 +814,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const tocDo = rtf ? `<br>Tốc độ tạo giọng đo được: <b>${rtf.toFixed(2)}</b> (tạo 1 giây lời nói mất ${rtf.toFixed(2)} giây). ${rtf < 0.4 ? "Tốt." : rtf < 0.8 ? "Hơi chậm, giọng vẫn kịp." : "Quá chậm, giọng sẽ trễ dần: kiểm tra mục ProcessType trong tệp tự khởi động, phải là Interactive."}` : "";
         localStatusEl.innerHTML = running
             ? `<div class="cst-note-title">✓ Máy chủ VieNeu đang chạy trên máy này (${r.model === LOCAL.model ? LOCAL.modelLabel : (r.model || "không rõ model")})</div><div class="cst-note-body">Lồng tiếng dùng giọng Việt miễn phí, không gửi lời thoại ra ngoài. Nhịp nói tự đều theo từng giọng (giọng chậm được tăng tốc nhẹ, giữ cao độ).${tocDo}</div>`
-            : `<div class="cst-note-title">Máy chủ VieNeu chưa sẵn sàng</div><div class="cst-note-body">Cài MỘT LẦN để nó tự chạy mỗi khi bật máy: nhấp đúp tệp <b>tools/vieneu-autostart.command</b> trong thư mục tiện ích. Sau đó máy chủ tự bật khi đăng nhập và tự bật lại nếu bị tắt, không phải làm gì nữa. Trang này và trình phát tự nhận ra khi máy chủ sẵn sàng.</div>`;
+            : `<div class="cst-note-title">Máy chủ VieNeu chưa sẵn sàng</div><div class="cst-note-body">Cài MỘT LẦN để nó tự chạy mỗi khi bật máy: nhấp đúp tệp <b>tools/vieneu-autostart.command</b> (máy Mac) hoặc <b>tools/vieneu-autostart.cmd</b> (máy Windows) trong thư mục tiện ích. Sau đó máy chủ tự bật khi đăng nhập và tự bật lại nếu bị tắt, không phải làm gì nữa. Trang này và trình phát tự nhận ra khi máy chủ sẵn sàng.</div>`;
         return running;
     }
     // The status updates itself: a server that just came up (autostart installed) shows within 5 s,

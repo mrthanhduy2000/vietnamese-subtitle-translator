@@ -5,7 +5,7 @@
 set -e
 LABEL="com.damduy.vieneu"
 PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
-APP="$HOME/VieNeu-TTS"
+APP="${VIENEU_DIR:-$HOME/VieNeu-TTS}"  # the share installer may point elsewhere
 
 if [[ "$1" == "--go" || "$1" == "--uninstall" ]]; then
     launchctl bootout "gui/$UID/$LABEL" 2>/dev/null || true

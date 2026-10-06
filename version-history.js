@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.4.9", luc: "", ten: "Chia sẻ cho bạn bè, có cả máy Windows",
+            y: [
+                "Có bộ cài một lệnh cho Mac và Windows: tự tải tiện ích, tải và cài giọng VieNeu, bật VieNeu tự chạy cùng máy rồi chờ tới khi giọng sẵn sàng. Không cần git, không cần quyền quản trị. Chạy lại bộ cài là cập nhật, cài đặt và khóa API được giữ nguyên.",
+                "Máy chủ giọng VieNeu nay tự chạy cùng Windows và tự bật lại nếu bị tắt, như trên Mac: nhấp đúp tools/vieneu-autostart.cmd trong thư mục tiện ích. Trang Cài đặt chỉ đúng tệp cho từng loại máy.",
+                "Bản cài cho bạn bè có sẵn bản vá giúp máy chủ giọng không bị kẹt sau khi tua video."
+            ],
+        },
+        {
             v: "2.4.8", luc: "", ten: "Giọng thứ hai biết đâu là video một người nói",
             y: [
                 "Trước đây giọng thứ hai đổi giọng mỗi khi phụ đề có dấu \">>\". Phụ đề tự động của YouTube lại hay chèn dấu này quanh đoạn nhạc nền hay tiếng thở dài ngay giữa lời của một người, nên video chỉ có một người nói vẫn bị đọc bằng hai giọng: có video 35 phút bị đọc 94% bằng giọng thứ hai chỉ vì một tiếng thở dài.",

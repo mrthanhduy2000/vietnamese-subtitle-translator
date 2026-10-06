@@ -6,39 +6,38 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-10-06 · `2.4.8` the second voice knows a one-person video (`docs/DUBBING.md` "Who speaks").
+2026-10-06 · `2.4.9` sharing with friends on Mac and Windows (`docs/MAP.md` "Share build").
 
 ## What changed
-- `dub-planner.js` `speakerTurns(groups)` replaces `speakerStateBefore` and the per-group toggle:
-  every ">>" / "- " / "NAME:" of the source with its time; a mark beside a sound note is none (one
-  turn after a question); anonymous marks only in a conversation (4 within 12 s of another); a
-  label only if 3+ and name-shaped (not "Translator:"); a 45 s stretch = main speaker = S1; named:
-  longest talker S1, the rest S2. `buildDubScript` cuts a piece at a turn inside it.
-- Engine: `speakerTurns` with the second voice on, `PLAN.NO_TURNS` off (one voice unchanged:
-  45 videos late 1812 -> 1802, nothing dropped or lost).
-- 46 videos: 10 one-person videos 0 switches (were 2-94% second voice); 5 conversations keep
-  theirs. Two voices cost 1-4 points more late starts in conversations.
-- `batch-review.js` columns `voiceSwitch`, `voice2`; `playback-sim.js` takes `sc.settings`.
-- Settings hint for "Dùng giọng thứ hai" rewritten; real-Chrome Settings check still 0 errors.
+- New **public** repo `mrthanhduy2000/dich-phu-de-long-tieng`, built by `node tools/publish-share.js
+  --push` from `tools/share/` (README with the AI prompt, `install-mac.sh`, `install-windows.ps1`,
+  patched VieNeu `openai_speech.py` + `.patch`) and the runtime files. Clone lives at
+  `../dich-phu-de-long-tieng`. Publish only when the user asks.
+- Windows autostart: `tools/vieneu-autostart.ps1` + `.cmd` (Startup shortcut, hidden restart loop,
+  AboveNormal priority, logs overwritten per start). Mac autostart now takes `VIENEU_DIR`.
+- Settings hint names the `.cmd` for Windows. `tests/share.test.js` (4 tests).
 
 ## State
-- Tests: 649 pass, 0 fail, 1 skip. Reload: **yes** for 2.4.8 (`chrome://extensions`), then F5.
-- `regress.js` baseline saved after this change (labelled 2.4.7: saved just before the bump).
-- 1 video after `REVIEW_MARK` (2bosouX_d8Y, music only): joins the next batch.
-- **The user's view (2026-10-01):** new videos only; every fix is a rule for all future videos
-  (false hits measured on all saved videos), no "small pinch" left; name what cannot be fixed, with
-  numbers. On a sound report dig yourself (`docs/TESTING.md` "Live measurement"), never ask them.
-- By design: lines > 0.5 s late are fast talkers; condensing is forbidden, slowing declined (41).
+- Tests: 653 pass, 0 fail, 1 skip. Reload: **yes** for 2.4.9 (only a Settings hint changed).
+- Mac installer run end to end in a scratch folder: extension, VieNeu download, `uv sync`, patch.
+- Windows scripts: parsed with PowerShell 7 on this Mac and the generated runner too; **never run on
+  Windows**. The first friend on Windows is the real test.
+- **The user's view (2026-10-01):** new videos only; every fix is a rule for all future videos; on a
+  sound report dig yourself (`docs/TESTING.md` "Live measurement"), never ask them.
 
 ## Unfinished / in progress
-- The user has not tried the second voice since 2.4.8, nor heard 2.4.6 / 2.4.7. Without names who
-  is who is alternation only: 3 people share 2 voices, an unmarked turn is not seen.
-- Carried: voice items for the user's ear ("có nghĩa là", DN, NHNN). Never ask about Apple Events JS.
+- Windows untested in practice: Startup shortcut, hidden runner, VC++ runtime check, power
+  throttling of a windowless process (Windows 11 may slow it; the Settings page shows the RTF).
+- Carried: the user has not tried the second voice since 2.4.8, nor heard 2.4.6 / 2.4.7. Voice items
+  for the user's ear ("có nghĩa là", DN, NHNN). Never ask about Apple Events JS.
 
 ## Traps hit this session
-- `voiceSwitch` / `voice2` are neutral in `regress.js`: a one-person video showing a switch must be
-  read by hand (`tools/review.js` section 3 lists them).
-- `pieces[].t` is a cue's start: a run's end needs the last cue's `end` (the 45 s rule missed it).
+- macOS `unzip` mangles VieNeu's Vietnamese file names: the installer uses `ditto -x -k`.
+- `curl | bash` reads the script from stdin: the Mac installer body is one `main` function.
+- Sandbox: `mktemp -d` without a template ignores `TMPDIR`; HF model files come from
+  `us.aws.cdn.hf.co` (allow `*.aws.cdn.hf.co`, `*.hf.co` is not enough).
+- Windows PowerShell 5.1: ASCII-only scripts, no `exit` under `irm | iex`, `2>$null` on a native
+  command with `ErrorActionPreference=Stop` is fatal.
 
 ## Suggested next step
 - On "Đã có dữ liệu rà soát mới": `node tools/review.js`, read section 3, fix as rules, measure on
