@@ -109,7 +109,8 @@ Vietnamese user name failed in CI) runs `.venv\Scripts\pythonw.exe run-vieneu.py
 `tools/vieneu-runner.pyw`): no window, no
 hidden PowerShell for an antivirus to flag; a supervisor (one per user, mutex) restarts
 `run-vieneu.pyw --serve`, which sets AboveNormal priority, leaves power throttling and runs
-`apps.openai_speech` in-process with its log in `server.log`. `-Stop`, `-Uninstall`; only processes
+`apps.openai_speech` in-process with its log in `server.log`; it also runs the updater below every
+30 min. `-Stop`, `-Uninstall`; only processes
 whose command line holds that VieNeu folder are touched. ASCII only (5.1 reads BOM-less as ANSI).
 
 **Share build.** Friends install from a separate **public** repo,
@@ -128,8 +129,18 @@ answers with a `sample_rate`; re-running one is the update, `--uninstall` (Mac) 
 its own: a test uninstall once took it down). **Every push runs the install test** on clean GitHub
 machines (Windows x64, x64 with a Vietnamese path, Windows ARM, macOS Apple chip, macOS Intel): the
 one-line install, a spoken line, restart after a kill, update, uninstall. Check it after publishing
-(`gh run list -R mrthanhduy2000/dich-phu-de-long-tieng`). Only publish when the user asks
-("cập nhật cho bạn bè"). If `~/VieNeu-TTS` moves to a new upstream commit, update the pin in both
+(`gh run list -R mrthanhduy2000/dich-phu-de-long-tieng`). **Friends' installs update themselves**:
+`tools/dichphude-update.py` (copied to `<VieNeu>/dichphude-update.py`, the extension path in
+`<VieNeu>/.dichphude-ext`) asks GitHub every 6 h, stages a newer version in `<VieNeu>/.dpd-staged`,
+and lays it over the extension folder only while Chrome is closed (Chrome reads an unpacked
+extension from disk at start); macOS runs it from LaunchAgent `com.damduy.dichphude.update` every
+30 min, Windows from the supervisor. Not `chrome.runtime.reload()`: tried 2026-10-08 in headless
+Chrome and Chrome for Testing (`--load-extension`, developer mode on), it left the extension
+blocked every time, and a blocked or removed extension loses the user's settings and key. So a
+**push to the share repo reaches every friend within hours**: only publish when the user asks
+("cập nhật cho bạn bè"), and only with the install test green. After a first install the
+installers open `extension/tools/huong-dan-cai-dat.html` in Chrome (the one manual step, with copy
+buttons); the desktop updater exists only where there is no VieNeu (no updater). If `~/VieNeu-TTS` moves to a new upstream commit, update the pin in both
 installers and copy the patched file again. `tests/share.test.js` guards the file list, the ASCII
 rule and the pin. Test the Mac installer locally only with `DPD_NO_AUTOSTART=1` and outside the
 sandbox (it cannot reach 127.0.0.1).
