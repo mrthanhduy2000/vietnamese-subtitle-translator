@@ -13,8 +13,7 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   `<VieNeu>/.dpd-staged`, lays it over the extension only while Chrome is closed. macOS LaunchAgent
   `com.damduy.dichphude.update` (30 min), Windows via the `run-vieneu.pyw` supervisor.
 - `tools/huong-dan-cai-dat.html` opens in Chrome after a first install (4 steps, copy buttons).
-- Desktop updater only on machines without VieNeu. Instructions name the card Chrome shows:
-  "Vietnamese Subtitle Translator". README cut to one command, one manual step.
+- Desktop updater only without VieNeu; the card is named as Chrome shows it; README one command.
 - Share repo at 967f740; install test run 37688657002 **all 5 green**, including the new step
   "an install set back to 0.0.1 with a stale file is brought up to date" (Windows x64, Vietnamese
   path, macOS Apple chip).
