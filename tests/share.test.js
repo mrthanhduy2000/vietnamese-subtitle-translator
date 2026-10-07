@@ -46,7 +46,7 @@ test("share build leaves the private parts out", () => {
 });
 
 test("Windows scripts are ASCII only, so Windows PowerShell 5.1 reads them unchanged", () => {
-    for (const f of ["tools/share/install-windows.ps1", "tools/vieneu-autostart.ps1", "tools/vieneu-autostart.cmd", "tools/vieneu-runner.pyw"]) {
+    for (const f of ["tools/share/install-windows.ps1", "tools/vieneu-autostart.ps1", "tools/vieneu-autostart.cmd", "tools/vieneu-runner.pyw", "tools/dichphude-update.py"]) {
         const bad = R(f).split("\n").findIndex(l => /[^\x00-\x7f]/.test(l));
         assert.equal(bad, -1, `${f} line ${bad + 1} is not ASCII`);
     }
