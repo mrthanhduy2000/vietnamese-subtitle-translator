@@ -66,6 +66,17 @@ The dubbing engine has a fourth leg of its own (1.9.2): the `<video>` attributes
 A new engine claims them at `start()`; an old one that sees another owner stops at its next tick and
 never touches the volume again. Removing them brings back volume left at 0.01 after a Reload.
 
+**Clicking Reload for the user (2026-10-10).** Do it from a `chrome://extensions` tab, with what the
+button itself calls: `chrome.developerPrivate.reload("lpknjhmnlocilmkmooomffknibghibao", { failQuietly: true })`,
+then `chrome.developerPrivate.getExtensionInfo(id)` must show the new version and `ENABLED`. Probed in
+headless branded Chrome, throwaway profile, extension added with CDP `Extensions.loadUnpacked`:
+with developer mode **on** it stayed `ENABLED`, its service worker came back and a `storage.sync`
+value survived; with developer mode **off** it came back `DISABLED` (`unsupportedDeveloperExtension`),
+which is the same trap as `chrome.runtime.reload()` (`MAP.md` "Share build"). The user's Profile 42 has
+developer mode on (the extension is unpacked). In their Chrome the only route is `Control_Chrome`
+(AppleScript) on a Profile 42 window; when Chrome is closed nothing is needed (it reads the folder at
+start); if that route fails, ask for the click in one line. Never remove and re-add: settings are lost.
+
 ## 4. The service worker forgets everything when it sleeps
 
 In-memory only, reset on every wake: `keyBlock`, `modelCooldown`, `missingModels`,

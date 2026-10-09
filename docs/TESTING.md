@@ -4,7 +4,7 @@ No test framework, no dependencies: plain `node --test`. Everything in `npm test
 offline** - Gemini and Google are faked, timers are virtualised, no TTS server needed.
 
 ```bash
-npm test          # ~14s. The bar is 0 fail; 1 skip is normal
+npm test          # ~25 s (hardening.test.js sets the pace). The bar is 0 fail; 1 skip is normal
                   # 442 tests / 441 pass as of 2026-09-27, and the count keeps growing
 ```
 

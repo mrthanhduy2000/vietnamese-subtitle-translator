@@ -120,7 +120,7 @@ outside your lane, say so in the commit message. `build-info.js` is generated; n
 ## Commands
 
 ```bash
-npm test                       # fully offline, ~14s. The bar is 0 fail. 1 skip is normal
+npm test                       # fully offline, ~25 s. The bar is 0 fail. 1 skip is normal
                                # (the count grows as tests are added: never compare it to a number in a doc)
 npm run compare                # old vs new segmenter over the fixtures
 node tools/bump-version.js     # run at the end of every code change

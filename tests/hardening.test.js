@@ -639,6 +639,11 @@ test("thống kê chi phí: ghi số lượt, USD ước tính, audio, lượt t
     assert.ok(!JSON.stringify(local).includes("KEY-OLD-USER"));
 });
 
+// The four late-answer tests below run the service worker's timers at LATE_SCALE and scale their own
+// waits by the same factor, so "our timeout fires, then the answer arrives" keeps its order
+// (~4.7 s vs 5.6 s becomes ~1.2 s vs 1.4 s) at a quarter of the wall time.
+const LATE_SCALE = 0.25;
+
 test("cost ledger charges every billed request: a thrown-away answer and a timed-out one count, with real token numbers", async () => {
     let n = 0;
     const usage = { promptTokenCount: 1000, candidatesTokenCount: 100, thoughtsTokenCount: 20 };
@@ -685,7 +690,7 @@ test("cost ledger charges every billed request: a thrown-away answer and a timed
             return { ok: true, status: 200, json: async () => ({ totalTokens: 1234 }) };
         }
         return new Promise((_, rej) => o.signal.addEventListener("abort", () => rej(Object.assign(new Error("aborted"), { name: "AbortError" }))));
-    }, cfg({ geminiApiKey: "KEY-OLD-USER" }));
+    }, cfg({ geminiApiKey: "KEY-OLD-USER" }), { timeScale: LATE_SCALE });
     await T.send(REQ);
     const st2 = await T.send({ action: "costStats" });
     assert.ok(st2.day.trCalls >= 1 && st2.day.estCalls === st2.day.trCalls, `timed-out calls ${JSON.stringify(st2.day)}`);
@@ -707,14 +712,14 @@ test("cost ledger: a timed-out request whose answer still arrives is re-charged 
         if (!u.includes("generativelanguage")) return GOOGLE_OK;
         if (u.includes(":countTokens")) return { ok: true, status: 200, json: async () => ({ totalTokens: 650 }) };
         o.signal.addEventListener("abort", () => { aborted = true; });
-        await new Promise(r => setTimeout(r, 5600));                        // past the ~4.7 s timeout
+        await new Promise(r => setTimeout(r, 5600 * LATE_SCALE));           // past the ~4.7 s timeout
         return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify({ t: ["muộn"] }) }] }, finishReason: "STOP" }], usageMetadata: usage }) };
-    }, cfg({ geminiApiKey: "KEY-OLD-USER" }));
+    }, cfg({ geminiApiKey: "KEY-OLD-USER" }), { timeScale: LATE_SCALE });
     const r = await E.send(REQ);
     assert.notEqual(r.engine, "gemini", "the viewer does not wait for it");
     const early = await E.send({ action: "costStats" });
     assert.equal(early.day.estCalls, early.day.trCalls, "charged with an estimate at the timeout");
-    await new Promise(r => setTimeout(r, 1200));
+    await new Promise(r => setTimeout(r, 1200 * LATE_SCALE));
     const st = await E.send({ action: "costStats" });
     assert.equal(aborted, false, "the request is not cut off, so its bill can be read");
     assert.equal(st.day.trCalls, 1);
@@ -733,9 +738,9 @@ test("late answer is not wasted: a twin request waits for it instead of paying a
         if (!u.includes("generativelanguage")) return GOOGLE_OK;
         if (u.includes(":countTokens")) return { ok: true, status: 200, json: async () => ({ totalTokens: 650 }) };
         calls++;
-        await new Promise(r => setTimeout(r, 5600));                        // past the ~4.7 s timeout
+        await new Promise(r => setTimeout(r, 5600 * LATE_SCALE));           // past the ~4.7 s timeout
         return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify({ t: ["bản muộn"] }) }] }, finishReason: "STOP" }], usageMetadata: { promptTokenCount: 700, candidatesTokenCount: 40 } }) };
-    }, cfg({ geminiApiKey: "KEY-OLD-USER" }));
+    }, cfg({ geminiApiKey: "KEY-OLD-USER" }), { timeScale: LATE_SCALE });
     const first = await E.send(REQ);
     assert.equal(first.engine, "google_fallback", "the viewer is not kept waiting");
     const twin = await E.send(REQ);                                          // sent while the answer is on its way
@@ -756,14 +761,14 @@ test("late answer that is unusable is billed, not cached, and a twin request is 
         if (!u.includes("generativelanguage")) return GOOGLE_OK;
         if (u.includes(":countTokens")) return { ok: true, status: 200, json: async () => ({ totalTokens: 650 }) };
         calls++;
-        await new Promise(r => setTimeout(r, 5600));
+        await new Promise(r => setTimeout(r, 5600 * LATE_SCALE));
         return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: "không phải JSON" }] }, finishReason: "STOP" }], usageMetadata: { promptTokenCount: 700, candidatesTokenCount: 40 } }) };
-    }, cfg({ geminiApiKey: "KEY-OLD-USER" }));
+    }, cfg({ geminiApiKey: "KEY-OLD-USER" }), { timeScale: LATE_SCALE });
     await E.send(REQ);
-    await new Promise(r => setTimeout(r, 1200));                             // the unusable answer has come
+    await new Promise(r => setTimeout(r, 1200 * LATE_SCALE));                // the unusable answer has come
     const t0 = Date.now();
     const next = await E.send(REQ);
-    assert.ok(Date.now() - t0 < 2000, `waited ${Date.now() - t0} ms for nothing`);
+    assert.ok(Date.now() - t0 < 2000 * LATE_SCALE, `waited ${Date.now() - t0} ms for nothing`);
     assert.notEqual(next.fromCache, true, "nothing unusable was cached");
     const st = await E.send({ action: "costStats" });
     assert.equal(st.day.trCalls, calls, "every call Google answered is billed");
