@@ -46,7 +46,7 @@ test("share build leaves the private parts out", () => {
 });
 
 test("Windows scripts are ASCII only, so Windows PowerShell 5.1 reads them unchanged", () => {
-    for (const f of ["tools/share/install-windows.ps1", "tools/vieneu-autostart.ps1", "tools/vieneu-autostart.cmd", "tools/vieneu-runner.pyw", "tools/dichphude-update.py"]) {
+    for (const f of ["tools/share/install-windows.ps1", "tools/vieneu-autostart.ps1", "tools/vieneu-autostart.cmd", "tools/vieneu-runner.pyw", "tools/dichphude-update.py", "tools/vieneu-pin.py"]) {
         const bad = R(f).split("\n").findIndex(l => /[^\x00-\x7f]/.test(l));
         assert.equal(bad, -1, `${f} line ${bad + 1} is not ASCII`);
     }
@@ -63,4 +63,36 @@ test("both installers pin the same VieNeu commit, and the shipped server file ca
     // Both keep the extension in one fixed folder: Chrome keys settings and the API key to its path
     assert.match(R("tools/share/install-mac.sh"), /\$HOME\/DichPhuDe/);
     assert.match(R("tools/share/install-windows.ps1"), /'DichPhuDe'/);
+});
+
+test("the pinned VieNeu model is complete, hashed, and matches the VieNeu commit the installers use", () => {
+    const pin = JSON.parse(R("tools/share/vieneu-model.json"));
+    const repos = Object.fromEntries(pin.repos.map(r => [r.repo, r]));
+    for (const r of pin.repos) {
+        assert.match(r.revision, /^[0-9a-f]{40}$/, r.repo);
+        for (const f of r.files) {
+            assert.match(f.sha256, /^[0-9a-f]{64}$/, f.path);
+            assert.ok(Number.isInteger(f.size) && f.size > 0, f.path);
+        }
+    }
+    // What the server loads at start (server.log, 2026-10-07): a missing one fails offline
+    const need = {
+        "pnnbao-ump/VieNeu-TTS-v3-Turbo": ["config.json", "denoiser.onnx", "onnx_update/config.json",
+            "onnx_update/tokenizer.json", "onnx_update/vieneu_prefill.onnx", "onnx_update/vieneu_decode_step.onnx",
+            "onnx_update/vieneu_acoustic_cached.onnx", "onnx_update/vieneu_backbone_shared.data",
+            "onnx_update/vieneu_v3_heads.npz"],
+        "OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX": ["codec_browser_onnx_meta.json",
+            "moss_audio_tokenizer_decode_full.onnx", "moss_audio_tokenizer_decode_shared.data",
+            "moss_audio_tokenizer_decode_step.onnx", "moss_audio_tokenizer_encode.onnx",
+            "moss_audio_tokenizer_encode.data"],
+    };
+    for (const [repo, files] of Object.entries(need)) {
+        assert.ok(repos[repo], `missing repo ${repo}`);
+        const have = new Set(repos[repo].files.map(f => f.path));
+        for (const f of files) assert.ok(have.has(f), `${repo} ${f}`);
+    }
+    // The voices (Mỹ Duyên among them) live in the VieNeu code: the pin must name the installers' commit
+    const mac = R("tools/share/install-mac.sh").match(/VIENEU_COMMIT="([0-9a-f]{40})"/)[1];
+    assert.equal(pin.voices.commit, mac);
+    assert.match(pin.voices.sha256, /^[0-9a-f]{64}$/);
 });

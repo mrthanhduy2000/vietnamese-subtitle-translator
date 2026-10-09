@@ -1,5 +1,5 @@
 {
-  "note": "VieNeu files the voice server needs, pinned and hashed (checked 2026-10-10 against the Hugging Face LFS hashes: 0 mismatches). See docs/DUBBING.md 'Pinned model'.",
+  "note": "VieNeu files the voice server needs, pinned and hashed (2026-10-10: 0 mismatches against the Hugging Face LFS hashes). Check or rebuild with tools/vieneu-pin.py; see docs/DUBBING.md 'Pinned model'.",
   "license": "apache-2.0",
   "repos": [
     {

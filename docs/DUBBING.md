@@ -1069,9 +1069,11 @@ on every start, always at `main`. Two failures came from that:
 
 Now the server reads `HF_HOME=~/VieNeu-TTS/models/hf` with `HF_HUB_OFFLINE=1` (LaunchAgent
 `com.damduy.vieneu` and `cst-start.command`): `61b85e3` + MOSS `ceff0d0`, 15 files, every byte
-checked against the Hugging Face LFS hashes, all listed in `tools/share/vieneu-model.json`. Measured:
+checked against the Hugging Face LFS hashes, all listed in `tools/share/vieneu-model.json`;
+`python3 tools/vieneu-pin.py` re-checks the copy offline (exit 1 on any difference), `--fetch` rebuilds it. Measured:
 ready in 2.0 s (was 19 s, or 4 min after a clean), 0 requests to Hugging Face; in the sandbox with the
-network cut, Mỹ Duyên read 5 sentences at RTF 0.22 to 0.34. The voices file never comes from the network
+network cut, Mỹ Duyên read 5 sentences at RTF 0.22 to 0.34; through the real server, `POST /v1/audio/speech`
+3.68 s of speech in 1.04 s. The voices file never comes from the network
 (`voices_v3_turbo.json` is a 404 there, by design). After editing the plist, `launchctl kickstart -k`
 keeps the **old** environment: bootout + bootstrap. Backup and undo: `~/VieNeu-Backups/2026-10-10-before-pinned-model/RESTORE.md`,
 repo tag `backup/before-pinned-model-2026-10-10`. Friends' installs still fetch `main`: BACKLOG 42.

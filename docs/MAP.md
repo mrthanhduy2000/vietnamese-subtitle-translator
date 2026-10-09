@@ -23,12 +23,12 @@ syllable count and, 1.7.8, the English spans).
 it to `manifest.json` in dependency order (and to `importScripts`, `options.html`, the harness pages
 under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tests if it is a dubbing file).
 
-## Source (32 files, ~24,600 lines)
+## Source (32 files, ~24,700 lines)
 
 | File | Lines | Role | Global export |
 |---|---|---|---|
 | `youtube.js` | 2104 | YouTube engine: bridge handshake, track pick, timedtext parse, self-drawn overlay, prefetch pool, controls + quick menu | none (same-world sibling of `content.js`, reads its `state`) |
-| `content.js` | 2465 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
+| `content.js` | 2506 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
 | `options.html` | 1499 | Settings page, 4 tabs. ~850 lines are inline `<style>`; markup is only the rest | n/a |
 | `dub-engine.js` | 2424 | TTS providers + scheduler + video-clock sync + audio ducking | `CST_DUB_ENGINE` |
 | `background.js` | 1801 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access | n/a (message router) |
@@ -55,7 +55,7 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `popup.html` | 165 | Popup markup | n/a |
 | `vi-quality.js` | 671 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
 | `lang-detect.js` | 132 | Source-language decision without an API call | `CST_LANG` |
-| `version-history.js` | 1582 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
+| `version-history.js` | 1614 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
 | `version-check.js` | 55 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
 | `theme.js` | 42 | Light/Dark theme for the popup and settings page. Applies instantly from `localStorage` to avoid a flash, then syncs from `storage.sync`. Loaded by `popup.html` and `options.html` only, not a content script | `window.CST_THEME` |
 | `build-info.js` | 6 | **Generated** by `tools/bump-version.js`. Never edit | `CST_BUILD` |
@@ -91,9 +91,9 @@ Shared and settings pages:
 - `CST_CACHE` -> `background.js`, `dub-engine.js`
 - `CST_THEME`, `CST_HISTORY`, `CST_BACKUP` -> `options.js`; `CST_VERSION_CHECK` -> `options.js`, `popup.js`
 
-## Tests and tooling (`tests/*.js`: 37 files, ~12,400 lines)
+## Tests and tooling (`tests/*.js`: 38 files, ~12,600 lines)
 
-See `TESTING.md`. Short version: 24 files in `npm test` (listed in `package.json`: a new test file must be added there), all offline; 4 manual scripts;
+See `TESTING.md`. Short version: 25 files in `npm test` (listed in `package.json`: a new test file must be added there), all offline; 4 manual scripts;
 9 browser harness pages under `tests/harness/` (`live.html` has its own server, `live-server.js`; `headless.js` runs any of them in a headless Chrome); `tools/bump-version.js` owns the version number;
 `tools/doc-sizes.js` (1.9.4) rewrites the Lines column and the counts above, the "~Tests" column of
 `TESTING.md`, and reports what it cannot write: a test file with no row in `TESTING.md`, stale sizes
@@ -144,6 +144,13 @@ buttons); the desktop updater exists only where there is no VieNeu (no updater).
 installers and copy the patched file again. `tests/share.test.js` guards the file list, the ASCII
 rule and the pin. Test the Mac installer locally only with `DPD_NO_AUTOSTART=1` and outside the
 sandbox (it cannot reach 127.0.0.1).
+
+**Pinned model** (2026-10-10). `tools/share/vieneu-model.json` lists every model file the VieNeu server
+loads (two Hugging Face repos at fixed revisions, size + sha256) and the voices file inside the VieNeu
+code. `python3 tools/vieneu-pin.py` checks the local copy (`~/VieNeu-TTS/models/hf`) against it, offline,
+exit 1 on any difference; `--fetch` (with `~/VieNeu-TTS/.venv/bin/python`) rebuilds the copy and refuses
+a Hugging Face `main` that moved. Only the author's machine reads the copy so far; the installers
+still fetch `main` (BACKLOG 42). Why and how: `DUBBING.md` "Pinned model".
 
 `tools/prosody-eval.js` renders the marked sentences of `tests/prosody-corpus.js` on the VieNeu
 server once (cached outside the repo) and scores the pause shaping against the marks; `OLD=` scores

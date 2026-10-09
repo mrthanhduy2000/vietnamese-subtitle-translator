@@ -66,18 +66,32 @@ tiếng.
 
 ### Bật giọng VieNeu (cho lồng tiếng)
 
-Máy chủ giọng là một chương trình riêng, chạy ngoài tiện ích:
+Máy chủ giọng là một chương trình riêng, chạy ngoài tiện ích. Cách dễ nhất là bộ cài một lệnh ở kho
+công khai [dich-phu-de-long-tieng](https://github.com/mrthanhduy2000/dich-phu-de-long-tieng): nó
+cài cả tiện ích lẫn VieNeu, tự khởi động cùng máy và tự cập nhật.
+
+Cài tay (máy của tác giả đang chạy đúng như sau):
 
 ```bash
 brew install uv
 git clone https://github.com/pnnbao97/VieNeu-TTS.git ~/VieNeu-TTS
-cd ~/VieNeu-TTS && uv sync
+cd ~/VieNeu-TTS && git checkout d350c63fceb0792d7b2db9a51d61cc040b1f8efa && uv sync
+cp tools/share/vieneu/openai_speech.py ~/VieNeu-TTS/apps/   # chạy trong thư mục tiện ích
+~/VieNeu-TTS/.venv/bin/python tools/vieneu-pin.py --fetch    # tải mô hình cố định, kiểm mã băm
 ```
 
-Khởi động máy chủ (chỉ mở trên `127.0.0.1:8000`, máy khác trong mạng không gọi được), rồi kiểm tra:
+- Bản VieNeu bị khóa ở một phiên bản, vì 25 giọng (trong đó có Mỹ Duyên) nằm trong chính mã VieNeu.
+- `openai_speech.py` là bản vá máy chủ của tiện ích này (trả luồng khi phía gọi ngắt giữa chừng).
+- Mô hình 580 MB nằm cố định ở `~/VieNeu-TTS/models/hf`, không nằm trong `~/.cache`, vì công cụ
+  dọn đĩa hay xóa thư mục đó. Danh sách tệp và mã băm: `tools/share/vieneu-model.json`.
+
+Khởi động máy chủ với mô hình cố định và không lên mạng (chỉ mở trên `127.0.0.1:8000`, máy khác trong
+mạng không gọi được), rồi kiểm tra:
 
 ```bash
+cd ~/VieNeu-TTS && HF_HOME=~/VieNeu-TTS/models/hf HF_HUB_OFFLINE=1 .venv/bin/python -m apps.openai_speech
 curl 127.0.0.1:8000/health
+python3 tools/vieneu-pin.py   # mô hình trên máy còn đúng bản đã khóa không
 ```
 
 Máy chủ chưa chạy thì tiện ích báo một lần rồi tự chờ, máy chủ lên là bắt đầu đọc.
