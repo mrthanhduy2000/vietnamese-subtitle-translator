@@ -17,15 +17,12 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
   checks it offline (exit 1 on any byte off; `--fetch` rebuilds). `tests/share.test.js` guards the pin
   and its VieNeu commit. README's VieNeu section rewritten (pinned commit, patch, pinned model).
   `docs/DUBBING.md` "Pinned model": Mỹ Duyên = 266 numbers in the VieNeu code. BACKLOG 42.
-- Backup + undo: `~/VieNeu-Backups/2026-10-10-before-pinned-model/RESTORE.md`, git tag
-  `backup/before-pinned-model-2026-10-10` (local).
+- Undo: `~/VieNeu-Backups/2026-10-10-before-pinned-model/RESTORE.md`, tag `backup/before-pinned-model-2026-10-10`.
 
 ## State
 - Tests: 657 pass, 0 fail, 1 skip. No runtime file changed: no bump, no Reload.
-- Offline proof: sandbox, network cut, Mỹ Duyên 5 sentences, RTF 0.22 to 0.34; real server
-  `POST /v1/audio/speech` 3.68 s of speech in 1.04 s.
-- The user looked at the old PUBLIC repo `mrthanhduy2000/translator` (09-18, MIT, not this project)
-  and thought GitHub was not updated. This project = PRIVATE `vietnamese-subtitle-translator`.
+- Proof: network cut, Mỹ Duyên 5 sentences RTF 0.22-0.34; real server 3.68 s speech in 1.04 s.
+- The user mistook the old PUBLIC repo `translator` (09-18, not this project) for this one.
 - **A push to the share repo reaches every friend within ~6 h.** Publish only when the user says
   "cập nhật cho bạn bè", and only with the install test green.
 
@@ -41,10 +38,8 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 - `launchctl kickstart -k` after editing a plist keeps the **old** environment (it re-downloaded
   into `~/.cache`). Use `launchctl bootout` + `bootstrap`; check with `launchctl print`.
 - `ls ~/.cache/huggingface` empty while `lsof` shows the server reading it = files deleted under it.
-- `snapshot_download(revision="main")` then assert the sha: a sha revision writes no `refs/main`,
-  and offline lookups of `main` then fail.
+- Download with `revision="main"`, then assert the sha: a sha revision writes no `refs/main`.
 - Writes in `~/VieNeu-TTS` and `~/Library/LaunchAgents` need the sandbox off.
 
 ## Suggested next step
-- If the user approves BACKLOG 42: Release assets + sha check in both installers, then the CI
-  install test on all 5 machines before `publish-share.js --push`.
+- If BACKLOG 42 is approved: Release assets + `vieneu-pin.py` checks in both installers, CI green.
