@@ -1055,6 +1055,27 @@ queue (`localSerial` / `localPump`) with an adaptive timeout and one retry. Its 
 
 First stop when there is no voice at all: `curl 127.0.0.1:8000/health`.
 
+**Pinned model (2026-10-10, the author's machine only).** Where a voice lives: the 25 preset voices
+are 266 numbers each (192 `speaker_emb` + 74 `codes`) in the VieNeu *code*,
+`src/vieneu/assets/voices_v3_turbo.json` (180 KB, pinned with the code at `d350c63`). The 580 MB
+shared by all voices is the *model*, which VieNeu fetches from Hugging Face (`pnnbao-ump/VieNeu-TTS-v3-Turbo`
+`onnx_update/` + `denoiser.onnx`, and `OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX`) into `~/.cache`
+on every start, always at `main`. Two failures came from that:
+- **diskguard** (`~/Library/Scripts/diskguard.sh`, `SAFE_PATHS`) deletes `~/.cache` each day the disk
+  has under 40 GB free. It deleted the model on 2026-10-06; the server kept talking only because it
+  held the deleted files open, and any restart meant a 4-minute download (or silence offline).
+- The author pushes to `main`: the server loaded `5f2a3e9` on 09-22 and `61b85e3` on 10-07. Those
+  commits only touched `gguf/`, but nothing would stop a change to the ONNX weights reaching the ear.
+
+Now the server reads `HF_HOME=~/VieNeu-TTS/models/hf` with `HF_HUB_OFFLINE=1` (LaunchAgent
+`com.damduy.vieneu` and `cst-start.command`): `61b85e3` + MOSS `ceff0d0`, 15 files, every byte
+checked against the Hugging Face LFS hashes, all listed in `tools/share/vieneu-model.json`. Measured:
+ready in 2.0 s (was 19 s, or 4 min after a clean), 0 requests to Hugging Face; in the sandbox with the
+network cut, Mỹ Duyên read 5 sentences at RTF 0.22 to 0.34. The voices file never comes from the network
+(`voices_v3_turbo.json` is a 404 there, by design). After editing the plist, `launchctl kickstart -k`
+keeps the **old** environment: bootout + bootstrap. Backup and undo: `~/VieNeu-Backups/2026-10-10-before-pinned-model/RESTORE.md`,
+repo tag `backup/before-pinned-model-2026-10-10`. Friends' installs still fetch `main`: BACKLOG 42.
+
 **Voice paces (1.5.9).** Every voice in `LOCAL_TTS.voices` now has a measured `sps`. Method, so it
 can be redone: 3 lecture sentences per voice through `POST /v1/audio/speech` (pcm, 24 kHz), count
 syllables over voiced 20 ms frames (energy within 38 dB of the peak), scale by 0.984 so the 4

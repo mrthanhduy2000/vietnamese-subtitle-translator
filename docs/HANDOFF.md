@@ -6,40 +6,41 @@ their order, replace rather than append, keep it to roughly 40 lines (45 hard ca
 `none` in an empty section.
 
 ## Last touched
-2026-10-08 · `2.5.0` friends' installs update themselves (`docs/MAP.md` "Share build").
+2026-10-10 · `2.5.0` (no bump) · VieNeu model pinned on the author's machine.
 
 ## What changed
-- `tools/dichphude-update.py`: every 6 h asks GitHub, stages a newer version in
-  `<VieNeu>/.dpd-staged`, lays it over the extension only while Chrome is closed. macOS LaunchAgent
-  `com.damduy.dichphude.update` (30 min), Windows via the `run-vieneu.pyw` supervisor.
-- `tools/huong-dan-cai-dat.html` opens in Chrome after a first install (4 steps, copy buttons).
-- Desktop updater only without VieNeu; the card is named as Chrome shows it; README one command.
-- Share repo at 967f740; install test run 37688657002 **all 5 green**, including the new step
-  "an install set back to 0.0.1 with a stale file is brought up to date" (Windows x64, Vietnamese
-  path, macOS Apple chip).
+- `~/.cache` model was deleted by **diskguard** on 10-06 (it cleans `~/.cache` daily under 40 GB
+  free); the server lived only on open handles of deleted files. Now pinned: `~/VieNeu-TTS/models/hf`
+  (580 MB, `61b85e3` + MOSS `ceff0d0`, 15/15 sha256 = Hugging Face LFS), LaunchAgent and
+  `cst-start.command` set `HF_HOME` + `HF_HUB_OFFLINE=1`. Ready in 2.0 s, 0 network requests.
+- `tools/share/vieneu-model.json`: the pin (files, sizes, hashes, voices file). `docs/DUBBING.md`
+  "Pinned model": where a voice lives (Mỹ Duyên = 266 numbers in the VieNeu code). BACKLOG 42.
+- Backup + undo: `~/VieNeu-Backups/2026-10-10-before-pinned-model/RESTORE.md`, git tag
+  `backup/before-pinned-model-2026-10-10` (local).
 
 ## State
-- Tests: 656 pass, 0 fail, 1 skip. No runtime change: no bump, no Reload.
+- Tests: 656 pass, 0 fail, 1 skip. No runtime file changed: no bump, no Reload.
+- Offline proof: sandbox, network cut, Mỹ Duyên 5 sentences, RTF 0.22 to 0.34. Takes in the session
+  scratchpad only (not kept).
 - **A push to the share repo reaches every friend within ~6 h.** Publish only when the user says
   "cập nhật cho bạn bè", and only with the install test green.
-- **User (2026-10-01):** every fix is a rule for all future videos; on a sound report dig yourself.
 
 ## Unfinished / in progress
-- 2.5.0 Coursera start hold not yet seen live in the user's Chrome (only they can Reload).
-- Not covered by CI: a missing VC++ runtime, the Chrome steps, a real Vietnamese user profile.
-- Carried: the user has not tried the second voice since 2.4.8. Voice items for the user's ear
-  ("có nghĩa là", DN, NHNN). Never ask about Apple Events JS.
+- BACKLOG 42 (ship the pinned model to friends as Release assets): pros/cons given, user said
+  "test first"; not approved yet. Do not touch the share repo until they say so.
+- Carried: 2.5.0 Coursera start hold not yet seen live in the user's Chrome. Not covered by CI: a
+  missing VC++ runtime, the Chrome steps, a real Vietnamese user profile. The user has not tried the
+  second voice since 2.4.8. Voice items for the user's ear ("có nghĩa là", DN, NHNN). Never ask
+  about Apple Events JS.
 
 ## Traps hit this session
-- `chrome.runtime.reload()` left the extension **blocked** in headless Chrome and Chrome for
-  Testing (`--load-extension`, developer mode on), plain reload too: dropped, never add it back
-  without a test on a UI-loaded extension. Fetching our own `manifest.json` does read the disk.
-- Node `new URL("chrome-extension://id/x").origin` is `"null"`: split the string instead.
-- Branded Chrome ignores `--load-extension`; Chrome for Testing needs
-  `--disable-features=DisableLoadExtensionCommandLineSwitch`. CDP `Extensions.loadUnpacked` works.
-- The author's LaunchAgent is also `com.damduy.vieneu`: test installers locally only with
-  `DPD_NO_AUTOSTART=1`, outside the sandbox (it cannot reach 127.0.0.1).
+- `launchctl kickstart -k` after editing a plist keeps the **old** environment (it re-downloaded
+  into `~/.cache`). Use `launchctl bootout` + `bootstrap`; check with `launchctl print`.
+- `ls ~/.cache/huggingface` empty while `lsof` shows the server reading it = files deleted under it.
+- `snapshot_download(revision="main")` then assert the sha: a sha revision writes no `refs/main`,
+  and offline lookups of `main` then fail.
+- Writes in `~/VieNeu-TTS` and `~/Library/LaunchAgents` need the sandbox off.
 
 ## Suggested next step
-- On "Đã có dữ liệu rà soát mới": `node tools/review.js`, read section 3, fix as rules, measure on
-  all videos, `node tools/regress.js`, then `node tools/review.js --close` and bump the version.
+- If the user approves BACKLOG 42: Release assets + sha check in both installers, then the CI
+  install test on all 5 machines before `publish-share.js --push`.

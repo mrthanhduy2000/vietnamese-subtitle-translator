@@ -7,7 +7,7 @@ user hands these decisions to Claude: decide, record the outcome here, never han
 How this file works:
 - Grouped by **area**, not by when it was found; *(found 1.x.y)* after a title says when.
 - Numbers are permanent: code comments and `version-history.js` cite them. Never renumber. The next
-  free number is **42**.
+  free number is **43**.
 - Add an entry whenever you find something out of scope for your task. Once decided, delete it and
   add its number to "Closed" or "Declined" below. An entry that is only partly fixed keeps what is
   left, not the story of the fix (that is in git and `DUBBING.md`).
@@ -51,7 +51,15 @@ none
 
 ## Dubbing
 
-none
+- **42. Friends' installs fetch an unpinned model from Hugging Face** *(found 2.5.0, 2026-10-10)*.
+  The installers pin the VieNeu code (`d350c63`, which holds the voices) but the 580 MB model comes
+  from `main` at every server start, into `~/.cache`. The author's machine is pinned (`docs/DUBBING.md`
+  "Pinned model"). Plan the user weighed, not yet approved: the 15 files of `tools/share/vieneu-model.json`
+  as GitHub **Release** assets of the share repo (one 415 MB file is over the 100 MB git limit, and the
+  6-hourly updater downloads the whole repo zip, so never in git), the installer checks every sha256
+  and sets `HF_HOME` + `HF_HUB_OFFLINE`, LICENSE + attribution shipped (both repos Apache 2.0),
+  install test green on all 5 machines before publishing. Still downloaded outside our control: uv,
+  Python and PyPI packages.
 
 ## No version control history before 2026-09-23
 
