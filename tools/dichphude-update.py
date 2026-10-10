@@ -9,9 +9,15 @@
 # chrome.runtime.reload(): in every headless test it left the extension blocked (2026-10-08), and
 # that loses the user's settings and API key; the restart path is the one Chrome guarantees.
 # The extension folder keeps its path (Chrome keys settings to it); only its files change.
+# Every run also keeps the pinned voice model current (<VieNeu>/models/hf, the extension's
+# tools/vieneu-pin.py): installed when missing, or when a new version pins another one; a failed
+# attempt is retried after 6 hours. On macOS an install from before the pinned model gets its
+# server plist rewritten once (read at the next login), so its server can read that copy.
 #   python dichphude-update.py          normal run
 #   python dichphude-update.py --now    ask GitHub now, whatever the 6-hour gap (tests)
+# DPD_REF=<commit> reads that commit of the share repo instead of main (the install test).
 # Standard library only, ASCII only (the Windows helpers' rule).
+import importlib.util
 import json
 import os
 import shutil
@@ -23,12 +29,16 @@ import urllib.request
 import zipfile
 
 REPO = "mrthanhduy2000/dich-phu-de-long-tieng"
+REF = os.environ.get("DPD_REF", "")
 HERE = os.path.dirname(os.path.abspath(__file__))           # the VieNeu folder
 STAGE = os.path.join(HERE, ".dpd-staged")
 STATE = os.path.join(HERE, ".dpd-update.json")
 LOG = os.path.join(HERE, "update.log")
 CHECK_EVERY_S = 6 * 3600
+MODEL_RETRY_S = 6 * 3600
 WINDOWS = sys.platform == "win32"
+NO_WINDOW = 0x08000000 if WINDOWS else 0
+SERVICE_PLIST = os.path.expanduser("~/Library/LaunchAgents/com.damduy.vieneu.plist")
 
 
 def log(msg):
@@ -62,7 +72,7 @@ def chrome_running():
     try:
         if WINDOWS:
             out = subprocess.run(["tasklist", "/FI", "IMAGENAME eq chrome.exe", "/NH"], capture_output=True,
-                                 text=True, creationflags=0x08000000).stdout   # no console window
+                                 text=True, creationflags=NO_WINDOW).stdout   # no console window
             return "chrome.exe" in out.lower()
         return subprocess.run(["pgrep", "-x", "Google Chrome"], capture_output=True).returncode == 0
     except OSError:
@@ -78,7 +88,8 @@ def stage(remote):
     tmp = tempfile.mkdtemp(prefix="dpd-")
     try:
         zpath = os.path.join(tmp, "share.zip")
-        with fetch("https://codeload.github.com/%s/zip/refs/heads/main" % REPO, 300) as r, open(zpath, "wb") as f:
+        with fetch("https://codeload.github.com/%s/zip/%s" % (REPO, REF or "refs/heads/main"), 300) as r, \
+                open(zpath, "wb") as f:
             shutil.copyfileobj(r, f)
         with zipfile.ZipFile(zpath) as z:
             z.extractall(tmp)
@@ -137,19 +148,89 @@ def apply(ext):
     log("applied %s (Chrome was closed; its next start runs it)" % staged)
 
 
+def save_state(state):
+    with open(STATE, "w", encoding="utf-8") as f:
+        json.dump(state, f)
+
+
+def pin_tool(ext):
+    # The extension's own tools/vieneu-pin.py, which always matches the vieneu-model.json beside it
+    path = os.path.join(ext, "tools", "vieneu-pin.py")
+    if not os.path.exists(path):
+        return None, path                         # an extension from before the pinned model
+    spec = importlib.util.spec_from_file_location("dpd_vieneu_pin", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod, path
+
+
+def ensure_model(ext, state):
+    tool, path = pin_tool(ext)
+    pin_file = tool and tool.find_pin()
+    if not pin_file:
+        return
+    pin = tool.load_pin(pin_file)
+    if tool.marker_current(pin, os.path.join(HERE, "models", "hf")):
+        return                                    # the usual case: nothing to do, nothing logged
+    want = tool.pin_id(pin)
+    if state.get("model_pin") == want and time.time() - state.get("model_tried", 0) < MODEL_RETRY_S:
+        return                                    # this pin failed lately: wait before the next try
+    state["model_pin"], state["model_tried"] = want, time.time()
+    save_state(state)
+    log("model: installing the pinned voice model")
+    r = subprocess.run([sys.executable, path, "--install", "--vieneu", HERE], cwd=HERE, capture_output=True,
+                       text=True, encoding="utf-8", errors="replace", timeout=3 * 3600, creationflags=NO_WINDOW)
+    lines = [l.strip() for l in r.stdout.splitlines() if l.strip()]
+    keep = [l for l in lines if l.startswith("LOI")][-2:] + lines[-1:]     # errors, then the summary
+    log("model: exit %d: %s" % (r.returncode, " | ".join(keep)))
+
+
+def refresh_mac_service(ext):
+    # A macOS install from before the pinned model starts python straight from its plist, so it
+    # would never read the pinned copy. Rewrite that plist once with the start command that checks
+    # the marker; --write-only leaves the running server alone (launchd reads it at the next login).
+    # Only our own service, and only with a helper that knows --write-only: an older helper would
+    # ignore the flag and restart the server at every run.
+    if sys.platform != "darwin":
+        return
+    try:
+        with open(SERVICE_PLIST, encoding="utf-8") as f:
+            text = f.read()
+    except OSError:
+        return
+    if os.path.join(HERE, ".venv/bin/python") not in text or ".pinned-ok" in text:
+        return
+    helper = os.path.join(ext, "tools", "vieneu-autostart.command")
+    try:
+        with open(helper, encoding="utf-8") as f:
+            if "--write-only" not in f.read():
+                return
+    except OSError:
+        return
+    r = subprocess.run(["/bin/zsh", helper, "--write-only"], env=dict(os.environ, VIENEU_DIR=HERE),
+                       capture_output=True, text=True, timeout=60)
+    log("service: plist rewritten for the pinned model, used from the next login" if r.returncode == 0
+        else "service: plist rewrite failed (%d): %s" % (r.returncode, (r.stdout + r.stderr).strip()[-200:]))
+
+
+def load_state():
+    try:
+        with open(STATE, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
 def main():
     now = "--now" in sys.argv
     ext = ext_dir()
     local = manifest_version(ext)
-    try:
-        state = json.load(open(STATE, encoding="utf-8"))
-    except (OSError, ValueError):
-        state = {}
+    state = load_state()
     if now or time.time() - state.get("checked", 0) > CHECK_EVERY_S:
-        with fetch("https://raw.githubusercontent.com/%s/main/extension/manifest.json" % REPO, 30) as r:
+        with fetch("https://raw.githubusercontent.com/%s/%s/extension/manifest.json" % (REPO, REF or "main"), 30) as r:
             remote = json.load(r)["version"]
         state["checked"] = time.time()
-        json.dump(state, open(STATE, "w", encoding="utf-8"))
+        save_state(state)
         best = max(vtuple(local), vtuple(manifest_version(STAGE)))
         if vtuple(remote) > best:
             stage(remote)
@@ -162,8 +243,26 @@ def main():
             apply(ext)
 
 
+def keep_model_current():
+    # After main(), so a version just applied that moves the pin acts on it in the same run, and
+    # apart from it, so a failed version check (GitHub down) does not skip it
+    try:
+        ext = ext_dir()
+    except OSError:
+        return
+    try:
+        ensure_model(ext, load_state())
+    except Exception as e:
+        log("model: %s: %s" % (type(e).__name__, e))
+    try:
+        refresh_mac_service(ext)
+    except Exception as e:
+        log("service: %s: %s" % (type(e).__name__, e))
+
+
 if __name__ == "__main__":
     try:
         main()
     except Exception as e:                        # offline, GitHub down: try again next run
         log("error: %s: %s" % (type(e).__name__, e))
+    keep_model_current()

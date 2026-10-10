@@ -4,6 +4,8 @@
 # next to this file), which keeps the server alive without any window. Not a Startup-folder shortcut:
 # WScript.Shell rejects a target outside the ANSI code page, so a Vietnamese user name ("Dam" with
 # its marks) failed there (CI, 2026-10-07); the registry takes any path.
+# The pinned model is the runner's call, at every server start (marker models\hf\.pinned-ok, see
+# vieneu-pin.py): nothing here sets HF_HOME, so a model installed later needs no new Run value.
 # ASCII only on purpose: Windows PowerShell 5.1 reads a BOM-less .ps1 as ANSI and garbles Vietnamese.
 #   powershell -ExecutionPolicy Bypass -File vieneu-autostart.ps1            install and start
 #   powershell -ExecutionPolicy Bypass -File vieneu-autostart.ps1 -Stop      stop the server now

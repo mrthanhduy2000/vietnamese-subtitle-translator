@@ -18,7 +18,9 @@ Closed (story in git and `version-history.js`): 1-4 (1.6.4), 6, 10 and 12 (1.9.4
 25 (merged into 31), 32 and 34 (1.8.7), 35 (1.9.8), 38 (every lead checked, none kept; numbers in
 `DUBBING.md` under the 1.9.9 buffer), 7 (two palettes, two designs), 24 (2.2.4: Vietnamese
 abbreviations in `VI_CAPS`, a code the English source lacks reads Vietnamese), 37 the translation
-timeout (0 late of 268 Gemini calls, Sep 28-29 ledger: the timeout stays).
+timeout (0 late of 268 Gemini calls, Sep 28-29 ledger: the timeout stays), 42 friends' installs on
+the pinned model (2026-10-11: release assets, `vieneu-pin.py --install` in both installers and the
+updater, the marker read at every server start; `DUBBING.md` "Pinned model").
 Closed 2026-09-29 in the full backlog pass (2.2.6):
 - Fixed: 20 (cold VieNeu warm-up, `handleLocalWarm`), 16 (explaining copulas; every eval set WRONG 0).
 - Unreachable while the paid voice is off (`PAID_TTS` false; the service worker refuses every Gemini
@@ -51,15 +53,7 @@ none
 
 ## Dubbing
 
-- **42. Friends' installs fetch an unpinned model from Hugging Face** *(found 2.5.0, 2026-10-10)*.
-  The installers pin the VieNeu code (`d350c63`, which holds the voices) but the 580 MB model comes
-  from `main` at every server start, into `~/.cache`. The author's machine is pinned (`docs/DUBBING.md`
-  "Pinned model"). Plan the user weighed, not yet approved: the 15 files of `tools/share/vieneu-model.json`
-  as GitHub **Release** assets of the share repo (one 415 MB file is over the 100 MB git limit, and the
-  6-hourly updater downloads the whole repo zip, so never in git), the installer checks every sha256
-  and sets `HF_HOME` + `HF_HUB_OFFLINE`, LICENSE + attribution shipped (both repos Apache 2.0),
-  install test green on all 5 machines before publishing. Still downloaded outside our control: uv,
-  Python and PyPI packages.
+none
 
 ## No version control history before 2026-09-23
 

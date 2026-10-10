@@ -7,6 +7,12 @@ LABEL="com.damduy.vieneu"
 PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
 APP="${VIENEU_DIR:-$HOME/VieNeu-TTS}"  # the share installer may point elsewhere
 
+# --write-only: rewrite the plist and stop there; the running server keeps going and launchd reads
+# the new file at the next login (tools/dichphude-update.py uses it to move an older install to the
+# start command below without cutting a voice mid-sentence).
+WRITE_ONLY=0
+[[ "$1" == "--write-only" ]] && WRITE_ONLY=1
+
 if [[ "$1" == "--go" || "$1" == "--uninstall" ]]; then
     launchctl bootout "gui/$UID/$LABEL" 2>/dev/null || true
     rm -f "$PLIST"
@@ -26,11 +32,16 @@ cat > "$PLIST" <<PLISTEOF
 <plist version="1.0">
 <dict>
     <key>Label</key><string>$LABEL</string>
+    <!-- The pinned model (tools/vieneu-pin.py) is used only once its marker exists, decided at
+         every start: HF_HOME + HF_HUB_OFFLINE, nothing fetched. Without the marker VieNeu fetches
+         the model itself, as before. \$0 is the Python path (the 4th string), kept whole in the
+         plist so the installer recognises its own service. No double hyphen in this comment. -->
     <key>ProgramArguments</key>
     <array>
+        <string>/bin/sh</string>
+        <string>-c</string>
+        <string>if [ -f models/hf/.pinned-ok ]; then export HF_HOME="\$PWD/models/hf" HF_HUB_OFFLINE=1; echo "VieNeu model: pinned copy in models/hf, offline"; else echo "VieNeu model: no pinned copy, fetched from Hugging Face"; fi; exec "\$0" -m apps.openai_speech</string>
         <string>$APP/.venv/bin/python</string>
-        <string>-m</string>
-        <string>apps.openai_speech</string>
     </array>
     <key>WorkingDirectory</key><string>$APP</string>
     <key>EnvironmentVariables</key>
@@ -55,6 +66,10 @@ cat > "$PLIST" <<PLISTEOF
 </dict>
 </plist>
 PLISTEOF
+if [[ $WRITE_ONLY == 1 ]]; then
+    echo "Đã ghi $PLIST (dùng từ lần đăng nhập sau)."
+    exit 0
+fi
 
 # Gỡ bản đang nạp (nếu có) rồi CHỜ launchd gỡ xong hẳn. Chạy bootout và bootstrap liền nhau làm
 # launchd trả "Bootstrap failed: 5: Input/output error" và bỏ dịch vụ ở trạng thái đã tắt (đo thật

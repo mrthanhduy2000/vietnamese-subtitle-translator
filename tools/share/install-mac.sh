@@ -6,8 +6,9 @@
 #   curl -fsSL https://raw.githubusercontent.com/mrthanhduy2000/dich-phu-de-long-tieng/main/install-mac.sh | bash -s -- --uninstall
 #
 # Must run on macOS's own /bin/bash 3.2. Overrides, for testing only: DPD_SRC (an unpacked share
-# tree instead of the download), DPD_EXT_DIR, DPD_VIENEU_DIR, DPD_NO_AUTOSTART=1, DPD_NO_DESKTOP=1,
-# DPD_NO_OPEN=1.
+# tree instead of the download), DPD_REF (a branch, tag or commit of the share repo to download
+# instead of main: the install test sets the commit under test), DPD_EXT_DIR, DPD_VIENEU_DIR,
+# DPD_NO_AUTOSTART=1, DPD_NO_DESKTOP=1, DPD_NO_OPEN=1.
 set -euo pipefail
 
 # The whole body is one function, called on the last line: under `curl | bash` the script is read
@@ -25,6 +26,9 @@ PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
 UPD_LABEL="com.damduy.dichphude.update"     # the background updater (tools/dichphude-update.py)
 UPD_PLIST="$HOME/Library/LaunchAgents/$UPD_LABEL.plist"
 UPD="$HOME/Desktop/Cập nhật Dịch Phụ Đề.command"
+# The pinned voice model lives inside the VieNeu folder; the start scripts read it offline only
+# while this marker is there (tools/vieneu-pin.py writes it once every file is checked)
+PIN_MARK="models/hf/.pinned-ok"
 
 say() { printf '\n==> %s\n' "$*"; }
 die() { printf '\nLỖI: %s\n' "$*" >&2; exit 1; }
@@ -52,8 +56,10 @@ if [[ "${1:-}" == "--uninstall" ]]; then
             rm -f "$UPD_PLIST"
         fi
         pkill -f "$VN_DIR/.venv/bin/python -m apps.openai_speech" 2>/dev/null || true
-        rm -rf "$VN_DIR"
-        rm -rf "$HOME/.cache/huggingface/hub/models--pnnbao-ump--"* 2>/dev/null || true
+        rm -rf "$VN_DIR"                   # the pinned model (models/hf) goes with it
+        # Installs made before the pinned model left it in the Hugging Face cache
+        rm -rf "$HOME/.cache/huggingface/hub/models--pnnbao-ump--"* \
+               "$HOME/.cache/huggingface/hub/models--OpenMOSS-Team--MOSS-Audio-Tokenizer-Nano-ONNX" 2>/dev/null || true
     elif [[ -d "$VN_DIR" ]]; then echo "  Giữ nguyên $VN_DIR (không do bộ cài này tạo)."; fi
     if [[ -f "$EXT_DIR/manifest.json" ]]; then rm -rf "$EXT_DIR"; fi
     rm -f "$UPD"
@@ -64,6 +70,7 @@ if [[ "${1:-}" == "--uninstall" ]]; then
 fi
 
 WITH_VOICE=1
+PINNED=0
 if [[ "$(uname -m)" != arm64 ]]; then
     WITH_VOICE=0
     say "Máy Mac chip Intel: VieNeu chỉ chạy trên Mac chip Apple (M1 trở lên). Chỉ cài phần dịch phụ đề."
@@ -77,7 +84,8 @@ if [[ -n "${DPD_SRC:-}" ]]; then
     SRC="$DPD_SRC"
 else
     say "Đang tải bản mới nhất..."
-    curl -fsSL "https://codeload.github.com/$REPO/zip/refs/heads/main" -o "$TMP/share.zip"
+    REF="${DPD_REF:-refs/heads/main}"
+    curl -fsSL "https://codeload.github.com/$REPO/zip/$REF" -o "$TMP/share.zip"
     ditto -x -k "$TMP/share.zip" "$TMP/share"
     SRC="$(find "$TMP/share" -mindepth 1 -maxdepth 1 -type d | head -1)"
 fi
@@ -133,12 +141,28 @@ if [[ $WITH_VOICE == 1 ]]; then
     (cd "$VN_DIR" && "$UV" sync --quiet) || die "uv sync không thành công. Xem thông báo ở trên."
     printf '%s' "$VIENEU_COMMIT" > "$VN_DIR/$MARK"
 
+    # The voice model (~600 MB), pinned and checked file by file (size + sha256): from this
+    # project's GitHub release, else from Hugging Face at the pinned revision. A failure is not
+    # fatal: without the marker the server fetches the model itself, as before, and the background
+    # updater tries again.
+    say "Đang tải mô hình giọng đã khóa phiên bản (lần đầu khoảng 600 MB, các lần sau chỉ kiểm tra)..."
+    if ! "$VN_DIR/.venv/bin/python" "$EXT_DIR/tools/vieneu-pin.py" --install --vieneu "$VN_DIR" </dev/null; then
+        if [[ -f "$VN_DIR/$PIN_MARK" ]]; then
+            say "CẢNH BÁO: chưa tải được bản mô hình giọng mới. Giọng vẫn dùng bản đã khóa trước đó; bộ tự cập nhật sẽ thử lại sau."
+        else
+            say "CẢNH BÁO: chưa tải được mô hình giọng. Giọng vẫn chạy: VieNeu tự tải mô hình từ Hugging Face khi khởi động, và bộ tự cập nhật sẽ thử lại sau."
+        fi
+    fi
+    if [[ -f "$VN_DIR/$PIN_MARK" ]]; then PINNED=1; fi
+
     cat > "$VN_DIR/cst-start.command" <<EOF
 #!/bin/zsh
 # Chạy tay máy chủ giọng VieNeu (khi chưa cài tự khởi động). Đóng cửa sổ này để tắt.
 cd "$VN_DIR" || exit 1
 export HOST=127.0.0.1 PORT=$PORT VIENEU_BACKEND=onnx VIENEU_DEVICE=cpu VIENEU_PRECISION=fp32
 export VIENEU_QUEUE=4 VIENEU_QUEUE_TIMEOUT=20
+# The pinned model, offline, only behind its marker (tools/vieneu-pin.py)
+if [[ -f $PIN_MARK ]]; then export HF_HOME="$VN_DIR/models/hf" HF_HUB_OFFLINE=1; fi
 exec .venv/bin/python -m apps.openai_speech
 EOF
     chmod +x "$VN_DIR/cst-start.command"
@@ -150,7 +174,11 @@ EOF
         say "Đang bật VieNeu tự chạy mỗi khi đăng nhập..."
         VIENEU_DIR="$VN_DIR" "$EXT_DIR/tools/vieneu-autostart.command" </dev/null >/dev/null \
             || die "Không bật được tự khởi động. Thử khởi động lại máy rồi chạy lại bộ cài."
-        say "Đang đợi VieNeu sẵn sàng (lần đầu phải tải mô hình giọng, có thể tới 10 phút)..."
+        if [[ $PINNED == 1 ]]; then
+            say "Đang đợi VieNeu sẵn sàng..."
+        else
+            say "Đang đợi VieNeu sẵn sàng (VieNeu phải tự tải mô hình giọng, có thể tới 10 phút)..."
+        fi
         ok=0
         for i in $(seq 1 900); do
             if is_vieneu; then ok=1; break; fi
@@ -236,6 +264,11 @@ else
 fi
 if [[ $WITH_VOICE == 1 ]]; then
     echo " Giọng VieNeu tự chạy mỗi khi bật máy. Bản mới tự cài vào lần mở Chrome kế tiếp."
+    if [[ $PINNED == 1 ]]; then
+        echo " Mô hình giọng: bản đã khóa, kiểm từng tệp, chạy không cần mạng."
+    else
+        echo " Mô hình giọng: tạm tải từ Hugging Face khi chạy (bộ tự cập nhật sẽ thử khóa lại)."
+    fi
 else
     echo " Cập nhật về sau: nhấp đúp \"Cập nhật Dịch Phụ Đề\" trên màn hình chính."
 fi

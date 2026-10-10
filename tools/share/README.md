@@ -28,6 +28,12 @@ Chrome không cho chương trình nào tự làm bước này, nên đây là vi
 **Sau đó không cần làm gì nữa:** giọng đọc tự chạy mỗi khi bật máy, và bản mới tự được tải về rồi
 cài vào lần mở Chrome kế tiếp.
 
+**Giọng đọc chạy không cần mạng.** Mô hình giọng (khoảng 600 MB) được tải một lần từ mục
+[Releases](https://github.com/mrthanhduy2000/dich-phu-de-long-tieng/releases) của trang này, đúng
+một phiên bản đã khóa, và bộ cài kiểm từng tệp bằng mã băm sha256 trước khi dùng. Sau đó máy chủ
+giọng đọc mô hình ngay trong thư mục `VieNeu-TTS`, không hỏi Hugging Face hay trang nào khác, nên
+giọng không tự đổi khi bên ngoài cập nhật, và vẫn đọc được khi mất mạng.
+
 ### Nhờ AI cài giúp
 
 Gửi nguyên đoạn này cho AI chạy được lệnh trên máy (Claude Code, Codex...):
@@ -52,8 +58,8 @@ Cần Google Chrome và khoảng 3 GB trống. Giọng đọc chạy bằng CPU;
 độ đo được trên máy bạn (dưới 0,4 là thoải mái, trên 0,8 thì giọng sẽ trễ dần).
 
 Huy hiệu ở đầu trang là kết quả cài thử tự động: mỗi bản mới được GitHub cài thử bằng đúng lệnh trên,
-trên máy Windows và Mac sạch (kể cả thư mục người dùng có tên tiếng Việt có dấu), rồi đọc thử, tắt
-máy chủ giọng xem nó tự bật lại, tự cập nhật, gỡ bỏ.
+trên máy Windows và Mac sạch (kể cả thư mục người dùng có tên tiếng Việt có dấu), rồi kiểm mô hình
+giọng từng byte, đọc thử khi không lên mạng, tắt máy chủ giọng xem nó tự bật lại, tự cập nhật, gỡ bỏ.
 
 ## Khi gặp lỗi
 
@@ -63,6 +69,7 @@ máy chủ giọng xem nó tự bật lại, tự cập nhật, gỡ bỏ.
 | Thư mục `VieNeu-TTS` hoặc `DichPhuDe` đã có sẵn | Thư mục bạn tự tạo trước đây: đổi tên nó (ví dụ thêm `-cu`), rồi chạy lại lệnh cài |
 | Thiếu Microsoft Visual C++ Redistributable (Windows) | Cài tại https://aka.ms/vs/17/release/vc_redist.x64.exe, rồi chạy lại lệnh cài |
 | VieNeu chưa phản hồi sau 15 phút, hoặc `uv sync` không thành công | Thường do mạng chậm. Chạy lại lệnh cài: phần đã tải được giữ lại |
+| `CẢNH BÁO`/`CANH BAO`: chưa tải được mô hình giọng | Không phải lỗi chặn: giọng vẫn chạy, tạm tải mô hình từ Hugging Face. Bộ tự cập nhật thử lại sau vài giờ; muốn xong ngay thì chạy lại lệnh cài khi mạng ổn (phần đã tải được giữ lại). Nếu báo thiếu chỗ trống thì dọn bớt ổ đĩa trước |
 
 Chạy lại lệnh cài bao nhiêu lần cũng an toàn; nó cũng là cách cập nhật ngay. Cài đặt và khóa API
 trong Chrome luôn được giữ. **Đừng gỡ tiện ích trong Chrome rồi cài lại:** làm thế mất hết cài đặt.
@@ -73,7 +80,8 @@ trong Chrome luôn được giữ. **Đừng gỡ tiện ích trong Chrome rồi
 
 **Windows:** `$env:DPD_UNINSTALL='1'; irm https://raw.githubusercontent.com/mrthanhduy2000/dich-phu-de-long-tieng/main/install-windows.ps1 | iex`
 
-Lệnh gỡ tắt VieNeu và tự cập nhật, xóa thư mục `DichPhuDe`, `VieNeu-TTS` và mô hình giọng đã tải.
+Lệnh gỡ tắt VieNeu và tự cập nhật, xóa thư mục `DichPhuDe`, `VieNeu-TTS` (mô hình giọng nằm trong đó)
+và bản mô hình mà các bản cài cũ để trong thư mục `.cache`.
 Cuối cùng bấm **Xóa** trên thẻ "Vietnamese Subtitle Translator" ở `chrome://extensions`.
 
 ## Ghi chú
@@ -81,6 +89,11 @@ Cuối cùng bấm **Xóa** trên thẻ "Vietnamese Subtitle Translator" ở `ch
 - Trong Chrome, tiện ích mang tên **Vietnamese Subtitle Translator (Coursera + YouTube)**.
 - Thư mục `vieneu/` chứa một tệp của VieNeu-TTS (giấy phép Apache 2.0) đã được vá để máy chủ giọng
   không bị kẹt sau khi người xem tua video. `openai_speech.patch` là phần thay đổi so với bản gốc.
+- Mô hình giọng trong mục Releases là bản sao nguyên vẹn của
+  [VieNeu-TTS-v3-Turbo](https://huggingface.co/pnnbao-ump/VieNeu-TTS-v3-Turbo) và
+  [MOSS-Audio-Tokenizer-Nano-ONNX](https://huggingface.co/OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX),
+  cả hai theo giấy phép Apache 2.0. Ghi công tác giả: tệp `NOTICE`; toàn văn giấy phép:
+  `LICENSE-Apache-2.0.txt`.
 - Giọng VieNeu chỉ mở ở `127.0.0.1:8000`, máy khác trong mạng không gọi được. Trên Windows nó chạy ẩn
   (không cửa sổ); muốn tạm tắt: Task Manager, mục Startup apps, "DichPhuDe VieNeu".
 - Tự cập nhật: mỗi 6 giờ hỏi GitHub; bản mới được tải sẵn và chỉ chép vào thư mục tiện ích khi Chrome

@@ -4,7 +4,8 @@
 # an antivirus to flag.
 #   run-vieneu.pyw            supervisor: one per user (mutex), restarts the server 10 s after it stops,
 #                             and runs dichphude-update.py every 30 min (the macOS twin is a LaunchAgent)
-#   run-vieneu.pyw --serve    the server itself, in this process
+#   run-vieneu.pyw --serve    the server itself, in this process; it reads the pinned model in
+#                             models\hf, offline, whenever vieneu-pin.py has marked that copy
 # ASCII only, like the other Windows helpers.
 import ctypes
 import os
@@ -36,6 +37,17 @@ def _keep_full_speed(k):
         pass                                 # Windows older than 10 1709: nothing to switch off
 
 
+def use_pinned_model():
+    # The pinned model (vieneu-pin.py --install) is read only once its marker exists, decided at
+    # every start, before huggingface_hub is imported (it reads these at import). Without the
+    # marker VieNeu fetches the model itself, as before.
+    hf = os.path.join(HERE, "models", "hf")
+    if os.path.isfile(os.path.join(hf, ".pinned-ok")):
+        os.environ.update(HF_HOME=hf, HF_HUB_OFFLINE="1")
+        return True
+    return False
+
+
 def serve():
     k = ctypes.WinDLL("kernel32", use_last_error=True)
     k.GetCurrentProcess.restype = ctypes.c_void_p
@@ -45,12 +57,15 @@ def serve():
     os.environ.update(HOST="127.0.0.1", PORT=PORT, VIENEU_BACKEND="onnx", VIENEU_DEVICE="cpu",
                       VIENEU_PRECISION="fp32", VIENEU_QUEUE="4", VIENEU_QUEUE_TIMEOUT="20",
                       PYTHONIOENCODING="utf-8")
+    pinned = use_pinned_model()
     os.chdir(HERE)
     sys.path.insert(0, HERE)
     # pythonw has no stdout/stderr; logging and uvicorn need one. Overwritten at each start, so the
     # log never grows without end.
     log = open(os.path.join(HERE, "server.log"), "w", encoding="utf-8", buffering=1)
     sys.stdout = sys.stderr = log
+    print("VieNeu model: pinned copy in models/hf, offline" if pinned
+          else "VieNeu model: no pinned copy, fetched from Hugging Face")
     import runpy
     sys.argv = ["apps.openai_speech"]
     runpy.run_module("apps.openai_speech", run_name="__main__", alter_sys=True)
@@ -62,7 +77,8 @@ def update_loop():
     while True:
         if os.path.exists(updater):
             try:
-                subprocess.run([sys.executable, updater], cwd=HERE, creationflags=CREATE_NO_WINDOW, timeout=1800)
+                # Hours, not minutes: a first pinned-model download (600 MB) on a slow line
+                subprocess.run([sys.executable, updater], cwd=HERE, creationflags=CREATE_NO_WINDOW, timeout=4 * 3600)
             except Exception:
                 pass
         time.sleep(1800)
