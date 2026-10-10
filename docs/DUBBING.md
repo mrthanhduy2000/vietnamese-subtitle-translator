@@ -1076,7 +1076,29 @@ network cut, Mỹ Duyên read 5 sentences at RTF 0.22 to 0.34; through the real 
 3.68 s of speech in 1.04 s. The voices file never comes from the network
 (`voices_v3_turbo.json` is a 404 there, by design). After editing the plist, `launchctl kickstart -k`
 keeps the **old** environment: bootout + bootstrap. Backup and undo: `~/VieNeu-Backups/2026-10-10-before-pinned-model/RESTORE.md`,
-repo tag `backup/before-pinned-model-2026-10-10`. Friends' installs still fetch `main`: BACKLOG 42.
+repo tag `backup/before-pinned-model-2026-10-10`.
+
+**Friends get the same pinned model (2026-10-11, BACKLOG 42 closed).** The 15 files are assets of one
+GitHub release of the public share repo (`release` in `vieneu-model.json`; a git repo cannot hold the
+415 MB file, and the 6-hourly updater downloads the whole repo zip). Both installers, after `uv sync`,
+run `extension/tools/vieneu-pin.py --install` with VieNeu's Python: each file from the release, else
+from Hugging Face at the pinned revision, streamed to `.part` (resumed after a cut), size + sha256
+checked, then `refs/main` and the marker `models/hf/.pinned-ok`. Every server start reads the copy
+offline only behind that marker (macOS plist `/bin/sh -c` line, Windows `vieneu-runner.pyw`), so a
+failed download only warns: VieNeu then fetches the model itself, as before, and
+`dichphude-update.py` retries every 6 h, and installs again when a new version moves the pin. Older
+installs move over by themselves: the updater installs the model, and on macOS rewrites the service
+plist once for the next login. Until `node tools/publish-share.js --release-model` has run, the
+release is a 404 and every install takes the Hugging Face fallback (same pinned bytes). Still fetched
+at install time outside our control: uv, its Python and the PyPI packages of `uv sync`. Measured 2026-10-11 on the author's Mac (copies only, the live server
+untouched): install from a file mirror of the author's copy, 608.6 MB in 1 s, verify exit 0, re-run
+0 MB; a mirror with one flipped byte refused (no marker, the 13 good files kept), then the 2 refused
+files fetched from Hugging Face at the pinned revision, a cut at 42.6 MB resumed by a Range request;
+a second server on port 8011 from that copy with `HF_HUB_OFFLINE=1` and `HF_ENDPOINT` at a dead port:
+ready in 5.5 s, Mỹ Duyên spoke (507 KB WAV, 48 kHz), no Hugging Face line in its log, its only socket
+the listener. **The author's machine has no marker** (its plist sets `HF_HOME` by hand): running
+`vieneu-autostart.command` again would start the server online. To mark the copy (no download):
+`~/VieNeu-TTS/.venv/bin/python tools/vieneu-pin.py --install`, sandbox off.
 
 **Voice paces (1.5.9).** Every voice in `LOCAL_TTS.voices` now has a measured `sps`. Method, so it
 can be redone: 3 lecture sentences per voice through `POST /v1/audio/speech` (pcm, 24 kHz), count

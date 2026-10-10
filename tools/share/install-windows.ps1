@@ -8,8 +8,9 @@
 # one script block that throws instead of calling exit, because `irm | iex` runs in the user's own
 # window and exit would close it. Must stay Windows PowerShell 5.1 compatible (no ??, no ternary).
 # The outcome is left in $global:DPD_RESULT ('ok' or the error) for the CI install test.
-# Overrides, for testing only: DPD_SRC, DPD_EXT_DIR, DPD_VIENEU_DIR, DPD_NO_AUTOSTART,
-# DPD_NO_DESKTOP, DPD_NO_OPEN.
+# Overrides, for testing only: DPD_SRC, DPD_REF (a branch, tag or commit of the share repo to
+# download instead of main: the install test sets the commit under test), DPD_EXT_DIR,
+# DPD_VIENEU_DIR, DPD_NO_AUTOSTART, DPD_NO_DESKTOP, DPD_NO_OPEN.
 & {
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'   # the 5.1 progress bar makes downloads many times slower
@@ -26,6 +27,9 @@ $Mark = '.dichphude-vieneu'
 # A .cmd, not a .lnk: WScript.Shell rejects paths outside the ANSI code page (a Vietnamese user name)
 $UpdCmd = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Cap nhat Dich Phu De.cmd'
 $OldUpdLink = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Cap nhat Dich Phu De.lnk'   # 2.4.9 to 2.5.0
+# The pinned voice model lives inside the VieNeu folder; run-vieneu.pyw reads it offline only while
+# this marker is there (vieneu-pin.py writes it once every file is checked)
+$PinMark = 'models\hf\.pinned-ok'
 
 function Say($m) { Write-Host ''; Write-Host "==> $m" -ForegroundColor Cyan }
 
@@ -61,9 +65,12 @@ try {
         if (Test-Path "$VnDir\$Mark") {
             if (Test-Path "$ExtDir\tools\vieneu-autostart.ps1") { Invoke-Autostart '-Uninstall' | Out-Null }
             Start-Sleep -Seconds 2
-            Remove-Item $VnDir -Recurse -Force
+            Remove-Item $VnDir -Recurse -Force      # the pinned model (models\hf) goes with it
+            # Installs made before the pinned model left it in the Hugging Face cache
             $hf = Join-Path $env:USERPROFILE '.cache\huggingface\hub'
-            Get-ChildItem $hf -Directory -Filter 'models--pnnbao-ump--*' -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force
+            foreach ($f in @('models--pnnbao-ump--*', 'models--OpenMOSS-Team--MOSS-Audio-Tokenizer-Nano-ONNX')) {
+                Get-ChildItem $hf -Directory -Filter $f -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force
+            }
         } elseif (Test-Path $VnDir) { Write-Host "  Giu nguyen $VnDir (khong do bo cai nay tao)." }
         if (Test-Path "$ExtDir\manifest.json") { Remove-Item $ExtDir -Recurse -Force }
         Remove-Item $UpdCmd, $OldUpdLink -ErrorAction SilentlyContinue
@@ -76,6 +83,7 @@ try {
 
     $arch = if ($env:PROCESSOR_ARCHITEW6432) { $env:PROCESSOR_ARCHITEW6432 } else { $env:PROCESSOR_ARCHITECTURE }
     $withVoice = $arch -eq 'AMD64'
+    $pinned = $false
     if (-not $withVoice) { Say 'May chip ARM: VieNeu chi chay tren may Intel/AMD 64-bit. Chi cai phan dich phu de.' }
 
     $tmp = Join-Path ([IO.Path]::GetTempPath()) ('dpd-' + [Guid]::NewGuid().ToString('N'))
@@ -85,7 +93,8 @@ try {
     if ($env:DPD_SRC) { $src = $env:DPD_SRC }
     else {
         Say 'Dang tai ban moi nhat...'
-        Invoke-WebRequest -UseBasicParsing "https://codeload.github.com/$Repo/zip/refs/heads/main" -OutFile "$tmp\share.zip"
+        $ref = if ($env:DPD_REF) { $env:DPD_REF } else { 'refs/heads/main' }
+        Invoke-WebRequest -UseBasicParsing "https://codeload.github.com/$Repo/zip/$ref" -OutFile "$tmp\share.zip"
         Expand-Archive "$tmp\share.zip" -DestinationPath "$tmp\share"
         $src = (Get-ChildItem "$tmp\share" -Directory | Select-Object -First 1).FullName
     }
@@ -162,10 +171,29 @@ try {
         }
         Set-Content -Path "$VnDir\$Mark" -Value $VieNeuCommit -NoNewline
 
+        # The voice model (~600 MB), pinned and checked file by file (size + sha256): from this
+        # project's GitHub release, else from Hugging Face at the pinned revision. A failure is not
+        # fatal: without the marker the server fetches the model itself, as before, and the
+        # background updater tries again. Python prints everything on stdout; 'Continue' keeps 5.1
+        # from turning a stray native stderr line into a fatal error. Write-Host, not Out-Host: the
+        # install test captures it (6>&1) to see that a re-run downloads nothing.
+        Say 'Dang tai mo hinh giong da khoa phien ban (lan dau khoang 600 MB, cac lan sau chi kiem tra)...'
+        $pinCode = & {
+            $ErrorActionPreference = 'Continue'
+            & "$VnDir\.venv\Scripts\python.exe" "$ExtDir\tools\vieneu-pin.py" --install --vieneu $VnDir | ForEach-Object { Write-Host $_ }
+            $LASTEXITCODE
+        }
+        $pinned = Test-Path (Join-Path $VnDir $PinMark)
+        if ($pinCode -ne 0) {
+            if ($pinned) { Say 'CANH BAO: chua tai duoc ban mo hinh giong moi. Giong van dung ban da khoa truoc do; bo tu cap nhat se thu lai sau.' }
+            else { Say 'CANH BAO: chua tai duoc mo hinh giong. Giong van chay: VieNeu tu tai mo hinh tu Hugging Face khi khoi dong, va bo tu cap nhat se thu lai sau.' }
+        }
+
         if (-not $env:DPD_NO_AUTOSTART) {
             Say 'Dang bat VieNeu tu chay moi khi dang nhap...'
             if ((Invoke-Autostart $null) -ne 0) { throw 'Khong bat duoc tu khoi dong VieNeu.' }
-            Say 'Dang doi VieNeu san sang (lan dau phai tai mo hinh giong, co the toi 10 phut)...'
+            if ($pinned) { Say 'Dang doi VieNeu san sang...' }
+            else { Say 'Dang doi VieNeu san sang (VieNeu phai tu tai mo hinh giong, co the toi 10 phut)...' }
             $ok = $false
             for ($i = 1; $i -le 900; $i++) {
                 if ((Test-Port) -eq 'vieneu') { try { Invoke-RestMethod -UseBasicParsing "http://127.0.0.1:$Port/health" -TimeoutSec 3 | Out-Null; $ok = $true; break } catch {} }
@@ -215,7 +243,11 @@ try {
         Write-Host ' Tom tat: chrome://extensions > bat Che do danh cho nha phat trien >'
         Write-Host " Tai tien ich da giai nen > chon thu muc $ExtDir"
     }
-    if ($withVoice) { Write-Host ' Giong VieNeu tu chay moi khi bat may. Ban moi tu cai vao lan mo Chrome ke tiep.' }
+    if ($withVoice) {
+        Write-Host ' Giong VieNeu tu chay moi khi bat may. Ban moi tu cai vao lan mo Chrome ke tiep.'
+        if ($pinned) { Write-Host ' Mo hinh giong: ban da khoa, kiem tung tep, chay khong can mang.' }
+        else { Write-Host ' Mo hinh giong: tam tai tu Hugging Face khi chay (bo tu cap nhat se thu khoa lai).' }
+    }
     else { Write-Host ' Cap nhat ve sau: nhap dup "Cap nhat Dich Phu De" tren man hinh chinh.' }
     Write-Host '=================================================================='
     $global:DPD_RESULT = 'ok'

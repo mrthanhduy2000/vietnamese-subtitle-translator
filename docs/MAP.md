@@ -91,7 +91,7 @@ Shared and settings pages:
 - `CST_CACHE` -> `background.js`, `dub-engine.js`
 - `CST_THEME`, `CST_HISTORY`, `CST_BACKUP` -> `options.js`; `CST_VERSION_CHECK` -> `options.js`, `popup.js`
 
-## Tests and tooling (`tests/*.js`: 38 files, ~12,600 lines)
+## Tests and tooling (`tests/*.js`: 38 files, ~12,800 lines)
 
 See `TESTING.md`. Short version: 25 files in `npm test` (listed in `package.json`: a new test file must be added there), all offline; 4 manual scripts;
 9 browser harness pages under `tests/harness/` (`live.html` has its own server, `live-server.js`; `headless.js` runs any of them in a headless Chrome); `tools/bump-version.js` owns the version number;
@@ -99,10 +99,11 @@ See `TESTING.md`. Short version: 25 files in `npm test` (listed in `package.json
 `TESTING.md`, and reports what it cannot write: a test file with no row in `TESTING.md`, stale sizes
 in `CLAUDE.md` (`--check` changes nothing, exits 1 when off). `/ban-giao` runs it.
 
-`tools/vieneu-autostart.command` (63 lines, zsh, executable) installs a macOS LaunchAgent
-`com.damduy.vieneu` that starts the VieNeu TTS server at login and restarts it if it dies.
-Double-click installs; `--uninstall` removes. It is a user-machine utility, not part of
-the extension.
+`tools/vieneu-autostart.command` (zsh, executable) installs a macOS LaunchAgent
+`com.damduy.vieneu` that starts the VieNeu TTS server at login and restarts it if it dies; the plist
+runs a `/bin/sh -c` line that reads the pinned model offline when its marker exists (below).
+Double-click installs; `--uninstall` removes; `--write-only` rewrites the plist without reloading it
+(the updater's migration). It is a user-machine utility, not part of the extension.
 `tools/vieneu-autostart.ps1` + `.cmd` are its Windows twin: a value `DichPhuDe VieNeu` under
 HKCU `...\CurrentVersion\Run` (not a Startup `.lnk`: WScript.Shell rejects non-ANSI paths, and a
 Vietnamese user name failed in CI) runs `.venv\Scripts\pythonw.exe run-vieneu.pyw` (copied from
@@ -119,22 +120,31 @@ whose command line holds that VieNeu folder are touched. ASCII only (5.1 reads B
 files under `extension/` (plus the autostart helpers and the runner in `extension/tools/`), and from
 `tools/share/` the Vietnamese `README.md` (the prompt friends give their AI, an error table),
 `install-mac.sh`, `install-windows.ps1`, `vieneu/openai_speech.py` (our patched VieNeu server file;
-`.patch` is the diff) and `.github/workflows/install-test.yml`. The installers need no git and no
-admin: they download zips, keep the extension in a fixed `~/DichPhuDe` (Chrome keys settings to the
-path), pin VieNeu to one commit, run `uv sync`, install the autostart and wait until `/health`
-answers with a `sample_rate`; re-running one is the update, `--uninstall` (Mac) / `DPD_UNINSTALL=1`
-(Windows) removes. Guards: a port 8000 owner that is not VieNeu is named and stops the install; a
+`.patch` is the diff), `LICENSE-Apache-2.0.txt`, a `NOTICE` built from the pin (attribution for
+VieNeu-TTS and MOSS, both Apache 2.0) and `.github/workflows/install-test.yml`. The installers need no
+git and no admin: they download zips, keep the extension in a fixed `~/DichPhuDe` (Chrome keys
+settings to the path), pin VieNeu to one commit, run `uv sync`, install the pinned voice model with
+VieNeu's own Python (`extension/tools/vieneu-pin.py --install`, below; a failure only warns), install
+the autostart and wait until `/health` answers with a `sample_rate`; re-running one is the update,
+`--uninstall` (Mac) / `DPD_UNINSTALL=1` (Windows) removes (the model goes with the VieNeu folder).
+`DPD_REF=<commit>` makes the installers and the updater download that commit instead of `main`. Guards: a port 8000 owner that is not VieNeu is named and stops the install; a
 `VieNeu-TTS` folder without `.dichphude-vieneu` is never overwritten; on the Mac the
 `com.damduy.vieneu` service is touched only when its plist runs that folder (the author's machine has
 its own: a test uninstall once took it down). **Every push runs the install test** on clean GitHub
-machines (Windows x64, x64 with a Vietnamese path, Windows ARM, macOS Apple chip, macOS Intel): the
-one-line install, a spoken line, restart after a kill, update, uninstall. Check it after publishing
+machines (Windows x64, x64 with a Vietnamese path, Windows ARM, macOS Apple chip, macOS Intel), at
+`DPD_REF` = the pushed commit: the one-line install, the pinned model (marker, every byte, the server
+started offline: its first log line on Windows, its own environment via `ps eww` on macOS, nothing in
+`~/.cache`), a spoken line, restart after a kill, update (downloads 0 MB of model), uninstall; a sixth
+job downloads every release asset with no fallback once the release exists. Check it after publishing
 (`gh run list -R mrthanhduy2000/dich-phu-de-long-tieng`). **Friends' installs update themselves**:
 `tools/dichphude-update.py` (copied to `<VieNeu>/dichphude-update.py`, the extension path in
 `<VieNeu>/.dichphude-ext`) asks GitHub every 6 h, stages a newer version in `<VieNeu>/.dpd-staged`,
 and lays it over the extension folder only while Chrome is closed (Chrome reads an unpacked
 extension from disk at start); macOS runs it from LaunchAgent `com.damduy.dichphude.update` every
-30 min, Windows from the supervisor. Not `chrome.runtime.reload()`: tried 2026-10-08 in headless
+30 min, Windows from the supervisor. Every run it also keeps the pinned model current (install it
+when the marker is missing or names an older pin, a failed pin retried after 6 h) and, on macOS, gives
+an install from before the pinned model the new service plist once (`vieneu-autostart.command
+--write-only`, read at the next login). Not `chrome.runtime.reload()`: tried 2026-10-08 in headless
 Chrome and Chrome for Testing (`--load-extension`, developer mode on), it left the extension
 blocked every time, and a blocked or removed extension loses the user's settings and key. So a
 **push to the share repo reaches every friend within hours**: only publish when the user asks
@@ -145,12 +155,21 @@ installers and copy the patched file again. `tests/share.test.js` guards the fil
 rule and the pin. Test the Mac installer locally only with `DPD_NO_AUTOSTART=1` and outside the
 sandbox (it cannot reach 127.0.0.1).
 
-**Pinned model** (2026-10-10). `tools/share/vieneu-model.json` lists every model file the VieNeu server
-loads (two Hugging Face repos at fixed revisions, size + sha256) and the voices file inside the VieNeu
-code. `python3 tools/vieneu-pin.py` checks the local copy (`~/VieNeu-TTS/models/hf`) against it, offline,
-exit 1 on any difference; `--fetch` (with `~/VieNeu-TTS/.venv/bin/python`) rebuilds the copy and refuses
-a Hugging Face `main` that moved. Only the author's machine reads the copy so far; the installers
-still fetch `main` (BACKLOG 42). Why and how: `DUBBING.md` "Pinned model".
+**Pinned model** (2026-10-10, friends since 2026-10-11). `tools/share/vieneu-model.json` lists every
+model file the VieNeu server loads (two Hugging Face repos at fixed revisions, size + sha256, the flat
+`asset` name), the GitHub release that mirrors them (`release`: share repo, tag
+`vieneu-model-<turbo7>-<moss7>`) and the voices file inside the VieNeu code. `tools/vieneu-pin.py`
+(stdlib only, ASCII; ships in `extension/tools/` with the JSON beside it): no flag checks a copy
+offline (exit 1 on any difference); `--install` downloads what is missing or wrong (release asset,
+else Hugging Face at the pinned revision, never `main`), resumes a cut `.part`, checks size + sha256,
+then writes `refs/main` and the marker `<VieNeu>/models/hf/.pinned-ok` (exit 0 ok, 1 not, 2 another
+install holds `.pin-lock`); `--if-changed` returns at once when the marker names this pin; `--fetch`
+is the author's rebuild through huggingface_hub. Every start script reads the copy with `HF_HOME` +
+`HF_HUB_OFFLINE=1` only while the marker exists, decided at each start: the macOS plist runs a
+`/bin/sh -c` line, `vieneu-runner.pyw` checks before it imports the server, the installer's
+`cst-start.command` the same; without the marker VieNeu fetches the model itself as before.
+`node tools/publish-share.js --release-model` (verify, then `gh release create/upload --clobber`, then
+the asset sizes) publishes the release from the author's copy. Why and how: `DUBBING.md` "Pinned model".
 
 `tools/prosody-eval.js` renders the marked sentences of `tests/prosody-corpus.js` on the VieNeu
 server once (cached outside the repo) and scores the pause shaping against the marks; `OLD=` scores

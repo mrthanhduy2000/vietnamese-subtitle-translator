@@ -77,7 +77,7 @@ brew install uv
 git clone https://github.com/pnnbao97/VieNeu-TTS.git ~/VieNeu-TTS
 cd ~/VieNeu-TTS && git checkout d350c63fceb0792d7b2db9a51d61cc040b1f8efa && uv sync
 cp tools/share/vieneu/openai_speech.py ~/VieNeu-TTS/apps/   # chạy trong thư mục tiện ích
-~/VieNeu-TTS/.venv/bin/python tools/vieneu-pin.py --fetch    # tải mô hình cố định, kiểm mã băm
+~/VieNeu-TTS/.venv/bin/python tools/vieneu-pin.py --install  # tải mô hình cố định, kiểm mã băm, ghi dấu .pinned-ok
 ```
 
 - Bản VieNeu bị khóa ở một phiên bản, vì 25 giọng (trong đó có Mỹ Duyên) nằm trong chính mã VieNeu.
