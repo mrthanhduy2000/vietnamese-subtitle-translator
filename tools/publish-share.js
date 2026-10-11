@@ -3,13 +3,17 @@
 // install from: the extension's runtime files under extension/, the two installers and the patched
 // VieNeu server file. Nothing else of this private repo (docs, tests, tools, review data) goes out.
 //   node tools/publish-share.js                  build into ../dich-phu-de-long-tieng
-//   node tools/publish-share.js --push           build, commit and push it
+//   node tools/publish-share.js --push           build, commit and push it; refused while a shipped
+//       file differs from the share repo's last commit and the version is not higher than the one it
+//       holds (friends' updaters only take a higher version: bump first)
 //   node tools/publish-share.js --out DIR        build somewhere else (tests use this)
 //   node tools/publish-share.js --release-model [--dry-run] [--vieneu DIR]
 //       create or update the GitHub release that mirrors the pinned VieNeu model
 //       (tools/share/vieneu-model.json "release"), from the author's checked copy in
 //       <VieNeu>/models/hf. The installers download from it first (tools/vieneu-pin.py --install).
+//       After the upload every asset's size and GitHub sha256 digest must match the pin.
 //       Needs gh, signed in, outside the sandbox (keychain). --dry-run prints the gh commands.
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
@@ -105,18 +109,108 @@ function build(out) {
     return JSON.parse(fs.readFileSync(path.join(ROOT, "manifest.json"), "utf8")).version;
 }
 
-// The model files as release assets: flat name, where the author's copy holds it, pinned size
+// ---- The push guard ----
+
+const vtuple = v => String(v).split(".").map(n => parseInt(n, 10) || 0);
+function vcmp(a, b) {
+    const x = vtuple(a), y = vtuple(b);
+    for (let i = 0; i < Math.max(x.length, y.length); i++) if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0);
+    return 0;
+}
+
+// git's id for a file's bytes (what `git ls-tree` lists): a build compares with a commit unread
+const blobId = buf => crypto.createHash("sha1").update(`blob ${buf.length}\0`).update(buf).digest("hex");
+
+function filesOnDisk(dir) {
+    const out = new Map();
+    const walk = rel => {
+        for (const e of fs.readdirSync(path.join(dir, rel), { withFileTypes: true })) {
+            if (!rel && e.name === ".git") continue;
+            const p = rel ? `${rel}/${e.name}` : e.name;
+            if (e.isDirectory()) walk(p);
+            else out.set(p, blobId(fs.readFileSync(path.join(dir, p))));
+        }
+    };
+    walk("");
+    return out;
+}
+
+const manifestVersion = text => { try { return JSON.parse(text).version; } catch { return null; } };
+
+// What the share repo holds: its last commit when `out` is the top of a git checkout (a plain build
+// into it changes only the working tree, so the guard still sees what friends got), else its files.
+function publishedState(out) {
+    if (!fs.existsSync(out)) return null;
+    const git = (...a) => execFileSync("git", ["-C", out, ...a], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+    try {
+        if (fs.realpathSync(git("rev-parse", "--show-toplevel").trim()) !== fs.realpathSync(out)) throw new Error("nested");
+        const files = new Map();
+        // -z: paths raw, never quoted (a non-ASCII file name would otherwise never match)
+        for (const line of git("ls-tree", "-r", "-z", "HEAD").split("\0").filter(Boolean)) {
+            const [meta, file] = line.split("\t");
+            const [, type, id] = meta.split(" ");
+            if (type === "blob") files.set(file, id);
+        }
+        let version = null;
+        try { version = manifestVersion(git("show", "HEAD:extension/manifest.json")); } catch { }
+        return { files, version };
+    } catch {
+        const m = path.join(out, "extension", "manifest.json");
+        return { files: filesOnDisk(out), version: fs.existsSync(m) ? manifestVersion(fs.readFileSync(m, "utf8")) : null };
+    }
+}
+
+// Friends' updaters take a new copy only when extension/manifest.json's version rises, and tools/
+// changes earn no bump by the repo rule: a push that changes shipped files under the same version
+// would reach new installs but never the installed ones. built: a fresh build; out: the share repo.
+function publishCheck(built, out) {
+    const before = publishedState(out);
+    if (!before) return { ok: true, changed: [] };
+    const now = filesOnDisk(built);
+    const changed = [...new Set([...now.keys(), ...before.files.keys()])]
+        .filter(f => now.get(f) !== before.files.get(f)).sort();
+    const version = manifestVersion(fs.readFileSync(path.join(built, "extension", "manifest.json"), "utf8"));
+    if (!changed.length || !before.version || vcmp(version, before.version) > 0) return { ok: true, changed, version };
+    const list = changed.slice(0, 8).join(", ") + (changed.length > 8 ? `, and ${changed.length - 8} more` : "");
+    return {
+        ok: false, changed, version,
+        message: `Refusing to push: ${changed.length} shipped file(s) differ from the share repo (${list}), ` +
+            `but extension/manifest.json is ${version} here and ${before.version} there. Friends' updaters only ` +
+            `take a higher version, so installed copies would never get these files: bump the version first ` +
+            `(node tools/bump-version.js), then publish again.`,
+    };
+}
+
+// ---- The model release ----
+
+// The model files as release assets: flat name, where the author's copy holds it, pinned size + hash
 function releaseAssets(pin, hfHome) {
     return pin.repos.flatMap(r => r.files.map(f => ({
         name: f.asset || assetName(r.repo, f.path),
         from: path.join(hfHome, "hub", "models--" + r.repo.replace("/", "--"), "snapshots", r.revision, ...f.path.split("/")),
         size: f.size,
+        sha256: f.sha256,
     })));
+}
+
+// What GitHub holds against the plan: every asset there, at its pinned size, with GitHub's own
+// sha256 of the stored bytes ("digest": "sha256:...") equal to the pin. [] when all match.
+function releaseProblems(assets, got) {
+    const by = new Map((got || []).map(a => [a.name, a]));
+    const bad = [];
+    for (const a of assets) {
+        const g = by.get(a.name);
+        if (!g) { bad.push(`${a.name} missing`); continue; }
+        if (g.size !== a.size) bad.push(`${a.name} is ${g.size} bytes, the pin says ${a.size}`);
+        if (g.digest !== `sha256:${a.sha256}`) bad.push(`${a.name} digest ${g.digest || "absent"}, the pin says sha256:${a.sha256}`);
+    }
+    return bad;
 }
 
 function releaseNotes(pin) {
     const size = n => n < 1e6 ? `${(n / 1e3).toFixed(1)} KB` : `${(n / 1e6).toFixed(1)} MB`;
-    const lines = pin.repos.flatMap(r => r.files.map(f => `| \`${f.asset}\` | ${size(f.size)} | \`${f.sha256.slice(0, 16)}...\` |`));
+    const lines = pin.repos.flatMap(r => r.files.map(f =>
+        `| \`${f.asset || assetName(r.repo, f.path)}\` | ${size(f.size)} | \`${f.sha256.slice(0, 16)}...\` |`));
     return [
         "Mô hình giọng VieNeu đã khóa phiên bản cho bộ cài **Dịch Phụ Đề & Lồng Tiếng AI**. Bộ cài tự tải",
         "các tệp này và kiểm từng tệp bằng sha256; không cần tải tay.",
@@ -132,49 +226,57 @@ function releaseNotes(pin) {
     ].join("\n");
 }
 
-function releaseModel({ vieneu = path.join(os.homedir(), "VieNeu-TTS"), dryRun = false } = {}) {
-    const pin = readPin();
+// pinFile, exec, tmpRoot and log are for tests: gh and python stubbed, staging in a throwaway folder
+function releaseModel({ vieneu = path.join(os.homedir(), "VieNeu-TTS"), dryRun = false, pinFile = PIN,
+    exec = execFileSync, tmpRoot = os.tmpdir(), log = console.log } = {}) {
+    const pin = JSON.parse(fs.readFileSync(pinFile, "utf8"));
     const { repo, tag } = pin.release;
     if (tag !== releaseTag(pin)) throw new Error(`release.tag is ${tag}, the pin makes it ${releaseTag(pin)}`);
     const hfHome = path.join(vieneu, "models", "hf");
     // 1. The author's copy must match the pin, byte for byte (exit 1 throws here)
-    execFileSync("python3", [path.join(__dirname, "vieneu-pin.py"), "--vieneu", vieneu], { stdio: "inherit" });
-    // 2. Flat names, as the installers download them; symlinks, nothing copied
-    const stage = fs.mkdtempSync(path.join(os.tmpdir(), "vieneu-release-"));
-    const assets = releaseAssets(pin, hfHome);
-    for (const a of assets) fs.symlinkSync(fs.realpathSync(a.from), path.join(stage, a.name));
-    fs.writeFileSync(path.join(stage, "NOTICE"), notice(pin));
-    fs.copyFileSync(path.join(SHARE, LICENSE), path.join(stage, LICENSE));
-    fs.copyFileSync(PIN, path.join(stage, "vieneu-model.json"));
-    const files = fs.readdirSync(stage).map(f => path.join(stage, f));
-    const notes = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "vieneu-notes-")), "notes.md");
-    fs.writeFileSync(notes, releaseNotes(pin));
-    const gh = (...a) => dryRun ? console.log("gh " + a.map(x => /\s/.test(x) ? JSON.stringify(x) : x).join(" "))
-        : execFileSync("gh", a, { stdio: "inherit" });
-    // 3. Create once (the tag lands on the default branch), else refresh the notes; then upload,
-    // --clobber replacing an asset of the same name
-    let exists = false;
-    if (!dryRun) {
-        try { execFileSync("gh", ["release", "view", tag, "-R", repo], { stdio: "ignore" }); exists = true; } catch { }
+    exec("python3", [path.join(__dirname, "vieneu-pin.py"), "--vieneu", vieneu, "--pin", pinFile], { stdio: "inherit" });
+    const stage = fs.mkdtempSync(path.join(tmpRoot, "vieneu-release-"));
+    const notesDir = fs.mkdtempSync(path.join(tmpRoot, "vieneu-notes-"));
+    try {
+        // 2. Flat names, as the installers download them; symlinks, nothing copied
+        const assets = releaseAssets(pin, hfHome);
+        for (const a of assets) fs.symlinkSync(fs.realpathSync(a.from), path.join(stage, a.name));
+        fs.writeFileSync(path.join(stage, "NOTICE"), notice(pin));
+        fs.copyFileSync(path.join(SHARE, LICENSE), path.join(stage, LICENSE));
+        fs.copyFileSync(pinFile, path.join(stage, "vieneu-model.json"));
+        const files = fs.readdirSync(stage).map(f => path.join(stage, f));
+        const notes = path.join(notesDir, "notes.md");
+        fs.writeFileSync(notes, releaseNotes(pin));
+        const gh = (...a) => dryRun ? log("gh " + a.map(x => /\s/.test(x) ? JSON.stringify(x) : x).join(" "))
+            : exec("gh", a, { stdio: "inherit" });
+        // 3. Create once (the tag lands on the default branch), else refresh the notes; then upload,
+        // --clobber replacing an asset of the same name
+        let exists = false;
+        if (!dryRun) {
+            try { exec("gh", ["release", "view", tag, "-R", repo], { stdio: "ignore" }); exists = true; } catch { }
+        }
+        const title = `Mô hình giọng VieNeu (${tag.replace("vieneu-model-", "")})`;
+        if (exists) gh("release", "edit", tag, "-R", repo, "--title", title, "--notes-file", notes);
+        else gh("release", "create", tag, "-R", repo, "--title", title, "--notes-file", notes);
+        gh("release", "upload", tag, "-R", repo, "--clobber", ...files);
+        // 4. What GitHub holds now: every model asset at its pinned size and sha256 (GitHub hashes
+        // what it stored, so a cut or swapped upload shows here, not on a friend's machine)
+        if (!dryRun) {
+            const got = JSON.parse(exec("gh", ["api", `repos/${repo}/releases/tags/${tag}`], { encoding: "utf8" })).assets;
+            const bad = releaseProblems(assets, got);
+            if (bad.length) throw new Error(`release ${tag} on ${repo}: ${bad.join("; ")}`);
+        }
+        log(`${dryRun ? "Dry run: " : ""}release ${tag} on ${repo}: ${assets.length} model files ` +
+            `(${(assets.reduce((n, a) => n + a.size, 0) / 1e6).toFixed(1)} MB) + NOTICE, ${LICENSE}, vieneu-model.json` +
+            (dryRun ? "" : ", every size and sha256 digest checked on GitHub"));
+    } finally {
+        fs.rmSync(stage, { recursive: true, force: true });
+        fs.rmSync(notesDir, { recursive: true, force: true });
     }
-    const title = `Mô hình giọng VieNeu (${tag.replace("vieneu-model-", "")})`;
-    if (exists) gh("release", "edit", tag, "-R", repo, "--title", title, "--notes-file", notes);
-    else gh("release", "create", tag, "-R", repo, "--title", title, "--notes-file", notes);
-    gh("release", "upload", tag, "-R", repo, "--clobber", ...files);
-    // 4. What GitHub holds now: every model asset at its pinned size
-    if (!dryRun) {
-        const got = JSON.parse(execFileSync("gh", ["release", "view", tag, "-R", repo, "--json", "assets"], { encoding: "utf8" })).assets;
-        const size = Object.fromEntries(got.map(a => [a.name, a.size]));
-        const bad = assets.filter(a => size[a.name] !== a.size).map(a => a.name);
-        if (bad.length) throw new Error(`release ${tag}: wrong or missing ${bad.join(", ")}`);
-    }
-    console.log(`${dryRun ? "Dry run: " : ""}release ${tag} on ${repo}: ${assets.length} model files ` +
-        `(${(assets.reduce((n, a) => n + a.size, 0) / 1e6).toFixed(1)} MB) + NOTICE, ${LICENSE}, vieneu-model.json`);
-    fs.rmSync(stage, { recursive: true, force: true });
-    fs.rmSync(path.dirname(notes), { recursive: true, force: true });
 }
 
-module.exports = { build, runtimeFiles, EXT_TOOLS, notice, releaseAssets, releaseNotes, releaseTag, assetName };
+module.exports = { build, runtimeFiles, EXT_TOOLS, notice, releaseAssets, releaseNotes, releaseTag, assetName,
+    releaseProblems, releaseModel, publishCheck, blobId };
 
 if (require.main === module) {
     const args = process.argv.slice(2);
@@ -184,6 +286,15 @@ if (require.main === module) {
         process.exit(0);
     }
     const out = path.resolve(opt("--out") || path.join(ROOT, "..", "dich-phu-de-long-tieng"));
+    // Built aside first: a refused push leaves the share repo exactly as it was
+    const aside = fs.mkdtempSync(path.join(os.tmpdir(), "share-check-"));
+    let check;
+    try { build(aside); check = publishCheck(aside, out); }
+    finally { fs.rmSync(aside, { recursive: true, force: true }); }
+    if (!check.ok) {
+        console.error(check.message);
+        if (args.includes("--push")) process.exit(1);
+    }
     const version = build(out);
     console.log(`Built ${version} into ${out}`);
     if (args.includes("--push")) {

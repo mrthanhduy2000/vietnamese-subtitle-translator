@@ -5,7 +5,8 @@
 #   run-vieneu.pyw            supervisor: one per user (mutex), restarts the server 10 s after it stops,
 #                             and runs dichphude-update.py every 30 min (the macOS twin is a LaunchAgent)
 #   run-vieneu.pyw --serve    the server itself, in this process; it reads the pinned model in
-#                             models\hf, offline, whenever vieneu-pin.py has marked that copy
+#                             models\hf, offline, whenever vieneu-pin.py has marked that copy and
+#                             every file the marker lists is still there at its size
 # ASCII only, like the other Windows helpers.
 import ctypes
 import os
@@ -37,15 +38,45 @@ def _keep_full_speed(k):
         pass                                 # Windows older than 10 1709: nothing to switch off
 
 
+def pinned_copy_ok(hf):
+    # The marker lists what vieneu-pin.py checked: "ref <revision> <path>" and "size <bytes> <path>",
+    # paths relative to models\hf with "/". Stat only, so a start costs a few milliseconds; a file
+    # deleted or cut short since then fails it. The same check as the macOS start line.
+    try:
+        with open(os.path.join(hf, ".pinned-ok"), encoding="utf-8") as f:
+            lines = f.read().splitlines()
+    except (OSError, ValueError):
+        return False
+    sizes = 0
+    for line in lines:
+        parts = line.split(" ", 2)
+        if len(parts) != 3 or parts[0] not in ("ref", "size"):
+            continue
+        path = os.path.join(hf, *parts[2].split("/"))
+        try:
+            if parts[0] == "ref":
+                with open(path, encoding="utf-8") as f:
+                    if f.read().strip() != parts[1]:
+                        return False
+            elif os.path.getsize(path) != int(parts[1]):
+                return False
+            else:
+                sizes += 1
+        except (OSError, ValueError):
+            return False
+    return sizes > 0
+
+
 def use_pinned_model():
-    # The pinned model (vieneu-pin.py --install) is read only once its marker exists, decided at
-    # every start, before huggingface_hub is imported (it reads these at import). Without the
-    # marker VieNeu fetches the model itself, as before.
+    # The pinned model (vieneu-pin.py --install) is read only while its marker exists and every
+    # file it lists is whole, decided at every start, before huggingface_hub is imported (it reads
+    # these at import). Otherwise VieNeu fetches the model itself, as before: online, but talking.
+    # Returns "offline", "incomplete" (a marker over a damaged copy) or "online".
     hf = os.path.join(HERE, "models", "hf")
-    if os.path.isfile(os.path.join(hf, ".pinned-ok")):
+    if pinned_copy_ok(hf):
         os.environ.update(HF_HOME=hf, HF_HUB_OFFLINE="1")
-        return True
-    return False
+        return "offline"
+    return "incomplete" if os.path.isfile(os.path.join(hf, ".pinned-ok")) else "online"
 
 
 def serve():
@@ -64,8 +95,9 @@ def serve():
     # log never grows without end.
     log = open(os.path.join(HERE, "server.log"), "w", encoding="utf-8", buffering=1)
     sys.stdout = sys.stderr = log
-    print("VieNeu model: pinned copy in models/hf, offline" if pinned
-          else "VieNeu model: no pinned copy, fetched from Hugging Face")
+    print({"offline": "VieNeu model: pinned copy in models/hf, offline",
+           "incomplete": "VieNeu model: pinned copy incomplete, fetched from Hugging Face"}.get(
+        pinned, "VieNeu model: no pinned copy, fetched from Hugging Face"))
     import runpy
     sys.argv = ["apps.openai_speech"]
     runpy.run_module("apps.openai_speech", run_name="__main__", alter_sys=True)

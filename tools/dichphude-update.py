@@ -5,14 +5,22 @@
 # Every 6 hours it asks GitHub for the version; a newer one is downloaded into <VieNeu>/.dpd-staged.
 # The staged copy goes over the extension folder only while Chrome is NOT running (at sign-in, or
 # after the user quits Chrome): Chrome reads an unpacked extension from disk when it starts, so the
-# next start runs the new version, and a running Chrome never mixes old and new files. Not
-# chrome.runtime.reload(): in every headless test it left the extension blocked (2026-10-08), and
-# that loses the user's settings and API key; the restart path is the one Chrome guarantees.
+# next start runs the new version, and a running Chrome never mixes old and new files (a service
+# worker, a content script and the options page from two versions at once). Not
+# chrome.runtime.reload(): it does work while developer mode is ON (headless branded Chrome, a
+# throwaway profile, 2 of 2 runs on 2026-10-11: still enabled, storage intact), but with developer
+# mode OFF a reload brings the unpacked extension back DISABLED (unsupportedDeveloperExtension), and
+# the earlier "blocked" result (2026-10-08) was such a profile. A friend may switch developer mode
+# off after loading the extension, and a disabled extension looks broken; the restart path needs
+# neither, and it keeps the user's settings and API key.
 # The extension folder keeps its path (Chrome keys settings to it); only its files change.
 # Every run also keeps the pinned voice model current (<VieNeu>/models/hf, the extension's
-# tools/vieneu-pin.py): installed when missing, or when a new version pins another one; a failed
-# attempt is retried after 6 hours. On macOS an install from before the pinned model gets its
-# server plist rewritten once (read at the next login), so its server can read that copy.
+# tools/vieneu-pin.py): a quick check (marker, every file at its pinned size, refs/main), and on any
+# mismatch an install, which repairs the copy or withdraws its marker so the server starts online;
+# a failed attempt is retried after 6 hours. Once the server runs offline on the checked copy, an
+# install made by our installer drops the copy older versions left in ~/.cache/huggingface. On
+# macOS an install from before the size-checked start line gets its server plist rewritten once
+# (read at the next login), so its server reads that copy only while it is whole.
 #   python dichphude-update.py          normal run
 #   python dichphude-update.py --now    ask GitHub now, whatever the 6-hour gap (tests)
 # DPD_REF=<commit> reads that commit of the share repo instead of main (the install test).
@@ -39,6 +47,11 @@ MODEL_RETRY_S = 6 * 3600
 WINDOWS = sys.platform == "win32"
 NO_WINDOW = 0x08000000 if WINDOWS else 0
 SERVICE_PLIST = os.path.expanduser("~/Library/LaunchAgents/com.damduy.vieneu.plist")
+# What a current service plist runs: the start line that stats the files the marker lists
+START_TOKEN = "pinned_ok"
+OUR_MARK = ".dichphude-vieneu"              # the installer made this VieNeu folder
+# Where VieNeu kept the model before the pinned copy (huggingface_hub's default cache)
+OLD_CACHE = ["models--pnnbao-ump--VieNeu-TTS-v3-Turbo", "models--OpenMOSS-Team--MOSS-Audio-Tokenizer-Nano-ONNX"]
 
 
 def log(msg):
@@ -170,27 +183,79 @@ def ensure_model(ext, state):
     if not pin_file:
         return
     pin = tool.load_pin(pin_file)
-    if tool.marker_current(pin, os.path.join(HERE, "models", "hf")):
-        return                                    # the usual case: nothing to do, nothing logged
+    hf = os.path.join(HERE, "models", "hf")
+    if tool.quick_ok(pin, hf):
+        drop_old_cache()                          # the usual case: stat only, nothing logged
+        return
     want = tool.pin_id(pin)
     if state.get("model_pin") == want and time.time() - state.get("model_tried", 0) < MODEL_RETRY_S:
         return                                    # this pin failed lately: wait before the next try
     state["model_pin"], state["model_tried"] = want, time.time()
     save_state(state)
-    log("model: installing the pinned voice model")
+    log("model: the pinned copy is damaged (a file missing or cut short): repairing it"
+        if tool.marker_current(pin, hf) else "model: installing the pinned voice model")
     r = subprocess.run([sys.executable, path, "--install", "--vieneu", HERE], cwd=HERE, capture_output=True,
                        text=True, encoding="utf-8", errors="replace", timeout=3 * 3600, creationflags=NO_WINDOW)
     lines = [l.strip() for l in r.stdout.splitlines() if l.strip()]
     keep = [l for l in lines if l.startswith("LOI")][-2:] + lines[-1:]     # errors, then the summary
     log("model: exit %d: %s" % (r.returncode, " | ".join(keep)))
+    if r.returncode in (0, 2):                    # done, or another install holds it: no 6-hour wait
+        state["model_tried"] = 0
+        save_state(state)
+
+
+def server_model_line():
+    # The last "VieNeu model:" line the start scripts wrote: how the running server was started
+    last = None
+    try:
+        with open(os.path.join(HERE, "server.log"), encoding="utf-8", errors="replace") as f:
+            for line in f:
+                if line.startswith("VieNeu model:"):
+                    last = line.strip()
+    except OSError:
+        return None
+    return last
+
+
+def dir_size(path):
+    n = 0
+    for root, _dirs, files in os.walk(path):
+        for name in files:
+            try:
+                n += os.path.getsize(os.path.join(root, name))
+            except OSError:
+                pass
+    return n
+
+
+def drop_old_cache():
+    # Installs from before the pinned model kept it in ~/.cache/huggingface (600 MB). Called only
+    # once the quick check passed; removed only on a VieNeu folder our installer made (the author's
+    # machine has no such mark) and only while the server runs offline on the checked copy.
+    if not os.path.isfile(os.path.join(HERE, OUR_MARK)):
+        return
+    hub = os.path.join(os.path.expanduser("~"), ".cache", "huggingface", "hub")
+    old = [os.path.join(hub, n) for n in OLD_CACHE if os.path.isdir(os.path.join(hub, n))]
+    if not old:
+        return
+    line = server_model_line()
+    if not line or "offline" not in line:
+        return
+    size = sum(dir_size(d) for d in old)
+    for d in old:
+        shutil.rmtree(d, ignore_errors=True)
+    gone = [os.path.basename(d) for d in old if not os.path.exists(d)]
+    if gone:
+        log("model: removed the copy older versions left in ~/.cache/huggingface (%s, %.0f MB): "
+            "the server reads models/hf offline" % (", ".join(gone), size / 1e6))
 
 
 def refresh_mac_service(ext):
-    # A macOS install from before the pinned model starts python straight from its plist, so it
-    # would never read the pinned copy. Rewrite that plist once with the start command that checks
-    # the marker; --write-only leaves the running server alone (launchd reads it at the next login).
-    # Only our own service, and only with a helper that knows --write-only: an older helper would
-    # ignore the flag and restart the server at every run.
+    # A macOS install from before the size-checked start line (python straight from its plist, or
+    # the first marker-only line) would read a pinned copy that lost a file and crash in a loop.
+    # Rewrite that plist once with the current start command; --write-only leaves the running server
+    # alone (launchd reads it at the next login). Only our own service, and only with a helper that
+    # knows --write-only: an older helper would ignore the flag and restart the server at every run.
     if sys.platform != "darwin":
         return
     try:
@@ -198,7 +263,7 @@ def refresh_mac_service(ext):
             text = f.read()
     except OSError:
         return
-    if os.path.join(HERE, ".venv/bin/python") not in text or ".pinned-ok" in text:
+    if os.path.join(HERE, ".venv/bin/python") not in text or START_TOKEN in text:
         return
     helper = os.path.join(ext, "tools", "vieneu-autostart.command")
     try:

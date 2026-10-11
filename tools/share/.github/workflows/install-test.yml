@@ -1,7 +1,10 @@
 # Runs the exact one-line install a friend runs, on clean GitHub machines, after every update:
 # install, the pinned voice model (every byte checked, the server offline), a spoken line, the
 # server coming back after it is killed, an update, an uninstall. DPD_REF makes the installer and the
-# updater download this very commit, not main. A last job checks the model release, once published.
+# updater download this very commit, not main. Every voice machine must get all the model files from
+# the GitHub release (no Hugging Face fallback), and a last job downloads each release asset: the
+# release is published FIRST (node tools/publish-share.js --release-model), then the share repo is
+# pushed, so a missing release fails this test instead of quietly sending friends to Hugging Face.
 # Built from tools/share/ in the private repo by tools/publish-share.js; edit it there.
 name: Install test
 
@@ -40,7 +43,10 @@ jobs:
       - name: Install with the one-line command (Windows PowerShell 5.1)
         run: |
           $PSVersionTable.PSVersion.ToString()
-          irm $env:URL | iex
+          # Kept for the next step: the model summary says where every file came from
+          $o = & { irm $env:URL | iex } 6>&1 | Out-String
+          $o
+          [IO.File]::WriteAllText("$env:RUNNER_TEMP\install1.log", $o)
           if ($global:DPD_RESULT -ne 'ok') { throw "installer: $global:DPD_RESULT" }
 
       - name: Check the install
@@ -72,6 +78,13 @@ jobs:
           # The pinned model: marker, every byte against the pin, the server started offline on it,
           # and nothing fetched into the Hugging Face cache
           if (-not (Test-Path "$vn\models\hf\.pinned-ok")) { throw 'pinned model marker missing' }
+          # Every pinned file from the GitHub release, none from Hugging Face
+          $n = ((Get-Content "$ext\tools\vieneu-model.json" -Raw -Encoding UTF8 | ConvertFrom-Json).repos | ForEach-Object { $_.files.Count } | Measure-Object -Sum).Sum
+          $log = [IO.File]::ReadAllText("$env:RUNNER_TEMP\install1.log")
+          $sum = ($log -split "`n" | Where-Object { $_ -match 'Mo hinh giong da khoa:' }) -join ' '
+          "model summary: $sum"
+          if ($sum -notmatch "tai moi [0-9.]+ MB \(GitHub $n tep\), ") { throw "not all $n model files came from the GitHub release: $sum" }
+          if ($log -match '\) tu Hugging Face') { throw 'a model file was fetched from Hugging Face' }
           & "$vn\.venv\Scripts\python.exe" "$ext\tools\vieneu-pin.py" --vieneu $vn | Select-Object -Last 2
           if ($LASTEXITCODE -ne 0) { throw 'the model copy does not match the pin' }
           $first = Get-Content "$vn\server.log" -TotalCount 1
@@ -160,7 +173,8 @@ jobs:
         shell: bash
     steps:
       - name: Install with the one-line command (macOS /bin/bash)
-        run: curl -fsSL "$URL" | /bin/bash
+        # Kept for the next step: the model summary says where every file came from
+        run: curl -fsSL "$URL" | /bin/bash 2>&1 | tee "$RUNNER_TEMP/install1.log"
 
       - name: Check the install
         run: |
@@ -181,6 +195,11 @@ jobs:
           # The pinned model: marker, every byte against the pin, the server running with
           # HF_HUB_OFFLINE=1 (read from its environment), nothing in the Hugging Face cache
           test -f ~/VieNeu-TTS/models/hf/.pinned-ok
+          # Every pinned file from the GitHub release, none from Hugging Face
+          n="$(python3 -c 'import json,os; print(sum(len(r["files"]) for r in json.load(open(os.path.expanduser("~/DichPhuDe/tools/vieneu-model.json")))["repos"]))')"
+          grep "Mo hinh giong da khoa:" "$RUNNER_TEMP/install1.log"
+          grep -qE "tai moi [0-9.]+ MB \(GitHub $n tep\), " "$RUNNER_TEMP/install1.log"
+          if grep -q ') tu Hugging Face' "$RUNNER_TEMP/install1.log"; then echo "a model file was fetched from Hugging Face"; exit 1; fi
           ~/VieNeu-TTS/.venv/bin/python ~/DichPhuDe/tools/vieneu-pin.py --vieneu ~/VieNeu-TTS | tail -2
           grep -q pinned-ok ~/Library/LaunchAgents/com.damduy.vieneu.plist
           grep "VieNeu model:" ~/VieNeu-TTS/server.log | tail -1 | grep -q offline
@@ -240,14 +259,14 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      # Until the release is published (node tools/publish-share.js --release-model) installs fall
-      # back to Hugging Face at the pinned revision, and this job only says so. Once it exists, every
-      # asset must download and match the pin byte for byte, with no fallback.
+      # The release comes first (node tools/publish-share.js --release-model), the push second: a
+      # missing release fails here. Every asset must download and match the pin byte for byte, with
+      # no fallback.
       - name: Every pinned file downloads from the release and matches
         shell: bash
         run: |
           read -r repo tag < <(python3 -c 'import json; r = json.load(open("extension/tools/vieneu-model.json"))["release"]; print(r["repo"], r["tag"])')
           code="$(curl -s -o /dev/null -w '%{http_code}' "https://github.com/$repo/releases/tag/$tag")"
-          if [ "$code" = 404 ]; then echo "release $tag not published yet: installs use Hugging Face at the pinned revision"; exit 0; fi
+          if [ "$code" = 404 ]; then echo "::error::release $tag is not published: publish it first (node tools/publish-share.js --release-model), then push"; exit 1; fi
           python3 extension/tools/vieneu-pin.py --install --no-hf --hf-home "$RUNNER_TEMP/hf" --vieneu "$RUNNER_TEMP/none" | grep -v '\.\.\. '
           test -f "$RUNNER_TEMP/hf/.pinned-ok"

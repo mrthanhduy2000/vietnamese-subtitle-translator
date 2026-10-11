@@ -18,9 +18,7 @@ Closed (story in git and `version-history.js`): 1-4 (1.6.4), 6, 10 and 12 (1.9.4
 25 (merged into 31), 32 and 34 (1.8.7), 35 (1.9.8), 38 (every lead checked, none kept; numbers in
 `DUBBING.md` under the 1.9.9 buffer), 7 (two palettes, two designs), 24 (2.2.4: Vietnamese
 abbreviations in `VI_CAPS`, a code the English source lacks reads Vietnamese), 37 the translation
-timeout (0 late of 268 Gemini calls, Sep 28-29 ledger: the timeout stays), 42 friends' installs on
-the pinned model (2026-10-11: release assets, `vieneu-pin.py --install` in both installers and the
-updater, the marker read at every server start; `DUBBING.md` "Pinned model").
+timeout (0 late of 268 Gemini calls, Sep 28-29 ledger: the timeout stays).
 Closed 2026-09-29 in the full backlog pass (2.2.6):
 - Fixed: 20 (cold VieNeu warm-up, `handleLocalWarm`), 16 (explaining copulas; every eval set WRONG 0).
 - Unreachable while the paid voice is off (`PAID_TTS` false; the service worker refuses every Gemini
@@ -53,7 +51,12 @@ none
 
 ## Dubbing
 
-none
+- **42. Friends' installs fetch an unpinned model from Hugging Face** *(found 2.5.0, 2026-10-10)*.
+  The code is built and reviewed (2026-10-11: `tools/vieneu-pin.py --install` in both installers and
+  the updater, the release assets, start scripts that stat every file the marker lists, the updater's
+  repair; `DUBBING.md` "Pinned model"). Remaining: publish the release
+  (`node tools/publish-share.js --release-model`), bump the version, push the share repo, install test
+  green on all 5 machines. Until then friends still get the model from Hugging Face `main`.
 
 ## No version control history before 2026-09-23
 

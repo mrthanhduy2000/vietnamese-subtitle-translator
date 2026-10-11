@@ -27,7 +27,8 @@ UPD_LABEL="com.damduy.dichphude.update"     # the background updater (tools/dich
 UPD_PLIST="$HOME/Library/LaunchAgents/$UPD_LABEL.plist"
 UPD="$HOME/Desktop/Cập nhật Dịch Phụ Đề.command"
 # The pinned voice model lives inside the VieNeu folder; the start scripts read it offline only
-# while this marker is there (tools/vieneu-pin.py writes it once every file is checked)
+# while this marker is there and every file it lists is whole (tools/vieneu-pin.py writes it once
+# every file is checked)
 PIN_MARK="models/hf/.pinned-ok"
 
 say() { printf '\n==> %s\n' "$*"; }
@@ -39,6 +40,36 @@ is_vieneu() { curl -s -m 3 "http://127.0.0.1:$PORT/health" 2>/dev/null | grep -q
 # down the author's own voice server.
 service_is_ours() { grep -qF "$VN_DIR/.venv/bin/python" "$PLIST" 2>/dev/null; }
 updater_is_ours() { grep -qF "$VN_DIR/dichphude-update.py" "$UPD_PLIST" 2>/dev/null; }
+# The background updater's LaunchAgent. Under the install test (DPD_REF set) it carries DPD_REF, so
+# the updater it starts reads the commit under test, as the installer did; without it, no
+# EnvironmentVariables at all (a friend's plist is unchanged).
+updater_plist() {
+    local env=""
+    if [[ -n "${DPD_REF:-}" ]]; then
+        env="    <key>EnvironmentVariables</key><dict><key>DPD_REF</key><string>$DPD_REF</string></dict>
+"
+    fi
+    cat <<PLISTEOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key><string>$UPD_LABEL</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>$VN_DIR/.venv/bin/python</string>
+        <string>$VN_DIR/dichphude-update.py</string>
+    </array>
+    <key>WorkingDirectory</key><string>$VN_DIR</string>
+${env}    <key>RunAtLoad</key><true/>
+    <key>StartInterval</key><integer>1800</integer>
+    <key>ProcessType</key><string>Background</string>
+    <key>StandardOutPath</key><string>/dev/null</string>
+    <key>StandardErrorPath</key><string>/dev/null</string>
+</dict>
+</plist>
+PLISTEOF
+}
 
 [[ "$(uname -s)" == Darwin ]] || die "Tệp này dành cho macOS. Máy Windows dùng install-windows.ps1."
 
@@ -161,8 +192,15 @@ if [[ $WITH_VOICE == 1 ]]; then
 cd "$VN_DIR" || exit 1
 export HOST=127.0.0.1 PORT=$PORT VIENEU_BACKEND=onnx VIENEU_DEVICE=cpu VIENEU_PRECISION=fp32
 export VIENEU_QUEUE=4 VIENEU_QUEUE_TIMEOUT=20
-# The pinned model, offline, only behind its marker (tools/vieneu-pin.py)
-if [[ -f $PIN_MARK ]]; then export HF_HOME="$VN_DIR/models/hf" HF_HUB_OFFLINE=1; fi
+# The pinned model, offline, only behind its marker and only while every file it lists is there at
+# its size (tools/vieneu-pin.py; the same check as the service plist). POSIX sh, zsh alike.
+pinned_ok() { [ -f $PIN_MARK ] || return 1; cat $PIN_MARK | ( n=0; while read -r k a b; do case "\$k" in ref) [ "\$(cat "models/hf/\$b" 2>/dev/null)" = "\$a" ] || exit 1;; size) [ "\$(stat -f%z "models/hf/\$b" 2>/dev/null)" = "\$a" ] || exit 1; n=\$((n+1));; esac; done; [ "\$n" -gt 0 ] ); }
+if pinned_ok; then
+    export HF_HOME="$VN_DIR/models/hf" HF_HUB_OFFLINE=1
+    echo "VieNeu model: pinned copy in models/hf, offline"
+elif [ -f $PIN_MARK ]; then
+    echo "VieNeu model: pinned copy incomplete, fetched from Hugging Face"
+fi
 exec .venv/bin/python -m apps.openai_speech
 EOF
     chmod +x "$VN_DIR/cst-start.command"
@@ -200,26 +238,7 @@ EOF
             say "Bỏ qua tự cập nhật: máy đã có $UPD_PLIST của một bản cài khác."
         else
             mkdir -p "$HOME/Library/LaunchAgents"
-            cat > "$UPD_PLIST" <<PLISTEOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key><string>$UPD_LABEL</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>$VN_DIR/.venv/bin/python</string>
-        <string>$VN_DIR/dichphude-update.py</string>
-    </array>
-    <key>WorkingDirectory</key><string>$VN_DIR</string>
-    <key>RunAtLoad</key><true/>
-    <key>StartInterval</key><integer>1800</integer>
-    <key>ProcessType</key><string>Background</string>
-    <key>StandardOutPath</key><string>/dev/null</string>
-    <key>StandardErrorPath</key><string>/dev/null</string>
-</dict>
-</plist>
-PLISTEOF
+            updater_plist > "$UPD_PLIST"
             launchctl bootout "gui/$(id -u)/$UPD_LABEL" 2>/dev/null || true
             sleep 1
             launchctl bootstrap "gui/$(id -u)" "$UPD_PLIST" 2>/dev/null \
