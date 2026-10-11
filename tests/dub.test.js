@@ -278,18 +278,24 @@ test("the second part of a sentence keeps the pace of the first; a new sentence 
         return eng;
     };
     // A is read fast (its audio 1.2x its slot), B's audio fits its own slot at about 1.0
+    const syl = p => p.phrases.reduce((x, ph) => x + ph.syl, 0);
     const pair = (eng, i, lagB) => {
         const A = eng.plans[i], B = eng.plans[i + 1];
-        const a = eng.chooseRate(A, { duration: (B.start - A.start) * 1.2 }, A.start, 0, 0);
+        const dA = (B.start - A.start) * 1.2, dB = (B.end - B.start) * 0.95;
+        const a = eng.chooseRate(A, { duration: dA }, A.start, 0, 0);
         eng.lastSpokenId = A.id;
         const t = lagB ? B.start + lagB : eng.lastRateEnd + 0.02;
-        return [a, eng.chooseRate(B, { duration: (B.end - B.start) * 0.95 }, t, 0, Math.max(0, t - B.start))];
+        return [a, eng.chooseRate(B, { duration: dB }, t, 0, Math.max(0, t - B.start)), syl(A) / dA, syl(B) / dB, Math.min(syl(A), syl(B))];
     };
     const eng = make();
     const i = eng.plans.findIndex(p => p.continuesNext);
     assert.ok(i >= 0, "the lecture has a sentence read in two parts");
-    const [a, b] = pair(eng, i);
-    assert.ok(Math.abs(b - a) <= SYNC.rateStepInSentence + 1e-9, `inside a sentence ${a.toFixed(3)} -> ${b.toFixed(3)}`);
+    const [a, b, nativeA, nativeB, minSyl] = pair(eng, i);
+    // (2.5.1) the pace kept is the one heard: A's rate x A's own syllables per second, over B's own,
+    // at most paceComp from A's rate (two takes of one voice are not read at the same pace)
+    const ref = minSyl >= SYNC.paceCompMinSyl ? Math.max(a * (1 - SYNC.paceComp), Math.min(a * (1 + SYNC.paceComp), a * nativeA / nativeB)) : a;
+    assert.ok(Math.abs(b - ref) <= SYNC.rateStepInSentence + 1e-9, `inside a sentence ${a.toFixed(3)} -> ${b.toFixed(3)} (reference ${ref.toFixed(3)})`);
+    assert.ok(Math.abs(b * nativeB - a * nativeA) < Math.abs(a * nativeB - a * nativeA), "closer to the first part's heard pace than the same rate would be");
     // a new sentence may ease down by rateStepDown
     const eng2 = make();
     const j = eng2.plans.findIndex((p, k) => k > 0 && !p.continuesNext && eng2.plans[k + 1] && eng2.plans[k + 1].start - p.end < 1);
@@ -298,6 +304,75 @@ test("the second part of a sentence keeps the pace of the first; a new sentence 
     // a voice 2 s behind catches up even inside a sentence
     const [a3, b3] = pair(make(), i, 2);
     assert.ok(b3 - a3 > SYNC.rateStepInSentence, `behind ${a3.toFixed(3)} -> ${b3.toFixed(3)}`);
+});
+
+// (2.5.1) Chrome starts a fresh element, or one it suspended after ~15 s idle, cold (0.25-0.75 s while
+// the server works): between lines the next take's element is made shortly before its line
+test("between lines the next take's element is made shortly before its line; a stale unplayed one is made again, a playing one never touched", () => {
+    const { SYNC } = require("../dub-engine.js");
+    const clock = new Clock(), video = new FakeVideo();
+    const groups = lectureGroups();
+    const made = [];
+    const prov = { id: "gemini", caps: { prerender: true }, voiceModel: PLAN.DEFAULT_VOICE_MODEL, render: async () => [] };
+    const eng = new DubEngine({ video, getGroups: () => groups, providers: { primary: prov },
+        now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id),
+        createAudio: url => { const a = new FakeAudio(clock, { duration: 2 }); a.url = url; made.push(a); return a; } }, {});
+    eng.refresh(true);
+    const [A, B] = eng.plans;
+    eng.lastSpokenStart = A.start;
+    const r = { url: "blob:b", duration: 2 };
+    eng.rendered.set(B.id, r);
+    eng.prewarm(B.start - SYNC.prewarmAhead - 0.5);
+    assert.equal(r.el, undefined, "too early: nothing made yet");
+    eng.prewarm(B.start - SYNC.prewarmMin / 2);
+    assert.equal(r.el, undefined, "too late to help: the line's own start makes it");
+    eng.prewarm(B.start - 1);
+    assert.ok(r.el && r.madeAt === clock.now(), "made a second before its line");
+    const first = r.el;
+    clock.ms += SYNC.prewarmIdle * 1000 - 100;
+    eng.prewarm(B.start - 1);
+    assert.equal(r.el, first, "still fresh: kept");
+    clock.ms += 200;
+    eng.prewarm(B.start - 1);
+    assert.ok(r.el !== first && made.length === 2, "unplayed past prewarmIdle: made again");
+    // a playing (or fading) element is never replaced
+    r.el.play();
+    clock.ms += SYNC.prewarmIdle * 1000 + 100;
+    const playing = r.el;
+    eng.prewarm(B.start - 1);
+    assert.equal(r.el, playing);
+    // a short next take: the line after it gets its element while the current line plays
+    const C = eng.plans[2], rc = { url: "blob:c", duration: 2 };
+    eng.rendered.set(C.id, rc);
+    r.el = null;
+    r.duration = SYNC.prepTwoUnder - 0.2;
+    eng.prepareNext(A.id);
+    assert.ok(r.el && rc.el, "the next two takes have elements");
+});
+
+test("a line already over a second late when the last one ends follows after a short breath, not a full stop's pause", () => {
+    const { SYNC } = require("../dub-engine.js");
+    const clock = new Clock(), video = new FakeVideo();
+    const groups = lectureGroups();
+    const prov = { id: "gemini", caps: { prerender: true }, voiceModel: PLAN.DEFAULT_VOICE_MODEL, render: async () => [] };
+    const eng = new DubEngine({ video, getGroups: () => groups, providers: { primary: prov },
+        now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id) }, {});
+    eng.refresh(true);
+    const k = eng.plans.findIndex((p, j) => !p.continuesNext && eng.plans[j + 1]);
+    const A = eng.plans[k], B = eng.plans[k + 1];
+    eng.rendered.set(B.id, { url: "blob:b", duration: 2 });
+    const after = (late, wait) => {
+        eng.lastSpokenStart = A.start; eng.lastSpokenId = A.id;
+        eng.lastSpeechEnd = B.start + late; eng.lastSpeechGap = SYNC.sentenceGap;
+        const n = eng.nextSpeech(eng.lastSpeechEnd + wait);
+        return n && n.p.id;
+    };
+    assert.ok(SYNC.lagRest < SYNC.sentenceGap);
+    const mid = (SYNC.lagRest + SYNC.sentenceGap) / 2;
+    assert.equal(after(SYNC.lagBoostAt + 0.5, mid), B.id, "behind: only lagRest");
+    assert.equal(after(SYNC.lagBoostAt + 0.5, SYNC.lagRest / 2), null, "still a breath");
+    assert.equal(after(SYNC.lagBoostAt - 0.5, mid), null, "not that far behind: the full rest");
+    assert.equal(after(SYNC.lagBoostAt - 0.5, SYNC.sentenceGap + 0.01), B.id);
 });
 
 // ================= 4. AUDIO THẬT (giọng tiếng Việt "Linh" tạo bằng TTS macOS) =================
@@ -1285,8 +1360,9 @@ test("slow server: a close line whose take is still being made keeps the origina
     } });
     assert.ok(shortGaps >= 10, `too little measured: ${shortGaps} short gaps`);
     assert.equal(pumps, 0, `${pumps} of ${shortGaps} short gaps let the original up and down again`);
-    // Held at most duckBridge (2 s) after a line, plus duckHold and the ramp back up
-    assert.ok(longestDown <= 3000, `the original held down ${longestDown} ms with no voice`);
+    // Held at most duckBridge after a line, plus duckHold and the ramp back up
+    const { SYNC } = require("../dub-engine.js");
+    assert.ok(longestDown <= (SYNC.duckBridge + 1) * 1000, `the original held down ${longestDown} ms with no voice`);
 });
 
 test("playback delivery: stopping the engine (another video, dubbing off) drops its queued requests", async () => {

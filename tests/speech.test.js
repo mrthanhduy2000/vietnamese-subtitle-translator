@@ -226,6 +226,26 @@ test("engine: the voice is sent the rendered text, the pauses are placed on the 
     assert.notEqual(k1, k2);
 });
 
+test("an interruption \"--\" is spoken as a comma, a digit range keeps its dashes, the commas left around it are tidied", () => {
+    const E = require("../dub-engine.js");
+    const plan = (text, continuesNext = false) => ({ id: "d", phrases: [{ text, breakKind: null, syl: 8 }], continuesNext, speaker: "S1" });
+    assert.equal(E.plainScript(plan("Tôi biết anh không thích nói về bản thân vì-- Vâng")), "Tôi biết anh không thích nói về bản thân vì, Vâng.");
+    assert.equal(E.plainScript(plan("Vậy chúng ta -- Tôi đâu có nói thế")), "Vậy chúng ta, Tôi đâu có nói thế.");
+    // a comma already after the dashes, a dash before the full stop, one at the very start
+    assert.equal(E.plainScript(plan("chúng ta sẽ làm thế này--, giả sử đó là khuyến nghị")), "chúng ta sẽ làm thế này, giả sử đó là khuyến nghị.");
+    assert.equal(E.plainScript(plan("Đó là một khoảng lặng rất dài vì--.")), "Đó là một khoảng lặng rất dài vì.");
+    assert.equal(E.plainScript(plan("--Tôi nghĩ điều đó rất quan trọng.")), "Tôi nghĩ điều đó rất quan trọng.");
+    // the comma the line ends on before its closing full stop goes too
+    assert.equal(E.plainScript(plan("Tôi nghĩ nếu bạn sẵn sàng đón nhận-- Vâng,")), "Tôi nghĩ nếu bạn sẵn sàng đón nhận, Vâng.");
+    // a part that runs on keeps the comma it ends on (a pause, not a full stop)
+    assert.equal(E.plainScript(plan("Bạn sẽ cắt giảm--", true)), "Bạn sẽ cắt giảm,");
+    // a range between two digits is not an interruption
+    assert.equal(E.plainScript(plan("Hãy nghỉ 5--10 phút giữa hai hiệp")), "Hãy nghỉ 5--10 phút giữa hai hiệp.");
+    // a line without "--" is left exactly as before, its own ",." included (its cached take keeps its key)
+    assert.equal(E.plainScript(plan("Bạn có gọi thêm gì nữa không,")), "Bạn có gọi thêm gì nữa không,.");
+    assert.equal(E.speakScript(plan("Anh cần-- Ngủ")), "Anh cần, Ngủ.");
+});
+
 test("service worker: VieNeu is sent req.speak, the pauses and the runaway check keep the plain text; no speak, no change", async () => {
     const { bgEnv } = require("./bg-env.js");
     const COST = require("../cost-policy.js");
