@@ -4,6 +4,25 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.5.1", luc: "11/10/2026", ten: "Giọng Mỹ Duyên đều nhịp hơn, mô hình giọng nằm trong máy",
+            y: [
+                "Nhịp đọc giữa hai câu liền nhau đều hơn: tốc độ giảm từ từ thay vì lên xuống liên tục, và tiện ích tính cả nhịp riêng của từng câu VieNeu đọc ra, không chỉ tốc độ phát. Đo trên 45 video đã lưu, số cặp câu nghe chênh nhịp quá 15% giảm gần một nửa; ngay trong cùng một câu gần như không còn.",
+                "Khi giọng đang chậm hơn phụ đề, khoảng nghỉ giữa hai câu rút còn 0,12 giây để bắt kịp, nên số câu trễ quá 4,5 giây giảm một nửa. Không câu nào bị bỏ, không chữ nào bị lược.",
+                "Âm thanh gốc của video không còn bật lên rồi tụt xuống trong những quãng lặng ngắn 2 đến 2,5 giây giữa hai câu.",
+                "Câu bị ngắt bằng \"--\" (người nói bị cắt lời) nay có khoảng ngừng, không còn đọc dính hai chữ vào nhau.",
+                "Mô hình giọng 580 MB nay nằm cố định trong thư mục VieNeu và được kiểm từng tệp, không còn nằm trong thư mục đệm mà công cụ dọn đĩa hay xóa. Máy chủ giọng chạy không cần mạng, khởi động khoảng 2 giây.",
+                "Báo lỗi khi giọng VieNeu chưa chạy nay chỉ đúng tệp cho máy Windows. Bảng điều khiển không còn báo \"Đã kích hoạt phụ đề\" khi video thật ra chưa bắt đầu dịch được.",
+                "Tiện ích bỏ hai quyền truy cập phông chữ không dùng tới, và bớt một lần đọc toàn bộ bộ nhớ đệm mỗi khi lưu bản dịch đã tinh chỉnh."
+            ],
+            bang: { cot: ["45 video đã lưu (mô phỏng)", "2.5.0", "Nay"], hang: [
+                ["Cặp câu liền nhau nghe chênh nhịp quá 15%", "585", "284"],
+                ["Chênh nhịp quá 15% trong cùng một câu", "102", "15"],
+                ["Câu bắt đầu trễ quá 4,5 giây", "67", "30"],
+                ["Lần âm gốc bật lên rồi tụt xuống giữa hai câu", "408", "68"],
+                ["Câu bị bỏ / chữ bị lược", "0 / 0", "0 / 0"]
+            ] }
+        },
+        {
             v: "2.5.0", luc: "", ten: "Coursera có giọng Việt ngay từ câu đầu",
             y: [
                 "Coursera tự phát bài giảng chỉ 2 đến 3 giây sau khi mở, lúc phụ đề còn đang dịch và giọng chưa kịp tạo. Đo thật trên một bài đã dịch sẵn: câu chào đầu bài không được đọc, giọng chỉ vào từ câu thứ hai; bài chưa dịch thì phải tới khoảng giây thứ 7 mới có giọng.",
