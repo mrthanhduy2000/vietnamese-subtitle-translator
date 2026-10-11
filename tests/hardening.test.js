@@ -1307,10 +1307,11 @@ test("nhịp nói BÁM PHỤ ĐỀ mà vẫn ĐỀU: nói xong gần mốc cuố
             assert.ok(d <= 0.1 + 1e-9 && d >= -0.06 - 1e-9, `nhịp nhảy ${rates[i - 1]} -> ${rates[i]}`);
         }
         assert.equal(S.eng.stats.dropped, 0);
-        // Lời không chạy trước phụ đề: câu kết thúc sớm hơn mốc cuối phụ đề > 0,6 giây chỉ khi
-        // tốc độ đã bị giới hạn: chậm nhất cho phép, hoặc chỉ được giảm 0,06 so với câu trước
-        // (làm mượt, đánh đổi có chủ ý để nhịp không đổi đột ngột)
-        const early = st.filter((x, i) => x.speechEnd < x.cueEnd - 0.6 && x.rate > floor + 1e-6 && !(i > 0 && Math.abs(x.rate - (st[i - 1].rate - 0.06)) < 1e-6));
+        // The voice does not run ahead of the subtitle: a line ends over 0.6 s before its cue only
+        // when the rate was held: at the voice's floor, or only SYNC.rateStepDown below the line
+        // before (smoothing, a deliberate trade so the pace does not change abruptly)
+        const stepDown = E_ENGINE.SYNC.rateStepDown;
+        const early = st.filter((x, i) => x.speechEnd < x.cueEnd - 0.6 && x.rate > floor + 1e-6 && !(i > 0 && Math.abs(x.rate - (st[i - 1].rate - stepDown)) < 1e-6));
         assert.equal(early.length, 0, `chạy trước phụ đề: ${JSON.stringify(early.map(x => [x.speechEnd.toFixed(2), x.cueEnd.toFixed(2), x.rate.toFixed(2)]))}`);
     }
 });

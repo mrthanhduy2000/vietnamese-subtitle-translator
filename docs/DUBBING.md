@@ -79,6 +79,15 @@ read. `buildDubScript` takes the labels in capitals that the group's own source 
 a sentence end or a "--", also when a line ends on the label). The 3-hour podcast UIy-WQCZd4M read
 262 of them; on the simulator its dropped lines went 54 -> 4. Test: `tests/dub.test.js` "script: a
 speaker label". `playback-sim.js` counts lost words against the same stripped text.
+2.5.1 (`dub-engine.js` `scriptBase`, so VieNeu only; the subtitles and `geminiScript` keep the text):
+a speaker cut off mid-thought is written "vì-- Vâng". Such a "--" is now read as the comma it is
+("vì, Vâng"), unless a digit stands on both sides (a range, "5--10"); then, in that line only, ",,",
+a comma before other punctuation, a leading comma and a comma left before the closing full stop go
+("đón nhận-- Vâng," -> "đón nhận, Vâng."; "vì--." -> "vì."). 53 of 7,795 lines on the 45 saved
+videos change (their takes are made again once, free); 13 lines end in ",." without a dash and are
+left alone. A changed line can also move `breathText`'s breathing commas (the new comma shortens the
+stretch it measures). Simulator: late 1653 -> 1648 (the fake server's take length is seeded by the
+spoken text). Test: `tests/speech.test.js` "an interruption".
 
 ## English inside Vietnamese speech (1.7.8, `dub-speech.js`)
 
@@ -567,8 +576,8 @@ Knobs you will actually reach for:
   voice is not a sped-up slow one and the step limits allow (21/24 Thục Đoan sentences, no stretch).
 - **Rate**: `chooseRate` clamps per sentence to `[floorRate(), maxSpeechRate 1.3]`, rising to
   `lagMaxSpeechRate` 1.4 once lag passes `lagBoostAt` 1.0. Between sentences the change is smoothed
-  (`rateStepUp` 0.1, `rateStepDown` 0.06) because the user's complaint was uneven pace, not
-  wrong pace. 2.0.7: the next part of a sentence the voice is still reading moves at most
+  (`rateStepUp` 0.1, `rateStepDown` 0.04; 0.06 until 2.5.1) because the user's complaint was uneven
+  pace, not wrong pace. 2.0.7: the next part of a sentence the voice is still reading moves at most
   `rateStepInSentence` 0.03 up; down too when it is the sentence's last part (a part that goes on
   may still slow down freely: finishing early there left a 0.38 s silence mid-sentence in the
   hidden-tab test). Not when the voice is more than `lagBoostAt` behind. Rapid-seek matrix: parts
@@ -580,6 +589,46 @@ Knobs you will actually reach for:
   876, late 280 -> 276; a small gain for steps that fall at a sentence end, where a reader's pace
   moves as much. `baseTempo` comes from the voice's **measured** syllables per second (`measureVoice`,
   EMA 0.25), not a constant. `floorRate` divides by `video.playbackRate`.
+- **Smoother pace (2.5.1, "Mỹ Duyên nghe không đều")**: two measurements found where the uneven pace
+  comes from: line-to-line rate choices (a fast talk climbed 0.1, fell 0.06, climbed again) and each
+  take's own pace (VieNeu reads one line slower than the next, so the same rate is not the same pace
+  to the ear). Four changes, all in `SYNC`:
+  - `rateStepDown` 0.06 -> 0.04 with `lookAhead` 3 -> 5 and `lookAheadEarly` 0.5 -> 1.0: a dense
+    stretch is climbed towards earlier and left more gently.
+  - A part that runs on into the next part of its sentence may step down `rateStepDownJoined` 0.08
+    when the gentle step would end it more than `midSilenceMax` 0.4 s before that part may chain on
+    (`chainLead`): without it the slower descent left those parts finishing early, 120 s more
+    silence mid-sentence over the 45 videos (excess beyond the intended rest 1080 -> 1200 s).
+  - Heard pace (`paceComp` 0.05, `paceCompMinSyl` 8): the smoothing steps from the last line's heard
+    pace (its rate x its take's syllables per second) over this take's own pace, kept within 5% of the
+    last rate, when both takes have 8+ syllables (a short take's own pace is too noisy). The ceiling
+    hold after a catch-up still uses the rate really played; the result is clamped to `lagCeiling`
+    and the viewer's cap again after the in-sentence step. `lastHeard` / `lastHeardSyl` carry it.
+  - `lagRest` and the warm elements (Delivery, "Pace and warm elements").
+  Measured on the 45 saved videos (simulator, Mỹ Duyên 3.8 syllables/s, `LATENCY=busy`, 7,748 lines;
+  heard pace = rate x the take's syllables per second, a pair = two lines under 1 s apart, 5,262 to
+  5,507 pairs; scratch scripts, not in the repo):
+
+  | | 2.5.0 | rate steps only | A: + `lagRest`, warm elements | A + `duckBridge` 2.5 | + heard pace 0.05 (kept) | + heard pace 0.08 |
+  |---|---|---|---|---|---|---|
+  | starts over 0.5 s late | 1802 | 1658 | 1616 | 1616 | 1653 | 1696 |
+  | over 1 s / 2 s / 4.5 s | 1116 / 434 / 67 | 1011 / 389 / 60 | 940 / 308 / 33 | same | 962 / 306 / 30 | 978 / 313 / 32 |
+  | delivery gaps (n, s) | 68, 12.25 | 69, 12.9 | 52, 8.59 | same | 53, 8.72 | 54, 8.81 |
+  | heard pace: neighbour spread (sd) | 8.8% | 8.5% | 8.5% | same | 7.35% | 7.0% |
+  | heard pace: pairs jumping > 15% / > 10% | 585 / 1369 | 486 / 1243 | 491 / 1236 | same | 284 / 775 | 236 / 619 |
+  | ... of them inside one sentence (> 15%) | 102 | 89 | 95 | same | 15 | 7 |
+  | heard see-saws (up then down, both > 5%) | 942 | 865 | 864 | same | 594 | 506 |
+  | original let up and down again (pumps) | 408 | 422 | 421 | 72 | 68 | 73 |
+
+  Spoken 7,748, dropped 0 and words lost 0 in every column. The playback rate itself now changes more
+  often (rate steps of 0.05 or more 2,134 -> 3,000): it moves to keep the heard pace even, which is the
+  point. 0.08 was not kept: 48 fewer heard jumps than 0.05 for 43 more late starts, and the rapid-seek
+  matrix late 27 -> 31 (0.05: 27 -> 27); per video the cost is concentrated (krPKW8J6JSM late 15 -> 21
+  at 0.05, its heard jumps 11 -> 4). Slow matrix 2101/507/753 -> 2102/509/755 (spoken, late, gap s);
+  scenarios late 87 -> 78. The simulator agent's own see-saw count (rate steps of 0.05 or more both
+  ways, 939 -> 118 with A) mostly measures that a 0.04 step falls under its threshold: use the heard
+  numbers above. A test pins the heard reference ("the second part of a sentence keeps the pace").
+  Not verified by ear yet.
 - **Chaining**: `chainLead` was cut from 2.0s to 0.8s because starting early accumulated error
   across chained segments. `continuesNext` treats gaps up to 1.5s as one continuous span.
 - **Skipping**: whole sentences only, never mid-sentence. 2.4.2: a line past `maxQueueLag` was read
@@ -609,9 +658,9 @@ Knobs you will actually reach for:
   `planNeed(i)` = natural audio length (rendered, else syllables / measured voice sps) over its slot,
   syllable-weighted median (`mid`) and upper quartile (`high`). `paceLimits` raises the ceiling to
   `min(paceCeilingMax 1.55, high * 1.08, maxSpokenSps 5.8 / sps)` (+0.1 while lagging) and the floor
-  to `mid * 0.92` when `mid > 1`. `chooseRate` also looks `lookAhead` (3) plans ahead and starts
-  climbing early, bounded so the current sentence ends at most `lookAheadEarly` (0.5 s) before its
-  subtitle. Simulated with Kim Thanh on two real cached timelines: lag over 1 s 3 -> 0 and 5 -> 1,
+  to `mid * 0.92` when `mid > 1`. `chooseRate` also looks `lookAhead` (5; 3 until 2.5.1) plans ahead
+  and starts climbing early, bounded so the current sentence ends at most `lookAheadEarly` (1.0 s;
+  0.5 until 2.5.1) before its subtitle. Simulated with Kim Thanh on two real cached timelines: lag over 1 s 3 -> 0 and 5 -> 1,
   a slow speaker (timeline x1.35) unchanged. Measured live on 4eY5DuqASQc 8:25 to end (1.6.1, Kim Thanh):
   peak start lag 1.88 -> 0.43 s, overrun 1.76 -> 0.42 s, top rate 1.40 -> 1.41, none dropped. Harness: a session scratch script (not in the repo); the same case lives in
   `tests/dub.test.js` "slow voice on a fast speaker".
@@ -670,7 +719,7 @@ Knobs you will actually reach for:
   whenever that is known: its take is in the page (by `nextSpeech`'s own rules: the rest after the
   last line, `chainLead` for a running sentence, the subtitle start after a start or seek), or it is
   the system voice's next phrase (`tickLive`'s due time; `live.endMedia` is set in `onend`). A gap
-  under `SYNC.duckBridge` 2.0 wall seconds keeps the original down; after a longer one it comes down
+  under `SYNC.duckBridge` 2.5 wall seconds (2.0 until 2.5.1) keeps the original down; after a longer one it comes down
   a ramp's length (~0.45 s) before the line. It is let up when the line is `duckHold` late. While
   paused, loading or stalled with a line under way (`speech`, a system-voice phrase the pause cut) or
   about to start, the duck holds instead of releasing, and a system-voice phrase still speaking past
@@ -691,6 +740,13 @@ Knobs you will actually reach for:
   (`sim-matrix slow`, 144 runs, 2 seeks each): short-gap pumps 197 -> 8 (all 8 across a seek), lines
   beginning over it above 50% 594 -> 382 (the rest are first lines after a start or seek), silent
   time with it down 22.1 -> 25.9%. Delivery identical (slow matrix, system-voice logs).
+  2.5.1: `duckBridge` 2.0 -> 2.5. On the 45 saved videos the original still came up and went down
+  again (above the halfway point in dB, back at the duck level within 2 s while playing) 421 times
+  with the 2.5.1 pace changes; nearly all in gaps of 2 to 2.5 s, where it reached full only to be
+  pulled down for the next line: 421 -> 72 (2.5.0: 408), times it came up at all 1158 -> 809. The 24
+  scenarios: 94 -> 26. Delivery identical (every late, gap and lag number of the 45 videos and the
+  scenarios). With no voice the original is now held down up to `duckBridge` + `duckHold` + the ramp
+  (~3.3 s); the bound in `tests/dub.test.js` "slow server" follows `duckBridge` (+ 1 s).
 
 **Planning window (1.6.3).** `refresh` plans only groups overlapping
 `[step*planStep - planBehind, (step+1)*planStep + planAhead]` (60 / 150 / 300 s) plus one group past
@@ -719,7 +775,8 @@ Pipeline, per line: group translated -> `refresh` plans the window -> `schedule`
 (page L1, then the service worker's store) -> one request at a time to VieNeu (`maxBatch` 1, `serial`)
 -> `background.js` queue (`localSerial`), same-key requests join one flight (`ttsInFlight`), store
 checked first, take written to the store before the reply -> `addRendered` (blob URL, no element)
--> `prepareNext` builds the next line's element while the current one plays -> `nextSpeech` /
+-> `prepareNext` builds the next line's element while the current one plays (`prewarm` between
+lines, 2.5.1) -> `nextSpeech` /
 `tickBuffer` start it on the video clock (`ended` event re-ticks at once; `gapTimer` for the rest)
 -> `releaseAudio` when it ends. Priority is implicit and recomputed every tick: `todo` is sorted by
 start from the current time, so the line about to play always goes first; no queue framework.
@@ -767,6 +824,26 @@ What changed, each for a measured cause:
   per voice start, the cause behind a future "pop" report on a busy machine.
 Not changed on purpose: prefetch horizon (`prefetchAhead` already scales with latency and rate: no
 gap at 1.5x / 2x), rate choice, drift, ducking, prosody, the paid-voice cache keys.
+
+### Pace and warm elements (2.5.1)
+
+Two delivery parts of the 2.5.1 pace work (the rate part and the full table are under "Smoother
+pace" in the SYNC section). Measured on the 45 saved videos (simulator, `LATENCY=busy`), each by
+turning it off in the 2.5.1 setup without heard pace (`paceComp` 0):
+- **A short breath when behind** (`nextSpeech`, `SYNC.lagRest` 0.12): when the next line was already
+  more than `lagBoostAt` (1 s) late as the last one ended, the rest after that line is at most 0.12 s
+  instead of a full stop's 0.18 (or a clause's 0.15). The next line is found with `planAt`. Starts over
+  4.5 s late 60 -> 33, over 2 s 385 -> 308, over 0.5 s 1654 -> 1616, delivery gaps 60 -> 52.
+- **Warm elements** (`prepareNext`, `prewarm`, `makeEl` / `r.madeAt`): Chrome starts an element made
+  just before its line, or one it suspended after ~15 s idle, cold (0.25 to 0.75 s while the server
+  works, the simulator's `LATENCY=busy` model of chrome://media-internals). After a take shorter than
+  `prepTwoUnder` 1.2 s, `prepareNext` also makes the element of the line after it. Between lines
+  (nothing speaking, the next line not due), `prewarm` makes the next take's element once its line is
+  less than `prewarmAhead` 3 media s away (and more than `prewarmMin` 0.3 s), and makes it again when
+  it sat unplayed (paused, at 0, no fade running) longer than `prewarmIdle` 12 s. A playing or fading
+  element is never touched. Delivery gaps 61 -> 52 (12.32 -> 8.59 s), silences of more than 0.5 s
+  beyond the intended rest with the next line already due 6 -> 0, late 1619 -> 1616. Cost: one more
+  element alive between lines (`maxEls` 2 -> 3 in 20 of the 24 scenarios). Real Chrome not measured.
 
 ### The start hold on each site (2.5.0)
 
