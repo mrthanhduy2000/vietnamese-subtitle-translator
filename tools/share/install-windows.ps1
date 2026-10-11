@@ -28,7 +28,8 @@ $Mark = '.dichphude-vieneu'
 $UpdCmd = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Cap nhat Dich Phu De.cmd'
 $OldUpdLink = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Cap nhat Dich Phu De.lnk'   # 2.4.9 to 2.5.0
 # The pinned voice model lives inside the VieNeu folder; run-vieneu.pyw reads it offline only while
-# this marker is there (vieneu-pin.py writes it once every file is checked)
+# this marker is there and every file it lists is whole (vieneu-pin.py writes it once every file
+# is checked)
 $PinMark = 'models\hf\.pinned-ok'
 
 function Say($m) { Write-Host ''; Write-Host "==> $m" -ForegroundColor Cyan }

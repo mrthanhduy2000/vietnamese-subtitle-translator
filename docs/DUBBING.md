@@ -1078,27 +1078,52 @@ network cut, Mỹ Duyên read 5 sentences at RTF 0.22 to 0.34; through the real 
 keeps the **old** environment: bootout + bootstrap. Backup and undo: `~/VieNeu-Backups/2026-10-10-before-pinned-model/RESTORE.md`,
 repo tag `backup/before-pinned-model-2026-10-10`.
 
-**Friends get the same pinned model (2026-10-11, BACKLOG 42 closed).** The 15 files are assets of one
+**Friends get the same pinned model (built 2026-10-11; BACKLOG 42 stays open until the release is
+published and the install test is green on all 5 machines).** The 15 files are assets of one
 GitHub release of the public share repo (`release` in `vieneu-model.json`; a git repo cannot hold the
 415 MB file, and the 6-hourly updater downloads the whole repo zip). Both installers, after `uv sync`,
 run `extension/tools/vieneu-pin.py --install` with VieNeu's Python: each file from the release, else
 from Hugging Face at the pinned revision, streamed to `.part` (resumed after a cut), size + sha256
-checked, then `refs/main` and the marker `models/hf/.pinned-ok`. Every server start reads the copy
-offline only behind that marker (macOS plist `/bin/sh -c` line, Windows `vieneu-runner.pyw`), so a
-failed download only warns: VieNeu then fetches the model itself, as before, and
-`dichphude-update.py` retries every 6 h, and installs again when a new version moves the pin. Older
-installs move over by themselves: the updater installs the model, and on macOS rewrites the service
-plist once for the next login. Until `node tools/publish-share.js --release-model` has run, the
-release is a 404 and every install takes the Hugging Face fallback (same pinned bytes). Still fetched
-at install time outside our control: uv, its Python and the PyPI packages of `uv sync`. Measured 2026-10-11 on the author's Mac (copies only, the live server
+checked, then `refs/main` and the marker `models/hf/.pinned-ok`.
+- **The marker is a receipt, never trusted alone.** It lists every file with its size and each
+  `refs/main` with its revision; every server start (macOS plist `/bin/sh -c` line `pinned_ok`,
+  `cst-start.command`, Windows `vieneu-runner.pyw`) stats those before going offline. A file deleted
+  or cut short (a disk cleaner, a crash) sends the server online with `VieNeu model: pinned copy
+  incomplete` in its log, where it used to crash in a loop for good. Same-size corruption needs the
+  hash, which only `vieneu-pin.py` (no flag, or `--install`) does.
+- **The updater repairs.** Every 30 min `dichphude-update.py` runs the stat-only `quick_ok`; on any
+  mismatch it runs `--install`, which fetches the missing bytes or, failing that, removes a marker that
+  names this pin or another VieNeu commit (the pin id includes `voices.commit`), so the next start
+  goes online. A failed attempt waits 6 h; a success clears the wait. It installs again when a new
+  version moves the pin.
+- **Old cache.** Once the copy passes and the server's last `VieNeu model:` line says offline, an
+  install our installer made (`.dichphude-vieneu`) drops `~/.cache/huggingface/hub/models--pnnbao-ump--VieNeu-TTS-v3-Turbo`
+  and the MOSS folder (600 MB), logged once. Never on the author's machine.
+- **Downloads give up on silence, not on cuts.** A source is dead after 3 attempts in a row that
+  received no byte; a cut with progress resets the count; 2 h per file is the cap. 404/410 = the
+  source lacks the file ("release not published" on GitHub), 401/403/407 = a network or proxy block
+  (said so, not "release missing"), 408/425/429/5xx wait for `Retry-After` (30 s at most). A resumed
+  `.part` that fails its hash is removed and fetched once from zero; a 200 that ignores `Range` goes to
+  a fresh file, swapped in only after its hash matches, so a good partial is never truncated.
+- **Release first, then push.** The install test fails when the release is missing and asserts that
+  the first install fetched all 15 files from GitHub (none from Hugging Face). Installs themselves
+  still fall back to Hugging Face at the pinned revision (same bytes). `publish-share.js --push`
+  refuses changed shipped files under an unchanged version: friends' updaters only take a higher one.
+Older installs move over by themselves: the updater installs the model, and on macOS rewrites a
+service plist without `pinned_ok` once for the next login. Still fetched at install time outside our
+control: uv, its Python and the PyPI packages of `uv sync`. Measured 2026-10-11 on the author's Mac (copies only, the live server
 untouched): install from a file mirror of the author's copy, 608.6 MB in 1 s, verify exit 0, re-run
 0 MB; a mirror with one flipped byte refused (no marker, the 13 good files kept), then the 2 refused
 files fetched from Hugging Face at the pinned revision, a cut at 42.6 MB resumed by a Range request;
 a second server on port 8011 from that copy with `HF_HUB_OFFLINE=1` and `HF_ENDPOINT` at a dead port:
 ready in 5.5 s, Mỹ Duyên spoke (507 KB WAV, 48 kHz), no Hugging Face line in its log, its only socket
-the listener. **The author's machine has no marker** (its plist sets `HF_HOME` by hand): running
-`vieneu-autostart.command` again would start the server online. To mark the copy (no download):
-`~/VieNeu-TTS/.venv/bin/python tools/vieneu-pin.py --install`, sandbox off.
+the listener. After the review fixes (same day, same mirror method, the new marker): 608.6 MB in
+0.9 s "(GitHub 15 tep)", re-run 0.0 MB, `--quick` 43 ms, verify exit 0; the plist start line on that
+copy 33 to 56 ms warm (718 ms on the first, cold run). **The author's machine** runs its own plist (it sets `HF_HOME` by hand, no marker
+check), so the marker there only matters if `vieneu-autostart.command` is run again. Its marker,
+written 2026-10-11 in the old format (no file list, no VieNeu commit), is no longer current: a start
+line would read it as incomplete and go online. To rewrite it (0 MB downloaded):
+`~/VieNeu-TTS/.venv/bin/python tools/vieneu-pin.py --install --no-hf`, sandbox off.
 
 **Voice paces (1.5.9).** Every voice in `LOCAL_TTS.voices` now has a measured `sps`. Method, so it
 can be redone: 3 lecture sentences per voice through `POST /v1/audio/speech` (pcm, 24 kHz), count

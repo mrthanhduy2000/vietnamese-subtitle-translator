@@ -22,12 +22,21 @@ $OldLink = Join-Path ([Environment]::GetFolderPath('Startup')) 'VieNeu (Dich Phu
 function Stop-VieNeu {
     # The supervisor first, or it restarts the server it just lost. Matched on the command line: a
     # venv launcher and the interpreter it starts both carry it. run-vieneu.ps1 is the 2.4.9 runner.
-    # Only processes run from this VieNeu folder: someone's other VieNeu keeps running
+    # Then the helpers the supervisor started (dichphude-update.py, and the vieneu-pin.py model
+    # download it runs): left running, they keep files open in the folder an uninstall is about to
+    # remove, or hold the model lock against the installer. Only processes run from this VieNeu
+    # folder: someone's other VieNeu keeps running
     $all = @(Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -and $_.CommandLine.IndexOf($App, [StringComparison]::OrdinalIgnoreCase) -ge 0 })
     $supervisors = $all | Where-Object { $_.CommandLine -match 'run-vieneu\.ps1|run-vieneu\.pyw' -and $_.CommandLine -notmatch '--serve' }
+    $helpers = $all | Where-Object { $_.CommandLine -match 'dichphude-update\.py|vieneu-pin\.py' }
     $servers = $all | Where-Object { $_.CommandLine -match 'run-vieneu\.pyw.*--serve|apps\.openai_speech' }
-    foreach ($p in @($supervisors) + @($servers)) {
+    foreach ($p in @($supervisors) + @($helpers) + @($servers)) {
         if ($p) { Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue }
+    }
+    # A model download stopped above leaves its lock; nothing of this folder runs any more
+    if (@($helpers | Where-Object { $_ }).Count -gt 0) {
+        Start-Sleep -Milliseconds 500
+        Remove-Item (Join-Path $App 'models\hf\.pin-lock') -Force -ErrorAction SilentlyContinue
     }
 }
 

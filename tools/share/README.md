@@ -32,7 +32,9 @@ cài vào lần mở Chrome kế tiếp.
 [Releases](https://github.com/mrthanhduy2000/dich-phu-de-long-tieng/releases) của trang này, đúng
 một phiên bản đã khóa, và bộ cài kiểm từng tệp bằng mã băm sha256 trước khi dùng. Sau đó máy chủ
 giọng đọc mô hình ngay trong thư mục `VieNeu-TTS`, không hỏi Hugging Face hay trang nào khác, nên
-giọng không tự đổi khi bên ngoài cập nhật, và vẫn đọc được khi mất mạng.
+giọng không tự đổi khi bên ngoài cập nhật, và vẫn đọc được khi mất mạng. Mỗi lần khởi động, máy chủ
+giọng kiểm lại đủ tệp, đúng kích thước; nếu lỡ mất một tệp (ví dụ do phần mềm dọn ổ đĩa), giọng vẫn
+chạy bằng cách tạm tải mô hình từ Hugging Face, và bộ tự cập nhật tự tải bù tệp thiếu trong vòng nửa giờ.
 
 ### Nhờ AI cài giúp
 
@@ -70,6 +72,7 @@ giọng từng byte, đọc thử khi không lên mạng, tắt máy chủ giọ
 | Thiếu Microsoft Visual C++ Redistributable (Windows) | Cài tại https://aka.ms/vs/17/release/vc_redist.x64.exe, rồi chạy lại lệnh cài |
 | VieNeu chưa phản hồi sau 15 phút, hoặc `uv sync` không thành công | Thường do mạng chậm. Chạy lại lệnh cài: phần đã tải được giữ lại |
 | `CẢNH BÁO`/`CANH BAO`: chưa tải được mô hình giọng | Không phải lỗi chặn: giọng vẫn chạy, tạm tải mô hình từ Hugging Face. Bộ tự cập nhật thử lại sau vài giờ; muốn xong ngay thì chạy lại lệnh cài khi mạng ổn (phần đã tải được giữ lại). Nếu báo thiếu chỗ trống thì dọn bớt ổ đĩa trước |
+| `Mang hoac proxy chan ket noi toi GitHub` (hoặc `Hugging Face`) | Tường lửa, proxy hoặc mạng công ty/trường học chặn trang đó (không phải do thiếu bản phát hành). Thử mạng khác (ví dụ điểm phát Wi-Fi từ điện thoại) hoặc nhờ người quản trị mạng mở `github.com` và các trang `*.githubusercontent.com`, rồi chạy lại lệnh cài |
 
 Chạy lại lệnh cài bao nhiêu lần cũng an toàn; nó cũng là cách cập nhật ngay. Cài đặt và khóa API
 trong Chrome luôn được giữ. **Đừng gỡ tiện ích trong Chrome rồi cài lại:** làm thế mất hết cài đặt.
@@ -97,4 +100,6 @@ Cuối cùng bấm **Xóa** trên thẻ "Vietnamese Subtitle Translator" ở `ch
 - Giọng VieNeu chỉ mở ở `127.0.0.1:8000`, máy khác trong mạng không gọi được. Trên Windows nó chạy ẩn
   (không cửa sổ); muốn tạm tắt: Task Manager, mục Startup apps, "DichPhuDe VieNeu".
 - Tự cập nhật: mỗi 6 giờ hỏi GitHub; bản mới được tải sẵn và chỉ chép vào thư mục tiện ích khi Chrome
-  đang đóng, nên không bao giờ chen ngang lúc bạn đang xem. Nhật ký: `VieNeu-TTS/update.log`.
+  đang đóng, nên không bao giờ chen ngang lúc bạn đang xem. Mỗi nửa giờ nó cũng kiểm mô hình giọng
+  và tải bù tệp thiếu; bản mô hình mà các bản cài cũ để trong thư mục `.cache` (khoảng 600 MB) được
+  tự xóa một lần, sau khi giọng đã chạy bằng bản đã khóa. Nhật ký: `VieNeu-TTS/update.log`.
