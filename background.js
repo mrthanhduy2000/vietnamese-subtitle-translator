@@ -1297,13 +1297,20 @@ function localTimeoutMs(text) {
     return Math.round(Math.min(45, Math.max(8, 4 + audioSec * 0.9)) * 1000);
 }
 
+// The server is down: name this OS's way to start it. cst-start.command, which the attempt's own
+// message names, exists on a Mac only; a Windows user is sent to the autostart installer instead
+function withStartHint(r) {
+    if (r && r.errorType === "local_unavailable") r.error = `Máy chủ VieNeu chưa chạy (${LOCAL.startHint()})`;
+    return r;
+}
+
 async function synthesizeLocal(req, text, parts, signal) {
     let last = null;
     // Kẹt / audio bất thường: thử lại một lần (lấy mẫu ngẫu nhiên nên lần sau thường bình thường)
     for (let attempt = 0; attempt < 2; attempt++) {
         last = await localSerial(() => synthesizeLocalOnce(req, text, parts, signal), signal);
         // a dropped connection mid-body is as passing as a stuck take: free, so tried once more
-        if (last.ok || !(last.errorType === "timeout" || last.errorType === "runaway" || last.errorType === "dropped")) return last;
+        if (last.ok || !(last.errorType === "timeout" || last.errorType === "runaway" || last.errorType === "dropped")) return withStartHint(last);
         if (signal && signal.aborted) break;
         console.warn(`[VieNeu] ${last.error}; tạo lại lần ${attempt + 2}`);
     }

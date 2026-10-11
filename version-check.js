@@ -42,7 +42,9 @@
         btn.style.cssText = "margin-top:8px;padding:6px 12px;border-radius:6px;border:0;background:#d97706;color:#fff;font-weight:600;cursor:pointer";
         const hint = doc.createElement("div");
         hint.style.cssText = "margin-top:6px;opacity:.8";
-        hint.textContent = "Trang này sẽ tự đóng khi nạp lại. Sau đó tải lại (F5) các tab YouTube / Coursera đang mở.";
+        // No F5: background.js reinjectOpenTabs pushes the new code into open YouTube / Coursera tabs
+        hint.textContent = "Trang này sẽ tự đóng khi nạp lại. Các tab YouTube / Coursera đang mở tự nhận mã mới, không cần tải lại trang.";
+        // Safe on an unpacked install, which always has developer mode on (probe: docs/DANGER.md §3)
         btn.addEventListener("click", () => { try { chromeApi.runtime.reload(); } catch (e) { /* bỏ qua */ } });
         box.append(msg, btn, hint);
         mount.prepend(box);

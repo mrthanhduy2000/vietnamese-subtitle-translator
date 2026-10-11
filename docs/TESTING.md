@@ -141,6 +141,10 @@ node tests/vieneu.live.js    # REQUIRES the local TTS server at 127.0.0.1:8000
 node tests/tools-fit-voice.js  # refits the speech-duration model to tests/audio/linh-calibration.json
 ```
 
+`tests/audio/sentences.txt` is the text `linh-calibration.json` was measured on (its 20 sentences,
+each at 6 rates with the system voice Linh = the file's 120 rows). Nothing reads it; it stays so a
+refit can be re-measured on the same sentences.
+
 `vieneu.live.js` allows only that one host and rejects every other request.
 Start the server with `open ~/VieNeu-TTS/cst-start.command`, check it with
 `curl 127.0.0.1:8000/health`.
@@ -273,7 +277,9 @@ Two traps in `ui.test.js` that cost a session real time:
   reads can collect it. Watch the server at the same time with `tail -F ~/VieNeu-TTS/server.log`
   (Monitor, filter `rtf=` >= 0.5).
   Remove `cstDubDebug` and clear the interval when done.
-- `chrome://extensions` and `chrome-extension://` pages cannot be opened by the tools: only the user can Reload.
+- Clicking Reload for the user: `docs/DANGER.md` §3 ("Clicking Reload for the user") has the one
+  route that works (a `chrome://extensions` tab of Profile 42 through Control_Chrome) and what to
+  check after it; when that fails, ask the user for the click.
 - Prefer a cached video (`ytcache4_*`): no Gemini cost.
 - Real translations without Chrome: `node tools/ext-storage.js --prefix=ytcache4_ --out=$TMPDIR/yt` dumps the
   user's cached videos (2.3.0 measured the domain detector, the doubled-word rule and the head repeat on

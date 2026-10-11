@@ -72,7 +72,10 @@ then `chrome.developerPrivate.getExtensionInfo(id)` must show the new version an
 headless branded Chrome, throwaway profile, extension added with CDP `Extensions.loadUnpacked`:
 with developer mode **on** it stayed `ENABLED`, its service worker came back and a `storage.sync`
 value survived; with developer mode **off** it came back `DISABLED` (`unsupportedDeveloperExtension`),
-which is the same trap as `chrome.runtime.reload()` (`MAP.md` "Share build"). The user's Profile 42 has
+which is the same trap as `chrome.runtime.reload()` (`MAP.md` "Share build"). Probed the same way on
+2026-10-11 (CDP `Extensions.loadUnpacked`, developer mode **on**): `chrome.runtime.reload()`, which the
+"Nạp lại tiện ích ngay" button (`version-check.js`) calls, kept the extension `ENABLED` with its
+storage, 2/2; an unpacked install always has developer mode on, so the button stays. The user's Profile 42 has
 developer mode on (the extension is unpacked). In their Chrome the only route is `Control_Chrome`
 (AppleScript) on a Profile 42 window; when Chrome is closed nothing is needed (it reads the folder at
 start); if that route fails, ask for the click in one line. Never remove and re-add: settings are lost.

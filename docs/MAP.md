@@ -201,6 +201,8 @@ quality flags and, with `--sim`, the dubbing simulation (`docs/TESTING.md`). `to
 runs a whole batch review in one command (`--close` archives the batch and moves `REVIEW_MARK`);
 `tools/regress.js` (2.4.7) is the regression net over every reviewed video and the simulator
 scenarios, against the local `review-archive/baseline.json`.
+`tools/vieneu-bench.js [n]` renders one sentence n times (default 3) on the local VieNeu server and
+prints its render speed (RTF: render time / audio length; under 0.4 is comfortable); sandbox off.
 
 ## Not source
 
