@@ -15,7 +15,7 @@ function pageEnv(opts = {}) {
     const changeListeners = [];
     const el = () => ({ style: {}, dataset: {}, appendChild: noop, addEventListener: noop, setAttribute: noop, remove: noop });
     const store = { ...(opts.local || {}) };
-    const intervals = [];
+    const intervals = [], msgListeners = [];
     const sandbox = {
         console: { log: noop, warn: noop, error: console.error },
         // opts.timers: real timers, 100x faster (a 1500 ms wait takes 15 ms); intervals are recorded
@@ -45,14 +45,14 @@ function pageEnv(opts = {}) {
                 },
                 onChanged: { addListener: fn => changeListeners.push(fn) }
             },
-            runtime: { id: "ext", lastError: null, onMessage: { addListener: noop }, sendMessage: opts.sendMessage || noop }
+            runtime: { id: "ext", lastError: null, onMessage: { addListener: fn => msgListeners.push(fn) }, sendMessage: opts.sendMessage || noop }
         }
     };
     sandbox.window = sandbox;
     sandbox.globalThis = sandbox;
     vm.createContext(sandbox);
     for (const f of ["glossary.js", "subtitle-style.js", "vi-segmenter.js", ...(opts.files || []), "content.js", ...(opts.youtube ? ["youtube.js"] : [])]) vm.runInContext(read(f), sandbox);
-    return { sandbox, calls, changeListeners, store, intervals, run: code => vm.runInContext(code, sandbox) };
+    return { sandbox, calls, changeListeners, store, intervals, msgListeners, run: code => vm.runInContext(code, sandbox) };
 }
 
 test("popup 'Tiếng Anh ở trên' applies while watching, not only after the next Translate click", async () => {
@@ -115,6 +115,29 @@ test("YouTube: the full-storage sweep runs at most once a day, not on every tab 
     assert.equal(full(), 1);
     await E.run("ytSweepCacheDaily()");
     assert.equal(full(), 1, "stamped: not again today");
+});
+
+// The sweep reads all of storage.local (6.1 MB measured 2026-10-11, ~15 MB at the 100-video cap),
+// and it ran after every save, refine re-saves included
+test("YouTube: only a save that adds a video sweeps storage, a re-save of the same video does not", async () => {
+    const E = pageEnv({ youtube: true, local: { ytSweptAt: Date.now(), ytcache4_seen: { luc: 1, cues: [[0, 1, "a"]], vi: [[0, 1, "b"]], g: [] } } });
+    await new Promise(r => setImmediate(r));
+    const full = () => E.calls.localGet.filter(k => k === null).length;
+    E.run(`yt.cues = [{ start: 0, end: 2, text: "Hello." }];
+        yt.viCues = [{ start: 0, end: 2, text: "Xin chào.", lines: ["Xin chào."] }];
+        yt.groups = [{ start: 0, end: 2, text: "Hello.", translated: true, viText: "Xin chào.", srcCues: [{ start: 0, end: 2, text: "Hello." }], viCues: [{ start: 0, end: 2, text: "Xin chào." }] }];`);
+    await E.run("ytGhiCache('new1')");
+    assert.equal(full(), 1, "a new video sweeps once");
+    await E.run("ytGhiCache('new1')");
+    await E.run("ytGhiCache('new1')");
+    assert.equal(full(), 1, "refine re-saves of the same video do not read all of storage");
+    assert.equal(E.calls.localSet.filter(o => o.ytcache4_new1).length, 3, "every re-save is still written");
+    // a video read from the cache is already counted: saving it again adds nothing
+    assert.ok(await E.run("ytDocCache('seen')"));
+    await E.run("ytGhiCache('seen')");
+    assert.equal(full(), 1);
+    await E.run("ytGhiCache('new2')");
+    assert.equal(full(), 2, "the next new video sweeps");
 });
 
 test("Google fallback translates the window's sentences at once, not one after another", async () => {
@@ -291,15 +314,20 @@ test("Coursera: the button is redrawn once the translation is over, not left spi
     assert.equal(last.active, true);
 });
 
-// popup.js in a sandbox: the active tab at `url`, the page answering getStatus with `status()`
-function popupEnv(url, status) {
+// popup.js in a sandbox: the active tab at `url`, the page answering getStatus with `status()` and
+// any other message with `reply(m)` (default { ok: true })
+function popupEnv(url, status, reply = () => ({ ok: true })) {
     const els = new Map();
     const el = id => {
         if (!els.has(id)) {
             const handlers = {};
+            const cls = new Set();
             els.set(id, {
                 id, hidden: false, textContent: "", innerHTML: "", checked: false, disabled: false, style: {}, dataset: {}, className: "",
-                classList: { add() {}, remove() {}, toggle() {}, contains: () => false },
+                classList: {
+                    add: (...c) => c.forEach(x => cls.add(x)), remove: (...c) => c.forEach(x => cls.delete(x)),
+                    toggle: (c, on = !cls.has(c)) => (on ? cls.add(c) : cls.delete(c), on), contains: c => cls.has(c)
+                },
                 addEventListener: (t, f) => { handlers[t] = f; }, handlers, setAttribute() {}, getAttribute: () => null,
                 querySelector: () => el(`${id} >`), querySelectorAll: () => [], appendChild() {}
             });
@@ -319,7 +347,7 @@ function popupEnv(url, status) {
             storage: { sync: { get: async d => d, set: async () => {} }, onChanged: { addListener() {} } },
             tabs: {
                 query: async () => [{ id: 7, url }],
-                sendMessage: async (id, m) => (m.method === "getStatus" ? status() : { ok: true })
+                sendMessage: async (id, m) => (m.method === "getStatus" ? status() : reply(m))
             },
             runtime: { lastError: null, sendMessage: (m, cb) => cb && cb({ ok: false }), getManifest: () => ({ version: "x" }), openOptionsPage() {}, getURL: p => p }
         }
@@ -356,6 +384,42 @@ test("popup: the button names a lecture on Coursera and a video anywhere else", 
     await Q.run();
     assert.equal(Q.el("btnLabel").textContent, "Dịch lại video");
     assert.match(read("popup.html"), /id="btnLabel">Bắt đầu dịch</);
+});
+
+// The popup said "Đã kích hoạt phụ đề!" whatever the page answered: a video without captions, a
+// Vietnamese video, or a second click while the first one loads all read as a success
+test("popup: the translate button reports what the page answered, not always success", async () => {
+    const cases = [
+        [{ status: "failed" }, "Chưa bắt đầu dịch được: xem thông báo trên video.", "error"],
+        [{ status: "busy" }, "Video này đang được dịch.", "info"],
+        [{ status: "error", message: "Could not establish connection. Receiving end does not exist." }, "Trang chưa sẵn sàng. Tải lại trang (F5) rồi bấm lại.", "error"],
+        [{ status: "error" }, "Không thể kích hoạt: lỗi không rõ", "error"]
+    ];
+    for (const [answer, text, type] of cases) {
+        const P = popupEnv("https://www.youtube.com/watch?v=abc", () => null, m => (m.method === "translate" ? answer : { ok: true }));
+        await P.run();
+        await P.el("translateBtn").handlers.click();
+        assert.equal(P.el("status").textContent, text, answer.status);
+        assert.match(P.el("statusContainer").className, new RegExp(`is-${type}\\b`), answer.status);
+        assert.equal(P.el("btnLabel").textContent, "Bắt đầu dịch video", "the button is back to its idle label");
+        assert.equal(P.el("translateBtn").classList.contains("is-translating"), false);
+        assert.equal(P.el("translateBtn").classList.contains("is-success"), false);
+    }
+    const ok = popupEnv("https://www.youtube.com/watch?v=abc", () => null, m => (m.method === "translate" ? { status: "success" } : { ok: true }));
+    await ok.run();
+    await ok.el("translateBtn").handlers.click();
+    assert.equal(ok.el("btnLabel").textContent, "Đã kích hoạt phụ đề!");
+    assert.match(ok.el("statusContainer").className, /is-success/);
+});
+
+test("YouTube page: a translate request while one is loading answers busy, without a second run", async () => {
+    const E = pageEnv({ youtube: true });
+    E.run("yt.busy = true");
+    E.run("ytBatDauDich = async () => { throw new Error('started a second run'); }");
+    const answers = [];
+    for (const fn of E.msgListeners) fn({ method: "translate", dualMode: false }, {}, r => answers.push(r));
+    await new Promise(r => setTimeout(r, 5));
+    assert.deepEqual(answers.filter(a => a && a.method === "translate").map(a => a.status), ["busy"]);
 });
 
 // 2.3.3: 43 of the user's 51 per-channel term lists were empty, left from before 2.3.1

@@ -881,6 +881,9 @@ test("Chrome đang chạy bản cũ (chưa nạp lại) còn file đã mới: tr
     assert.match(box.children[0].textContent, /bản 1\.1\.2.*bản 1\.1\.7/);
     box.children[1].listeners.click();
     assert.equal(reloaded, 1);
+    // open tabs get the new code from reinjectOpenTabs: the viewer is not sent to press F5
+    assert.doesNotMatch(box.children[2].textContent, /F5/);
+    assert.match(box.children[2].textContent, /không cần tải lại trang/);
     // Cùng phiên bản: không báo
     const doc2 = fakeDoc("v1.1.7");
     assert.equal(VC.check(doc2, { runtime: { getManifest: () => ({ version: "1.1.7" }) } }, ".badge", ".mount").stale, false);
@@ -962,7 +965,11 @@ test("đã bỏ DeepLearning.AI khỏi manifest, quyền truy cập, mã và gia
     const manifest = JSON.parse(read("manifest.json"));
     const all = JSON.stringify(manifest);
     assert.ok(!/deeplearning/i.test(all));
-    assert.ok(!manifest.web_accessible_resources.some(w => w.matches.includes("<all_urls>")));
+    // none at all now: no content script loads a packaged file (the player button's icon is a data: URI)
+    assert.ok(!(manifest.web_accessible_resources || []).some(w => w.matches.includes("<all_urls>")));
+    // web fonts come in through a <link> the page loads, which needs no host permission
+    assert.match(read("subtitle-style.js"), /createElement\("link"\)/);
+    assert.ok(!manifest.host_permissions.some(h => /fonts\.(googleapis|gstatic)\.com/.test(h)));
     for (const f of ["content.js", "youtube.js", "popup.js", "popup.html", "options.html", "options.js", "background.js"]) {
         assert.ok(!/deeplearning\.ai|DeepLearning\.AI|"deeplearning"/.test(read(f)), `${f} còn DeepLearning.AI`);
     }
@@ -1096,6 +1103,42 @@ test("VieNeu: máy chủ chưa chạy -> trạng thái 'không chạy', lỗi r�
     assert.equal(r.errorType, "local_unavailable");
     assert.match(r.error, /cst-start\.command/);
     assert.equal((await E.backend.listMeta("audio")).length, 0);
+});
+
+// cst-start.command exists on a Mac only: a Windows user told to open it has nothing to open
+test("VieNeu start hint: Windows is sent to the autostart installer, never to the Mac launcher", async () => {
+    const L = COST.LOCAL_TTS;
+    for (const p of ["Win32", "Windows"]) {
+        assert.doesNotMatch(L.startHint(p), /cst-start\.command/, p);
+        assert.match(L.startHint(p), /tools\\vieneu-autostart\.cmd/, p);
+    }
+    for (const p of ["MacIntel", "macOS", "", null]) assert.match(L.startHint(p), /cst-start\.command/, String(p));
+    assert.doesNotMatch(L.startHint("Linux x86_64"), /vieneu-autostart\.cmd/);
+    // the service worker's reply when the server is down follows the browser's platform
+    const E = bgEnv(vieneuServer([], { down: true }), cfg());
+    E.sandbox.navigator = { platform: "Win32" };
+    const req = { action: "synthesizeSpeech", engine: "vieneu", text: "Xin chào.", voice: "Thùy Dung", parts: [{ key: "w1", weight: 3 }] };
+    const r = await E.send(req);
+    assert.equal(r.errorType, "local_unavailable");
+    assert.doesNotMatch(r.error, /cst-start\.command/);
+    assert.match(r.error, /vieneu-autostart\.cmd/);
+    E.sandbox.navigator = { platform: "Win32", userAgentData: { platform: "macOS" } };   // userAgentData wins
+    assert.match((await E.send({ ...req, parts: [{ key: "w2", weight: 3 }] })).error, /cst-start\.command/);
+    // the page's toast when dubbing starts with the server down
+    for (const [platform, want, not] of [["Win32", /vieneu-autostart\.cmd/, /cst-start\.command/], ["MacIntel", /cst-start\.command/, /vieneu-autostart/]]) {
+        const msgs = [], toasts = [];
+        const env = dubbingEnvFor("premium", "vieneu", msgs, m => (m.action === "localTtsStatus" ? { ok: true, running: false } : { ok: true }), false);
+        env.navigator = { platform };
+        env.CST_UI = { toast: (text, o) => toasts.push({ text, o }) };
+        assert.equal(await env.CST_DUB.start({ video: new FakeVideo(), getGroups: () => [] }), false);
+        assert.equal(toasts.length, 1, platform);
+        assert.match(toasts[0].text, want, platform);
+        assert.doesNotMatch(toasts[0].text, not, platform);
+        assert.equal(toasts[0].o.actionLabel, "Mở Cài đặt");
+        toasts[0].o.onAction();
+        assert.ok(msgs.some(m => m.action === "openOptions"), "the toast's button opens Settings");
+        env.CST_DUB.stop();
+    }
 });
 
 test("VieNeu: engine gửi lần lượt từng câu (máy chủ CPU chỉ phục vụ 1 luồng), khóa kho riêng theo giọng", async () => {

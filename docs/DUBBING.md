@@ -905,7 +905,10 @@ Measured and left alone: the tick is 17 us on a 60-min lecture (max 6 ms on a pl
   `ttsRegistering` holds jobs between arrival and registration.
 - `synthesizeLocalOnce` error by stage: before a reply `local_unavailable` (the only one that may
   switch the video to the system voice), mid-body `dropped` (retried once, like `timeout`), after it
-  `invalid`. All three read "server not running" before.
+  `invalid`. All three read "server not running" before. `synthesizeLocal` (`withStartHint`) rewrites
+  the `local_unavailable` text with `LOCAL_TTS.startHint()` (cost-policy.js): a Windows browser is
+  sent to `tools\vieneu-autostart.cmd`, never to the Mac-only `cst-start.command`; `dubbing.js` toasts
+  use the same hint.
 - `waitLocalIdle` follows the job's signal and times the body too: a hung `/health` held a dropped
   line 1.7 s, now ~5 ms. A dropped job is never sent (was: sent with an aborted signal).
 - `ttsRequestProblem` refuses bad `jobId` / `parts` (key 1-256 chars, weight > 0, <= 12 parts) as

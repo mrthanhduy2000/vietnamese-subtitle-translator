@@ -322,13 +322,14 @@ waits (up to 10 s) for a run left over from the previous video instead of skippi
 
 ### Anything -> service worker: `chrome.runtime.sendMessage({ action })`
 
-14 actions in the `ROUTES` table at the end of `background.js`, plus `ttsAbort`, which is handled
+15 actions in the `ROUTES` table at the end of `background.js`, plus `ttsAbort`, which is handled
 synchronously *before* routing (it must not wait on the queue):
 
 `ensureYtBridge` · `translateUnit` · `translateUnitStore` · `synthesizeSpeech` · `audioCacheGet` ·
 `audioCacheDelete` · `cacheStats` · `cacheClear` · `modelStatus` · `testKey` · `openOptions` ·
-`costStats` · `costReset` · `localTtsStatus` · `ttsAbort` (`condenseSpeech` and `localTtsWarm` had no
-caller and were removed in 1.7.3). `translateUnit` answers `engine`: `gemini`, `google` (Gemini off
+`costStats` · `costReset` · `localTtsStatus` · `localWarm` (`dubbing.js` asks it when dubbing starts:
+a tiny take pages a cold VieNeu model in, only when cold and the queue is empty) · `ttsAbort`
+(`condenseSpeech` had no caller and was removed in 1.7.3). `translateUnit` answers `engine`: `gemini`, `google` (Gemini off
 or no key: the chosen engine) or `google_fallback` (Gemini failed or the budget ran out: shown, but
 YouTube does not save such a video, so the next visit asks Gemini again).
 
@@ -339,18 +340,26 @@ To add one: write `handleX`, add `X: handleX` to `ROUTES`. Nothing else.
 `translate` · `phimTat` (keyboard shortcut relay) · `forgetVideoAudio` · `getStatus`
 
 Handled by the listener near the end of `content.js`. (`popup.js` used to send a `setOptions` that
-nothing handled; removed in 1.4.4, `ui.test.js` guards it.)
+nothing handled; removed in 1.4.4, `ui.test.js` guards it.) `translate` answers `{ status }`, and
+the popup says what it means: `success`; on YouTube `failed` (`ytBatDauDich` returned false, its
+reason already shown on the video), `busy` (a run is loading, `yt.busy`; nothing new starts) or
+`error` with `message`.
 
 ### `youtube.js` <-> `yt-bridge.js`: `window.postMessage({ cstType })`
 
 Request/response pairs correlated by `requestId`:
 
 `YEU_CAU_PHU_DE` -> `TRA_LOI_PHU_DE` (track list) ·
-`YEU_CAU_NOI_DUNG_PHU_DE` -> `TRA_LOI_NOI_DUNG_PHU_DE` (track contents)
+`YEU_CAU_NOI_DUNG_PHU_DE` -> `TRA_LOI_NOI_DUNG_PHU_DE` (track contents) ·
+`CHON_AM_THANH_GOC` -> `TRA_LOI_AM_THANH_GOC` (`{ ok }`: the player switched back to the original
+audio track, `ytChonAmThanhGoc`, 2.5 s timeout answers false)
+
+Pushed by the bridge, no request: `AM_THANH_DOI` `{ videoId, audio }` when the player's audio track
+changes (polled once a second, never for the first track seen); `ytKhiDoiAmThanh` handles it.
 
 ## Storage keys
 
-### `chrome.storage.sync` (30 settings written by `options.js` `collectSettings`, plus `originalFirst` and `uiTheme`)
+### `chrome.storage.sync` (33 settings written by `options.js` `collectSettings`, plus `originalFirst` and `uiTheme`)
 
 Subtitle: `subStyle` (nested object; defaults live in `subtitle-style.js`), `dualMode`,
 `perCueMode`, `skipSameLang` (on: a video's own Vietnamese track is used as is; off: translate from
@@ -396,7 +405,8 @@ not stack two dubbing voices. Keep it.
 `modelAccess` per-API-key model availability, keyed by a SHA-256 hash of the key, 3-day TTL; a refusal repeated right after a lapse doubles it (`ttl`, cap 30 days, 2.2.2); a lapsed refusal is kept 60 days so `likelyModel` names the next model and the Settings cards say it will be retried once ·
 `costLedger` daily cost ledger (2.1.0: every billed request is charged through `geminiCall`'s `policy.onBilled`, also thrown-away answers and our own timeouts, which Google still bills; `inTok`/`outTok`/`estCalls` added; 2.1.1: `thoughtTok`, `cachedTok`, `byModel`) · `costHistory` the same text-call totals keyed by Google's billing day (Pacific time, `pacificDay()`), last 31 days, kept by `costReset` · `costTokenRatio` measured characters per token for estimates · `ytcache4_<videoId>` cached YouTube translations (an older
 `ytcache` prefix exists; swept once a day, `ytSweptAt`, since the sweep reads all of storage.local;
-the newest 100 are kept, 2.4.0 (50 in 2.3.9): measured 90 KB a video, 6.8 KB a minute, so ~9 MB;
+only a save that adds a video sweeps too, never a refine re-save, `ytStoredVideos`;
+the newest 100 are kept, 2.4.0 (50 in 2.3.9): measured 152 KB a video on 2026-10-11, so ~15 MB;
 the manifest asks for `unlimitedStorage` because storage.local alone holds 10 MB, and a 64 MB cap
 guards against a runaway store. The dubbing audio store went from 200 MB to 3 GB with it
 (`background.js` `AUDIO_CACHE_MAX_BYTES`: ~61 MB for a 13-minute video, so ~50 videos). Saved only once the whole video is translated and no group fell back to

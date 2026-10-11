@@ -201,6 +201,12 @@
         }
     }
 
+    // How to start the local voice server on this OS (cost-policy LOCAL_TTS.startHint)
+    function localStartHint() {
+        const L = window.CST_COST && window.CST_COST.LOCAL_TTS;
+        return L && L.startHint ? L.startHint() : "mở ~/VieNeu-TTS/cst-start.command";
+    }
+
     async function startEngine(opts, seq) {
         const outdated = () => seq !== startSeq;
         // Tự bật (opts.quiet): không bật hộp thoại chặn trang, chỉ ghi ra console
@@ -223,7 +229,8 @@
         if (!primary && localMissing && !(window.CST_COST && window.CST_COST.PAID_TTS)) {
             console.warn("[Lồng tiếng] Máy chủ VieNeu chưa chạy; chờ máy chủ, không dùng giọng khác");
             if (window.CST_UI && window.CST_UI.toast) {
-                window.CST_UI.toast("Giọng VieNeu chưa chạy. Mở ~/VieNeu-TTS/cst-start.command; lồng tiếng sẽ tự bật khi máy chủ sẵn sàng.", { warn: true });
+                window.CST_UI.toast(`Giọng VieNeu chưa chạy: ${localStartHint()}; lồng tiếng sẽ tự bật khi máy chủ sẵn sàng.`,
+                    { warn: true, actionLabel: "Mở Cài đặt", onAction: () => sendMessage({ action: "openOptions" }) });
             }
             dub.enabled = true;
             doiVieNeuSanSang(opts);
@@ -244,7 +251,7 @@
         if (!primary) {
             alert(
                 "Chưa có giọng đọc tiếng Việt.\n" +
-                "Cách nhanh nhất (miễn phí): mở ~/VieNeu-TTS/cst-start.command để bật giọng VieNeu trên máy, rồi bật lại lồng tiếng." +
+                `Cách nhanh nhất (miễn phí): ${localStartHint()} để bật giọng VieNeu trên máy, rồi bật lại lồng tiếng.` +
                 (canGemini ? "" : "\nHoặc nhập Gemini API Key trong Cài đặt.") +
                 (hasSystem ? "" : "\nHoặc tải giọng tiếng Việt của hệ điều hành (macOS: Spoken Content; Windows: Speech)."),
                 { actionLabel: "Thử lại", onAction: () => start(opts) }
