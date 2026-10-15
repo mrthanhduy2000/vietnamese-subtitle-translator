@@ -104,10 +104,10 @@ test("who speaks: the one who talks longest has the main voice, named or not", (
     assert.deepEqual(voices(pod), ["S2", "S1", "S2", "S1", "S3"]);
 });
 
-// 2.5.2: up to five voices, and an AI reading of who speaks for videos without marks
-test("who speaks: five named speakers get five voices in order of talk; a sixth shares one after the main", () => {
-    const names = ["ANNA", "BEN", "CARL", "DORA", "EVAN", "FRED"];
-    const talkS = [60, 40, 30, 20, 10, 5];
+// 2.5.3: up to eight voices (five in 2.5.2), and an AI reading of who speaks for videos without marks
+test("who speaks: eight named speakers get eight voices in order of talk; a ninth shares one after the main", () => {
+    const names = ["ANNA", "BEN", "CARL", "DORA", "EVAN", "FRED", "GINA", "HUGO", "IVAN"];
+    const talkS = [60, 50, 40, 30, 25, 20, 15, 10, 5];
     let t = 0;
     const g = [];
     for (let round = 0; round < 2; round++) {
@@ -115,9 +115,9 @@ test("who speaks: five named speakers get five voices in order of talk; a sixth 
     }
     const T = PLAN.speakerTurns(g);
     assert.equal(T.source, "names");
-    assert.equal(T.voices, 5);
+    assert.equal(T.voices, 8);
     const v = voices(g);
-    assert.deepEqual(v.slice(0, 6), ["S1", "S2", "S3", "S4", "S5", "S2"]);
+    assert.deepEqual(v.slice(0, 9), ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S2"]);
 });
 
 test("who speaks: 'Yeah. ANDREW HUBERMAN:' is Andrew, not a third person; 'Dr. Galpin:' keeps its title", () => {
@@ -212,6 +212,125 @@ test("script: a speaker label the source carries stays in the subtitle and is no
     assert.match(said, /^Nhưng tôi nghĩ mình sẽ giữ mức 5/);
     assert.match(said, /bởi vì-- +Tất nhiên rồi\./);
     assert.match(said, /Tôi nói: ANDY GALPIN là người đúng/);
+});
+
+// 2.5.3, the speaker lab: 30 PBS NewsHour videos scored against their named transcripts
+test("who speaks: a news transcript's 'NAME, Affiliation:' and 'NAME (R-FL):' name the speaker", () => {
+    const g = [S("Chào mừng.", 0, 10, "AMNA NAWAZ: Welcome to both of you."),
+        S("Cảm ơn.", 11, 40, "TAMARA KEITH, National Public Radio: Thank you, it's good to be here."),
+        S("Còn bà?", 41, 45, "AMNA NAWAZ: And you?"),
+        S("Vâng.", 46, 80, "REP. MARIA ELVIRA SALAZAR (R-FL): Yes, and a long answer again."),
+        S("Tiếp.", 81, 85, "AMNA NAWAZ: Tamara?"),
+        S("Đúng.", 86, 100, "TAMARA KEITH: Right.")];
+    const T = PLAN.speakerTurns(g);
+    assert.equal(T.source, "names");
+    assert.equal(T.voices, 3);
+    const v = voices(g);
+    // Tamara's first answer is hers, not the host's (4 of 19 labelled panels lost 15 to 30 points)
+    assert.equal(v[1], v[5]);
+    assert.deepEqual([v[0], v[2], v[4]], [v[0], v[0], v[0]]);
+    assert.equal(new Set([v[0], v[1], v[3]]).size, 3, JSON.stringify(v));
+});
+
+test("who speaks: labels on only some turns leave the voices to the AI reading; labels on every turn need none", () => {
+    // a panel whose transcript names each guest once, on the first answer
+    const partial = [S("Chào.", 0, 10, "AMNA NAWAZ: Welcome."), S("Cảm ơn.", 11, 30, "DAVID BROOKS: Thanks for having me."),
+        S("Còn chị?", 31, 35, "And you, Kimberly?"), S("Vâng.", 36, 60, "KIMBERLY ATKINS STOHR: Yes, glad to be here."),
+        S("Câu hỏi.", 61, 65, "Next question for David."), S("Trả lời.", 66, 90, "Well, the answer is a long one."),
+        S("Còn chị?", 91, 95, "And Kimberly?"), S("Đáp.", 96, 120, "I agree with David on that.")];
+    const T0 = PLAN.speakerTurns(partial);
+    assert.equal(T0.labelled, true);
+    assert.equal(T0.complete, false);
+    const ai = aiOf([[0, 1], [11, 2], [31, 1], [36, 3], [61, 1], [66, 2], [91, 1], [96, 3]]);
+    const T = PLAN.speakerTurns(partial, { ai });
+    assert.equal(T.source, "ai");
+    assert.equal(T.voices, 3);
+    const v = voices(partial, { speakerTurns: T });
+    assert.deepEqual([v[0], v[2], v[4], v[6]].filter(x => x === v[0]).length, 4);
+    assert.equal(v[1], v[5]);
+    assert.equal(v[3], v[7]);
+    // a label on every turn: complete, the reading is not asked for (dubbing.js) nor used
+    const full = [S("Chào.", 0, 5, "ANNA: Hi."), S("Chào bạn.", 6, 20, "BEN: Hello there."), S("Tiếp.", 21, 25, "ANNA: Next."), S("Vâng.", 26, 40, "BEN: Yes.")];
+    assert.equal(PLAN.speakerTurns(full).complete, true);
+    assert.equal(PLAN.speakerTurns(full, { ai: aiOf([[0, 1], [6, 1], [21, 2], [26, 2]]) }).source, "names");
+});
+
+test("who speaks: an AI turn's first words are found one line off, or when they run past the line", () => {
+    const lines = PLAN.speakerLines([S("A", 0, 4, "and that is why I think so. So David, what"), S("B", 4, 8, "do you make of it? Well, I think the"),
+        S("C", 8, 12, "polls are wrong and here is why.")]);
+    const at = (line, words) => PLAN.speakerHints(lines, { turns: [{ line: 0, speaker: 1 }, { line, speaker: 2, at: words }], speakers: [], confidence: "high" }).turns[1].t;
+    // named on line 0, standing on line 1
+    const t1 = at(0, "Well, I think the polls are wrong");
+    assert.ok(t1 > 4 && t1 < 8, String(t1));
+    // a whole sentence running into the next line: the start that stands in the line is enough
+    const t2 = at(0, "So David, what do you make of it?");
+    assert.ok(t2 > 2 && t2 < 4, String(t2));
+    // nothing found, and the line before ends a sentence: the line start
+    assert.equal(at(2, "something never said"), 8);
+    // first words that start at a line end and run on into the next one ("... the CEO >> I" / "felt like")
+    const run = PLAN.speakerLines([S("A", 0, 4, "he runs the company and is the CEO >> I"), S("B", 4, 8, "felt like the country was more divided.")]);
+    const t3 = PLAN.speakerHints(run, { turns: [{ line: 0, speaker: 1 }, { line: 0, speaker: 2, at: "I felt like the country" }], speakers: [], confidence: "high" }).turns[1].t;
+    assert.ok(t3 > 3.5 && t3 < 4, String(t3));
+    // no first words given: a line that opens on the tail of a sentence hands over after it ends
+    const tail = PLAN.speakerLines([S("A", 0, 4, "and that is a lot of"), S("B", 4, 8, "pain. Over to you. Thanks, I think so."), S("C", 8, 12, "Mr. Smith said so. Then he left.")]);
+    const no = line => PLAN.speakerHints(tail, { turns: [{ line: 0, speaker: 1 }, { line, speaker: 2 }], speakers: [], confidence: "high" }).turns[1].t;
+    const t4 = no(1);
+    assert.ok(t4 > 4.5 && t4 < 5.5, "after 'pain.': " + t4);
+    // the line before ends a sentence: the turn stays at the line start ("Mr." is no sentence end anyway)
+    assert.equal(no(2), 8);
+});
+
+test("who speaks: the voice changes where a label stands in a translated line, or where a sentence breaks off ('vì-- Vâng')", () => {
+    // UIy-WQCZd4M: "about you because--" / "ANDREW HUBERMAN: Right, ..." became one Vietnamese line, and
+    // its "Đúng," (Andrew's "Right") was read in Andy's voice: 3 of 14 such labels were met in time
+    const g = [
+        group("ANDY GALPIN: Tôi biết anh không thích nói về bản thân mình vì-- ANDREW HUBERMAN: Đúng, đó cũng là một lý do khác để làm việc này.", [
+            { start: 0, end: 2.6, text: "ANDY GALPIN: I know you don't like making these things" },
+            { start: 2.6, end: 3.6, text: "about you because--" },
+            { start: 3.6, end: 6.4, text: "ANDREW HUBERMAN: Right, that's the other reason to do it." }]),
+        group("ANDY GALPIN: Chính xác, và đó là lý do tôi làm điều này mỗi tuần.", [{ start: 7, end: 10, text: "ANDY GALPIN: Exactly, and that's why I do it every week." }]),
+        group("ANDREW HUBERMAN: Tuyệt vời.", [{ start: 10.5, end: 12, text: "ANDREW HUBERMAN: Great." }])
+    ];
+    const s = PLAN.buildDubScript(g, { joinGroups: true });
+    assert.deepEqual(s.map(x => [x.speaker, x.subtitleText]).slice(0, 2), [
+        ["S1", "Tôi biết anh không thích nói về bản thân mình vì--"],
+        ["S2", "Đúng, đó cũng là một lý do khác để làm việc này."]]);
+    // no label (an AI reading): the interrupted sentence's dash, not a share of the line's time
+    const plain = [S("Bởi vì nó giúp tăng khối lượng tập luyện của bạn vì-- Vâng, chắc chắn rồi.", 0, 6, "because it boosts your training volume because-- Yeah, for sure."),
+        S("Và còn nhiều nữa.", 7, 9, "And there is more.")];
+    const T = PLAN.speakerTurns([...plain, S("Đúng.", 10, 14, "Right."), S("Rồi sao nữa?", 15, 17, "And then?"), S("Hết rồi.", 18, 22, "That's it.")],
+        { ai: aiOf([[0, 1], [4.6, 2], [7, 1], [10, 2], [15, 1], [18, 2]]) });
+    const v = PLAN.buildDubScript(plain, { joinGroups: true, speakerTurns: T }).map(x => [x.speaker, x.subtitleText]);
+    assert.deepEqual(v.slice(0, 2).map(x => x[1]), ["Bởi vì nó giúp tăng khối lượng tập luyện của bạn vì--", "Vâng, chắc chắn rồi."], JSON.stringify(v));
+    assert.notEqual(v[0][0], v[1][0]);
+});
+
+test("script: a news label with who the speaker is is not read; 'NASA, the agency, said:' is", () => {
+    const a = group("TAMARA KEITH, Đài Phát thanh Công cộng Quốc gia: Vâng, tôi nghĩ vậy.", [{ start: 0, end: 3, text: "TAMARA KEITH, National Public Radio: Well, I think so." }]);
+    const b = group("Cảm ơn. REP. MARIA ELVIRA SALAZAR (R-FL): Đúng vậy.", [{ start: 4, end: 5, text: "Thank you." }, { start: 5, end: 7, text: "REP. MARIA ELVIRA SALAZAR (R-FL): That's right." }]);
+    const c = group("NASA, cơ quan vũ trụ, cho biết: không.", [{ start: 8, end: 10, text: "NASA, the space agency, said: no." }]);
+    const said = PLAN.buildDubScript([a, b, c], { joinGroups: true }).map(s => s.subtitleText).join(" | ");
+    assert.ok(!/KEITH|Quốc gia|SALAZAR|R-FL/.test(said), said);
+    assert.match(said, /^Vâng, tôi nghĩ vậy\./);
+    assert.match(said, /Cảm ơn\. \| Đúng vậy\./, "a turn of another person: a segment of its own");
+    assert.match(said, /NASA, cơ quan vũ trụ, cho biết: không\./);
+});
+
+test("who speaks: eight voices are eight different voices, for the free voice and for Gemini", () => {
+    const { castVoices, createGeminiProvider } = require("../dub-engine.js");
+    const COST = require("../cost-policy.js");
+    const L = COST.LOCAL_TTS;
+    const free = castVoices(L, L.defaultVoice, L.defaultVoice2, []);
+    assert.equal(new Set(Object.values(free)).size, 8, JSON.stringify(free));
+    const gem = createGeminiProvider({}, {});
+    assert.equal(new Set(Object.values(gem.voices)).size, 8, JSON.stringify(gem.voices));
+    assert.equal(gem.voices.S1, "Kore");
+    // the reading's genders: a third speaker who is a woman gets a woman's voice of her own
+    assert.equal(gem.setCast(["female", "male", "female"]), true);
+    const female = ["Kore", "Aoede", "Leda", "Zephyr"];
+    assert.ok(female.includes(gem.voices.S3) && gem.voices.S3 !== gem.voices.S1, JSON.stringify(gem.voices));
+    assert.equal(new Set(Object.values(gem.voices)).size, 8);
+    assert.equal(gem.setCast(["female", "male", "female"]), false, "the same genders: no new cast");
 });
 
 // ================= 2. VĂN BẢN ĐỂ NÓI & NGỮ ĐIỆU =================

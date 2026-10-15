@@ -1860,6 +1860,36 @@ test("who speaks: one Gemini reading per video, the cheapest model the key can c
     assert.equal(bad.reason, "bad_output");
 });
 
+test("who speaks: an answer cut off by the token cap keeps its whole turns and says where the page reads on", async () => {
+    const LINES = Array.from({ length: 40 }, (_, i) => `Line ${i} of a long panel.`);
+    // pretty-printed JSON stopped in the middle of a turn (yF1rzzxe2vc, 2026-10-16 speaker lab)
+    const raw = JSON.stringify({ speakers: [{ id: 1, label: "host", gender: "female" }, { id: 2, label: "guest", gender: "female" }],
+        turns: [{ line: 0, speaker: 1 }, { line: 4, speaker: 2, at: "Line 4" }, { line: 9, speaker: 1 }, { line: 12, speaker: 2 }] }, null, 2)
+        .replace(/\s*\]\s*\}\s*$/, ",\n    {\n      \"line\": 15,\n      \"spea");
+    const bodies = [];
+    const cut = { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: raw }] }, finishReason: "MAX_TOKENS" }] }) };
+    const E = bgEnv(async (u, o) => { bodies.push(JSON.parse(o.body)); return cut; }, cfg({ geminiApiKey: "KEY-OLD-USER" }));
+    const r = JSON.parse(JSON.stringify(await E.send({ action: "analyzeSpeakers", lines: LINES, videoKey: "yt:cut", last: { id: 2 } })));
+    assert.equal(r.ok, true, JSON.stringify(r));
+    assert.deepEqual(r.turns.map(x => [x.line, x.speaker]), [[0, 1], [4, 2], [9, 1], [12, 2]]);
+    assert.equal(r.upTo, 13, "the part read ends with the last whole turn's line");
+    assert.equal(r.confidence, "medium");
+    assert.equal(r.speakers.length, 2);
+    // room for a turn on every line; the page's next part says who was talking where this one ends
+    assert.equal(bodies[0].generationConfig.maxOutputTokens, 2048 + 40 * 32);
+    assert.match(bodies[0].contents[0].parts[0].text, /Speaker 2 was talking when the part before ended/);
+    // cut before 8 lines were read: no reading
+    const short = raw.slice(0, raw.indexOf('"line": 9'));
+    const E2 = bgEnv(async () => ({ ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: short }] }, finishReason: "MAX_TOKENS" }] }) }), cfg({ geminiApiKey: "KEY-OLD-USER" }));
+    const r2 = await E2.send({ action: "analyzeSpeakers", lines: LINES, videoKey: "yt:cut2" });
+    assert.equal(r2.ok, false);
+    assert.equal(r2.reason, "bad_output");
+    // the page goes on from upTo with the last speaker, and asks no more than it needs
+    const src = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "dubbing.js"), "utf8");
+    assert.match(src, /from \+= upTo/);
+    assert.match(src, /last: said \? \{ id: said\.speaker \} : null/);
+});
+
 test("a first install opens the settings on the welcome card; an update or a reload opens nothing", async () => {
     const E = bgEnv(async () => reply({}), cfg(), { tabs: [] });
     E.installedListeners[0]({ reason: "update" });

@@ -1,48 +1,35 @@
-# Handoff
-
-The last session that changed a file overwrites this whole file. Read it right after `git log`: it
-says what the state is **now**, not what happened over time (git holds that). Keep the headings and
-their order, replace rather than append, keep it to roughly 40 lines (45 hard cap), and write
-`none` in an empty section.
-
-## Last touched
-2026-10-16 · `2.5.2` · voices per speaker by default, any Chromium browser, staged share publish.
-
-## What changed
-- Who speaks (`DUBBING.md` "Who speaks"): `dubSpeakers` "auto" (default) / "one" replaces
-  `dubSecondVoice`; up to 5 voices (named speakers ranked by talk); `nameOf` fix ("Yeah. NAME:");
-  Gemini reading on YouTube (`analyzeSpeakers`, `dubSpeakerAi`, cheapest callable model, cached);
-  `castVoices` S1..S5 by gender; takes carry `voiceTag` and are remade when a line changes voice.
-- Installs: guide page and installers pick any Chromium browser (Chrome, Cốc Cốc, Edge, Brave, Opera,
-  Vivaldi, Arc); updater waits for the browser that holds the extension; Settings opens at
-  `#welcome` after a first install; VieNeu patch listens on 127.0.0.1 unless `HOST` is set.
-- `publish-share.js --stage` (push to `staging`, install test runs) then `--promote` (to `main` only
-  when that run passed). READMEs rewritten (both repos).
-- `playback-sim.js` no longer trims groups 200 s behind playback (real drivers pass the whole list).
+# Handoff (2026-10-16, cut off by the usage limit: committed as work in progress, NOT bumped)
 
 ## State
-- Tests: 701, 700 pass, 0 fail, 1 skip. Regress baseline saved at 2.5.2; `simulate` now runs voices
-  per speaker: only the 5 conversations moved vs one voice (late +3 to +29, yZfh median lag
-  0.85 -> 1.18 s), nothing dropped or lost.
-- Share repo: see "Unfinished" for the publish step.
-- **A share repo push reaches every friend within ~6 h**: only `--promote` after a green staging run.
-
-## Unfinished / in progress
-- Share publish of 2.5.2: `--stage` then `--promote` (BACKLOG 42 closes when it is on `main`).
-- Not seen live: the Gemini speaker reading (try JBvcMfa7K6E, X4gL2OWg3V4 with the user's key and
-  read the cost ledger); a 3+ speaker video by ear; the extension in Cốc Cốc / Edge / Brave.
-- Branches `joint-takes` and `joint-takes-2` (worktrees in `.claude/worktrees/`) built, never
-  reviewed or merged.
-- Carried: 2.5.0 Coursera start hold not seen live; not covered by CI: missing VC++ runtime, the
-  browser steps, a real Vietnamese profile; voice items ("có nghĩa là", DN, NHNN); BACKLOG 43 (Edge
-  startup boost holds updates). `ban-giao.md` does not mention the share repo (self-edit refused;
-  the user decides). Never ask about Apple Events JS.
-
-## Traps hit this session
-- A group list cut from the front swaps anonymous turns back and forth; with `voiceTag` every swap
-  remakes takes (yZfh: 108 unplayed). Never pass the engine a windowed `getGroups()`.
-- `gh` inside the sandbox fails TLS (OSStatus -26276): run it with the sandbox off.
-- zsh does not split an unquoted `$VAR` of paths: use an array.
-
-## Suggested next step
-- Promote the share build if not done, then the live checks above.
+- Version is still 2.5.2: this work is committed unfinished and unbumped; bump to 2.5.3 when done. `npm test`: 707 pass,
+  0 fail, 1 skip after the last edit. `tools/regress.js` not saved (14 worse numbers explained in
+  the work: fewer segments from SEG_STRETCH, 2 tiny gaps, +2/+4 voice switches). Not bumped.
+- Done in this work (dub-planner, dubbing, background, dub-engine, tests): prompt 2, cut-off
+  answer salvage (`upTo`) and continuation, `last` speaker per part, labels with affiliation,
+  `findAt` across lines, `afterSentenceTail`, label-position voice cuts, TURN_CUTS, SEG_STRETCH,
+  8 voices, debug snapshot `speakers`/`speakerRead`. Harnesses: tests/harness/speaker-lab, yt-watch,
+  yt-driver (never run; it toggles sync `dubEnabled`).
+## Found live (yt-watch on JBvcMfa7K6E): the AI reading never reached the engine
+- Cause 1: askSpeakers timeout 12 s + 0.4 ms/char = 22.5 s for a 900-line part; the call was
+  dropped (billed anyway). Fixed: 15 s + 0.4 ms/char + 4 ms per output token of the cap (<=120 s).
+- Cause 2 (open): on that 900-line part the model lists a turn on almost EVERY line: 16,368 output
+  tokens (MAX_TOKENS) for 55-58 kept turns at temperature 0 and 1; 10,799 tokens for 104 kept at
+  0.5. A 645-line part answered normally. readSpeakerAnswer drops same-speaker turns, so this is
+  pure cost (~$0.025 a part). Parts are now even (1289 = 645 + 644, dubbing.js `size`).
+- Next: run lab `p4jb` then `p4` (prompt forbidding same-speaker turns, in
+  lab-data/speaker-lab-runs.js), score with /tmp/claude-501/lab/eval.js vs `v2`; adopt it as
+  prompt 3 (bump SPEAKER_PROMPT_VERSION) only if quality holds. `SPEAKER_TEMPERATURE` stays 0
+  unless a lab run shows 1.0 is better (Google advises 1.0 for Gemini 3; it did not stop this).
+- The lab now mirrors production: debug answers carry `usage`, `finish`, `raw` (when capped);
+  runs take `temperature` and `fixed` parts. The lab cost ledger is `lab:<id>`.
+- Then: yt-watch JBvcMfa7K6E again (expect speakerRead "read", voices > 1), docs (DUBBING "Who
+  speaks", SUBTITLE analyzeSpeakers `last`/`lab`/`upTo`, TESTING harnesses, MAP), BACKLOG leftovers
+  (17 cuts inside a phrase; 71 mid-line turns missed on recognizer captions; long podcasts miss the
+  turn back after short interjections; translation also runs Gemini 3 below temperature 1.0),
+  version-history 2.5.3 entry, bump, regress --save, commit own paths, push, share --stage/--promote.
+- Budget: today's extension spend ~0.97 of 1.15 USD at the cut.
+## Carried over (still open)
+- Joint-takes branches; the 2.5.0 Coursera start hold not yet seen live.
+- CI gaps: VC++ runtime, browser steps, a Vietnamese Windows profile.
+- Voice items: "có nghĩa là", DN, NHNN. BACKLOG 43. ban-giao.md does not mention the share repo.
+- Never ask the user about Chrome's Apple Events setting.

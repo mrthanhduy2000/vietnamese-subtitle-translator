@@ -2,3 +2,4 @@
 node_modules/
 .claude/.cc-writes/
 review-archive/
+tests/harness/lab-data/
