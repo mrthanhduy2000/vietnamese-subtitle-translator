@@ -9,8 +9,10 @@
 name: Install test
 
 on:
+  # staging: a release is pushed there first and reaches main (and friends' updaters, which read
+  # main only) once this test is green on it (tools/publish-share.js --stage, then --promote)
   push:
-    branches: [main]
+    branches: [main, staging]
   workflow_dispatch:
 
 concurrency:
@@ -120,6 +122,18 @@ jobs:
           $got = (Get-Content $mf -Raw -Encoding UTF8 | ConvertFrom-Json).version
           if ($got -ne $want) { throw "updater left $got, expected $want" }
           if (Test-Path "$ext\stale-file.js") { throw 'a file gone from the release stayed' }
+
+      - name: The guide page has a Chromium browser to open in
+        run: |
+          # The installer's own function (the install itself runs with DPD_NO_OPEN): the default
+          # browser when it is Chromium-based, else Chrome, Coc Coc, Brave, Edge
+          $src = (Invoke-WebRequest -UseBasicParsing $env:URL).Content
+          $m = [regex]::Match($src, '(?ms)^function Get-ChromiumBrowser \{.*?^\}')
+          if (-not $m.Success) { throw 'Get-ChromiumBrowser not found in the installer' }
+          Invoke-Expression $m.Value
+          $b = Get-ChromiumBrowser
+          "browser: $b"
+          if (-not $b -or -not (Test-Path $b)) { throw 'no Chromium browser found (Edge is on every Windows 10/11)' }
 
       - name: Update (run the same command again)
         run: |

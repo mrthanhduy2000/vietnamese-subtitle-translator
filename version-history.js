@@ -4,6 +4,25 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.5.2", luc: "16/10/2026", ten: "Mỗi người nói một giọng, cài được trên mọi trình duyệt nhân Chromium",
+            y: [
+                "Lồng tiếng tự nhận ra người nói và cho mỗi người một giọng riêng, tối đa 5 giọng, bật sẵn. Người nói nhiều nhất dùng giọng chính; từ người thứ ba trở đi tiện ích tự chọn giọng khác hẳn. Video chỉ có một người nói vẫn giữ một giọng, kể cả khi phụ đề tự động đánh dấu nhầm quanh đoạn nhạc hay câu trích lời. Muốn cả video một giọng: Cài đặt > Lồng tiếng > Giọng theo người nói.",
+                "Phụ đề YouTube phần lớn không đánh dấu đổi người nói. Có khóa Gemini, tiện ích đọc lời gốc một lần cho mỗi video để biết ai nói câu nào, nam hay nữ, rồi chọn giọng hợp giới tính (ước tính vài chục đồng cho video 10 phút, lưu lại cho lần xem sau). Kết quả không chắc chắn, hay một người chỉ chen một câu trích dẫn, thì bỏ qua, không thêm giọng. Tắt bằng ô \"Dùng Gemini nhận ra ai đang nói\".",
+                "Phụ đề ghi tên người nói kiểu \"Yeah. ANDREW HUBERMAN:\" không còn bị hiểu thành một người thứ ba.",
+                "Trong hội thoại nói qua lại rất nhanh, mỗi lượt là một câu đọc riêng nên giọng bắt đầu trễ hơn một chút so với đọc một giọng. Không câu nào bị bỏ, không chữ nào bị lược.",
+                "Cài cho bạn bè: bộ cài một lệnh nay mở trang hướng dẫn trong trình duyệt nhân Chromium có trên máy (Chrome, Cốc Cốc, Edge, Brave, Opera, Vivaldi, Arc), và trang tự chỉ đúng địa chỉ, đúng tên nút của trình đó. Bộ tự cập nhật chờ đúng trình duyệt đang dùng tiện ích đóng lại rồi mới chép bản mới.",
+                "Lần cài đầu, trang Cài đặt tự mở với phần chào mừng: chỗ dán khóa Gemini, trạng thái giọng VieNeu, cách ghim tiện ích và phím tắt.",
+                "Máy chủ giọng VieNeu của bộ cài chỉ nghe trên chính máy này (127.0.0.1), máy khác trong mạng không gọi được.",
+                "Xóa âm thanh đã lưu của một video nay xóa cả các giọng phụ."
+            ],
+            bang: { cot: ["50 video đã lưu (mô phỏng)", "2.5.1", "Nay"], hang: [
+                ["Video hội thoại có dấu >> đọc mỗi người một giọng khi để mặc định", "0 / 5", "5 / 5"],
+                ["Video bị chen nhầm giọng thứ hai", "0", "0"],
+                ["Câu bị bỏ / chữ bị lược", "0 / 0", "0 / 0"],
+                ["Trễ trung vị ở video nói qua lại nhanh nhất", "0,85 giây (một giọng)", "1,18 giây"]
+            ] }
+        },
+        {
             v: "2.5.1", luc: "11/10/2026", ten: "Giọng Mỹ Duyên đều nhịp hơn, mô hình giọng nằm trong máy",
             y: [
                 "Nhịp đọc giữa hai câu liền nhau đều hơn: tốc độ giảm từ từ thay vì lên xuống liên tục, và tiện ích tính cả nhịp riêng của từng câu VieNeu đọc ra, không chỉ tốc độ phát. Đo trên 45 video đã lưu, số cặp câu nghe chênh nhịp quá 15% giảm gần một nửa; ngay trong cùng một câu gần như không còn.",

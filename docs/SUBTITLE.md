@@ -322,16 +322,23 @@ waits (up to 10 s) for a run left over from the previous video instead of skippi
 
 ### Anything -> service worker: `chrome.runtime.sendMessage({ action })`
 
-15 actions in the `ROUTES` table at the end of `background.js`, plus `ttsAbort`, which is handled
+16 actions in the `ROUTES` table at the end of `background.js`, plus `ttsAbort`, which is handled
 synchronously *before* routing (it must not wait on the queue):
 
 `ensureYtBridge` · `translateUnit` · `translateUnitStore` · `synthesizeSpeech` · `audioCacheGet` ·
-`audioCacheDelete` · `cacheStats` · `cacheClear` · `modelStatus` · `testKey` · `openOptions` ·
+`audioCacheDelete` · `cacheStats` · `cacheClear` · `modelStatus` · `testKey` · `analyzeSpeakers` · `openOptions` ·
 `costStats` · `costReset` · `localTtsStatus` · `localWarm` (`dubbing.js` asks it when dubbing starts:
 a tiny take pages a cold VieNeu model in, only when cold and the queue is empty) · `ttsAbort`
 (`condenseSpeech` had no caller and was removed in 1.7.3). `translateUnit` answers `engine`: `gemini`, `google` (Gemini off
 or no key: the chosen engine) or `google_fallback` (Gemini failed or the budget ran out: shown, but
 YouTube does not save such a video, so the next visit asks Gemini again).
+
+`analyzeSpeakers` (2.5.2, `dubbing.js` `readSpeakers`): `{ lines: [string], roster: [{ id, label,
+gender }], videoKey, videoSec, videoTitle }` -> `{ ok: true, speakers: [{ id, label, gender }], turns:
+[{ line, speaker, at }], confidence, model, v, fromCache? }` or `{ ok: false, reason }` (`short` under
+4 lines, `no_key` with AI off or no key, `budget`, `no_model`, or the Gemini error type such as
+`bad_output`). `line` counts from 0 within the request; at most 900 lines, 300 characters each. See
+`DUBBING.md` "Who speaks".
 
 To add one: write `handleX`, add `X: handleX` to `ROUTES`. Nothing else.
 
@@ -359,7 +366,7 @@ changes (polled once a second, never for the first track seen); `ytKhiDoiAmThanh
 
 ## Storage keys
 
-### `chrome.storage.sync` (33 settings written by `options.js` `collectSettings`, plus `originalFirst` and `uiTheme`)
+### `chrome.storage.sync` (34 settings written by `options.js` `collectSettings`, plus `originalFirst` and `uiTheme`)
 
 Subtitle: `subStyle` (nested object; defaults live in `subtitle-style.js`), `dualMode`,
 `perCueMode`, `skipSameLang` (on: a video's own Vietnamese track is used as is; off: translate from
@@ -379,8 +386,10 @@ UI: `uiTheme` (`auto` / `light` / `dark`), written by `theme.js`, **not** by `co
 also mirrored into `localStorage` as `cstUiTheme` so the page can paint before storage resolves.
 
 Dubbing: `dubEnabled`, `dubProvider`, `dubTtsModel`, `dubVoiceName`, `dubGeminiVoice`,
-`dubGeminiVoice2`, `dubLocalVoice`, `dubLocalVoice2`, `dubSecondVoice` (off by default: every speaker is S1,
-see `DubEngine.oneVoice`; who speaks: `DUBBING.md` "Who speaks", 2.4.8), `dubDuck`, `dubVolume`, `dubPrepareWait`.
+`dubGeminiVoice2`, `dubLocalVoice`, `dubLocalVoice2`, `dubSpeakers` (2.5.2: `auto`, the default, a voice
+per speaker up to five; `one`, every speaker S1 via `DubEngine.oneVoice`), `dubSpeakerAi` (2.5.2, on: Gemini reads who
+speaks on YouTube; `DUBBING.md` "Who speaks"), `dubDuck`, `dubVolume`, `dubPrepareWait`. `dubSecondVoice` (off by
+default until 2.5.1) is retired; old stored values are ignored.
 `dubMaxRate` (0 = automatic, else 1.1 to 1.5: caps every rate in `DubEngine.chooseRate` /
 `paceLimits` through `userMaxRate()`, applied live). `dubCondense` is retired (condensing is
 permanently off, see `DUBBING.md`); old stored values are ignored.

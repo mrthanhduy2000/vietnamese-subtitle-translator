@@ -3,17 +3,20 @@
 # by the run-vieneu.pyw supervisor on Windows).
 #
 # Every 6 hours it asks GitHub for the version; a newer one is downloaded into <VieNeu>/.dpd-staged.
-# The staged copy goes over the extension folder only while Chrome is NOT running (at sign-in, or
-# after the user quits Chrome): Chrome reads an unpacked extension from disk when it starts, so the
-# next start runs the new version, and a running Chrome never mixes old and new files (a service
-# worker, a content script and the options page from two versions at once). Not
+# The staged copy goes over the extension folder only while no browser that loaded it is running (at
+# sign-in, or after the user quits it): Chrome, Coc Coc, Edge, Brave, Opera, Vivaldi and Arc read an
+# unpacked extension from disk when they start, so the next start runs the new version, and a
+# running browser never mixes old and new files (a service worker, a content script and the options
+# page from two versions at once). Which browsers hold it: the profiles whose Preferences name this
+# folder (browser_running); a browser kept alive in the background with the extension (Edge's
+# startup boost) holds the update back until it really exits. Not
 # chrome.runtime.reload(): it does work while developer mode is ON (headless branded Chrome, a
 # throwaway profile, 2 of 2 runs on 2026-10-11: still enabled, storage intact), but with developer
 # mode OFF a reload brings the unpacked extension back DISABLED (unsupportedDeveloperExtension), and
 # the earlier "blocked" result (2026-10-08) was such a profile. A friend may switch developer mode
 # off after loading the extension, and a disabled extension looks broken; the restart path needs
 # neither, and it keeps the user's settings and API key.
-# The extension folder keeps its path (Chrome keys settings to it); only its files change.
+# The extension folder keeps its path (the browser keys settings to it); only its files change.
 # Every run also keeps the pinned voice model current (<VieNeu>/models/hf, the extension's
 # tools/vieneu-pin.py): a quick check (marker, every file at its pinned size, refs/main), and on any
 # mismatch an install, which repairs the copy or withdraws its marker so the server starts online;
@@ -33,6 +36,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import unicodedata
 import urllib.request
 import zipfile
 
@@ -81,15 +85,128 @@ def ext_dir():
         return f.read().strip()
 
 
-def chrome_running():
+# Chromium browsers a friend may load the unpacked extension in: a fragment of the user-data folder
+# path (lower case, "/" separators) and the main process names (macOS executable, Windows image).
+# Coc Coc on macOS: CocCoc.app, user data ~/Library/Application Support/CocCoc/Browser (seen
+# 2026-10-16); on Windows it runs as browser.exe, as Yandex does.
+BROWSERS = [
+    ("Chrome", ["/google/chrome"], ["Google Chrome", "Google Chrome Beta", "Google Chrome Dev", "Google Chrome Canary"], ["chrome.exe"]),
+    ("Coc Coc", ["/coccoc/"], ["CocCoc", "C\u1ed1c C\u1ed1c"], ["browser.exe"]),
+    ("Edge", ["/microsoft edge", "/microsoft/edge"], ["Microsoft Edge", "Microsoft Edge Beta", "Microsoft Edge Dev", "Microsoft Edge Canary"], ["msedge.exe"]),
+    ("Brave", ["/bravesoftware/"], ["Brave Browser", "Brave Browser Beta", "Brave Browser Nightly"], ["brave.exe"]),
+    ("Opera", ["operasoftware", "/opera"], ["Opera", "Opera GX", "Opera Beta"], ["opera.exe"]),
+    ("Vivaldi", ["/vivaldi"], ["Vivaldi"], ["vivaldi.exe"]),
+    ("Arc", ["/arc/"], ["Arc"], ["arc.exe"]),
+    ("Yandex", ["/yandex"], ["Yandex"], ["browser.exe"]),
+    ("Chromium", ["/chromium"], ["Chromium"], ["chrome.exe"]),
+]
+
+
+def norm(s):
+    return unicodedata.normalize("NFC", s).lower()      # macOS hands out decomposed names
+
+
+def process_names():
+    # Executable names of every running process, lower case: one call, not one per browser
+    if WINDOWS:
+        out = subprocess.run(["tasklist", "/FO", "CSV", "/NH"], capture_output=True, text=True,
+                             errors="replace", creationflags=NO_WINDOW).stdout   # no console window
+        return {norm(line.split('","')[0].strip('"')) for line in out.splitlines() if line.startswith('"')}
+    out = subprocess.run(["ps", "-axo", "comm="], capture_output=True, text=True, errors="replace").stdout
+    return {norm(os.path.basename(line.strip())) for line in out.splitlines() if line.strip()}
+
+
+def data_roots():
+    home = os.path.expanduser("~")
+    if WINDOWS:
+        roots = [os.environ.get("LOCALAPPDATA") or os.path.join(home, "AppData", "Local"),
+                 os.environ.get("APPDATA") or os.path.join(home, "AppData", "Roaming")]
+        # Arc keeps its user data inside its Store package
+        pkgs = os.path.join(roots[0], "Packages")
+        try:
+            roots += [os.path.join(pkgs, d, "LocalCache", "Local") for d in os.listdir(pkgs) if d.lower().startswith("thebrowsercompany.arc")]
+        except OSError:
+            pass
+        return roots
+    return [os.path.join(home, "Library", "Application Support"), os.path.join(home, ".config")]
+
+
+def user_data_dirs(depth=3):
+    # Every Chromium user-data folder (it holds a "Local State" file), up to `depth` folders down
+    found = []
+
+    def walk(d, left):
+        try:
+            names = os.listdir(d)
+        except OSError:
+            return
+        if "Local State" in names:
+            found.append(d)
+            return
+        if left:
+            for n in names:
+                p = os.path.join(d, n)
+                if not n.startswith(".") and os.path.isdir(p) and not os.path.islink(p):
+                    walk(p, left - 1)
+    for r in data_roots():
+        walk(r, depth)
+    return found
+
+
+def holders(ext):
+    # The user-data folders whose profiles have this extension folder loaded: Chromium records an
+    # unpacked extension with its absolute path in the profile's (Secure) Preferences. On Windows the
+    # case of a path may differ between the browser's record and ours.
+    variants = {json.dumps(ext)[1:-1], json.dumps(ext, ensure_ascii=False)[1:-1]}
+    variants |= {unicodedata.normalize("NFD", v) for v in variants}
+    needles = {v.encode("utf-8") for v in variants}
+    if WINDOWS:
+        needles = {n.lower() for n in needles}
+    out = []
+    for d in user_data_dirs():
+        try:
+            profiles = [d] + [os.path.join(d, n) for n in os.listdir(d)]
+        except OSError:
+            continue
+        hit = False
+        for p in profiles:
+            for name in ("Secure Preferences", "Preferences"):
+                try:
+                    with open(os.path.join(p, name), "rb") as f:
+                        data = f.read()
+                except OSError:
+                    continue
+                if WINDOWS:
+                    data = data.lower()
+                if any(n in data for n in needles):
+                    hit = True
+                    break
+            if hit:
+                break
+        if hit:
+            out.append(d)
+    return out
+
+
+def browser_running(ext):
+    # True while a browser that has the extension loaded is open: only those count (an Edge kept
+    # alive in the background must not hold back a Chrome user's update). No profile names the
+    # folder: no browser reads it, the files can change. Held by a browser the table cannot place:
+    # any known one counts.
+    found = holders(ext)
+    if not found:
+        return False
     try:
-        if WINDOWS:
-            out = subprocess.run(["tasklist", "/FI", "IMAGENAME eq chrome.exe", "/NH"], capture_output=True,
-                                 text=True, creationflags=NO_WINDOW).stdout   # no console window
-            return "chrome.exe" in out.lower()
-        return subprocess.run(["pgrep", "-x", "Google Chrome"], capture_output=True).returncode == 0
+        running = process_names()
     except OSError:
         return True                          # cannot tell: do not touch the files
+    watch = []
+    for _name, frags, mac, win in BROWSERS:
+        if any(any(f in norm(d).replace("\\", "/") + "/" for f in frags) for d in found):
+            watch += win if WINDOWS else mac
+    if not watch:
+        watch = [p for b in BROWSERS for p in (b[3] if WINDOWS else b[2])]
+    return any(norm(p) in running for p in watch)
 
 
 def fetch(url, timeout=60):
@@ -158,7 +275,7 @@ def apply(ext):
     if os.path.exists(me) and not same(me, os.path.abspath(__file__)):
         shutil.copy2(me, os.path.abspath(__file__))
     shutil.rmtree(STAGE, ignore_errors=True)
-    log("applied %s (Chrome was closed; its next start runs it)" % staged)
+    log("applied %s (the browser was closed; its next start runs it)" % staged)
 
 
 def save_state(state):
@@ -302,8 +419,8 @@ def main():
     if os.path.isdir(STAGE):
         if vtuple(manifest_version(STAGE)) <= vtuple(local):
             shutil.rmtree(STAGE, ignore_errors=True)
-        elif chrome_running():
-            pass                                  # wait for Chrome to close
+        elif browser_running(ext):
+            pass                                  # wait for the browser to close
         else:
             apply(ext)
 

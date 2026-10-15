@@ -34,8 +34,8 @@
         box.setAttribute("role", "alert");
         box.style.cssText = "margin:0 0 14px;padding:12px 14px;border-radius:8px;border:1px solid #d97706;background:rgba(217,119,6,.12);color:inherit;font-size:13px;line-height:1.5";
         const msg = doc.createElement("div");
-        msg.textContent = `Chrome vẫn đang chạy bản ${loaded} của tiện ích, còn file trên máy đã là bản ${disk}. ` +
-            "Các tab YouTube / Coursera vẫn dùng mã cũ cho tới khi nạp lại (ví dụ nút Cài đặt cũ bị Chrome chặn: ERR_BLOCKED_BY_CLIENT).";
+        msg.textContent = `Trình duyệt vẫn đang chạy bản ${loaded} của tiện ích, còn file trên máy đã là bản ${disk}. ` +
+            "Các tab YouTube / Coursera vẫn dùng mã cũ cho tới khi nạp lại (ví dụ nút Cài đặt cũ bị trình duyệt chặn: ERR_BLOCKED_BY_CLIENT).";
         const btn = doc.createElement("button");
         btn.type = "button";
         btn.textContent = "Nạp lại tiện ích ngay";

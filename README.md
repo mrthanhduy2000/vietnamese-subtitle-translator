@@ -4,17 +4,22 @@
   <img src="icons/icon.png" alt="Biểu tượng tiện ích" width="100"/>
 </div>
 
-Tiện ích Chrome (Manifest V3) dịch phụ đề video sang tiếng Việt bằng Gemini và lồng tiếng Việt bằng
-giọng VieNeu chạy ngay trên máy. Dùng tốt nhất trên **YouTube** và **Coursera**; các trang video khác
-có phụ đề dạng text track cũng dịch được khi bạn bấm Dịch.
+Tiện ích trình duyệt (Manifest V3, nhân Chromium) dịch phụ đề video sang tiếng Việt bằng Gemini và
+lồng tiếng Việt bằng giọng VieNeu chạy ngay trên máy. Dùng tốt nhất trên **YouTube** và **Coursera**;
+các trang video khác có phụ đề dạng text track cũng dịch được khi bạn bấm Dịch.
 
-Không có bước build, không có thư viện ngoài: mã nguồn trong thư mục này chính là tiện ích.
+Chạy trên Chrome, Cốc Cốc, Edge, Brave, Opera, Vivaldi, Arc và Chromium. Không chạy trên Firefox và
+Safari. Không có bước build, không có thư viện ngoài: mã nguồn trong thư mục này chính là tiện ích.
+
+Bạn bè cài bằng một lệnh từ kho công khai
+[dich-phu-de-long-tieng](https://github.com/mrthanhduy2000/dich-phu-de-long-tieng) (bản dựng từ kho
+này, có bộ cài cho Mac và Windows, tự cập nhật).
 
 ## Tính năng
 
 ### Phụ đề
-- Dịch phụ đề bằng Gemini, tự dò model mà khóa API của bạn dùng được (mặc định "Tự động"); Gemini lỗi
-  hoặc hết ngân sách thì dự phòng bằng Google Translate.
+- Dịch bằng Gemini, tự dò model mà khóa API của bạn dùng được (mặc định "Tự động"); Gemini lỗi hoặc
+  hết ngân sách thì dự phòng bằng Google Dịch.
 - Dịch theo ngữ cảnh: gửi kèm câu trước, bản dịch trước, tiêu đề và mô tả video, nhắc lại chủ thể
   được nêu từ xa, để đại từ và thuật ngữ nhất quán trong cả bài.
 - Từ điển thuật ngữ 19 nhóm ngành (hơn 1.600 thuật ngữ): tên sản phẩm, viết tắt được giữ nguyên,
@@ -27,9 +32,18 @@ Không có bước build, không có thư viện ngoài: mã nguồn trong thư 
 
 ### Lồng tiếng Việt
 - Giọng [VieNeu-TTS](https://github.com/pnnbao97/VieNeu-TTS) chạy trên máy: miễn phí, 25 giọng theo
-  vùng miền, có tùy chọn giọng thứ hai cho người nói khác.
+  vùng miền, mặc định Mỹ Duyên.
 - Khớp nhịp theo mốc thời gian phụ đề bằng tốc độ đọc và khoảng nghỉ. **Không bao giờ lược bớt lời**:
   người nói nhanh thì giọng đọc nhanh hơn (có giới hạn tốc độ tối đa), chứ không cắt nội dung.
+- **Mỗi người nói một giọng (tự bật từ 2.5.2).** Video có 2 đến 5 người nói thì mỗi người một giọng;
+  người nói nhiều nhất dùng giọng chính. Video chỉ một người nói giữ một giọng, kể cả khi phụ đề tự
+  động đánh dấu nhầm quanh đoạn nhạc hay câu trích lời. Tiện ích dựa vào:
+  - tên người nói trong phụ đề (`TÊN:`), nếu có;
+  - nếu không có tên và có khóa Gemini (YouTube): Gemini đọc lời gốc một lần cho mỗi video để biết ai
+    nói câu nào, nam hay nữ; giọng được chọn hợp giới tính. Ước tính vài chục đồng cho video 10 phút,
+    xem lại không tốn thêm. Kết quả Gemini không chắc chắn thì bỏ qua;
+  - còn lại: dấu đổi người nói `>>` trong phụ đề, chỉ khi chúng thật sự tạo thành hội thoại.
+  Chọn "Một giọng cho cả video" trong Cài đặt > Lồng tiếng nếu không muốn.
 - Ngắt nghỉ theo cấu trúc câu, đọc số và ký hiệu kiểu Việt, đọc đúng tên riêng, thương hiệu, viết tắt
   tiếng Anh.
 - Tự hạ tiếng gốc khi giọng Việt đang đọc; không chồng lên bản lồng tiếng AI tiếng Việt của YouTube.
@@ -40,37 +54,60 @@ Không có bước build, không có thư viện ngoài: mã nguồn trong thư 
   khiển.
 - Chế độ sử dụng: Cao cấp, Cân bằng (khuyên dùng), Tiết kiệm, Chỉ phụ đề.
 - Phím tắt: `Alt+S` bật/tắt phụ đề, `Alt+D` bật/tắt lồng tiếng, `Alt+Shift+V` mở bảng điều khiển
-  (đổi tại `chrome://extensions/shortcuts`).
+  (đổi tại `chrome://extensions/shortcuts`; Edge: `edge://extensions/shortcuts`).
 - Giao diện Sáng / Tối, sao lưu và khôi phục cài đặt, mục Lịch sử phiên bản trong Cài đặt.
+- Lần cài đầu tiên, trang Cài đặt tự mở với phần chào mừng: chỗ dán khóa Gemini, trạng thái giọng
+  VieNeu, cách ghim tiện ích và phím tắt.
 
 ## Cài đặt
+
+### Cách 1: một lệnh (khuyên dùng)
+
+Cài cả tiện ích lẫn giọng VieNeu, cho VieNeu tự chạy cùng máy và tự cập nhật. Chi tiết, bảng lỗi, cách
+gỡ: [dich-phu-de-long-tieng](https://github.com/mrthanhduy2000/dich-phu-de-long-tieng).
+
+**Mac** (Terminal):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mrthanhduy2000/dich-phu-de-long-tieng/main/install-mac.sh | bash
+```
+
+**Windows** (Windows PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/mrthanhduy2000/dich-phu-de-long-tieng/main/install-windows.ps1 | iex
+```
+
+Xong, một trang hướng dẫn tự mở trong trình duyệt nhân Chromium của bạn, chỉ đúng địa chỉ và tên nút
+của trình đó. Trình duyệt không cho chương trình nào tự bật một tiện ích không qua cửa hàng, nên bước
+bật tiện ích (chế độ nhà phát triển, Tải tiện ích đã giải nén) vẫn làm tay một lần.
+
+### Cách 2: từ mã nguồn
 
 1. Tải mã nguồn:
    ```bash
    git clone https://github.com/mrthanhduy2000/vietnamese-subtitle-translator.git
    ```
-2. Mở `chrome://extensions`, bật **Chế độ dành cho nhà phát triển** (Developer mode).
+2. Mở trang tiện ích của trình duyệt (`chrome://extensions`; Edge `edge://extensions`, Brave
+   `brave://extensions`, Opera `opera://extensions`, Vivaldi `vivaldi://extensions`), bật **Chế độ
+   dành cho nhà phát triển** (Developer mode).
 3. Bấm **Tải tiện ích đã giải nén** (Load unpacked) và chọn thư mục vừa tải.
-4. Mở Cài đặt của tiện ích, dán khóa Gemini API (lấy tại
+4. Trang Cài đặt tự mở: dán khóa Gemini API (lấy tại
    [Google AI Studio](https://aistudio.google.com/apikey)). Để model là "Tự động".
 
-### Cập nhật bản mới
+### Cập nhật bản mới (cách 2)
 
 ```bash
 git pull
 ```
 
-Rồi bấm nút **Tải lại** (biểu tượng mũi tên vòng) của tiện ích tại `chrome://extensions`.
-**Đừng gỡ tiện ích rồi cài lại**: Chrome sẽ xóa kho cài đặt, mất khóa API và toàn bộ cài đặt lồng
-tiếng.
+Rồi bấm nút **Tải lại** (biểu tượng mũi tên vòng) của tiện ích tại trang tiện ích, và tải lại trang
+video đang mở. **Đừng gỡ tiện ích rồi cài lại**: trình duyệt sẽ xóa kho cài đặt, mất khóa API và toàn
+bộ cài đặt lồng tiếng.
 
-### Bật giọng VieNeu (cho lồng tiếng)
+### Bật giọng VieNeu bằng tay (cách 2)
 
-Máy chủ giọng là một chương trình riêng, chạy ngoài tiện ích. Cách dễ nhất là bộ cài một lệnh ở kho
-công khai [dich-phu-de-long-tieng](https://github.com/mrthanhduy2000/dich-phu-de-long-tieng): nó
-cài cả tiện ích lẫn VieNeu, tự khởi động cùng máy và tự cập nhật.
-
-Cài tay (máy của tác giả đang chạy đúng như sau):
+Máy chủ giọng là một chương trình riêng, chạy ngoài tiện ích. Máy của tác giả đang chạy đúng như sau:
 
 ```bash
 brew install uv
@@ -81,12 +118,12 @@ cp tools/share/vieneu/openai_speech.py ~/VieNeu-TTS/apps/   # chạy trong thư 
 ```
 
 - Bản VieNeu bị khóa ở một phiên bản, vì 25 giọng (trong đó có Mỹ Duyên) nằm trong chính mã VieNeu.
-- `openai_speech.py` là bản vá máy chủ của tiện ích này (trả luồng khi phía gọi ngắt giữa chừng).
+- `openai_speech.py` là bản vá máy chủ của tiện ích này: trả luồng khi phía gọi ngắt giữa chừng, và
+  chỉ nghe trên `127.0.0.1` nếu không đặt `HOST` khác (bản gốc mở cho cả mạng).
 - Mô hình 580 MB nằm cố định ở `~/VieNeu-TTS/models/hf`, không nằm trong `~/.cache`, vì công cụ
   dọn đĩa hay xóa thư mục đó. Danh sách tệp và mã băm: `tools/share/vieneu-model.json`.
 
-Khởi động máy chủ với mô hình cố định và không lên mạng (chỉ mở trên `127.0.0.1:8000`, máy khác trong
-mạng không gọi được), rồi kiểm tra:
+Khởi động máy chủ với mô hình cố định và không lên mạng, rồi kiểm tra:
 
 ```bash
 cd ~/VieNeu-TTS && HF_HOME=~/VieNeu-TTS/models/hf HF_HUB_OFFLINE=1 .venv/bin/python -m apps.openai_speech
@@ -100,8 +137,27 @@ Máy chủ chưa chạy thì tiện ích báo một lần rồi tự chờ, máy
 
 1. Mở video YouTube, bài giảng Coursera hoặc trang video khác.
 2. Bấm nút của tiện ích trên thanh điều khiển video (YouTube, Coursera) hoặc bấm **Dịch** trong bảng
-   điều khiển (biểu tượng tiện ích trên thanh công cụ Chrome).
+   điều khiển (biểu tượng tiện ích trên thanh công cụ).
 3. Mở thực đơn trên video để bật lồng tiếng, chỉnh cỡ chữ, âm lượng, mở bản chép lời.
+4. Trên nhãn lồng tiếng, "Lồng tiếng: 3 giọng theo người nói" nghĩa là tiện ích đã nhận ra 3 người nói.
+
+## Khi gặp lỗi
+
+| Hiện tượng | Cách xử lý |
+|---|---|
+| Có phụ đề nhưng không có giọng | `curl 127.0.0.1:8000/health`. Không trả lời thì khởi động VieNeu (Cài đặt > Lồng tiếng chỉ đúng lệnh cho máy bạn) |
+| YouTube báo không đọc được nội dung phụ đề | Tải lại trang video; vẫn lỗi thì xem `docs/DANGER.md` §pot |
+| Giọng thứ hai chen vào video chỉ có một người | Ghi lại đường dẫn video để sửa quy tắc. Tạm thời: Cài đặt > Lồng tiếng > Giọng theo người nói > Một giọng cho cả video |
+| Model Gemini báo 404 | Để model là "Tự động": khóa mới không gọi được một số model cũ, tiện ích tự dò model gọi được |
+| Sau khi sửa mã, trang video chạy bản cũ | Bấm Tải lại ở trang tiện ích rồi tải lại trang video |
+
+## Quyền riêng tư
+
+- Lời phụ đề được gửi tới Gemini (Google) bằng khóa của bạn, hoặc tới Google Dịch khi tắt AI hay
+  Gemini lỗi. Khi bật "Dùng Gemini nhận ra ai đang nói", lời gốc của video YouTube được gửi thêm một
+  lần cho việc đó.
+- Giọng đọc chạy hoàn toàn trên máy; máy chủ VieNeu chỉ mở ở `127.0.0.1:8000`.
+- Khóa Gemini nằm trong kho cài đặt của trình duyệt, chỉ dùng để gọi Gemini.
 
 ## Giới hạn đã biết
 
@@ -109,15 +165,25 @@ Máy chủ chưa chạy thì tiện ích báo một lần rồi tự chờ, máy
   bấm Dịch mỗi lần mở trang. Chưa hỗ trợ trình phát nằm trong khung nhúng từ tên miền khác (video Vimeo
   nhúng, edX) và trang tự vẽ phụ đề không qua text track (Udemy).
 - Lồng tiếng cần máy chủ VieNeu đang chạy trên cùng máy.
+- Nhận ra người nói dựa trên chữ của phụ đề (tên, dấu `>>`, hoặc Gemini đọc lời), không nghe giọng thật.
+  Một lượt đổi người mà phụ đề không đánh dấu và Gemini không nhận ra thì vẫn đọc bằng giọng trước.
+- Trong hội thoại nói qua lại rất nhanh, mỗi lượt là một câu đọc riêng nên giọng bắt đầu trễ hơn một
+  chút so với đọc một giọng (đo trên video nhanh nhất: trễ trung vị 0,85 lên 1,18 giây). Không câu
+  nào bị bỏ.
+- Không có trên Chrome Web Store: bật tiện ích cần chế độ nhà phát triển.
 
 ## Dành cho người phát triển
 
 ```bash
 npm test                     # chạy toàn bộ kiểm thử, không cần mạng, không cần cài gói
-node tools/bump-version.js   # tăng số phiên bản sau mỗi lần sửa mã
+node tools/regress.js        # lưới hồi quy trên mọi video đã rà soát (mô phỏng phát lại)
+node tools/bump-version.js   # tăng số phiên bản sau mỗi lần sửa mã chạy thật
+node tools/publish-share.js --stage    # dựng kho công khai, đẩy lên nhánh staging để cài thử
+node tools/publish-share.js --promote  # chỉ khi cài thử trên staging đạt: đưa đúng bản đó lên main
 ```
 
 - `manifest.json` giữ số phiên bản thật.
-- `docs/` mô tả kiến trúc: `MAP.md` (từng tệp làm gì), `SUBTITLE.md` (luồng phụ đề, khóa lưu trữ),
-  `DUBBING.md` (lồng tiếng), `DANGER.md` (chỗ dễ vỡ), `TESTING.md` (kiểm thử).
+- `CLAUDE.md` là quy tắc làm việc; `docs/` mô tả kiến trúc: `MAP.md` (từng tệp làm gì), `SUBTITLE.md`
+  (luồng phụ đề, thông điệp, khóa lưu trữ), `DUBBING.md` (lồng tiếng, người nói, đồng bộ), `DANGER.md`
+  (chỗ dễ vỡ), `TESTING.md` (kiểm thử), `BACKLOG.md` (lỗi đã biết), `HANDOFF.md` (bàn giao phiên trước).
 - Lịch sử thay đổi đầy đủ nằm ở `version-history.js`, hiển thị trong Cài đặt > Lịch sử phiên bản.

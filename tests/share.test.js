@@ -9,7 +9,7 @@ const os = require("node:os");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const { pathToFileURL } = require("node:url");
-const { build, EXT_TOOLS, notice, releaseAssets, releaseNotes, releaseTag, assetName, releaseModel, publishCheck } =
+const { build, EXT_TOOLS, notice, releaseAssets, releaseNotes, releaseTag, assetName, releaseModel, publishCheck, promote } =
     require("../tools/publish-share.js");
 
 const ROOT = path.join(__dirname, "..");
@@ -566,6 +566,20 @@ test("the updater drops the old ~/.cache model only on our installs, once the se
     }
 });
 
+test("the updater waits only for a browser that has this extension loaded, any Chromium one when it cannot tell", skipPy, () => {
+    const r = pinCase("browsers");
+    assert.deepEqual(r.none, []);
+    assert.equal(r.fresh_chrome_running, false, "loaded in no profile: no browser reads the folder, the update goes in");
+    assert.deepEqual(r.holders, ["Microsoft Edge"], "Chrome's profile names another folder");
+    assert.equal(r.edge_holds_chrome_runs, false, "a Chrome user's update is not held back by Edge, nor the reverse");
+    assert.equal(r.edge_holds_edge_runs, true);
+    assert.deepEqual(r.holders_two, ["CocCoc/Browser", "Microsoft Edge"], "a path written with \\u escapes is found too");
+    assert.equal(r.coccoc_runs, true);
+    assert.equal(r.unknown_holder_vivaldi_runs, true, "held by a browser we cannot place: every one counts");
+    assert.equal(r.cannot_list, true, "no process list: the files are left alone");
+    assert.equal(r.ascii, true);
+});
+
 test("Stop-VieNeu also stops the updater and the model download of that VieNeu folder", () => {
     const ps = R("tools/vieneu-autostart.ps1");
     const start = ps.indexOf("function Stop-VieNeu");
@@ -580,6 +594,57 @@ test("Stop-VieNeu also stops the updater and the model download of that VieNeu f
     // The uninstall stops everything before it removes the folder
     const win = R("tools/share/install-windows.ps1");
     assert.ok(win.indexOf("Invoke-Autostart '-Uninstall'") < win.indexOf("Remove-Item $VnDir -Recurse -Force"));
+});
+
+test("the Mac installer opens the guide in the default browser when it is Chromium-based, else in the first one installed", () => {
+    const mac = R("tools/share/install-mac.sh");
+    const pick = (re) => { const m = mac.match(re); assert.ok(m, String(re)); return m[0]; };
+    const fns = [pick(/^CHROMIUM_IDS=.*$/m), pick(/^default_browser\(\) \{[\s\S]*?^\}$/m), pick(/^open_in_chromium\(\) \{[\s\S]*?^\}$/m)].join("\n");
+    const handlers = role => `(\n        {\n        LSHandlerContentType = "public.html";\n        LSHandlerPreferredVersions =         {\n            LSHandlerRoleAll = "-";\n        };\n        LSHandlerRoleAll = "com.apple.safari";\n    },\n        {\n        LSHandlerPreferredVersions =         {\n            LSHandlerRoleAll = "-";\n        };\n        LSHandlerRoleAll = "${role}";\n        LSHandlerURLScheme = https;\n    }\n)\n`;
+    const run = (role, installed) => {
+        const script = `${fns}\ndefaults() { printf '%s' "$FAKE_LS"; }\nopen() { echo "$2"; case " $INSTALLED " in *" $2 "*) return 0;; esac; return 1; }\nopen_in_chromium /x/guide.html; echo "rc=$?"`;
+        const r = spawnSync("/bin/bash", ["-c", script], { encoding: "utf8", env: { PATH: process.env.PATH, FAKE_LS: handlers(role), INSTALLED: installed } });
+        assert.equal(r.status, 0, r.stderr);
+        return r.stdout.trim().split("\n");
+    };
+    assert.deepEqual(run("com.microsoft.edgemac", "com.google.Chrome com.microsoft.edgemac"), ["com.microsoft.edgemac", "rc=0"], "Edge is the default: not Chrome");
+    assert.deepEqual(run("com.apple.safari", "com.coccoc.Coccoc"), ["com.google.Chrome", "com.coccoc.Coccoc", "rc=0"], "Safari cannot run it: the first Chromium browser");
+    assert.equal(run("com.apple.safari", "").pop(), "rc=1", "none at all: the installer says which browsers to get");
+    assert.match(mac, /if ! open_in_chromium "\$GUIDE"; then\s+NO_CHROMIUM=1/);
+});
+
+test("--promote moves main only to the staged commit whose install test passed", () => {
+    const HEAD = "a".repeat(40);
+    const world = ({ staged = HEAD, runs }) => {
+        const calls = [];
+        const exec = (cmd, args) => {
+            calls.push([cmd, ...args].join(" "));
+            if (cmd === "git" && args.includes("rev-parse")) return args.includes("FETCH_HEAD") ? staged : HEAD;
+            if (cmd === "git" && args.includes("fetch")) return "";
+            if (cmd === "gh") return JSON.stringify(runs);
+            if (cmd === "git" && args.includes("push")) return "";
+            throw new Error("unexpected " + cmd);
+        };
+        return { calls, exec };
+    };
+    const run = (o) => ({ headSha: HEAD, workflowName: "Install test", url: "https://x/run/1", ...o });
+    const pushes = calls => calls.filter(c => / push /.test(c));
+    let w = world({ runs: [run({ status: "completed", conclusion: "success" })] });
+    promote("/share", { exec: w.exec, log: () => {} });
+    assert.deepEqual(pushes(w.calls), ["git -C /share push origin HEAD:refs/heads/main"]);
+    for (const [o, re] of [
+        [{ runs: [run({ status: "in_progress", conclusion: "" })] }, /still in_progress/],
+        [{ runs: [run({ status: "completed", conclusion: "failure" })] }, /ended "failure"/],
+        [{ runs: [run({ headSha: "b".repeat(40), status: "completed", conclusion: "success" })] }, /no install test on staging/],
+        [{ staged: "c".repeat(40), runs: [run({ status: "completed", conclusion: "success" })] }, /stage this commit first/],
+    ]) {
+        w = world(o);
+        assert.throws(() => promote("/share", { exec: w.exec, log: () => {} }), re);
+        assert.deepEqual(pushes(w.calls), [], String(re));
+    }
+    // the workflow runs on staging, and friends' updaters read main only
+    assert.match(R("tools/share/.github/workflows/install-test.yml"), /branches: \[main, staging\]/);
+    assert.match(R("tools/dichphude-update.py"), /REF or "main"/);
 });
 
 test("the updater LaunchAgent carries DPD_REF only under the install test", () => {

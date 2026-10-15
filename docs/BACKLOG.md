@@ -7,7 +7,7 @@ user hands these decisions to Claude: decide, record the outcome here, never han
 How this file works:
 - Grouped by **area**, not by when it was found; *(found 1.x.y)* after a title says when.
 - Numbers are permanent: code comments and `version-history.js` cite them. Never renumber. The next
-  free number is **43**.
+  free number is **44**.
 - Add an entry whenever you find something out of scope for your task. Once decided, delete it and
   add its number to "Closed" or "Declined" below. An entry that is only partly fixed keeps what is
   left, not the story of the fix (that is in git and `DUBBING.md`).
@@ -57,6 +57,14 @@ none
   repair; `DUBBING.md` "Pinned model"). Remaining: publish the release
   (`node tools/publish-share.js --release-model`), bump the version, push the share repo, install test
   green on all 5 machines. Until then friends still get the model from Hugging Face `main`.
+
+## Install and update
+
+- **43. Edge's startup boost holds friends' updates** *(found 2.5.2, 2026-10-16)*. On Windows, Edge
+  keeps `msedge.exe` running after its last window closes (startup boost, background apps on by
+  default), and `dichphude-update.py` lays a staged version over the folder only while the browser
+  holding it is closed, so a friend on Edge may wait until a restart or a sign-out. Not measured on a
+  real Windows machine. A fix would need an Edge-specific signal that no window is open.
 
 ## No version control history before 2026-09-23
 

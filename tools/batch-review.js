@@ -72,12 +72,15 @@ function review(file) {
 }
 
 // The voice over one saved video. latency: as tools/playback-sim.js LATENCY (undefined, a number of
-// ms, or "busy"); engine: another dub-engine.js module to compare against
+// ms, or "busy"); engine: another dub-engine.js module to compare against. Voices follow the speakers,
+// the shipped default since 2.5.2 (dubbing.js dubSpeakers "auto": a turn ends a take); oneVoice: one
+// voice for everyone, as every run before 2.5.2 measured
 async function simulate(file, opts = {}) {
     const ENG = opts.engine || require(path.join(REPO, "dub-engine.js"));
     const groups = SIM.realGroups(file);
     if (!groups.length) return null;
-    return SIM.run(ENG, { groups, wall: groups[groups.length - 1].end + 5, sps: opts.sps || 3.8, trAhead: 1e9, trLat: () => 0, bgAbort: "queued", latency: opts.latency });
+    return SIM.run(ENG, { groups, wall: groups[groups.length - 1].end + 5, sps: opts.sps || 3.8, trAhead: 1e9, trLat: () => 0, bgAbort: "queued", latency: opts.latency,
+        settings: opts.oneVoice ? undefined : { secondVoice: true } });
 }
 
 // The saved videos of one or more dump folders, one file per video (a later folder wins)

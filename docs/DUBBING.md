@@ -503,32 +503,76 @@ full text). Reopen only with a new failing example, measured on real takes.
 - **Checks (19, 22).** `pron-eval` compares phonemes, not sound; corpus marks are one reader's. The
   user's live listen is the final check (HANDOFF).
 
-## Who speaks: the second voice (2.4.8)
+## Who speaks: a voice per speaker (2.4.8, 2.5.2)
 
-Off by default (`dubSecondVoice`); on, `DubEngine` passes `PLAN.speakerTurns(given)` to
-`buildDubScript` (off: `PLAN.NO_TURNS`, nothing changes for one voice). Before 2.4.8 the voice
-toggled at a ">>", "- " or "NAME:" opening a group's first caption line, which over the user's 46
-saved videos was wrong both ways: the recognizer writes ">>" around music and sighs in one person's
-talk, and lone marks minutes apart (10 one-person videos read 2 to 94% in the second voice; one sigh
-did 94% of a 35-minute vlog), while half the real turns sit inside a group (rtAi3qa8UtQ: 57 of 111)
-and were never seen, so the alternation fell out of step. `speakerTurns(groups)` (memo per array):
+On by default since 2.5.2: `dubSpeakers` is `"auto"` (a voice per speaker, up to five) or `"one"`.
+It replaces `dubSecondVoice` (off by default, now ignored). `"auto"` sets the engine's
+`settings.secondVoice`, and `DubEngine.refresh` passes `PLAN.speakerTurns(given, { ai })` to
+`buildDubScript`; `"one"` passes `PLAN.NO_TURNS` and `oneVoice` makes every segment S1. Before 2.4.8
+the voice toggled at a ">>", "- " or "NAME:" opening a group's first line, which over 46 saved
+videos was wrong both ways: the recognizer writes ">>" around music and sighs in one person's talk
+(10 one-person videos read 2 to 94% in the second voice), while half the real turns sit inside a
+group (rtAi3qa8UtQ: 57 of 111). `speakerTurns(groups, { ai })` (memo per array and AI reading):
 - every mark of the source with its time (inside a line by its share of the characters);
 - a mark next to a sound note (`TURN_NOTE`) is none, except one turn after a question
   ("is there? >> [laughter] >> It's not...");
 - anonymous marks (">>", "- ") count only in a conversation: `TURN_MIN_PAIRED` 4 of them within
   `TURN_PAIR_S` 12 s of another. A "NAME:" label (up to 4 capitalized words, not a credit like
-  "Translator:", not a sentence before a colon) counts when the video has `TURN_MIN_NAMED` 3;
-- anonymous turns alternate; whoever talks `TURN_MAIN_S` 45 s without a turn is the main speaker
-  and gets the main voice, so a missed turn swaps the voices only until then. Named: the longest
-  talker is S1, everyone else S2.
+  "Translator:", not a sentence before a colon) counts when the video has `TURN_MIN_NAMED` 3. The
+  name is what follows the line's last sentence end (`nameOf`) unless that end is a title's
+  (`TITLE_ABBR`): "Yeah. ANDREW HUBERMAN:" is Andrew Huberman, not a third person;
+- named speakers (`source: "names"`) are ranked by talk: S1 the longest, then S2..S5
+  (`MAX_VOICES`); a sixth and on share S2..S5 (`voiceIdx`). Before 2.5.2 all but S1 shared S2;
+- no names: the AI reading below when there is one and it passes (`source: "ai"`);
+- otherwise anonymous turns alternate (`source: "marks"`); whoever talks `TURN_MAIN_S` 45 s without
+  a turn is the main speaker and gets S1, so a missed turn swaps the voices only until then.
 `buildDubScript` gives each piece the speaker at its middle, cuts a piece at the sentence end
-nearest a turn inside it, and ends a segment at every turn. 46 videos: the 10 one-person videos 0
-switches; the 5 conversations keep theirs (dSEZriz716g: the vlogger stays S1 around two sketches).
-Simulated with two voices on, a turn is a new take: late starts rtAi 20 -> 21%, Zq7 23 -> 26%,
-yZfh 71 -> 75%, dSEZ 25 -> 27%, nothing dropped or lost. `batch-review.js` shows `voiceSwitch` and
-`voice2` (second voice's share) per video, so a one-person video showing a switch stands out.
-Limits: without names who is who is only alternation (three people share two voices; a turn the
-recognizer did not mark is not seen); without audio there is no telling voices apart.
+nearest a turn inside it, and ends a segment at every turn. The result also carries `voices`
+(how many are heard) and `genders` (by rank, from the AI) for the cast and the badge.
+
+**AI reading (2.5.2, YouTube).** `dubbing.js` `readSpeakers` asks once per video, after
+`engine.start()`, when the mode is "auto", `dubSpeakerAi` is on (default), AI is on with a key and
+the video has 8 lines or more. `PLAN.speakerLines(groups)` gives the source lines in time order
+(each once, sound-only lines out); they go to `analyzeSpeakers` (background.js, "WHO SPEAKS") in
+parts of 900 (`SPEAKER_PART`, `SPEAKER_MAX_LINES`), each with the roster found so far. The service
+worker uses the cheapest model of `COST.modelChain("cheap")` the key can call (404 or not available
+for the key: the next one), temperature 0 and a JSON schema; checks the budget; bills it with
+`trackText`; caches it in `caches.tr` under `["spk", SPEAKER_PROMPT_VERSION, model, roster, lines]`.
+The answer is speakers `{ id, label, gender }`, turns `{ line, speaker, at }` and a confidence.
+`PLAN.speakerHints` makes times of it (`at`: a turn inside a line, placed by character share),
+`mergeSpeakerHints` joins the parts, `DubEngine.setSpeakerHints` bumps `hintsRev` and replans.
+`acceptAiTurns` takes it only when the captions carry no names:
+- confidence "low": ignored;
+- a turn within `AI_SNAP_S` 2 s of a caption mark moves onto the mark;
+- a speaker with fewer than `AI_MIN_TURNS` 2 turns and under `AI_MIN_TALK_S` 15 s of talk folds
+  into the one around it (a quote read aloud, a one-line clip);
+- fewer than 2 speakers left: ignored, one voice;
+- past the part already read: S1.
+Meant for conversations without marks (JBvcMfa7K6E, X4gL2OWg3V4). **Not measured live yet.**
+
+**Cast.** `castVoices(L, main, second, genders)` (dub-engine.js; voices from `LOCAL_TTS.cast` in
+cost-policy.js): S1 the main voice; S2 the viewer's second voice unless the main one already has it
+or the AI says the other gender; S3..S5 unused catalogue voices of the AI's gender (alternating when
+unknown), the main voice's region first. Defaults: Mỹ Duyên, Thái Sơn, Thục Đoan, Adam, Thùy Dung.
+`setCast(genders)` recasts only when the genders change. Web Speech: a speaker sharing S1's voice
+gets a pitch from `SPEAKER_PITCH`. Gemini TTS has S1 and S2 only; S3 and on read in S1's voice.
+
+**Takes follow the voice.** Each plan carries `voiceTag` (its voice's name). A replan that moves a
+line to another voice (an AI reading arrived, a new cast) drops its take as a text change does;
+`lookupCache` and a late render check it too. `audioKeysForVideo` covers every voice in use. This
+relies on `given` being the whole video's list, as youtube.js and content.js pass it: a list cut
+from the front restarts the anonymous alternation at another mark and swaps voices back and forth
+(`playback-sim.js` cut groups 200 s behind until 2.5.2: yZfh made 108 takes it never played).
+
+**Measured (2.5.2).** 50 saved videos, rules only: the one-person videos 0 switches, the 5
+conversations switch (as in 2.4.8). `batch-review.js` `simulate` now runs the shipped default
+(voices per speaker; `oneVoice` for one), so regress compares that with one voice: in the 5
+conversations more segments and late starts dSEZ 31 -> 34, UIy 903 -> 909, yZfh 121 -> 150 (median
+lag 0.85 -> 1.18 s), Zq7 32 -> 39, rtAi 28 -> 37; nothing dropped or lost; the other 40 videos
+unchanged. `batch-review.js` shows `voiceSwitch` and `voice2` per video, so a one-person video
+showing a switch stands out. Limits: without names or an AI reading, who is who is alternation only
+(a turn the recognizer did not mark is not seen); nothing listens to the audio itself.
+
 
 ## The SYNC block is the tuning bible
 
@@ -751,7 +795,7 @@ Knobs you will actually reach for:
 **Planning window (1.6.3).** `refresh` plans only groups overlapping
 `[step*planStep - planBehind, (step+1)*planStep + planAhead]` (60 / 150 / 300 s) plus one group past
 the edge (for `continuesNext`); the step number is in the signature, so it rebuilds at most once a
-minute while nothing new arrives. Who speaks comes from `PLAN.speakerTurns(given)` over every group
+minute while nothing new arrives. Who speaks comes from `PLAN.speakerTurns(given, { ai })` over every group
 (see "Who speaks" above), so a window and a whole-video build agree. Whole-video planning cost ~90 ms per new group on a 60-minute
 talk; now ~15 ms. `releaseOld` frees audio whose plan left the window (it used to skip them: a leak).
 `audioKeysForVideo` still plans the whole video, on purpose (forget-audio needs every key).

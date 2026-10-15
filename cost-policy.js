@@ -89,6 +89,13 @@
         },
         defaultVoice: "Mỹ Duyên",
         defaultVoice2: "Thái Sơn",
+        // Voices for the third to fifth speaker of a conversation (2.5.2, dub-engine castVoices):
+        // the first free one of the speaker's gender, the main voice's region first. "Adam bựa" is
+        // a comic voice: last.
+        cast: {
+            "Nữ": ["Thục Đoan", "Thùy Dung", "Ngọc Trân", "Đoan Trang", "Ngọc Huyền", "Mai Anh", "Kim Thanh", "Mỹ Duyên", "Trúc Ly", "Ngọc Linh", "Quỳnh Anh"],
+            "Nam": ["Thái Sơn", "Adam", "Minh Triết", "Đức Trí", "Quang Sơn", "Minh Quân Pro", "Anh Khôi", "Phạm Tuyên", "Mạnh Dũng", "Minh Đức", "Xuân Vĩnh", "Thanh Bình", "Thiền Tâm Đức", "Adam bựa"]
+        },
         // sps: tốc độ nói đo trên máy Đàm (âm tiết/giây, không tính khoảng lặng).
         // 2026-09-23: all 25 measured on the local server (3 lecture sentences each, voiced frames
         // only, scaled by 0.984 to match the 4 voices measured earlier, which the method reproduced

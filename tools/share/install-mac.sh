@@ -1,7 +1,7 @@
 #!/bin/bash
 # Cài (hoặc cập nhật) tiện ích "Dịch Phụ Đề & Lồng Tiếng AI" và máy chủ giọng VieNeu trên macOS.
 #   curl -fsSL https://raw.githubusercontent.com/mrthanhduy2000/dich-phu-de-long-tieng/main/install-mac.sh | bash
-# Chạy lại bất cứ lúc nào để cập nhật: cài đặt và khóa API trong Chrome được giữ nguyên.
+# Chạy lại bất cứ lúc nào để cập nhật: cài đặt và khóa API trong trình duyệt được giữ nguyên.
 # Gỡ bỏ:
 #   curl -fsSL https://raw.githubusercontent.com/mrthanhduy2000/dich-phu-de-long-tieng/main/install-mac.sh | bash -s -- --uninstall
 #
@@ -71,6 +71,29 @@ ${env}    <key>RunAtLoad</key><true/>
 PLISTEOF
 }
 
+# The browser that shows the guide page: the default one when it is Chromium-based, else the first
+# Chromium browser installed. Safari and Firefox cannot run the extension (the page says so).
+CHROMIUM_IDS="com.google.Chrome com.coccoc.Coccoc com.microsoft.edgemac com.brave.Browser company.thebrowser.Browser com.operasoftware.Opera com.vivaldi.Vivaldi org.chromium.Chromium"
+# The https handler's bundle id, lower case, from LaunchServices (no python: on a fresh Mac it is a
+# stub that asks to install the developer tools)
+default_browser() {
+    defaults read com.apple.LaunchServices/com.apple.launchservices.secure LSHandlers 2>/dev/null | awk '
+        /^[[:space:]]*},?[[:space:]]*$/ { role = "" }
+        /LSHandlerRoleAll = / { r = $0; sub(/.*= *"?/, "", r); sub(/"?;.*/, "", r); role = r }
+        /LSHandlerURLScheme = https;/ { print tolower(role); exit }'
+}
+open_in_chromium() {
+    local want id
+    want="$(default_browser || true)"
+    for id in $CHROMIUM_IDS; do
+        if [[ "$(printf '%s' "$id" | tr '[:upper:]' '[:lower:]')" == "$want" ]] && open -b "$id" "$1" 2>/dev/null; then return 0; fi
+    done
+    for id in $CHROMIUM_IDS; do
+        if open -b "$id" "$1" 2>/dev/null; then return 0; fi
+    done
+    return 1
+}
+
 [[ "$(uname -s)" == Darwin ]] || die "Tệp này dành cho macOS. Máy Windows dùng install-windows.ps1."
 
 # ---- Uninstall ----
@@ -95,8 +118,8 @@ if [[ "${1:-}" == "--uninstall" ]]; then
     if [[ -f "$EXT_DIR/manifest.json" ]]; then rm -rf "$EXT_DIR"; fi
     rm -f "$UPD"
     echo
-    echo " ĐÃ GỠ XONG. Còn một bước: ở trang chrome://extensions, bấm \"Xóa\" trên thẻ"
-    echo " \"Vietnamese Subtitle Translator\"."
+    echo " ĐÃ GỠ XONG. Còn một bước: ở trang Tiện ích của trình duyệt (chrome://extensions,"
+    echo " Edge: edge://extensions), bấm \"Xóa\" trên thẻ \"Vietnamese Subtitle Translator\"."
     return 0
 fi
 
@@ -122,8 +145,8 @@ else
 fi
 [[ -f "$SRC/extension/manifest.json" ]] || die "Bản tải về không có tiện ích (thiếu extension/manifest.json)."
 
-# 2. Extension. Files are replaced inside the same folder: Chrome ties the extension's settings and
-# the Gemini key to this exact path, so the folder itself must never move or be recreated elsewhere.
+# 2. Extension. Files are replaced inside the same folder: the browser ties the extension's settings
+# and the Gemini key to this exact path, so the folder itself must never move or be recreated elsewhere.
 UPDATE=0
 if [[ -d "$EXT_DIR" ]] && [[ -n "$(ls -A "$EXT_DIR")" ]]; then
     [[ -f "$EXT_DIR/manifest.json" ]] || die "Thư mục $EXT_DIR đã có tệp khác, không phải tiện ích. Bộ cài không ghi đè nó."
@@ -230,8 +253,8 @@ EOF
             die "VieNeu chưa phản hồi sau 15 phút. Nhật ký: $VN_DIR/server.log"
         fi
 
-        # Updates by themselves: staged in the background, laid over the extension while Chrome is
-        # closed (Chrome reads it from disk at its next start). See tools/dichphude-update.py.
+        # Updates by themselves: staged in the background, laid over the extension while no browser
+        # that loaded it is open (it reads the folder at its next start). See tools/dichphude-update.py.
         printf '%s' "$EXT_DIR" > "$VN_DIR/.dichphude-ext"
         cp "$EXT_DIR/tools/dichphude-update.py" "$VN_DIR/dichphude-update.py"
         if [[ -f "$UPD_PLIST" ]] && ! updater_is_ours; then
@@ -261,28 +284,36 @@ EOF
     chmod +x "$UPD"
 fi
 
-# 5. Chrome: a first install opens the step-by-step page (tools/huong-dan-cai-dat.html)
+# 5. The browser: a first install opens the step-by-step page (tools/huong-dan-cai-dat.html)
 GUIDE="$EXT_DIR/tools/huong-dan-cai-dat.html"
+NO_CHROMIUM=0
 if [[ -z "${DPD_NO_OPEN:-}" && $UPDATE == 0 ]]; then
     printf '%s' "$EXT_DIR" | pbcopy 2>/dev/null || true
-    open -a "Google Chrome" "$GUIDE" 2>/dev/null || open "$GUIDE" 2>/dev/null || true
+    if ! open_in_chromium "$GUIDE"; then
+        NO_CHROMIUM=1
+        open "$GUIDE" 2>/dev/null || true
+    fi
 fi
 
 echo
 echo "=================================================================="
 if [[ $UPDATE == 1 ]]; then
-    echo " ĐÃ CẬP NHẬT lên bản $VERSION. Thoát Chrome rồi mở lại là dùng bản mới"
-    echo " (hoặc bấm Tải lại trên thẻ \"Vietnamese Subtitle Translator\" ở"
+    echo " ĐÃ CẬP NHẬT lên bản $VERSION. Thoát hẳn trình duyệt rồi mở lại là dùng bản mới"
+    echo " (hoặc bấm Tải lại trên thẻ \"Vietnamese Subtitle Translator\" ở trang"
     echo " chrome://extensions). Đừng gỡ tiện ích rồi cài lại: sẽ mất cài đặt và khóa API."
 else
-    echo " ĐÃ CÀI bản $VERSION. Còn một bước làm bằng tay trong Chrome: làm theo"
-    echo " trang hướng dẫn vừa mở (nếu chưa thấy, mở tệp này bằng Chrome):"
+    echo " ĐÃ CÀI bản $VERSION. Còn một bước làm bằng tay trong trình duyệt: làm theo"
+    echo " trang hướng dẫn vừa mở (nếu chưa thấy, mở tệp này bằng Chrome, Cốc Cốc, Edge, Brave...):"
     echo "   $GUIDE"
     echo " Tóm tắt: chrome://extensions > bật Chế độ dành cho nhà phát triển >"
     echo " Tải tiện ích đã giải nén > chọn thư mục $EXT_DIR"
+    if [[ $NO_CHROMIUM == 1 ]]; then
+        echo " Máy chưa có trình duyệt nhân Chromium: cài Chrome (google.com/chrome) hoặc"
+        echo " Cốc Cốc (coccoc.com) rồi mở tệp hướng dẫn ở trên bằng trình duyệt đó."
+    fi
 fi
 if [[ $WITH_VOICE == 1 ]]; then
-    echo " Giọng VieNeu tự chạy mỗi khi bật máy. Bản mới tự cài vào lần mở Chrome kế tiếp."
+    echo " Giọng VieNeu tự chạy mỗi khi bật máy. Bản mới tự cài vào lần mở trình duyệt kế tiếp."
     if [[ $PINNED == 1 ]]; then
         echo " Mô hình giọng: bản đã khóa, kiểm từng tệp, chạy không cần mạng."
     else

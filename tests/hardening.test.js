@@ -1809,6 +1809,72 @@ test("Tải lại tiện ích: tự nạp lại ĐỦ mã (đúng thứ tự man
     assert.match(popup, /getManifest\(\)\.content_scripts/);
 });
 
+test("who speaks: one Gemini reading per video, the cheapest model the key can call, kept; nothing without a key", async () => {
+    const LINES = ["What are you making right now?", "About $3,000 a month.", "From what?", "Uber, but I'm losing money.", "Roll the clip.", "Okay."];
+    const answer = { speakers: [{ id: 1, label: "host", gender: "male" }, { id: 2, label: "guest", gender: "female" }],
+        turns: [{ line: 0, speaker: 1 }, { line: 1, speaker: 2 }, { line: 1, speaker: 2 }, { line: 2, speaker: 1 }, { line: 3, speaker: 2, at: "but" }, { line: 9, speaker: 1 }, { line: 4, speaker: 7 }],
+        confidence: "high" };
+    const seen = [];
+    const bodies = [];
+    const fetchImpl = async (u, o) => {
+        const m = modelOf(u);
+        seen.push(m);
+        if (m === "gemini-2.5-flash-lite") return NEW_USER_404(m);
+        bodies.push(JSON.parse(o.body));
+        return reply(answer);
+    };
+    const E = bgEnv(fetchImpl, cfg());
+    const req = { action: "analyzeSpeakers", lines: LINES, videoTitle: "Money show", videoKey: "yt:abc" };
+    const r = JSON.parse(JSON.stringify(await E.send(req)));      // out of the sandbox's realm
+    assert.equal(r.ok, true, JSON.stringify(r));
+    assert.equal(r.model, "gemini-3.1-flash-lite");
+    assert.deepEqual(seen, ["gemini-2.5-flash-lite", "gemini-3.1-flash-lite"]);
+    // one turn per change of speaker, real lines only; an unknown speaker number is added
+    assert.deepEqual(r.turns.map(x => [x.line, x.speaker]), [[0, 1], [1, 2], [2, 1], [3, 2], [4, 7]]);
+    assert.equal(r.turns[3].at, "but");
+    assert.ok(r.speakers.some(x => x.id === 7));
+    assert.equal(r.confidence, "high");
+    const b = bodies[0];
+    assert.equal(b.generationConfig.temperature, 0);
+    assert.equal(b.generationConfig.responseMimeType, "application/json");
+    assert.match(b.contents[0].parts[0].text, /^Video title: Money show\nLines \(6\):\n0\| What are you making right now\?/);
+    assert.match(b.system_instruction.parts[0].text, /Quoted or reported speech/);
+    // a second viewing: from the store, no call
+    const again = await E.send(req);
+    assert.equal(again.fromCache, true);
+    assert.equal(seen.length, 2);
+    // the call is charged as text, on this video
+    const st = await E.send({ action: "costStats" });
+    assert.ok(st.day.trCalls >= 1 && st.day.videos["yt:abc"].usd > 0, JSON.stringify(st.day));
+    // no key, or AI off: no call at all
+    const none = [];
+    for (const c of [cfg({ geminiApiKey: "" }), cfg({ useAi: false })]) {
+        const r2 = await bgEnv(async u => { none.push(u); return reply(answer); }, c).send(req);
+        assert.equal(r2.ok, false);
+        assert.equal(r2.reason, "no_key");
+    }
+    assert.deepEqual(none, []);
+    // an unusable answer is no reading
+    const bad = await bgEnv(async () => ({ ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: "not json" }] } }] }) }), cfg({ geminiApiKey: "KEY-OLD-USER" })).send(req);
+    assert.equal(bad.ok, false);
+    assert.equal(bad.reason, "bad_output");
+});
+
+test("a first install opens the settings on the welcome card; an update or a reload opens nothing", async () => {
+    const E = bgEnv(async () => reply({}), cfg(), { tabs: [] });
+    E.installedListeners[0]({ reason: "update" });
+    E.installedListeners[0]({ reason: "chrome_update" });
+    await new Promise(r => setTimeout(r, 20));
+    assert.deepEqual(E.opened, []);
+    E.installedListeners[0]({ reason: "install" });
+    await new Promise(r => setTimeout(r, 20));
+    assert.deepEqual(E.opened, ["chrome-extension://test-id/options.html#welcome"]);
+    const R = f => require("node:fs").readFileSync(require("node:path").join(__dirname, "..", f), "utf8");
+    const html = R("options.html");
+    assert.match(html, /id="welcomeCard"[^>]*hidden/, "hidden until the page is opened with #welcome");
+    assert.match(R("options.js"), /location\.hash === "#welcome"/);
+});
+
 test("mã cũ trong tab tự tắt khi tiện ích được nạp lại; nút / lớp phụ đề của mã cũ bị ẨN (không xóa) để mã mới thay", () => {
     const src = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "youtube.js"), "utf8");
     assert.match(src, /function ytTuTatKhiMatKetNoi/);

@@ -3,9 +3,14 @@
 // install from: the extension's runtime files under extension/, the two installers and the patched
 // VieNeu server file. Nothing else of this private repo (docs, tests, tools, review data) goes out.
 //   node tools/publish-share.js                  build into ../dich-phu-de-long-tieng
-//   node tools/publish-share.js --push           build, commit and push it; refused while a shipped
-//       file differs from the share repo's last commit and the version is not higher than the one it
-//       holds (friends' updaters only take a higher version: bump first)
+//   node tools/publish-share.js --stage          build, commit and push it to the share repo's branch
+//       `staging` only: the install test runs there, and friends' updaters (main only) never see it
+//   node tools/publish-share.js --promote        once that test is green on the staged commit, move
+//       main to it (refused while it runs, failed, or staging is not this checkout's commit)
+//   node tools/publish-share.js --push           build, commit and push straight to main (no test
+//       first). Every way in is refused while a shipped file differs from the share repo's last
+//       commit and the version is not higher than the one it holds (friends' updaters only take a
+//       higher version: bump first)
 //   node tools/publish-share.js --out DIR        build somewhere else (tests use this)
 //   node tools/publish-share.js --release-model [--dry-run] [--vieneu DIR]
 //       create or update the GitHub release that mirrors the pinned VieNeu model
@@ -69,7 +74,8 @@ function notice(pin) {
         "",
         "1. VieNeu-TTS, by pnnbao97: https://github.com/pnnbao97/VieNeu-TTS",
         `   - vieneu/openai_speech.py is apps/openai_speech.py of VieNeu-TTS at commit ${pin.voices.commit},`,
-        "     MODIFIED by this project (it frees a stream slot when the caller hangs up);",
+        "     MODIFIED by this project (it frees a stream slot when the caller hangs up, and listens",
+        "     on 127.0.0.1 unless HOST says otherwise);",
         "     vieneu/openai_speech.patch shows every change.",
         "   - The installers download the VieNeu-TTS code itself, unchanged, from GitHub at that commit.",
         `   - The model files of https://huggingface.co/${turbo.repo} at revision`,
@@ -275,8 +281,29 @@ function releaseModel({ vieneu = path.join(os.homedir(), "VieNeu-TTS"), dryRun =
     }
 }
 
+// ---- Staging, then main ----
+
+// main moves to the staged commit only when the install test on that very commit passed. exec is
+// for tests (git and gh stubbed).
+function promote(out, { exec = execFileSync, log = console.log } = {}) {
+    const repo = readPin().release.repo;
+    const git = (...a) => String(exec("git", ["-C", out, ...a], { encoding: "utf8" })).trim();
+    const head = git("rev-parse", "HEAD");
+    git("fetch", "-q", "origin", "staging");
+    const staged = git("rev-parse", "FETCH_HEAD");
+    if (staged !== head) throw new Error(`staging is at ${staged.slice(0, 7)}, this checkout at ${head.slice(0, 7)}: stage this commit first (--stage)`);
+    const runs = JSON.parse(String(exec("gh", ["run", "list", "-R", repo, "--branch", "staging", "-L", "20",
+        "--json", "headSha,status,conclusion,url,workflowName"], { encoding: "utf8" })));
+    const run = runs.find(r => r.headSha === head && r.workflowName === "Install test");
+    if (!run) throw new Error(`no install test on staging for ${head.slice(0, 7)} yet`);
+    if (run.status !== "completed") throw new Error(`the install test on ${head.slice(0, 7)} is still ${run.status}: ${run.url}`);
+    if (run.conclusion !== "success") throw new Error(`the install test on ${head.slice(0, 7)} ended "${run.conclusion}": ${run.url}`);
+    exec("git", ["-C", out, "push", "origin", "HEAD:refs/heads/main"], { stdio: "inherit" });
+    log(`main is now ${head.slice(0, 7)}, green on staging (${run.url}): friends' updaters take it within 6 h`);
+}
+
 module.exports = { build, runtimeFiles, EXT_TOOLS, notice, releaseAssets, releaseNotes, releaseTag, assetName,
-    releaseProblems, releaseModel, publishCheck, blobId };
+    releaseProblems, releaseModel, publishCheck, blobId, promote };
 
 if (require.main === module) {
     const args = process.argv.slice(2);
@@ -286,6 +313,11 @@ if (require.main === module) {
         process.exit(0);
     }
     const out = path.resolve(opt("--out") || path.join(ROOT, "..", "dich-phu-de-long-tieng"));
+    if (args.includes("--promote")) {
+        try { promote(out); } catch (e) { console.error(`Refusing to promote: ${e.message}`); process.exit(1); }
+        process.exit(0);
+    }
+    const pushing = args.includes("--push") || args.includes("--stage");
     // Built aside first: a refused push leaves the share repo exactly as it was
     const aside = fs.mkdtempSync(path.join(os.tmpdir(), "share-check-"));
     let check;
@@ -293,15 +325,19 @@ if (require.main === module) {
     finally { fs.rmSync(aside, { recursive: true, force: true }); }
     if (!check.ok) {
         console.error(check.message);
-        if (args.includes("--push")) process.exit(1);
+        if (pushing) process.exit(1);
     }
     const version = build(out);
     console.log(`Built ${version} into ${out}`);
-    if (args.includes("--push")) {
+    if (pushing) {
         const git = (...a) => execFileSync("git", ["-C", out, ...a], { stdio: "inherit" });
         git("add", "-A");
         try { git("commit", "-q", "-m", `Version ${version}`); }
         catch (e) { console.log("Nothing to commit."); }
-        git("push");
+        if (args.includes("--stage")) {
+            git("push", "origin", "HEAD:refs/heads/staging");
+            console.log("Staged: the install test runs on staging (gh run list -R mrthanhduy2000/dich-phu-de-long-tieng). " +
+                "When it is green: node tools/publish-share.js --promote");
+        } else git("push");
     }
 }

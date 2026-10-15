@@ -1,6 +1,6 @@
 # Cai (hoac cap nhat) tien ich "Dich Phu De & Long Tieng AI" va may chu giong VieNeu tren Windows.
 #   irm https://raw.githubusercontent.com/mrthanhduy2000/dich-phu-de-long-tieng/main/install-windows.ps1 | iex
-# Chay lai bat cu luc nao de cap nhat: cai dat va khoa API trong Chrome duoc giu nguyen.
+# Chay lai bat cu luc nao de cap nhat: cai dat va khoa API trong trinh duyet duoc giu nguyen.
 # Go bo:
 #   $env:DPD_UNINSTALL='1'; irm https://raw.githubusercontent.com/mrthanhduy2000/dich-phu-de-long-tieng/main/install-windows.ps1 | iex
 #
@@ -50,6 +50,34 @@ function Test-Port {
     return $null
 }
 
+# The browser that shows the guide page: the default one when it is Chromium-based, else Chrome,
+# Coc Coc, Brave, then Edge (always there on Windows 10/11). Firefox cannot run the extension.
+function Get-ChromiumBrowser {
+    $known = @('chrome.exe', 'msedge.exe', 'brave.exe', 'browser.exe', 'opera.exe', 'launcher.exe', 'vivaldi.exe', 'arc.exe')
+    try {
+        $prog = (Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice' -ErrorAction Stop).ProgId
+        $cmd = (Get-ItemProperty "Registry::HKEY_CLASSES_ROOT\$prog\shell\open\command" -ErrorAction Stop).'(default)'
+        $exe = $null
+        if ($cmd -match '^\s*"([^"]+)"') { $exe = $Matches[1] } elseif ($cmd -match '^\s*(\S+)') { $exe = $Matches[1] }
+        if ($exe -and (Test-Path $exe) -and ($known -contains ([IO.Path]::GetFileName($exe).ToLower()))) { return $exe }
+    } catch {}
+    foreach ($n in @('chrome.exe', 'COCCOC', 'brave.exe', 'msedge.exe')) {
+        if ($n -eq 'COCCOC') {
+            foreach ($d in @($env:LOCALAPPDATA, $env:ProgramFiles, ${env:ProgramFiles(x86)})) {
+                if ($d -and (Test-Path "$d\CocCoc\Browser\Application\browser.exe")) { return "$d\CocCoc\Browser\Application\browser.exe" }
+            }
+            continue
+        }
+        foreach ($root in @('HKCU:', 'HKLM:')) {
+            try {
+                $path = (Get-ItemProperty "$root\Software\Microsoft\Windows\CurrentVersion\App Paths\$n" -ErrorAction Stop).'(default)'
+                if ($path -and (Test-Path $path)) { return $path }
+            } catch {}
+        }
+    }
+    return $null
+}
+
 function Invoke-Autostart($arg) {
     $env:VIENEU_DIR = $VnDir
     $a = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "$ExtDir\tools\vieneu-autostart.ps1")
@@ -76,8 +104,8 @@ try {
         if (Test-Path "$ExtDir\manifest.json") { Remove-Item $ExtDir -Recurse -Force }
         Remove-Item $UpdCmd, $OldUpdLink -ErrorAction SilentlyContinue
         Write-Host ''
-        Write-Host ' DA GO XONG. Con mot buoc: o trang chrome://extensions, bam "Xoa" tren the'
-        Write-Host ' "Vietnamese Subtitle Translator".'
+        Write-Host ' DA GO XONG. Con mot buoc: o trang Tien ich cua trinh duyet (chrome://extensions,'
+        Write-Host ' Edge: edge://extensions), bam "Xoa" tren the "Vietnamese Subtitle Translator".'
         $global:DPD_RESULT = 'ok'
         return
     }
@@ -101,8 +129,8 @@ try {
     }
     if (-not (Test-Path "$src\extension\manifest.json")) { throw 'Ban tai ve khong co tien ich (thieu extension\manifest.json).' }
 
-    # 2. Extension. Files are replaced inside the same folder: Chrome ties the extension's settings
-    # and the Gemini key to this exact path.
+    # 2. Extension. Files are replaced inside the same folder: the browser ties the extension's
+    # settings and the Gemini key to this exact path.
     $update = $false
     if ((Test-Path $ExtDir) -and (Get-ChildItem $ExtDir -Force | Select-Object -First 1)) {
         if (-not (Test-Path "$ExtDir\manifest.json")) { throw "Thu muc $ExtDir da co tep khac, khong phai tien ich. Bo cai khong ghi de no." }
@@ -209,7 +237,7 @@ try {
         }
 
         # Updates by themselves: the run-vieneu.pyw supervisor runs dichphude-update.py every 30 min;
-        # it stages a new version and lays it over the extension while Chrome is closed.
+        # it stages a new version and lays it over the extension while no browser that loaded it is open.
         [IO.File]::WriteAllText("$VnDir\.dichphude-ext", $ExtDir, (New-Object Text.UTF8Encoding $false))
         Copy-Item "$ExtDir\tools\dichphude-update.py" "$VnDir\dichphude-update.py" -Force
     }
@@ -224,28 +252,39 @@ try {
         Remove-Item $OldUpdLink -ErrorAction SilentlyContinue
     }
 
-    # 5. Chrome: a first install opens the step-by-step page (tools\huong-dan-cai-dat.html)
+    # 5. The browser: a first install opens the step-by-step page (tools\huong-dan-cai-dat.html)
     $guide = "$ExtDir\tools\huong-dan-cai-dat.html"
+    $noChromium = $false
     if (-not $env:DPD_NO_OPEN -and -not $update) {
         try { Set-Clipboard -Value $ExtDir } catch {}
-        try { Start-Process 'chrome.exe' "`"$guide`"" } catch { try { Start-Process $guide } catch {} }
+        $browser = Get-ChromiumBrowser
+        if ($browser) {
+            try { Start-Process $browser "`"$guide`"" } catch { try { Start-Process $guide } catch {} }
+        } else {
+            $noChromium = $true
+            try { Start-Process $guide } catch {}
+        }
     }
 
     Write-Host ''
     Write-Host '=================================================================='
     if ($update) {
-        Write-Host " DA CAP NHAT len ban $version. Thoat Chrome roi mo lai la dung ban moi"
-        Write-Host ' (hoac bam Tai lai tren the "Vietnamese Subtitle Translator" o'
+        Write-Host " DA CAP NHAT len ban $version. Thoat han trinh duyet roi mo lai la dung ban moi"
+        Write-Host ' (hoac bam Tai lai tren the "Vietnamese Subtitle Translator" o trang'
         Write-Host ' chrome://extensions). Dung go tien ich roi cai lai: se mat cai dat va khoa API.'
     } else {
-        Write-Host " DA CAI ban $version. Con mot buoc lam bang tay trong Chrome: lam theo"
-        Write-Host ' trang huong dan vua mo (neu chua thay, mo tep nay bang Chrome):'
+        Write-Host " DA CAI ban $version. Con mot buoc lam bang tay trong trinh duyet: lam theo"
+        Write-Host ' trang huong dan vua mo (neu chua thay, mo tep nay bang Chrome, Coc Coc, Edge, Brave...):'
         Write-Host "   $guide"
-        Write-Host ' Tom tat: chrome://extensions > bat Che do danh cho nha phat trien >'
-        Write-Host " Tai tien ich da giai nen > chon thu muc $ExtDir"
+        Write-Host ' Tom tat: chrome://extensions (Edge: edge://extensions) > bat Che do danh cho nha'
+        Write-Host " phat trien > Tai tien ich da giai nen > chon thu muc $ExtDir"
+        if ($noChromium) {
+            Write-Host ' May chua co trinh duyet nhan Chromium: cai Chrome (google.com/chrome) hoac'
+            Write-Host ' Coc Coc (coccoc.com) roi mo tep huong dan o tren bang trinh duyet do.'
+        }
     }
     if ($withVoice) {
-        Write-Host ' Giong VieNeu tu chay moi khi bat may. Ban moi tu cai vao lan mo Chrome ke tiep.'
+        Write-Host ' Giong VieNeu tu chay moi khi bat may. Ban moi tu cai vao lan mo trinh duyet ke tiep.'
         if ($pinned) { Write-Host ' Mo hinh giong: ban da khoa, kiem tung tep, chay khong can mang.' }
         else { Write-Host ' Mo hinh giong: tam tai tu Hugging Face khi chay (bo tu cap nhat se thu khoa lai).' }
     }

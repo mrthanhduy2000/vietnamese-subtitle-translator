@@ -467,6 +467,54 @@ def case_refresh_service():
     return res
 
 
+def case_browsers():
+    # dichphude-update.py: which browsers have this extension folder loaded (their profiles'
+    # Preferences name it), and whether one of THEM is running. HOME is a throwaway folder.
+    upd = load("dpd_update_browsers", os.path.join(TOOLS, "dichphude-update.py"))
+    support = os.path.join(os.path.expanduser("~"), "Library", "Application Support")
+    ext = os.path.join(WORK, "Người dùng", "DichPhuDe")      # a Vietnamese path
+
+    def profile(rel, prof, path, ascii_json=False):
+        d = os.path.join(support, rel)
+        os.makedirs(os.path.join(d, prof), exist_ok=True)
+        with open(os.path.join(d, "Local State"), "w") as f:
+            f.write("{}")
+        body = {"extensions": {"settings": {"abc": {"path": path, "location": 4}}}}
+        with open(os.path.join(d, prof, "Secure Preferences"), "w", encoding="utf-8") as f:
+            f.write(json.dumps(body, ensure_ascii=ascii_json))
+        return d
+
+    res = {"none": upd.holders(ext)}
+    names = lambda *n: (lambda: set(n))
+    upd.process_names = names("google chrome", "finder")
+    res["fresh_chrome_running"] = upd.browser_running(ext)          # loaded nowhere: nothing reads it
+    profile("Google/Chrome", "Default", "/somewhere/else")
+    edge = profile("Microsoft Edge", "Profile 3", ext)
+    res["holders"] = [os.path.relpath(d, support) for d in upd.holders(ext)]
+    upd.process_names = names("google chrome")
+    res["edge_holds_chrome_runs"] = upd.browser_running(ext)
+    upd.process_names = names("microsoft edge", "microsoft edge helper")
+    res["edge_holds_edge_runs"] = upd.browser_running(ext)
+    # Coc Coc, its Preferences written with \u escapes
+    profile("CocCoc/Browser", "Default", ext, ascii_json=True)
+    res["holders_two"] = sorted(os.path.relpath(d, support) for d in upd.holders(ext))
+    upd.process_names = names("coccoc")
+    res["coccoc_runs"] = upd.browser_running(ext)
+    # Held only by a browser the table cannot place: every known browser counts
+    shutil.rmtree(edge)
+    shutil.rmtree(os.path.join(support, "CocCoc"))
+    profile("Some Fork/Browser", "Default", ext)
+    upd.process_names = names("vivaldi")
+    res["unknown_holder_vivaldi_runs"] = upd.browser_running(ext)
+    def boom():
+        raise OSError("no ps")
+    upd.process_names = boom
+    res["cannot_list"] = upd.browser_running(ext)
+    src = open(os.path.join(TOOLS, "dichphude-update.py"), "rb").read()
+    res["ascii"] = all(b < 128 for b in src)
+    return res
+
+
 if __name__ == "__main__":
     WORK = os.path.abspath(sys.argv[2])
     os.makedirs(WORK, exist_ok=True)

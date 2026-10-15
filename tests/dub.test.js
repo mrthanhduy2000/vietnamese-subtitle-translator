@@ -97,10 +97,101 @@ test("who speaks: the one who talks longest has the main voice, named or not", (
     // three people, two voices: the turn back to the vlogger is the one that keeps its voice
     assert.deepEqual(v.slice(0, 5), ["S1", "S2", "S1", "S2", "S1"]);
     assert.deepEqual([...new Set(v.slice(5))], ["S1"]);
-    // UIy-WQCZd4M: the guest talks most; three named people still get two voices
+    // UIy-WQCZd4M: the guest talks most; since 2.5.2 three named people get three voices, in order
+    // of talk (before, everyone but the main speaker shared the second)
     const pod = [S("Chào mừng.", 0, 5, "ANDREW HUBERMAN: Welcome."), S("Cảm ơn anh.", 6, 60, "ANDY GALPIN: Thanks for having me, here is a long answer."),
         S("Câu hỏi tiếp.", 61, 65, "ANDREW HUBERMAN: Next question."), S("Trả lời dài.", 66, 120, "ANDY GALPIN: A long answer again."), S("Xin chào.", 121, 123, "GUEST TWO: Hello.")];
-    assert.deepEqual(voices(pod), ["S2", "S1", "S2", "S1", "S2"]);
+    assert.deepEqual(voices(pod), ["S2", "S1", "S2", "S1", "S3"]);
+});
+
+// 2.5.2: up to five voices, and an AI reading of who speaks for videos without marks
+test("who speaks: five named speakers get five voices in order of talk; a sixth shares one after the main", () => {
+    const names = ["ANNA", "BEN", "CARL", "DORA", "EVAN", "FRED"];
+    const talkS = [60, 40, 30, 20, 10, 5];
+    let t = 0;
+    const g = [];
+    for (let round = 0; round < 2; round++) {
+        names.forEach((n, k) => { g.push(S(`Câu của ${n}.`, t, t + talkS[k] / 2, `${n}: Line ${round} of ${n}.`)); t += talkS[k] / 2 + 0.5; });
+    }
+    const T = PLAN.speakerTurns(g);
+    assert.equal(T.source, "names");
+    assert.equal(T.voices, 5);
+    const v = voices(g);
+    assert.deepEqual(v.slice(0, 6), ["S1", "S2", "S3", "S4", "S5", "S2"]);
+});
+
+test("who speaks: 'Yeah. ANDREW HUBERMAN:' is Andrew, not a third person; 'Dr. Galpin:' keeps its title", () => {
+    // UIy-WQCZd4M: the last word of the one before stands in front of the label once in 3 hours
+    const g = [S("Chào.", 0, 5, "ANDREW HUBERMAN: Hi."), S("Chào bạn.", 6, 20, "ANDY GALPIN: Hello there."),
+        S("Vâng. Câu tiếp.", 21, 25, "Yeah. ANDREW HUBERMAN: Next."), S("Được.", 26, 40, "ANDY GALPIN: Yes."),
+        S("Một câu nữa.", 41, 45, "Dr. Galpin: One more."), S("Và nữa.", 46, 50, "Dr. Galpin: And again.")];
+    const T = PLAN.speakerTurns(g);
+    assert.equal(T.voices, 3, JSON.stringify(T.marks));
+    assert.deepEqual(T.marks.map(m => m.idx), [1, 0, 1, 0, 2, 2]);
+});
+
+// ai: what speakerHints makes of an answer
+const aiOf = (turns, o = {}) => ({ turns: turns.map(([t, speaker]) => ({ t, speaker })), speakers: o.speakers || [], confidence: o.confidence || "high", until: o.until });
+// manual captions of an interview: no ">>", no names (JBvcMfa7K6E, a money show)
+const interview = () => [
+    S("Bạn đang kiếm được bao nhiêu?", 0, 3, "What are you making right now?"),
+    S("Khoảng ba đến bốn nghìn đô mỗi tháng.", 3.5, 8, "About $3,000 to $4,000 a month."),
+    S("Từ đâu?", 9, 10, "From what?"),
+    S("Chạy Uber, nhưng tôi đang lỗ.", 10.5, 15, "Uber, but I'm actually losing money."),
+    S("Chiếu đoạn clip lên.", 16, 18, "Roll the clip."),
+    S("Được rồi, tôi xem.", 18.5, 22, "Okay, I'll look.")
+];
+test("who speaks: an AI reading gives a video with no marks its voices; the marks alone keep it in one", () => {
+    assert.deepEqual([...new Set(voices(interview()))], ["S1"], "no marks, no reading: one voice");
+    const ai = aiOf([[0, 1], [3.5, 2], [9, 1], [10.5, 2], [16, 1], [18.5, 2]], { speakers: [{ id: 1, gender: "male" }, { id: 2, gender: "female" }] });
+    const T = PLAN.speakerTurns(interview(), { ai });
+    assert.equal(T.source, "ai");
+    assert.equal(T.voices, 2);
+    // the guest talks longer: the main voice is hers; genders follow the voices (S1, S2)
+    assert.deepEqual(voices(interview(), { speakerTurns: T }), ["S2", "S1", "S2", "S1", "S2", "S1"]);
+    assert.deepEqual(T.genders, ["female", "male"]);
+});
+
+test("who speaks: an AI turn heard once and briefly (a quote, a passer-by) stays in the speaker's voice", () => {
+    // a vlog: one person; the reading took a quoted line for someone else
+    const vlog = [S("Hôm nay trời đẹp.", 0, 20, "It's a beautiful day."), S("Cô ấy nói: không đời nào.", 20, 23, "And she said, no way."),
+        S("Và tôi đi tiếp.", 23, 60, "And I kept walking.")];
+    const quote = aiOf([[0, 1], [20, 2], [23, 1]]);
+    assert.equal(PLAN.speakerTurns(vlog, { ai: quote }).source, "none");
+    assert.deepEqual([...new Set(voices(vlog, { speakerTurns: PLAN.speakerTurns(vlog, { ai: quote }) }))], ["S1"]);
+    // a third person who speaks once, briefly, in a real interview: folded into the one before
+    const T = PLAN.speakerTurns(interview(), { ai: aiOf([[0, 1], [3.5, 2], [9, 1], [10.5, 2], [16, 3], [18.5, 2]]) });
+    assert.equal(T.voices, 2);
+    // low confidence, or one speaker: one voice
+    for (const ai of [aiOf([[0, 1], [3.5, 2], [9, 1], [10.5, 2]], { confidence: "low" }), aiOf([[0, 1]])]) {
+        assert.equal(PLAN.speakerTurns(interview(), { ai }).voices, 1);
+    }
+});
+
+test("who speaks: an AI turn moves onto a '>>' within 2 s; named labels win over the AI", () => {
+    const T = PLAN.speakerTurns(talk(), { ai: aiOf([[0, 1], [1.2, 2], [4, 1], [6, 2], [8, 1]]) });
+    assert.equal(T.source, "ai");
+    assert.ok(T.marks.some(m => m.t === 2), "the turn at 1.2 s moved onto the mark at 2 s: " + JSON.stringify(T.marks));
+    const named = [S("Chào.", 0, 5, "ANNA: Hi."), S("Chào bạn.", 6, 20, "BEN: Hello there."), S("Tiếp.", 21, 25, "ANNA: Next."), S("Vâng.", 26, 40, "BEN: Yes.")];
+    assert.equal(PLAN.speakerTurns(named, { ai: aiOf([[0, 1], [6, 1], [21, 2], [26, 2]]) }).source, "names");
+});
+
+test("who speaks: the lines asked about, and the answer turned into times (a turn inside a line, a later part)", () => {
+    const g = [S("A", 0, 2, "Hello there."), S("B", 2, 4, "[Music]"), S("C", 4, 8, "So what do you think? I think it's great."),
+        S("D", 8, 10, "Me too.")];
+    const lines = PLAN.speakerLines(g);
+    assert.deepEqual(lines.map(l => l.text), ["Hello there.", "So what do you think? I think it's great.", "Me too."], "a sound-only line is left out");
+    const h = PLAN.speakerHints(lines, { turns: [{ line: 0, speaker: 1 }, { line: 1, speaker: 2, at: "I think" }, { line: 2, speaker: 1 }, { line: 9, speaker: 2 }], speakers: [], confidence: "medium" });
+    assert.equal(h.turns.length, 3, "a line out of range is dropped");
+    assert.ok(h.turns[1].t > 4 && h.turns[1].t < 8, "inside the line, where 'I think' stands: " + h.turns[1].t);
+    assert.equal(h.until, 10);
+    // a later part (lines 2..): its line numbers count from its own start
+    const late = PLAN.speakerHints(lines, { turns: [{ line: 0, speaker: 3 }], speakers: [{ id: 3, gender: "female" }], confidence: "high" }, 2, 1);
+    assert.equal(late.turns[0].t, 8);
+    const m = PLAN.mergeSpeakerHints(h, late);
+    assert.deepEqual(m.turns.map(x => x.speaker), [1, 2, 3]);
+    assert.equal(m.confidence, "medium");
+    assert.equal(m.until, 10);
 });
 
 // UIy-WQCZd4M, the user's 2026-10-01 batch: the labels of an edited podcast caption were read 262 times
@@ -964,9 +1055,9 @@ test("slow voice on a fast speaker: speeds up early and evenly, and a slow speak
     assert.ok(Math.abs(slowNew.rateMean - slowOld.rateMean) < 0.03, `slow speaker sped up: ${slowOld.rateMean.toFixed(2)} -> ${slowNew.rateMean.toFixed(2)}`);
 });
 
-// A second voice for a second speaker is optional and off by default (the user: not every viewer
-// wants a voice switching in the middle of a video).
-test("second voice: off by default reads every speaker with the main voice; on keeps S1/S2", () => {
+// 2.5.2: voices follow the speakers unless the viewer picks one voice ("Giọng theo người nói"). The
+// engine itself stays one voice unless told (secondVoice): the page decides, from the setting.
+test("voices follow the speakers by default ('auto'); 'one' reads every speaker with the main voice", () => {
     const groups = talk();
     const make = settings => {
         const clock = new Clock();
@@ -976,14 +1067,39 @@ test("second voice: off by default reads every speaker with the main voice; on k
         eng.refresh(true);
         return eng.plans.map(p => p.speaker);
     };
-    assert.deepEqual([...new Set(make({}))], ["S1"], "default must be one voice");
+    assert.deepEqual([...new Set(make({}))], ["S1"], "the engine alone: one voice");
     assert.deepEqual(make({ secondVoice: true }), ["S1", "S2", "S1", "S2", "S1"]);
-    const html = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "options.html"), "utf8");
-    const js = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "options.js"), "utf8");
-    const dj = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "dubbing.js"), "utf8");
-    assert.ok(html.includes('id="dubSecondVoice"'), "no switch in Settings");
-    assert.ok(/dubSecondVoice: document\.getElementById\("dubSecondVoice"\)/.test(js), "Settings does not save it");
-    assert.ok(/secondVoice: s\.dubSecondVoice === true/.test(dj) && /changes\.dubSecondVoice \|\|/.test(dj), "dubbing does not read it or react to a change");
+    const R = f => require("node:fs").readFileSync(require("node:path").join(__dirname, "..", f), "utf8");
+    const html = R("options.html"), js = R("options.js"), dj = R("dubbing.js");
+    assert.match(html, /<select id="dubSpeakers"[^>]*>\s*<option value="auto" selected>/, "auto is the default in Settings");
+    assert.match(html, /id="dubSpeakerAi" checked/);
+    assert.match(js, /dubSpeakers: speakersSel \? speakersSel\.value : "auto"/, "Settings saves it");
+    assert.match(dj, /dubSpeakers: "auto",/, "the page's default");
+    assert.match(dj, /secondVoice: s\.dubSpeakers !== "one"/);
+    assert.match(dj, /changes\.dubSpeakers \|\| changes\.dubSpeakerAi \|\|/, "a change restarts the voice");
+});
+
+test("who speaks: an AI reading that arrives later remakes only the lines it gives another voice", () => {
+    const groups = interview();
+    const clock = new Clock();
+    const prov = { id: "x", caps: { prerender: true }, voiceModel: PLAN.DEFAULT_VOICE_MODEL, voices: { S1: "Mỹ Duyên", S2: "Thái Sơn" },
+        render: async () => [], setCast(g) { this.cast = g; return false; } };
+    const eng = new DubEngine({ video: new FakeVideo(), getGroups: () => groups, providers: { primary: prov }, createObjectURL: () => "blob:x",
+        now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id) }, { secondVoice: true });
+    eng.refresh(true);
+    assert.deepEqual([...new Set(eng.plans.map(p => p.speaker))], ["S1"]);
+    for (const p of eng.plans) eng.addRendered(p, new Uint8Array(8), 1);
+    const before = new Map([...eng.rendered].map(([id, r]) => [id, r]));
+    eng.setSpeakerHints({ turns: [[0, 1], [3.5, 2], [9, 1], [10.5, 2], [16, 1], [18.5, 2]].map(([t, speaker]) => ({ t, speaker })),
+        speakers: [{ id: 1, gender: "male" }, { id: 2, gender: "female" }], confidence: "high" });
+    eng.refresh(true);
+    const now = eng.plans.map(p => [p.speaker, eng.rendered.has(p.id)]);
+    assert.deepEqual(now.map(x => x[0]), ["S2", "S1", "S2", "S1", "S2", "S1"]);
+    // the guest's lines stay S1 in the same voice: kept; the host's are S2 now: made again
+    for (const [speaker, kept] of now) assert.equal(kept, speaker === "S1", JSON.stringify(now));
+    assert.ok([...eng.rendered.values()].every(r => before.has([...eng.rendered].find(([, x]) => x === r)[0])));
+    assert.deepEqual(prov.cast, ["female", "male"], "the provider is told the genders, main speaker first");
+    assert.equal(eng.turns.source, "ai");
 });
 
 // 1.6.3: planning the whole video on every new translated group cost ~90 ms of main thread on a

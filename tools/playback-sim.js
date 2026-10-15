@@ -73,7 +73,9 @@ function run(engineMod, sc) {
         const t = video.currentTime, now = clock.now();
         return groups.filter(g => {
             if ((g.batch != null ? batchLast.get(g.batch) : g.start) > t + (sc.trAhead || 40)) return false;
-            if (g.end < t - 200) return false;
+            // nothing is trimmed from the front: youtube.js and content.js keep every group of the video
+            // in the list, and the engine counts who speaks over the whole list (cut 200 s behind, the
+            // anonymous turns alternated from another first mark and lines swapped voices back and forth)
             const k = g.batch != null ? "batch " + g.batch : g;
             if (!entered.has(k)) entered.set(k, { at: now, lat: trLat(g) * 1000 });
             const e = entered.get(k);
