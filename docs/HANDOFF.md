@@ -15,7 +15,7 @@
   upstream code 3.8.3 against our `d350c63` changes dependencies and hardening only; its int8 needs
   an x86 CPU with VNNI (the M3 is ARM); server log, 21,500 renders: RTF p50 0.24, p90 0.29, the slow
   ones come right after another render. Nothing changed.
-- Share repo: see git log (2.5.5 staged, promoted only after a green install test).
+- Share repo: 2.5.5 is on main (`e79e8bb`), promoted after a green install test on staging.
 
 ## Traps
 - Opening a page in the user's Chrome (Control_Chrome `open_url`) takes over the tab they are
