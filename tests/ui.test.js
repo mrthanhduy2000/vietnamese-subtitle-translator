@@ -10,30 +10,49 @@ const { bgEnv, read } = require("./bg-env.js");
 
 const R = f => fs.readFileSync(path.join(__dirname, "..", f), "utf8");
 
-test("phím tắt: manifest khai báo Alt+S (phụ đề) và Alt+D (lồng tiếng), có mô tả tiếng Việt", () => {
+// 2.5.7: no shortcut out of the box. The viewer sets each one in Settings ("Tùy chỉnh"), and the
+// page itself reads the keys (Chrome's own command shortcuts cannot be set from an extension page).
+const SC = require("../shortcuts.js");
+
+test("shortcuts: none by default, no Chrome command keys, the page reads them, Settings records them", () => {
     const m = JSON.parse(R("manifest.json"));
-    assert.ok(m.commands, "manifest chưa khai báo phím tắt nào");
-    assert.equal(m.commands["bat-tat-phu-de"].suggested_key.default, "Alt+S");
-    assert.equal(m.commands["bat-tat-long-tieng"].suggested_key.default, "Alt+D");
-    assert.ok(Object.values(m.commands).every(c => c.description && /[\u00C0-\u1EF9]/.test(c.description)), "mô tả phím tắt phải bằng tiếng Việt");
-    assert.ok(Object.keys(m.commands).length <= 4, "Chrome chỉ cho phép ít phím tắt gợi ý");
-    // Không thêm quyền nào cho phím tắt (chrome.commands không cần quyền)
+    assert.equal(m.commands, undefined, "a fixed default key came back");
     // "unlimitedStorage" (2.4.0): 100 saved videos pass the 10 MB of storage.local; no install warning
     assert.equal(JSON.stringify(m.permissions), JSON.stringify(["storage", "unlimitedStorage", "activeTab", "scripting"]));
-    // Người dùng phải biết là có phím tắt
-    assert.match(R("options.html"), /Alt\+S/);
-    assert.match(R("popup.html"), /Alt<\/kbd>\+<kbd>S/);
+    const js = m.content_scripts.find(g => (g.js || []).includes("content.js")).js;
+    assert.ok(js.indexOf("shortcuts.js") > -1 && js.indexOf("shortcuts.js") < js.indexOf("content.js"));
+    assert.match(R("content.js"), /K\.actionFor\(e, cstShortcuts\)/);
+    assert.match(R("options.html"), /id="shortcutList"/);
+    assert.match(R("options.js"), /Tùy chỉnh/);
+    for (const f of ["options.html", "popup.html", "youtube.js", "content.js"]) assert.doesNotMatch(R(f), /"Alt\+S"|<b>Alt\+S<\/b>|Alt<\/kbd>\+<kbd>S/, f);
+    assert.deepEqual(SC.clean(undefined), {}, "nothing set means nothing listens");
 });
 
-test("phím tắt: service worker chuyển lệnh tới tab đang xem (không cần quyền tabs)", async () => {
-    const env = bgEnv(async () => ({ ok: true }), {}, { tabs: [{ id: 7, url: "https://www.youtube.com/watch?v=abc" }] });
-    assert.equal(env.commandListeners.length, 1, "chưa lắng nghe phím tắt");
-    await env.commandListeners[0]("bat-tat-long-tieng", { id: 7, url: "https://www.youtube.com/watch?v=abc" });
-    // So sánh bằng JSON: đối tượng do mã trong máy ảo tạo ra không cùng "khuôn" với đối tượng của bài kiểm tra
-    assert.equal(JSON.stringify(env.tabMessages), JSON.stringify([{ id: 7, msg: { method: "phimTat", command: "bat-tat-long-tieng" } }]));
-    // Không có tab kèm theo (một số hệ điều hành): tự tìm tab đang xem
-    await env.commandListeners[0]("bat-tat-phu-de", null);
-    assert.equal(JSON.stringify(env.tabMessages[1]), JSON.stringify({ id: 7, msg: { method: "phimTat", command: "bat-tat-phu-de" } }));
+test("shortcuts: physical keys, shown the Mac way or the Windows way", () => {
+    // Option+S types "ß" on a Mac: the key code is what counts
+    const ev = { code: "KeyS", key: "ß", altKey: true, ctrlKey: false, shiftKey: false, metaKey: false, target: { tagName: "DIV" } };
+    const combo = SC.fromEvent(ev);
+    assert.equal(SC.format(combo, true), "⌥S");
+    assert.equal(SC.format(combo, false), "Alt+S");
+    assert.equal(SC.format({ code: "KeyD", ctrl: true, shift: true, meta: true }, true), "⌃⇧⌘D");
+    assert.equal(SC.format({ code: "Digit1", ctrl: true, shift: true }, false), "Ctrl+Shift+1");
+    assert.equal(SC.actionFor(ev, { "bat-tat-phu-de": combo }), "bat-tat-phu-de");
+    assert.equal(SC.actionFor({ ...ev, target: { tagName: "INPUT" } }, { "bat-tat-phu-de": combo }), "", "typing in a field is not a shortcut");
+    assert.equal(SC.actionFor({ ...ev, shiftKey: true }, { "bat-tat-phu-de": combo }), "", "Shift makes another combination");
+    assert.equal(SC.fromEvent({ code: "AltLeft", altKey: true }), null, "a lone modifier is no combination");
+});
+
+test("shortcuts: a key alone, a browser key or one already used is refused with a reason", () => {
+    assert.match(SC.problem({ code: "KeyS" }, {}, "bat-tat-phu-de", true), /⌘ Command/);
+    assert.match(SC.problem({ code: "KeyS", shift: true }, {}, "bat-tat-phu-de", false), /Ctrl hoặc Alt/);
+    assert.equal(SC.problem({ code: "F8" }, {}, "bat-tat-phu-de", false), "", "a function key alone is fine");
+    assert.match(SC.problem({ code: "KeyW", meta: true }, {}, "bat-tat-phu-de", true), /phím của trình duyệt/);
+    assert.match(SC.problem({ code: "KeyT", ctrl: true }, {}, "bat-tat-phu-de", false), /phím của trình duyệt/);
+    const used = { "bat-tat-long-tieng": { code: "KeyD", alt: true } };
+    assert.match(SC.problem({ code: "KeyD", alt: true }, used, "bat-tat-phu-de", false), /lồng tiếng/);
+    assert.equal(SC.problem({ code: "KeyD", alt: true }, used, "bat-tat-long-tieng", false), "", "setting the same key again on its own action");
+    assert.equal(SC.problem({ code: "KeyS", alt: true }, used, "bat-tat-phu-de", false), "");
+    assert.deepEqual(Object.keys(SC.clean({ "bat-tat-phu-de": { code: "KeyS", alt: 1 }, junk: { code: "KeyA" }, "bat-tat-long-tieng": { code: "ShiftLeft" } })), ["bat-tat-phu-de"]);
 });
 
 test("không dùng hộp thoại chặn trang (alert / confirm) trên trang người dùng đang xem", () => {
@@ -187,8 +206,8 @@ test("thực đơn trên video: dòng bật/tắt là công tắc thật, có ch
     assert.ok(rows.every(r => r.attrs["role"] === "switch" && r.tagName === "button"), "mỗi dòng phải là công tắc bấm được bằng bàn phím");
     assert.ok(rows.every(r => r.attrs["aria-checked"] === "true" || r.attrs["aria-checked"] === "false"), "công tắc phải báo đang bật hay tắt");
     assert.ok(!/BẬT|TẮT/.test(menu.textContent), "không dùng nhãn chữ 'BẬT' trông như nút bấm");
-    assert.match(menu.textContent, /Alt\+S/);
-    assert.match(menu.textContent, /Alt\+D/);
+    // 2.5.7: no shortcut is set out of the box, so the menu shows none
+    assert.doesNotMatch(menu.textContent, /Alt\+|⌥/);
 
     // Chọn giọng ngay trong thực đơn (trước đây phải mở trang Cài đặt)
     const sel = menu.querySelector("select");
@@ -282,12 +301,6 @@ test("giao diện Sáng / Tối: chọn tay thắng cài đặt của máy, hai 
     assert.match(R("options.html"), /data-theme-set="auto"/);
     // Không còn màu tô cứng làm nút tàng hình ở giao diện sáng
     assert.doesNotMatch(R("popup.html"), /color: #FAF9F5; cursor: pointer/);
-});
-
-test("phím tắt mở bảng điều khiển", () => {
-    const m = JSON.parse(R("manifest.json"));
-    assert.equal(m.commands["_execute_action"].suggested_key.default, "Alt+Shift+V");
-    assert.match(R("options.html"), /Alt\+Shift\+V/);
 });
 
 function dubbingEnvLocal(msgs, onMsg) {

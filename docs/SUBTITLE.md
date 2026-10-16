@@ -240,9 +240,9 @@ Fixture timeline: lines over 20 chars/s 3 -> 2, lines under 1 s 1 -> 0.
 
 Any http(s) page that is not YouTube or Coursera: `getCurrentSite()` returns `"generic"` and
 `isTrackSite()` sends it down the Coursera path (`translateTrackSite`). Nothing is injected until the
-viewer asks: the popup's Translate button and the shortcuts grant `activeTab`, and
-`background.js` `injectGenericPage` probes for `CST_UI`, then injects the ISOLATED group from the
-manifest. There is no broad host permission, and `reinjectOpenTabs` does not touch these tabs (after
+viewer asks: the popup's Translate button grants `activeTab`, and `popup.js` probes for the page's
+scripts, then injects the ISOLATED group from the manifest. The viewer's shortcuts (`shortcuts.js`,
+2.5.7) work on such a page only after that, since they are read by the injected `content.js`. There is no broad host permission, and `reinjectOpenTabs` does not touch these tabs (after
 a Reload the viewer clicks Translate again).
 
 - `csVideo()` takes the biggest visible `<video>` (playing ones count double); Coursera still takes the first.
@@ -388,6 +388,14 @@ AI and cost: `useAi`, `geminiApiKey`, `geminiModel`, `geminiStrongModel`, `costM
 `autoTranslate`, `budgetDailyUsd`, `budgetVideoUsd` (always USD; the hint converts), `costUsdVnd`,
 `costExtraPct` (display only; `COST.moneyOpts`, `COST.money`: always đồng with USD beside it since
 2.5.6; an old `costCurrency` is ignored)
+
+Shortcuts (2.5.7): `shortcuts` = `{ "<action>": { code, ctrl, alt, shift, meta } }` for the actions
+in `shortcuts.js` `ACTIONS` (`bat-tat-phu-de`, `bat-tat-long-tieng`, `mo-bang-dieu-khien`). Empty by
+default: the manifest has no `commands` any more (Chrome's own shortcuts cannot be set from an
+extension page, and a fixed Alt+S was not wanted). `content.js` reads the keys on the page
+(`listenShortcuts`, capture phase, never inside a text field) and runs `xuLyPhimTat`; `code` is the
+physical key, so Option on a Mac and a Vietnamese input method do not change it. Settings records a
+combination with "Tùy chỉnh" and refuses a key alone, a browser key (`RESERVED`) or one in use.
 
 Glossary: `glossaryEnabled`, `userKeep`, `userNormalize`, `enabledGroups`, `knownGroups` (1.8.5:
 group keys the user had seen at the last Save; a group missing from it starts enabled, see

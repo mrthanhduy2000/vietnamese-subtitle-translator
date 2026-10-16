@@ -1,6 +1,11 @@
-# Handoff (2026-10-16, 2.5.6)
+# Handoff (2026-10-16, 2.5.7)
 
 ## State
+- 2.5.7: keyboard shortcuts are the viewer's own, none by default. The manifest `commands` (Alt+S,
+  Alt+D, Alt+Shift+V) and the background relay are gone; `shortcuts.js` records/validates/formats
+  (⌥S on a Mac, Alt+S on Windows, by physical key code), `content.js` `listenShortcuts` acts on the
+  page, Settings > Dịch & AI > Phím tắt has "Tùy chỉnh" / "Xóa". `SUBTITLE.md` storage keys. Tried
+  live in `tests/harness/generic.html` (⌥S turned the subtitles on); not yet on YouTube itself.
 - 2.5.6 (on top of 2.5.5's Settings redesign): the cost card's day table and month card use the
   local day like "Hôm nay" (were Google's Pacific day: the morning's 790 calls showed under
   yesterday). `historyToLocal` in `background.js` moved the old history once (`costHistoryTz`).
@@ -12,7 +17,7 @@
   `tests/voice-refresh.test.js` replaces `edits.test.js`.
 - Version history folds, newest open, 15 at first plus "Xem thêm"; custom text colour swatch is a
   colour wheel. `npm test` 705 pass, 0 fail, 1 skip; regress 0 moved, baseline saved at 2.5.6.
-- Share repo: 2.5.6 on main after a green install test on staging.
+- Share repo: see git log (2.5.7 staged, promoted after a green install test).
 - Who speaks: no runtime change since 2.5.3; `speaker-lab.js score --why` and `--sentences`,
   numbers and next step in BACKLOG 44. VieNeu model checked 2026-10-16: nothing newer.
 

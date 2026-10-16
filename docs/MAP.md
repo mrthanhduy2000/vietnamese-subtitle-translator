@@ -11,7 +11,7 @@ Everything else is one content-script bundle at `document_idle`, in this order:
 
 ```
 glossary.js -> cst-cache.js -> cost-policy.js -> lang-detect.js -> vi-segmenter.js ->
-subtitle-style.js -> player-ui.js -> transcript.js -> context-engine.js -> vi-quality.js ->
+subtitle-style.js -> player-ui.js -> shortcuts.js -> transcript.js -> context-engine.js -> vi-quality.js ->
 dub-planner.js -> dub-prosody.js -> dub-speech.js -> dub-audio.js -> dub-engine.js -> dubbing.js -> content.js -> youtube.js
 ```
 
@@ -23,17 +23,17 @@ syllable count and, 1.7.8, the English spans).
 it to `manifest.json` in dependency order (and to `importScripts`, `options.html`, the harness pages
 under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tests if it is a dubbing file).
 
-## Source (31 files, ~25,200 lines)
+## Source (32 files, ~25,500 lines)
 
 | File | Lines | Role | Global export |
 |---|---|---|---|
-| `youtube.js` | 2048 | YouTube engine: bridge handshake, track pick, timedtext parse, self-drawn overlay, prefetch pool, controls + quick menu | none (same-world sibling of `content.js`, reads its `state`) |
-| `content.js` | 2472 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
-| `options.html` | 1436 | Settings page, 5 tabs (2.5.5): Phụ đề, Lồng tiếng, Dịch & AI (with the glossary), Chi phí & dữ liệu (cost with the top videos by period, cache, backup), Phiên bản (folded, 15 at first). Switches, one-line hints, seldom-changed fields under a `details.more` fold. ~900 lines are inline `<style>`; markup is only the rest | n/a |
+| `youtube.js` | 2061 | YouTube engine: bridge handshake, track pick, timedtext parse, self-drawn overlay, prefetch pool, controls + quick menu | none (same-world sibling of `content.js`, reads its `state`) |
+| `content.js` | 2512 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
+| `options.html` | 1455 | Settings page, 5 tabs (2.5.5): Phụ đề, Lồng tiếng, Dịch & AI (with the glossary), Chi phí & dữ liệu (cost with the top videos by period, cache, backup), Phiên bản (folded, 15 at first). Switches, one-line hints, seldom-changed fields under a `details.more` fold. ~900 lines are inline `<style>`; markup is only the rest | n/a |
 | `dub-engine.js` | 2624 | TTS providers + scheduler + video-clock sync + audio ducking | `CST_DUB_ENGINE` |
-| `background.js` | 2100 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access; reads who speaks (`analyzeSpeakers`, 2.5.2); opens Settings at `#welcome` after a first install | n/a (message router) |
+| `background.js` | 2068 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access; reads who speaks (`analyzeSpeakers`, 2.5.2); opens Settings at `#welcome` after a first install | n/a (message router) |
 | `popup.css` | 995 | Popup styling only | n/a |
-| `options.js` | 1351 | Settings logic. No Save button: debounced autosave every 350ms, flushed on `pagehide` | n/a |
+| `options.js` | 1447 | Settings logic. No Save button: debounced autosave every 350ms, flushed on `pagehide` | n/a |
 | `settings-backup.js` | 68 | Pure build/parse of the settings backup file (all of `storage.sync`, key optional) | `CST_BACKUP` (options page only) |
 | `vi-segmenter.js` | 890 | Vietnamese cue segmentation + line breaking, two-stage dynamic programming over syllable gaps | `CST_VI_SEG` |
 | `dub-planner.js` | 1381 | Pure function: text -> speech script -> prosody and timing. No I/O | `CST_DUB_PLAN` |
@@ -45,16 +45,17 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `dub-prosody.js` | 831 | Pure prosody model (1.7.6): boundary value of every gap between words, pause roles and lengths, which of a take's stops to keep (dynamic program), breathing commas, the value of a segment cut; 1.8.0 clause frames (`constituents`), gap tiers, `signature` (VieNeu cache key), `tokenMap`. See `DUBBING.md` "Prosody model" | `CST_DUB_PROSODY` |
 | `dub-speech.js` | 567 | Pure (1.7.8): English spans inside Vietnamese speech (lexicon, token shapes, evidence; 1.8.0 a three-state confidence score, 5+ letter codes) and the text VieNeu is sent for them (`render`: `<en>` tags, respellings, model numbers, at most 8 tags); `spanGaps` for the prosody model. Holds a generated block (`tools/build-speech-tables.js`). See `DUBBING.md` "English inside Vietnamese speech" | `CST_DUB_SPEECH` |
 | `cost-policy.js` | 397 | **Single source of truth** for the model catalog, cost modes, budgets, difficulty routing, local-TTS config | `CST_COST` |
-| `popup.js` | 336 | Popup logic; re-injects content scripts if they are missing | n/a |
+| `popup.js` | 364 | Popup logic; re-injects content scripts if they are missing | n/a |
 | `yt-bridge.js` | 299 | MAIN-world page bridge: reads YouTube's internal player response, fetches timedtext with the player's `pot` token | none (postMessage protocol only) |
 | `subtitle-style.js` | 293 | Shared subtitle font/stroke/position styling and its defaults | `CST_STYLE` |
 | `player-ui.js` | 424 | The product mark, the control-bar button and the quick-menu stylesheet, shared by both players | `CST_PLAYER_UI` |
+| `shortcuts.js` | 110 | The viewer's own keyboard shortcuts (none by default): record, validate, show the Mac or Windows way, match a keydown | `CST_SHORTCUTS` |
 | `transcript.js` | 299 | Transcript panel beside the player: jump to a line, search, export .srt | `CST_TRANSCRIPT` |
 | `chrome-shim.js` | 173 | Fakes `chrome.*` so `popup.html` / `options.html` open outside the extension. Self-disables inside it | `window.chrome` |
-| `popup.html` | 165 | Popup markup | n/a |
+| `popup.html` | 166 | Popup markup | n/a |
 | `vi-quality.js` | 671 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
 | `lang-detect.js` | 132 | Source-language decision without an API call | `CST_LANG` |
-| `version-history.js` | 1701 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
+| `version-history.js` | 1711 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
 | `version-check.js` | 57 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
 | `theme.js` | 42 | Light/Dark theme for the popup and settings page. Applies instantly from `localStorage` to avoid a flash, then syncs from `storage.sync`. Loaded by `popup.html` and `options.html` only, not a content script | `window.CST_THEME` |
 | `build-info.js` | 6 | **Generated** by `tools/bump-version.js`. Never edit | `CST_BUILD` |
@@ -73,6 +74,7 @@ Subtitle side:
 - `CST_GLOSSARY_GROUPS` and friends -> `content.js`, `options.js`; `glossary.js` exports like the others (globalThis, window, module.exports), `tests/backlog.test.js` loads it
 - `CST_TRANSCRIPT` -> `content.js`, `youtube.js`
 - `CST_PLAYER_UI` -> `content.js`, `youtube.js`, `transcript.js`
+- `CST_SHORTCUTS` -> `content.js` (`listenShortcuts`), `youtube.js` (`ytPhimTat`), `options.js`, `popup.js`
 - `CST_UI` (`content.js`) -> `youtube.js`, `dubbing.js`, `transcript.js` (all for `toast`); `CST_LAST_AI_INFO` (`content.js`) -> `youtube.js`
 
 Dubbing side:

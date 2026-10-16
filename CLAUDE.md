@@ -111,7 +111,7 @@ harnesses · `BACKLOG.md` known defects and leftovers.
 |---|---|
 | A. Subtitle | `content.js` `youtube.js` `yt-bridge.js` `vi-segmenter.js` `vi-quality.js` `context-engine.js` `glossary.js` `lang-detect.js` `subtitle-style.js` `transcript.js` `player-ui.js` |
 | B. Dubbing | `dubbing.js` `dub-engine.js` `dub-planner.js` `dub-prosody.js` `dub-speech.js` `dub-audio.js` `cst-cache.js` |
-| C. UI | `popup.*` `options.*` `version-check.js` `version-history.js` `chrome-shim.js` `theme.js` `settings-backup.js` |
+| C. UI | `popup.*` `options.*` `version-check.js` `version-history.js` `chrome-shim.js` `theme.js` `settings-backup.js` `shortcuts.js` |
 | D. Core | `background.js` `cost-policy.js` `manifest.json` `tools/` `tests/` |
 
 `background.js` and `manifest.json` are hot: lane B and C both reach into them. If you must edit
