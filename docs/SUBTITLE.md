@@ -381,7 +381,7 @@ changes (polled once a second, never for the first track seen); `ytKhiDoiAmThanh
 ### `chrome.storage.sync` (34 settings written by `options.js` `collectSettings`, plus `originalFirst` and `uiTheme`)
 
 Subtitle: `subStyle` (nested object; defaults live in `subtitle-style.js`), `dualMode`,
-`perCueMode`, `skipSameLang` (on: a video's own Vietnamese track is used as is; off: translate from
+`perCueMode` (2.5.5: no control any more, every save writes false), `skipSameLang` (on: a video's own Vietnamese track is used as is; off: translate from
 the source track; YouTube, Coursera, generic), and `originalFirst`, which only the popup writes
 (`popup.js`), never `collectSettings`. `styleOriginal`, the popup's "Làm mờ dòng tiếng Anh", was never
 read by the page and was removed in 1.7.3; old stored values are ignored.
@@ -398,8 +398,9 @@ UI: `uiTheme` (`auto` / `light` / `dark`), written by `theme.js`, **not** by `co
 also mirrored into `localStorage` as `cstUiTheme` so the page can paint before storage resolves.
 
 Dubbing: `dubEnabled`, `dubProvider`, `dubTtsModel`, `dubVoiceName`, `dubGeminiVoice`,
-`dubGeminiVoice2`, `dubLocalVoice`, `dubLocalVoice2`, `dubSpeakers` (2.5.2: `auto`, the default, a voice
-per speaker up to five; `one`, every speaker S1 via `DubEngine.oneVoice`), `dubSpeakerAi` (2.5.2, on: Gemini reads who
+`dubGeminiVoice2` (2.5.5: these five have no control while the paid voice is off; saves write
+"vieneu" and the defaults), `dubLocalVoice`, `dubLocalVoice2`, `dubSpeakers` (2.5.2: `auto`, the default, a voice
+per speaker up to eight since 2.5.3; `one`, every speaker S1 via `DubEngine.oneVoice`), `dubSpeakerAi` (2.5.2, on: Gemini reads who
 speaks on YouTube; `DUBBING.md` "Who speaks"), `dubDuck`, `dubVolume`, `dubPrepareWait`. `dubSecondVoice` (off by
 default until 2.5.1) is retired; old stored values are ignored.
 `dubMaxRate` (0 = automatic, else 1.1 to 1.5: caps every rate in `DubEngine.chooseRate` /

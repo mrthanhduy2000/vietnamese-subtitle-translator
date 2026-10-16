@@ -182,7 +182,8 @@ test("thực đơn trên video: dòng bật/tắt là công tắc thật, có ch
     assert.equal(menu.attrs["role"], "dialog");
     assert.equal(btn.attrs["aria-expanded"], "true");
     const rows = menu.querySelectorAll(".cst-row");
-    assert.equal(rows.length, 3, "phải có 3 dòng: phụ đề, lồng tiếng, bỏ qua khi cùng ngôn ngữ");
+    // 2.5.5: two switches, what is changed while watching; "use the Vietnamese captions a video has" is set in Settings
+    assert.equal(rows.length, 2, "two switches: subtitles, dubbing");
     assert.ok(rows.every(r => r.attrs["role"] === "switch" && r.tagName === "button"), "mỗi dòng phải là công tắc bấm được bằng bàn phím");
     assert.ok(rows.every(r => r.attrs["aria-checked"] === "true" || r.attrs["aria-checked"] === "false"), "công tắc phải báo đang bật hay tắt");
     assert.ok(!/BẬT|TẮT/.test(menu.textContent), "không dùng nhãn chữ 'BẬT' trông như nút bấm");

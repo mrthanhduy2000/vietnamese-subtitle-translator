@@ -62,6 +62,19 @@ none
   turn at all from the reading (77 placed right, 31 at the line start, 14 elsewhere): most of the
   2.5.3 gap between plain (90.2%) and clean captions (93.5%). Prompt changes tried did not close it
   (`DUBBING.md` "Who speaks").
+  2.5.5 measure (`speaker-lab.js score --why`, the 29 plain readings of run v2): 10.1% of the words
+  are in another voice than their person's. 3.3 points are whole turns that kept the voice before
+  (13 turns the reading named nowhere near), 3.2 people with no voice of their own (the reading took
+  two people for one; the 8-voice cap costs only 0.7), 1.8 whole turns in someone else's voice (a
+  question that names the next speaker, "So Doug, ...", read as Doug's), 1.7 a switch early or late.
+  Placement is not the problem: 978 of 987 quoted first words are found. Next step, needs paid
+  readings: lines cut at sentence ends (`--sentences`, run `v2s` in `speaker-lab-runs.js`) start
+  72.1% of the true turns at a line start against 44.2% for caption lines; read the 30 videos with
+  `prepare --variants=plain --sentences` (about 0.05 USD, a day with budget left), then
+  `score --tag=v2s --as=plains --sentences --why` against the 90.2% above. One video read so far
+  (-9QQNgMxdPY, 23 people): 74.7 against 76, which says nothing alone. Tried and dropped, free: a
+  ">>" with no AI turn within 2 s handed to the voice before (32 of its 38 cases are real turns, but
+  the voice before is the wrong one on panels): 89.89 -> 89.72.
 - **45. Long podcasts miss the turn back after a short interjection** *(found 2.5.3)*. UIy-WQCZd4M
   (3 hours, 2 people, read in parts of ~800 lines): 90.8% of the words in the right voice; most errors
   are a "Right." or "Yeah." by the host read as a turn with no turn back, so the guest's next answer

@@ -1258,9 +1258,11 @@ test("paid voice off as shipped: the service worker refuses Gemini TTS without a
     assert.equal(r.errorType, "disabled");
     assert.ok(!calls.some(u => /generativelanguage/.test(u)), "no Gemini request");
     assert.equal(E.syncStore.dubProvider, "vieneu");
+    // Settings offers no other voice (2.5.5: no voice source picker at all, VieNeu is the only one)
     const html = require("fs").readFileSync(require("path").join(__dirname, "..", "options.html"), "utf8");
-    const sel = html.slice(html.indexOf('<select id="dubProvider"'), html.indexOf("</select>", html.indexOf('<select id="dubProvider"')));
-    assert.deepEqual([...sel.matchAll(/<option value="(\w+)"/g)].map(m => m[1]), ["vieneu"]);
+    for (const id of ["dubProvider", "dubGeminiVoice", "dubGeminiVoice2", "dubVoice", "dubTtsModel"]) assert.doesNotMatch(html, new RegExp(`id="${id}"`), id);
+    // and saving the page keeps the stored source on VieNeu
+    assert.match(require("fs").readFileSync(require("path").join(__dirname, "..", "options.js"), "utf8"), /dubProvider: providerSel \? providerSel\.value : "vieneu"/);
 });
 
 test("VieNeu là giọng chính (chế độ Cân bằng, có API key): KHÔNG rút gọn lời thoại, không hỏi model Gemini TTS", async () => {
@@ -1469,7 +1471,7 @@ test("nguồn giọng mặc định: Giọng Việt trên máy (VieNeu); chuyể
     // Đã chuyển rồi: người dùng chọn lại "Tự động" thì giữ nguyên
     assert.equal(bgEnv(async () => reply({}), cfg({ dubProvider: "auto", dubProvider1113: true })).syncStore.dubProvider, "auto");
     const html = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "options.html"), "utf8");
-    assert.match(html, /<option value="vieneu" selected>/);
+    assert.doesNotMatch(html, /id="dubProvider"/, "VieNeu is the only voice: no source picker");
     assert.doesNotMatch(html, /dubLocalModel|Model VieNeu/);
 });
 

@@ -8,13 +8,13 @@
 //   node tools/speaker-lab.js extract <text-file> <dataDir>
 //        every "LABDATA<<base64 gzip json>>LABDATA" that tests/harness/speaker-grab.js printed in a
 //        YouTube tab (a session transcript, a saved page) -> <dataDir>/<id>.json, the latest wins
-//   node tools/speaker-lab.js prepare <dataDir> [--variants=plain,clean] [--planner=<file>]
+//   node tools/speaker-lab.js prepare <dataDir> [--variants=plain,clean] [--planner=<file>] [--sentences]
 //        -> tests/harness/lab-data/speaker-lab-data.js: per video and variant the lines dubbing.js
 //        would send (PLAN.speakerLines). plain: the ".en" track (else ".en-US" without its labels);
 //        clean: ".en-US" without its labels. Then open
 //        chrome-extension://<id>/tests/harness/speaker-lab.html?tag=<run> (runs: lab-data/speaker-lab-runs.js)
 //   node tools/speaker-lab.js score <dataDir> --tag=<run> [--variant=plain] [--as=<variant>]
-//        [--planner=<file>] [--detail]
+//        [--planner=<file>] [--sentences] [--detail] [--why]
 //        reads the run's answers from chrome.storage.local "speakerLab" (tools/ext-storage.js) and
 //        scores each video word by word against the named transcript: acc (words in the right
 //        voice, voices matched to people one to one), one person one voice, voice purity, pairs of
@@ -34,6 +34,49 @@ const args = process.argv.slice(2);
 const opt = k => { const a = args.find(x => x.startsWith("--" + k)); return a ? (a.includes("=") ? a.slice(a.indexOf("=") + 1) : true) : null; };
 const plannerAt = opt("planner") ? path.resolve(opt("planner")) : path.join(ROOT, "dub-planner.js");
 const PLAN = require(plannerAt);
+
+// --sentences: a line shape on trial (BACKLOG 44), not the extension's. Each caption is split at its
+// sentence ends and before a ">>", then the pieces are joined up to a sentence end the way
+// joinCaptionLines joins short captions (when a fifth of the pieces end a sentence, or the captions
+// are short). Prepared items get an "s" after their variant ("plains").
+const TITLE_ABBR = /^(?:Dr|Mr|Mrs|Ms|Mx|Prof|St|Jr|Sr|Rev|Gen|Col|Capt|Sgt|Lt)$/;
+const TURN_OPEN = /^(?:>>|-\s|\p{Lu}[\p{Lu}\p{M}.'’-]*(?:\s+\p{Lu}[\p{Lu}\p{M}.'’-]*){0,4}:\s)/u;
+const SENTENCE_END = /([\p{L}\p{N}'’)"”\]]+)[.!?…]+["”')\]]*\s+(?=\S)/gu;
+const ENDS = /[.!?…]["”')\]]*$/;
+function sentenceLines(lines) {
+    // the caption pieces again where the planner joined them
+    const caps = lines.flatMap(l => (l.parts ? l.parts.map(p => ({ start: p.start, end: p.end, text: l.text.slice(p.pos, p.pos + p.len) })) : [l]));
+    const pieces = [];
+    for (const c of caps) {
+        const cuts = [0];
+        for (const m of c.text.matchAll(SENTENCE_END)) if (!TITLE_ABBR.test(m[1]) && !/^\p{Lu}$/u.test(m[1])) cuts.push(m.index + m[0].length);
+        for (const m of c.text.matchAll(/\s>>/g)) cuts.push(m.index + 1);
+        cuts.sort((a, b) => a - b);
+        const n = c.text.length || 1;
+        cuts.forEach((a, k) => {
+            const raw = c.text.slice(a, k + 1 < cuts.length ? cuts[k + 1] : c.text.length), t = raw.trim();
+            if (!t) return;
+            const at = a + raw.indexOf(t);
+            pieces.push({ start: c.start + (c.end - c.start) * at / n, end: c.start + (c.end - c.start) * (at + t.length) / n, text: t });
+        });
+    }
+    const sizes = caps.map(c => c.text.length).sort((a, b) => a - b);
+    const join = pieces.filter(p => ENDS.test(p.text)).length >= 0.2 * pieces.length || (sizes.length > 0 && sizes[sizes.length >> 1] < 40);
+    const out = [];
+    let cur = null;
+    for (const p of pieces) {
+        if (join && cur && !TURN_OPEN.test(p.text) && p.start - cur.end < 1.5 && !ENDS.test(cur.text) && cur.text.length + 1 + p.text.length <= 160) {
+            cur.parts.push({ pos: cur.text.length + 1, start: p.start, end: p.end, len: p.text.length });
+            cur.text += " " + p.text;
+            cur.end = Math.max(cur.end, p.end);
+            continue;
+        }
+        cur = { start: p.start, end: p.end, text: p.text, parts: [{ pos: 0, start: p.start, end: p.end, len: p.text.length }] };
+        out.push(cur);
+    }
+    return out;
+}
+const speakerLines = groups => (opt("sentences") ? sentenceLines(PLAN.speakerLines(groups)) : PLAN.speakerLines(groups));
 
 // "NAME:" labels of a named transcript, with a party or a title after the name ("TAMARA KEITH,
 // National Public Radio:", "REP. MARIA ELVIRA SALAZAR (R-FL):")
@@ -81,9 +124,9 @@ function prepare(dir) {
     for (const j of videosIn(dir)) {
         if (!trackOf(j, ".en-US")) continue;
         for (const variant of variants) {
-            const lines = PLAN.speakerLines(groupsOf(linesOf(j, variant)));
+            const lines = speakerLines(groupsOf(linesOf(j, variant)));
             if (lines.length < 8) continue;
-            items.push({ id: j.id, variant, title: j.title, len: j.len, lines: lines.map(l => l.text) });
+            items.push({ id: j.id, variant: variant + (opt("sentences") ? "s" : ""), title: j.title, len: j.len, lines: lines.map(l => l.text) });
         }
     }
     const out = path.join(ROOT, "tests/harness/lab-data/speaker-lab-data.js");
@@ -199,11 +242,12 @@ function score(lines, truthWords, voiceAt) {
     const W = sps.filter(Boolean).length || 1;
     const voices = new Map();
     const C = [];
-    inWords.forEach((x, i) => {
-        if (!sps[i]) return;
+    const vs = inWords.map((x, i) => {
+        if (!sps[i]) return null;
         const v = voiceAt(x.t, sps[i]);
         if (!voices.has(v)) { voices.set(v, C.length); C.push(new Array(speakers.length).fill(0)); }
         C[voices.get(v)][speakers.indexOf(sps[i])]++;
+        return v;
     });
     const acc = maxMatch(C) / W;
     let cons = 0, pur = 0, shared = 0;
@@ -218,7 +262,47 @@ function score(lines, truthWords, voiceAt) {
     C.forEach(row => { pur += Math.max(...row); });
     for (let a = 0; a < major.length; a++) for (let b = a + 1; b < major.length; b++) if (mainVoice.get(major[a]) === mainVoice.get(major[b])) shared++;
     const split = major.filter(s => { const k = speakers.indexOf(s); const tot = C.reduce((n, r) => n + r[k], 0); return Math.max(...C.map(r => r[k])) / tot < 0.85; }).length;
-    return { speakers: speakers.length, major: major.length, voices: C.length, acc, cons: cons / W, pur: pur / W, shared, split };
+    return { speakers: speakers.length, major: major.length, voices: C.length, acc, cons: cons / W, pur: pur / W, shared, split, why: whyWrong(sps, vs, C, speakers, voices) };
+}
+
+// --why: the words in another voice than their person's, by cause. Each person's voice: the biggest
+// cells first, one voice per person. edge: the person's turn is in their voice but the switch came
+// early or late; missed: a whole turn kept the voice before it (no turn found); wrong: a whole turn
+// went to someone else's voice; none: the person has no voice of their own (more people than
+// voices, or the reading took two people for one)
+function whyWrong(sps, vs, C, speakers, voices) {
+    const cells = [];
+    const vOf = new Map(), taken = new Set();
+    C.forEach((row, v) => row.forEach((n, k) => cells.push([n, v, k])));
+    cells.sort((a, b) => b[0] - a[0]);
+    for (const [n, v, k] of cells) if (n && !vOf.has(k) && !taken.has(v)) { vOf.set(k, v); taken.add(v); }
+    const idx = new Map([...voices].map(([v, i]) => [v, i]));
+    const turns = [];
+    sps.forEach((s, i) => {
+        if (!s) return;
+        const cur = turns[turns.length - 1];
+        if (cur && cur.sp === s) cur.to = i; else turns.push({ sp: s, from: i, to: i });
+    });
+    const majorOf = tn => {
+        const cnt = new Map();
+        for (let i = tn.from; i <= tn.to; i++) if (vs[i] != null) cnt.set(idx.get(vs[i]), (cnt.get(idx.get(vs[i])) || 0) + 1);
+        return [...cnt].sort((a, b) => b[1] - a[1])[0][0];
+    };
+    const out = { words: 0, edge: 0, missed: 0, wrong: 0, none: 0 };
+    turns.forEach((tn, k) => {
+        const own = vOf.get(speakers.indexOf(tn.sp));
+        const major = majorOf(tn);
+        for (let i = tn.from; i <= tn.to; i++) {
+            if (vs[i] == null) continue;
+            out.words++;
+            if (idx.get(vs[i]) === own) continue;
+            if (own === undefined) out.none++;
+            else if (major === own) out.edge++;
+            else if (k > 0 && major === majorOf(turns[k - 1])) out.missed++;
+            else out.wrong++;
+        }
+    });
+    return out;
 }
 
 function readAnswers(tag) {
@@ -256,7 +340,7 @@ function scoreRun(dir) {
         const r = answers.get(j.id + "." + as);
         let src = "";
         if (r) {
-            const sl = PLAN.speakerLines(groups);
+            const sl = speakerLines(groups);
             const withAi = PLAN.speakerTurns(groups.slice(), { ai: PLAN.speakerHints(sl, r, 0, sl.length) });
             methods.ai = t => PLAN.speakerAt(withAi, t);
             src = withAi.source;
@@ -264,8 +348,9 @@ function scoreRun(dir) {
         const cells = [];
         for (const [name, fn] of Object.entries(methods)) {
             const s = score(lines, truth, fn);
-            const a = agg[name] || (agg[name] = { n: 0, acc: 0, cons: 0, pur: 0, shared: 0, split: 0, voices: 0, major: 0 });
+            const a = agg[name] || (agg[name] = { n: 0, acc: 0, cons: 0, pur: 0, shared: 0, split: 0, voices: 0, major: 0, why: { words: 0, edge: 0, missed: 0, wrong: 0, none: 0 } });
             a.n++; a.acc += s.acc; a.cons += s.cons; a.pur += s.pur; a.shared += s.shared; a.split += s.split; a.voices += s.voices; a.major += s.major;
+            for (const k of Object.keys(a.why)) a.why[k] += s.why[k];
             if (name === "rules" || name === "ai") cells.push(`${name}:${name === "ai" ? src : rules.source} v${s.voices} ${(s.acc * 100).toFixed(0)}/${(s.cons * 100).toFixed(0)}/${(s.pur * 100).toFixed(0)} sh${s.shared} sp${s.split}`);
         }
         rows.push(`${j.id.padEnd(12)} people ${String(cnt.size).padEnd(3)} | ${cells.join(" | ")}`);
@@ -273,10 +358,17 @@ function scoreRun(dir) {
     console.log(`${variant} (answers of run "${tag}" on ${as}): method  videos  acc  one-person-one-voice  purity  shared-pairs  split-people  voices/major`);
     for (const [name, a] of Object.entries(agg)) console.log(`${name.padEnd(8)} ${a.n}  ${(a.acc / a.n * 100).toFixed(1)}  ${(a.cons / a.n * 100).toFixed(1)}  ${(a.pur / a.n * 100).toFixed(1)}  ${a.shared}  ${a.split}  ${(a.voices / a.n).toFixed(1)}/${(a.major / a.n).toFixed(1)}`);
     if (opt("detail")) console.log("per video: method vVoices acc/one-person-one-voice/purity shShared spSplit\n" + rows.join("\n"));
+    if (opt("why")) {
+        console.log("words in another voice than their person's, % of all words: edge (switch early or late), missed (a whole turn kept the voice before), wrong (a whole turn in someone else's voice), none (no voice of their own)");
+        for (const [name, a] of Object.entries(agg)) {
+            const w = a.why, p = x => (x / Math.max(1, w.words) * 100).toFixed(1);
+            if (name !== "one") console.log(`${name.padEnd(8)} ${p(w.edge + w.missed + w.wrong + w.none)}: edge ${p(w.edge)} missed ${p(w.missed)} wrong ${p(w.wrong)} none ${p(w.none)}`);
+        }
+    }
 }
 
 const [cmd, a1, a2] = args.filter(x => !x.startsWith("--"));
 if (cmd === "extract" && a1 && a2) extract(a1, a2);
 else if (cmd === "prepare" && a1) prepare(a1);
 else if (cmd === "score" && a1) scoreRun(a1);
-else console.log("usage: node tools/speaker-lab.js extract <text-file> <dataDir> | prepare <dataDir> [--variants=plain,clean] | score <dataDir> --tag=<run> [--variant=plain] [--as=<variant>] [--detail]");
+else console.log("usage: node tools/speaker-lab.js extract <text-file> <dataDir> | prepare <dataDir> [--variants=plain,clean] [--sentences] | score <dataDir> --tag=<run> [--variant=plain] [--as=<variant>] [--sentences] [--detail] [--why]");

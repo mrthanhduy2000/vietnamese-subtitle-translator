@@ -1,41 +1,36 @@
-# Handoff (2026-10-16, 2.5.4)
+# Handoff (2026-10-16, 2.5.5)
 
 ## State
-- 2.5.4: sound descriptions are never voiced, however worded ("(Nhạc nền sôi động)" was read on a
-  Made by Google video): `SUBTITLE.md` "Sound captions". Regress moved one segment (nm1T, that note).
-- 2.5.3: `npm test` 710 pass, 0 fail, 1 skip (2.5.4). `tools/regress.js` baseline saved at 2.5.3; its moves
-  are explained in `DUBBING.md` "Who speaks" (segments 7850 -> 7845, late 1702 -> 1711, gaps
-  56 -> 59, words lost 0).
-- Who speaks, all in `DUBBING.md` "Who speaks": the AI reading now reaches the voices (it timed out
-  on long videos; the timeout covers the longest answer, a late answer is charged at its real counts
-  and kept); recognizer captions cut in short pieces are joined into sentences before the reading
-  (`JOIN_SHORT` 40; the model wrote a turn for nearly every piece otherwise); parts of one size;
-  8 voices; prompt 2; labels on every turn need no reading; voice cuts at labels and sentence ends
-  (`TURN_CUTS`); fewer cuts inside a phrase (`SEG_STRETCH`).
-- Live (`tests/harness/yt-watch.html`): JBvcMfa7K6E 3 voices (was 1), Aj_UWp8Y5D4 two voices in
-  its first 75 s, nothing dropped. `yt-driver.html` ran once (Aj_UWp8Y5D4 saved in 36 s).
-- Share repo: 2.5.4 staged and promoted after a green install test (see git log for the commit).
-- New: `tools/speaker-lab.js` (extract, prepare, score), `tests/harness/speaker-grab.js`,
-  `speaker-lab.html`, `yt-watch.html`, `yt-driver.html`; how to use them: `TESTING.md` "Extension
-  pages that drive YouTube, and the speaker lab".
+- 2.5.5, UI: the Settings page has 5 tabs (Phụ đề, Lồng tiếng, Dịch & AI, Chi phí & dữ liệu, Phiên
+  bản), switches instead of checkboxes, rare options folded in `details.more`. Controls removed:
+  `dubProvider`, both Gemini voices, `dubVoice`, `dubTtsModel`, `perCueMode` (their keys and what a
+  save writes: `SUBTITLE.md` storage keys). The YouTube quick menu keeps subtitles, mode, size,
+  dubbing, voice, volume; "Chép chẩn đoán" is gone (`CST_DUB.diagnostics()` stays, `DUBBING.md`).
+  Cost mode names rewritten (`cost-policy.js` MODES). `npm test` 710 pass, 0 fail, 1 skip;
+  `tools/regress.js` 0 numbers moved, baseline saved at 2.5.5.
+- Who speaks: no runtime change. `speaker-lab.js score --why` splits the words in a wrong voice by
+  cause; `--sentences` is the line shape to measure next. Numbers and the next step: BACKLOG 44.
+- The user's "mô hình ngôn ngữ nằm trong máy" was read as the VieNeu model (its backbone is a
+  language model). Checked 2026-10-16: model `61b85e3` is still the newest on Hugging Face (pinned);
+  upstream code 3.8.3 against our `d350c63` changes dependencies and hardening only; its int8 needs
+  an x86 CPU with VNNI (the M3 is ARM); server log, 21,500 renders: RTF p50 0.24, p90 0.29, the slow
+  ones come right after another render. Nothing changed.
+- Share repo: see git log (2.5.5 staged, promoted only after a green install test).
 
 ## Traps
-- The lab's 30 PBS videos (caption tracks) are in `/tmp/claude-501/lab/data`, scratch that may be
-  gone: re-grab with `speaker-grab.js` in the built-in browser. `tests/harness/lab-data/` is
-  git-ignored. The grabbed lines are not always the extension's own (Aj_UWp8Y5D4): build an item
-  from `ytcache4_<id>` when the video is saved.
-- Lab runs and live checks go through the extension's own budget and ledger. 2026-10-16 spent
-  1.09 of the 1.15 USD daily budget, nearly all of it measuring. Readings are cached by lines,
-  prompt version and model: rerunning a run is free, changing any of them is not.
+- Opening a page in the user's Chrome (Control_Chrome `open_url`) takes over the tab they are
+  watching; they closed the lab tab within seconds and the run stopped after one video. Lab runs
+  belong to a time the user is not watching.
+- 2026-10-16: 1.105 of the 1.154 USD daily budget spent, nearly all on measuring. Over budget, the
+  speaker reading and the strong tier stop; subtitles go on with the cheap model.
+- `node -e` has no script argument: a flag pushed onto `process.argv` once is lost by `slice(2)`.
+- The lab's 30 PBS videos are in `/tmp/claude-501/lab/data` (scratch); `tests/harness/lab-data/`
+  is git-ignored. Readings are cached by lines, prompt version and model.
 - Reloading the extension closes its pages (the harnesses).
-- One reading per video: single videos moved 10 to 26 points between line shapes while the mean
-  moved 3. Judge a change by the mean over many videos.
 - `~/.claude/projects/.../memory` is outside the Bash sandbox: write memory with Edit/Write.
 
 ## Unfinished
-- BACKLOG 44 (turns inside a line missed on recognizer captions), 45 (no turn back after a short
-  interjection on long podcasts), 46 (translation runs Gemini 3 below temperature 1, unmeasured),
-  47 (17 cuts still inside a phrase).
+- BACKLOG 44 (next: read the 30 videos with `--sentences`, about 0.05 USD), 45, 46, 47.
 - Carried over: joint-takes branches; the 2.5.0 Coursera start hold not yet seen live; CI gaps
   (VC++ runtime, browser steps, a Vietnamese Windows profile); voice items "có nghĩa là", DN, NHNN;
   BACKLOG 43; `ban-giao.md` does not mention the share repo.

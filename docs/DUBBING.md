@@ -593,6 +593,11 @@ alternating turns, 13,270 tokens, and lost a speaker), joining whole caption lin
 22 news videos captioned in whole lines; -0.3, noise, on 7 captioned in pieces). Parts on the
 3-hour podcast UIy-WQCZd4M (clean lines): about 800 lines 90.8%, 300 lines 84.5%, one call cut at
 the cap 79.2%; its errors are mostly a missed turn back after a short interjection.
+Where the plain words in a wrong voice come from (2.5.5, `score --why`, 10.1% by its own matching):
+turns the reading never named 3.3, people it took for one 3.2, turns given to the person a question
+names 1.8, switches early or late 1.7; 978 of 987 quoted first words are found,
+so placement is done. The rest needs better readings, which costs money to measure: BACKLOG 44.
+Handing a ">>" with no AI turn near it to the voice before was tried and dropped (-0.17).
 
 **Measured live (2.5.3, `tests/harness/yt-watch.html`).** JBvcMfa7K6E, a 30-minute show with three
 people and no marks: in 2.5.2 the reading never reached the voices. Its first part of 900 pieces ran
@@ -1154,8 +1159,9 @@ What changed:
   - `skip` with lines, wait and rtf;
   - `reset` with `why`, `error` with `kind`, `late` with lag and rate.
   `debugSnapshot()` gains rtf, over, pace, lateTicks, spoken and events. `dubbing.js` `diagnostics()`
-  returns one JSON text (no key, no text beyond line ids). The YouTube quick menu's "Chép chẩn đoán"
-  copies it: ask the user to paste it rather than re-measuring.
+  returns one JSON text (no key, no text beyond line ids). Its quick-menu button ("Chép chẩn đoán")
+  was removed in 2.5.5 (a menu of what is changed while watching; never ask the user for it):
+  read `data-cst-dub` with `tests/harness/yt-watch.html` instead.
 - Voice hint: `health().paceHigh` (the busiest quarter's rate). At 1.35 or more (`SLOW_VOICE_PACE`),
   `describeHealth` names up to two voices of the same gender that are at least 0.8 syllables/s
   quicker (`fasterVoices`, `CST_COST.LOCAL_TTS.voices`). Simulated on a fast talk with a slow server:
@@ -1219,10 +1225,12 @@ Selected by the `dubProvider` setting. `createVieneuProvider` / `createGeminiPro
 2026-09-27). VieNeu is the only voice: `dubbing.js` never builds Gemini or system providers and has no
 fallback (VieNeu down: a toast, then it waits for the server and starts by itself); the service
 worker answers a non-local `synthesizeSpeech` with `errorType: "disabled"` before any request;
-Settings offers VieNeu only; a stored `dubProvider` becomes "vieneu" once (`dubProvider181`). The
-Gemini TTS code and its tests stay: the test harnesses set `PAID_TTS = true` (`bg-env.js`
-`opts.paidTts`), `hardening.test.js` "paid voice off as shipped" checks the real default. To bring it
-back: `PAID_TTS = true` and the three options in `options.html`.
+Settings has no voice source picker (2.5.5: the picker, the Gemini and system voice selects and the
+TTS model box are gone; `collectSettings` writes `dubProvider` "vieneu" and the old defaults); a stored
+`dubProvider` becomes "vieneu" once (`dubProvider181`). The Gemini TTS code and its tests stay: the
+test harnesses set `PAID_TTS = true` (`bg-env.js` `opts.paidTts`), `hardening.test.js` "paid voice
+off as shipped" checks the real default. To bring it back: `PAID_TTS = true` and those controls in
+`options.html` (git history before 2.5.5).
 
 ### VieNeu local (default, free)
 

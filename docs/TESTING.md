@@ -19,7 +19,7 @@ sense of weight, not an assertion.
 | `segmenter.test.js` | 42 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
 | `context.test.js` | 18 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |
 | `integration.test.js` | 25 | Runs the **real** `content.js` and `background.js` in a `vm` with a fake `chrome`, fake DOM and fake Gemini |
-| `dub.test.js` | 101 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
+| `dub.test.js` | 102 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
 | `cost.test.js` | 59 | The full LOCAL -> CACHE -> cheap -> strong -> TTS chain, plus `cst-cache`, `cost-policy`, `dub-planner`, `dub-engine` |
 | `hardening.test.js` | 110 | Per-API-key model access, options opening, language auto-detect, no-clipping dubbing, budget caps, the version-scheme rule |
 | `bridge.test.js` | 4 | `yt-bridge.js` recovering empty captions that are missing the `pot` token, and restoring the viewer's original caption track |
@@ -270,9 +270,12 @@ as it does for a viewer. Check first that the user is not watching a video in th
      temperature, part size) go in `tests/harness/lab-data/speaker-lab-runs.js` as
      `window.SPEAKER_LAB_RUNS.<tag> = { system, model, temperature, part, fixed, debug, variants }`.
   4. Open `speaker-lab.html?tag=<tag>` (`&only=<id>.<variant>` for some): answers land in `speakerLab`.
-  5. `node tools/speaker-lab.js score <dataDir> --tag=<tag> --variant=plain [--detail]`. A planner
+  5. `node tools/speaker-lab.js score <dataDir> --tag=<tag> --variant=plain [--detail] [--why]`. A planner
      change is scored on the same answers with `--planner=<copy of dub-planner.js>`; answers read on
-     other lines need `--as=<variant>` and the planner that made those lines.
+     other lines need `--as=<variant>` and the planner that made those lines. `--why` splits the
+     words in a wrong voice by cause (a switch early or late, a turn missed, a turn in someone
+     else's voice, a person with no voice of their own). `--sentences` (on both `prepare` and
+     `score`) tries the line shape of BACKLOG 44, items named `<variant>s`.
   The lines are the grabbed ".en" events; the extension may read another track or cut its lines
   otherwise (Aj_UWp8Y5D4: the grab's lines are 28 characters at the median, the extension's saved
   ones whole sentences). For lines exactly as the extension sends them, build the item from a saved
@@ -310,11 +313,10 @@ as it does for a viewer. Check first that the user is not watching a video in th
     the recorder something else than `rec`: `createAudio` has a `const rec` (a silent capture).
   - Headless Chrome under CPU load or DevTools CPU throttling did not slow element start-up (under
     0.11 s): the user's 0.16 to 0.96 s came from their real Chrome (speakers, YouTube, fresh elements).
-- The quick menu's **"Chép chẩn đoán"** (1.9.9): one JSON text with the version, health line,
-  settings, player state and the engine's snapshot. `engine.events` holds the last 150 drops (with
-  why), skips, resets (with why), errors and late starts, with media time. It is always on. A
-  synthetic `click()` on the button cannot write the clipboard (no user gesture); `data-cst-dub`
-  below needs no clipboard.
+- `CST_DUB.diagnostics()` (1.9.9): one JSON text with the version, health line, settings, player
+  state and the engine's snapshot. `engine.events` holds the last 150 drops (with why), skips,
+  resets (with why), errors and late starts, with media time. It is always on. Its quick-menu button
+  ("Chép chẩn đoán") was removed in 2.5.5; `data-cst-dub` below (or `yt-watch.html`) reads the same.
 - Dubbing diagnostics: set `localStorage.cstDubDebug = "1"` on youtube.com, reload; the engine writes
   a JSON snapshot to `<html data-cst-dub>` every 500 ms (`started` has due time, start, rate, overrun).
 - Recording over minutes (1.9.9): Control_Chrome `execute_javascript` needs Chrome's "View >
