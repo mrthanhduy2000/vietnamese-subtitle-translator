@@ -677,6 +677,8 @@
     // ---- The lines an AI reading is asked about, and its answer as times (2.5.2) ----
     // Every caption line of the video in time order (each group's source; a line shared by two
     // groups once), sound-only lines left out. The answer names lines by their index in this list.
+    // Captions cut into short pieces (half of them under JOIN_SHORT characters, as recognizer
+    // captions are) go joined into sentences (joinCaptionLines).
     function speakerLines(groups) {
         const seen = new Set();
         const out = [];
@@ -689,7 +691,42 @@
                 out.push({ start: c.start, end: c.end, text });
             }
         }
+        const sizes = out.map(l => l.text.length).sort((a, b) => a - b);
+        return sizes.length && sizes[sizes.length >> 1] < JOIN_SHORT ? joinCaptionLines(out) : out;
+    }
+    // Short caption pieces joined into sentences: a piece goes on the line before unless that line
+    // ends a sentence, would pass JOIN_MAX characters, or JOIN_GAP seconds of silence lie between;
+    // a ">>", "- " or "NAME:" piece always opens a line. Read piece by piece, a long talk made the
+    // model write a turn for nearly every line: 1289 pieces of a 30-minute show (JBvcMfa7K6E, half
+    // of them under 23 characters) ran its 900-line part into the 16,384-token cap at temperature
+    // 0 and 1 (55 to 58 turns kept; 10,799 tokens for 104 at 0.5); its 637 sentences read in one
+    // call, 5,227 tokens, 178 turns, 3 speakers. On 7 news videos captioned in pieces the words in
+    // the right voice moved 0.3 points (noise); on 22 captioned in whole lines joining cost 3.9, so
+    // those stay as they are
+    const JOIN_SHORT = 40, JOIN_MAX = 160, JOIN_GAP = 1.5;
+    const TURN_OPEN = /^(?:>>|-\s|\p{Lu}[\p{Lu}\p{M}.'’-]*(?:\s+\p{Lu}[\p{Lu}\p{M}.'’-]*){0,4}:\s)/u;
+    function joinCaptionLines(caps) {
+        const out = [];
+        let cur = null;
+        for (const c of caps) {
+            if (cur && !TURN_OPEN.test(c.text) && c.start - cur.end < JOIN_GAP && !/[.!?…]["”')\]]*$/.test(cur.text) &&
+                cur.text.length + 1 + c.text.length <= JOIN_MAX) {
+                cur.parts.push({ pos: cur.text.length + 1, start: c.start, end: c.end, len: c.text.length });
+                cur.text += " " + c.text;
+                cur.end = Math.max(cur.end, c.end);
+                continue;
+            }
+            cur = { start: c.start, end: c.end, text: c.text, parts: [{ pos: 0, start: c.start, end: c.end, len: c.text.length }] };
+            out.push(cur);
+        }
         return out;
+    }
+    // The time of a character of a line: within the caption piece it came from
+    function timeIn(l, pos) {
+        if (!l.parts) return l.start + (l.end - l.start) * pos / Math.max(1, l.text.length);
+        let p = l.parts[0];
+        for (const q of l.parts) if (q.pos <= pos) p = q;
+        return p.start + (p.end - p.start) * Math.min(1, Math.max(0, pos - p.pos) / Math.max(1, p.len));
     }
     // answer: { speakers: [{ id, label, gender }], turns: [{ line, speaker, at }], confidence } for
     // lines[from .. from + count - 1]. A turn starting inside a line ("at": its first words) takes
@@ -702,7 +739,7 @@
             const found = findAt(lines, i, String((x && x.at) || ""), from, Math.min(lines.length, from + count)) || afterSentenceTail(lines, i, from);
             const c = lines[found ? found.line : i];
             let t = c.start;
-            if (found && found.pos > 0) t = c.start + (c.end - c.start) * found.pos / c.text.length;
+            if (found && found.pos > 0) t = timeIn(c, found.pos);
             turns.push({ t, speaker: x.speaker });
         }
         const last = lines[Math.min(lines.length, from + count) - 1];

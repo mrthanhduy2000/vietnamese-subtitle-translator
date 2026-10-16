@@ -503,10 +503,10 @@ full text). Reopen only with a new failing example, measured on real takes.
 - **Checks (19, 22).** `pron-eval` compares phonemes, not sound; corpus marks are one reader's. The
   user's live listen is the final check (HANDOFF).
 
-## Who speaks: a voice per speaker (2.4.8, 2.5.2)
+## Who speaks: a voice per speaker (2.4.8, 2.5.2, 2.5.3)
 
-On by default since 2.5.2: `dubSpeakers` is `"auto"` (a voice per speaker, up to five) or `"one"`.
-It replaces `dubSecondVoice` (off by default, now ignored). `"auto"` sets the engine's
+On by default since 2.5.2: `dubSpeakers` is `"auto"` (a voice per speaker, up to eight since 2.5.3)
+or `"one"`. It replaces `dubSecondVoice` (off by default, now ignored). `"auto"` sets the engine's
 `settings.secondVoice`, and `DubEngine.refresh` passes `PLAN.speakerTurns(given, { ai })` to
 `buildDubScript`; `"one"` passes `PLAN.NO_TURNS` and `oneVoice` makes every segment S1. Before 2.4.8
 the voice toggled at a ">>", "- " or "NAME:" opening a group's first line, which over 46 saved
@@ -518,44 +518,99 @@ group (rtAi3qa8UtQ: 57 of 111). `speakerTurns(groups, { ai })` (memo per array a
   ("is there? >> [laughter] >> It's not...");
 - anonymous marks (">>", "- ") count only in a conversation: `TURN_MIN_PAIRED` 4 of them within
   `TURN_PAIR_S` 12 s of another. A "NAME:" label (up to 4 capitalized words, not a credit like
-  "Translator:", not a sentence before a colon) counts when the video has `TURN_MIN_NAMED` 3. The
-  name is what follows the line's last sentence end (`nameOf`) unless that end is a title's
+  "Translator:", not a sentence before a colon) counts when the video has `TURN_MIN_NAMED` 3. News
+  transcripts write a first turn with who the speaker is (`NAMED_CAPS_RE`: "TAMARA KEITH, National
+  Public Radio:", "REP. MARIA ELVIRA SALAZAR (R-FL):"; missed, 4 of 19 panels lost 15 to 30 points).
+  The name is what follows the line's last sentence end (`nameOf`) unless that end is a title's
   (`TITLE_ABBR`): "Yeah. ANDREW HUBERMAN:" is Andrew Huberman, not a third person;
-- named speakers (`source: "names"`) are ranked by talk: S1 the longest, then S2..S5
-  (`MAX_VOICES`); a sixth and on share S2..S5 (`voiceIdx`). Before 2.5.2 all but S1 shared S2;
-- no names: the AI reading below when there is one and it passes (`source: "ai"`);
-- otherwise anonymous turns alternate (`source: "marks"`); whoever talks `TURN_MAIN_S` 45 s without
-  a turn is the main speaker and gets S1, so a missed turn swaps the voices only until then.
-`buildDubScript` gives each piece the speaker at its middle, cuts a piece at the sentence end
-nearest a turn inside it, and ends a segment at every turn. The result also carries `voices`
-(how many are heard) and `genders` (by rank, from the AI) for the cast and the badge.
+- labels that name every turn (`labelsComplete`, the turns' `complete`): two names or more, a name
+  right after itself at most `LABEL_SAME_SHARE` 25% of the time, no unlabelled stretch over
+  `LABEL_GAP_SHARE` half the labelled talk. Then the labels decide (`source: "names"`, ranked by
+  talk: S1 the longest, then S2..S8, `MAX_VOICES`; a ninth and on share S2..S8, `voiceIdx`) and no
+  reading is paid for. Labels on some turns only (a host's "Amna:" before each question, the
+  answers bare) give way to the AI reading: on 4 of 30 news videos they put the whole video in one or
+  two voices (28 to 75% of the words right), the reading 77 to 99%;
+- no complete labels: the AI reading below when there is one and it passes (`source: "ai"`);
+- otherwise labels (`"names"`) or anonymous turns alternating (`source: "marks"`); whoever talks
+  `TURN_MAIN_S` 45 s without a turn is the main speaker and gets S1, so a missed turn swaps the
+  voices only until then.
+
+`buildDubScript` gives each piece the speaker at its middle and ends a segment at every turn. A turn
+inside a piece cuts it (2.5.3, `TURN_CUTS`) at a sentence end or a broken-off "--" within 0.3 of the
+turn's share of the piece, else at a comma within 0.2, else at the share. A "NAME:" label inside a
+translated line (`stripLabelsAt` keeps where each stood, the piece's `labelAt`) is the cut itself:
+on the labelled podcast UIy-WQCZd4M "about you because--" / "ANDREW HUBERMAN: Right, ..." became one
+Vietnamese line, and the voice now changes at the label in 14 of 14 such lines (3 of 14 before).
+The result also carries `voices` (how many are heard) and `genders` (by rank, from the AI).
 
 **AI reading (2.5.2, YouTube).** `dubbing.js` `readSpeakers` asks once per video, after
-`engine.start()`, when the mode is "auto", `dubSpeakerAi` is on (default), AI is on with a key and
-the video has 8 lines or more. `PLAN.speakerLines(groups)` gives the source lines in time order
-(each once, sound-only lines out); they go to `analyzeSpeakers` (background.js, "WHO SPEAKS") in
-parts of 900 (`SPEAKER_PART`, `SPEAKER_MAX_LINES`), each with the roster found so far. The service
-worker uses the cheapest model of `COST.modelChain("cheap")` the key can call (404 or not available
-for the key: the next one), temperature 0 and a JSON schema; checks the budget; bills it with
-`trackText`; caches it in `caches.tr` under `["spk", SPEAKER_PROMPT_VERSION, model, roster, lines]`.
-The answer is speakers `{ id, label, gender }`, turns `{ line, speaker, at }` and a confidence.
-`PLAN.speakerHints` makes times of it (`at`: a turn inside a line, placed by character share),
-`mergeSpeakerHints` joins the parts, `DubEngine.setSpeakerHints` bumps `hintsRev` and replans.
-`acceptAiTurns` takes it only when the captions carry no names:
+`engine.start()`, when the mode is "auto", `dubSpeakerAi` is on (default), AI is on with a key, the
+video has 8 lines or more and its labels are not complete. `PLAN.speakerLines(groups)` gives the
+source lines in time order (each once, sound-only lines out). Captions cut into short pieces (median
+under `JOIN_SHORT` 40 characters, as recognizer captions are) go joined into sentences
+(`joinCaptionLines`: a piece joins the line before unless that ends a sentence, would pass
+`JOIN_MAX` 160 characters, or `JOIN_GAP` 1.5 s of silence lie between; ">>", "- " and "NAME:" open a
+line; each line keeps its pieces' times, `timeIn`). The lines go to `analyzeSpeakers` (background.js,
+"WHO SPEAKS") in parts of one size, `SPEAKER_PART` 900 lines at most (1289 lines are 645 + 644);
+each later part gets the roster found so far and `last`, who was talking where the part before ended.
+The service worker uses the cheapest model of `COST.modelChain("cheap")` the key can call (404 or
+not available for the key: the next one), temperature 0 (`SPEAKER_TEMPERATURE`) and a JSON schema;
+checks the budget; bills it with `trackText`; caches it in `caches.tr` under `["spk",
+SPEAKER_PROMPT_VERSION, model, roster + last, lines]`. The answer is speakers `{ id, label, gender }`,
+turns `{ line, speaker, at }` and a confidence. Output cap `2048 + 32` tokens a line (16,384 at
+most); an answer cut off by the cap keeps its whole turns (`salvageSpeakerAnswer`, "medium") and
+says how far they reach (`upTo`): the page reads on from there. Timeout: time for the longest answer
+the cap allows at 250 tokens a second (15 s + 0.4 ms a character + 4 ms a token, 120 s at most); a
+request our timer drops is charged at once as `400 + 3` output tokens a line, left running, and when
+its answer still comes it is charged at its real counts and kept in the cache.
+`PLAN.speakerHints` makes times of it: `at`, the new speaker's first words, is found where it stands
+(`findAt`: the line named, the one after or before, also running on into the next line); a turn
+named by its line alone that opens on the tail of a sentence hands over after it ends
+(`afterSentenceTail`: "pain. Over to you."). `mergeSpeakerHints` joins the parts,
+`DubEngine.setSpeakerHints` bumps `hintsRev` and replans. `acceptAiTurns` (only when the labels are
+not complete):
 - confidence "low": ignored;
 - a turn within `AI_SNAP_S` 2 s of a caption mark moves onto the mark;
-- a speaker with fewer than `AI_MIN_TURNS` 2 turns and under `AI_MIN_TALK_S` 15 s of talk folds
-  into the one around it (a quote read aloud, a one-line clip);
+- a speaker with fewer than `AI_MIN_TURNS` 2 turns and under `AI_MIN_TALK_S` 8 s of talk folds
+  into the one around it (a quote read aloud). 15 s in 2.5.2 folded real interviewees of news
+  reports into the reporter's voice: 8 s gave +0.7 points over 30 videos, no monologue split;
 - fewer than 2 speakers left: ignored, one voice;
 - past the part already read: S1.
-Meant for conversations without marks (JBvcMfa7K6E, X4gL2OWg3V4). **Not measured live yet.**
+The debug snapshot (`localStorage.cstDubDebug = "1"`, attribute `data-cst-dub`) shows `speakers`
+(`source`, `voices`, `read`), the cast (`voices`), each plan's speaker (`sp`) and `speakerRead`: what
+the reading did (skipped and why, asking, read with its time and whether it came from the cache,
+failed and why).
+
+**Prompt 2 and the speaker lab (2.5.3).** Scored on 30 PBS NewsHour videos against their named
+transcripts (docs/TESTING.md "Speaker lab"): words in the right voice 81.5 -> 89.3% on
+recognizer-like captions ("plain"), 89.7 -> 93.5% on clean ones, people sharing a voice 20 -> 7.
+Prompt 1 told the model to skip a turn it was not sure of and never said what an interview looks
+like: it missed the host's questions. The placement rules then took plain 89.3 -> 90.2% (of 42
+turns moved, 32 nearer the real one, 8 farther). Measured and not kept: pause marks in the lines, a
+stricter "at", 3.5 Flash-Lite, temperature 0.5 or 1 (Google's advice for Gemini 3; it did not stop
+the runaway below), a prompt forbidding a turn back to the same speaker (on JBvcMfa7K6E it wrote 367
+alternating turns, 13,270 tokens, and lost a speaker), joining whole caption lines (-3.9 points on
+22 news videos captioned in whole lines; -0.3, noise, on 7 captioned in pieces). Parts on the
+3-hour podcast UIy-WQCZd4M (clean lines): about 800 lines 90.8%, 300 lines 84.5%, one call cut at
+the cap 79.2%; its errors are mostly a missed turn back after a short interjection.
+
+**Measured live (2.5.3, `tests/harness/yt-watch.html`).** JBvcMfa7K6E, a 30-minute show with three
+people and no marks: in 2.5.2 the reading never reached the voices. Its first part of 900 pieces ran
+past the 22.5 s timeout twice (each charged as 20 output tokens; the same part read in the lab wrote
+16,368 at temperature 0 and 1, a turn for nearly every piece, and 10,799 at 0.5). Its 637 joined sentences now read in one call
+(5,227 output tokens, 178 turns, 3 speakers, 11 s); live, from the cache in 39 ms: 3 voices (Mỹ Duyên
+7 lines, Thái Sơn 18, Thục Đoan 4 in the 80 s watched), nothing dropped. Aj_UWp8Y5D4 (a 4-minute
+report, an anchor then a teacher, captions in whole lines so not joined): 50 lines in one call, 3
+speakers read where the named transcript has 2; the first 75 s in two voices, the teacher in the
+main one (20 lines) and the anchor in the second (4), nothing dropped.
 
 **Cast.** `castVoices(L, main, second, genders)` (dub-engine.js; voices from `LOCAL_TTS.cast` in
 cost-policy.js): S1 the main voice; S2 the viewer's second voice unless the main one already has it
-or the AI says the other gender; S3..S5 unused catalogue voices of the AI's gender (alternating when
-unknown), the main voice's region first. Defaults: Mỹ Duyên, Thái Sơn, Thục Đoan, Adam, Thùy Dung.
-`setCast(genders)` recasts only when the genders change. Web Speech: a speaker sharing S1's voice
-gets a pitch from `SPEAKER_PITCH`. Gemini TTS has S1 and S2 only; S3 and on read in S1's voice.
+or the AI says the other gender; S3..S8 unused catalogue voices of the AI's gender (alternating when
+unknown), the main voice's region first. Defaults: Mỹ Duyên, Thái Sơn, Thục Đoan, Adam, Thùy Dung,
+Minh Triết, Kim Thanh, Đức Trí. `setCast(genders)` recasts only when the genders change. Web Speech:
+a speaker sharing S1's voice gets a pitch from `SPEAKER_PITCH` (S2..S8). Gemini TTS casts S1..S8
+from `GEMINI_VOICES` (`createGeminiProvider` `setCast`, `castSig`).
 
 **Takes follow the voice.** Each plan carries `voiceTag` (its voice's name). A replan that moves a
 line to another voice (an AI reading arrived, a new cast) drops its take as a text change does;
@@ -570,8 +625,18 @@ conversations switch (as in 2.4.8). `batch-review.js` `simulate` now runs the sh
 conversations more segments and late starts dSEZ 31 -> 34, UIy 903 -> 909, yZfh 121 -> 150 (median
 lag 0.85 -> 1.18 s), Zq7 32 -> 39, rtAi 28 -> 37; nothing dropped or lost; the other 40 videos
 unchanged. `batch-review.js` shows `voiceSwitch` and `voice2` per video, so a one-person video
-showing a switch stands out. Limits: without names or an AI reading, who is who is alternation only
-(a turn the recognizer did not mark is not seen); nothing listens to the audio itself.
+showing a switch stands out. 2.5.3 (with `SEG_STRETCH` below): 45 videos, segments 7850 -> 7845,
+late 1702 -> 1711 (UIy +12, Zq7 +1, both from more turn cuts: voiceSwitch +2 and +4), gaps 56 -> 59
+(krPK 2, uziJ 1: 0.37 s; UIy's gap time 2.06 -> 2.23 s), words lost 0. Limits: without names or an AI reading, who is who
+is alternation only (a turn the recognizer did not mark is not seen); nothing listens to the audio.
+
+**Cuts inside a phrase (2.5.3, `SEG_STRETCH`).** Free voice: a cut the length forces where no line
+boundary is better and that falls inside a phrase ("cường độ cao với | những quãng nghỉ") waits for
+the end of that line, up to `SEG_STRETCH` 2 s past `segHard` (11 s), when speech may pause there.
+Not near where playback starts (`HEAD_HARD` keeps the first request short). Over the user's 44
+saved videos: cuts inside a phrase 39 -> 17, segments 7794 -> 7779, segments over 11 s 13 -> 34
+(none over 13 s). A 3 s stretch reached 11 and was not taken. Cutting inside a line at its best
+phrase boundary instead was tried and reverted (+49 segments, weak cuts 19 -> 55).
 
 
 ## The SYNC block is the tuning bible

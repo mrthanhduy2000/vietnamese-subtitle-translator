@@ -1601,7 +1601,9 @@ async function handleTestKey(req) {
 // on clean ones, people sharing a voice 20 -> 7. Prompt 1 told the model to skip a turn it was not
 // sure of and never said what an interview looks like: it missed the host's questions. Measured and
 // not kept: pause marks in the lines, a stricter "at", 3.5 Flash-Lite, a long video in parts of 60
-// or 120 lines (worse: 86% vs 89%, each part loses who is who)
+// or 120 lines (worse: 86% vs 89%, each part loses who is who), temperature 0.5 or 1 (a 900-line
+// part of short caption pieces still wrote 10,799 and 16,368 tokens; dub-planner joins such pieces
+// into sentences), a rule against a turn back to the same speaker (367 alternating turns instead)
 // ============================================================
 const SPEAKER_PROMPT_VERSION = 2;
 const SPEAKER_MAX_LINES = 900;
@@ -1728,10 +1730,12 @@ async function handleAnalyzeSpeakers(req, sender) {
             }
             const budget = await budgetState(meta, COST.estimateTextCost(model, Math.ceil(promptChars / 3.5), 400 + lines.length * 3));
             if (!budget.allowed || budget.runaway) return { ok: false, reason: "budget" };
-            last = await askSpeakers(model, cfg.geminiApiKey, user, lines.length, meta, promptChars, system, !!lab, temperature);
+            const entryOf = a => ({ speakers: a.speakers, turns: a.turns, confidence: a.confidence, model, v: version, ...(a.upTo ? { upTo: a.upTo } : {}) });
+            // a reading that comes after our timer gave up was paid for: kept for the next ask
+            const keepLate = a => { if (key && caches) caches.tr.set(key, entryOf(a)); };
+            last = await askSpeakers(model, cfg.geminiApiKey, user, lines.length, meta, promptChars, system, !!lab, temperature, keepLate);
             if (last.ok) {
-                const entry = { speakers: last.speakers, turns: last.turns, confidence: last.confidence, model, v: version };
-                if (last.upTo) entry.upTo = last.upTo;
+                const entry = entryOf(last);
                 if (key && caches) caches.tr.set(key, entry);
                 return { ok: true, ...entry, ...(lab ? { finish: last.finish, usage: last.usage, raw: last.raw, rawLength: last.rawLength } : {}) };
             }
@@ -1743,7 +1747,7 @@ async function handleAnalyzeSpeakers(req, sender) {
     return p;
 }
 
-async function askSpeakers(model, apiKey, user, n, meta, promptChars, system = SPEAKER_SYSTEM_PROMPT, debug = false, temperature = SPEAKER_TEMPERATURE) {
+async function askSpeakers(model, apiKey, user, n, meta, promptChars, system = SPEAKER_SYSTEM_PROMPT, debug = false, temperature = SPEAKER_TEMPERATURE, onLateAnswer = null) {
     // Room for a turn every two lines with its first words: 400 + 8 a line cut the answer off
     // (bad_output) on 2 of 38 news panels, 90 and 117 lines with 40 to 50 turns; 1024 + 16 a line
     // cut off a reading that listed every line (yF1rzzxe2vc, 3056 tokens for 71 of 128 lines). Only
@@ -1754,6 +1758,22 @@ async function askSpeakers(model, apiKey, user, n, meta, promptChars, system = S
     // dropped every live reading of a 900-line part (JBvcMfa7K6E, 22.5 s, 2.5.3), while the reading
     // of nothing else waits on it (the voices start as one and change when it lands)
     const timeoutMs = Math.min(120000, 15000 + Math.round(user.length * 0.4) + maxOutputTokens * 4);
+    // A dropped request is charged at once with what a reading usually writes (400 + 3 tokens a
+    // line, the budget's guess; it was 20 tokens, while the part of JBvcMfa7K6E dropped twice live
+    // wrote 16,368 when the lab read it). The request is left running: when its answer still comes,
+    // the real counts replace the guess and the reading is kept (onLateAnswer)
+    let estimate = null;
+    const onBilled = d => {
+        const u = usageOf(d, promptChars, 0);
+        if (!d) { u.out = Math.max(u.out, 400 + n * 3); estimate = u; }
+        trackText(meta, model, u);
+    };
+    const onLate = d => {
+        if (estimate) { const was = estimate; estimate = null; trackText(meta, model, usageOf(d, promptChars, 0), was, true); }
+        let a = null;
+        try { a = readSpeakerAnswer(d, n); } catch (e) { /* unusable: nothing to keep */ }
+        if (a && onLateAnswer) onLateAnswer(a);
+    };
     for (let pass = 0; pass < 2; pass++) {
         const generationConfig = { temperature, maxOutputTokens };
         if (!speakerSchemaUnsupported) { generationConfig.responseMimeType = "application/json"; generationConfig.responseSchema = SPEAKER_SCHEMA; }
@@ -1764,7 +1784,7 @@ async function askSpeakers(model, apiKey, user, n, meta, promptChars, system = S
         let data;
         try {
             // srcChars 0: this answer is no translation, it must not move the output estimate
-            data = await geminiCall(model, apiKey, body, { timeoutMs, retries: 1, onBilled: d => trackText(meta, model, usageOf(d, promptChars, 0)) });
+            data = await geminiCall(model, apiKey, body, { timeoutMs, retries: 1, onBilled, onLate });
         } catch (e) {
             if (e.type === "invalid" && /thinking/i.test(e.message) && thinking) { noThinkingCfg.add(model); continue; }
             if (e.type === "invalid" && /schema|mime/i.test(e.message) && !speakerSchemaUnsupported) { speakerSchemaUnsupported = true; continue; }

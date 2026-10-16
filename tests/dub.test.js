@@ -256,8 +256,9 @@ test("who speaks: labels on only some turns leave the voices to the AI reading; 
 });
 
 test("who speaks: an AI turn's first words are found one line off, or when they run past the line", () => {
-    const lines = PLAN.speakerLines([S("A", 0, 4, "and that is why I think so. So David, what"), S("B", 4, 8, "do you make of it? Well, I think the"),
-        S("C", 8, 12, "polls are wrong and here is why.")]);
+    // caption lines as sent, not joined (speakerLines joins short pieces: the next test)
+    const L = (start, end, text) => ({ start, end, text });
+    const lines = [L(0, 4, "and that is why I think so. So David, what"), L(4, 8, "do you make of it? Well, I think the"), L(8, 12, "polls are wrong and here is why.")];
     const at = (line, words) => PLAN.speakerHints(lines, { turns: [{ line: 0, speaker: 1 }, { line, speaker: 2, at: words }], speakers: [], confidence: "high" }).turns[1].t;
     // named on line 0, standing on line 1
     const t1 = at(0, "Well, I think the polls are wrong");
@@ -268,16 +269,38 @@ test("who speaks: an AI turn's first words are found one line off, or when they 
     // nothing found, and the line before ends a sentence: the line start
     assert.equal(at(2, "something never said"), 8);
     // first words that start at a line end and run on into the next one ("... the CEO >> I" / "felt like")
-    const run = PLAN.speakerLines([S("A", 0, 4, "he runs the company and is the CEO >> I"), S("B", 4, 8, "felt like the country was more divided.")]);
+    const run = [L(0, 4, "he runs the company and is the CEO >> I"), L(4, 8, "felt like the country was more divided.")];
     const t3 = PLAN.speakerHints(run, { turns: [{ line: 0, speaker: 1 }, { line: 0, speaker: 2, at: "I felt like the country" }], speakers: [], confidence: "high" }).turns[1].t;
     assert.ok(t3 > 3.5 && t3 < 4, String(t3));
     // no first words given: a line that opens on the tail of a sentence hands over after it ends
-    const tail = PLAN.speakerLines([S("A", 0, 4, "and that is a lot of"), S("B", 4, 8, "pain. Over to you. Thanks, I think so."), S("C", 8, 12, "Mr. Smith said so. Then he left.")]);
+    const tail = [L(0, 4, "and that is a lot of"), L(4, 8, "pain. Over to you. Thanks, I think so."), L(8, 12, "Mr. Smith said so. Then he left.")];
     const no = line => PLAN.speakerHints(tail, { turns: [{ line: 0, speaker: 1 }, { line, speaker: 2 }], speakers: [], confidence: "high" }).turns[1].t;
     const t4 = no(1);
     assert.ok(t4 > 4.5 && t4 < 5.5, "after 'pain.': " + t4);
     // the line before ends a sentence: the turn stays at the line start ("Mr." is no sentence end anyway)
     assert.equal(no(2), 8);
+});
+
+test("who speaks: captions cut into short pieces are read as sentences, whole caption lines as they are", () => {
+    // JBvcMfa7K6E: 1289 pieces, half under 23 characters; read piece by piece the model wrote a turn
+    // for nearly every line and ran into the token cap
+    const pieces = [S("a", 0, 1.5, "So, this is a"), S("b", 1.5, 3, "actually a really interesting"), S("c", 3, 4, "conversation."),
+        S("d", 4.2, 5.5, "I would love to hear more"), S("e", 5.5, 7, "from her, but it's hard to hear"), S("f", 9, 10, "that if you yell."),
+        S("g", 10, 11, ">> Right, I agree"), S("h", 11, 12, "with that.")];
+    const lines = PLAN.speakerLines(pieces);
+    assert.deepEqual(lines.map(l => l.text), ["So, this is a actually a really interesting conversation.", "I would love to hear more from her, but it's hard to hear",
+        "that if you yell.", ">> Right, I agree with that."], "a sentence end, 1.5 s of silence and a '>>' close a line");
+    assert.deepEqual([lines[0].start, lines[0].end], [0, 4]);
+    // a turn inside a joined line takes the time of the piece its first words came from
+    const h = PLAN.speakerHints(lines, { turns: [{ line: 0, speaker: 1 }, { line: 1, speaker: 2, at: "from her, but" }], speakers: [], confidence: "high" });
+    assert.ok(h.turns[1].t >= 5.5 && h.turns[1].t < 5.6, String(h.turns[1].t));
+    // whole caption lines (half of them 40 characters or more) are sent as they are
+    const whole = [S("a", 0, 3, "And so I think the polls are wrong and here is"), S("b", 3, 6, "why: the turnout model is off by two points."),
+        S("c", 6, 9, "Do you see it the same way, Judy, or not at all?")];
+    assert.equal(PLAN.speakerLines(whole).length, 3);
+    // the cap: no joined line passes 160 characters
+    const long = Array.from({ length: 12 }, (_, i) => S("x", i, i + 1, "and then we went on to the next"));
+    assert.ok(PLAN.speakerLines(long).every(l => l.text.length <= 160));
 });
 
 test("who speaks: the voice changes where a label stands in a translated line, or where a sentence breaks off ('vì-- Vâng')", () => {

@@ -1890,6 +1890,40 @@ test("who speaks: an answer cut off by the token cap keeps its whole turns and s
     assert.match(src, /last: said \? \{ id: said\.speaker \} : null/);
 });
 
+test("who speaks: a reading the timer gave up on is charged as a reading writes, then at its real counts, and kept", async () => {
+    // JBvcMfa7K6E, 2026-10-16: a part was dropped live twice after 22.5 s and charged as 20 output
+    // tokens each time; read in the lab, the same part wrote 16,368
+    const LINES = Array.from({ length: 40 }, (_, i) => `Line ${i} of a long panel.`);
+    const answer = { speakers: [{ id: 1, label: "host", gender: "female" }, { id: 2, label: "guest", gender: "male" }], turns: [{ line: 0, speaker: 1 }, { line: 9, speaker: 2 }], confidence: "high" };
+    let calls = 0, aborted = false;
+    const scale = 0.01;
+    const E = bgEnv(async (u, o) => {
+        if (!u.includes("generativelanguage")) return GOOGLE_OK;
+        calls++;
+        o.signal.addEventListener("abort", () => { aborted = true; });
+        // past the timeout: 15 s + 0.4 ms a character + 4 ms a token of the cap (~28.8 s here)
+        await new Promise(r => setTimeout(r, 40000 * scale));
+        return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify(answer) }] }, finishReason: "STOP" }], usageMetadata: { promptTokenCount: 900, candidatesTokenCount: 16000 } }) };
+    }, cfg({ geminiApiKey: "KEY-OLD-USER" }), { timeScale: scale });
+    const r = await E.send({ action: "analyzeSpeakers", lines: LINES, videoKey: "yt:late" });
+    assert.equal(r.ok, false);
+    assert.equal(r.reason, "timeout");
+    const early = await E.send({ action: "costStats" });
+    assert.equal(early.day.estCalls, 1);
+    assert.ok(early.day.outTok >= 400 + 40 * 3, "charged as a reading writes, not as 20 tokens: " + early.day.outTok);
+    await new Promise(res => setTimeout(res, 25000 * scale));
+    const st = await E.send({ action: "costStats" });
+    assert.equal(aborted, false, "the request runs on, so its bill can be read");
+    assert.equal(st.day.estCalls, 0);
+    assert.equal(st.day.lateCalls, 1);
+    assert.deepEqual([st.day.inTok, st.day.outTok], [900, 16000]);
+    // the paid reading is kept: the next ask is answered from the store
+    const again = await E.send({ action: "analyzeSpeakers", lines: LINES, videoKey: "yt:late" });
+    assert.equal(again.ok, true);
+    assert.equal(again.fromCache, true);
+    assert.equal(calls, 1);
+});
+
 test("a first install opens the settings on the welcome card; an update or a reload opens nothing", async () => {
     const E = bgEnv(async () => reply({}), cfg(), { tabs: [] });
     E.installedListeners[0]({ reason: "update" });

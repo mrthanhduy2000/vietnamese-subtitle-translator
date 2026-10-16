@@ -334,11 +334,16 @@ or no key: the chosen engine) or `google_fallback` (Gemini failed or the budget 
 YouTube does not save such a video, so the next visit asks Gemini again).
 
 `analyzeSpeakers` (2.5.2, `dubbing.js` `readSpeakers`): `{ lines: [string], roster: [{ id, label,
-gender }], videoKey, videoSec, videoTitle }` -> `{ ok: true, speakers: [{ id, label, gender }], turns:
-[{ line, speaker, at }], confidence, model, v, fromCache? }` or `{ ok: false, reason }` (`short` under
-4 lines, `no_key` with AI off or no key, `budget`, `no_model`, or the Gemini error type such as
-`bad_output`). `line` counts from 0 within the request; at most 900 lines, 300 characters each. See
-`DUBBING.md` "Who speaks".
+gender }], last?: { id }, videoKey, videoSec, videoTitle, lab? }` -> `{ ok: true, speakers: [{ id,
+label, gender }], turns: [{ line, speaker, at }], confidence, model, v, upTo?, fromCache? }` or `{ ok:
+false, reason, error? }` (`short` under 4 lines, `no_key` with AI off or no key, `budget`,
+`no_model`, or the Gemini error type such as `bad_output` or `timeout`). `line` counts from 0 within
+the request; at most 900 lines, 300 characters each. `last` (2.5.3): who was talking where the part
+before ended. `upTo` (2.5.3): the answer was cut off by the token cap and its turns cover lines 0 ..
+upTo - 1; the page reads on from there. `lab` (2.5.3) is taken only from the extension's own
+`tests/` pages (the sender's URL): `{ system, model, temperature, maxLines }` asks with another
+prompt, model or temperature (cached apart under `"lab:" + hash`) or up to 8000 lines, and every lab
+answer carries `finish`, `usage` and, when cut off, `raw`. See `DUBBING.md` "Who speaks".
 
 To add one: write `handleX`, add `X: handleX` to `ROUTES`. Nothing else.
 

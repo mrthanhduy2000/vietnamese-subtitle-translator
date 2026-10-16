@@ -1,35 +1,39 @@
-# Handoff (2026-10-16, cut off by the usage limit: committed as work in progress, NOT bumped)
+# Handoff (2026-10-16, 2.5.3)
 
 ## State
-- Version is still 2.5.2: this work is committed unfinished and unbumped; bump to 2.5.3 when done. `npm test`: 707 pass,
-  0 fail, 1 skip after the last edit. `tools/regress.js` not saved (14 worse numbers explained in
-  the work: fewer segments from SEG_STRETCH, 2 tiny gaps, +2/+4 voice switches). Not bumped.
-- Done in this work (dub-planner, dubbing, background, dub-engine, tests): prompt 2, cut-off
-  answer salvage (`upTo`) and continuation, `last` speaker per part, labels with affiliation,
-  `findAt` across lines, `afterSentenceTail`, label-position voice cuts, TURN_CUTS, SEG_STRETCH,
-  8 voices, debug snapshot `speakers`/`speakerRead`. Harnesses: tests/harness/speaker-lab, yt-watch,
-  yt-driver (never run; it toggles sync `dubEnabled`).
-## Found live (yt-watch on JBvcMfa7K6E): the AI reading never reached the engine
-- Cause 1: askSpeakers timeout 12 s + 0.4 ms/char = 22.5 s for a 900-line part; the call was
-  dropped (billed anyway). Fixed: 15 s + 0.4 ms/char + 4 ms per output token of the cap (<=120 s).
-- Cause 2 (open): on that 900-line part the model lists a turn on almost EVERY line: 16,368 output
-  tokens (MAX_TOKENS) for 55-58 kept turns at temperature 0 and 1; 10,799 tokens for 104 kept at
-  0.5. A 645-line part answered normally. readSpeakerAnswer drops same-speaker turns, so this is
-  pure cost (~$0.025 a part). Parts are now even (1289 = 645 + 644, dubbing.js `size`).
-- Next: run lab `p4jb` then `p4` (prompt forbidding same-speaker turns, in
-  lab-data/speaker-lab-runs.js), score with /tmp/claude-501/lab/eval.js vs `v2`; adopt it as
-  prompt 3 (bump SPEAKER_PROMPT_VERSION) only if quality holds. `SPEAKER_TEMPERATURE` stays 0
-  unless a lab run shows 1.0 is better (Google advises 1.0 for Gemini 3; it did not stop this).
-- The lab now mirrors production: debug answers carry `usage`, `finish`, `raw` (when capped);
-  runs take `temperature` and `fixed` parts. The lab cost ledger is `lab:<id>`.
-- Then: yt-watch JBvcMfa7K6E again (expect speakerRead "read", voices > 1), docs (DUBBING "Who
-  speaks", SUBTITLE analyzeSpeakers `last`/`lab`/`upTo`, TESTING harnesses, MAP), BACKLOG leftovers
-  (17 cuts inside a phrase; 71 mid-line turns missed on recognizer captions; long podcasts miss the
-  turn back after short interjections; translation also runs Gemini 3 below temperature 1.0),
-  version-history 2.5.3 entry, bump, regress --save, commit own paths, push, share --stage/--promote.
-- Budget: today's extension spend ~0.97 of 1.15 USD at the cut.
-## Carried over (still open)
-- Joint-takes branches; the 2.5.0 Coursera start hold not yet seen live.
-- CI gaps: VC++ runtime, browser steps, a Vietnamese Windows profile.
-- Voice items: "có nghĩa là", DN, NHNN. BACKLOG 43. ban-giao.md does not mention the share repo.
+- 2.5.3: `npm test` 709 pass, 0 fail, 1 skip. `tools/regress.js` baseline saved at 2.5.3; its moves
+  are explained in `DUBBING.md` "Who speaks" (segments 7850 -> 7845, late 1702 -> 1711, gaps
+  56 -> 59, words lost 0).
+- Who speaks, all in `DUBBING.md` "Who speaks": the AI reading now reaches the voices (it timed out
+  on long videos; the timeout covers the longest answer, a late answer is charged at its real counts
+  and kept); recognizer captions cut in short pieces are joined into sentences before the reading
+  (`JOIN_SHORT` 40; the model wrote a turn for nearly every piece otherwise); parts of one size;
+  8 voices; prompt 2; labels on every turn need no reading; voice cuts at labels and sentence ends
+  (`TURN_CUTS`); fewer cuts inside a phrase (`SEG_STRETCH`).
+- Live (`tests/harness/yt-watch.html`): JBvcMfa7K6E 3 voices (was 1), Aj_UWp8Y5D4 two voices in
+  its first 75 s, nothing dropped. `yt-driver.html` ran once (Aj_UWp8Y5D4 saved in 36 s).
+- New: `tools/speaker-lab.js` (extract, prepare, score), `tests/harness/speaker-grab.js`,
+  `speaker-lab.html`, `yt-watch.html`, `yt-driver.html`; how to use them: `TESTING.md` "Extension
+  pages that drive YouTube, and the speaker lab".
+
+## Traps
+- The lab's 30 PBS videos (caption tracks) are in `/tmp/claude-501/lab/data`, scratch that may be
+  gone: re-grab with `speaker-grab.js` in the built-in browser. `tests/harness/lab-data/` is
+  git-ignored. The grabbed lines are not always the extension's own (Aj_UWp8Y5D4): build an item
+  from `ytcache4_<id>` when the video is saved.
+- Lab runs and live checks go through the extension's own budget and ledger. 2026-10-16 spent
+  1.09 of the 1.15 USD daily budget, nearly all of it measuring. Readings are cached by lines,
+  prompt version and model: rerunning a run is free, changing any of them is not.
+- Reloading the extension closes its pages (the harnesses).
+- One reading per video: single videos moved 10 to 26 points between line shapes while the mean
+  moved 3. Judge a change by the mean over many videos.
+- `~/.claude/projects/.../memory` is outside the Bash sandbox: write memory with Edit/Write.
+
+## Unfinished
+- BACKLOG 44 (turns inside a line missed on recognizer captions), 45 (no turn back after a short
+  interjection on long podcasts), 46 (translation runs Gemini 3 below temperature 1, unmeasured),
+  47 (17 cuts still inside a phrase).
+- Carried over: joint-takes branches; the 2.5.0 Coursera start hold not yet seen live; CI gaps
+  (VC++ runtime, browser steps, a Vietnamese Windows profile); voice items "có nghĩa là", DN, NHNN;
+  BACKLOG 43; `ban-giao.md` does not mention the share repo.
 - Never ask the user about Chrome's Apple Events setting.

@@ -19,9 +19,9 @@ sense of weight, not an assertion.
 | `segmenter.test.js` | 42 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
 | `context.test.js` | 18 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |
 | `integration.test.js` | 25 | Runs the **real** `content.js` and `background.js` in a `vm` with a fake `chrome`, fake DOM and fake Gemini |
-| `dub.test.js` | 94 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
+| `dub.test.js` | 101 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
 | `cost.test.js` | 59 | The full LOCAL -> CACHE -> cheap -> strong -> TTS chain, plus `cst-cache`, `cost-policy`, `dub-planner`, `dub-engine` |
-| `hardening.test.js` | 108 | Per-API-key model access, options opening, language auto-detect, no-clipping dubbing, budget caps, the version-scheme rule |
+| `hardening.test.js` | 110 | Per-API-key model access, options opening, language auto-detect, no-clipping dubbing, budget caps, the version-scheme rule |
 | `bridge.test.js` | 4 | `yt-bridge.js` recovering empty captions that are missing the `pot` token, and restoring the viewer's original caption track |
 | `reload-fight.test.js` | 3 | Old and new content scripts coexisting after a reload must not loop forever recreating buttons. **The second case needs `OLD_YT=<path>` and skips without it** |
 | `backlog.test.js` | 9 | Settings with one source of truth (no condense code anywhere, `dualMode` via `CST_STYLE.resolveDual`), the single YouTube bridge, glossary loads in Node, segmenter `explain()`, the `buildPhrases` memo, throttled body observers |
@@ -235,6 +235,53 @@ Two traps in `ui.test.js` that cost a session real time:
   created.
 - `const` declarations inside a `vm` script (`yt`, `state`, ...) never become properties of the
   sandbox object. Reach them with `vm.runInContext("yt.active = true", sb)`, not `sb.yt`.
+
+## Extension pages that drive YouTube, and the speaker lab (2.5.3)
+
+Pages under `tests/harness/` run as extension pages, `chrome-extension://lpknjhmnlocilmkmooomffknibghibao/tests/harness/<page>`,
+opened with Control_Chrome `open_url`. From there they can open windows, mute tabs and run scripts in
+a YouTube tab (`chrome.windows`, `chrome.tabs`, `chrome.scripting` in the page world). They keep
+their results in `chrome.storage.local`, read back with `node tools/ext-storage.js --key=<name>`
+(poll it from Bash; the page title turns "DONE ..." at the end). Reloading the extension closes them.
+Each opens its own focused window: a hidden tab's timers are throttled and the engine would not run
+as it does for a viewer. Check first that the user is not watching a video in that Chrome.
+
+- **`yt-watch.html?id=<video>&from=60&seconds=90`**: plays one video with dubbing as the user has it
+  set, its tab muted, and keeps the engine's snapshot (`cstDubDebug`, set and removed by the page)
+  in `ytWatch`: the cast, each line's voice, the speaker source and every state of the AI reading
+  (`speakerRead`). 2.5.3 found with it that the reading of JBvcMfa7K6E never reached the voices
+  (DUBBING.md "Who speaks"). Paid only when the video is not saved yet or its reading is not cached.
+- **`yt-driver.html?ids=a,b,c&rate=4`**: has the extension translate whole new videos the way
+  playback does (each in its own window, muted, at `rate`, a second pass from the start for groups
+  passed untranslated), so `ytcache4_<id>` can be measured. Dubbing is switched off for the run
+  (the sync setting `dubEnabled`, put back at the end, or when the page is opened again after an
+  interruption). Paid: the translation of every video not saved yet. First run (2.5.3):
+  Aj_UWp8Y5D4, 236 s of video saved in 36 s, 0.0033 USD with its speaker reading, dubbing put back.
+- **Speaker lab** (`speaker-lab.html?tag=<run>`, `tools/speaker-lab.js`): the AI reading of who
+  speaks scored against transcripts that name every speaker. PBS NewsHour videos carry two English
+  tracks: ".en" (what the extension reads) and ".en-US" with "NAME:" before every turn.
+  1. Grab: in the built-in browser, open each watch page and run `tests/harness/speaker-grab.js`
+     with `javascript_tool` (page world; first 480 s of each video). Each result holds a
+     `LABDATA<<...>>` block.
+  2. `node tools/speaker-lab.js extract <session.jsonl or saved text> <dataDir>` (any folder outside
+     git; `$TMPDIR/lab/data` in 2.5.3, 30 videos).
+  3. `node tools/speaker-lab.js prepare <dataDir> --variants=plain,clean` writes
+     `tests/harness/lab-data/speaker-lab-data.js` (git-ignored). Runs (another prompt, model,
+     temperature, part size) go in `tests/harness/lab-data/speaker-lab-runs.js` as
+     `window.SPEAKER_LAB_RUNS.<tag> = { system, model, temperature, part, fixed, debug, variants }`.
+  4. Open `speaker-lab.html?tag=<tag>` (`&only=<id>.<variant>` for some): answers land in `speakerLab`.
+  5. `node tools/speaker-lab.js score <dataDir> --tag=<tag> --variant=plain [--detail]`. A planner
+     change is scored on the same answers with `--planner=<copy of dub-planner.js>`; answers read on
+     other lines need `--as=<variant>` and the planner that made those lines.
+  The lines are the grabbed ".en" events; the extension may read another track or cut its lines
+  otherwise (Aj_UWp8Y5D4: the grab's lines are 28 characters at the median, the extension's saved
+  ones whole sentences). For lines exactly as the extension sends them, build the item from a saved
+  video's `ytcache4_<id>` (its groups' `srcCues` through `PLAN.speakerLines`), as the JBvcMfa7K6E
+  "live" item was. A run of the 30 plain videos costs about 0.05 USD (75k tokens in, 28k out). Readings are cached by
+  their lines, prompt version and model: a rerun of the same run is free. 2.5.3 numbers:
+  DUBBING.md "Who speaks". Each score is one reading per video, and how far a second reading of the
+  same lines moves it is not measured yet: in the joined-lines run single videos moved 10 to 26
+  points either way while the mean moved 3, so judge a change by the mean over many videos.
 
 ## Live measurement in the user's Chrome (claude-in-chrome)
 

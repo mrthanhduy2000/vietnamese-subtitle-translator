@@ -1,13 +1,16 @@
-// Speaker lab (docs/TESTING.md): sends each caption track prepared in lab-data/speaker-lab-data.js
-// (tools/speaker-lab.js --prepare) to the background's analyzeSpeakers, as dubbing.js readSpeakers
-// does, and keeps every answer in chrome.storage.local "speakerLab" for tools/speaker-lab.js to
-// score (read back with tools/ext-storage.js). ?tag=<name> names the run, ?only=<id.variant>,...
+// Speaker lab (docs/TESTING.md "Speaker lab"): sends each caption track prepared in
+// lab-data/speaker-lab-data.js (`node tools/speaker-lab.js prepare`) to the background's
+// analyzeSpeakers, as dubbing.js readSpeakers does, and keeps every answer in chrome.storage.local
+// "speakerLab" for `node tools/speaker-lab.js score`. ?tag=<name> names the run, ?only=<id.variant>,...
 // limits it. A run named in lab-data/speaker-lab-runs.js (SPEAKER_LAB_RUNS[tag]: { system, model,
-// variants }) asks with that system prompt or model instead of the extension's own (the background
-// takes it from test pages only). Paid: one reading per track not in the cache yet.
-// As dubbing.js reads a long video: parts of about `part` lines, each told the speakers found so far
-// and who was talking when the part before ended, a part cut off by the token cap going on from where
-// its turns end (upTo); one answer with line numbers of the whole track
+// temperature, part, fixed, debug, variants }) asks with that system prompt, model or temperature
+// instead of the extension's own (the background takes it from test pages only); any of them, or
+// debug, brings back each call's token counts and how it ended. Paid: one reading per track not in
+// the cache yet (charged to "lab:<id>" in the cost ledger).
+// As dubbing.js reads a long video: parts of one size, `part` lines at most (fixed: exactly `part`),
+// each told the speakers found so far and who was talking when the part before ended, a part cut off
+// by the token cap going on from where its turns end (upTo); one answer with line numbers of the
+// whole track
 async function readInParts(x, part, lab, fixed) {
     const n = Math.max(1, Math.ceil(x.lines.length / part));
     // fixed: parts of exactly `part` lines, the last one shorter

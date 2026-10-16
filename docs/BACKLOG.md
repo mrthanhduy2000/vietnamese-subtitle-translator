@@ -7,7 +7,7 @@ user hands these decisions to Claude: decide, record the outcome here, never han
 How this file works:
 - Grouped by **area**, not by when it was found; *(found 1.x.y)* after a title says when.
 - Numbers are permanent: code comments and `version-history.js` cite them. Never renumber. The next
-  free number is **44**.
+  free number is **48**.
 - Add an entry whenever you find something out of scope for your task. Once decided, delete it and
   add its number to "Closed" or "Declined" below. An entry that is only partly fixed keeps what is
   left, not the story of the fix (that is in git and `DUBBING.md`).
@@ -18,7 +18,9 @@ Closed (story in git and `version-history.js`): 1-4 (1.6.4), 6, 10 and 12 (1.9.4
 25 (merged into 31), 32 and 34 (1.8.7), 35 (1.9.8), 38 (every lead checked, none kept; numbers in
 `DUBBING.md` under the 1.9.9 buffer), 7 (two palettes, two designs), 24 (2.2.4: Vietnamese
 abbreviations in `VI_CAPS`, a code the English source lacks reads Vietnamese), 37 the translation
-timeout (0 late of 268 Gemini calls, Sep 28-29 ledger: the timeout stays).
+timeout (0 late of 268 Gemini calls, Sep 28-29 ledger: the timeout stays), 42 friends' installs
+pinned to the model release (published 2026-10-11; 2.5.2 on the share repo's main after a green
+install test on staging and main, 2026-10-15).
 Closed 2026-09-29 in the full backlog pass (2.2.6):
 - Fixed: 20 (cold VieNeu warm-up, `handleLocalWarm`), 16 (explaining copulas; every eval set WRONG 0).
 - Unreachable while the paid voice is off (`PAID_TTS` false; the service worker refuses every Gemini
@@ -47,16 +49,27 @@ none
 
 ## Subtitles and translation
 
-none
+- **46. Translation asks Gemini 3 below temperature 1** *(found 2.5.3, 2026-10-16)*. `translateUnit`
+  uses 0.2 (0.35 for a refine) on 3.1 Flash-Lite; Google's Gemini 3 guide warns that below 1.0 the
+  model may loop. The speaker reading's runaway (a turn on every line) came at 0, 0.5 and 1 alike, so
+  temperature was not its cause; for translation nothing is measured. Measure first: cut-off answers
+  and item-count mismatches ("Số mục không khớp") per 100 calls at 0.2 against 1.0, on saved videos.
 
 ## Dubbing
 
-- **42. Friends' installs fetch an unpinned model from Hugging Face** *(found 2.5.0, 2026-10-10)*.
-  The code is built and reviewed (2026-10-11: `tools/vieneu-pin.py --install` in both installers and
-  the updater, the release assets, start scripts that stat every file the marker lists, the updater's
-  repair; `DUBBING.md` "Pinned model"). Remaining: publish the release
-  (`node tools/publish-share.js --release-model`), bump the version, push the share repo, install test
-  green on all 5 machines. Until then friends still get the model from Hugging Face `main`.
+- **44. The AI reading misses turns inside a line on recognizer captions** *(found 2.5.3)*. Over 30
+  news videos read from their plain track, 71 of 193 turns that start inside a caption line got no
+  turn at all from the reading (77 placed right, 31 at the line start, 14 elsewhere): most of the
+  2.5.3 gap between plain (90.2%) and clean captions (93.5%). Prompt changes tried did not close it
+  (`DUBBING.md` "Who speaks").
+- **45. Long podcasts miss the turn back after a short interjection** *(found 2.5.3)*. UIy-WQCZd4M
+  (3 hours, 2 people, read in parts of ~800 lines): 90.8% of the words in the right voice; most errors
+  are a "Right." or "Yeah." by the host read as a turn with no turn back, so the guest's next answer
+  stays in the host's voice until the next turn.
+- **47. Cuts inside a phrase left after SEG_STRETCH** *(found 2.5.3)*. 17 of 7779 segment cuts over
+  the user's 44 saved videos still fall inside a phrase, where a 2 s stretch reaches no better place. A 3 s
+  stretch reached 11 but let segments grow past 13 s; cutting inside a line at its best phrase
+  boundary made 49 more segments and more weak cuts. Not worth a change alone.
 
 ## Install and update
 
