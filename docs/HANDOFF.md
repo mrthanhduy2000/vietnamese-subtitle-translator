@@ -12,6 +12,8 @@
   (`TURN_CUTS`); fewer cuts inside a phrase (`SEG_STRETCH`).
 - Live (`tests/harness/yt-watch.html`): JBvcMfa7K6E 3 voices (was 1), Aj_UWp8Y5D4 two voices in
   its first 75 s, nothing dropped. `yt-driver.html` ran once (Aj_UWp8Y5D4 saved in 36 s).
+- Share repo: 2.5.3 staged, install test green, promoted to main (1a25703); friends' updaters take
+  it within 6 h.
 - New: `tools/speaker-lab.js` (extract, prepare, score), `tests/harness/speaker-grab.js`,
   `speaker-lab.html`, `yt-watch.html`, `yt-driver.html`; how to use them: `TESTING.md` "Extension
   pages that drive YouTube, and the speaker lab".
