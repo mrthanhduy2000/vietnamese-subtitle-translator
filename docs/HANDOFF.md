@@ -12,6 +12,7 @@
   `tests/voice-refresh.test.js` replaces `edits.test.js`.
 - Version history folds, newest open, 15 at first plus "Xem thêm"; custom text colour swatch is a
   colour wheel. `npm test` 705 pass, 0 fail, 1 skip; regress 0 moved, baseline saved at 2.5.6.
+- Share repo: 2.5.6 on main after a green install test on staging.
 - Who speaks: no runtime change since 2.5.3; `speaker-lab.js score --why` and `--sentences`,
   numbers and next step in BACKLOG 44. VieNeu model checked 2026-10-16: nothing newer.
 
