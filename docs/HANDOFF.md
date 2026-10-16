@@ -1,28 +1,26 @@
-# Handoff (2026-10-16, 2.5.5)
+# Handoff (2026-10-16, 2.5.6)
 
 ## State
-- 2.5.5, UI: the Settings page has 5 tabs (Phụ đề, Lồng tiếng, Dịch & AI, Chi phí & dữ liệu, Phiên
-  bản), switches instead of checkboxes, rare options folded in `details.more`. Controls removed:
-  `dubProvider`, both Gemini voices, `dubVoice`, `dubTtsModel`, `perCueMode` (their keys and what a
-  save writes: `SUBTITLE.md` storage keys). The YouTube quick menu keeps subtitles, mode, size,
-  dubbing, voice, volume; "Chép chẩn đoán" is gone (`CST_DUB.diagnostics()` stays, `DUBBING.md`).
-  Cost mode names rewritten (`cost-policy.js` MODES). `npm test` 710 pass, 0 fail, 1 skip;
-  `tools/regress.js` 0 numbers moved, baseline saved at 2.5.5.
-- Who speaks: no runtime change. `speaker-lab.js score --why` splits the words in a wrong voice by
-  cause; `--sentences` is the line shape to measure next. Numbers and the next step: BACKLOG 44.
-- The user's "mô hình ngôn ngữ nằm trong máy" was read as the VieNeu model (its backbone is a
-  language model). Checked 2026-10-16: model `61b85e3` is still the newest on Hugging Face (pinned);
-  upstream code 3.8.3 against our `d350c63` changes dependencies and hardening only; its int8 needs
-  an x86 CPU with VNNI (the M3 is ARM); server log, 21,500 renders: RTF p50 0.24, p90 0.29, the slow
-  ones come right after another render. Nothing changed.
-- Share repo: 2.5.5 is on main (`e79e8bb`), promoted after a green install test on staging.
+- 2.5.6 (on top of 2.5.5's Settings redesign): the cost card's day table and month card use the
+  local day like "Hôm nay" (were Google's Pacific day: the morning's 790 calls showed under
+  yesterday). `historyToLocal` in `background.js` moved the old history once (`costHistoryTz`).
+  Money always shows đồng with USD (currency picker gone, `costCurrency` ignored). New
+  `costVideos`: spend per video per local day, ranked in a "Video tốn nhiều nhất" fold by today /
+  week / month / quarter / year (records start 2.5.6). `SUBTITLE.md` storage keys.
+- Removed for good: hand-corrected lines (`subtitle-edits.js`, transcript pencil, Settings card,
+  backup `local`); old `edits:*` keys are deleted once (`editsRemoved256`).
+  `tests/voice-refresh.test.js` replaces `edits.test.js`.
+- Version history folds, newest open, 15 at first plus "Xem thêm"; custom text colour swatch is a
+  colour wheel. `npm test` 705 pass, 0 fail, 1 skip; regress 0 moved, baseline saved at 2.5.6.
+- Who speaks: no runtime change since 2.5.3; `speaker-lab.js score --why` and `--sentences`,
+  numbers and next step in BACKLOG 44. VieNeu model checked 2026-10-16: nothing newer.
 
 ## Traps
 - Opening a page in the user's Chrome (Control_Chrome `open_url`) takes over the tab they are
   watching; they closed the lab tab within seconds and the run stopped after one video. Lab runs
   belong to a time the user is not watching.
-- 2026-10-16: 1.105 of the 1.154 USD daily budget spent, nearly all on measuring. Over budget, the
-  speaker reading and the strong tier stop; subtitles go on with the cheap model.
+- The user raised the daily budget to 200,000 đ (7.69 USD) on 2026-10-16; 1.11 USD spent that day,
+  nearly all on measuring. Over budget, the speaker reading and the strong tier stop.
 - `node -e` has no script argument: a flag pushed onto `process.argv` once is lost by `slice(2)`.
 - The lab's 30 PBS videos are in `/tmp/claude-501/lab/data` (scratch); `tests/harness/lab-data/`
   is git-ignored. Readings are cached by lines, prompt version and model.

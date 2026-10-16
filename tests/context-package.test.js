@@ -384,7 +384,7 @@ test("caption lines are cut at a sentence end inside them, timed by word times o
     const yt = read("youtube.js");
     assert.match(yt, /yt\.cues = splitCuesAtSentenceEnds\(cues\);/);
     // the mark survives the per-video cache, so a second visit reads the same segments
-    assert.match(yt, /g\.viCues\.map\(c => \[r\(c\.start\), r\(c\.end\), c\.cstOrig \? c\.cstOrig\.text : c\.text\]\),\n\s+g\.midLine \? 1 : 0\n/);
+    assert.match(yt, /g\.viCues\.map\(c => \[r\(c\.start\), r\(c\.end\), c\.text\]\),\n\s+g\.midLine \? 1 : 0\n/);
     assert.match(yt, /\.\.\.\(g\[5\] \? \{ midLine: true \} : \{\}\)/);
 });
 

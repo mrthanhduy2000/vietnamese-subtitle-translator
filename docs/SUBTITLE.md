@@ -213,12 +213,10 @@ The console "🤖 GEMINI" line ends with `contextSummary`: what context each req
 sentence and ends before it does. On 347 real cues: 38 -> 7. It exposes missing compounds in
 `COMPOUND_LIST` more often; add them rather than lowering the cost.
 
-**Editing a line (1.5.7).** The pencil on a transcript row saves through `adapter.saveEdit` ->
-`CST_EDITS.save`, then `ytApplyEdits` / `csApplyEdits` call `CST_EDITS.sync` over both the display
-cues and the dub groups (separate objects on the cache path and on Coursera) and rebuild the group's
-`viText` token by token, keeping the pause hints of untouched cues. `CST_EDITS.notify` makes the
-engine `refresh(true)`, which drops audio only where the text changed. Both players also listen on
-`storage.onChanged` for their own `edits:` key, so Settings and other tabs apply live.
+**Editing a line: removed in 2.5.6.** The transcript pencil, `subtitle-edits.js` (`CST_EDITS`), the
+Settings card "Phụ đề đã sửa" and the `edits:*` records (1.5.7 to 2.5.5) are gone: the user found no
+use for them. `background.js` removes old `edits:*` keys once (`editsRemoved256` in sync);
+`tests/voice-refresh.test.js` checks nothing of it comes back.
 
 **Transcript panel (1.5.4, both sites).** `transcript.js` (`CST_TRANSCRIPT.toggle(adapter)`) draws the
 whole talk beside the picture from the lists the overlay already uses, so it costs no API call:
@@ -387,8 +385,9 @@ the source track; YouTube, Coursera, generic), and `originalFirst`, which only t
 read by the page and was removed in 1.7.3; old stored values are ignored.
 
 AI and cost: `useAi`, `geminiApiKey`, `geminiModel`, `geminiStrongModel`, `costMode`,
-`autoTranslate`, `budgetDailyUsd`, `budgetVideoUsd` (always USD; the VND view converts), `costCurrency`
-(`vnd` / `usd` / `both`), `costUsdVnd`, `costExtraPct` (display only; `COST.moneyOpts`, `COST.money`)
+`autoTranslate`, `budgetDailyUsd`, `budgetVideoUsd` (always USD; the hint converts), `costUsdVnd`,
+`costExtraPct` (display only; `COST.moneyOpts`, `COST.money`: always đồng with USD beside it since
+2.5.6; an old `costCurrency` is ignored)
 
 Glossary: `glossaryEnabled`, `userKeep`, `userNormalize`, `enabledGroups`, `knownGroups` (1.8.5:
 group keys the user had seen at the last Save; a group missing from it starts enabled, see
@@ -417,15 +416,10 @@ not stack two dubbing voices. Keep it.
 
 ### `chrome.storage.local` (not user-editable; written by `background.js`, `youtube.js`, `content.js`)
 
-`edits:<videoKey>` is the exception: the viewer's own line corrections, written by
-`subtitle-edits.js` from the transcript panel and the Settings tab "Phụ đề đã sửa". videoKey is
-`currentVideoMeta().videoKey` (`yt:<id>` or the Coursera lecture path). Shape:
-`{ title, url, updated, lines: { "<startMs>": { text, orig } } }`. Never write edits into
-`ytcache4_*`: `ytGhiCache` stores `cstOrig` (the machine text) so a revert in Settings really reverts.
 
 
 `modelAccess` per-API-key model availability, keyed by a SHA-256 hash of the key, 3-day TTL; a refusal repeated right after a lapse doubles it (`ttl`, cap 30 days, 2.2.2); a lapsed refusal is kept 60 days so `likelyModel` names the next model and the Settings cards say it will be retried once ·
-`costLedger` daily cost ledger (2.1.0: every billed request is charged through `geminiCall`'s `policy.onBilled`, also thrown-away answers and our own timeouts, which Google still bills; `inTok`/`outTok`/`estCalls` added; 2.1.1: `thoughtTok`, `cachedTok`, `byModel`) · `costHistory` the same text-call totals keyed by Google's billing day (Pacific time, `pacificDay()`), last 31 days, kept by `costReset` · `costTokenRatio` measured characters per token for estimates · `ytcache4_<videoId>` cached YouTube translations (an older
+`costLedger` daily cost ledger (2.1.0: every billed request is charged through `geminiCall`'s `policy.onBilled`, also thrown-away answers and our own timeouts, which Google still bills; `inTok`/`outTok`/`estCalls` added; 2.1.1: `thoughtTok`, `cachedTok`, `byModel`) · `costHistory` the same text-call totals keyed by the local day like the ledger (2.5.6; until 2.5.5 by Google's Pacific billing day, moved once by `historyToLocal`, `costHistoryTz: "local"` marks it done), last 31 days, kept by `costReset` · `costVideos` spend per video per local day for the Settings "Video tốn nhiều nhất" (today, week from Monday, month, quarter, year; 400 videos, 400 days; seeded from that day's ledger on first load) · `costTokenRatio` measured characters per token for estimates · `ytcache4_<videoId>` cached YouTube translations (an older
 `ytcache` prefix exists; swept once a day, `ytSweptAt`, since the sweep reads all of storage.local;
 only a save that adds a video sweeps too, never a refine re-save, `ytStoredVideos`;
 the newest 100 are kept, 2.4.0 (50 in 2.3.9): measured 152 KB a video on 2026-10-11, so ~15 MB;
@@ -447,10 +441,10 @@ database, which is separate (see `DUBBING.md`).
 `localIsCold()` survives the service worker sleeping (see `DUBBING.md` "Render speed").
 
 **Backup (1.6.6).** `settings-backup.js` + the "Sao lưu cài đặt" card: exports all of
-`storage.sync` and the `edits:*` keys of `storage.local` (never caches), the API key only when the
-box is ticked. Import validates (`parseBackup`), confirms, writes, reloads the page so the stale
+`storage.sync` (never `storage.local`: caches rebuild), the API key only when the box is ticked. A
+file from before 2.5.6 may carry `local` (corrected lines): it is ignored. Import validates (`parseBackup`), confirms, writes, reloads the page so the stale
 form cannot autosave over it. Controls marked `data-no-save` are skipped by the autosave listener.
-A new sync key is backed up automatically; a new local key needs a prefix in `LOCAL_PREFIXES`.
+A new sync key is backed up automatically.
 
 ## Adding a setting: the 4 places
 

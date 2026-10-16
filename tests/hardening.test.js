@@ -673,13 +673,14 @@ test("cost ledger charges every billed request: a thrown-away answer and a timed
     }
     const want = COST.estimateTextCost("gemini-2.5-flash-lite", 1000, 120) + COST.estimateTextCost("gemini-3.1-flash-lite", 1000, 120);
     assert.ok(Math.abs(st.day.trUsd - want) < 1e-12);
-    const pd = st.history[st.pacificToday];
-    assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(st.pacificToday) && pd, "a ledger keyed by Google's (Pacific) billing day");
+    const pd = st.history[st.today];
+    assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(st.today) && st.today === st.day.day && pd, "the per-day history uses the same day as the today card");
+    assert.ok(Object.values(st.videos).every(v => v.days && v.days[st.today] > 0) || !Object.keys(st.videos).length, "spend per video per day");
     assert.deepEqual([pd.trCalls, pd.inTok, pd.outTok], [2, 2000, 240]);
     // costReset clears today and the session, keeps the per-day history for comparing with Google
     const cleared = await E.send({ action: "costReset" });
     assert.equal(cleared.day.trCalls, 0);
-    assert.equal(cleared.history[cleared.pacificToday].trCalls, 2);
+    assert.equal(cleared.history[cleared.today].trCalls, 2);
 
     // A request our timer drops still runs at Google: charged with an estimate
     let counted = null;
@@ -729,7 +730,33 @@ test("cost ledger: a timed-out request whose answer still arrives is re-charged 
     assert.deepEqual([st.day.inTok, st.day.outTok, st.day.thoughtTok], [777, 60, 5]);
     const id = Object.keys(st.day.byModel)[0];
     assert.ok(Math.abs(st.day.trUsd - COST.estimateTextCost(id, 777, 60)) < 1e-12, "the estimate is replaced, not added to");
-    assert.equal(st.history[st.pacificToday].inTok, 777);
+    assert.equal(st.history[st.today].inTok, 777);
+});
+
+// 2.5.5 kept the per-day history by Google's Pacific day, so the morning's spend sat under
+// yesterday's date beside a today card with today's date (seen 16/10: "Hôm nay (16/10)" 790 calls,
+// the table's latest row "15/10" 790 calls)
+test("cost history: a Pacific-day history moves onto local days once, today taken from the ledger", async () => {
+    const d = new Date();
+    const fmt = x => `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
+    const today = fmt(d);
+    const y = new Date(d); y.setDate(y.getDate() - 1);
+    const o = new Date(d); o.setDate(o.getDate() - 2);
+    const pacific = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(d);
+    const ledgerToday = { day: today, trUsd: 1.1, trCalls: 790, inTok: 1500000, outTok: 470000, byModel: { m: { calls: 790, inTok: 1500000, outTok: 470000, usd: 1.1 } }, videos: { "yt:a": { usd: 0.3, audioSec: 0, videoSec: 60, title: "A", t: 1 } } };
+    // the Pacific day holding this morning: yesterday's date before 14:00 here, today's after
+    const old = { [fmt(o)]: { trCalls: 8, trUsd: 0.0035, byModel: {} } };
+    old[pacific] = { trCalls: 790, trUsd: 1.1, inTok: 1500000, outTok: 470000, byModel: {} };
+    const local = { costLedger: ledgerToday, costHistory: old };
+    const E = bgEnv(server([]), cfg(), { local });
+    const st = await E.send({ action: "costStats" });
+    assert.equal(st.today, today);
+    assert.equal(st.history[today].trCalls, 790, "today's row is the today card");
+    assert.equal(st.history[fmt(y)], undefined, "the morning is not counted again under yesterday");
+    assert.equal(st.history[fmt(o)].trCalls, 8, "older days are kept");
+    assert.equal(st.videos["yt:a"].days[today], 0.3, "today's videos seed the per-video record");
+    await new Promise(r => setTimeout(r, 10));
+    assert.equal(local.costHistoryTz, "local");
 });
 
 test("late answer is not wasted: a twin request waits for it instead of paying again, and it is cached for the next visit", async () => {
@@ -788,18 +815,17 @@ test("price of a typed model id: release suffixes, family by generation, unknown
     close(COST.estimateTextCost("gemini-3.1-flash-lite-preview", 1e6, 1e6), 1.75);
 });
 
-test("money display: VND, USD or both, Vietnamese number format, bad settings fall back", () => {
+test("money display: đồng with USD beside it, Vietnamese number format, bad settings fall back", () => {
     const o = COST.moneyOpts({});
-    assert.deepEqual(o, { currency: "both", rate: COST.FX.usdVnd, extraPct: 0 });
-    assert.equal(COST.money(1, { costCurrency: "usd" }).text, "1,00 USD");
-    assert.equal(COST.money(1, { costCurrency: "vnd", costUsdVnd: 26500 }).text, "26.500 đ");
-    assert.equal(COST.money(0.2126, { costCurrency: "both", costUsdVnd: 26000 }).text, "5.528 đ (0,213 USD)");
-    assert.equal(COST.money(0.0004, { costCurrency: "vnd", costUsdVnd: 26000 }).text, "10,4 đ", "one call never rounds to 0");
-    assert.equal(COST.money(1, { costCurrency: "vnd", costUsdVnd: 26000, costExtraPct: 10 }).text, "28.600 đ");
-    assert.equal(COST.money(1234.5, { costCurrency: "usd" }).text, "1.235 USD");
-    for (const bad of [{ costUsdVnd: 12 }, { costUsdVnd: "abc" }, { costExtraPct: -5 }, { costExtraPct: 500 }, { costCurrency: "eur" }]) {
+    assert.deepEqual(o, { rate: COST.FX.usdVnd, extraPct: 0 });
+    assert.equal(COST.money(1, { costUsdVnd: 26500 }).text, "26.500 đ (1,00 USD)");
+    assert.equal(COST.money(0.2126, { costCurrency: "usd", costUsdVnd: 26000 }).text, "5.528 đ (0,213 USD)", "an old stored currency is ignored");
+    assert.equal(COST.money(0.0004, { costUsdVnd: 26000 }).vnd, "10,4 đ", "one call never rounds to 0");
+    assert.equal(COST.money(1, { costUsdVnd: 26000, costExtraPct: 10 }).vnd, "28.600 đ");
+    assert.equal(COST.money(1234.5, {}).usd, "1.235 USD");
+    for (const bad of [{ costUsdVnd: 12 }, { costUsdVnd: "abc" }, { costExtraPct: -5 }, { costExtraPct: 500 }]) {
         const b = COST.moneyOpts(bad);
-        assert.ok(b.rate === COST.FX.usdVnd && b.extraPct === 0 && COST.CURRENCIES.includes(b.currency), JSON.stringify(bad));
+        assert.ok(b.rate === COST.FX.usdVnd && b.extraPct === 0, JSON.stringify(bad));
     }
 });
 

@@ -8,22 +8,19 @@ const { DubEngine } = require("../dub-engine.js");
 const PLAN = require("../dub-planner.js");
 const { Clock, FakeVideo, lectureGroups } = require("./dub-sim.js");
 
-test("backup keeps every setting and the edits, drops caches, and the key only on request", () => {
+test("backup keeps every setting, nothing of storage.local, and the key only on request", () => {
     const sync = { dualMode: true, geminiApiKey: "AIza-secret", dubLocalVoice: "Kim Thanh", userKeep: "PyTorch\nNumPy", subStyle: { fontSize: 110 } };
-    const local = { "edits:yt:abc": { title: "T", lines: { "1200": { text: "sửa", orig: "máy" } } }, ytcache4_abc: { big: 1 }, costLedger: {}, modelAccess: {} };
-    const withKey = BK.buildBackup(sync, local, { includeKey: true, appVersion: "1.6.6", now: "2026-09-26T12:00:00Z" });
+    const withKey = BK.buildBackup(sync, { includeKey: true, appVersion: "1.6.6", now: "2026-09-26T12:00:00Z" });
     assert.equal(withKey.sync.geminiApiKey, "AIza-secret");
     assert.equal(withKey.hasKey, true);
-    assert.deepEqual(Object.keys(withKey.local), ["edits:yt:abc"], "caches are not backed up");
-    const noKey = BK.buildBackup(sync, local, { includeKey: false });
+    assert.equal(withKey.local, undefined, "caches and local data are not backed up");
+    const noKey = BK.buildBackup(sync, { includeKey: false });
     assert.equal(noKey.sync.geminiApiKey, undefined);
     assert.equal(noKey.sync.dubLocalVoice, "Kim Thanh");
 
     const back = BK.parseBackup(JSON.stringify(withKey));
     assert.equal(back.ok, true);
     assert.deepEqual(back.sync, withKey.sync);
-    assert.deepEqual(back.local, withKey.local);
-    assert.equal(back.summary.edits, 1);
     assert.equal(back.summary.hasKey, true);
 });
 
@@ -37,7 +34,7 @@ test("restore refuses foreign or broken files and filters what it writes", () =>
         local: { "edits:/learn/x": { lines: {} }, ytcache4_zz: { x: 1 }, costLedger: {} } }));
     assert.equal(r.ok, true);
     assert.deepEqual(r.sync, { costMode: "economy" });
-    assert.deepEqual(Object.keys(r.local), ["edits:/learn/x"], "only edits reach storage.local");
+    assert.equal(r.local, undefined, "an old file's corrected lines (removed in 2.5.6) are ignored");
 });
 
 test("Settings page wires backup, max rate and skipSameLang", () => {
