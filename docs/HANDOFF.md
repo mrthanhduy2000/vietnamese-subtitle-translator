@@ -1,7 +1,9 @@
-# Handoff (2026-10-16, 2.5.3)
+# Handoff (2026-10-16, 2.5.4)
 
 ## State
-- 2.5.3: `npm test` 709 pass, 0 fail, 1 skip. `tools/regress.js` baseline saved at 2.5.3; its moves
+- 2.5.4: sound descriptions are never voiced, however worded ("(Nhạc nền sôi động)" was read on a
+  Made by Google video): `SUBTITLE.md` "Sound captions". Regress moved one segment (nm1T, that note).
+- 2.5.3: `npm test` 710 pass, 0 fail, 1 skip (2.5.4). `tools/regress.js` baseline saved at 2.5.3; its moves
   are explained in `DUBBING.md` "Who speaks" (segments 7850 -> 7845, late 1702 -> 1711, gaps
   56 -> 59, words lost 0).
 - Who speaks, all in `DUBBING.md` "Who speaks": the AI reading now reaches the voices (it timed out
@@ -12,8 +14,7 @@
   (`TURN_CUTS`); fewer cuts inside a phrase (`SEG_STRETCH`).
 - Live (`tests/harness/yt-watch.html`): JBvcMfa7K6E 3 voices (was 1), Aj_UWp8Y5D4 two voices in
   its first 75 s, nothing dropped. `yt-driver.html` ran once (Aj_UWp8Y5D4 saved in 36 s).
-- Share repo: 2.5.3 staged, install test green, promoted to main (1a25703); friends' updaters take
-  it within 6 h.
+- Share repo: 2.5.4 staged and promoted after a green install test (see git log for the commit).
 - New: `tools/speaker-lab.js` (extract, prepare, score), `tests/harness/speaker-grab.js`,
   `speaker-lab.html`, `yt-watch.html`, `yt-driver.html`; how to use them: `TESTING.md` "Extension
   pages that drive YouTube, and the speaker lab".

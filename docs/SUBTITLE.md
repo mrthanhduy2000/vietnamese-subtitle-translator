@@ -132,6 +132,13 @@ cached groups). `CST_QUALITY.soundNoteLine(src)` translates a line of notes only
 groups); `fixSoundNotes(vi, src)` brackets the rest: an unknown note's line gets the model's words in
 `[...]`, and inside speech as many list words as the source has notes, in order, when bracketed (a
 lone `]` too), capitalized or alone on the line. Lower-case words in a sentence stay ("buồn cười").
+2.5.4: notes with words after the sound ("(Nhạc nền sôi động)" from "(energetic music)", "(tiếng gõ
+cửa)", "(upbeat music)") were still read. `stripSoundNotes` now also silences a parenthesis of up to
+7 words that opens on a sound (`SOUND_HEAD_RE`: nhạc but not "nhạc sĩ", tiếng but not a language,
+cười, vỗ tay, chuông...) or an English lower-case one with a sound word (`SOUND_EN_RE`), and
+`buildDubScript` silences every parenthesis of a group whose source is only notes (`notesOnly`).
+Glosses stay read ("AI (trí tuệ nhân tạo)", "(tiếng Anh)", "(FOMO)"); over the 44 saved videos no
+gloss was silenced. The user is not hard of hearing: no caption description is ever voiced.
 Runs first in `trimTranslationLeaks` and `ytTrimLeaks` (counted apart from leaks, but returned, so
 `ytRepairCachedLeaks` fixes old caches). Measured after: 45 -> 1 read aloud.
 2.3.8, same function: a `[Âm nhạc]` inside a sentence (after a word or a comma, before a lower-case

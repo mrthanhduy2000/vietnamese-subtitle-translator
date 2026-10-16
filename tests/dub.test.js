@@ -2060,3 +2060,20 @@ test("Coursera: no translation or no voice releases the hold and stops listening
     assert.match(fs.readFileSync(path.join(__dirname, "..", "content.js"), "utf8"),
         /const release = courseraHoldFirstPlay\(location\.href\);[\s\S]{0,200}finally \{[\s\S]{0,120}if \(!\(window\.CST_DUB && window\.CST_DUB\.dub\.enabled\)\) release\(\);/);
 });
+
+// 2026-10-16, Made by Google's Fitbit Edge video: "(Nhạc nền sôi động)" was read aloud. The user
+// is not hard of hearing: no sound description of the captions is ever read
+test("script: a caption's sound description is not read, however it is worded; a gloss in parentheses is", () => {
+    for (const note of ["(Nhạc nền sôi động)", "(tiếng gõ cửa)", "(upbeat music)", "(Vỗ tay nhiệt liệt)", "[Âm nhạc]", "(khán giả reo hò)", "(cười khúc khích)", "♪ ♪"]) {
+        assert.equal(PLAN.stripSoundNotes(note), "", note);
+    }
+    for (const gloss of ["AI (trí tuệ nhân tạo) rất mạnh", "Bài hát (nhạc sĩ Trịnh Công Sơn)", "Nói (tiếng Anh) rất hay", "Hỏi (John Smith)", "Sợ bỏ lỡ (FOMO)"]) {
+        assert.equal(PLAN.stripSoundNotes(gloss), gloss, gloss);
+    }
+    // a source line that is only a note: whatever the translation put in parentheses is that note
+    const only = group("(Một giai điệu rộn ràng vang lên)", [{ start: 0, end: 3, text: "[upbeat music]" }]);
+    const said = group("Đây là đồng hồ mới.", [{ start: 3, end: 5, text: "This is the new watch." }]);
+    const script = PLAN.buildDubScript([only, said]);
+    assert.ok(!script.some(s => /giai điệu/.test(s.speechSource)), JSON.stringify(script.map(s => s.speechSource)));
+    assert.ok(script.some(s => /đồng hồ mới/.test(s.speechSource)));
+});
