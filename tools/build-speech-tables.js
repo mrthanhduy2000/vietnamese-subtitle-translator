@@ -51,7 +51,13 @@ pam nina tina lena dana gina kate dave steve pete mike luke jake nate adam ethan
 evan ian alan allan bill will phil neil paul saul carl earl hal cal mel nell bell dell tess bess jess chris ross
 moss vance lance chance grant hunt hart burt kurt curt glen ken len hanks cruise diego francisco jose antonio
 monica barbara santa mesa vegas angeles beach bay lake hill king queen prince duke marco polo nemo bond bourne
-holmes watson`.split(/\s+/).filter(w => w && !UNSEEN_HOLDOUT.has(w));
+holmes watson
+bea chet chip dean dion guy hein huey kee king kit lea leon luc mac mat mayo moe noam pia piet pim ram rich root
+tait theo trey troy ryan sean young
+ring cup boy day chat hot lip song top gym coach sun queen tree pay team buy diet run tea eat deep lean meet keep coat
+heat meat train cat toy gun dot bot boom beat doom touch pouch chain seat true hey set aim net pop say riot beam rain
+lion moon sea key eye pot pan pin hat bun cut coin hut ham cam duo deal hope love life time home good gold big
+`.split(/\s+/).filter(w => w && !UNSEEN_HOLDOUT.has(w));
 // Spellings found by hand where the search below finds none; verified the same way. "ben" has no
 // English-only phoneme (bɛn), so it is kept when the voice says it differently from the plain word in a
 // Vietnamese sentence (there "bˈen"; inside <en> "ben" becomes "bɛnz")

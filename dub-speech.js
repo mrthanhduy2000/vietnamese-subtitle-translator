@@ -127,35 +127,48 @@
     // Vietnamese-syllable spellings of English name words -> a spelling VieNeu's English engine reads the
     // English way ("tom" -> tˈɑːm). Used only inside an English span ("Tom Hanks", "San Francisco").
     const RESPELL = {
-        an: "ann", bay: "bayh", be: "bhe", ben: "benn", bin: "bin", bo: "boh", bon: "bonn", ca: "cah",
-        can: "cann", chan: "chann", co: "coh", con: "conn", da: "dah", dan: "dann", di: "dih", do: "do",
-        don: "donn", go: "goh", he: "heah", ho: "hoh", hon: "hahn", in: "inn", kim: "kym", king: "kingh",
-        la: "lah", lan: "lann", lee: "leeh", leo: "lleo", lin: "linn", lo: "loh", long: "laung", ma: "mah",
-        mae: "mey", man: "mann", may: "may", me: "meah", min: "minn", mo: "moh", mon: "mahn", na: "nah",
-        nan: "nanne", no: "noh", pa: "pah", pi: "pie", ray: "rae", ron: "ronn", sam: "samh", san: "sanne",
-        so: "soh", son: "son", sue: "sueh", ta: "tah", tan: "tann", tim: "timm", tom: "tahm", ton: "tonne",
-        van: "vann", vic: "vicc"
+        aim: "aime", an: "ann", bay: "bayh", be: "bhe", bea: "beah", beam: "beame", beat: "beate",
+        ben: "benn", bin: "bin", bo: "boh", bon: "bonn", boom: "bhoom", bot: "bott", bun: "bunn", ca: "cah",
+        cam: "camh", can: "cann", cat: "catt", chain: "chaine", chan: "chann", chat: "chatt", chip: "chipp",
+        co: "coh", coat: "coate", con: "conn", cup: "cupp", cut: "cutt", da: "dah", dan: "dann", day: "day",
+        dean: "deane", di: "dih", diet: "diet", dion: "dionne", do: "do", don: "donn", dot: "dott",
+        eat: "eate", go: "goh", gun: "gunn", ham: "hamm", hat: "hatt", he: "heah", ho: "hoh", hon: "hahn",
+        hot: "hott", hut: "hutt", in: "inn", kim: "kym", king: "kingh", kit: "kitt", la: "lah", lan: "lann",
+        lea: "leah", lee: "leeh", leo: "lleo", lin: "linn", lip: "lipp", lo: "loh", long: "laung", ma: "mah",
+        mac: "macc", mae: "mey", man: "mann", mat: "matt", may: "may", me: "meah", min: "minn", mo: "moh",
+        mon: "mahn", moon: "moone", na: "nah", nan: "nanne", no: "noh", pa: "pah", pan: "panne", pi: "pie",
+        pin: "pinn", pop: "popp", pot: "pott", rain: "rainn", ram: "ramm", ray: "rae", riot: "riott",
+        ron: "ronn", run: "runn", sam: "samh", san: "sanne", say: "say", sea: "seah", seat: "seate",
+        so: "soh", son: "son", sue: "sueh", sun: "sunn", ta: "tah", tait: "taite", tan: "tann",
+        team: "teame", tim: "timm", tom: "tahm", ton: "tonne", top: "topp", van: "vann", vic: "vicc",
+        young: "younge"
     };
     // @generated speech-tables end
 
     // @generated glossary-say begin: tools/glossary-pron.js --write, do not edit by hand
-    // 416 glossary names VieNeu read with Vietnamese sounds as written, and the spelling it reads
+    // 487 glossary names VieNeu read with Vietnamese sounds as written, and the spelling it reads
     // the English way (checked on its front end, sea_g2p, in a Vietnamese carrier sentence)
     const GLOSSARY_SAY = {
         "$100m offers": "100 <en>m offers</en>",
+        "% arabica": "<en>% arabica</en>",
         "& other stories": "<en>and other stories</en>",
         "(g)i-dle": "<en>(g)i dle</en>",
+        "0-60": "0 <en>-</en> 60",
         "1.5°c": "1.5 <en>c</en>",
         "1080p": "1080 <en>p</en>",
         "11.11": "11.11",
+        "12-3-30": "12 <en>-</en> 3 <en>-</en> 30",
+        "2 days & 1 night": "2 <en>days and</en> 1 <en>night</en>",
         "2% bha liquid exfoliant": "2 <en>% b h a liquid exfoliant</en>",
         "2nm": "2 <en>nm</en>",
+        "3d gaussian splatting": "3 <en>d gaussian splatting</en>",
         "3nm": "3 <en>nm</en>",
         "401(k)": "401 <en>k</en>",
         "401k": "401 <en>k</en>",
         "403(b)": "403 <en>b</en>",
         "457(b)": "457 <en>b</en>",
         "4g lte": "4 <en>g l t e</en>",
+        "5-htp": "5 <en>h t p</en>",
         "5g": "5 <en>g</en>",
         "85°c bakery": "85 <en>c bakery</en>",
         "911 gt3": "911 <en>g t</en> 3",
@@ -163,9 +176,12 @@
         "a$ap rocky": "<en>a$ap rocky</en>",
         "a/b testing": "<en>a/b testing</en>",
         "a16z": "<en>a</en> 16 <en>z</en>",
+        "a320neo": "<en>a</en> 320 <en>neo</en>",
+        "a321neo": "<en>a</en> 321 <en>neo</en>",
         "aamir khan": "<en>aamir khann</en>",
         "abercrombie & fitch": "<en>abercrombie and fitch</en>",
         "ac/dc": "<en>ac/dc</en>",
+        "acetyl-l-carnitine": "<en>acetyl l carnitine</en>",
         "af1": "<en>a f</en> 1",
         "ag1": "<en>a g</en> 1",
         "agust d": "<en>agust d</en>",
@@ -198,26 +214,35 @@
         "bath & body works": "<en>bath and body works</en>",
         "batna": "<en>batna</en>",
         "bayraktar tb2": "<en>bayraktar t b</en> 2",
+        "beautiful.ai": "<en>beautiful dot aih</en>",
         "becky g": "<en>becky g</en>",
         "bed bath & beyond": "<en>bed bath and beyond</en>",
+        "bein sports": "<en>bein sports</en>",
         "ben & jerry's": "<en>ben and jerry's</en>",
         "big-bench": "<en>big bench</en>",
         "bigbang": "<en>bigbang</en>",
+        "black+decker": "<en>black+decker</en>",
         "bmw r 1250 gs": "<en>b m w r</en> 1250 <en>g s</en>",
+        "bofa": "<en>bofa</en>",
         "byd han": "<en>b y d hann</en>",
         "byd tang": "<en>b y d tange</en>",
         "c++": "<en>c++</en>",
         "c-ptsd": "<en>c ptsd</en>",
         "c25k": "<en>c</en> 25 <en>k</en>",
+        "cac 40": "<en>c a c</en> 40",
         "canal+": "<en>canal+</en>",
         "canon g7x": "<en>canon g</en> 7 <en>x</en>",
         "car-t": "<en>car t</en>",
         "casio f-91w": "<en>casio f</en> 91 <en>w</en>",
         "casio g-shock": "<en>casio g shock</en>",
         "cbt-i": "<en>cbt i</en>",
+        "ccs2": "<en>c c s</en> 2",
+        "cellphones": "<en>cellphones</en>",
         "cha eun-woo": "<en>chah eun woo</en>",
+        "chademo": "<en>chademo</en>",
         "chappell roan": "<en>chappell roann</en>",
         "character.ai": "<en>character dot a i</en>",
+        "chibi maruko-chan": "<en>chibi maruko chann</en>",
         "chick-fil-a": "<en>chick fil a</en>",
         "cinestill 800t": "<en>cinestill</en> 800 <en>t</en>",
         "circle k": "<en>circle k</en>",
@@ -238,6 +263,7 @@
         "crayon shin-chan": "<en>crayon shin chann</en>",
         "crying in h mart": "<en>crying in h mart</en>",
         "cs2": "<en>c s</en> 2",
+        "cs:go": "<en>cs:go</en>",
         "css3": "<en>c s s</en> 3",
         "custom gpts": "<en>custom gpts</en>",
         "d&d": "<en>d and d</en>",
@@ -246,10 +272,13 @@
         "d3.js": "<en>d</en> 3 <en>js</en>",
         "dall-e 2": "<en>d a l l e</en> 2",
         "dall-e 3": "<en>d a l l e</en> 3",
+        "dall·e": "<en>dall·e</en>",
         "dana k. white": "<en>dana k white</en>",
         "daos": "<en>daos</en>",
         "dave2d": "<en>dave</en> 2 <en>d</en>",
         "david chang": "<en>david change</en>",
+        "dfb-pokal": "<en>dfb pokal</en>",
+        "discovery+": "<en>discovery+</en>",
         "disney+": "<en>disney+</en>",
         "dodge ram": "<en>dodge ramm</en>",
         "dr. jart+": "<en>dr jart plus</en>",
@@ -267,10 +296,14 @@
         "eltamd": "<en>eltamd</en>",
         "eltamd uv clear": "<en>eltamd uv clear</en>",
         "epcot": "<en>epcot</en>",
+        "erasmus+": "<en>erasmus+</en>",
         "eric nam": "<en>eric namm</en>",
         "ernst & young": "<en>ernst and young</en>",
         "eslint": "<en>eslint</en>",
         "esp32": "<en>e s p</en> 32",
+        "espn+": "<en>espn+</en>",
+        "eta": "<en>eta</en>",
+        "everything is f*cked": "<en>everything is f*cked</en>",
         "f-91w": "<en>f</en> 91 <en>w</en>",
         "fafsa": "<en>fafsa</en>",
         "farrow & ball": "<en>farrow and ball</en>",
@@ -284,6 +317,8 @@
         "four tet": "<en>four tett</en>",
         "fpt corporation": "<en>fpt corporation</en>",
         "fpt play": "<en>fpt play</en>",
+        "fpt shop": "<en>fpt shop</en>",
+        "fpt software": "<en>fpt software</en>",
         "frances ha": "<en>frances hah</en>",
         "franklin d. roosevelt": "<en>franklin d roosevelt</en>",
         "g-class": "<en>g class</en>",
@@ -298,7 +333,10 @@
         "galaxy z fold 6": "<en>galaxy z fold</en> 6",
         "galaxy z fold 7": "<en>galaxy z fold</en> 7",
         "gb200": "<en>g b</en> 200",
+        "gdpval": "<en>gdpval</en>",
+        "gemma 3n": "<en>gemma</en> 3 <en>n</en>",
         "genesis gv80": "<en>genesis g v</en> 80",
+        "ghk-cu": "<en>ghk cu</en>",
         "gmt-master": "<en>gmt master</en>",
         "graphql": "<en>graphql</en>",
         "graphql api": "<en>graphql api</en>",
@@ -318,32 +356,43 @@
         "ha jung-woo": "<en>hah jung woo</en>",
         "han jisung": "<en>hann jisung</en>",
         "han so-hee": "<en>hann so hee</en>",
+        "hang clean": "<en>hange clean</en>",
         "hasselblad x2d": "<en>hasselblad x</en> 2 <en>d</en>",
         "hba1c": "<en>hb a</en> 1 <en>c</en>",
         "hdr10": "<en>h d r</en> 10",
         "head & shoulders": "<en>head and shoulders</en>",
+        "hieuthuhai": "<en>h i e u t h u h a i</en>",
+        "hnx-index": "<en>hnx index</en>",
         "honda cr-v": "<en>honda cr v</en>",
         "honda hr-v": "<en>honda hr v</en>",
         "html5": "<en>h t m l</en> 5",
         "icloud+": "<en>icloud+</en>",
         "ifttt": "<en>ifttt</en>",
+        "ikea poäng": "<en>i k e a po ng</en>",
         "ilford hp5": "<en>ilford h p</en> 5",
         "imran khan": "<en>imran khann</en>",
         "in-n-out": "<en>in n out</en>",
         "in-n-out burger": "<en>in n out burger</en>",
+        "instinct mi300": "<en>instinct m i</en> 300",
         "j&t express": "<en>j and t express</en>",
         "jay-z": "<en>jay z</en>",
         "jd.com": "<en>jd.com</en>",
         "ji chang-wook": "<en>ji change wook</en>",
+        "joe & the juice": "<en>joe and the juice</en>",
         "johnson & johnson": "<en>johnson and johnson</en>",
         "jstor": "<en>jstor</en>",
+        "k+": "<en>k+</en>",
+        "k-12": "<en>k</en> 12",
+        "k-icm": "<en>k icm</en>",
         "karol g": "<en>karol g</en>",
         "keurig k-mini": "<en>keurig k mini</en>",
         "khan academy": "<en>khann academy</en>",
         "kip thorne": "<en>kipp thorne</en>",
+        "kkbox": "<en>kkbox</en>",
         "kols": "<en>kols</en>",
         "kung pao chicken": "<en>kung paoh chicken</en>",
         "l&d": "<en>l and d</en>",
+        "l-sit": "<en>l sit</en>",
         "la 2028": "<en>l a</en> 2028",
         "la clippers": "<en>l a clippers</en>",
         "la fitness": "<en>l a fitness</en>",
@@ -363,6 +412,7 @@
         "litert": "<en>litert</en>",
         "lmarena": "<en>lmarena</en>",
         "lmsys": "<en>lmsys</en>",
+        "lock&lock": "<en>lock and lock</en>",
         "logitech g pro": "<en>logitech g pro</en>",
         "lora": "<en>lora</en>",
         "low fodmap": "<en>low fodmap</en>",
@@ -382,6 +432,7 @@
         "mercedes g-wagon": "<en>mercedes g wagon</en>",
         "mercedes s-class": "<en>mercedes s class</en>",
         "mercedes-amg": "<en>mercedes amg</en>",
+        "mercedes-amg petronas": "<en>mercedes amg petronas</en>",
         "meta quest 3s": "<en>meta quest</en> 3 <en>s</en>",
         "michelle phan": "<en>michelle phann</en>",
         "mini cooper s": "<en>mini cooper s</en>",
@@ -401,13 +452,18 @@
         "mrna": "<en>mrna</en>",
         "mrna vaccine": "<en>mrna vaccine</en>",
         "msnbc": "<en>msnbc</en>",
+        "mudwtr": "<en>mudwtr</en>",
         "mx master 3s": "<en>m x master</en> 3 <en>s</en>",
         "n seoul tower": "<en>n seoul tower</en>",
         "n8n": "<en>n</en> 8 <en>n</en>",
         "nad+": "<en>nad+</en>",
+        "nad+ injections": "<en>nad+ injections</en>",
         "nafld": "<en>nafld</en>",
         "nam joo-hyuk": "<en>namm joo hyuk</en>",
+        "nba 2k25": "<en>n b a</en> 2 <en>k</en> 25",
+        "nba 2k26": "<en>n b a</en> 2 <en>k</en> 26",
         "nbcuniversal": "<en>nbcuniversal</en>",
+        "nerf": "<en>nerf</en>",
         "nestjs": "<en>nestjs</en>",
         "new balance 1906r": "<en>new balance</en> 1906 <en>r</en>",
         "new balance 2002r": "<en>new balance</en> 2002 <en>r</en>",
@@ -436,6 +492,7 @@
         "park chan-wook": "<en>park chann wook</en>",
         "park hang-seo": "<en>park hange seo</en>",
         "ph": "<en>ph</en>",
+        "ph.d.": "<en>ph.d.</en>",
         "pixel 7a": "<en>pixel</en> 7 <en>a</en>",
         "pixel 8a": "<en>pixel</en> 8 <en>a</en>",
         "pixel 9a": "<en>pixel</en> 9 <en>a</en>",
@@ -452,6 +509,7 @@
         "punkt mp02": "<en>punkt m p</en> 02",
         "qlora": "<en>qlora</en>",
         "qtcinderella": "<en>qtcinderella</en>",
+        "r/askreddit": "<en>r/askreddit</en>",
         "radwimps": "<en>radwimps</en>",
         "ram dass": "<en>ramm dass</en>",
         "ram trx": "<en>ramm t r x</en>",
@@ -460,6 +518,7 @@
         "readme": "<en>readme</en>",
         "reits": "<en>reits</en>",
         "restful api": "<en>restful api</en>",
+        "retin-a": "<en>retin a</en>",
         "rhino 3d": "<en>rhino</en> 3 <en>d</en>",
         "risc-v": "<en>risc v</en>",
         "rivian r1s": "<en>rivian r</en> 1 <en>s</en>",
@@ -471,8 +530,10 @@
         "rolex sa": "<en>rolex s a</en>",
         "roth 401(k)": "<en>roth</en> 401 <en>k</en>",
         "rstudio": "<en>rstudio</en>",
+        "rxbar": "<en>rxbar</en>",
         "s-log": "<en>s log</en>",
         "s.coups": "<en>s.coups</en>",
+        "s.pellegrino": "<en>s.pellegrino</en>",
         "s1mple": "<en>s</en> 1 <en>mple</en>",
         "sagittarius a*": "<en>sagittarius a*</en>",
         "sal khan": "<en>sal khann</en>",
@@ -484,9 +545,12 @@
         "shah rukh khan": "<en>shah rukh khann</en>",
         "shangri-la": "<en>shangri lah</en>",
         "shin min-a": "<en>shin min a</en>",
+        "shin-chan": "<en>shin chann</en>",
         "shinee": "<en>shinee</en>",
+        "short n' sweet": "<en>short n' sweet</en>",
         "shure mv7": "<en>shure m v</en> 7",
         "shure sm7b": "<en>shure s m</en> 7 <en>b</en>",
+        "siriusxm": "<en>siriusxm</en>",
         "sk-ii": "<en>sk ii</en>",
         "sk-ii facial treatment essence": "<en>sk ii facial treatment essence</en>",
         "smes": "<en>smes</en>",
@@ -519,19 +583,32 @@
         "top-k": "<en>top k</en>",
         "toyota gr86": "<en>toyota g r</en> 86",
         "toyota rav4": "<en>toyota r a v</en> 4",
+        "tp-link": "<en>tp link</en>",
+        "tpbank": "<en>tpbank</en>",
+        "travel + leisure": "<en>travel + leisure</en>",
         "triple s": "<en>triple s</en>",
         "truthfulqa": "<en>truthfulqa</en>",
         "tu munich": "<en>t u munich</en>",
+        "tv360": "<en>t v</en> 360",
+        "upcom": "<en>upcom</en>",
         "usmle": "<en>usmle</en>",
         "usmnt": "<en>usmnt</en>",
         "uswnt": "<en>uswnt</en>",
+        "v2g": "<en>v</en> 2 <en>g</en>",
+        "v2h": "<en>v</en> 2 <en>h</en>",
+        "veo 3.1": "<en>veo</en> 3.1",
         "viktor&rolf flowerbomb": "<en>viktor and rolf flowerbomb</en>",
         "vinfast lux a2.0": "<en>vin fast lux a</en> 2.0",
         "vinfast lux sa2.0": "<en>vin fast lux s a</en> 2.0",
         "vivian tu": "<en>vivian tuh</en>",
         "vlookup": "<en>vlookup</en>",
+        "vn video editor": "<en>vn video editor</en>",
+        "vn30": "<en>v n</en> 30",
+        "vnexpress": "<en>vnexpress</en>",
         "vng corporation": "<en>vng corporation</en>",
+        "vng games": "<en>vng games</en>",
         "vnpay": "<en>vnpay</en>",
+        "vocs": "<en>vocs</en>",
         "vram": "<en>vram</en>",
         "vtsax": "<en>vtsax</en>",
         "w2s": "<en>w</en> 2 <en>s</en>",
@@ -554,6 +631,9 @@
         "yagni": "<en>yagni</en>",
         "yamaha hs8": "<en>yamaha h s</en> 8",
         "yolov8": "<en>y o l ov</en> 8",
+        "z-pak": "<en>z pak</en>",
+        "z-wave": "<en>z wave</en>",
+        "z.ai": "<en>z dot aih</en>",
         "zalo oa": "<en>zalo o a</en>",
         "zing mp3": "<en>zing m p</en> 3"
     };
@@ -731,6 +811,10 @@
     const capitalised = s => /^\p{Lu}/u.test(s);
     const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+    const TLD = new Set("com org net io ai co dev app gov edu tv me ly gg xyz info fm".split(" "));
+    // A web address the voice should say the English way ("dot org"), not "chấm o rờ gờ"
+    const DOMAIN = /^[A-Za-z0-9][A-Za-z0-9-]*(?:\.[A-Za-z0-9-]+)*\.(?:com|org|net|io|ai|co|dev|app|gov|edu|tv|me|ly|gg|xyz|us|uk|vn|info|so|fm)$/i;
+
     // ---- token shapes ----
     function shapeOf(s) {
         const p = possessive(s);
@@ -739,6 +823,9 @@
         if (/^[A-ZĐ]{2,12}$/.test(p)) return "caps";                          // "SAMSUNG" too (2.5.8)
         if (/^[A-Z]\d{1,4}[a-z]?$/.test(p)) return "code";                        // M3, S25, A100
         if (/^[A-Za-z]+$/.test(p) && /[a-z][A-Z]|[A-Z]{2}[a-z]/.test(p)) return "camel";
+        if (/^[A-Za-z](?:-[A-Za-z]){2,}$/.test(p)) return "spell";               // 2.6.1: "R-E-V-E-R-I-E"
+        if (/^[A-Z]-[a-z]{4,}$/.test(p) && !isViet(p.slice(2))) return "spell";    // 2.6.1: "L-taurine", "N-acetyl"
+        if (DOMAIN.test(p)) return "domain";                                       // 2.6.1: "DonorsChoose.org"
         if (/^[A-Za-z]+(?:-[A-Za-z]+)+$/.test(p)) return p.split("-").every(isViet) ? "vi" : "en";   // machine-learning
         if (DIACRITIC.test(p)) return /^[\p{Script=Latin}'’-]+$/u.test(p) && !isViet(p) && !/[ăâđêôơư]/i.test(p) ? "en" : "vi";
         if (/^[A-Za-z'’]+$/.test(p)) return isViet(p) ? "ambig" : "en";
@@ -782,8 +869,11 @@
         const inSourceAnyCase = w => new RegExp(`(^|[^\\p{L}])${esc(w)}(?![\\p{L}])`, "iu").test(source);
         const tokens = toks.map((t, i) => {
             const lead = t.lead || "", trail = t.trail || "";
-            const s = t.raw.slice(lead.length, t.raw.length - trail.length);
-            return { i, raw: t.raw, lead, trail, s, shape: shapeOf(s), unit: -1, span: -1, strong: false, score: 0, conf: null };
+            let s = t.raw.slice(lead.length, t.raw.length - trail.length), tr = trail;
+            // 2.6.1: "O-U-S--" (a spelling cut off by a dash): the dashes are punctuation
+            const dash = /[A-Za-z0-9](-{2,}|[–—]+)$/.exec(s);
+            if (dash) { tr = dash[1] + tr; s = s.slice(0, s.length - dash[1].length); }
+            return { i, raw: t.raw, lead, trail: tr, s, shape: shapeOf(s), unit: -1, span: -1, strong: false, score: 0, conf: null };
         });
         const joined = (a, b) => !tokens[a].trail && !tokens[b].lead;
         // A line in capitals ("ĐỪNG BAO GIỜ"): its capital words are Vietnamese
@@ -823,6 +913,9 @@
             const p = possessive(t.s);
             t.cls = capsClass(p);
             if (t.cls === "vi" && t.unit >= 0 && units[t.unit].cat === "glossary" && !VI_CAPS.has(p) && !/Đ/.test(p)) t.cls = "spelled";
+            // 2.6.1: a code VieNeu expands to Vietnamese words ("KS" kỹ sư) that the English source line
+            // writes the same way ("the KS Fit app") is the speaker's code, said in English letters
+            if (t.cls === "vi" && englishSource && inSource(p) && !VI_CAPS.has(p) && !/Đ/.test(p) && !shouting) t.cls = "spelled";
         }
         const englishCaps = t => {
             if (t.shape !== "caps") return false;
@@ -835,7 +928,8 @@
             if (c === "spelled" && englishSource && !INITIALISMS.has(p) && !EN_SPELLED.has(p) && !inSourceAnyCase(p)) return false;
             return true;
         };
-        const english = t => t.unit >= 0 || t.shape === "en" || (t.shape === "camel" && !VI_CAPS.has(possessive(t.s))) || englishCaps(t);
+        const english = t => t.unit >= 0 || t.shape === "en" || t.shape === "spell" || t.shape === "domain" ||
+            (t.shape === "camel" && !VI_CAPS.has(possessive(t.s))) || englishCaps(t);
         const num = t => t.shape === "num";
         const member = t => english(t) || t.shape === "code" || (t.shape === "ambig" && capitalised(t.s));
         const spans = [];
@@ -849,7 +943,11 @@
                 const prev = tokens[j];
                 let ok = false;
                 if (english(n) || n.shape === "code") ok = true;
-                else if (n.shape === "ambig") ok = capitalised(n.s) && capitalised(prev.s) && !num(prev);
+                else if (n.shape === "ambig") {
+                    ok = capitalised(n.s) && capitalised(prev.s) && !num(prev);
+                    // 2.6.1: a lone capital letter right after an English word: "vitamin D", "urolithin A"
+                    if (!ok && /^[A-Z]$/.test(possessive(n.s)) && english(prev) && !num(prev)) { ok = true; n.letterAfterEn = true; }
+                }
                 else if (num(n)) ok = true;
                 else if (n.s === "chấm") ok = num(prev) && !!tokens[j + 2] && num(tokens[j + 2]) && joined(j + 1, j + 2);
                 if (!ok) break;
@@ -880,6 +978,8 @@
         //    Dan", decisive), a title before it ("chị Kim", weak), a line in capitals (decisive).
         const pair = (x, y) => source && new RegExp(`(^|[^\\p{L}])${esc(x.s)}\\s+${esc(y.s)}([^\\p{L}]|$)`, "u").test(source);
         const named = x => englishSource && new RegExp(`(^|[^\\p{L}])${esc(possessive(x.s))}(?![\\p{L}])`, "u").test(source);
+        const midSource = x => englishSource && new RegExp(`[\\p{L},;]\\s+${esc(possessive(x.s))}(?![\\p{L}])`, "u").test(source);
+        const otherEnglishName = x => tokens.some(y => y !== x && capitalised(y.s) && (y.shape === "en" || y.shape === "camel" || y.unit >= 0) && y.s.length > 1);
         // a capitalised Vietnamese word that is part of a name: not a title, not just the sentence's first word
         const viName = x => x && capitalised(x.s) && x.shape === "vi" && !TITLES.has(x.s.toLowerCase()) && !startsSentence(x.i);
         const ambigScore = (k, sp) => {
@@ -892,10 +992,16 @@
             const nameBeside = x => x && capitalised(x.s) && x.shape !== "ambig" && english(x);
             let score = 0;
             if (viName(before) || viName(after)) score -= CONF.decisive;
-            if ((next && pair(t, next)) || (prev && pair(prev, t))) score += CONF.decisive;
+            // 2.6.1: also a neighbour outside any span, "chiếc Ram 2500" for "the Ram 2500"
+            const outside = x => !sp && englishSource && x && (num(x) || english(x)) ? x : null;
+            const nx = next || outside(after), pv = prev || outside(before);
+            if ((nx && pair(t, nx)) || (pv && pair(pv, t))) score += CONF.decisive;
             else if (!startsSentence(k) && (nameBeside(prev) || nameBeside(next))) score += CONF.strong;
             else if (startsSentence(k) && NAME_WORDS.has(w) && next && next.shape === "en" && next.unit < 0 && capitalised(next.s)) score += CONF.strong;
             else if (!sp && EN_GIVEN.has(w) && capitalised(t.s) && named(t)) score += CONF.strong;
+            // 2.6.1: the source capitalises it mid-sentence (a name, not "Can you") and the line names
+            // someone in English too: "tên Dan và John" for "Dan and John"
+            else if (!sp && capitalised(t.s) && !startsSentence(k) && midSource(t) && otherEnglishName(t)) score += CONF.strong;
             if (before && TITLES.has(before.s.toLowerCase())) score -= CONF.weak;
             return score;
         };
@@ -909,7 +1015,9 @@
                     t.strong = t.conf === HIGH_EN;
                 } else if (t.shape === "code") {
                     // "MacBook Pro M3", "Galaxy S25": a product name around it; "giấy A4", "U23" stay Vietnamese
-                    t.strong = tokens.slice(sp.a, sp.b + 1).some(x => x !== t && capitalised(x.s) && !num(x) && x.shape !== "code" && english(x));
+                    t.strong = tokens.slice(sp.a, sp.b + 1).some(x => x !== t && capitalised(x.s) && !num(x) && x.shape !== "code" && english(x)) ||
+                        // 2.6.1: right after an English word, "vitamin D3", "model G1"
+                        (k > sp.a && english(tokens[k - 1]) && !num(tokens[k - 1]) && tokens[k - 1].shape !== "code");
                     t.conf = t.strong ? HIGH_EN : AMBIGUOUS;
                 } else if (english(t)) t.conf = HIGH_EN;
             }
@@ -955,7 +1063,7 @@
         // what each token is for both readers of this analysis (pronunciation and prosody, 1.8.0):
         // lang en / vi / num / other, the span's entity kind, and how the voice is to say it
         for (const t of tokens) {
-            t.lang = t.shape === "num" || t.shape === "code" ? "num" : t.shape === "other" ? "other" :
+            t.lang = t.shape === "spell" || t.shape === "domain" ? "en" : t.shape === "num" || t.shape === "code" ? "num" : t.shape === "other" ? "other" :
                 t.span >= 0 && (t.shape !== "ambig" || t.strong) ? "en" : t.shape === "ambig" && t.conf !== HIGH_VI ? (t.span >= 0 ? "en?" : "vi") : t.shape === "en" || t.shape === "camel" ? "en" : "vi";
             t.entity = t.span >= 0 ? spans[t.span].cat : null;
         }
@@ -981,6 +1089,14 @@
                 const known = LEX.get(p.toLowerCase());
                 if (known && known.cat !== "glossary") return null;  // in the lexicon: VieNeu reads it well
                 if (VI_CAPS.has(p)) return null;                     // "ThS" (thạc sĩ)
+                // 2.6.1: a plural code, "DPOs", "APIs": English letters and a plural "'s" (VieNeu said
+                // "ɗe fe" and "ét"); a code led by one small letter with no vowel after it, "eGFR"
+                const plural = /^([A-Z]{2,5})s$/.exec(p);
+                if (plural && !VI_CAPS.has(plural[1]) && capsClass(plural[1]) !== "word" && capsClass(plural[1]) !== "vi") {
+                    const l = plural[1].toLowerCase().split("");
+                    return { say: `<en>${l.slice(0, -1).concat(l[l.length - 1] + "'s").join(" ")}</en>`, pri: 2 };
+                }
+                if (/^[a-z][A-Z]{2,}$/.test(p) && !/[AEIOUY]/.test(p.slice(1))) return { say: `<en>${p.toLowerCase().split("").join(" ")}${ps}</en>`, pri: 2 };
                 const pieces = camelPieces(p);
                 if (pieces.some(x => /^[A-Z]{2,}$/.test(x))) return null;      // "ChatGPT": VieNeu knows the acronym
                 // a piece VieNeu would read as a Vietnamese syllable ("Di", "Le"), or cannot say ("Mc")
@@ -988,9 +1104,19 @@
                     ((x.length <= 4 && isViet(x)) || !/[aeiouy]/i.test(x)));
                 return bad ? { say: `<en>${s.toLowerCase()}</en>`, pri: 2 } : null;
             }
+            case "spell":
+                return { say: `<en>${p.toLowerCase().replace(/-/g, " ")}${ps}</en>`, pri: 2 };
+            case "domain": {
+                // "DonorsChoose.org" -> donors choose dot org; capitals inside a word split it, a run of
+                // capitals is letters
+                const parts = p.split(".").map(x => (x.match(/[A-Z]{2,}(?![a-z])|[A-Z]?[a-z]+|[A-Z]|\d+/g) || [x])
+                    .map(y => /^[A-Z]{2,}$/.test(y) ? y.toLowerCase().split("").join(" ") : y.toLowerCase()).join(" "));
+                return { say: `<en>${parts.join(" dot ")}</en>`, pri: 2 };
+            }
             case "code":
                 return t.strong ? { say: `<en>${s[0].toLowerCase()}</en> ${s.slice(1)}`, pri: 1 } : null;
             case "ambig": {
+                if (t.letterAfterEn) return { say: `<en>${p.toLowerCase()}${ps}</en>`, pri: 2 };
                 const r = t.strong && RESPELL[p.toLowerCase()];
                 return r ? { say: `<en>${r}${ps}</en>`, pri: 1 } : null;
             }
@@ -1040,13 +1166,81 @@
             const prev = k > 0 ? a.tokens[k - 1] : null;
             const inName = (prev && /^\p{Lu}/u.test(prev.s) && prev.lang === "en") || englishNext(k);
             const lettersOnly = t.s.replace(/\./g, "");
-            if (!(single ? inName : lettersOnly.length >= 2 && (inName || t.span >= 0 || t.unit >= 0))) return;
+            // 2.6.1: or the English source line writes the same initials ("C.S." Lewis, "G.I." Joe)
+            const srcHas = !!ctx && !!ctx.source && String(ctx.source).includes(t.s + (t.trail === "." ? "." : ""));
+            if (!(single ? inName : lettersOnly.length >= 2 && (inName || srcHas || t.span >= 0 || t.unit >= 0))) return;
             out[k].say = `<en>${lettersOnly.toLowerCase().split("").join(" ")}</en>`;
             out[k].pri = 2;
             // the stop is the abbreviation's when the sentence goes on ("M.D. ở Mỹ"), the sentence's when
             // a capital follows ("... e.l.f. Sau đó")
             const n = a.tokens[k + 1];
             out[k].dropDot = englishNext(k) || single || (!!n && !/^\p{Lu}/u.test(n.s));
+        });
+        // 2.6.1: a lone capital letter right after an English word of its span, "vitamin D", "urolithin
+        // A", "Plan B": an English letter name (VieNeu said "đê", "a", "bê")
+        a.tokens.forEach((t, k) => {
+            if (out[k].say !== null || !/^[A-Z]$/.test(possessive(t.s)) || t.span < 0 || k === 0) return;
+            const prev = a.tokens[k - 1];
+            if (!t.letterAfterEn && !(prev.span === t.span && prev.lang === "en" && prev.shape !== "num" && prev.shape !== "code" && !prev.trail)) return;
+            out[k].say = `<en>${t.s.toLowerCase()}</en>`; out[k].pri = 2;
+        });
+        // "C plus plus", "C sharp", "F sharp": a language or a note said in English
+        a.tokens.forEach((t, k) => {
+            const n = a.tokens[k + 1];
+            if (out[k].say !== null || !/^[A-G]$/.test(t.s) || !n || t.trail || !/^(plus|sharp)$/i.test(n.s)) return;
+            out[k].say = `<en>${t.s.toLowerCase()}</en>`; out[k].pri = 2;
+        });
+        // 2.6.1: a web address the translator spelled in Vietnamese words, "livemomentous chấm com gạch
+        // chéo huberman": "dot com" and "slash" in English (VieNeu said "chấm com gạch chéo")
+        const latin = x => !!x && /^[A-Za-z0-9][A-Za-z0-9-]*$/.test(x.s) && x.lang !== "vi";
+        for (let k = 1; k + 1 < a.tokens.length; k++) {
+            const t = a.tokens[k], prev = a.tokens[k - 1], next = a.tokens[k + 1];
+            if (t.s === "chấm" && !prev.trail && !t.trail && latin(prev) && TLD.has(next.s.toLowerCase()) && out[k].say === null) {
+                if (out[k - 1].say === null) { out[k - 1].say = `<en>${prev.s.toLowerCase()}</en>`; out[k - 1].pri = 2; }
+                out[k].say = "<en>dot</en>"; out[k].pri = 2;
+                out[k + 1].say = `<en>${next.s.toLowerCase()}</en>`; out[k + 1].pri = 2;
+            }
+            if (t.s === "gạch" && next.s === "chéo" && !t.trail && !prev.trail && k + 2 < a.tokens.length && /^[A-Za-z0-9]+$/.test(a.tokens[k + 2].s) &&
+                out[k - 1].say && out[k - 1].say.includes("<en>")) {
+                out[k].say = "<en>slash</en>"; out[k].pri = 2;
+                out[k + 1].say = ""; 
+                if (out[k + 2].say === null) { out[k + 2].say = `<en>${a.tokens[k + 2].s.toLowerCase()}</en>`; out[k + 2].pri = 2; }
+            }
+        }
+        // 2.6.1: the letters of a vitamin list, "vitamin C, D3, E và K": English letter names, the
+        // numbers Vietnamese as everywhere ("vitamin D3" is dee ba)
+        // a lone vitamin code ("ghi là D3", "D3 là dạng ...") on a line about vitamins
+        if (/vitamin/i.test(text) || /vitamin/i.test(String((ctx && ctx.source) || ""))) a.tokens.forEach((t, k) => {
+            const m = /^([A-EK])(\d{1,2})$/.exec(t.s);
+            if (m && out[k].say === null) { out[k].say = `<en>${m[1].toLowerCase()}</en> ${m[2]}`; out[k].pri = 2; }
+        });
+        a.tokens.forEach((t, k) => {
+            if (!/^vitamin$/i.test(t.s)) return;
+            for (let j = k + 1; j < a.tokens.length; j++) {
+                const x = a.tokens[j], m = /^([A-EK])(\d{0,2})$/.exec(x.s);
+                if (/^(và|hoặc|or|and)$/.test(x.s) && a.tokens[j - 1].trail !== ".") continue;
+                if (!m) break;
+                if (out[j].say === null || out[j].say === `<en>${m[1].toLowerCase()}</en> ${m[2]}`) {
+                    out[j].say = `<en>${m[1].toLowerCase()}</en>${m[2] ? " " + m[2] : ""}`; out[j].pri = 2;
+                }
+                if (x.trail && !/^,$/.test(x.trail)) break;
+            }
+        });
+        // 2.6.1: one letter in parentheses inside a name, "401(k)", "Lp(a)", "Nothing Ear (a)": an
+        // English letter name, the brackets not read (the planner keeps them only here)
+        a.tokens.forEach((t, k) => {
+            if (out[k].say !== null) return;
+            const glued = /^([A-Za-z0-9]+)\(([a-z])$/.exec(t.s);
+            if (glued && /^\)/.test(t.trail)) {
+                const base = /^\d+$/.test(glued[1]) ? glued[1] + " <en>" + glued[2] + "</en>" :
+                    `<en>${(glued[1].length <= 3 ? glued[1].toLowerCase().split("").join(" ") : glued[1].toLowerCase())} ${glued[2]}</en>`;
+                out[k].say = base; out[k].pri = 2; out[k].dropParen = true;
+                return;
+            }
+            const prev = a.tokens[k - 1];
+            if (/^[a-z]$/.test(t.s) && t.lead === "(" && /^\)/.test(t.trail) && prev && prev.lang === "en") {
+                out[k].say = `<en>${t.s}</en>`; out[k].pri = 2; out[k].dropParen = true;
+            }
         });
         // a model number after a code: "RTX 5090" is "năm không chín không", not a quantity; "RAM 4096
         // MB" is (the planner's numberRole: a unit after it wins)
@@ -1058,21 +1252,44 @@
                 out[k].say = t.s.split("").join(" "); out[k].pri = 2;
             }
         }
-        // tag budget: VieNeu's normalizer breaks past 10 tags in a sentence; drop the least needed
-        const tagged = out.filter(o => o.say && o.say.includes("<en>"));
-        if (tagged.length > TAG_MAX) {
-            const keep = new Set(tagged.slice().sort((x, y) => y.pri - x.pri || x.t.i - y.t.i).slice(0, TAG_MAX));
-            for (const o of tagged) {
-                if (keep.has(o)) continue;
-                o.say = null;
-                if (o.t.unit >= 0) for (const q of out) if (q.t.unit === o.t.unit && q.say === "") q.say = null;
+        // tag budget: VieNeu's normalizer breaks past 10 tags in a sentence; drop the least needed.
+        // 2.6.1: tags of neighbouring words with nothing between them become one tag
+        // ("<en>andrew huberman</en>"), so a budget counts groups, and a long English name costs one
+        const pure = o => !!o.say && /^<en>[^<]*<\/en>$/.test(o.say);
+        const groupOf = () => {
+            const groups = [];
+            let cur = null, prev = null;
+            for (const o of out) {
+                if (o.say === "") { if (o.t.trail && cur) cur = null; continue; }
+                if (pure(o) && cur && prev && pure(prev) && !prev.t.trail && !prev.dropDot && !o.t.lead) cur.push(o);
+                else if (o.say && o.say.includes("<en>")) { cur = [o]; groups.push(cur); }
+                else cur = null;
+                prev = o;
+            }
+            return groups;
+        };
+        const groups = groupOf();
+        if (groups.length > TAG_MAX) {
+            const rank = gr => Math.max(...gr.map(o => o.pri));
+            const keep = new Set(groups.slice().sort((x, y) => rank(y) - rank(x) || x[0].t.i - y[0].t.i).slice(0, TAG_MAX));
+            for (const gr of groups) {
+                if (keep.has(gr)) continue;
+                for (const o of gr) {
+                    o.say = null;
+                    if (o.t.unit >= 0) for (const q of out) if (q.t.unit === o.t.unit && q.say === "") q.say = null;
+                }
             }
         }
         if (!out.some(o => o.say !== null)) return { text, changed: false };
         const words = [];
+        let joinable = false;
         for (const o of out) {
-            if (o.say === "") { if (o.t.trail && words.length) words[words.length - 1] += o.t.trail; continue; }
-            words.push(o.t.lead + (o.say === null ? o.t.s : o.say) + (o.dropDot ? o.t.trail.replace(/^\./, "") : o.t.trail));
+            if (o.say === "") { if (o.t.trail && words.length) { words[words.length - 1] += o.t.trail; joinable = false; } continue; }
+            const trail = o.dropParen ? o.t.trail.replace(/^\)/, "") : o.dropDot ? o.t.trail.replace(/^\./, "") : o.t.trail;
+            if (pure(o) && joinable && !o.t.lead) words[words.length - 1] = words[words.length - 1].slice(0, -5) + " " + o.say.slice(4);
+            else words.push((o.dropParen ? o.t.lead.replace(/\($/, "") : o.t.lead) + (o.say === null ? o.t.s : o.say));
+            if (trail) words[words.length - 1] += trail;
+            joinable = pure(o) && !trail;
         }
         return { text: words.join(" "), changed: true };
     }

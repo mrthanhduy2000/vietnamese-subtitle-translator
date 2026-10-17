@@ -185,7 +185,11 @@ test("2.5.9: no everyday word with several meanings is a one-word term (a lifest
         "frequency wavelength atmosphere orbit catalyst evolution compound president progressive conservative " +
         "liberal superpower pronouns impressions incubator dilution fundraising friction clutter minimalist " +
         "frugal solitude closure moving inventory acquisition franchise unicorn reboot fencing cricket " +
-        "ace derby pitcher handicap athlete").split(" ");
+        "ace derby pitcher handicap athlete " +
+        // 2.6.1: removed again while the glossary grew past 29,000 terms
+        "period momentum commit fork weights ate cap bet based mid lore aura ratio slay simp cutting crash " +
+        "premium correction bonds stimulus vulnerability visualization fiber mobility strides eccentric dips shrugs " +
+        "snatch customs cruise subway recall pickup suspension drift lithium mold").split(" ");
     const phrases = ["long run", "to failure", "extra time", "well done", "due date", "whole foods", "the pilot", "that girl",
         "moving on", "little things", "follow up", "stack overflow"];
     for (const [key, group] of Object.entries(G.CST_GLOSSARY_GROUPS)) {

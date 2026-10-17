@@ -181,9 +181,17 @@
         t = t.replace(/\b(\d{2}|\d{3}0)'?s\b/g, "thập niên $1");
         // #1 -> "số 1" ("thăng một" otherwise)
         t = t.replace(/#(\d+)/g, "số $1");
+        // 2.6.1: C#, F#: "sharp" (the server said "thăng")
+        t = t.replace(/(?<![\p{L}\p{N}])([A-G])#(?![\p{L}\p{N}#])/gu, "$1 sharp");
 
         t = t.replace(/(\d)\s*[x×]\s*(\d)/g, "$1 nhân $2");
         t = t.replace(/\s=\s|(?<=\w)=(?=\w)/g, " bằng ");
+        // 2.6.1: "+" inside an English name is "and" ("Travel + Leisure", "Florence + The Machine"),
+        // glued to its end "plus" ("Disney+", "Apple TV+", "C++"); between numbers still "cộng"
+        const enName = w => /^[A-Z][A-Za-z'’.]*$/.test(w) && !(SEG && SEG.isVietWord && SEG.isVietWord(w.replace(/['’]s$|\.$/i, "").toLowerCase()));
+        t = t.replace(/([A-Za-z][A-Za-z'’.]*)\s\+\s([A-Z][A-Za-z'’.]*)/g, (m0, a, b) => (enName(a) || enName(b) ? `${a} and ${b}` : m0));
+        t = t.replace(/(?<![\p{L}\p{N}])([A-Za-z][A-Za-z0-9]*)(\+{1,2})(?![\p{L}\p{N}+])/gu, (m0, w, plus) =>
+            /^[A-Z]/.test(w) || w.length === 1 ? `${w} ${plus.length === 2 ? "plus plus" : "plus"}` : m0);
         t = t.replace(/\s\+\s/g, " cộng ");
         t = t.replace(/\s*(?:->|→|=>)\s*/g, " thành ");
         // 2.6.0: "&" inside an English name ("Johnson & Johnson", "Ben & Jerry's") is "and", said the
@@ -198,7 +206,10 @@
         t = t.replace(/\be\.g\.,?/gi, "ví dụ,").replace(/\bi\.e\.,?/gi, "tức là,");
         t = t.replace(/(ví dụ|tức là),\s+\1(?![\p{L}])/giu, "$1");   // "e.g. ví dụ" said the same words twice
         // Ngoặc đơn: đọc như chú thích, ngắt nghỉ nhẹ hai bên
-        t = t.replace(/\s*\(([^()]{1,80})\)\s*/g, ", $1, ");
+        // 2.6.1: one letter in parentheses glued to a code is part of its name: "401(k)", "Lp(a)",
+        // "Ear (a)": the letter, no pause
+        t = t.replace(/\s*\(([^()]{1,80})\)\s*/g, (m0, inner, at, all) =>
+            /^[a-z]$/.test(inner) && /(?:^|[^\p{L}\p{N}])(?:\d{3,}|[A-Za-z]*[A-Z][A-Za-z]*)$/u.test(all.slice(0, at)) ? m0 : `, ${inner}, `);
         t = t.replace(/["“”«»]/g, "");
         t = t.replace(/^\s*[-–—]\s+/, "");
         t = t.replace(/\s*,\s*,/g, ",").replace(/,\s*([.!?])/g, "$1");

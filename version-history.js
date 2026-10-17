@@ -4,6 +4,17 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.6.1", luc: "18/10/2026", ten: "Giọng lồng tiếng đọc tiếng Anh trong phụ đề theo kiểu quốc tế, từ điển gần 29.500 thuật ngữ",
+            y: [
+                "Đo trên phụ đề thật của 50 video đã xem (2.041 cụm chữ tiếng Anh được giữ nguyên trong bản dịch): số cụm bị đọc kiểu Việt hay đánh vần giảm từ 64 (3,1%) xuống 21 (1,0%). Phần còn lại chủ yếu là chỗ cố ý đọc tiếng Việt như \"nhóm A\", \"750 W\".",
+                "Đọc đúng kiểu quốc tế: vitamin D3, vitamin C, D3, E và K, urolithin A, Plan B, model G1; đánh vần R-E-V-E-R-I-E, L-taurine; tên miền DonorsChoose.org và cả \"chấm com gạch chéo\" thành \"dot com slash\"; mã có trong câu gốc như KS Fit, DPOs, eGFR, C.S.; Disney+, C++, C#, Travel + Leisure, 401(k), Lp(a).",
+                "Tên tiếng Anh trùng âm tiết Việt được đọc kiểu Anh khi câu gốc cho thấy đó là tên riêng (Ram 2500, Dan và John). Bảng cách đọc các tên này tăng từ 58 lên 106 từ. Tên và mã tiếng Việt (Lan, Minh, SSI, VTV, giấy A4, đội U23) vẫn đọc kiểu Việt.",
+                "Các đoạn tiếng Anh nằm cạnh nhau được gộp thành một, nên câu nhiều tên riêng không còn bị vượt giới hạn 8 đoạn của giọng VieNeu.",
+                "Trong 13.962 tên giữ tiếng Anh của từ điển, chỉ còn 117 tên (0,8%) đọc chưa chuẩn.",
+                "Từ điển tăng từ khoảng 24.900 lên khoảng 29.500 thuật ngữ: đội bóng và giải đấu, trò chơi điện tử, công ty và sản phẩm, ứng dụng, tất cả quốc gia và các bang Mỹ, sách và podcast, anime và phim, ca sĩ và nhóm nhạc, thuốc và thực phẩm bổ sung, chuỗi nhà hàng và đồ uống, tài chính và chứng khoán, bài tập gym, tâm lý và từ lóng mạng, giống chó mèo và cây cảnh, kỳ thi và cơ quan, du lịch, nhà cửa, ô tô và xe điện, mô hình AI."
+            ]
+        },
+        {
             v: "2.6.0", luc: "18/10/2026", ten: "Từ điển gần 25.000 thuật ngữ, giọng đọc nói tên riêng theo kiểu quốc tế",
             y: [
                 "Từ điển thuật ngữ tăng từ khoảng 14.000 lên khoảng 24.900 mục, từ 35 lên 52 chủ đề. Chủ đề mới: nhân vật nổi tiếng, thương hiệu toàn cầu, địa danh, âm nhạc, tâm linh, dã ngoại, thủ công, đồ uống, nhiếp ảnh, kỹ thuật, nông nghiệp, động vật, triết học, ngôn ngữ, quân sự, đám cưới, kế toán.",

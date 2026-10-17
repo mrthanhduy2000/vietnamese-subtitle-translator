@@ -12,7 +12,6 @@ Claude Haiku 4.5
 Claude.ai
 Claude for Chrome
 Claude Artifacts
-~Artifacts
 Claude Projects
 GPT-3
 GPT-3.5
@@ -363,7 +362,6 @@ Zoox
 Mobileye
 Neuralink
 Safe Superintelligence
-SSI
 Thinking Machines Lab
 Mira Murati
 Ilya Sutskever
@@ -541,7 +539,7 @@ H100
 H200
 B200
 GB200
-Blackwell
+~Blackwell
 A100
 RTX 4090
 RTX 5090
@@ -1506,7 +1504,6 @@ plugin|plugin
 =plugin
 open API|API mở
 third-party app|ứng dụng bên thứ ba
-app store|kho ứng dụng
 App Store
 Google Play
 Google Play Store
@@ -2039,7 +2036,6 @@ rest day|ngày nghỉ
 recovery day|ngày phục hồi
 deload|giảm tải
 =deload
-training volume|khối lượng tập
 training intensity|cường độ tập
 training load|tải tập luyện
 training block|khối tập luyện
@@ -2410,7 +2406,6 @@ berberine|berberine
 =berberine
 NAD+
 NMN
-NR
 nicotinamide riboside|nicotinamide riboside
 resveratrol|resveratrol
 =resveratrol
@@ -3525,8 +3520,6 @@ sociopath|kẻ rối loạn nhân cách chống đối xã hội
 empath|người thấu cảm
 empathy fatigue|mệt mỏi vì thấu cảm
 compassion fatigue|mệt mỏi vì lòng trắc ẩn
-burnout|kiệt sức
-=burnout
 emotional exhaustion|kiệt quệ cảm xúc
 chronic stress|căng thẳng mạn tính
 acute stress|căng thẳng cấp tính
@@ -3711,17 +3704,14 @@ CST_GLOSSARY_EXTRA_ADD("lifestyle", "Đời sống, tối giản và phát tri�
 minimalism|chủ nghĩa tối giản
 minimalist lifestyle|lối sống tối giản
 minimalist home|nhà tối giản
-digital minimalism|tối giản kỹ thuật số
 Digital Minimalism
 intentional living|sống có chủ đích
 intentional life|cuộc sống có chủ đích
 simple living|sống đơn giản
 slow living|sống chậm
 slow life|cuộc sống chậm
-slow productivity|năng suất chậm
 Slow Productivity
-essentialism|chủ nghĩa tinh giản
-Essentialism
+~Essentialism
 Greg McKeown
 voluntary simplicity|giản dị tự nguyện
 decluttering|dọn bớt đồ
@@ -3853,8 +3843,6 @@ girl dinner|bữa tối kiểu con gái
 hot girl walk|đi bộ kiểu cô gái tự tin
 romanticize your life|lãng mạn hóa cuộc sống
 romanticizing your life|lãng mạn hóa cuộc sống
-main character|nhân vật chính
-=main character
 glow up|lột xác
 glow-up|lột xác
 =glow up
@@ -3900,7 +3888,6 @@ habit formation|hình thành thói quen
 cue, craving, response, reward|tín hiệu, khao khát, phản hồi, phần thưởng
 keystone habit|thói quen then chốt
 keystone habits|thói quen then chốt
-atomic habits|thói quen nguyên tử
 Atomic Habits
 James Clear
 The Power of Habit
@@ -4172,7 +4159,6 @@ The War of Art
 Steven Pressfield
 Rick Rubin
 The Creative Act
-four thousand weeks|bốn nghìn tuần
 Four Thousand Weeks
 Oliver Burkeman
 How to Do Nothing
@@ -4297,8 +4283,6 @@ ghosting|cắt liên lạc đột ngột
 ghosted|bị bơ đột ngột
 =ghosted
 breadcrumbing|thả thính cầm chừng
-benching|giữ làm phương án dự phòng
-orbiting|theo dõi sau khi chia tay
 talking stage|giai đoạn tìm hiểu
 honeymoon phase|giai đoạn trăng mật
 long-distance relationship|yêu xa
@@ -5425,7 +5409,6 @@ Panera Bread
 Chipotle
 Sweetgreen
 CAVA
-Cava
 Shake Shack
 In-N-Out
 In-N-Out Burger
@@ -5553,7 +5536,6 @@ Target Circle
 Costco
 Costco membership|thẻ thành viên Costco
 Kirkland Signature
-Kirkland
 Sam's Club
 BJ's
 Trader Joe's
@@ -5884,7 +5866,6 @@ personal finance|tài chính cá nhân
 financial literacy|hiểu biết tài chính
 financial freedom|tự do tài chính
 financial independence|độc lập tài chính
-FIRE
 FIRE movement|phong trào FIRE
 financial independence, retire early|độc lập tài chính, nghỉ hưu sớm
 lean FIRE|FIRE tiết kiệm
@@ -6143,7 +6124,6 @@ stock picking|chọn cổ phiếu
 day trading|giao dịch trong ngày
 day trader|người giao dịch trong ngày
 options trading|giao dịch quyền chọn
-bonds|trái phiếu
 treasury bonds|trái phiếu kho bạc
 Treasury bills|tín phiếu kho bạc
 T-bills|tín phiếu kho bạc
@@ -6836,8 +6816,6 @@ Seventh Generation
 Dawn dish soap|nước rửa chén Dawn
 OxiClean
 Tide pods|viên giặt Tide
-Tide
-~Tide
 ~Downy
 washing machine|máy giặt
 washer and dryer|máy giặt và máy sấy
@@ -9182,7 +9160,6 @@ astronomy|thiên văn học
 astrophysics|vật lý thiên văn
 cosmology|vũ trụ học
 =cosmology
-Big Bang|Vụ Nổ Lớn
 the Big Bang|Vụ Nổ Lớn
 Big Bang theory|thuyết Vụ Nổ Lớn
 cosmic microwave background|bức xạ phông vi sóng vũ trụ
@@ -9279,7 +9256,6 @@ space tourism|du lịch vũ trụ
 low Earth orbit|quỹ đạo Trái Đất tầm thấp
 rocket launch|phóng tên lửa
 Carl Sagan
-~Cosmos
 Pale Blue Dot|Chấm xanh mờ nhạt
 Neil deGrasse Tyson
 Stephen Hawking
@@ -11183,7 +11159,6 @@ strategic plan|kế hoạch chiến lược
 business strategy|chiến lược kinh doanh
 competitive advantage|lợi thế cạnh tranh
 sustainable competitive advantage|lợi thế cạnh tranh bền vững
-economic moat|lợi thế phòng thủ kinh tế
 blue ocean strategy|chiến lược đại dương xanh
 Blue Ocean Strategy
 red ocean|đại dương đỏ
@@ -15254,7 +15229,7 @@ Brené Brown
 Susan Cain
 Malcolm Gladwell
 Yuval Noah Harari
-Sapiens
+~Sapiens
 Homo Deus
 Jared Diamond
 Guns, Germs, and Steel
@@ -16437,7 +16412,7 @@ Flipkart
 Paytm
 Zomato
 Swiggy
-Ola
+~Ola
 Byju's
 Grab Holdings
 Sea Limited
@@ -17454,7 +17429,6 @@ Copenhagen|Copenhagen
 Munich|München
 Cologne|Köln
 Lisbon|Lisbon
-~Geneva|Genève
 Brussels|Brussels
 Florence city|thành phố Florence
 Venice city|thành phố Venice
@@ -18453,7 +18427,6 @@ chakra|luân xa
 chakras|luân xa
 third eye|con mắt thứ ba
 =third eye
-aura|hào quang
 energy healing|chữa lành năng lượng
 Reiki|Reiki
 =reiki
@@ -18620,7 +18593,6 @@ Holi|lễ hội Holi
 Vesak|lễ Phật Đản
 Buddha's Birthday|lễ Phật Đản
 Vu Lan|lễ Vu Lan
-Halloween|Halloween
 Day of the Dead|Ngày của người chết
 Día de los Muertos|Ngày của người chết
 ~Thanksgiving|Lễ Tạ ơn
@@ -20935,7 +20907,6 @@ The Bachelorette
 The Amazing Race
 Big Brother
 American Idol
-The Voice
 America's Got Talent
 Britain's Got Talent
 RuPaul's Drag Race
@@ -21587,7 +21558,6 @@ Park So-dam
 Lee Sun-kyun
 Go Youn-jung
 Kim Soo-hyun actor|diễn viên Kim Soo-hyun
-IU actress|diễn viên IU
 Yoo Jae-suk
 Kang Ho-dong
 Shin Dong-yup
@@ -23012,7 +22982,6 @@ Amsterdam
 Brussels
 Bruges
 Zurich
-Geneva
 Lucerne
 Interlaken
 Zermatt
@@ -26436,7 +26405,6 @@ CST_GLOSSARY_EXTRA_ADD("medicine", null, `
 =seasonal affective disorder|rối loạn cảm xúc theo mùa
 =postpartum depression|trầm cảm sau sinh
 =major depressive disorder|rối loạn trầm cảm nặng
-=burnout|kiệt sức
 =CBT
 =cognitive behavioral therapy|liệu pháp nhận thức hành vi
 =DBT
@@ -27298,7 +27266,6 @@ Peter Higgs
 =light-years|năm ánh sáng
 =parsec
 =astronomical unit|đơn vị thiên văn
-=Big Bang|Vụ Nổ Lớn
 =the Big Bang|Vụ Nổ Lớn
 =cosmic microwave background|bức xạ phông vi sóng vũ trụ
 =CMB
@@ -27574,4 +27541,7371 @@ Peter Higgs
 =Fields Medal|Huy chương Fields
 =Turing Award|giải Turing
 =Breakthrough Prize|giải Breakthrough
+`);
+
+// ============================================================ 2.6.1: sports teams, leagues, events
+CST_GLOSSARY_EXTRA_ADD("sports", null, `
+Atlanta Hawks
+Boston Celtics
+Celtics
+Brooklyn Nets
+Charlotte Hornets
+Chicago Bulls
+Cleveland Cavaliers
+Cavs
+Dallas Mavericks
+Mavericks
+Mavs
+Denver Nuggets
+Detroit Pistons
+Golden State Warriors
+Houston Rockets
+Indiana Pacers
+LA Clippers
+Los Angeles Clippers
+Clippers
+Los Angeles Lakers
+Lakers
+Memphis Grizzlies
+Miami Heat
+Milwaukee Bucks
+Minnesota Timberwolves
+Timberwolves
+New Orleans Pelicans
+New York Knicks
+Knicks
+Oklahoma City Thunder
+OKC Thunder
+Orlando Magic
+Philadelphia 76ers
+Sixers
+76ers
+Phoenix Suns
+Portland Trail Blazers
+Sacramento Kings
+San Antonio Spurs
+Toronto Raptors
+Raptors
+Utah Jazz
+Washington Wizards
+Arizona Cardinals
+Atlanta Falcons
+Baltimore Ravens
+Buffalo Bills
+Carolina Panthers
+Chicago Bears
+Cincinnati Bengals
+Bengals
+Cleveland Browns
+Dallas Cowboys
+Denver Broncos
+Broncos
+Detroit Lions
+Green Bay Packers
+Houston Texans
+Indianapolis Colts
+Jacksonville Jaguars
+Kansas City Chiefs
+Las Vegas Raiders
+Los Angeles Chargers
+Los Angeles Rams
+Miami Dolphins
+Minnesota Vikings
+New England Patriots
+New Orleans Saints
+New York Giants
+New York Jets
+Philadelphia Eagles
+Pittsburgh Steelers
+Steelers
+San Francisco 49ers
+49ers
+Niners
+Seattle Seahawks
+Seahawks
+Tampa Bay Buccaneers
+Buccaneers
+Tennessee Titans
+Washington Commanders
+New York Yankees
+Yankees
+Boston Red Sox
+Red Sox
+Los Angeles Dodgers
+Dodgers
+Chicago Cubs
+Cubs
+San Francisco Giants
+Houston Astros
+Astros
+Atlanta Braves
+Philadelphia Phillies
+Phillies
+New York Mets
+St. Louis Cardinals
+Toronto Blue Jays
+Blue Jays
+Seattle Mariners
+Texas Rangers
+Baltimore Orioles
+Cleveland Guardians
+Detroit Tigers
+Minnesota Twins
+San Diego Padres
+Padres
+Arizona Diamondbacks
+Toronto Maple Leafs
+Maple Leafs
+Montreal Canadiens
+Edmonton Oilers
+Oilers
+Vancouver Canucks
+Boston Bruins
+Bruins
+Chicago Blackhawks
+Blackhawks
+Pittsburgh Penguins
+Tampa Bay Lightning
+Florida Panthers
+New York Rangers
+Vegas Golden Knights
+Colorado Avalanche
+LA Galaxy
+Inter Miami
+Inter Miami CF
+Seattle Sounders
+LAFC
+Atlanta United
+Manchester United|Manchester United
+Man United
+Man Utd
+Manchester City
+Man City
+Liverpool FC
+Arsenal
+Chelsea FC
+Tottenham Hotspur
+Tottenham
+Spurs
+Newcastle United
+Aston Villa
+West Ham
+West Ham United
+Everton
+Brighton
+Brighton & Hove Albion
+Crystal Palace
+Nottingham Forest
+Leicester City
+Leeds United
+Brentford
+Bournemouth
+Real Madrid
+Barcelona FC
+FC Barcelona
+Barça
+Barca
+Atlético Madrid
+Atletico Madrid
+Sevilla
+Real Sociedad
+Villarreal
+Athletic Bilbao
+Bayern Munich
+Bayern München
+Borussia Dortmund
+Dortmund
+BVB
+RB Leipzig
+Bayer Leverkusen
+Leverkusen
+Juventus
+Juve
+AC Milan
+Inter Milan
+Internazionale
+AS Roma
+SSC Napoli
+Lazio
+Atalanta
+Fiorentina
+Paris Saint-Germain
+PSG
+Olympique de Marseille
+Olympique Lyonnais
+AS Monaco
+Ajax
+PSV Eindhoven
+Feyenoord
+Benfica
+FC Porto
+Sporting CP
+Celtic FC
+Rangers FC
+Galatasaray
+Fenerbahçe
+Al-Nassr
+Al Nassr
+Al-Hilal
+Al Hilal
+Al-Ittihad
+Boca Juniors
+River Plate
+Flamengo
+Santos FC
+Corinthians
+Palmeiras
+Hanoi FC|CLB Hà Nội
+Hà Nội FC
+Hoang Anh Gia Lai|Hoàng Anh Gia Lai
+HAGL
+Viettel FC
+Thep Xanh Nam Dinh|Thép Xanh Nam Định
+Cong An Ha Noi|Công an Hà Nội
+Premier League
+English Premier League
+EPL
+La Liga
+LaLiga
+Serie A
+Bundesliga
+Ligue 1
+Eredivisie
+MLS
+Major League Soccer
+Saudi Pro League
+V.League
+V.League 1
+UEFA Champions League
+Champions League
+UCL
+UEFA Europa League
+Europa League
+Conference League
+FA Cup
+Carabao Cup
+EFL Cup
+Copa del Rey
+DFB-Pokal
+Coppa Italia
+Club World Cup
+FIFA Club World Cup
+FIFA World Cup|World Cup
+World Cup 2026
+Euro 2024
+UEFA Euro
+Copa América
+AFC Asian Cup
+Asian Cup
+AFF Cup
+AFF Championship
+ASEAN Championship
+Mitsubishi Electric Cup
+SEA Games
+ASIAD
+Asian Games
+Ballon d'Or
+Golden Boot
+Golden Ball
+Golden Glove
+FIFA The Best
+Puskás Award
+VAR
+NBA Finals
+NBA Draft
+NBA All-Star
+All-Star Game
+NBA playoffs
+March Madness
+Final Four
+NCAA
+Super Bowl
+Super Bowl LIX
+Super Bowl LX
+Super Bowl halftime show
+NFL Draft
+Pro Bowl
+World Series
+Stanley Cup
+Stanley Cup Final
+Wimbledon
+US Open
+French Open
+Roland Garros
+Roland-Garros
+Australian Open
+Grand Slam|Grand Slam
+ATP Finals
+WTA Finals
+Davis Cup
+Laver Cup
+Indian Wells
+Miami Open
+The Masters
+Masters Tournament
+Augusta National
+PGA Championship
+The Open Championship
+Ryder Cup
+PGA Tour
+LIV Golf
+DP World Tour
+Tour de France
+Giro d'Italia
+Vuelta a España
+yellow jersey|áo vàng
+Formula 1|Công thức 1
+Formula One|Công thức 1
+F1
+Monaco Grand Prix
+British Grand Prix
+Silverstone
+Monza
+Spa-Francorchamps
+Suzuka
+Las Vegas Grand Prix
+Singapore Grand Prix
+Abu Dhabi Grand Prix
+Red Bull Racing
+Ferrari F1
+Scuderia Ferrari
+Mercedes-AMG Petronas
+McLaren F1
+Aston Martin Aramco
+Alpine F1
+Williams Racing
+Haas F1
+Racing Bulls
+Kick Sauber
+Audi F1
+Cadillac F1
+Drive to Survive
+MotoGP
+Le Mans
+24 Hours of Le Mans
+Indy 500
+Indianapolis 500
+NASCAR
+Daytona 500
+WRC
+Dakar Rally
+UFC
+UFC 300
+~Octagon
+Bellator
+ONE Championship
+PFL
+WWE
+WrestleMania
+Royal Rumble
+SummerSlam
+Boston Marathon
+New York City Marathon
+NYC Marathon
+London Marathon
+Berlin Marathon
+Chicago Marathon
+Tokyo Marathon
+Abbott World Marathon Majors
+World Marathon Majors
+Comrades Marathon
+Western States 100
+UTMB
+Ultra-Trail du Mont-Blanc
+Ironman
+Ironman World Championship
+Kona
+HYROX
+Spartan Race
+Tough Mudder
+CrossFit Games
+Olympia
+Mr. Olympia
+Arnold Classic
+World's Strongest Man
+Olympics
+Olympic Games
+Summer Olympics
+Winter Olympics
+Paris 2024
+LA28
+LA 2028
+Milano Cortina 2026
+Brisbane 2032
+Paralympics
+Paralympic Games
+IOC
+FIFA
+UEFA
+AFC
+CONMEBOL
+VFF
+NBA
+WNBA
+NFL
+MLB
+NHL
+NCAA Division I
+ESPN
+ESPN+
+Sky Sports
+DAZN
+TNT Sports
+BeIN Sports
+FOX Sports
+The Athletic
+Bleacher Report
+House of Highlights
+~Overtime
+Barstool Sports
+`);
+
+// ============================================================ 2.6.1: video games, studios, characters
+CST_GLOSSARY_EXTRA_ADD("entertainment", null, `
+Grand Theft Auto V
+Grand Theft Auto VI
+GTA V
+GTA VI
+GTA 6
+GTA 5
+Red Dead Redemption 2
+Red Dead Redemption
+The Elder Scrolls V: Skyrim
+Skyrim
+Fallout 4
+Fallout: New Vegas
+Starfield
+Cyberpunk 2077
+The Witcher 3
+Baldur's Gate 3
+Elden Ring
+Elden Ring Nightreign
+Dark Souls
+Dark Souls III
+Bloodborne
+Sekiro
+Demon's Souls
+Black Myth: Wukong
+Ghost of Tsushima
+Ghost of Yōtei
+God of War
+God of War Ragnarök
+The Last of Us
+The Last of Us Part II
+Uncharted
+Horizon Zero Dawn
+Horizon Forbidden West
+Spider-Man 2
+Marvel's Spider-Man
+Death Stranding
+Death Stranding 2
+Metal Gear Solid
+Metal Gear Solid Delta
+Final Fantasy VII
+Final Fantasy VII Remake
+Final Fantasy VII Rebirth
+Final Fantasy XVI
+Final Fantasy XIV
+Kingdom Hearts
+Persona 5
+Persona 5 Royal
+Metaphor: ReFantazio
+Dragon Quest
+Monster Hunter Wilds
+Monster Hunter World
+Resident Evil 4
+Resident Evil Village
+Resident Evil Requiem
+Street Fighter 6
+Tekken 8
+Mortal Kombat 1
+Super Smash Bros. Ultimate
+Smash Bros
+The Legend of Zelda
+Zelda
+Breath of the Wild
+Tears of the Kingdom
+Super Mario Bros.
+Super Mario Odyssey
+Mario Kart 8
+Mario Kart World
+Animal Crossing
+Animal Crossing: New Horizons
+Pokémon
+Pokemon
+Pokémon Go
+Pokémon Scarlet and Violet
+Pokémon Legends: Z-A
+Pikachu
+Charizard
+Splatoon 3
+Metroid Prime 4
+Kirby
+Donkey Kong
+Donkey Kong Bananza
+Luigi's Mansion
+Fire Emblem
+Xenoblade Chronicles
+Hollow Knight
+Hollow Knight: Silksong
+Silksong
+~Celeste
+Hades
+Hades II
+Stardew Valley
+Undertale
+Deltarune
+Terraria
+Minecraft
+Roblox
+Fortnite
+Apex Legends
+Valorant
+Counter-Strike 2
+CS2
+CS:GO
+League of Legends
+LoL
+Dota 2
+Overwatch 2
+Call of Duty
+Call of Duty: Warzone
+Warzone
+Black Ops 6
+Black Ops 7
+Modern Warfare III
+Battlefield 6
+Battlefield 2042
+Halo Infinite
+Destiny 2
+PUBG
+PUBG Mobile
+Free Fire
+Garena Free Fire
+Mobile Legends
+Arena of Valor
+Liên Quân Mobile|Liên Quân Mobile
+Honor of Kings
+Genshin Impact
+Honkai: Star Rail
+Zenless Zone Zero
+Wuthering Waves
+Clash of Clans
+Clash Royale
+Brawl Stars
+Candy Crush
+Subway Surfers
+Among Us
+Fall Guys
+Rocket League
+EA Sports FC
+EA FC 25
+EA FC 26
+FIFA 23
+eFootball
+Football Manager
+NBA 2K
+NBA 2K25
+NBA 2K26
+Madden NFL
+Gran Turismo 7
+Forza Horizon 5
+Forza Horizon 6
+Need for Speed
+Assassin's Creed
+Assassin's Creed Shadows
+Far Cry 6
+Watch Dogs
+The Sims 4
+The Sims
+SimCity
+Cities: Skylines
+Civilization VI
+Civilization VII
+Age of Empires
+Age of Empires II
+StarCraft
+StarCraft II
+~Warcraft
+World of Warcraft
+WoW
+Diablo IV
+Diablo
+Overwatch
+Hearthstone
+It Takes Two
+Split Fiction
+Palworld
+Lethal Company
+Phasmophobia
+Five Nights at Freddy's
+FNAF
+~Outlast
+Silent Hill 2
+Alan Wake 2
+~Control
+Hogwarts Legacy
+Star Wars Jedi: Survivor
+Star Wars Outlaws
+Mass Effect
+Dragon Age: The Veilguard
+Clair Obscur: Expedition 33
+Expedition 33
+Kingdom Come: Deliverance II
+Helldivers 2
+Marvel Rivals
+The Finals
+Sea of Thieves
+No Man's Sky
+Subnautica
+Valheim
+Rust game|game Rust
+ARK: Survival Evolved
+DayZ
+Escape from Tarkov
+Tarkov
+Pac-Man
+Tetris
+Space Invaders
+Street Fighter II
+Sonic the Hedgehog
+~Sonic
+Mega Man
+Castlevania
+Metroid
+~Contra
+Half-Life 2
+Portal 2
+Team Fortress 2
+Left 4 Dead
+BioShock
+Doom Eternal
+Wolfenstein
+~Quake
+Dishonored
+Deus Ex
+Nintendo
+Nintendo Switch 2
+Switch 2
+Joy-Con
+Game Pass
+Xbox Game Pass
+PlayStation Plus
+PS Plus
+Steam
+Steam Next Fest
+Steam Summer Sale
+Epic Games Store
+GOG
+=itch.io
+Twitch Prime
+Riot Games
+Valve
+~Blizzard
+Activision
+Activision Blizzard
+Electronic Arts
+EA
+Ubisoft
+Bethesda
+Rockstar Games
+Rockstar
+Naughty Dog
+Insomniac Games
+Santa Monica Studio
+Sucker Punch
+Guerrilla Games
+FromSoftware
+Capcom
+Square Enix
+Bandai Namco
+Sega
+Konami
+Kojima Productions
+Hideo Kojima
+Hidetaka Miyazaki
+Shigeru Miyamoto
+Satoru Iwata
+Todd Howard
+Phil Spencer
+Gabe Newell
+Mojang
+CD Projekt Red
+CD Projekt
+Larian Studios
+~Remedy
+Supergiant Games
+Team Cherry
+miHoYo
+HoYoverse
+Tencent Games
+NetEase Games
+Garena
+VNG Games
+Krafton
+Nexon
+Pearl Abyss
+Game Freak
+The Pokémon Company
+Niantic
+Supercell
+~King
+Rovio
+Angry Birds
+Mario
+Luigi
+Princess Peach
+Bowser
+~Link
+Ganon
+Master Chief
+Kratos
+Lara Croft
+Nathan Drake
+Geralt
+Geralt of Rivia
+Ciri
+Arthur Morgan
+John Marston
+Aloy
+Ellie
+Joel Miller
+Solid Snake
+Cloud Strife
+Sephiroth
+Tifa
+Sora
+Steve
+~Creeper
+Ender Dragon
+`);
+
+// ============================================================ 2.6.1: companies, startups and their products
+CST_GLOSSARY_EXTRA_ADD("business", null, `
+Berkshire Hathaway
+JPMorgan Chase
+JPMorgan
+JP Morgan
+Goldman Sachs
+Morgan Stanley
+Bank of America
+BofA
+Citigroup
+Citi
+Wells Fargo
+Charles Schwab
+Schwab
+Fidelity Investments
+Vanguard
+BlackRock
+iShares
+State Street
+Blackstone
+KKR
+Carlyle Group
+Apollo Global
+Bridgewater Associates
+Bridgewater
+~Citadel
+Citadel Securities
+Renaissance Technologies
+Two Sigma
+Jane Street
+Point72
+Millennium Management
+Sequoia Capital
+Sequoia
+Andreessen Horowitz
+a16z
+Y Combinator
+YC
+Benchmark Capital
+Accel
+Kleiner Perkins
+Lightspeed Venture Partners
+Founders Fund
+Tiger Global
+SoftBank
+SoftBank Vision Fund
+Thrive Capital
+General Catalyst
+Insight Partners
+Index Ventures
+Greylock
+Khosla Ventures
+500 Global
+Techstars
+Visa
+Mastercard
+American Express
+Amex
+PayPal
+Venmo
+Zelle
+Cash App
+Block Inc.
+~Square
+Stripe
+Adyen
+Klarna
+Affirm
+Afterpay
+Revolut
+Wise
+Monzo
+N26
+Chime
+SoFi
+Robinhood
+Coinbase
+Binance
+~Kraken
+Gemini exchange|sàn Gemini
+OKX
+Bybit
+Bitget
+Crypto.com
+MetaMask
+Ledger
+Trezor
+Tether
+USDT
+USDC
+~Circle
+Ripple
+XRP
+Solana
+SOL
+Cardano
+Dogecoin
+DOGE
+Shiba Inu
+Polygon
+Avalanche
+Chainlink
+Uniswap
+OpenSea
+Microstrategy
+MicroStrategy
+Strategy Inc.
+Michael Saylor
+Satoshi Nakamoto
+Vitalik Buterin
+Changpeng Zhao
+CZ
+Sam Bankman-Fried
+SBF
+FTX
+Terra Luna
+Walmart
+Costco
+Target Corporation
+Kroger
+Home Depot
+Lowe's
+Best Buy
+CVS
+CVS Pharmacy
+Walgreens
+Rite Aid
+Trader Joe's
+Whole Foods Market
+Aldi
+Lidl
+Tesco
+Sainsbury's
+Marks & Spencer
+M&S
+Waitrose
+Carrefour
+~Aeon
+AEON Mall
+Lotte Mart
+E-Mart
+Big C
+Co.opmart
+WinMart
+Bách Hóa Xanh
+Circle K
+FamilyMart
+7-Eleven
+Lawson
+Ministop
+GS25
+CU convenience store|cửa hàng tiện lợi CU
+Daiso
+Miniso
+Don Quijote
+Donki
+Uniqlo
+Muji
+Nitori
+IKEA
+Wayfair
+Etsy
+eBay
+Alibaba
+Alibaba Group
+AliExpress
+Taobao
+Tmall
+JD.com
+Pinduoduo
+PDD
+Temu
+Shopee
+Lazada
+Tiki
+TikTok Shop
+Sendo
+Thế Giới Di Động|Thế Giới Di Động
+FPT Shop
+CellphoneS
+Điện Máy Xanh|Điện Máy Xanh
+Amazon Prime
+Prime Day
+Amazon Fresh
+Amazon Basics
+Amazon Web Services
+Kindle Unlimited
+Audible
+Twitch
+Ring doorbell|chuông cửa Ring
+Zoox
+Kuiper
+Project Kuiper
+~Alphabet
+Google DeepMind
+DeepMind
+Waymo
+~Verily
+Wing drone|drone Wing
+YouTube Premium
+YouTube Music
+YouTube Shorts
+YouTube Kids
+Google Maps
+Google Photos
+Google Drive
+Google Docs
+Google Sheets
+Google Slides
+Google Calendar
+Google Meet
+Google Translate
+Google Lens
+Google Pay
+Google Wallet
+Google Home
+Google Nest
+Gmail
+Chrome Web Store
+Play Store
+Google Play
+App Store
+Apple Music
+Apple TV+
+Apple Arcade
+Apple Fitness+
+Apple Pay
+Apple Card
+Apple Wallet
+Apple One
+iCloud
+iCloud+
+FaceTime
+iMessage
+Siri
+Find My
+AirTag
+Apple Health
+Health app|ứng dụng Sức khỏe
+Microsoft 365
+Office 365
+Microsoft Word
+Microsoft Excel
+PowerPoint
+Outlook
+Microsoft Teams
+OneDrive
+OneNote
+SharePoint
+~Bing
+LinkedIn Learning
+GitHub Copilot
+Xbox
+Surface Pro
+Surface Laptop
+Meta Platforms
+Facebook
+Instagram
+~Threads
+WhatsApp
+~Messenger
+Facebook Marketplace
+Instagram Reels
+~Reels
+Meta AI
+Meta Quest
+Ray-Ban Meta
+Oculus
+X Corp
+~Twitter
+xAI
+Grok
+SpaceX Starlink
+Neuralink
+The Boring Company
+Tesla Energy
+Powerwall
+Megapack
+Supercharger
+Tesla Supercharger
+Autopilot
+Full Self-Driving
+FSD
+Robotaxi
+Optimus robot|robot Optimus
+~Optimus
+Nvidia
+NVIDIA
+GeForce
+GeForce RTX
+RTX 5090
+RTX 4090
+RTX 5080
+RTX 5070
+H100
+H200
+B200
+GB200
+~Blackwell
+~Hopper
+~Rubin
+Grace Hopper
+DGX
+DGX Spark
+Jensen Huang
+AMD
+Ryzen
+Radeon
+EPYC
+Instinct MI300
+Lisa Su
+Intel
+Intel Core
+Core Ultra
+Xeon
+Arc GPU
+Pat Gelsinger
+Lip-Bu Tan
+Qualcomm
+Snapdragon
+Snapdragon X Elite
+Snapdragon 8 Elite
+MediaTek
+Dimensity
+Arm
+ARM
+TSMC
+Samsung Electronics
+SK Hynix
+SK hynix
+~Micron
+ASML
+Broadcom
+Marvell
+Cisco
+Oracle
+IBM
+Salesforce
+Slack
+~Tableau
+SAP
+~Adobe
+Photoshop
+Lightroom
+Premiere Pro
+After Effects
+Illustrator
+InDesign
+~Acrobat
+Adobe Firefly
+Creative Cloud
+Canva
+Figma
+~Sketch
+Framer
+Webflow
+Wix
+Squarespace
+Shopify
+WordPress
+Substack
+Beehiiv
+ConvertKit
+Mailchimp
+HubSpot
+Zendesk
+Intercom
+Atlassian
+Jira
+~Confluence
+Trello
+Asana
+Monday.com
+ClickUp
+Notion
+Airtable
+~Coda
+Obsidian
+Evernote
+Todoist
+Things 3
+TickTick
+~Linear
+~Miro
+~Loom
+Calendly
+~Zoom
+Webex
+Dropbox
+Box
+DocuSign
+Zapier
+Make.com
+n8n
+IFTTT
+Twilio
+Okta
+Auth0
+Cloudflare
+Akamai
+Fastly
+Palantir
+Snowflake
+Databricks
+ServiceNow
+~Workday
+Intuit
+TurboTax
+QuickBooks
+YNAB
+Rocket Money
+Uber
+Uber Eats
+Lyft
+DoorDash
+Instacart
+Grubhub
+Deliveroo
+Just Eat
+Grab
+GrabFood
+GrabCar
+GrabBike
+Gojek
+Xanh SM
+Airbnb
+Booking.com
+Expedia
+Agoda
+Trip.com
+Traveloka
+Klook
+Kayak
+Skyscanner
+Google Flights
+~Hopper
+Tripadvisor
+Vrbo
+Hotels.com
+Marriott
+Marriott Bonvoy
+Hilton
+Hilton Honors
+Hyatt
+World of Hyatt
+IHG
+InterContinental
+Holiday Inn
+Four Seasons
+Ritz-Carlton
+The Ritz-Carlton
+St. Regis
+W Hotels
+Mandarin Oriental
+Peninsula Hotels
+Aman
+Aman Resorts
+Six Senses
+Park Hyatt
+Waldorf Astoria
+Shangri-La
+Accor
+Sofitel
+Novotel
+Pullman
+~Ibis
+Vinpearl
+Mường Thanh|Mường Thanh
+Emirates
+Qatar Airways
+Singapore Airlines
+Cathay Pacific
+ANA
+All Nippon Airways
+Japan Airlines
+JAL
+Korean Air
+Asiana
+EVA Air
+China Airlines
+Thai Airways International
+Vietnam Airlines|Vietnam Airlines
+Vietjet
+VietJet Air
+Bamboo Airways
+Vietravel Airlines
+AirAsia
+~Scoot
+Jetstar
+Cebu Pacific
+Delta Air Lines
+~Delta
+United Airlines
+American Airlines
+Southwest Airlines
+~Southwest
+JetBlue
+Alaska Airlines
+Spirit Airlines
+Frontier Airlines
+Air Canada
+WestJet
+British Airways
+Virgin Atlantic
+Lufthansa
+Air France
+KLM
+Turkish Airlines
+Etihad
+Ryanair
+easyJet
+Wizz Air
+Qantas
+Air New Zealand
+Boeing
+Boeing 737 MAX
+737 MAX
+Boeing 787
+Dreamliner
+Airbus
+Airbus A350
+A350
+A380
+A320neo
+A321neo
+Embraer
+COMAC
+Gulfstream
+Cessna
+Lockheed Martin
+Raytheon
+RTX Corporation
+Northrop Grumman
+General Dynamics
+BAE Systems
+Rolls-Royce Holdings
+GE Aerospace
+General Electric
+GE
+Honeywell
+3M
+Siemens
+Bosch
+ABB
+Schneider Electric
+~Caterpillar
+John Deere
+Deere
+Exxon
+ExxonMobil
+Chevron
+~Shell
+BP
+TotalEnergies
+Saudi Aramco
+Aramco
+PetroVietnam|Petrovietnam
+Petrolimex
+Vingroup
+VinFast
+Vinhomes
+Vincom
+Vinmec
+Vinschool
+VinAI
+Viettel
+VNPT
+FPT
+FPT Software
+Masan
+Vinamilk
+TH True Milk
+Sabeco
+Habeco
+Trung Nguyen Legend|Trung Nguyên Legend
+Highlands Coffee
+The Coffee House
+Phúc Long|Phúc Long
+Cộng Cà Phê|Cộng Cà Phê
+Katinat
+Hòa Phát|Hòa Phát
+Techcombank
+Vietcombank
+VPBank
+MB Bank
+ACB
+BIDV
+Agribank
+TPBank
+MoMo
+ZaloPay
+VNPay
+ShopeePay
+Zalo
+VNG
+VNExpress
+VnExpress
+Tuổi Trẻ|Tuổi Trẻ
+Thanh Niên|Thanh Niên
+Procter & Gamble
+P&G
+Unilever
+Nestlé
+Nestle
+PepsiCo
+Coca-Cola
+The Coca-Cola Company
+Mondelez
+Kraft Heinz
+General Mills
+Kellogg's
+Kellanova
+Mars Inc.
+Ferrero
+Hershey's
+Hershey
+Danone
+L'Oréal Group
+Estée Lauder Companies
+LVMH
+Kering
+Richemont
+Hermès International
+Chanel S.A.
+Inditex
+H&M Group
+Fast Retailing
+Nike Inc.
+Adidas AG
+~Anta
+Li-Ning
+Johnson & Johnson
+J&J
+Pfizer
+Moderna
+BioNTech
+AstraZeneca
+Novartis
+Roche
+Merck
+MSD
+GSK
+Sanofi
+Eli Lilly
+Lilly
+Novo Nordisk
+AbbVie
+Bristol Myers Squibb
+Amgen
+Gilead
+Regeneron
+Vertex Pharmaceuticals
+Bayer
+Takeda
+Medtronic
+Abbott
+Dexcom
+Insulet
+Intuitive Surgical
+da Vinci robot|robot da Vinci
+UnitedHealth
+UnitedHealthcare
+Kaiser Permanente
+Humana
+Cigna
+Aetna
+Blue Cross Blue Shield
+Disney
+Walt Disney Company
+Disney+
+Hulu
+ESPN
+Pixar
+Marvel Studios
+Lucasfilm
+21st Century Studios
+Warner Bros.
+Warner Bros. Discovery
+HBO
+HBO Max
+CNN
+Discovery+
+~Paramount
+Paramount+
+Paramount Skydance
+Skydance
+CBS
+MTV
+~Nickelodeon
+Comedy Central
+Universal Pictures
+NBCUniversal
+NBC
+Peacock streaming|dịch vụ Peacock
+DreamWorks
+~Illumination
+Sony Pictures
+Columbia Pictures
+Crunchyroll
+Lionsgate
+A24
+Neon
+Blumhouse
+Netflix
+Netflix Originals
+Prime Video
+Amazon MGM Studios
+MGM
+Apple Original Films
+Spotify
+Spotify Premium
+Spotify Wrapped
+SoundCloud
+Tidal
+Deezer
+Apple Podcasts
+Pandora Music
+iHeartRadio
+SiriusXM
+Universal Music Group
+UMG
+Sony Music
+Warner Music Group
+Live Nation
+Ticketmaster
+StubHub
+SM Entertainment
+JYP Entertainment
+YG Entertainment
+HYBE
+Big Hit Music
+ADOR
+Starship Entertainment
+Cube Entertainment
+Weverse
+Bubble app|ứng dụng Bubble
+Mnet
+KBS
+MBC
+SBS
+JTBC
+tvN
+Toho
+Studio Ghibli
+Toei Animation
+MAPPA
+Ufotable
+Kyoto Animation
+Shueisha
+Shonen Jump
+Weekly Shōnen Jump
+Kodansha
+Webtoon
+Naver Webtoon
+Kakao
+KakaoTalk
+Naver
+LINE
+Line app|ứng dụng Line
+Rakuten
+Mercari
+SoftBank Group
+Toyota Motor
+Honda Motor
+Sony Group
+Panasonic
+Hitachi
+Toshiba
+Fujitsu
+NEC
+Canon Inc.
+Nikon
+Olympus
+Kyocera
+Murata
+Keyence
+Nintendo Co.
+Hyundai Motor
+Kia Corporation
+LG Electronics
+LG Energy Solution
+Samsung SDI
+CATL
+BYD Company
+Xiaomi Corporation
+Huawei Technologies
+ZTE
+Lenovo
+Haier
+Midea
+~Gree
+DJI Technology
+Tencent
+WeChat
+Weixin
+QQ
+ByteDance
+Douyin
+Toutiao
+CapCut
+Lemon8
+Baidu
+Ernie Bot
+~Ernie
+Kuaishou
+Kling AI
+Meituan
+Didi
+DiDi
+Ant Group
+Alipay
+Ping An
+Moutai
+Kweichow Moutai
+Luckin Coffee
+Mixue
+Chagee
+HeyTea
+Pop Mart
+Labubu
+Shein Group
+Infosys
+Tata
+Tata Group
+Tata Consultancy Services
+TCS
+Wipro
+~Reliance
+Reliance Industries
+Jio
+Adani
+Mahindra
+Flipkart
+Paytm
+Zomato
+Swiggy
+~Ola
+OYO
+`);
+
+// ============================================================ 2.6.1: mobile apps, social platforms, creator tools
+CST_GLOSSARY_EXTRA_ADD("tech", null, `
+TikTok
+Douyin
+Snapchat
+Snap Map
+Pinterest
+Tumblr
+Reddit
+r/AskReddit
+Quora
+Discord
+Telegram
+Viber
+WeChat Pay
+Line Pay
+~Clubhouse
+BeReal
+Lemon8
+Bluesky
+Mastodon
+Truth Social
+~Rumble
+Patreon
+OnlyFans
+Fansly
+Ko-fi
+Buy Me a Coffee
+Gumroad
+~Teachable
+Kajabi
+Skool
+Udemy
+Coursera
+edX
+Khan Academy
+Duolingo
+Babbel
+Memrise
+Anki
+Quizlet
+MasterClass
+Skillshare
+LinkedIn Learning
+Codecademy
+Lumosity
+Headspace
+Calm
+Insight Timer
+Waking Up
+Ten Percent Happier
+Balance app|ứng dụng Balance
+BetterHelp
+Talkspace
+~Cerebral
+Hims
+Noom
+MyFitnessPal
+Lose It!
+Cronometer
+MacroFactor
+Carbon Diet Coach
+Strava
+Nike Run Club
+Nike Training Club
+Runna
+Garmin Connect
+Zwift
+TrainerRoad
+Peloton App
+Apple Fitness
+Fitbod
+Hevy
+Strong app|ứng dụng Strong
+JEFIT
+Ladder app|ứng dụng Ladder
+Future fitness|ứng dụng Future
+Sweat app|ứng dụng Sweat
+Alo Moves
+Down Dog
+FitOn
+Centr
+Flo
+Natural Cycles
+Oura app|ứng dụng Oura
+Rise Science
+SleepScore
+Sleep Cycle app|ứng dụng Sleep Cycle
+Pillow app|ứng dụng Pillow
+~Bearable
+Daylio
+~Finch
+Habitica
+Streaks
+Forest app|ứng dụng Forest
+~Opal
+Freedom app|ứng dụng Freedom
+Cold Turkey
+RescueTime
+Toggl
+Clockify
+Sunsama
+Akiflow
+Notion Calendar
+~Fantastical
+~Superhuman
+Spark Mail
+Hey email|email Hey
+Proton Mail
+ProtonMail
+Proton VPN
+NordVPN
+ExpressVPN
+Surfshark
+1Password
+LastPass
+Bitwarden
+Dashlane
+Authy
+Google Authenticator
+Microsoft Authenticator
+Raycast
+Alfred
+Arc Browser
+Perplexity Comet
+Readwise
+Readwise Reader
+Instapaper
+Feedly
+Kindle app|ứng dụng Kindle
+Libby
+Goodreads
+StoryGraph
+Blinkist
+Shortform
+Audible app|ứng dụng Audible
+~Speechify
+Otter.ai
+Fireflies.ai
+Granola
+Krisp
+Grammarly
+QuillBot
+Hemingway Editor
+Jasper
+Copy.ai
+Writesonic
+Character.AI
+Replika
+Poe
+~Gamma
+~Tome
+Beautiful.ai
+Prezi
+~Keynote
+Numbers app|ứng dụng Numbers
+GarageBand
+Logic Pro
+Final Cut Pro
+iMovie
+DaVinci Resolve
+Adobe Premiere
+Premiere Rush
+VN Video Editor
+InShot
+~Splice
+Lightroom Mobile
+VSCO
+Snapseed
+Facetune
+Meitu
+Picsart
+Remini
+Lensa
+Prisma
+FaceApp
+B612
+SNOW
+Ulike
+~Unfold
+~Mojo
+Hootsuite
+Sprout Social
+Metricool
+Linktree
+Beacons
+Stan Store
+Kajabi
+Circle community|cộng đồng Circle
+Mighty Networks
+Slack Huddles
+Google Keep
+Apple Notes
+Apple Reminders
+Microsoft To Do
+Any.do
+Logseq
+Roam Research
+Heptabase
+~Tana
+Capacities
+Day One
+Journey app|ứng dụng Journey
+Stoic app|ứng dụng Stoic
+~Rosebud
+Waze
+Citymapper
+Moovit
+Google Earth
+AllTrails
+Komoot
+Gaia GPS
+OnX
+PeakVisor
+~Windy
+Weather Channel
+AccuWeather
+Carrot Weather
+~Flighty
+FlightAware
+Flightradar24
+TripIt
+Wanderlog
+Rome2rio
+Hostelworld
+Couchsurfing
+Bumble
+Bumble BFF
+Tinder
+Hinge
+Raya
+Coffee Meets Bagel
+Grindr
+Feeld
+Tantan
+Zalo Pay
+Shazam
+Musixmatch
+Bandcamp
+Audiomack
+Anghami
+Boomplay
+JioSaavn
+KKBox
+FLO
+Zing MP3
+NhacCuaTui
+Spotify Connect
+AirPlay
+AirPlay 2
+Chromecast
+Google TV
+Roku
+Fire TV
+Fire TV Stick
+Apple TV app|ứng dụng Apple TV
+~Plex
+Jellyfin
+Kodi
+VLC
+~Infuse
+Letterboxd
+IMDb
+Rotten Tomatoes
+Metacritic
+JustWatch
+Trakt
+MyAnimeList
+AniList
+Crunchyroll Premium
+Viki
+iQIYI
+WeTV
+Youku
+Bilibili
+Niconico
+FPT Play
+VieON
+TV360
+Galaxy Play
+K+
+ClipTV
+POPS
+`);
+
+// ============================================================ 2.6.1: places, part 3: every country, US states, more cities
+CST_GLOSSARY_EXTRA_ADD("places", null, `
+Afghanistan|Afghanistan
+Albania|Albania
+Algeria|Algeria
+Andorra
+Angola
+Argentina|Argentina
+Armenia|Armenia
+Australia|Úc
+Austria|Áo
+Azerbaijan
+Bahamas
+Bahrain
+Bangladesh
+Barbados
+Belarus
+Belgium|Bỉ
+Belize
+Benin
+Bhutan
+Bolivia
+Bosnia and Herzegovina
+Botswana
+Brazil|Brazil
+Brunei
+Bulgaria
+Burkina Faso
+Burundi
+Cambodia|Campuchia
+Cameroon
+Canada|Canada
+Cape Verde
+~Chad
+Chile
+China|Trung Quốc
+Colombia
+Costa Rica
+Croatia
+Cuba
+Cyprus|Síp
+Czech Republic|Cộng hòa Séc
+Czechia|Séc
+Denmark|Đan Mạch
+Djibouti
+Dominican Republic|Cộng hòa Dominica
+Ecuador
+Egypt|Ai Cập
+El Salvador
+Estonia
+Eswatini
+Ethiopia
+Fiji
+Finland|Phần Lan
+France|Pháp
+Gabon
+~Gambia
+Germany|Đức
+Ghana
+Greece|Hy Lạp
+Guatemala
+~Guinea
+Haiti
+Honduras
+Hungary|Hungary
+Iceland|Iceland
+India|Ấn Độ
+Indonesia|Indonesia
+Iran
+Iraq
+Ireland|Ireland
+Israel
+Italy|Ý
+Ivory Coast|Bờ Biển Ngà
+Jamaica
+Japan|Nhật Bản
+Kazakhstan
+Kenya
+Kosovo
+Kuwait
+Kyrgyzstan
+Laos|Lào
+Latvia
+Lebanon|Liban
+Lesotho
+Liberia
+Libya
+Liechtenstein
+Lithuania
+Luxembourg
+Madagascar
+Malawi
+Malaysia|Malaysia
+~Mali
+Malta
+Mauritania
+Mauritius
+Mexico|Mexico
+Moldova
+Mongolia|Mông Cổ
+Montenegro
+Morocco|Morocco
+Mozambique
+Myanmar|Myanmar
+Burma|Miến Điện
+Namibia
+Nepal
+Netherlands|Hà Lan
+Holland|Hà Lan
+New Zealand|New Zealand
+Nicaragua
+Niger
+Nigeria
+North Korea|Triều Tiên
+North Macedonia
+Norway|Na Uy
+Oman
+Pakistan
+Palestine
+Panama
+Papua New Guinea
+Paraguay
+Peru
+Philippines|Philippines
+Poland|Ba Lan
+Portugal|Bồ Đào Nha
+Qatar
+Romania
+Russia|Nga
+Rwanda
+Samoa
+San Marino
+Saudi Arabia|Ả Rập Xê Út
+Senegal
+Serbia
+Seychelles
+Sierra Leone
+Singapore|Singapore
+Slovakia
+Slovenia
+Somalia
+South Africa|Nam Phi
+South Korea|Hàn Quốc
+Korea|Hàn Quốc
+South Sudan
+Spain|Tây Ban Nha
+Sri Lanka|Sri Lanka
+Sudan
+Suriname
+Sweden|Thụy Điển
+Switzerland|Thụy Sĩ
+Syria
+Taiwan|Đài Loan
+Tajikistan
+Tanzania
+Thailand|Thái Lan
+Timor-Leste|Đông Timor
+East Timor|Đông Timor
+Togo
+~Tonga
+Trinidad and Tobago
+Tunisia
+Turkey|Thổ Nhĩ Kỳ
+Türkiye|Thổ Nhĩ Kỳ
+Turkmenistan
+Uganda
+Ukraine|Ukraine
+United Arab Emirates|Các Tiểu vương quốc Ả Rập Thống nhất
+UAE
+United Kingdom|Vương quốc Anh
+UK|Anh
+Britain|Anh
+Great Britain|Anh
+England|Anh
+Scotland|Scotland
+Wales|xứ Wales
+Northern Ireland|Bắc Ireland
+United States|Hoa Kỳ
+USA|Mỹ
+Uruguay
+Uzbekistan
+Vanuatu
+Vatican City|Thành Vatican
+Venezuela
+Vietnam|Việt Nam
+Viet Nam|Việt Nam
+Yemen
+Zambia
+Zimbabwe
+Greenland
+Puerto Rico
+Guam
+Hong Kong|Hồng Kông
+Alabama
+Arizona
+Arkansas
+California
+Colorado
+Connecticut
+Delaware
+Florida
+Georgia
+Idaho
+Illinois
+Indiana
+Iowa
+Kansas
+Kentucky
+Louisiana
+Maine
+Maryland
+Massachusetts
+Michigan
+Minnesota
+Mississippi
+Missouri
+Montana
+Nebraska
+Nevada
+New Hampshire
+New Jersey
+New Mexico
+New York State
+North Carolina
+North Dakota
+Ohio
+Oklahoma
+Oregon
+Pennsylvania
+Rhode Island
+South Carolina
+South Dakota
+Tennessee
+Texas
+Utah
+Vermont
+Virginia
+Washington State
+West Virginia
+Wisconsin
+Wyoming
+Washington, D.C.
+Washington DC
+D.C.
+DC
+Ontario
+Quebec
+British Columbia
+Alberta
+Manitoba
+Saskatchewan
+Nova Scotia
+New South Wales
+Queensland
+Western Australia
+South Australia
+Bavaria
+Catalonia
+Andalusia
+Lombardy
+Normandy
+Brittany
+Burgundy
+Champagne region|vùng Champagne
+Alsace
+Flanders
+Scottish Highlands|cao nguyên Scotland
+Isle of Skye
+Cornwall
+Yorkshire
+Kyoto|Kyoto
+Osaka|Osaka
+Tokyo|Tokyo
+Yokohama
+Nagoya
+Sapporo
+Fukuoka
+Kobe
+Hiroshima
+Nagasaki
+Sendai
+Seoul|Seoul
+Bangkok|Bangkok
+Jakarta
+Manila
+Kuala Lumpur
+Taipei|Đài Bắc
+Beijing|Bắc Kinh
+Shanghai|Thượng Hải
+New Delhi
+Karachi
+Lahore
+Dhaka
+Tehran
+Baghdad
+Jerusalem
+Tel Aviv
+Beirut
+Damascus
+~Amman
+~Muscat
+Kabul
+Tashkent
+Almaty
+Astana
+~Baku
+Tbilisi
+Yerevan
+Kyiv|Kyiv
+Kiev
+Moscow|Moskva
+Saint Petersburg|Saint Petersburg
+St. Petersburg
+Minsk
+Riga
+Tallinn
+Vilnius
+Warsaw
+Bucharest
+Sofia
+Belgrade
+Zagreb
+Ljubljana
+Sarajevo
+Athens|Athens
+Rome|Rome
+Berlin|Berlin
+Paris|Paris
+London|London
+Madrid|Madrid
+Munich
+Hamburg
+Frankfurt
+Cologne
+Düsseldorf
+Stuttgart
+Dresden
+Leipzig
+Rotterdam
+The Hague
+Antwerp
+Ghent
+Basel
+Bern
+Turin
+Bologna
+Verona
+Genoa
+Pisa
+Siena
+Palermo
+Seville
+Bilbao
+San Sebastián
+Málaga
+Marbella
+Toulouse
+Strasbourg
+Lille
+Montpellier
+Avignon
+Annecy
+Chamonix
+~Geneva
+Gothenburg
+Malmö
+Bergen
+Aarhus
+Edinburgh
+Belfast
+Cardiff
+Birmingham
+Leeds
+Newcastle
+Bristol
+Brighton
+~York
+~Cork
+Galway
+Toronto
+Ottawa
+Calgary
+Edmonton
+Winnipeg
+Halifax
+New York City|thành phố New York
+NYC
+Los Angeles
+LA
+San Francisco
+SF
+San Diego
+Seattle
+Portland
+Las Vegas
+Phoenix
+Denver
+Dallas
+Houston
+Austin
+San Antonio
+Chicago
+Detroit
+Minneapolis
+St. Louis
+Kansas City
+Nashville
+Memphis
+New Orleans
+Atlanta
+Miami
+Orlando
+Tampa
+Charlotte
+Raleigh
+Boston
+Philadelphia
+Pittsburgh
+Baltimore
+Salt Lake City
+Boise
+Albuquerque
+Santa Fe
+Sacramento
+Fresno
+Anaheim
+Irvine
+Pasadena
+Long Beach
+Hoboken
+Jersey City
+Newark
+Little Saigon|Little Saigon
+Garden Grove
+Orange County
+Bay Area|vùng Vịnh
+San Gabriel Valley
+Guadalajara
+Monterrey
+Cabo San Lucas
+Puerto Vallarta
+Playa del Carmen
+Bogota
+Quito
+La Paz
+Montevideo
+Asunción
+Caracas
+Panama City
+Kingston
+Nassau
+Punta Cana
+Johannesburg
+Durban
+Casablanca
+~Fez
+Tunis
+Accra
+Addis Ababa
+Dar es Salaam
+Kigali
+Kampala
+Luanda
+Hanoi|Hà Nội
+Ha Noi|Hà Nội
+Ho Chi Minh City|Thành phố Hồ Chí Minh
+HCMC|TP.HCM
+Saigon|Sài Gòn
+Sai Gon|Sài Gòn
+Da Nang|Đà Nẵng
+Danang|Đà Nẵng
+Hoi An|Hội An
+Hue|Huế
+Hai Phong|Hải Phòng
+Haiphong|Hải Phòng
+Can Tho|Cần Thơ
+Vung Tau|Vũng Tàu
+Quy Nhon|Quy Nhơn
+Phan Thiet|Phan Thiết
+Buon Ma Thuot|Buôn Ma Thuột
+Ha Long|Hạ Long
+Lao Cai|Lào Cai
+Dien Bien Phu|Điện Biên Phủ
+Cu Chi Tunnels|địa đạo Củ Chi
+Cu Chi|Củ Chi
+Mekong|Mê Kông
+Mekong River|sông Mê Kông
+Red River|sông Hồng
+Perfume River|sông Hương
+`);
+CST_GLOSSARY_EXTRA_ADD("places", null, `
+New England
+South China Sea|Biển Đông
+East China Sea|biển Hoa Đông
+Captain America
+Good Morning America
+America's Got Talent
+Bank of America
+Latin America|Mỹ Latinh
+North America|Bắc Mỹ
+South America|Nam Mỹ
+Central America|Trung Mỹ
+`);
+
+// ============================================================ 2.6.1: books, authors, podcasts and shows people quote
+CST_GLOSSARY_EXTRA_ADD("entertainment", null, `
+Atomic Habits
+The Power of Habit
+Deep Work
+Digital Minimalism
+So Good They Can't Ignore You
+Slow Productivity
+Four Thousand Weeks
+~Essentialism
+The 4-Hour Workweek
+The 4-Hour Body
+Tools of Titans
+The 7 Habits of Highly Effective People
+How to Win Friends and Influence People
+Think and Grow Rich
+Rich Dad Poor Dad
+The Psychology of Money
+The Millionaire Next Door
+The Richest Man in Babylon
+The Intelligent Investor
+A Random Walk Down Wall Street
+I Will Teach You to Be Rich
+Die With Zero
+The Simple Path to Wealth
+Your Money or Your Life
+The Total Money Makeover
+Zero to One
+The Lean Startup
+Good to Great
+Built to Last
+The Innovator's Dilemma
+Shoe Dog
+The Hard Thing About Hard Things
+Measure What Matters
+Start with Why
+Leaders Eat Last
+The Infinite Game
+Extreme Ownership
+Can't Hurt Me
+Never Finished
+The Obstacle Is the Way
+Ego Is the Enemy
+Stillness Is the Key
+Discipline Is Destiny
+Letters from a Stoic
+The Daily Stoic
+Man's Search for Meaning
+The Alchemist
+The Courage to Be Disliked
+The Subtle Art of Not Giving a F*ck
+Everything Is F*cked
+The Mountain Is You
+The Let Them Theory
+The 5 Second Rule
+The Four Agreements
+The Power of Now
+A New Earth
+Daring Greatly
+The Gifts of Imperfection
+Thinking, Fast and Slow
+Predictably Irrational
+The Tipping Point
+Talking to Strangers
+Freakonomics
+~Sapiens
+Homo Deus
+21 Lessons for the 21st Century
+~Nexus
+Guns, Germs, and Steel
+The Selfish Gene
+A Brief History of Time
+The Gene
+The Emperor of All Maladies
+Why We Sleep
+Outlive
+The Body Keeps the Score
+Glucose Revolution
+Good Energy
+Fiber Fueled
+How Not to Die
+The Obesity Code
+Born to Run
+The Art of War
+The Prince
+48 Laws of Power
+The 48 Laws of Power
+The Laws of Human Nature
+1984
+Animal Farm
+Brave New World
+Fahrenheit 451
+The Great Gatsby
+To Kill a Mockingbird
+The Catcher in the Rye
+Pride and Prejudice
+Jane Eyre
+Wuthering Heights
+Little Women
+Moby-Dick
+Crime and Punishment
+The Brothers Karamazov
+War and Peace
+Anna Karenina
+One Hundred Years of Solitude
+Norwegian Wood
+Kafka on the Shore
+1Q84
+The Little Prince
+Hoàng tử bé|Hoàng tử bé
+Harry Potter
+Harry Potter and the Philosopher's Stone
+The Lord of the Rings
+The Hobbit
+A Song of Ice and Fire
+The Hunger Games
+~Twilight
+Percy Jackson
+The Chronicles of Narnia
+~Dune
+The Three-Body Problem
+3 Body Problem
+Project Hail Mary
+The Martian
+Fourth Wing
+Iron Flame
+A Court of Thorns and Roses
+ACOTAR
+It Ends with Us
+It Starts with Us
+~Verity
+Fifty Shades of Grey
+The Silent Patient
+Gone Girl
+The Girl on the Train
+Where the Crawdads Sing
+A Promised Land
+I'm Glad My Mom Died
+Greenlights
+The Midnight Library
+Tomorrow, and Tomorrow, and Tomorrow
+Lessons in Chemistry
+The Seven Husbands of Evelyn Hugo
+Normal People
+Klara and the Sun
+Never Let Me Go
+The Remains of the Day
+Malcolm Gladwell
+Yuval Noah Harari
+James Clear
+Cal Newport
+Ryan Holiday
+Morgan Housel
+Robert Kiyosaki
+Napoleon Hill
+Dale Carnegie
+Stephen Covey
+Daniel Kahneman
+Adam Grant
+Angela Duckworth
+Carol Dweck
+Charles Duhigg
+Greg McKeown
+Oliver Burkeman
+Nassim Taleb
+Nassim Nicholas Taleb
+Ray Dalio
+Naval Ravikant
+Paul Graham
+Peter Thiel
+Marcus Aurelius
+Seneca
+Epictetus
+Viktor Frankl
+Paulo Coelho
+Eckhart Tolle
+Matthew Walker
+Michael Pollan
+Jonathan Haidt
+Robert Greene
+Haruki Murakami
+J.K. Rowling
+J.R.R. Tolkien
+George R.R. Martin
+Stephen King
+Agatha Christie
+Jane Austen
+Charles Dickens
+Leo Tolstoy
+Fyodor Dostoevsky
+Ernest Hemingway
+F. Scott Fitzgerald
+George Orwell
+Mark Twain
+William Shakespeare
+Shakespeare
+Gabriel García Márquez
+Kazuo Ishiguro
+Colleen Hoover
+Sally Rooney
+Rebecca Yarros
+Sarah J. Maas
+Taylor Jenkins Reid
+Andy Weir
+Brandon Sanderson
+Rick Riordan
+Suzanne Collins
+Liu Cixin
+Michelle Obama
+Tara Westover
+Matthew McConaughey
+Jennette McCurdy
+Lex Fridman Podcast
+Huberman Lab Podcast
+The Diary of a CEO podcast|podcast The Diary of a CEO
+Smartless
+SmartLess
+Conan O'Brien Needs a Friend
+Crime Junkie
+This American Life
+Radiolab
+Freakonomics Radio
+Hidden Brain
+TED Radio Hour
+TED Talks Daily
+Planet Money
+The Indicator
+How I Built This
+All-In
+All-In Podcast
+My First Million
+The Prof G Pod
+Hard Fork
+Lenny's Podcast
+20VC
+Invest Like the Best
+We Study Billionaires
+The Knowledge Project
+The Mel Robbins Podcast
+On Purpose
+Feel Better, Live More
+ZOE Science & Nutrition
+The Model Health Show
+Found My Fitness
+Mind Pump
+Barbell Medicine
+Stronger By Science
+Saturday Night Live
+SNL
+The Tonight Show
+The Tonight Show Starring Jimmy Fallon
+Late Show with Stephen Colbert
+The Late Show
+Jimmy Kimmel Live!
+The Daily Show
+Last Week Tonight
+Hot Ones
+Shark Tank
+Dragons' Den
+The Apprentice
+American Idol
+America's Next Top Model
+Big Brother
+The Bachelor
+The Bachelorette
+Love Island
+Love Is Blind
+Too Hot to Handle
+The Ultimatum
+Selling Sunset
+Queer Eye
+MasterChef
+Hell's Kitchen
+The Great British Bake Off
+Great British Bake Off
+Bake Off
+Kitchen Nightmares
+Top Chef
+Physical: 100
+Squid Game: The Challenge
+Running Man
+Infinite Challenge
+2 Days & 1 Night
+I Live Alone
+Knowing Bros
+Produce 101
+Show Me the Money
+Rap Việt|Rap Việt
+Anh Trai Say Hi|Anh Trai Say Hi
+Anh Trai Vượt Ngàn Chông Gai|Anh Trai Vượt Ngàn Chông Gai
+Chị Đẹp Đạp Gió Rẽ Sóng|Chị Đẹp Đạp Gió Rẽ Sóng
+`);
+
+// ============================================================ 2.6.1: anime, manga, K-dramas, films and series
+CST_GLOSSARY_EXTRA_ADD("entertainment", null, `
+One Piece
+Naruto
+Naruto Shippuden
+Boruto
+Dragon Ball
+Dragon Ball Z
+Dragon Ball Super
+Dragon Ball Daima
+Attack on Titan
+Shingeki no Kyojin
+Demon Slayer
+Kimetsu no Yaiba
+Jujutsu Kaisen
+JJK
+Chainsaw Man
+My Hero Academia
+Boku no Hero Academia
+Spy x Family
+Hunter x Hunter
+Fullmetal Alchemist
+Fullmetal Alchemist: Brotherhood
+Death Note
+Tokyo Ghoul
+Tokyo Revengers
+One-Punch Man
+Mob Psycho 100
+Haikyuu!!
+Haikyu
+Slam Dunk anime|anime Slam Dunk
+Kuroko's Basketball
+Blue Lock
+Captain Tsubasa
+Detective Conan
+Case Closed
+Doraemon
+Crayon Shin-chan
+Shin-chan
+Chibi Maruko-chan
+Sailor Moon
+Cardcaptor Sakura
+Pokémon anime|anime Pokémon
+Yu-Gi-Oh!
+Digimon
+Inuyasha
+Rurouni Kenshin
+Cowboy Bebop
+Neon Genesis Evangelion
+Evangelion
+Ghost in the Shell
+Akira
+Gundam
+Mobile Suit Gundam
+Code Geass
+Steins;Gate
+Re:Zero
+Sword Art Online
+SAO
+That Time I Got Reincarnated as a Slime
+Mushoku Tensei
+Solo Leveling
+Frieren
+Frieren: Beyond Journey's End
+Oshi no Ko
+Kaguya-sama: Love Is War
+Your Lie in April
+Toradora!
+Clannad
+Violet Evergarden
+A Silent Voice
+Your Name
+Kimi no Na wa
+Weathering with You
+Suzume
+5 Centimeters per Second
+Spirited Away
+My Neighbor Totoro
+Totoro
+Princess Mononoke
+Howl's Moving Castle
+Kiki's Delivery Service
+Ponyo
+Castle in the Sky
+The Boy and the Heron
+Grave of the Fireflies
+Perfect Blue
+Hayao Miyazaki
+Makoto Shinkai
+Eiichiro Oda
+Akira Toriyama
+Masashi Kishimoto
+Hajime Isayama
+Gege Akutami
+Tatsuki Fujimoto
+Koyoharu Gotouge
+Monkey D. Luffy
+Luffy
+Zoro
+Roronoa Zoro
+Goku
+Vegeta
+Naruto Uzumaki
+Sasuke
+Sasuke Uchiha
+Kakashi
+Itachi
+Gojo
+Satoru Gojo
+Sukuna
+Tanjiro
+Nezuko
+Levi Ackerman
+Eren Yeager
+Mikasa
+Light Yagami
+Saitama
+Anya Forger
+Frieren character|nhân vật Frieren
+Sung Jin-woo
+Crash Landing on You
+Descendants of the Sun
+Guardian: The Lonely and Great God
+Reply 1988
+Itaewon Class
+Vincenzo
+Extraordinary Attorney Woo
+The Glory
+Queen of Tears
+Lovely Runner
+When Life Gives You Tangerines
+Hospital Playlist
+Business Proposal
+Twenty-Five Twenty-One
+Hometown Cha-Cha-Cha
+My Mister
+Mr. Sunshine
+Sky Castle
+All of Us Are Dead
+Sweet Home
+Alchemy of Souls
+Mr. Queen
+True Beauty
+Start-Up
+It's Okay to Not Be Okay
+Boys Over Flowers
+The Heirs
+Strong Woman Do Bong-soon
+Weightlifting Fairy Kim Bok-joo
+Hotel del Luna
+Squid Game
+Squid Game 2
+Squid Game 3
+Oldboy
+Train to Busan
+The Handmaiden
+Decision to Leave
+Past Lives
+Minari
+Exhuma
+Bố già|Bố già
+Hai Phượng|Hai Phượng
+Furie
+Đất rừng phương Nam|Đất rừng phương Nam
+Nhà bà Nữ|Nhà bà Nữ
+The Godfather
+The Godfather Part II
+The Shawshank Redemption
+Pulp Fiction
+Fight Club
+Forrest Gump
+The Matrix
+Inception
+Interstellar
+The Dark Knight
+Oppenheimer
+Barbie
+Barbenheimer
+Dune: Part Two
+Dune: Part One
+Avatar
+Avatar: The Way of Water
+Avatar: Fire and Ash
+Titanic
+Jurassic Park
+Jurassic World
+Star Wars
+The Empire Strikes Back
+The Mandalorian
+Andor
+The Lord of the Rings: The Rings of Power
+The Rings of Power
+House of the Dragon
+Game of Thrones
+GoT
+Breaking Bad
+Better Call Saul
+The Sopranos
+The Wire
+Mad Men
+The Bear
+Ted Lasso
+The White Lotus
+Stranger Things
+Wednesday
+The Crown
+Bridgerton
+Emily in Paris
+Money Heist
+La Casa de Papel
+The Witcher
+~Arcane
+Cyberpunk: Edgerunners
+Black Mirror
+The Last of Us series|loạt phim The Last of Us
+Fallout series|loạt phim Fallout
+Shōgun
+~Shogun
+The Boys
+Peaky Blinders
+Sherlock
+Doctor Who
+Downton Abbey
+The Office
+Seinfeld
+How I Met Your Mother
+The Big Bang Theory
+Brooklyn Nine-Nine
+Parks and Recreation
+Modern Family
+Grey's Anatomy
+Yellowstone
+Abbott Elementary
+Only Murders in the Building
+Baby Reindeer
+The Simpsons
+Family Guy
+South Park
+Rick and Morty
+BoJack Horseman
+Avatar: The Last Airbender
+The Legend of Korra
+Adventure Time
+SpongeBob SquarePants
+SpongeBob
+Bluey
+Peppa Pig
+Paw Patrol
+Cocomelon
+Ms Rachel
+Sesame Street
+Toy Story
+Finding Nemo
+Inside Out
+Inside Out 2
+Ratatouille movie|phim Ratatouille
+Monsters, Inc.
+Frozen II
+Moana
+Moana 2
+Encanto
+Zootopia
+Zootopia 2
+Tangled
+The Lion King
+Aladdin
+Beauty and the Beast
+Mulan
+Shrek
+Kung Fu Panda
+Madagascar movie|phim Madagascar
+How to Train Your Dragon
+Despicable Me
+Minions
+Spider-Man: Into the Spider-Verse
+Spider-Verse
+KPop Demon Hunters
+~Wicked
+Wicked: For Good
+Everything Everywhere All at Once
+La La Land
+The Social Network
+Steve Jobs film|phim Steve Jobs
+The Wolf of Wall Street
+The Big Short
+Moneyball
+The Pursuit of Happyness
+Good Will Hunting
+Dead Poets Society
+The Truman Show
+Eternal Sunshine of the Spotless Mind
+Ex Machina
+Blade Runner
+Blade Runner 2049
+2001: A Space Odyssey
+Back to the Future
+E.T.
+Jaws
+~Rocky
+~Creed
+Top Gun
+Top Gun: Maverick
+Mission: Impossible
+Mission Impossible
+James Bond
+007
+No Time to Die
+Fast & Furious
+Fast and Furious
+John Wick
+The Avengers
+Avengers: Endgame
+Avengers: Infinity War
+Iron Man
+Captain Marvel
+Black Panther
+Thor
+~Hulk
+Black Widow
+Doctor Strange
+Guardians of the Galaxy
+Deadpool
+Deadpool & Wolverine
+~Wolverine
+X-Men
+Fantastic Four
+~Superman
+~Batman
+The Batman
+~Joker
+Wonder Woman
+Aquaman
+The Flash
+Justice League
+MCU
+Marvel Cinematic Universe
+DCU
+DC Comics
+Marvel Comics
+Harry Potter films|loạt phim Harry Potter
+Hogwarts
+Gryffindor
+Slytherin
+Hunger Games
+Mean Girls
+Clueless
+The Devil Wears Prada
+Notting Hill movie|phim Notting Hill
+Love Actually
+Pretty Woman
+Dirty Dancing
+Mamma Mia!
+The Notebook
+Titanic movie|phim Titanic
+Home Alone
+The Grinch
+~Gladiator
+Gladiator II
+Braveheart
+Saving Private Ryan
+Schindler's List
+1917
+Dunkirk
+~Tenet
+~Memento
+Parasite movie|phim Parasite
+Anora
+~Conclave
+The Brutalist
+The Substance
+Sinners
+Nosferatu
+Get Out
+~Hereditary
+Midsommar
+The Conjuring
+Annabelle
+A Quiet Place
+Oscars
+Academy Awards
+Golden Globes
+Golden Globe Awards
+Emmys
+Emmy Awards
+Grammys
+Grammy Awards
+BAFTA
+BAFTAs
+Cannes Film Festival
+Palme d'Or
+Venice Film Festival
+Golden Lion
+Berlinale
+Sundance
+Sundance Film Festival
+Toronto International Film Festival
+TIFF
+SXSW
+Met Gala
+Coachella
+Glastonbury
+Lollapalooza
+Tomorrowland
+Ultra Music Festival
+Burning Man
+Comic-Con
+San Diego Comic-Con
+E3
+Summer Game Fest
+The Game Awards
+Gamescom
+Tokyo Game Show
+BlizzCon
+EVO
+League of Legends World Championship
+MSI
+The International
+VCT
+Valorant Champions
+IEM
+Esports World Cup
+Billboard Hot 100
+Billboard 200
+Spotify charts|bảng xếp hạng Spotify
+MAMA Awards
+Melon Music Awards
+Golden Disc Awards
+Làn Sóng Xanh|Làn Sóng Xanh
+Mai Vàng|Mai Vàng
+`);
+
+// ============================================================ 2.6.1: musicians, groups, albums
+CST_GLOSSARY_EXTRA_ADD("music", null, `
+Taylor Swift
+The Eras Tour
+Eras Tour
+Swifties
+The Tortured Poets Department
+The Life of a Showgirl
+Midnights
+Folklore album|album Folklore
+1989 Taylor's Version
+Beyoncé
+Beyonce
+Cowboy Carter
+Renaissance album|album Renaissance
+Lemonade album|album Lemonade
+BeyHive
+Rihanna
+Fenty
+Drake
+Kendrick Lamar
+Not Like Us
+GNX
+DAMN.
+To Pimp a Butterfly
+Travis Scott
+Utopia album|album Utopia
+Astroworld
+Kanye West
+J. Cole
+Eminem
+Jay-Z
+Nicki Minaj
+Cardi B
+Megan Thee Stallion
+Doja Cat
+SZA
+SOS album|album SOS
+Lizzo
+Post Malone
+The Weeknd
+Blinding Lights
+Bruno Mars
+Lady Gaga
+Mayhem album|album Mayhem
+Ariana Grande
+Eternal Sunshine album|album Eternal Sunshine
+Billie Eilish
+Hit Me Hard and Soft
+Finneas
+Olivia Rodrigo
+GUTS
+Sour album|album Sour
+Sabrina Carpenter
+Espresso song|bài Espresso
+Short n' Sweet
+Chappell Roan
+Charli XCX
+Brat summer
+Dua Lipa
+Radical Optimism
+Harry Styles
+Harry's House
+One Direction
+Ed Sheeran
+Adele
+Sam Smith
+Lewis Capaldi
+Coldplay
+Music of the Spheres
+Imagine Dragons
+Maroon 5
+OneRepublic
+Twenty One Pilots
+Linkin Park
+Green Day
+Foo Fighters
+Red Hot Chili Peppers
+Arctic Monkeys
+The 1975
+Radiohead
+~Oasis
+~Blur
+The Beatles
+Beatles
+The Rolling Stones
+Rolling Stones
+Led Zeppelin
+Pink Floyd
+Queen band|ban nhạc Queen
+Freddie Mercury
+Bohemian Rhapsody
+David Bowie
+Elton John
+Michael Jackson
+Thriller album|album Thriller
+Prince musician|Prince
+Madonna
+Whitney Houston
+Mariah Carey
+All I Want for Christmas Is You
+Celine Dion
+Britney Spears
+Justin Timberlake
+Justin Bieber
+Selena Gomez
+Miley Cyrus
+Flowers song|bài Flowers
+Demi Lovato
+Shawn Mendes
+Camila Cabello
+Charlie Puth
+Halsey
+Lorde
+Lana Del Rey
+Hozier
+Noah Kahan
+Zach Bryan
+Morgan Wallen
+Luke Combs
+Chris Stapleton
+Shaboozey
+Post Malone country|nhạc đồng quê của Post Malone
+Benson Boone
+Teddy Swims
+Tate McRae
+Gracie Abrams
+Reneé Rapp
+Conan Gray
+Laufey
+Clairo
+Phoebe Bridgers
+=boygenius
+Mitski
+Steve Lacy
+Frank Ocean
+Tyler, the Creator
+Childish Gambino
+Daniel Caesar
+Giveon
+Brent Faiyaz
+Bad Bunny
+Karol G
+Shakira
+J Balvin
+Peso Pluma
+Rosalía
+Rosalia
+Daddy Yankee
+Despacito
+Luis Fonsi
+Ozuna
+Anitta
+Burna Boy
+Wizkid
+Tems
+Tyla
+Calvin Harris
+David Guetta
+Martin Garrix
+Avicii
+Tiësto
+Skrillex
+Fred again..
+Fred again
+Kygo
+Zedd
+Marshmello
+Alan Walker
+The Chainsmokers
+Daft Punk
+Swedish House Mafia
+Disclosure duo|bộ đôi Disclosure
+Peggy Gou
+Keinemusik
+Black Coffee
+~Fisher
+John Summit
+Hans Zimmer
+John Williams
+Ludwig Göransson
+Ludovico Einaudi
+Yiruma
+Joe Hisaishi
+Max Richter
+Lang Lang
+Yo-Yo Ma
+Hilary Hahn
+Andrea Bocelli
+Luciano Pavarotti
+Mozart
+Wolfgang Amadeus Mozart
+Beethoven
+Ludwig van Beethoven
+Bach
+Johann Sebastian Bach
+Chopin
+Frédéric Chopin
+Tchaikovsky
+Vivaldi
+Debussy
+Rachmaninoff
+Schubert
+Brahms
+Handel
+Haydn
+Liszt
+Stravinsky
+Philip Glass
+Moonlight Sonata
+Für Elise
+Canon in D
+Four Seasons concerto|bản Bốn mùa
+Swan Lake
+The Nutcracker
+Clair de Lune
+BTS
+Bangtan Boys
+ARMY fandom|fandom ARMY
+RM
+Jin
+Suga
+Agust D
+J-Hope
+Jimin
+V of BTS|V
+Jungkook
+Golden album|album Golden
+Seven song|bài Seven
+~Dynamite
+Butter song|bài Butter
+BLACKPINK
+Blackpink
+Jisoo
+Jennie
+Rosé
+Lisa
+APT.
+APT
+Born Pink
+Pink Venom
+How You Like That
+NewJeans
+NJZ
+Minji
+Hanni
+Danielle
+Haerin
+Hyein
+LE SSERAFIM
+IVE
+Jang Wonyoung
+=aespa
+Karina
+Winter aespa|Winter
+Giselle
+Ningning
+ITZY
+TWICE
+Twice
+Nayeon
+Jihyo
+Tzuyu
+Red Velvet
+~Irene
+Seulgi
+Wendy
+Yeri
+(G)I-DLE
+=i-dle
+STAYC
+Kep1er
+ILLIT
+BABYMONSTER
+KISS OF LIFE
+fromis_9
+Apink
+Girls' Generation
+SNSD
+Taeyeon
+IU
+Lee Ji-eun
+Sunmi
+Hwasa
+MAMAMOO
+Mamamoo
+Chungha
+BIGBANG
+G-Dragon
+Taeyang
+Daesung
+EXO
+Baekhyun
+Kai EXO|Kai
+Chanyeol
+D.O.
+SHINee
+Taemin
+Super Junior
+TVXQ
+2PM
+GOT7
+Jackson Wang
+Mark Tuan
+NCT
+NCT 127
+NCT Dream
+WayV
+Taeyong
+Mark Lee
+Jaehyun
+Haechan
+SEVENTEEN
+Seventeen
+Mingyu
+Hoshi
+Woozi
+Stray Kids
+Bang Chan
+Hyunjin
+Felix
+Changbin
+ENHYPEN
+TXT
+Tomorrow X Together
+ATEEZ
+THE BOYZ
+ZEROBASEONE
+RIIZE
+BOYNEXTDOOR
+TWS
+PSY
+Gangnam Style
+Zico
+Jay Park
+Epik High
+Agust D
+Fujii Kaze
+YOASOBI
+Idol song|bài Idol
+Kenshi Yonezu
+Lemon song|bài Lemon
+King Gnu
+Mrs. GREEN APPLE
+Official Hige Dandism
+Aimer
+LiSA
+Utada Hikaru
+Hikaru Utada
+Radwimps
+RADWIMPS
+Vaundy
+Creepy Nuts
+Bling-Bang-Bang-Born
+Jay Chou
+Châu Kiệt Luân|Châu Kiệt Luân
+Jolin Tsai
+G.E.M.
+JJ Lin
+Mayday band|ban nhạc Mayday
+Faye Wong
+Jackie Chan
+Teresa Teng
+Đặng Lệ Quân|Đặng Lệ Quân
+Sơn Tùng M-TP|Sơn Tùng M-TP
+Son Tung M-TP|Sơn Tùng M-TP
+Sơn Tùng|Sơn Tùng
+Đen Vâu|Đen Vâu
+Den Vau|Đen Vâu
+Hoàng Thùy Linh|Hoàng Thùy Linh
+Mỹ Tâm|Mỹ Tâm
+My Tam|Mỹ Tâm
+Hà Anh Tuấn|Hà Anh Tuấn
+Noo Phước Thịnh|Noo Phước Thịnh
+Đông Nhi|Đông Nhi
+Tóc Tiên|Tóc Tiên
+Hòa Minzy|Hòa Minzy
+Hoa Minzy|Hòa Minzy
+Bắc Bling|Bắc Bling
+Bac Bling|Bắc Bling
+Erik
+AMEE
+MONO
+HIEUTHUHAI
+Hieuthuhai
+Negav
+Wren Evans
+Low G
+MCK
+=tlinh
+Grey D
+Phương Ly|Phương Ly
+Bích Phương|Bích Phương
+Vũ.
+Vũ Cát Tường|Vũ Cát Tường
+Trịnh Công Sơn|Trịnh Công Sơn
+Trinh Cong Son|Trịnh Công Sơn
+Khánh Ly|Khánh Ly
+Phương Thanh|Phương Thanh
+Mỹ Linh|Mỹ Linh
+Hồng Nhung|Hồng Nhung
+Thanh Lam|Thanh Lam
+Tùng Dương|Tùng Dương
+Lệ Quyên|Lệ Quyên
+Đàm Vĩnh Hưng|Đàm Vĩnh Hưng
+Mr. Đàm|Mr. Đàm
+K-ICM
+Binz
+Karik
+Suboi
+Rhymastic
+JustaTee
+Soobin
+Soobin Hoàng Sơn|Soobin Hoàng Sơn
+Isaac
+Đức Phúc|Đức Phúc
+Anh Tú|Anh Tú
+Vstra
+`);
+
+// ============================================================ 2.6.1: drugs, supplements and their brands
+CST_GLOSSARY_EXTRA_ADD("medicine", null, `
+=semaglutide
+=tirzepatide
+=liraglutide
+=dulaglutide
+=retatrutide
+=orforglipron
+=cagrilintide
+=CagriSema
+Ozempic
+Wegovy
+Rybelsus
+Mounjaro
+Zepbound
+Saxenda
+Trulicity
+Victoza
+=metformin
+=berberine
+=acarbose
+=empagliflozin
+=dapagliflozin
+=canagliflozin
+Jardiance
+Farxiga
+Januvia
+=sitagliptin
+=glipizide
+=insulin glargine
+Lantus
+Humalog
+Novolog
+=atorvastatin
+=rosuvastatin
+=simvastatin
+=pravastatin
+=ezetimibe
+=bempedoic acid
+Lipitor
+Crestor
+Zetia
+Repatha
+=evolocumab
+=alirocumab
+=inclisiran
+Leqvio
+=lisinopril
+=losartan
+=amlodipine
+=valsartan
+=hydrochlorothiazide
+=metoprolol
+=atenolol
+=propranolol
+=carvedilol
+=spironolactone
+=furosemide
+=clopidogrel
+=warfarin
+=apixaban
+=rivaroxaban
+Eliquis
+Xarelto
+Plavix
+=nitroglycerin
+=digoxin
+=sertraline
+=fluoxetine
+=escitalopram
+=citalopram
+=paroxetine
+=venlafaxine
+=duloxetine
+=bupropion
+=mirtazapine
+=trazodone
+=vortioxetine
+=lamotrigine
+=quetiapine
+=aripiprazole
+=olanzapine
+=risperidone
+=clozapine
+=alprazolam
+=lorazepam
+=clonazepam
+=diazepam
+=zolpidem
+=eszopiclone
+Ambien
+Seroquel
+Abilify
+Lamictal
+Klonopin
+Valium
+Ativan
+=methylphenidate
+=amphetamine
+=lisdexamfetamine
+=atomoxetine
+=guanfacine
+=modafinil
+=armodafinil
+Provigil
+Concerta
+Strattera
+=naltrexone
+=buprenorphine
+=methadone
+Suboxone
+=gabapentin
+=pregabalin
+Lyrica
+=tramadol
+=oxycodone
+=hydrocodone
+=morphine
+OxyContin
+Vicodin
+Percocet
+=prednisone
+=prednisolone
+=dexamethasone
+=hydrocortisone
+=cortisone
+=methotrexate
+=hydroxychloroquine
+=adalimumab
+Humira
+=etanercept
+Enbrel
+=infliximab
+=dupilumab
+Dupixent
+=omalizumab
+=pembrolizumab
+Keytruda
+=nivolumab
+Opdivo
+=trastuzumab
+Herceptin
+=tamoxifen
+=letrozole
+=anastrozole
+=lecanemab
+=donanemab
+Leqembi
+Kisunla
+=aducanumab
+=levodopa
+=carbidopa
+=amoxicillin
+=amoxicillin-clavulanate
+Augmentin
+=azithromycin
+Z-Pak
+=doxycycline
+=minocycline
+=ciprofloxacin
+=levofloxacin
+=cephalexin
+=penicillin
+=clindamycin
+=metronidazole
+=nitrofurantoin
+=vancomycin
+=oseltamivir
+Tamiflu
+Paxlovid
+=nirmatrelvir
+=remdesivir
+=acyclovir
+=valacyclovir
+Valtrex
+=fluconazole
+=terbinafine
+=ivermectin
+=albendazole
+=mebendazole
+=loratadine
+=cetirizine
+=fexofenadine
+=diphenhydramine
+=levocetirizine
+=desloratadine
+Claritin
+Zyrtec
+Allegra
+Benadryl
+Xyzal
+=pseudoephedrine
+=phenylephrine
+=dextromethorphan
+=guaifenesin
+Sudafed
+Mucinex
+NyQuil
+DayQuil
+Robitussin
+Vicks VapoRub
+=omeprazole
+=esomeprazole
+=pantoprazole
+=lansoprazole
+=famotidine
+Nexium
+Prilosec
+Pepcid
+Tums
+Gaviscon
+Pepto-Bismol
+Imodium
+=loperamide
+Dulcolax
+=bisacodyl
+MiraLAX
+Metamucil
+=psyllium husk
+=simethicone
+Gas-X
+=ondansetron
+Zofran
+=sumatriptan
+Imitrex
+=rizatriptan
+Nurtec
+=rimegepant
+Ubrelvy
+=topiramate
+Topamax
+=levothyroxine
+Synthroid
+=liothyronine
+=methimazole
+=finasteride
+Propecia
+=dutasteride
+=minoxidil
+Rogaine
+=spironolactone for hair|spironolactone trị rụng tóc
+=sildenafil
+=tadalafil
+Viagra
+Cialis
+=tretinoin
+Retin-A
+=isotretinoin
+Accutane
+=clindamycin gel
+=azelaic acid gel
+=hydroquinone
+=tranexamic acid tablets
+=ketoconazole
+=benzoyl peroxide wash
+=adapalene gel
+=clascoterone
+=estradiol
+=progesterone cream
+=levonorgestrel
+=norethindrone
+Mirena
+Nexplanon
+Yaz
+=medroxyprogesterone
+Depo-Provera
+=clomiphene
+Clomid
+=letrozole for fertility|letrozole hỗ trợ sinh sản
+=hCG
+=anastrozole for TRT|anastrozole khi dùng TRT
+=enclomiphene
+=testosterone cypionate
+=testosterone enanthate
+=oxandrolone
+=nandrolone
+=trenbolone
+=SARMs
+=ostarine
+=MK-677
+=ibutamoren
+=BPC-157
+=TB-500
+=GHK-Cu
+=CJC-1295
+=ipamorelin
+=sermorelin
+=tesamorelin
+=AOD-9604
+=semax
+=selank
+=epitalon
+=thymosin alpha-1
+=NAD+ injections
+=NMN
+=nicotinamide riboside
+=resveratrol
+=pterostilbene
+=rapamycin
+=sirolimus
+=spermidine
+=fisetin
+=quercetin
+=urolithin A
+=Mitopure
+=CoQ10
+=coenzyme Q10
+=ubiquinol
+=PQQ
+=alpha-lipoic acid
+=NAC
+=N-acetylcysteine
+=glutathione
+=liposomal glutathione
+=glycine
+=taurine
+=L-theanine
+=L-tyrosine
+=L-carnitine
+=acetyl-L-carnitine
+=L-citrulline
+=citrulline malate
+=L-arginine
+=L-glutamine
+=glutamine
+=beta-alanine
+=betaine
+=HMB
+=BCAAs
+=EAAs
+=creatine monohydrate
+=creatine HCl
+=whey protein
+=whey isolate
+=casein protein
+=pea protein
+=collagen peptides
+=hydrolyzed collagen
+=bone broth protein
+=magnesium glycinate
+=magnesium threonate
+=magnesium L-threonate
+=magnesium citrate
+=magnesium oxide
+=magnesium malate
+=magnesium bisglycinate
+=zinc picolinate
+=zinc gluconate
+=selenium
+=iodine
+=iron bisglycinate
+=ferrous sulfate
+=calcium carbonate
+=calcium citrate
+=potassium citrate
+=vitamin D3
+=vitamin K2
+=MK-7
+=vitamin B12
+=methylcobalamin
+=cyanocobalamin
+=folate
+=methylfolate
+=folic acid
+=vitamin B6
+=P5P
+=biotin
+=niacin
+=niacinamide supplement|thực phẩm bổ sung niacinamide
+=thiamine
+=riboflavin
+=vitamin C
+=vitamin E
+=vitamin A
+=beta-carotene
+=lutein
+=zeaxanthin
+=astaxanthin
+=omega-3
+=omega-3 fatty acids
+=fish oil
+=krill oil
+=algae oil
+=DHA
+=cod liver oil
+=evening primrose oil
+=black seed oil
+=MCT oil
+=C8 MCT
+=ketone esters
+=exogenous ketones
+=electrolyte powder
+=LMNT
+LMNT
+=Liquid I.V.
+Liquid I.V.
+Pedialyte
+=Prime Hydration
+Prime Hydration
+=ashwagandha
+=KSM-66
+=Sensoril
+=rhodiola
+=Rhodiola rosea
+=ginseng
+=Panax ginseng
+=Korean red ginseng
+=maca root
+=tongkat ali
+=Tongkat Ali
+=fadogia agrestis
+=Fadogia
+=shilajit
+=lion's mane
+=Lion's Mane
+=cordyceps
+=reishi
+=chaga
+=turkey tail mushroom
+=mushroom coffee
+=Ryze
+Ryze
+=Four Sigmatic
+Four Sigmatic
+=MUD\WTR
+=apigenin
+=chamomile extract
+=valerian root
+=passionflower
+=lemon balm
+=magnolia bark
+=kava
+=CBD
+=CBD oil
+=THC
+=delta-8
+=melatonin 0.3 mg|melatonin 0,3 mg
+=5-HTP
+=St. John's wort
+=saffron extract
+=curcumin
+=turmeric curcumin
+=piperine
+=BioPerine
+=boswellia
+=ginger extract
+=garlic extract
+=aged garlic extract
+=berberine HCl
+=inositol
+=myo-inositol
+=chromium picolinate
+=cinnamon extract
+=psyllium
+=inulin
+=prebiotic fiber
+=probiotics
+=probiotic
+=lactobacillus
+=Bifidobacterium
+=Saccharomyces boulardii
+=Akkermansia
+=Seed DS-01
+Seed Health
+=Culturelle
+Culturelle
+=Align probiotic
+=digestive enzymes
+=betaine HCl
+=apple cider vinegar gummies
+=green powder
+=greens powder
+=AG1
+AG1
+Athletic Greens
+=Bloom Nutrition
+Bloom Nutrition
+=Huel
+Huel
+=Soylent
+Soylent
+=Ka'Chava
+=Momentous
+Momentous
+=Thorne
+Thorne
+=Pure Encapsulations
+Pure Encapsulations
+=Nordic Naturals
+Nordic Naturals
+=Life Extension
+Life Extension
+=NOW Foods
+NOW Foods
+=Nature Made
+Nature Made
+=Centrum
+Centrum
+=Optimum Nutrition
+Optimum Nutrition
+=Gold Standard Whey
+Gold Standard Whey
+=Transparent Labs
+Transparent Labs
+=Legion Athletics
+Legion Athletics
+=Ghost Lifestyle
+=C4 Energy
+C4 Energy
+=Celsius drink|nước tăng lực Celsius
+=Alani Nu
+Alani Nu
+=Premier Protein
+Premier Protein
+=Fairlife
+Fairlife
+=Quest Nutrition
+Quest Nutrition
+=Quest bars
+=RXBAR
+RXBAR
+=Clif Bar
+Clif Bar
+=KIND bar
+KIND bars
+=Barebells
+Barebells
+=David Protein
+David Protein
+=Magic Spoon
+Magic Spoon
+=Ritual vitamins
+=Care/of
+=Function of Beauty
+=Nutrafol
+Nutrafol
+=Viviscal
+Viviscal
+=Vital Proteins
+Vital Proteins
+=Sports Research
+Sports Research
+=Garden of Life
+Garden of Life
+=Kirkland Signature
+Kirkland Signature
+=Blackmores
+Blackmores
+=Swisse
+Swisse
+=DHC supplements|thực phẩm bổ sung DHC
+=Orihiro
+Orihiro
+`);
+
+// ============================================================ 2.6.1: restaurant chains, food and drink brands
+CST_GLOSSARY_EXTRA_ADD("food", null, `
+McDonald's
+Big Mac
+McFlurry
+Happy Meal
+Quarter Pounder
+Chicken McNuggets
+McNuggets
+Burger King
+~Whopper
+Wendy's
+~Frosty
+Baconator
+KFC
+Kentucky Fried Chicken
+Popeyes
+Chick-fil-A
+Raising Cane's
+Wingstop
+Buffalo Wild Wings
+Taco Bell
+Crunchwrap Supreme
+Chipotle
+Chipotle Mexican Grill
+Qdoba
+Subway
+Jimmy John's
+Jersey Mike's
+Panera Bread
+Panera
+Five Guys
+In-N-Out
+In-N-Out Burger
+Animal Style
+Shake Shack
+ShackBurger
+Smashburger
+Culver's
+Whataburger
+Sonic Drive-In
+Arby's
+Jack in the Box
+Carl's Jr.
+Hardee's
+White Castle
+Dairy Queen
+Blizzard dessert|kem Blizzard
+Domino's
+Domino's Pizza
+Pizza Hut
+Papa John's
+Little Caesars
+Sbarro
+Olive Garden
+Applebee's
+Chili's
+TGI Fridays
+Texas Roadhouse
+Outback Steakhouse
+Red Lobster
+The Cheesecake Factory
+Cheesecake Factory
+P.F. Chang's
+Panda Express
+Orange Chicken
+IHOP
+Denny's
+Waffle House
+Cracker Barrel
+Benihana
+Nando's
+Pret A Manger
+Pret
+Greggs
+Wagamama
+Itsu
+Dishoom
+Hawksmoor
+Starbucks
+Starbucks Reserve
+Pumpkin Spice Latte
+PSL
+Frappuccino
+Caramel Macchiato
+Dunkin'
+Dunkin' Donuts
+Tim Hortons
+Krispy Kreme
+Costa Coffee
+Peet's Coffee
+Blue Bottle Coffee
+Blue Bottle
+~Intelligentsia
+Stumptown
+La Colombe
+Philz Coffee
+Dutch Bros
+Black Rifle Coffee
+% Arabica
+Arabica coffee shop|quán % Arabica
+Tim Ho Wan
+Din Tai Fung
+Haidilao
+Ichiran
+Ippudo
+Ichiran Ramen
+CoCo Ichibanya
+Yoshinoya
+Sukiya
+Matsuya
+Mos Burger
+Lotteria
+Jollibee
+Chickenjoy
+Gong Cha
+Tiger Sugar
+The Alley
+Koi Thé
+KOI Thé
+Chatime
+Ding Tea
+Phúc Long Coffee & Tea|Phúc Long
+Trung Nguyên|Trung Nguyên
+Kichi-Kichi
+Gogi House
+Manwah
+Pizza 4P's
+Pizza 4Ps
+Paris Baguette
+Tous les Jours
+Sweetgreen
+Chopt
+Just Salad
+Tender Greens
+Erewhon
+Erewhon smoothie|sinh tố Erewhon
+Hailey Bieber smoothie|sinh tố Hailey Bieber
+Joe & the Juice
+Jamba
+Jamba Juice
+Smoothie King
+Tropical Smoothie Cafe
+Crumbl
+Crumbl Cookies
+Levain Bakery
+Levain
+Magnolia Bakery
+Dominique Ansel
+Cronut
+Ladurée
+Pierre Hermé
+Ferrero Rocher
+Nutella
+Kinder
+Kinder Bueno
+Kit Kat
+KitKat
+Snickers
+M&M's
+Twix
+Reese's
+Reese's Peanut Butter Cups
+Hershey's Kisses
+Oreo
+Oreos
+Chips Ahoy!
+Pringles
+Doritos
+Cheetos
+Lay's
+Takis
+Ruffles
+Goldfish crackers|bánh Goldfish
+Cheez-It
+Ritz crackers|bánh Ritz
+Pop-Tarts
+Lucky Charms
+Froot Loops
+Cheerios
+Frosted Flakes
+Cinnamon Toast Crunch
+Kellogg's Corn Flakes
+Special K
+Quaker Oats
+Nature Valley
+Kind Snacks
+~Skittles
+Starburst
+Haribo
+Sour Patch Kids
+Trolli
+Twizzlers
+Jolly Rancher
+Ben & Jerry's
+Häagen-Dazs
+Haagen-Dazs
+Baskin-Robbins
+Cold Stone Creamery
+Halo Top
+Magnum ice cream|kem Magnum
+Coca-Cola
+Coke Zero
+Diet Coke
+Pepsi
+Pepsi Max
+Sprite
+Fanta
+7 Up
+Dr Pepper
+Mountain Dew
+Red Bull
+Monster Energy
+Prime drink|nước Prime
+Gatorade
+Powerade
+BodyArmor
+Vitaminwater
+Liquid Death
+Olipop
+Poppi
+~Spindrift
+LaCroix
+Perrier
+San Pellegrino
+S.Pellegrino
+Evian
+Fiji Water
+Voss
+Smartwater
+Topo Chico
+~Essentia
+Aquafina
+Dasani
+La Vie
+Lavie
+Tropicana
+Minute Maid
+Simply Orange
+Ocean Spray
+Arizona Iced Tea
+Snapple
+Lipton
+Twinings
+Tazo
+Teavana
+Yorkshire Tea
+PG Tips
+Ito En
+Oi Ocha
+Pocari Sweat
+Yakult
+Calpis
+~Milo
+Ovaltine
+Nescafé
+Nescafe
+Nespresso
+Folgers
+Maxwell House
+Lavazza
+Illy
+Kirkland coffee|cà phê Kirkland
+G7 coffee|cà phê G7
+Vinacafé|Vinacafé
+Heineken
+Budweiser
+Bud Light
+~Corona
+Modelo
+Stella Artois
+Guinness
+Carlsberg
+Tiger beer|bia Tiger
+Tiger Beer
+Asahi
+Sapporo beer|bia Sapporo
+Kirin
+Suntory
+Hite
+~Cass
+Tsingtao
+Singha
+Chang beer|bia Chang
+San Miguel
+Saigon Beer|bia Sài Gòn
+Bia Saigon|bia Sài Gòn
+Hanoi Beer|bia Hà Nội
+333 beer|bia 333
+Larue
+Huda beer|bia Huda
+White Claw
+Jack Daniel's
+Jim Beam
+Maker's Mark
+Johnnie Walker
+Chivas Regal
+Glenfiddich
+Macallan
+The Macallan
+Hennessy
+Rémy Martin
+Moët & Chandon
+Moët
+Dom Pérignon
+Veuve Clicquot
+Krug
+Cristal
+Grey Goose
+Absolut
+Smirnoff
+Bacardi
+Captain Morgan
+Patrón
+Don Julio
+Casamigos
+Jose Cuervo
+Bombay Sapphire
+Tanqueray
+Hendrick's
+Baileys
+Kahlúa
+Aperol
+Campari
+Jägermeister
+Yamazaki
+Hibiki
+Nikka
+Soju Chamisul|soju Chamisul
+Jinro
+Chum Churum
+Lotte Choco Pie|bánh Choco Pie
+Choco Pie
+Orion Choco Pie
+~Pocky
+Hello Panda
+Koala's March
+Calbee
+Meiji
+Glico
+Morinaga
+Nissin
+Cup Noodles
+Cup Noodle
+Maruchan
+Shin Ramyun
+Buldak
+Samyang
+Samyang Buldak
+Indomie
+Mama noodles|mì Mama
+Hảo Hảo|Hảo Hảo
+Acecook
+Omachi
+Kokomi
+Masan Consumer
+Chin-su|Chin-su
+CHIN-SU
+Nam Ngư|Nam Ngư
+Kikkoman
+Lee Kum Kee
+Maggi
+Knorr
+Heinz
+Heinz ketchup|tương cà Heinz
+Hellmann's
+~Kewpie
+Kewpie mayo|sốt mayonnaise Kewpie
+Sriracha Huy Fong|Sriracha Huy Fong
+Huy Fong Foods
+Tabasco
+Frank's RedHot
+Cholula
+Lao Gan Ma
+Old Bay
+Hidden Valley Ranch
+Kraft Mac & Cheese
+Kraft Singles
+Philadelphia cream cheese|phô mai kem Philadelphia
+Laughing Cow
+La Vache qui rit
+Babybel
+Président
+Kerrygold
+Lurpak
+Anchor butter|bơ Anchor
+Elle & Vire
+TH true MILK|TH true MILK
+Dutch Lady
+Cô Gái Hà Lan|Cô Gái Hà Lan
+Nutifood
+Abbott Grow
+Similac
+Enfamil
+Aptamil
+Meiji formula|sữa Meiji
+Morinaga formula|sữa Morinaga
+Gerber
+Beyond Meat
+Impossible Foods
+Impossible Burger
+Oatly
+Alpro
+Silk soy milk|sữa đậu nành Silk
+Chobani
+~Fage
+Siggi's
+Activia
+Danone Activia
+Daisy cottage cheese|phô mai Daisy
+Good Culture
+Kirkland rotisserie chicken|gà quay Kirkland
+Costco hot dog|xúc xích Costco
+Trader Joe's Everything but the Bagel
+Everything but the Bagel
+Dave's Killer Bread
+Ezekiel bread|bánh mì Ezekiel
+Wonder Bread
+Sara Lee
+King's Hawaiian
+Thomas' English Muffins
+Bisquick
+Betty Crocker
+Pillsbury
+Duncan Hines
+Ghirardelli
+Lindt
+Godiva
+Toblerone
+Cadbury
+Milka
+Ritter Sport
+Tony's Chocolonely
+Hu Kitchen
+Hu chocolate|sô cô la Hu
+Marou
+Marou Chocolate
+`);
+
+// ============================================================ 2.6.1: markets, indices, funds, money jargon
+CST_GLOSSARY_EXTRA_ADD("personalfinance", null, `
+S&P 500
+S&P
+Nasdaq
+NASDAQ
+Nasdaq-100
+Nasdaq 100
+Dow Jones
+Dow Jones Industrial Average
+the Dow
+Russell 2000
+Wilshire 5000
+FTSE 100
+DAX
+CAC 40
+Nikkei 225
+Nikkei
+Hang Seng
+Shanghai Composite
+KOSPI
+Sensex
+Nifty 50
+ASX 200
+VN-Index
+VN30
+HNX-Index
+UPCoM
+HOSE
+MSCI World
+MSCI Emerging Markets
+MSCI
+FTSE All-World
+VTI
+VOO
+VT
+VXUS
+SPY
+QQQ
+QQQM
+SCHD
+VYM
+JEPI
+JEPQ
+BND
+BNDX
+VGT
+ARKK
+ARK Invest
+Cathie Wood
+IWM
+DIA
+GLD
+SLV
+TLT
+VIX
+FTSE Global All Cap
+Vanguard Total Stock Market
+Vanguard 500
+Fidelity ZERO
+Total World Stock Index Fund
+=index fund|quỹ chỉ số
+=index funds|quỹ chỉ số
+=ETF
+=ETFs
+=exchange-traded fund|quỹ hoán đổi danh mục
+=mutual fund|quỹ tương hỗ
+=mutual funds|quỹ tương hỗ
+=hedge fund|quỹ phòng hộ
+=hedge funds|quỹ phòng hộ
+=private equity|quỹ đầu tư tư nhân
+=venture capital|đầu tư mạo hiểm
+=VC
+=angel investor|nhà đầu tư thiên thần
+=REIT
+=REITs
+=Treasury bonds|trái phiếu Kho bạc
+=Treasuries|trái phiếu Kho bạc Mỹ
+=T-bills|tín phiếu Kho bạc
+=I bonds
+=TIPS
+=municipal bonds|trái phiếu đô thị
+=corporate bonds|trái phiếu doanh nghiệp
+=junk bonds|trái phiếu rác
+=10-year Treasury|trái phiếu Kho bạc 10 năm
+=yield curve|đường cong lợi suất
+=inverted yield curve|đường cong lợi suất đảo ngược
+=bond yields|lợi suất trái phiếu
+=dividend|cổ tức
+=dividends|cổ tức
+=dividend yield|tỷ suất cổ tức
+=dividend investing|đầu tư cổ tức
+=DRIP
+=stock split|chia tách cổ phiếu
+=buyback|mua lại cổ phiếu
+=stock buyback|mua lại cổ phiếu
+=market cap|vốn hóa thị trường
+=market capitalization|vốn hóa thị trường
+=large-cap|vốn hóa lớn
+=mid-cap|vốn hóa vừa
+=small-cap|vốn hóa nhỏ
+=blue-chip stocks|cổ phiếu blue-chip
+=blue chip|blue-chip
+=growth stocks|cổ phiếu tăng trưởng
+=value stocks|cổ phiếu giá trị
+=penny stocks|cổ phiếu penny
+=meme stocks|cổ phiếu meme
+=Magnificent Seven
+=Mag 7
+=FAANG stocks|nhóm cổ phiếu FAANG
+=P/E ratio|chỉ số P/E
+=price-to-earnings ratio|chỉ số giá trên thu nhập
+=EPS
+=earnings per share|lợi nhuận trên mỗi cổ phiếu
+=earnings call|cuộc họp công bố kết quả kinh doanh
+=earnings season|mùa báo cáo kết quả kinh doanh
+=quarterly earnings|kết quả kinh doanh quý
+=guidance cut|hạ dự báo
+=IPO
+=initial public offering|phát hành lần đầu ra công chúng
+=SPAC
+=direct listing|niêm yết trực tiếp
+=ticker symbol|mã cổ phiếu
+=ticker|mã cổ phiếu
+=bull market|thị trường tăng giá
+=bear market|thị trường giá xuống
+=bull run|đợt tăng giá
+=market correction|điều chỉnh thị trường
+=market crash|thị trường sụp đổ
+=stock market crash|thị trường chứng khoán sụp đổ
+=recession|suy thoái
+=soft landing|hạ cánh mềm
+=hard landing|hạ cánh cứng
+=stagflation|lạm phát đình trệ
+=volatility|biến động
+=all-time high|mức cao nhất mọi thời đại
+=ATH
+=sell-off|bán tháo
+=panic selling|bán tháo hoảng loạn
+=buy the dip|mua khi giá giảm
+=dollar-cost averaging|bình quân giá
+=DCA
+=lump sum investing|đầu tư một lần
+=time in the market|thời gian ở lại thị trường
+=timing the market|canh thời điểm thị trường
+=compound interest|lãi kép
+=compounding|lãi kép
+=rule of 72|quy tắc 72
+=4% rule|quy tắc 4%
+=safe withdrawal rate|tỷ lệ rút an toàn
+=FIRE movement|phong trào FIRE
+=Lean FIRE
+=Fat FIRE
+=Coast FIRE
+=Barista FIRE
+=financial independence|độc lập tài chính
+=early retirement|nghỉ hưu sớm
+=passive income|thu nhập thụ động
+=side hustle|việc làm thêm
+=emergency fund|quỹ khẩn cấp
+=sinking fund|quỹ dự phòng chi tiêu
+=net worth|giá trị tài sản ròng
+=high-yield savings account|tài khoản tiết kiệm lãi suất cao
+=HYSA
+=certificate of deposit|chứng chỉ tiền gửi
+=money market fund|quỹ thị trường tiền tệ
+=money market account|tài khoản thị trường tiền tệ
+=checking account|tài khoản thanh toán
+=savings account|tài khoản tiết kiệm
+=brokerage account|tài khoản môi giới
+=Roth IRA
+=traditional IRA|IRA truyền thống
+=IRA
+=401(k)
+=401k
+=Roth 401(k)
+=403(b)
+=HSA
+=health savings account|tài khoản tiết kiệm y tế
+=FSA
+=529 plan|quỹ giáo dục 529
+=employer match|phần đóng góp đối ứng của công ty
+=vesting|quyền sở hữu dần
+=vesting schedule|lịch nhận quyền sở hữu
+=RSUs
+=RSU
+=stock options|quyền chọn cổ phiếu
+=ESPP
+=capital gains|lãi vốn
+=capital gains tax|thuế lãi vốn
+=long-term capital gains|lãi vốn dài hạn
+=short-term capital gains|lãi vốn ngắn hạn
+=tax-loss harvesting|bù trừ lỗ để giảm thuế
+=tax bracket|khung thuế
+=marginal tax rate|thuế suất cận biên
+=effective tax rate|thuế suất thực tế
+=standard deduction|khoản khấu trừ tiêu chuẩn
+=itemized deductions|khấu trừ theo từng khoản
+=tax refund|hoàn thuế
+=W-2
+=1099
+=W-4
+=IRS
+=HMRC
+=ISA
+=Stocks and Shares ISA
+=Lifetime ISA
+=LISA
+=SIPP
+=pension|lương hưu
+=state pension|lương hưu nhà nước
+=Social Security|An sinh xã hội
+=Medicare
+=Medicaid
+=annuity|niên kim
+=annuities|niên kim
+=life insurance|bảo hiểm nhân thọ
+=term life insurance|bảo hiểm nhân thọ có kỳ hạn
+=whole life insurance|bảo hiểm nhân thọ trọn đời
+=disability insurance|bảo hiểm thương tật
+=health insurance|bảo hiểm y tế
+=deductible|mức khấu trừ
+=copay|đồng chi trả
+=out-of-pocket maximum|mức tự chi trả tối đa
+=credit score|điểm tín dụng
+=FICO score|điểm FICO
+=FICO
+=credit report|báo cáo tín dụng
+=credit utilization|tỷ lệ sử dụng tín dụng
+=credit card debt|nợ thẻ tín dụng
+=minimum payment|khoản thanh toán tối thiểu
+=APR
+=APY
+=interest rate|lãi suất
+=fixed rate|lãi suất cố định
+=variable rate|lãi suất thả nổi
+=mortgage|khoản vay mua nhà
+=mortgage rate|lãi suất vay mua nhà
+=30-year fixed mortgage|khoản vay mua nhà lãi cố định 30 năm
+=down payment|khoản trả trước
+=closing costs|chi phí hoàn tất giao dịch
+=refinance|tái cấp vốn
+=refinancing|tái cấp vốn
+=home equity|giá trị ròng căn nhà
+=HELOC
+=PMI
+=property tax|thuế tài sản
+=HOA fees|phí ban quản lý
+=student loans|khoản vay sinh viên
+=student debt|nợ sinh viên
+=car loan|khoản vay mua xe
+=auto loan|khoản vay mua xe
+=personal loan|khoản vay cá nhân
+=payday loan|vay ngắn hạn lãi cao
+=debt snowball|phương pháp trả nợ quả cầu tuyết
+=debt avalanche|phương pháp trả nợ tuyết lở
+=debt consolidation|hợp nhất nợ
+=bankruptcy|phá sản
+=Chapter 11
+=Chapter 7
+=50/30/20 rule|quy tắc 50/30/20
+=zero-based budget|ngân sách từ số không
+=envelope method|phương pháp phong bì
+=cash stuffing|chia tiền mặt vào phong bì
+=no-spend challenge|thử thách không chi tiêu
+=lifestyle inflation|lạm phát lối sống
+=lifestyle creep|lạm phát lối sống
+=frugal living|sống tằn tiện
+=frugality|sự tằn tiện
+=cost of living|chi phí sinh hoạt
+=inflation rate|tỷ lệ lạm phát
+=CPI
+=consumer price index|chỉ số giá tiêu dùng
+=core inflation|lạm phát lõi
+=PCE
+=Fed
+=the Federal Reserve|Cục Dự trữ Liên bang
+=Federal Reserve|Cục Dự trữ Liên bang
+=FOMC
+=Jerome Powell
+=Powell
+=rate cut|cắt giảm lãi suất
+=rate hike|tăng lãi suất
+=interest rate cut|cắt giảm lãi suất
+=quantitative easing|nới lỏng định lượng
+=QE
+=quantitative tightening|thắt chặt định lượng
+=QT
+=ECB
+=Bank of England
+=Bank of Japan
+=BOJ
+=PBOC
+=State Bank of Vietnam|Ngân hàng Nhà nước Việt Nam
+=SBV
+=IMF
+=World Bank|Ngân hàng Thế giới
+=WTO
+=OECD
+=G7
+=G20
+=BRICS
+=tariff|thuế quan
+=tariffs|thuế quan
+=trade war|chiến tranh thương mại
+=trade deficit|thâm hụt thương mại
+=trade surplus|thặng dư thương mại
+=GDP
+=GDP growth|tăng trưởng GDP
+=GNP
+=unemployment rate|tỷ lệ thất nghiệp
+=jobs report|báo cáo việc làm
+=nonfarm payrolls|bảng lương phi nông nghiệp
+=national debt|nợ công
+=debt ceiling|trần nợ
+=government shutdown|chính phủ đóng cửa
+=budget deficit|thâm hụt ngân sách
+=stimulus check|séc kích thích kinh tế
+=universal basic income|thu nhập cơ bản phổ quát
+=UBI
+=minimum wage|lương tối thiểu
+=living wage|mức lương đủ sống
+=gig economy|kinh tế việc làm tự do
+=creator economy|kinh tế nhà sáng tạo
+=attention economy|kinh tế chú ý
+=sharing economy|kinh tế chia sẻ
+=supply chain|chuỗi cung ứng
+=supply and demand|cung và cầu
+=sunk cost|chi phí chìm
+=sunk cost fallacy|ngụy biện chi phí chìm
+=diminishing returns|lợi suất giảm dần
+=economies of scale|lợi thế kinh tế nhờ quy mô
+=Warren Buffett
+=Charlie Munger
+=Benjamin Graham
+=Peter Lynch
+=John Bogle
+=Jack Bogle
+=Bogleheads
+=Howard Marks
+=Michael Burry
+=Bill Ackman
+=Stanley Druckenmiller
+=George Soros
+=Carl Icahn
+=Jim Simons
+=Ken Griffin
+=Larry Fink
+=Jamie Dimon
+=Mr. Market
+=Oracle of Omaha
+`);
+
+// ============================================================ 2.6.1: actors, directors, public figures
+CST_GLOSSARY_EXTRA_ADD("people", null, `
+Leonardo DiCaprio
+Brad Pitt
+Tom Cruise
+Tom Hanks
+Tom Holland
+Tom Hardy
+Tom Hiddleston
+Robert Downey Jr.
+Chris Evans
+Chris Hemsworth
+Chris Pratt
+Scarlett Johansson
+Margot Robbie
+Ryan Gosling
+Ryan Reynolds
+Cillian Murphy
+Florence Pugh
+Zendaya
+Timothée Chalamet
+Timothee Chalamet
+Austin Butler
+Anya Taylor-Joy
+Sydney Sweeney
+Jacob Elordi
+Glen Powell
+Pedro Pascal
+Paul Mescal
+Barry Keoghan
+Jenna Ortega
+Emma Stone
+Emma Watson
+Jennifer Lawrence
+Jennifer Aniston
+Jennifer Lopez
+J.Lo
+Angelina Jolie
+Natalie Portman
+Anne Hathaway
+Meryl Streep
+Nicole Kidman
+Cate Blanchett
+Charlize Theron
+Sandra Bullock
+Julia Roberts
+Reese Witherspoon
+Viola Davis
+Lupita Nyong'o
+Michelle Yeoh
+Ke Huy Quan
+Awkwafina
+Simu Liu
+Hong Chau
+Ali Wong
+Steven Yeun
+Daniel Kaluuya
+Denzel Washington
+Will Smith
+Samuel L. Jackson
+Morgan Freeman
+Keanu Reeves
+Johnny Depp
+Matt Damon
+Ben Affleck
+Mark Wahlberg
+Christian Bale
+Hugh Jackman
+Jake Gyllenhaal
+Joaquin Phoenix
+Adam Driver
+Oscar Isaac
+Idris Elba
+Benedict Cumberbatch
+Eddie Redmayne
+Daniel Craig
+Daniel Radcliffe
+Rupert Grint
+Henry Cavill
+Jason Momoa
+Dwayne Johnson
+The Rock
+Vin Diesel
+Jason Statham
+Jackie Chan
+Jet Li
+Donnie Yen
+Tony Leung
+Andy Lau
+Stephen Chow
+Chow Yun-fat
+Gong Li
+Zhang Ziyi
+Fan Bingbing
+Lee Min-ho
+Song Joong-ki
+Hyun Bin
+Son Ye-jin
+Park Seo-joon
+Kim Soo-hyun
+Gong Yoo
+Lee Jung-jae
+Ma Dong-seok
+Don Lee
+Song Kang-ho
+Bae Suzy
+Jun Ji-hyun
+Han So-hee
+Kim Go-eun
+Park Bo-gum
+Cha Eun-woo
+Ahn Hyo-seop
+Byeon Woo-seok
+Kim Ji-won
+Hiroyuki Sanada
+Ken Watanabe
+Rinko Kikuchi
+Takeshi Kitano
+Christopher Nolan
+Steven Spielberg
+Martin Scorsese
+Quentin Tarantino
+James Cameron
+Denis Villeneuve
+Greta Gerwig
+Wes Anderson
+David Fincher
+Ridley Scott
+Peter Jackson
+Guillermo del Toro
+Alfonso Cuarón
+Alejandro González Iñárritu
+Bong Joon-ho
+Park Chan-wook
+Ang Lee
+Wong Kar-wai
+Zhang Yimou
+Hirokazu Kore-eda
+Taika Waititi
+Jordan Peele
+Ari Aster
+Damien Chazelle
+Sofia Coppola
+Francis Ford Coppola
+Stanley Kubrick
+Alfred Hitchcock
+Akira Kurosawa
+George Lucas
+Tim Burton
+Sam Raimi
+Zack Snyder
+James Gunn
+Kevin Feige
+Michael Bay
+Guy Ritchie
+Edgar Wright
+Ryan Coogler
+Chloé Zhao
+Daniel Kwan
+Daniel Scheinert
+Charlie Chaplin
+Marilyn Monroe
+Audrey Hepburn
+James Dean
+Bruce Lee
+Brandon Lee
+Robin Williams
+Heath Ledger
+Paul Walker
+Matthew Perry
+Jennifer Coolidge
+Jim Carrey
+Adam Sandler
+Kevin Hart
+Dave Chappelle
+Chris Rock
+Ricky Gervais
+John Mulaney
+Jerry Seinfeld
+Trevor Noah
+Hasan Minhaj
+Ronny Chieng
+Jimmy Fallon
+Jimmy Kimmel
+Stephen Colbert
+John Oliver
+Conan O'Brien
+David Letterman
+Seth Meyers
+Ellen DeGeneres
+Oprah Winfrey
+Oprah
+Martha Stewart
+Kim Kardashian
+Kylie Jenner
+Kendall Jenner
+Khloé Kardashian
+Kourtney Kardashian
+Kris Jenner
+Paris Hilton
+Hailey Bieber
+Gigi Hadid
+Bella Hadid
+Kate Moss
+Naomi Campbell
+Tyra Banks
+Heidi Klum
+Gisele Bündchen
+Cara Delevingne
+Emily Ratajkowski
+Barack Obama
+Michelle Obama
+Joe Biden
+Kamala Harris
+Donald Trump
+Trump
+JD Vance
+J.D. Vance
+Mike Pence
+Hillary Clinton
+Bill Clinton
+George W. Bush
+George H.W. Bush
+Ronald Reagan
+John F. Kennedy
+JFK
+Abraham Lincoln
+George Washington
+Thomas Jefferson
+Benjamin Franklin
+Franklin D. Roosevelt
+FDR
+Theodore Roosevelt
+Martin Luther King Jr.
+MLK
+Rosa Parks
+Malcolm X
+Nelson Mandela
+Mahatma Gandhi
+Gandhi
+Mother Teresa
+Pope Francis
+Pope Leo XIV
+Dalai Lama
+Thich Nhat Hanh|Thích Nhất Hạnh
+Elon Musk
+Mark Zuckerberg
+Jeff Bezos
+Bill Gates
+Melinda French Gates
+Steve Jobs
+Tim Cook
+Sundar Pichai
+Satya Nadella
+Sam Altman
+Greg Brockman
+Ilya Sutskever
+Mira Murati
+Dario Amodei
+Daniela Amodei
+Demis Hassabis
+Mustafa Suleyman
+Geoffrey Hinton
+Yann LeCun
+Yoshua Bengio
+Fei-Fei Li
+Andrew Ng
+Andrej Karpathy
+Jensen Huang
+Lisa Su
+Masayoshi Son
+Jack Ma
+Pony Ma
+Lei Jun
+Ren Zhengfei
+Zhang Yiming
+Shou Zi Chew
+Larry Page
+Sergey Brin
+Eric Schmidt
+Larry Ellison
+Michael Dell
+Marc Andreessen
+Reid Hoffman
+Peter Thiel
+Brian Chesky
+Travis Kalanick
+Jack Dorsey
+Evan Spiegel
+Daniel Ek
+Reed Hastings
+Ted Sarandos
+Bob Iger
+Richard Branson
+Phạm Nhật Vượng|Phạm Nhật Vượng
+Pham Nhat Vuong|Phạm Nhật Vượng
+Nguyễn Thị Phương Thảo|Nguyễn Thị Phương Thảo
+Trương Gia Bình|Trương Gia Bình
+Warren Buffett
+Charlie Munger
+Ray Dalio
+Mark Cuban
+Kevin O'Leary
+Mr. Wonderful
+Daymond John
+Barbara Corcoran
+Lori Greiner
+Robert Herjavec
+Sara Blakely
+Whitney Wolfe Herd
+Emily Weiss
+Huda Kattan
+Jeffree Star
+James Charles
+NikkieTutorials
+Nikkie de Jager
+Hyram
+Hyram Yarbro
+Dr. Dray
+Dr. Shereene Idriss
+Dr. Andrea Suarez
+Dr Dray
+Abby Baffoe
+Mikayla Nogueira
+Alix Earle
+Brooke Monk
+Charli D'Amelio
+Dixie D'Amelio
+Addison Rae
+Bella Poarch
+Khaby Lame
+Zach King
+Mr. Beast
+Ryan Trahan
+Airrack
+Danny Duncan
+David Dobrik
+Emma Chamberlain
+Safiya Nygaard
+Tyler Oakley
+Casey Neistat
+Peter McKinnon
+Sara Dietschy
+Kelsey Kotzur
+Jenn Im
+Liza Koshy
+Lilly Singh
+Michelle Phan
+Tati Westbrook
+Jackie Aina
+Patrick Starrr
+Manny MUA
+Bretman Rock
+Matt Rife
+`);
+
+// ============================================================ 2.6.1: training, exercises and gym jargon
+CST_GLOSSARY_EXTRA_ADD("health", null, `
+=back squat|squat tạ sau
+=front squat|squat tạ trước
+=goblet squat|squat cầm tạ trước ngực
+=box squat
+=split squat
+=Bulgarian split squat|squat chân sau gác ghế
+=pistol squat|squat một chân
+=hack squat
+=Smith machine|máy Smith
+=Smith machine squat
+=belt squat
+=sumo squat
+=jump squat|squat bật nhảy
+=wall sit|ngồi dựa tường
+=deadlift
+=conventional deadlift
+=sumo deadlift
+=Romanian deadlift|deadlift kiểu Romania
+=RDL
+=stiff-leg deadlift|deadlift chân thẳng
+=trap bar deadlift|deadlift thanh lục giác
+=single-leg RDL|RDL một chân
+=good morning exercise|bài good morning
+=hip thrust|đẩy hông
+=hip thrusts|đẩy hông
+=glute bridge|cầu mông
+=glute bridges|cầu mông
+=glute kickback|đá mông
+=leg press|đạp đùi
+=leg extension|duỗi đùi
+=leg curl|cuốn đùi sau
+=hamstring curl|cuốn đùi sau
+=Nordic curl|cuốn đùi Nordic
+=Nordic hamstring curl
+=calf raise|nhón bắp chân
+=calf raises|nhón bắp chân
+=step-ups|bước lên bục
+=walking lunges|chùng chân bước đi
+=reverse lunges|chùng chân lùi
+=lunges|chùng chân
+=lunge|chùng chân
+=bench press|đẩy ngực
+=incline bench press|đẩy ngực dốc lên
+=decline bench press|đẩy ngực dốc xuống
+=dumbbell press|đẩy tạ đơn
+=dumbbell bench press|đẩy ngực tạ đơn
+=chest press|đẩy ngực máy
+=chest fly|ép ngực
+=cable fly|ép ngực cáp
+=pec deck|máy ép ngực
+=push-up|chống đẩy
+=push-ups|chống đẩy
+=pushups|chống đẩy
+=diamond push-ups|chống đẩy kim cương
+=overhead press|đẩy vai
+=OHP
+=military press|đẩy vai đứng
+=shoulder press|đẩy vai
+=Arnold press|đẩy vai Arnold
+=lateral raise|nâng tạ ngang
+=lateral raises|nâng tạ ngang
+=front raise|nâng tạ trước
+=rear delt fly|bay vai sau
+=face pull|kéo cáp về mặt
+=face pulls|kéo cáp về mặt
+=upright row|kéo tạ dọc thân
+=pull-up|hít xà
+=pull-ups|hít xà
+=pullups|hít xà
+=chin-up|hít xà tay ngửa
+=chin-ups|hít xà tay ngửa
+=lat pulldown|kéo xô
+=lat pulldowns|kéo xô
+=barbell row|chèo tạ đòn
+=bent-over row|chèo tạ cúi người
+=dumbbell row|chèo tạ đơn
+=seated cable row|chèo cáp ngồi
+=T-bar row|chèo thanh chữ T
+=Pendlay row
+=inverted row|kéo người ngang
+=bicep curl|cuốn tạ tay trước
+=bicep curls|cuốn tạ tay trước
+=hammer curl|cuốn tạ kiểu búa
+=preacher curl|cuốn tạ ghế dốc
+=tricep extension|duỗi tay sau
+=tricep pushdown|đẩy cáp tay sau
+=skull crusher|duỗi tay sau nằm
+=skull crushers|duỗi tay sau nằm
+=close-grip bench press|đẩy ngực tay hẹp
+=farmer's carry|xách tạ đi bộ
+=farmer's walk|xách tạ đi bộ
+=suitcase carry|xách tạ một bên
+=kettlebell swing|vung tạ ấm
+=kettlebell swings|vung tạ ấm
+=Turkish get-up
+=clean and jerk
+=power clean
+=hang clean
+=thruster
+=thrusters
+=wall ball
+=wall balls
+=box jump|nhảy bục
+=box jumps|nhảy bục
+=burpee
+=burpees
+=mountain climbers|leo núi tại chỗ
+=jumping jacks|nhảy dang tay chân
+=high knees|chạy nâng cao gối
+=jump rope|nhảy dây
+=double unders
+=battle ropes|thừng chiến đấu
+=sled push|đẩy xe trượt
+=sled pull|kéo xe trượt
+=rowing machine|máy chèo thuyền
+=rower
+=Concept2
+=ski erg
+=SkiErg
+=assault bike
+=Echo bike
+=air bike
+=elliptical|máy tập elip
+=stair climber|máy leo cầu thang
+=StairMaster
+=treadmill|máy chạy bộ
+=incline walking|đi bộ dốc
+=12-3-30
+=12-3-30 workout|bài tập 12-3-30
+=walking pad|máy đi bộ
+=rucking|đi bộ đeo tạ
+=side plank|plank nghiêng
+=dead bug|bài dead bug
+=bird dog|bài bird dog
+=hollow hold
+=hollow body hold
+=Pallof press
+=ab wheel|con lăn bụng
+=ab rollout|lăn bụng
+=crunches|gập bụng
+=sit-ups|gập bụng
+=Russian twist|xoay người kiểu Nga
+=Russian twists|xoay người kiểu Nga
+=leg raises|nâng chân
+=hanging leg raise|treo xà nâng chân
+=hanging knee raise|treo xà nâng gối
+=L-sit
+=muscle-up
+=muscle-ups
+=handstand|trồng cây chuối
+=handstand push-up
+=front lever
+=back lever
+=planche
+=human flag
+=calisthenics
+=street workout
+=mobility work|bài tập linh hoạt khớp
+=foam rolling|lăn bọt xốp
+=foam roller|con lăn bọt xốp
+=dynamic stretching|giãn cơ động
+=static stretching|giãn cơ tĩnh
+=hip flexor stretch|giãn cơ gập hông
+=couch stretch
+=world's greatest stretch
+=90/90 stretch
+=pigeon pose|tư thế chim bồ câu
+=downward dog|tư thế chó úp mặt
+=child's pose|tư thế em bé
+=cat-cow|tư thế mèo bò
+=sun salutation|chào mặt trời
+=vinyasa
+=hatha yoga
+=yin yoga
+=hot yoga
+=Bikram yoga
+=power yoga
+=restorative yoga
+=yoga nidra
+=Pilates
+=reformer Pilates
+=mat Pilates
+=wall Pilates
+=barre
+=spin class
+=SoulCycle
+=Orangetheory
+=F45
+=Barry's
+=Barry's Bootcamp
+=boxing class|lớp boxing
+=kickboxing
+=Muay Thai
+=BJJ
+=Brazilian jiu-jitsu
+=jiu-jitsu
+=MMA
+=wrestling|đấu vật
+=judo
+=karate
+=taekwondo
+=krav maga
+=fencing class|lớp đấu kiếm
+=powerlifting|cử tạ sức mạnh
+=bodybuilding|thể hình
+=weightlifting|cử tạ
+=Olympic lifting|cử tạ Olympic
+=CrossFit
+=WOD
+=AMRAP
+=EMOM
+=Tabata
+=HIIT
+=LISS
+=zone 2|vùng 2
+=Zone 2 cardio|cardio vùng 2
+=zone 2 training|tập vùng 2
+=zone 5
+=VO2 max intervals|bài interval VO2 max
+=Norwegian 4x4|bài 4x4 kiểu Na Uy
+=4x4 intervals|bài interval 4x4
+=interval training|tập ngắt quãng
+=steady state cardio|cardio cường độ đều
+=fartlek
+=tempo run|chạy tempo
+=long run day|buổi chạy dài
+=easy run|chạy nhẹ
+=recovery run|chạy phục hồi
+=hill repeats|chạy lặp dốc
+=negative split|chạy tăng tốc nửa sau
+=cadence|nhịp bước
+=heart rate zones|vùng nhịp tim
+=max heart rate|nhịp tim tối đa
+=lactate threshold|ngưỡng lactate
+=threshold run|chạy ngưỡng
+=personal record|kỷ lục cá nhân
+=personal best|thành tích tốt nhất
+=1RM
+=one-rep max|mức tạ tối đa một lần
+=rep max
+=RPE
+=RIR
+=reps in reserve|số lần còn dư sức
+=time under tension|thời gian chịu căng
+=TUT
+=tempo training
+=concentric|pha co cơ ngắn
+=isometric|đẳng trường
+=isometrics|bài tập đẳng trường
+=mind-muscle connection|kết nối thần kinh cơ
+=progressive overload|tăng tải dần
+=hypertrophy|phì đại cơ
+=muscle hypertrophy|phì đại cơ
+=strength training|tập sức mạnh
+=resistance training|tập kháng lực
+=weight training|tập tạ
+=compound lifts|bài tập đa khớp
+=compound exercises|bài tập đa khớp
+=isolation exercises|bài tập đơn khớp
+=accessory work|bài tập phụ trợ
+=push pull legs|đẩy kéo chân
+=PPL
+=upper lower split|chia buổi thân trên thân dưới
+=full-body workout|bài tập toàn thân
+=bro split
+=training split|lịch chia buổi tập
+=deload|tuần giảm tải
+=deload week|tuần giảm tải
+=periodization|phân kỳ huấn luyện
+=mesocycle
+=microcycle
+=macrocycle
+=training frequency|tần suất tập
+=training to failure|tập đến kiệt sức
+=failure training
+=drop set
+=drop sets
+=superset|siêu hiệp
+=supersets|siêu hiệp
+=giant set
+=rest-pause
+=myo-reps
+=pyramid sets
+=straight sets
+=warm-up sets|hiệp khởi động
+=working sets|hiệp chính
+=junk volume|khối lượng thừa
+=muscle soreness|đau mỏi cơ
+=DOMS
+=delayed onset muscle soreness|đau mỏi cơ khởi phát muộn
+=muscle protein synthesis|tổng hợp protein cơ
+=MPS
+=anabolic window|cửa sổ đồng hóa
+=protein timing|thời điểm nạp protein
+=leucine threshold|ngưỡng leucine
+=body recomposition|tái cấu trúc cơ thể
+=recomp
+=bulking|tăng cân tăng cơ
+=lean bulk
+=dirty bulk
+=mini cut
+=maintenance calories|calo duy trì
+=caloric deficit|thâm hụt calo
+=calorie deficit|thâm hụt calo
+=calorie surplus|thặng dư calo
+=reverse diet
+=refeed day
+=diet break
+=macros|các chất đa lượng
+=counting macros|đếm macro
+=IIFYM
+=intermittent fasting|nhịn ăn gián đoạn
+=16:8
+=OMAD
+=time-restricted eating|ăn giới hạn thời gian
+=water fasting|nhịn ăn chỉ uống nước
+=extended fasting|nhịn ăn kéo dài
+=fasted cardio|cardio lúc đói
+=keto diet|chế độ ăn keto
+=ketogenic diet|chế độ ăn ketogenic
+=ketosis|trạng thái ketosis
+=carnivore diet|chế độ ăn toàn thịt
+=paleo diet|chế độ ăn paleo
+=Mediterranean diet|chế độ ăn Địa Trung Hải
+=DASH diet|chế độ ăn DASH
+=MIND diet|chế độ ăn MIND
+=plant-based diet|chế độ ăn thực vật
+=whole food plant-based|ăn thực vật nguyên chất
+=vegan diet|chế độ ăn thuần chay
+=low-carb diet|chế độ ăn ít tinh bột
+=high-protein diet|chế độ ăn giàu đạm
+=ultra-processed food|thực phẩm siêu chế biến
+=ultra-processed foods|thực phẩm siêu chế biến
+=UPFs
+=seed oils|dầu hạt
+=added sugar|đường bổ sung
+=soluble fiber|chất xơ hòa tan
+=insoluble fiber|chất xơ không hòa tan
+=resistant starch|tinh bột kháng
+=protein intake|lượng protein nạp vào
+=grams of protein|gam protein
+=complete protein|protein hoàn chỉnh
+=micronutrients|vi chất dinh dưỡng
+=macronutrients|chất dinh dưỡng đa lượng
+=gym bro
+=gym rat
+=gymtok
+=GymTok
+=FitTok
+=fitspo
+=gym crush
+=gym anxiety|nỗi sợ phòng gym
+=gymtimidation
+=PR day
+=leg day|ngày tập chân
+=chest day|ngày tập ngực
+=back day|ngày tập lưng
+=arm day|ngày tập tay
+=rest day|ngày nghỉ
+=active recovery|phục hồi chủ động
+=cold plunge|ngâm nước lạnh
+=ice bath|tắm nước đá
+=contrast therapy|liệu pháp nóng lạnh
+=sauna|xông hơi
+=infrared sauna|xông hơi hồng ngoại
+=deliberate cold exposure|tiếp xúc lạnh chủ động
+=Wim Hof
+=Wim Hof Method
+=box breathing|thở hộp
+=physiological sigh|tiếng thở dài sinh lý
+=nasal breathing|thở bằng mũi
+=mouth taping|dán miệng khi ngủ
+=grounding practice|đi chân trần tiếp đất
+=earthing
+=sunlight exposure|tiếp xúc ánh nắng
+=step count|số bước chân
+=10,000 steps|10.000 bước
+=10k steps|10.000 bước
+=NEAT movement|vận động ngoài giờ tập
+=desk job|công việc ngồi bàn
+=sedentary|ít vận động
+=posture|tư thế
+=anterior pelvic tilt|nghiêng khung chậu trước
+=forward head posture|tư thế đầu nhô ra trước
+=tech neck|cổ rùa do điện thoại
+=lower back pain|đau lưng dưới
+=knee pain|đau gối
+=shoulder impingement|hội chứng chèn ép vai
+=rotator cuff|chóp xoay vai
+=tennis elbow|viêm điểm bám gân khuỷu
+=plantar fasciitis|viêm cân gan chân
+=shin splints|đau ống quyển
+=IT band|dải chậu chày
+=ACL tear|đứt dây chằng chéo trước
+=ACL
+=MCL
+=meniscus tear|rách sụn chêm
+=herniated disc|thoát vị đĩa đệm
+=sciatica|đau thần kinh tọa
+=scoliosis|vẹo cột sống
+=tendonitis|viêm gân
+=tendinopathy|bệnh lý gân
+=muscle strain|căng cơ
+=sprained ankle|bong gân cổ chân
+=physical therapy|vật lý trị liệu
+=prehab
+=rehab
+=sports massage|massage thể thao
+=massage gun|súng massage
+=percussion massage|massage rung
+=compression boots|ủng nén
+=Normatec
+=Hyperice
+=Therabody
+`);
+
+// ============================================================ 2.6.1: psychology, relationships, internet culture
+CST_GLOSSARY_EXTRA_ADD("psychology", null, `
+=attachment style|kiểu gắn bó
+=attachment styles|các kiểu gắn bó
+=anxious attachment|gắn bó lo âu
+=avoidant attachment|gắn bó né tránh
+=secure attachment|gắn bó an toàn
+=disorganized attachment|gắn bó hỗn loạn
+=fearful avoidant|né tránh sợ hãi
+=dismissive avoidant|né tránh xa cách
+=attachment theory|thuyết gắn bó
+=love languages|ngôn ngữ tình yêu
+=five love languages|năm ngôn ngữ tình yêu
+=words of affirmation|lời khẳng định yêu thương
+=quality time|thời gian chất lượng
+=acts of service|hành động quan tâm
+=physical touch|tiếp xúc cơ thể
+=receiving gifts|nhận quà
+=emotional intelligence|trí tuệ cảm xúc
+=EQ
+=IQ
+=emotional regulation|điều tiết cảm xúc
+=emotional dysregulation|rối loạn điều tiết cảm xúc
+=emotional labor|lao động cảm xúc
+=emotional availability|sẵn sàng về cảm xúc
+=emotionally unavailable|không sẵn sàng về cảm xúc
+=emotional baggage|gánh nặng cảm xúc
+=emotional abuse|bạo hành tinh thần
+=emotional neglect|bỏ bê cảm xúc
+=childhood trauma|sang chấn thời thơ ấu
+=inner child|đứa trẻ bên trong
+=inner child healing|chữa lành đứa trẻ bên trong
+=reparenting|nuôi dạy lại bản thân
+=generational trauma|sang chấn thế hệ
+=intergenerational trauma|sang chấn liên thế hệ
+=trauma bond|gắn kết sang chấn
+=trauma bonding|gắn kết sang chấn
+=trauma response|phản ứng sang chấn
+=trauma dumping|xả sang chấn
+=fawn response|phản ứng xu nịnh
+=people pleaser|người chiều lòng người khác
+=people-pleasing|chiều lòng người khác
+=codependency|đồng phụ thuộc
+=codependent|đồng phụ thuộc
+=boundaries|ranh giới
+=healthy boundaries|ranh giới lành mạnh
+=setting boundaries|đặt ranh giới
+=gaslighting|thao túng tâm lý
+=gaslight|thao túng tâm lý
+=love bombing|dội bom tình yêu
+=breadcrumbing|thả thính nhỏ giọt
+=ghosting|biến mất không lời
+=ghosted|bị bỏ rơi không lời
+=situationship|mối quan hệ không danh phận
+=talking stage|giai đoạn tìm hiểu
+=red flag|dấu hiệu đáng lo ngại
+=red flags|dấu hiệu đáng lo ngại
+=green flag|dấu hiệu tích cực
+=green flags|dấu hiệu tích cực
+=beige flag|dấu hiệu kỳ quặc vô hại
+=ick|cảm giác mất thiện cảm
+=the ick|cảm giác mất thiện cảm
+=narcissist|người ái kỷ
+=narcissism|chứng ái kỷ
+=narcissistic|ái kỷ
+=covert narcissist|người ái kỷ ngầm
+=narcissistic abuse|bạo hành từ người ái kỷ
+=sociopath|người rối loạn nhân cách chống đối xã hội
+=psychopath|kẻ thái nhân cách
+=dark triad|bộ ba đen tối
+=Machiavellianism|chủ nghĩa Machiavelli
+=manipulation|thao túng
+=emotional manipulation|thao túng cảm xúc
+=stonewalling|im lặng chống đối
+=silent treatment|chiến tranh lạnh
+=the Four Horsemen|Bốn kỵ sĩ
+=Gottman Method|phương pháp Gottman
+=John Gottman
+=Esther Perel
+=Brené Brown
+=shame resilience|khả năng phục hồi sau xấu hổ
+=self-compassion|lòng trắc ẩn với bản thân
+=self-esteem|lòng tự trọng
+=self-worth|giá trị bản thân
+=self-love|yêu bản thân
+=self-care|chăm sóc bản thân
+=self-awareness|tự nhận thức
+=self-sabotage|tự phá hoại
+=self-talk|độc thoại nội tâm
+=negative self-talk|độc thoại tiêu cực
+=inner critic|tiếng nói chỉ trích bên trong
+=imposter syndrome|hội chứng kẻ mạo danh
+=impostor syndrome|hội chứng kẻ mạo danh
+=perfectionism|chủ nghĩa hoàn hảo
+=perfectionist|người cầu toàn
+=procrastination|sự trì hoãn
+=overthinking|suy nghĩ quá mức
+=rumination|nghĩ ngợi lặp đi lặp lại
+=catastrophizing|bi thảm hóa
+=black-and-white thinking|tư duy trắng đen
+=all-or-nothing thinking|tư duy được ăn cả ngã về không
+=cognitive distortions|méo mó nhận thức
+=cognitive distortion|méo mó nhận thức
+=cognitive dissonance|bất hòa nhận thức
+=confirmation bias|thiên kiến xác nhận
+=negativity bias|thiên kiến tiêu cực
+=survivorship bias|thiên kiến kẻ sống sót
+=Dunning-Kruger effect|hiệu ứng Dunning-Kruger
+=Dunning-Kruger
+=anchoring bias|thiên kiến mỏ neo
+=availability heuristic|thiên kiến sẵn có
+=hindsight bias|thiên kiến nhận thức muộn
+=loss aversion|ngại mất mát
+=status quo bias|thiên kiến hiện trạng
+=bystander effect|hiệu ứng người ngoài cuộc
+=spotlight effect|hiệu ứng ánh đèn sân khấu
+=halo effect|hiệu ứng hào quang
+=Barnum effect|hiệu ứng Barnum
+=Zeigarnik effect|hiệu ứng Zeigarnik
+=Pygmalion effect|hiệu ứng Pygmalion
+=Baader-Meinhof phenomenon|hiện tượng Baader-Meinhof
+=frequency illusion|ảo giác tần suất
+=mere exposure effect|hiệu ứng tiếp xúc đơn thuần
+=hedonic treadmill|vòng xoay khoái lạc
+=hedonic adaptation|thích nghi khoái lạc
+=paradox of choice|nghịch lý của sự lựa chọn
+=decision fatigue|mệt mỏi khi ra quyết định
+=analysis paralysis|tê liệt vì phân tích
+=choice overload|quá tải lựa chọn
+=FOMO
+=JOMO
+=fear of missing out|nỗi sợ bỏ lỡ
+=doomscrolling|lướt tin tiêu cực
+=doom scrolling|lướt tin tiêu cực
+=revenge bedtime procrastination|trì hoãn giờ ngủ để trả thù
+=brain rot|thối não
+=dopamine detox|cai dopamine
+=dopamine fasting|nhịn dopamine
+=dopamine hit|cú hích dopamine
+=cheap dopamine|dopamine rẻ tiền
+=instant gratification|thỏa mãn tức thời
+=delayed gratification|trì hoãn sự thỏa mãn
+=marshmallow test|thí nghiệm kẹo dẻo
+=willpower|ý chí
+=self-discipline|kỷ luật bản thân
+=habit stacking|xếp chồng thói quen
+=habit loop|vòng lặp thói quen
+=cue routine reward|tín hiệu hành vi phần thưởng
+=identity-based habits|thói quen dựa trên bản sắc
+=2-minute rule|quy tắc 2 phút
+=two-minute rule|quy tắc hai phút
+=1% better|tốt hơn 1%
+=growth mindset|tư duy phát triển
+=fixed mindset|tư duy cố định
+=abundance mindset|tư duy đủ đầy
+=scarcity mindset|tư duy khan hiếm
+=victim mentality|tâm lý nạn nhân
+=locus of control|điểm tựa kiểm soát
+=learned helplessness|sự bất lực tập nhiễm
+=resilience|khả năng phục hồi
+=post-traumatic growth|phát triển sau sang chấn
+=flow state|trạng thái dòng chảy
+=deep focus|tập trung sâu
+=attention span|khả năng tập trung
+=attention residue|dư âm chú ý
+=context switching|chuyển đổi ngữ cảnh
+=multitasking|làm nhiều việc cùng lúc
+=monotasking|làm một việc một lúc
+=Parkinson's law|định luật Parkinson
+=Pareto principle|nguyên lý Pareto
+=80/20 rule|quy tắc 80/20
+=Eisenhower matrix|ma trận Eisenhower
+=time blocking|chia khối thời gian
+=timeboxing|đóng khung thời gian
+=Pomodoro method|phương pháp Pomodoro
+=eat the frog|ăn con ếch
+=Getting Things Done
+=GTD
+=second brain|bộ não thứ hai
+=Building a Second Brain
+=PARA method|phương pháp PARA
+=Zettelkasten
+=journaling|viết nhật ký
+=gratitude journal|nhật ký biết ơn
+=morning pages|trang viết buổi sáng
+=bullet journal|sổ bullet journal
+=bujo
+=shadow work|làm việc với phần bóng tối
+=manifesting|hiện thực hóa mong muốn
+=law of attraction|luật hấp dẫn
+=affirmations|lời khẳng định tích cực
+=vision board|bảng tầm nhìn
+=mindfulness|chánh niệm
+=meditation|thiền
+=mindfulness meditation|thiền chánh niệm
+=loving-kindness meditation|thiền từ bi
+=body scan|quét cơ thể
+=nervous system regulation|điều hòa hệ thần kinh
+=dysregulated|mất điều hòa
+=window of tolerance|cửa sổ chịu đựng
+=polyvagal theory|thuyết đa phế vị
+=somatic therapy|liệu pháp cơ thể
+=somatic experiencing|trải nghiệm cơ thể
+=IFS
+=internal family systems|liệu pháp các hệ thống gia đình nội tâm
+=ACT therapy|liệu pháp chấp nhận và cam kết
+=acceptance and commitment therapy|liệu pháp chấp nhận và cam kết
+=person-centered therapy|liệu pháp lấy thân chủ làm trung tâm
+=psychoanalysis|phân tâm học
+=psychodynamic therapy|liệu pháp tâm động học
+=couples therapy|trị liệu cặp đôi
+=family therapy|trị liệu gia đình
+=group therapy|trị liệu nhóm
+=life coach|huấn luyện viên cuộc sống
+=life coaching|huấn luyện cuộc sống
+=therapy speak|ngôn ngữ trị liệu
+=toxic positivity|tích cực độc hại
+=toxic relationship|mối quan hệ độc hại
+=toxic people|người độc hại
+=toxic masculinity|nam tính độc hại
+=main character energy|năng lượng nhân vật chính
+=main character syndrome|hội chứng nhân vật chính
+=delulu
+=delulu is the solulu
+=rizz
+=unspoken rizz
+=sigma male
+=alpha male
+=beta male
+=looksmaxxing
+=mewing
+=glow up|lột xác
+=glow-up|lột xác
+=soft life|cuộc sống nhẹ nhàng
+=hot girl walk
+=that girl aesthetic|phong cách that girl
+=it girl
+=pick me girl
+=girl dinner
+=girl math
+=boy math
+=quiet quitting|nghỉ việc trong im lặng
+=quiet firing|sa thải trong im lặng
+=bare minimum Monday
+=lazy girl job
+=bed rotting
+=rage applying
+=loud budgeting
+=coffee badging
+=hustle culture|văn hóa cày cuốc
+=grind culture|văn hóa cày cuốc
+=rise and grind
+=burnout culture|văn hóa kiệt sức
+=work-life balance|cân bằng công việc và cuộc sống
+=work-life integration|hòa hợp công việc và cuộc sống
+=Sunday scaries|nỗi lo chiều Chủ nhật
+=Monday blues
+=touch grass
+=chronically online
+=terminally online
+=parasocial relationship|mối quan hệ một chiều
+=parasocial|một chiều
+=NPC
+=canon event
+=aura points
+=goated
+=GOAT
+=cheugy
+=no cap
+=bussin
+=sus
+=vibe check
+=it's giving
+=understood the assignment
+=caught in 4K
+=touch some grass
+=skibidi
+=Ohio meme
+=gyatt
+=fanum tax
+=brainrot
+`);
+
+// ============================================================ 2.6.1: breeds, pet brands, houseplants
+CST_GLOSSARY_EXTRA_ADD("pets", null, `
+Golden Retriever|chó Golden Retriever
+Labrador Retriever|chó Labrador
+Labrador|chó Labrador
+German Shepherd|chó chăn cừu Đức
+French Bulldog|chó Bulldog Pháp
+Frenchie
+English Bulldog|chó Bulldog Anh
+Poodle|chó Poodle
+Toy Poodle|chó Poodle Toy
+Miniature Poodle
+Standard Poodle
+Goldendoodle
+Labradoodle
+Bernedoodle
+Cavapoo
+Cockapoo
+Maltipoo
+Beagle|chó Beagle
+Dachshund|chó Dachshund
+Corgi|chó Corgi
+Pembroke Welsh Corgi
+Shiba Inu|chó Shiba Inu
+Akita
+Husky|chó Husky
+Siberian Husky|chó Husky Siberia
+Alaskan Malamute
+Samoyed
+Pomeranian|chó Phốc sóc
+Chihuahua
+Shih Tzu
+Maltese dog|chó Maltese
+Yorkshire Terrier
+Yorkie
+Boston Terrier
+Border Collie
+Australian Shepherd
+Aussie Shepherd
+Rottweiler
+Doberman
+Doberman Pinscher
+Great Dane
+Bernese Mountain Dog
+Saint Bernard
+Cane Corso
+Pit Bull
+Pitbull
+American Bully
+Staffordshire Bull Terrier
+Bull Terrier
+Jack Russell Terrier
+Cavalier King Charles Spaniel
+Cocker Spaniel
+Springer Spaniel
+Weimaraner
+Vizsla
+~Greyhound
+~Whippet
+Italian Greyhound
+~Basenji
+Bichon Frise
+Havanese
+~Schnauzer
+Miniature Schnauzer
+Chow Chow
+Shar Pei
+Phu Quoc Ridgeback|chó Phú Quốc
+Phú Quốc dog|chó Phú Quốc
+Hmong dog|chó H'Mông cộc đuôi
+Maine Coon|mèo Maine Coon
+Ragdoll|mèo Ragdoll
+British Shorthair|mèo Anh lông ngắn
+British Longhair|mèo Anh lông dài
+Scottish Fold|mèo tai cụp Scotland
+Persian cat|mèo Ba Tư
+Siamese cat|mèo Xiêm
+Bengal cat|mèo Bengal
+Sphynx|mèo Sphynx
+Sphynx cat|mèo Sphynx
+Russian Blue|mèo Nga xanh
+Munchkin cat|mèo Munchkin
+Abyssinian
+Norwegian Forest Cat|mèo rừng Na Uy
+Exotic Shorthair|mèo Exotic
+Devon Rex
+Birman
+American Shorthair|mèo Mỹ lông ngắn
+tabby cat|mèo mướp
+orange cat|mèo cam
+tuxedo cat|mèo mun trắng
+calico cat|mèo tam thể
+Royal Canin
+Hill's Science Diet
+Purina
+Purina Pro Plan
+Pro Plan
+Blue Buffalo
+Orijen
+Acana
+Taste of the Wild
+Farmer's Dog
+The Farmer's Dog
+Ollie
+Nom Nom
+Wellness CORE
+Fancy Feast
+~Sheba
+Whiskas
+Friskies
+Meow Mix
+Churu
+Ciao Churu
+Greenies
+~Kong
+Kong toy|đồ chơi Kong
+~Chewy
+Petco
+PetSmart
+BarkBox
+Fi collar|vòng cổ Fi
+Furbo
+Litter-Robot
+Petlibro
+Tractive
+Embark DNA
+Wisdom Panel
+=Monstera|cây trầu bà Nam Mỹ
+=Monstera deliciosa
+=Monstera adansonii
+=pothos|cây trầu bà
+=golden pothos|trầu bà vàng
+=snake plant|cây lưỡi hổ
+=ZZ plant|cây kim tiền
+=fiddle leaf fig|cây bàng Singapore
+=rubber plant|cây đa búp đỏ
+=peace lily|cây lan ý
+=spider plant|cây cỏ lan chi
+=philodendron
+=Philodendron
+=calathea
+=Calathea
+=alocasia
+=Alocasia
+=anthurium
+=hoya
+=string of pearls|cây chuỗi ngọc
+=aloe vera|nha đam
+=succulents|cây mọng nước
+=succulent|cây mọng nước
+=cactus|xương rồng
+=bonsai
+=orchid|hoa lan
+=orchids|hoa lan
+=Phalaenopsis|lan hồ điệp
+=bird of paradise|cây thiên điểu
+=olive tree|cây ô liu
+=lemon tree|cây chanh
+=herb garden|vườn thảo mộc
+=basil|húng quế
+=rosemary|hương thảo
+=thyme|cỏ xạ hương
+=cilantro|ngò rí
+=parsley|mùi tây
+=lavender|oải hương
+=microgreens|rau mầm
+=hydroponics|thủy canh
+=raised bed|luống nâng
+=raised beds|luống nâng
+=composting|ủ phân hữu cơ
+=compost|phân hữu cơ
+=vermicomposting|ủ phân trùn quế
+=potting mix|đất trồng cây
+=perlite
+=repotting|thay chậu
+=grow light|đèn trồng cây
+=grow lights|đèn trồng cây
+=plant parent
+=plant mom
+`);
+
+// ============================================================ 2.6.1: exams, schools, agencies, institutions
+CST_GLOSSARY_EXTRA_ADD("academic", null, `
+SAT
+ACT
+GRE
+GMAT
+LSAT
+MCAT
+IELTS
+IELTS Academic
+IELTS General
+TOEFL
+TOEFL iBT
+TOEIC
+Duolingo English Test
+PTE
+Cambridge English
+Cambridge IELTS
+CEFR
+JLPT
+JLPT N1
+JLPT N2
+JLPT N3
+JLPT N4
+JLPT N5
+TOPIK
+HSK
+DELF
+DALF
+Goethe-Zertifikat
+AP exams|kỳ thi AP
+AP
+IB
+International Baccalaureate
+IB Diploma
+A-levels
+A-level
+GCSE
+GCSEs
+Common App
+Common Application
+FAFSA
+Ivy League
+Oxbridge
+Russell Group
+Rhodes Scholarship
+Fulbright Scholarship
+Fulbright
+Chevening
+Erasmus
+Erasmus+
+DAAD
+MEXT scholarship|học bổng MEXT
+GKS
+Global Korea Scholarship
+Gates Cambridge
+Schwarzman Scholars
+Knight-Hennessy
+=valedictorian|thủ khoa tốt nghiệp
+=salutatorian
+=GPA
+=4.0 GPA|GPA 4.0
+=dean's list|danh sách khen thưởng của trường
+=honor roll|bảng vàng danh dự
+=early decision|nộp hồ sơ sớm ràng buộc
+=early action|nộp hồ sơ sớm
+=regular decision|vòng xét tuyển thường
+=waitlisted|nằm trong danh sách chờ
+=acceptance rate|tỷ lệ chấp nhận
+=college essay|bài luận đại học
+=personal statement|bài luận cá nhân
+=extracurriculars|hoạt động ngoại khóa
+=extracurricular activities|hoạt động ngoại khóa
+=letter of recommendation|thư giới thiệu
+=recommendation letter|thư giới thiệu
+=gap year|năm nghỉ chuyển tiếp
+=study abroad|du học
+=exchange student|sinh viên trao đổi
+=international student|sinh viên quốc tế
+=F-1 visa|thị thực F-1
+=OPT
+=STEM OPT
+=H-1B visa|thị thực H-1B
+=green card|thẻ xanh
+=student visa|thị thực du học
+=tuition|học phí
+=tuition fees|học phí
+=scholarship|học bổng
+=full scholarship|học bổng toàn phần
+=full ride|học bổng toàn phần
+=financial aid|hỗ trợ tài chính
+=student housing|nhà ở sinh viên
+=dorm|ký túc xá
+=dorm room|phòng ký túc xá
+=roommate|bạn cùng phòng
+=freshman|sinh viên năm nhất
+=sophomore|sinh viên năm hai
+=junior year|năm ba
+=senior year|năm cuối
+=undergrad|bậc đại học
+=undergraduate|bậc đại học
+=grad school|cao học
+=graduate school|cao học
+=master's degree|bằng thạc sĩ
+=bachelor's degree|bằng cử nhân
+=associate degree|bằng cao đẳng
+=PhD student|nghiên cứu sinh
+=PhD
+=Ph.D.
+=MBA
+=Executive MBA
+=EMBA
+=postdoc|nghiên cứu sau tiến sĩ
+=tenure|biên chế
+=tenure-track|ngạch biên chế
+=professor|giáo sư
+=associate professor|phó giáo sư
+=assistant professor|trợ lý giáo sư
+=adjunct professor|giảng viên thỉnh giảng
+=TA
+=teaching assistant|trợ giảng
+=office hours|giờ tiếp sinh viên
+=syllabus|đề cương môn học
+=midterm|thi giữa kỳ
+=midterms|thi giữa kỳ
+=final exam|thi cuối kỳ
+=finals week|tuần thi cuối kỳ
+=pop quiz|kiểm tra bất ngờ
+=open-book exam|thi mở sách
+=thesis|luận văn
+=dissertation|luận án
+=capstone project|đồ án tốt nghiệp
+=commencement|lễ tốt nghiệp
+=graduation ceremony|lễ tốt nghiệp
+=alma mater|trường cũ
+=alumni|cựu sinh viên
+=homeschooling|giáo dục tại nhà
+=homeschool|học tại nhà
+=unschooling
+=Montessori
+=Montessori school|trường Montessori
+=Waldorf school|trường Waldorf
+=Reggio Emilia
+=kindergarten|mẫu giáo
+=preschool|trường mầm non
+=elementary school|trường tiểu học
+=middle school|trường trung học cơ sở
+=high school|trường trung học phổ thông
+=community college|cao đẳng cộng đồng
+=boarding school|trường nội trú
+=public school|trường công
+=private school|trường tư
+=charter school|trường bán công
+=international school|trường quốc tế
+=K-12
+=STEM
+=STEAM
+=edtech
+=MOOC
+=online course|khóa học trực tuyến
+=e-learning|học trực tuyến
+=spaced repetition|lặp lại ngắt quãng
+=active recall|chủ động nhớ lại
+=Feynman technique|kỹ thuật Feynman
+=retrieval practice|luyện truy xuất
+=interleaving|học xen kẽ
+=mind map|sơ đồ tư duy
+=mind mapping|vẽ sơ đồ tư duy
+=Cornell notes|ghi chép kiểu Cornell
+=note-taking|ghi chép
+=study with me
+=study session|buổi học
+=cramming|học nhồi
+=all-nighter|thức trắng đêm
+FBI
+CIA
+NSA
+DEA
+ATF
+DHS
+ICE
+TSA
+TSA PreCheck
+Global Entry
+CBP
+FEMA
+EPA
+FTC
+FCC
+SEC
+CFPB
+DOJ
+Department of Justice
+Supreme Court
+the Supreme Court
+SCOTUS
+Congress
+the Senate
+House of Representatives
+the House
+White House
+the White House
+Pentagon
+the Pentagon
+Capitol Hill
+Oval Office
+Air Force One
+Secret Service
+State Department
+Treasury Department
+DOGE agency|cơ quan DOGE
+NHS England
+Downing Street
+10 Downing Street
+Parliament
+House of Commons
+House of Lords
+European Union|Liên minh châu Âu
+EU
+European Commission|Ủy ban châu Âu
+European Parliament|Nghị viện châu Âu
+NATO
+United Nations|Liên Hợp Quốc
+UN
+UNICEF
+UNESCO
+UNHCR
+WHO Director-General|Tổng giám đốc WHO
+Red Cross|Hội Chữ thập đỏ
+Doctors Without Borders|Tổ chức Bác sĩ không biên giới
+MSF
+Amnesty International|Ân xá Quốc tế
+Greenpeace
+WWF
+Gates Foundation
+Bill & Melinda Gates Foundation
+Wikipedia
+Wikimedia
+Internet Archive
+Wayback Machine
+Project Gutenberg
+Pew Research Center
+Pew Research
+Gallup
+YouGov
+Statista
+Our World in Data
+Brookings Institution
+RAND Corporation
+McKinsey
+McKinsey & Company
+Boston Consulting Group
+BCG
+Bain & Company
+~Bain
+Deloitte
+PwC
+EY
+KPMG
+Accenture
+Big Four
+MBB
+`);
+
+// ============================================================ 2.6.1: travel and flying jargon
+CST_GLOSSARY_EXTRA_ADD("travel", null, `
+=layover|quá cảnh
+=stopover|dừng chân
+=connecting flight|chuyến bay nối chuyến
+=direct flight|chuyến bay thẳng
+=nonstop flight|chuyến bay không dừng
+=red-eye flight|chuyến bay đêm
+=red-eye|chuyến bay đêm
+=jet lag|lệch múi giờ
+=jetlag|lệch múi giờ
+=carry-on|hành lý xách tay
+=carry-on luggage|hành lý xách tay
+=checked bag|hành lý ký gửi
+=checked luggage|hành lý ký gửi
+=baggage claim|khu nhận hành lý
+=baggage allowance|hành lý miễn cước
+=overhead bin|ngăn hành lý trên đầu
+=boarding pass|thẻ lên máy bay
+=boarding group|nhóm lên máy bay
+=priority boarding|lên máy bay ưu tiên
+=gate agent|nhân viên cửa ra máy bay
+=security line|hàng kiểm tra an ninh
+=security check|kiểm tra an ninh
+=passport control|kiểm soát hộ chiếu
+=immigration|xuất nhập cảnh
+=visa on arrival|thị thực tại cửa khẩu
+=e-visa|thị thực điện tử
+=Schengen visa|thị thực Schengen
+=Schengen Area|khu vực Schengen
+=ESTA
+=ETIAS
+=eTA
+=duty-free|miễn thuế
+=duty free|miễn thuế
+=airport lounge|phòng chờ sân bay
+=Priority Pass
+=lounge access|quyền vào phòng chờ
+=economy class|hạng phổ thông
+=premium economy|hạng phổ thông đặc biệt
+=business class|hạng thương gia
+=first class|hạng nhất
+=lie-flat seat|ghế nằm phẳng
+=aisle seat|ghế cạnh lối đi
+=window seat|ghế cạnh cửa sổ
+=middle seat|ghế giữa
+=exit row|hàng ghế cạnh cửa thoát hiểm
+=legroom|chỗ để chân
+=seat upgrade|nâng hạng ghế
+=frequent flyer|khách bay thường xuyên
+=airline miles|dặm bay
+=frequent flyer miles|dặm bay thường xuyên
+=points and miles|điểm và dặm
+=award flight|chuyến bay đổi điểm
+=travel hacking|mẹo du lịch bằng điểm thưởng
+=credit card points|điểm thẻ tín dụng
+=Chase Sapphire
+=Chase Sapphire Preferred
+=Chase Sapphire Reserve
+=Amex Platinum
+=Amex Gold
+=Capital One Venture X
+=elite status|hạng thành viên ưu tú
+=budget airline|hãng bay giá rẻ
+=low-cost carrier|hãng bay giá rẻ
+=hidden city ticketing|vé thành phố ẩn
+=open-jaw ticket|vé hở
+=round trip|khứ hồi
+=round-trip ticket|vé khứ hồi
+=one-way ticket|vé một chiều
+=travel insurance|bảo hiểm du lịch
+=itinerary|lịch trình
+=travel itinerary|lịch trình du lịch
+=bucket list|danh sách những điều muốn làm
+=solo travel|du lịch một mình
+=solo trip|chuyến đi một mình
+=backpacking|du lịch bụi
+=backpacker|người du lịch bụi
+=digital nomad|du mục kỹ thuật số
+=digital nomad visa|thị thực du mục kỹ thuật số
+=slow travel|du lịch chậm
+=road trip|chuyến đi đường dài
+=staycation|kỳ nghỉ tại chỗ
+=workation|vừa làm vừa nghỉ
+=all-inclusive resort|khu nghỉ dưỡng trọn gói
+=all-inclusive|trọn gói
+=overwater villa|biệt thự trên mặt nước
+=overwater bungalow|bungalow trên mặt nước
+=boutique hotel|khách sạn boutique
+=hostel|nhà nghỉ tập thể
+=homestay
+=glamping
+=capsule hotel|khách sạn con nhộng
+=ryokan
+=onsen
+=hot spring|suối nước nóng
+=tourist trap|bẫy du lịch
+=off the beaten path|đi lối ít người
+=hidden gem|viên ngọc ẩn
+=hidden gems|những viên ngọc ẩn
+=must-see|nhất định phải xem
+=must-visit|nhất định phải ghé
+=day trip|chuyến đi trong ngày
+=walking tour|tour đi bộ
+=free walking tour|tour đi bộ miễn phí
+=food tour|tour ẩm thực
+=street food tour|tour ẩm thực đường phố
+=cooking class|lớp nấu ăn
+=night market|chợ đêm
+=floating market|chợ nổi
+=rooftop bar|quán bar trên sân thượng
+=sky bar
+=scenic route|cung đường đẹp
+=viewpoint|điểm ngắm cảnh
+=sunrise hike|leo núi ngắm bình minh
+=golden hour|giờ vàng
+=blue hour|giờ xanh
+=peak season|mùa cao điểm
+=high season|mùa cao điểm
+=low season|mùa thấp điểm
+=off-season|mùa thấp điểm
+=shoulder season|mùa giao mùa
+=rainy season|mùa mưa
+=dry season|mùa khô
+=monsoon season|mùa gió mùa
+=typhoon season|mùa bão
+=tipping culture|văn hóa tiền tip
+=exchange rate|tỷ giá
+=currency exchange|đổi tiền
+=travel adapter|ổ cắm du lịch
+=universal adapter|ổ cắm đa năng
+=power bank|sạc dự phòng
+=packing cubes|túi chia đồ
+=packing list|danh sách đồ cần mang
+=carry-on only|chỉ mang hành lý xách tay
+=one-bag travel|du lịch một ba lô
+=travel pillow|gối du lịch
+=neck pillow|gối cổ
+=noise-cancelling headphones|tai nghe chống ồn
+=eSIM
+=Airalo
+Airalo
+=Holafly
+Holafly
+=SIM card|thẻ SIM
+=roaming|chuyển vùng quốc tế
+=data roaming|chuyển vùng dữ liệu
+=pocket Wi-Fi
+=Google Maps offline|Google Maps ngoại tuyến
+=rideshare|đi xe công nghệ
+=ride-hailing|gọi xe công nghệ
+=bullet train|tàu cao tốc
+=shinkansen
+=Shinkansen
+=JR Pass
+=Japan Rail Pass
+=Suica
+=Pasmo
+=ICOCA
+=Oyster card|thẻ Oyster
+=Eurail
+=Eurail Pass
+=Interrail
+=Eurostar
+=TGV
+=Amtrak
+=Greyhound bus|xe buýt Greyhound
+=FlixBus
+=sleeper bus|xe giường nằm
+=sleeper train|tàu giường nằm
+=night train|tàu đêm
+=the Tube|tàu điện ngầm London
+=tuk-tuk|xe tuk tuk
+=tuk tuk|xe tuk tuk
+=cyclo|xích lô
+=xe ôm|xe ôm
+=motorbike taxi|xe ôm
+=scooter rental|thuê xe máy
+=international driving permit|bằng lái xe quốc tế
+=IDP
+=cruise ship|tàu du lịch
+=Royal Caribbean
+=Carnival Cruise Line
+=Norwegian Cruise Line
+=Disney Cruise Line
+=Icon of the Seas
+=Wonder of the Seas
+=Viking Cruises
+=Halong Bay cruise|du thuyền vịnh Hạ Long
+=Lonely Planet
+=Rick Steves
+=Condé Nast Traveler
+=Travel + Leisure
+=Michelin Guide
+=Bib Gourmand
+=Atlas Obscura
+`);
+
+// ============================================================ 2.6.1: AI models, labs and products by name
+CST_GLOSSARY_EXTRA_ADD("tech", null, `
+GPT-3
+GPT-3.5
+GPT-4
+GPT-4o
+GPT-4o mini
+GPT-4.1
+GPT-4.5
+GPT-5
+GPT-5 mini
+GPT-5 nano
+GPT-5 Pro
+GPT-5.1
+GPT-5.2
+=gpt-oss
+o1
+o1-pro
+o3
+o3-mini
+o3-pro
+o4-mini
+ChatGPT
+ChatGPT Atlas
+ChatGPT Go
+Sora app|ứng dụng Sora
+DALL·E
+~Whisper
+Codex CLI
+OpenAI API
+Assistants API
+Responses API
+Realtime API
+Agents SDK
+AgentKit
+Claude
+Claude 3
+Claude 3.5 Sonnet
+Claude 3.7 Sonnet
+Claude 4
+Claude Sonnet 4
+Claude Opus 4
+Claude Opus 4.1
+Claude Sonnet 4.5
+Claude Haiku 4.5
+Claude Opus 4.5
+Claude Sonnet
+Claude Opus
+Claude Haiku
+Claude.ai
+Claude for Chrome
+Claude Desktop
+Claude Artifacts
+Constitutional AI
+Anthropic
+Gemini
+Gemini 1.5 Pro
+Gemini 2.0 Flash
+Gemini 2.5 Pro
+Gemini 2.5 Flash
+Gemini 2.5 Flash-Lite
+Gemini 3
+Gemini 3 Pro
+Gemini Flash
+Gemini Nano
+Gemini Ultra
+Gemini app|ứng dụng Gemini
+Gemini in Chrome
+Gemma
+Gemma 3
+Gemma 3n
+~Bard
+LaMDA
+PaLM
+AlphaGo
+AlphaZero
+AlphaFold
+AlphaFold 3
+AlphaEvolve
+Genie 3
+Project Astra
+Project Mariner
+Jules agent|tác tử Jules
+Llama 2
+Llama 3
+Llama 3.1
+Llama 4
+Llama 4 Scout
+Llama 4 Maverick
+Meta Llama
+Mistral
+Mistral AI
+Mistral Large
+Mixtral
+Le Chat
+Codestral
+~Magistral
+DeepSeek
+DeepSeek-V3
+DeepSeek-R1
+DeepSeek R1
+Qwen
+Qwen2.5
+Qwen3
+Qwen3-Coder
+Kimi
+Kimi K2
+Moonshot AI
+GLM-4.5
+Zhipu AI
+Z.ai
+MiniMax
+Doubao
+Yi model|mô hình Yi
+Baichuan
+Phi-3
+Phi-4
+Copilot Studio
+Microsoft Copilot
+Copilot Vision
+Grok 3
+Grok 4
+Grok Imagine
+Aurora image model|mô hình ảnh Aurora
+Apple Foundation Models
+Apple Intelligence
+Image Playground
+Genmoji
+Perplexity
+Perplexity AI
+Aravind Srinivas
+Midjourney
+Midjourney V7
+Ideogram
+Leonardo AI
+Leonardo.ai
+Krea
+Recraft
+Black Forest Labs
+FLUX.1
+Stable Diffusion
+Stability AI
+~Runway
+Runway Gen-3
+Luma AI
+Pika Labs
+Kling 2.1
+Veo 2
+Veo 3.1
+Sora 2 Pro
+Hailuo AI
+Seedance
+Wan 2.2
+Higgsfield
+Hedra
+Captions app|ứng dụng Captions
+ElevenLabs v3
+Eleven v3
+Sesame AI
+Hume AI
+Cartesia
+Deepgram
+AssemblyAI
+Whisper large
+OpenRouter
+Groq
+Cerebras
+SambaNova
+Together AI
+Fireworks AI
+Replicate
+RunPod
+Lambda Labs
+CoreWeave
+Nebius
+Scale AI
+Alexandr Wang
+Surge AI
+Mercor
+Safe Superintelligence
+Thinking Machines Lab
+Thinking Machines
+Reflection AI
+Sakana AI
+Cohere
+AI21 Labs
+Inflection AI
+Character AI
+Harvey AI
+Writer AI
+Hebbia
+Sierra AI
+Hippocratic AI
+OpenEvidence
+Figure AI
+Figure 02
+Figure 03
+1X Technologies
+1X NEO
+Agility Robotics
+Digit robot|robot Digit
+Boston Dynamics
+Atlas robot|robot Atlas
+Spot robot|robot Spot
+Unitree
+Unitree G1
+Unitree H1
+Physical Intelligence
+Skild AI
+Apptronik
+Sanctuary AI
+Tesla Optimus
+Stargate
+Project Stargate
+~Colossus
+xAI Colossus
+Memphis supercomputer|siêu máy tính Memphis
+Anthropic Economic Index
+METR
+Epoch AI
+Artificial Analysis
+LMSYS
+Hugging Face Open LLM Leaderboard
+SWE-bench Verified
+Terminal-Bench
+OSWorld
+=tau-bench
+FrontierMath
+AIME
+GSM8K
+MMMU
+Vending-Bench
+GDPval
+AI 2027
+Leopold Aschenbrenner
+Daniel Kokotajlo
+Eliezer Yudkowsky
+Nick Bostrom
+Stuart Russell
+Max Tegmark
+Gary Marcus
+Ethan Mollick
+Simon Willison
+Andrej Karpathy Zero to Hero
+nanoGPT
+=micrograd
+Attention Is All You Need
+Transformer paper|bài báo Transformer
+BERT
+GPT
+T5
+CLIP
+ResNet
+AlexNet
+ImageNet
+word2vec
+Stable Video Diffusion
+NeRF
+Gaussian splatting
+3D Gaussian Splatting
+`);
+
+// ============================================================ 2.6.1: home, tools, DIY, cars jargon
+CST_GLOSSARY_EXTRA_ADD("home", null, `
+DeWalt
+DEWALT
+Milwaukee Tool
+Milwaukee M18
+Makita
+Ryobi
+Bosch tools|dụng cụ Bosch
+Black+Decker
+Black & Decker
+~Craftsman
+Stanley tools|dụng cụ Stanley
+Festool
+Hilti
+Snap-on
+Klein Tools
+Leatherman
+Gerber knife|dao Gerber
+WD-40
+Gorilla Glue
+Command strips|miếng dán Command
+Command hooks|móc dán Command
+Velcro
+~Sharpie
+Post-it
+Post-it notes|giấy ghi chú Post-it
+Scotch tape|băng dính Scotch
+Ziploc
+Tupperware
+~Pyrex
+Corelle
+Le Creuset
+OXO
+Joseph Joseph
+Simplehuman
+Brabantia
+Yeti Rambler tumbler|cốc Yeti Rambler
+Stanley cup|cốc Stanley
+Stanley tumbler|cốc Stanley
+Hydro Flask
+Contigo
+Brita
+Brita filter|lọc nước Brita
+ZeroWater
+Berkey
+Clorox
+Lysol
+Windex
+Swiffer
+Mr. Clean
+Magic Eraser
+Mr. Clean Magic Eraser
+Dawn dish soap|nước rửa chén Dawn
+Dawn Powerwash
+Tide Pods
+OxiClean
+Bar Keepers Friend
+The Pink Stuff
+Scrub Daddy
+Method soap|xà phòng Method
+Mrs. Meyer's
+Seventh Generation
+Blueland
+Grove Collaborative
+Bounty paper towels|khăn giấy Bounty
+Charmin
+Kleenex
+Cottonelle
+Glad bags|túi Glad
+Febreze
+Air Wick
+Yankee Candle
+Bath & Body Works candles|nến Bath & Body Works
+Diptyque candle|nến Diptyque
+Boy Smells
+Philips Hue
+Nanoleaf lights|đèn Nanoleaf
+Lutron
+Lutron Caseta
+Ecobee
+Nest Thermostat
+Google Nest Thermostat
+Ring Alarm
+SimpliSafe
+ADT
+August lock|khóa August
+Yale lock|khóa Yale
+Schlage
+Eufy
+Arlo
+Wyze
+Aqara
+SwitchBot
+Tapo
+TP-Link
+Eero
+Netgear
+Orbi
+ASUS router|router ASUS
+Ubiquiti
+UniFi
+Starlink dish|chảo Starlink
+Synology
+QNAP
+Sonos Arc
+Sonos Beam
+Samsung Frame TV|TV Samsung The Frame
+The Frame TV|TV The Frame
+LG OLED
+LG C4
+LG C5
+Sony Bravia
+TCL
+Hisense
+Vizio
+Roku TV
+Apple TV 4K box|hộp Apple TV 4K
+Dyson V15
+Dyson Big Ball
+Shark Navigator
+Bissell
+Bissell Little Green
+Bissell Little Green Machine
+Little Green Machine
+Tineco
+Dreame
+Roborock S8 MaxV
+Roomba Combo
+iRobot
+Eureka vacuum|máy hút bụi Eureka
+Coway
+Coway Airmega
+Levoit
+Blueair
+Molekule
+Honeywell air purifier|máy lọc không khí Honeywell
+Xiaomi air purifier|máy lọc không khí Xiaomi
+Daikin
+Mitsubishi Electric
+Panasonic Inverter
+LG Inverter
+Trane
+Rheem
+Rinnai
+Navien
+Ariston
+Electrolux
+~Whirlpool
+GE Appliances
+Samsung Bespoke
+Bespoke AI
+LG ThinQ
+Miele
+Bosch dishwasher|máy rửa chén Bosch
+SMEG
+Smeg
+Sub-Zero
+Wolf range|bếp Wolf
+Viking range|bếp Viking
+Thermador
+KitchenAid stand mixer|máy trộn KitchenAid
+KitchenAid mixer|máy trộn KitchenAid
+Vitamix blender|máy xay Vitamix
+NutriBullet
+Ninja blender|máy xay Ninja
+Instant Pot pressure cooker|nồi áp suất Instant Pot
+Zojirushi
+Zojirushi rice cooker|nồi cơm Zojirushi
+Cuckoo rice cooker|nồi cơm Cuckoo
+Tiger rice cooker|nồi cơm Tiger
+Sunhouse
+Lock&Lock
+Lock & Lock
+IKEA Billy
+IKEA Kallax
+Kallax
+IKEA Malm
+IKEA Poäng
+IKEA Hemnes
+IKEA Pax
+Billy bookcase|kệ sách Billy
+West Elm
+Pottery Barn
+Crate & Barrel
+CB2
+Restoration Hardware
+RH
+Floyd
+Herman Miller
+Herman Miller Aeron
+Aeron
+Steelcase
+Steelcase Leap
+Secretlab
+Branch chair|ghế Branch
+FlexiSpot
+Uplift Desk
+Fully Jarvis
+Grovemade
+Ember mug|cốc Ember
+Casper
+Purple mattress|nệm Purple
+Tempur-Pedic
+Tempur
+Saatva
+Sleep Number
+Avocado mattress|nệm Avocado
+Helix mattress|nệm Helix
+Brooklinen
+Parachute Home
+Coop Home Goods
+Coop pillow|gối Coop
+Manta Sleep
+Manta mask|bịt mắt Manta
+Loftie clock|đồng hồ Loftie
+Bose Sleepbuds
+Ozlo
+=open floor plan|thiết kế mở
+=open-concept|không gian mở
+=accent wall|bức tường điểm nhấn
+=feature wall|bức tường điểm nhấn
+=shiplap
+=wainscoting
+=crown molding|phào chỉ trần
+=baseboards|ván chân tường
+=subway tile|gạch thẻ
+=backsplash|ốp tường bếp
+=kitchen island|đảo bếp
+=walk-in closet|phòng thay đồ
+=mudroom
+=laundry room|phòng giặt
+=en suite|phòng tắm riêng
+=ensuite|phòng tắm riêng
+=powder room|phòng vệ sinh khách
+=granny flat|nhà phụ
+=ADU
+=accessory dwelling unit|nhà phụ trong khuôn viên
+=tiny house|nhà siêu nhỏ
+=tiny home|nhà siêu nhỏ
+=van life|sống trên xe van
+=vanlife
+=van conversion|cải tạo xe van
+=camper van|xe van cắm trại
+=RV
+=Airstream
+=minimalist home|ngôi nhà tối giản
+=Japandi
+=Scandinavian design|thiết kế Bắc Âu
+=Scandi
+=mid-century modern|phong cách giữa thế kỷ
+=MCM
+=industrial style|phong cách công nghiệp
+=wabi-sabi
+=feng shui|phong thủy
+=hygge
+=lagom
+=cozy core
+=cottagecore decor
+=maximalism
+=dopamine decor
+=organic modern
+=quiet luxury home|nhà sang trọng thầm lặng
+=home office|văn phòng tại nhà
+=standing desk|bàn đứng
+=ergonomic chair|ghế công thái học
+=cable management|đi dây gọn gàng
+=desk setup|góc làm việc
+=smart home|nhà thông minh
+=home automation|tự động hóa nhà
+=Matter standard|chuẩn Matter
+=Thread protocol|giao thức Thread
+=Zigbee
+=Z-Wave
+=HomeKit
+=Apple Home
+=Google Home app|ứng dụng Google Home
+=Alexa
+=Amazon Alexa
+=Echo Dot
+=heat pump|bơm nhiệt
+=solar panels|tấm pin mặt trời
+=rooftop solar|điện mặt trời áp mái
+=home battery|pin lưu trữ tại nhà
+=EV charger|bộ sạc xe điện
+=Level 2 charger|bộ sạc cấp 2
+=wall charger|bộ sạc treo tường
+=dehumidifier|máy hút ẩm
+=humidifier|máy tạo ẩm
+=air purifier|máy lọc không khí
+=HEPA filter|bộ lọc HEPA
+=HEPA
+=water filter|bộ lọc nước
+=reverse osmosis|thẩm thấu ngược
+=RO water|nước RO
+=water softener|máy làm mềm nước
+=black mold|nấm mốc đen
+=radon
+=asbestos|amiăng
+=lead paint|sơn chì
+=VOCs
+=off-gassing|phát thải khí độc
+=spring cleaning|tổng vệ sinh
+=deep cleaning|vệ sinh kỹ
+=deep clean|vệ sinh kỹ
+=speed cleaning|dọn dẹp nhanh
+=cleaning routine|thói quen dọn dẹp
+=cleaning motivation|động lực dọn dẹp
+=CleanTok
+=declutter
+=decluttering
+=KonMari
+=KonMari method|phương pháp KonMari
+=Marie Kondo
+=spark joy|khơi gợi niềm vui
+=Swedish death cleaning|dọn dẹp kiểu Thụy Điển
+=death cleaning
+=minimalism|chủ nghĩa tối giản
+=The Minimalists
+=Joshua Fields Millburn
+=Ryan Nicodemus
+=one in one out|mua một bỏ một
+=30-day minimalism game|trò chơi tối giản 30 ngày
+=capsule kitchen
+=home reset
+=Sunday reset
+=reset routine
+=Clean With Me
+=home organization|sắp xếp nhà cửa
+=The Home Edit
+=Container Store
+=The Container Store
+=label maker|máy in nhãn
+=lazy Susan|khay xoay
+=drawer dividers|vách chia ngăn kéo
+`);
+
+// ============================================================ 2.6.1: cars and EV jargon
+CST_GLOSSARY_EXTRA_ADD("automotive", null, `
+=EV|xe điện
+=EVs|xe điện
+=electric vehicle|xe điện
+=electric vehicles|xe điện
+=BEV
+=PHEV
+=plug-in hybrid|xe lai sạc điện
+=hybrid car|xe lai
+=full hybrid|xe lai hoàn toàn
+=mild hybrid|xe lai nhẹ
+=HEV
+=EREV
+=range extender|bộ mở rộng tầm hoạt động
+=ICE car|xe động cơ đốt trong
+=internal combustion engine|động cơ đốt trong
+=range anxiety|nỗi lo hết pin
+=EPA range|quãng đường EPA
+=WLTP
+=WLTP range|quãng đường WLTP
+=kWh
+=kilowatt-hour|kilowatt giờ
+=battery pack|bộ pin
+=LFP battery|pin LFP
+=LFP
+=NMC battery|pin NMC
+=solid-state battery|pin thể rắn
+=sodium-ion battery|pin natri ion
+=battery degradation|chai pin
+=state of charge|mức sạc
+=fast charging|sạc nhanh
+=DC fast charging|sạc nhanh DC
+=Level 2 charging|sạc cấp 2
+=supercharging|sạc siêu nhanh
+=charging station|trạm sạc
+=charging stations|trạm sạc
+=charging network|mạng lưới sạc
+=NACS
+=CCS
+=CCS2
+=CHAdeMO
+=J1772
+=bidirectional charging|sạc hai chiều
+=V2G
+=V2H
+=regenerative braking|phanh tái sinh
+=one-pedal driving|lái một bàn đạp
+=frunk|cốp trước
+=over-the-air update|cập nhật qua mạng
+=OTA update|cập nhật OTA
+=ADAS
+=adaptive cruise control|kiểm soát hành trình thích ứng
+=lane keep assist|hỗ trợ giữ làn
+=lane centering|giữ xe giữa làn
+=blind spot monitoring|cảnh báo điểm mù
+=automatic emergency braking|phanh khẩn cấp tự động
+=AEB
+=360-degree camera|camera 360 độ
+=head-up display|màn hình hiển thị kính lái
+=HUD
+=CarPlay
+=Apple CarPlay
+=Android Auto
+=self-driving|tự lái
+=self-driving car|xe tự lái
+=autonomous driving|lái tự động
+=Level 2 autonomy|tự lái cấp 2
+=Level 4 autonomy|tự lái cấp 4
+=lidar
+=LiDAR
+=radar sensor|cảm biến radar
+=horsepower|mã lực
+=torque output|mô-men xoắn
+=lb-ft
+=Nm
+=0-60
+=0 to 60|0 lên 60
+=0-100 km/h|0 lên 100 km/h
+=top speed|tốc độ tối đa
+=quarter mile|quãng một phần tư dặm
+=lap time|thời gian một vòng
+=Nürburgring
+=Nurburgring
+=Nordschleife
+=mpg
+=MPG
+=fuel economy|mức tiết kiệm nhiên liệu
+=fuel efficiency|hiệu suất nhiên liệu
+=V8
+=V6
+=V12
+=inline-four|động cơ 4 xi lanh thẳng hàng
+=inline-six|động cơ 6 xi lanh thẳng hàng
+=flat-six
+=boxer engine|động cơ boxer
+=rotary engine|động cơ xoay
+=turbocharged|tăng áp
+=turbo
+=twin-turbo|tăng áp kép
+=supercharged|siêu nạp
+=naturally aspirated|hút khí tự nhiên
+=displacement|dung tích xi lanh
+=manual transmission|hộp số sàn
+=stick shift|số sàn
+=automatic transmission|hộp số tự động
+=CVT
+=dual-clutch|ly hợp kép
+=DCT
+=paddle shifters|lẫy chuyển số
+=AWD
+=all-wheel drive|dẫn động bốn bánh toàn thời gian
+=4WD
+=four-wheel drive|dẫn động bốn bánh
+=4x4 drive|dẫn động 4x4
+=RWD
+=rear-wheel drive|dẫn động cầu sau
+=FWD
+=front-wheel drive|dẫn động cầu trước
+=limited-slip differential|vi sai hạn chế trượt
+=LSD
+=ground clearance|khoảng sáng gầm
+=wheelbase|chiều dài cơ sở
+=curb weight|trọng lượng không tải
+=towing capacity|khả năng kéo
+=payload|tải trọng
+=air suspension|hệ thống treo khí nén
+=coilovers|giảm xóc coilover
+=brake pads|má phanh
+=ceramic brakes|phanh gốm
+=tire pressure|áp suất lốp
+=all-season tires|lốp bốn mùa
+=winter tires|lốp mùa đông
+=run-flat tires|lốp chống xịt
+=alloy wheels|mâm hợp kim
+=rims|mâm xe
+=sedan|xe sedan
+=hatchback|xe hatchback
+=SUV
+=crossover SUV|xe SUV lai
+=CUV
+=compact SUV|SUV cỡ nhỏ
+=midsize SUV|SUV cỡ trung
+=full-size SUV|SUV cỡ lớn
+=minivan|xe minivan
+=MPV
+=pickup truck|xe bán tải
+=coupe|xe coupe
+=roadster|xe roadster
+=supercar|siêu xe
+=hypercar|siêu xe đỉnh cao
+=sports car|xe thể thao
+=muscle car|xe cơ bắp
+=JDM
+=kei car|xe kei
+=daily driver|xe đi hằng ngày
+=project car|xe độ
+=track day|ngày chạy đường đua
+=car meet|buổi gặp mặt xe
+=launch control|kiểm soát khởi hành
+=dealership|đại lý
+=car dealership|đại lý ô tô
+=MSRP
+=sticker price|giá niêm yết
+=dealer markup|phí đại lý cộng thêm
+=ADM
+=test drive|lái thử
+=trade-in|đổi xe cũ
+=car lease|thuê xe dài hạn
+=auto loan rate|lãi suất vay mua xe
+=depreciation|khấu hao
+=resale value of the car|giá bán lại của xe
+=CPO
+=certified pre-owned|xe cũ được chứng nhận
+~Carfax
+=Kelley Blue Book
+=KBB
+=Edmunds
+=Car and Driver
+=MotorTrend
+=Top Gear
+=The Grand Tour
+=Doug DeMuro
+=Cars & Bids
+=Bring a Trailer
+=Carvana
+=CarMax
+=Turo
+=NHTSA
+=IIHS
+=Euro NCAP
+=five-star safety rating|xếp hạng an toàn năm sao
+=vehicle recall|triệu hồi xe
+=check engine light|đèn báo lỗi động cơ
+=oil change|thay dầu
+=synthetic oil|dầu tổng hợp
+=tire rotation|đảo lốp
+=wheel alignment|cân chỉnh thước lái
+=car wash|rửa xe
+=ceramic coating|phủ ceramic
+=PPF
+=paint protection film|phim bảo vệ sơn
+=window tint|phim cách nhiệt
+=dashcam|camera hành trình
+=dash cam|camera hành trình
+`);
+CST_GLOSSARY_EXTRA_ADD("psychology", null, `
+=burnout|kiệt sức
 `);

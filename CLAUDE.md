@@ -67,7 +67,7 @@ Reading all source is ~500KB, roughly 145k tokens. Don't. A normal task should l
 - Line numbers in `docs/` are anchors and they drift. Confirm with grep before editing.
 - **Grep only, never read whole:** `options.html` (~1600, ~850 of them inline CSS),
   `youtube.js` (~2000), `content.js` (~2300), `dub-engine.js` (~2400), `background.js` (~2000),
-  `glossary.js` (~1340, pure data), `glossary-data.js` (~27,500, pure data, never read even partly without grep), `dub-speech.js` (~1100, half of it generated tables),
+  `glossary.js` (~1340, pure data), `glossary-data.js` (~35,000, pure data, never read even partly without grep), `dub-speech.js` (~1300, half of it generated tables),
   `tests/hardening.test.js` (~2100), `tests/cost.test.js` (~1000).
 - Safe to read whole when you need them: `cost-policy.js` (~370), `popup.js` (~360), `yt-bridge.js`
   (~300), `subtitle-style.js` (~300), `vi-quality.js` (~580), `lang-detect.js` (~130), any `docs/` file.
@@ -86,7 +86,7 @@ Reading all source is ~500KB, roughly 145k tokens. Don't. A normal task should l
 | Dubbing out of sync, late, drifting, too fast or slow | `docs/DUBBING.md` §SYNC, then `dub-engine.js` `SYNC` block (`grep -n "const SYNC"`, ~140 lines) |
 | No voice at all | `docs/DUBBING.md` §providers. Check the server first: `curl 127.0.0.1:8000/health` |
 | Voice pacing, pauses, prosody | `dub-planner.js` (`buildDubScript`, `planSegment`) + `docs/DUBBING.md` |
-| Voice says an English name, brand, acronym or model number wrong | `docs/DUBBING.md` §English inside Vietnamese speech, then `dub-speech.js`; measure with `tools/pron-eval.js` |
+| Voice says an English name, brand, acronym or model number wrong | `docs/DUBBING.md` §English inside Vietnamese speech, then `dub-speech.js`; measure with `tools/pron-eval.js` and `tools/subtitle-pron.js` |
 | Cost, model pick, budget, quota error | `cost-policy.js` (read whole, it is the single source of truth) |
 | Add or change a setting | `docs/SUBTITLE.md` §storage keys, then `options.js` `collectSettings` + its card in `options.html` |
 | Popup behaviour | `popup.js` |

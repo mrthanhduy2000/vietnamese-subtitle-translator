@@ -189,7 +189,7 @@ test("Ben, Kim and Leo inside an English name are said the English way; Vietname
     assert.equal(say("Ben Affleck xác nhận sẽ quay phim."), "<en>benn</en> Affleck xác nhận sẽ quay phim.");
     assert.equal(say("Bà Kim Kardashian đang rót tiền."), "Bà <en>kym</en> Kardashian đang rót tiền.");
     assert.equal(say("Kim Kardashian mở thêm một thương hiệu."), "<en>kym</en> Kardashian mở thêm một thương hiệu.");
-    assert.equal(say("Nam diễn viên Leo DiCaprio đoạt giải."), "Nam diễn viên <en>lleo</en> <en>dicaprio</en> đoạt giải.");
+    assert.equal(say("Nam diễn viên Leo DiCaprio đoạt giải."), "Nam diễn viên <en>lleo dicaprio</en> đoạt giải.");
     // a lone Ben is English only when the English source line names him; a lone Kim never (Vietnamese people carry it)
     assert.equal(say("Ben sẽ chỉ cho các bạn.", { source: "Ben is going to show you." }), "<en>benn</en> sẽ chỉ cho các bạn.");
     assert.equal(say("Ben sẽ chỉ cho các bạn."), "Ben sẽ chỉ cho các bạn.");
@@ -217,4 +217,58 @@ test("2.5.8: AI and brand names VieNeu misreads get the reading checked on its p
     assert.equal(say("Đeo Oura Ring hay đồng hồ Huawei."), "Đeo <en>ora ring</en> hay đồng hồ <en>wahway</en>.");
     // the ones it already reads well are left as they are
     for (const s of ["Dùng Garmin và Strava.", "Mô hình DeepSeek và Mistral."]) assert.equal(say(s), s, s);
+});
+
+// ---- 2.6.1: English the translation kept, said the international way (tools/subtitle-pron.js) ----
+test("2.6.1: a letter or code right after an English word, and a vitamin list, are English letter names", () => {
+    assert.equal(say("Tôi uống vitamin D mỗi ngày, cả urolithin A nữa."), "Tôi uống vitamin <en>d</en> mỗi ngày, cả urolithin <en>a</en> nữa.");
+    assert.equal(say("như vitamin C, D3, E và K."), "như vitamin <en>c</en>, <en>d</en> 3, <en>e</en> và <en>k</en>.");
+    assert.equal(say("Model G1 rất tốt."), "Model <en>g</en> 1 rất tốt.");
+    // Vietnamese uses of a letter or a code stay Vietnamese
+    for (const s of ["Nhóm A và nhóm B.", "Bạn chọn A hoặc B thôi.", "In ra giấy A4 cho đội U23."]) assert.equal(say(s), s, s);
+});
+
+test("2.6.1: a spelled-out word, a letter prefix and dotted initials the source has are English letters", () => {
+    assert.equal(say("Cách viết là R-E-V-E-R-I-E."), "Cách viết là <en>r e v e r i e</en>.");
+    assert.equal(say("Đánh vần là O-U-S-- nhé."), "Đánh vần là <en>o u s</en>-- nhé.");
+    assert.equal(say("Uống L-taurine mỗi ngày."), "Uống <en>l taurine</en> mỗi ngày.");
+    assert.equal(say("Trong cuốn sách Bốn tình yêu, C.S.", { source: "In the book The Four Loves, C.S." }), "Trong cuốn sách Bốn tình yêu, <en>c s</en>.");
+});
+
+test("2.6.1: web addresses say dot and slash in English, also when the translator wrote chấm com", () => {
+    assert.equal(say("DonorsChoose.org là một tổ chức."), "<en>donors choose dot org</en> là một tổ chức.");
+    assert.equal(say("tức là livemomentous chấm com gạch chéo huberman."), "tức là <en>livemomentous dot com slash huberman</en>.");
+    assert.equal(say("Một chấm năm lít nước."), "Một chấm năm lít nước.");
+});
+
+test("2.6.1: codes the source writes the same way, plurals of codes and codes led by a small letter are English letters", () => {
+    assert.equal(say("qua ứng dụng KS Fit trên điện thoại.", { source: "through the KS Fit app on your phone." }), "qua ứng dụng <en>k s</en> Fit trên điện thoại.");
+    assert.equal(say("Anh ấy là KS xây dựng."), "Anh ấy là KS xây dựng.");
+    assert.equal(say("tham gia vào DPOs và chỉ số eGFR."), "tham gia vào <en>d p o's</en> và chỉ số <en>e g f r</en>.");
+});
+
+test("2.6.1: a capitalised name the source names next to a number or beside another English name is said the English way", () => {
+    assert.equal(say("chiếc Ram 2500 nào.", { source: "who owns the Ram 2500." }), "chiếc <en>ramm</en> 2500 nào.");
+    assert.equal(say("rồi viết tên Dan và John lên giấy.", { source: "then wrote Dan and John on the paper." }), "rồi viết tên <en>dann</en> và John lên giấy.");
+    // a Vietnamese pair stays Vietnamese
+    assert.equal(say("Chị Lan và anh Minh đi chơi.", { source: "Lan and Minh went out." }), "Chị Lan và anh Minh đi chơi.");
+});
+
+test("2.6.1: English tags of neighbouring words are one tag, so a long name costs one of the 8", () => {
+    const many = "Tôi gặp Leo DiCaprio, " + Array.from({ length: 9 }, (_, i) => `CPC${"ABCDEFGHI"[i]}`).join(", ") + ".";
+    const out = say(many);
+    assert.ok(out.includes("<en>lleo dicaprio</en>"), out);
+    assert.ok((out.match(/<en>/g) || []).length <= SPEECH.TAG_MAX, out);
+});
+
+test("2.6.1: + and a letter in brackets inside English names are said the English way; Vietnamese and sums are not", () => {
+    const voice = s => SPEECH.vieneuText(PLAN.adaptForSpeech(s));
+    assert.equal(voice("Tôi xem Disney+ mỗi tối."), "Tôi xem Disney plus mỗi tối.");
+    assert.equal(voice("Tạp chí Travel + Leisure viết."), "Tạp chí Travel and Leisure viết.");
+    assert.equal(voice("Tôi học C++ và C# mỗi ngày."), "Tôi học <en>c</en> plus plus và <en>c</en> sharp mỗi ngày.");
+    assert.equal(voice("Tài khoản 401(k) của tôi."), "Tài khoản 401 <en>k</en> của tôi.");
+    assert.equal(voice("Chỉ số Lp(a) cao."), "Chỉ số <en>l p a</en> cao.");
+    assert.equal(voice("Lấy 2 + 3 bằng 5."), "Lấy 2 cộng 3 bằng 5.");
+    assert.equal(voice("Mục 3(b) trong luật."), "Mục 3, b, trong luật.");
+    assert.equal(voice("Chọn đáp án (a) nhé."), "Chọn đáp án, a, nhé.");
 });

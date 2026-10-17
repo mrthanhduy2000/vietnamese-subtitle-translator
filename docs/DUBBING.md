@@ -174,6 +174,30 @@ module fixes:
   Rerun `--write` after adding names to `glossary-data.js`; `tests/glossary-speech.test.js` fails
   on a respelling whose name left the glossary.
 
+- **English the translation kept, on real subtitles (2.6.1).** `tools/subtitle-pron.js` sends every
+  Vietnamese line of `review-archive/` (plus `--dir=` of `ytcache4_*.json`) through the engine's
+  text path with the English source cues of the same time, and judges each English span (Latin
+  words that are no Vietnamese syllable, or that the source writes the same way) by the front end's
+  phonemes against the line with "cái" in its place; `--old=<rev>` compares. 2,041 spans on 50
+  videos: read Vietnamese 64 (3.1%) at 2.6.0 -> 21 (1.0%). Of the 21 left, 11 are "nhóm A" /
+  "A hoặc B" (Vietnamese letters on purpose), "750 W", "4 nhân 4", three nonsense words in a
+  transcript, and two artefacts of the diff. Rules added for it, all in `dub-speech.js` unless noted:
+  a capital letter or a letter+digit code right after an English word ("vitamin D3", "urolithin
+  A", "Plan B", "model G1"); a vitamin list ("vitamin C, D3, E và K", and a lone D3 on a vitamin
+  line); hyphen spellings "R-E-V-E-R-I-E" and a letter prefix "L-taurine" (shape `spell`); web
+  addresses "DonorsChoose.org" (shape `domain`) and the translator's own "x chấm com gạch chéo y"
+  -> "dot com slash"; a code VieNeu expands to Vietnamese words that the English source writes the
+  same way ("KS Fit", not "KS" kỹ sư on its own); plural codes "DPOs" -> "d p o's", "eGFR" letters;
+  dotted initials the source has ("C.S."); dashes glued to a word ("O-U-S--") moved to the trail;
+  a lone capitalised Vietnamese-syllable word the source pairs with an English neighbour or a
+  number ("Ram 2500"), or names mid-sentence while the line names someone else in English ("Dan và
+  John"); `dub-planner.js`: "+" inside English names "and" / glued "plus" ("Disney+", "C++"),
+  "C#" "sharp", one letter in brackets after a code or name kept for the speech side ("401(k)",
+  "Lp(a)", "Ear (a)"). Neighbouring `<en>` tags now merge into one ("<en>lleo dicaprio</en>"), so
+  `TAG_MAX` counts groups. RESPELL grew 58 -> 106 (`tools/build-speech-tables.js` NAMES list).
+  Cost: regress `late` 1712 -> 1718 over 45 videos (English letter names and "dot com slash" are a
+  little longer than "đê", "chấm com").
+
 ## Prosody model (1.7.6, `dub-prosody.js`)
 
 Where the dubbed speech may pause, how strongly, and which of the voice's own stops to keep. Pure,
