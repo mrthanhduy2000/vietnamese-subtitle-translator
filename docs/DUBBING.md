@@ -155,6 +155,25 @@ module fixes:
   What it does not measure: how a respelling *sounds* (only its phonemes), and anything the server's
   own G2P reads wrong in a word it already treats as English.
 
+- **The glossary bridge (2.6.0).** When the glossary is loaded (content scripts, options page),
+  `loadExtra()` also runs `loadGlossaryNames()`: every term the glossary keeps in English (no `vi`,
+  passes `glossaryName`: at most 6 words, no diacritics, not all Vietnamese syllables, not two
+  capitalised Vietnamese syllables in a row, not in `VI_CAPS`) becomes a lexicon unit of cat
+  `glossary`, so its words are English for span analysis. Its reading comes from `GLOSSARY_SAY`, a
+  generated table (`// @generated glossary-say` block) written by `node tools/glossary-pron.js
+  --write`: for each kept name the server's G2P still reads as Vietnamese through a carrier
+  sentence, it tries the whole name lowercase in `<en>`, piecewise (`&` -> and, capitals as
+  letters), letters in `<en>` with digits outside, and respellings, and keeps the first that reads
+  English. Without `--write` the tool only reports (`--show=N`, `--json`). 2.6.0 numbers: 11,684
+  kept names; read as Vietnamese 496 without the bridge, 98 with it (most of the rest are numerals,
+  read in Vietnamese on purpose, and a few Chinese or Korean names). Caps tokens inside a glossary
+  unit that `capsClass` calls Vietnamese become `spelled` unless they are in `VI_CAPS` (CUDA said as
+  a word, SSI and VTV stay Vietnamese letters). Initials inside an English name ("Samuel L.
+  Jackson", "e.l.f.") are English letters and their dot is dropped. `adaptForSpeech` says `&`
+  between Latin words as "and" unless both sides are Vietnamese syllables ("Nam & Lan" -> và).
+  Rerun `--write` after adding names to `glossary-data.js`; `tests/glossary-speech.test.js` fails
+  on a respelling whose name left the glossary.
+
 ## Prosody model (1.7.6, `dub-prosody.js`)
 
 Where the dubbed speech may pause, how strongly, and which of the voice's own stops to keep. Pure,

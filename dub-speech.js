@@ -138,6 +138,427 @@
     };
     // @generated speech-tables end
 
+    // @generated glossary-say begin: tools/glossary-pron.js --write, do not edit by hand
+    // 416 glossary names VieNeu read with Vietnamese sounds as written, and the spelling it reads
+    // the English way (checked on its front end, sea_g2p, in a Vietnamese carrier sentence)
+    const GLOSSARY_SAY = {
+        "$100m offers": "100 <en>m offers</en>",
+        "& other stories": "<en>and other stories</en>",
+        "(g)i-dle": "<en>(g)i dle</en>",
+        "1.5°c": "1.5 <en>c</en>",
+        "1080p": "1080 <en>p</en>",
+        "11.11": "11.11",
+        "2% bha liquid exfoliant": "2 <en>% b h a liquid exfoliant</en>",
+        "2nm": "2 <en>nm</en>",
+        "3nm": "3 <en>nm</en>",
+        "401(k)": "401 <en>k</en>",
+        "401k": "401 <en>k</en>",
+        "403(b)": "403 <en>b</en>",
+        "457(b)": "457 <en>b</en>",
+        "4g lte": "4 <en>g l t e</en>",
+        "5g": "5 <en>g</en>",
+        "85°c bakery": "85 <en>c bakery</en>",
+        "911 gt3": "911 <en>g t</en> 3",
+        "99% invisible": "99 <en>% invisible</en>",
+        "a$ap rocky": "<en>a$ap rocky</en>",
+        "a/b testing": "<en>a/b testing</en>",
+        "a16z": "<en>a</en> 16 <en>z</en>",
+        "aamir khan": "<en>aamir khann</en>",
+        "abercrombie & fitch": "<en>abercrombie and fitch</en>",
+        "ac/dc": "<en>ac/dc</en>",
+        "af1": "<en>a f</en> 1",
+        "ag1": "<en>a g</en> 1",
+        "agust d": "<en>agust d</en>",
+        "ai weiwei": "<en>aih weiwei</en>",
+        "ai21 labs": "<en>a i</en> 21 <en>labs</en>",
+        "air france-klm": "<en>air france klm</en>",
+        "aishwarya rai": "<en>aishwarya raih</en>",
+        "akb48": "<en>a k b</en> 48",
+        "alexa+": "<en>alexa+</en>",
+        "ancestrydna": "<en>ancestrydna</en>",
+        "apoe4": "<en>a p o e</en> 4",
+        "apple fitness+": "<en>apple fitness+</en>",
+        "apple tv+": "<en>apple tv+</en>",
+        "applecare+": "<en>applecare+</en>",
+        "aps-c": "<en>aps c</en>",
+        "arc-agi": "<en>arc agi</en>",
+        "asics corporation": "<en>asics corporation</en>",
+        "asp.net": "<en>asp.net</en>",
+        "aston martin db11": "<en>aston martin d b</en> 11",
+        "aston martin db12": "<en>aston martin d b</en> 12",
+        "audi rs6": "<en>audi r s</en> 6",
+        "audio-technica at2020": "<en>audio technica a t</en> 2020",
+        "autocad": "<en>autocad</en>",
+        "babyagi": "<en>babyagi</en>",
+        "bain & company": "<en>bain and company</en>",
+        "balenciaga triple s": "<en>balenciaga triple s</en>",
+        "ban ki-moon": "<en>ban ki moon</en>",
+        "bang & olufsen": "<en>bang and olufsen</en>",
+        "bang si-hyuk": "<en>bang si hyuk</en>",
+        "bath & body works": "<en>bath and body works</en>",
+        "batna": "<en>batna</en>",
+        "bayraktar tb2": "<en>bayraktar t b</en> 2",
+        "becky g": "<en>becky g</en>",
+        "bed bath & beyond": "<en>bed bath and beyond</en>",
+        "ben & jerry's": "<en>ben and jerry's</en>",
+        "big-bench": "<en>big bench</en>",
+        "bigbang": "<en>bigbang</en>",
+        "bmw r 1250 gs": "<en>b m w r</en> 1250 <en>g s</en>",
+        "byd han": "<en>b y d hann</en>",
+        "byd tang": "<en>b y d tange</en>",
+        "c++": "<en>c++</en>",
+        "c-ptsd": "<en>c ptsd</en>",
+        "c25k": "<en>c</en> 25 <en>k</en>",
+        "canal+": "<en>canal+</en>",
+        "canon g7x": "<en>canon g</en> 7 <en>x</en>",
+        "car-t": "<en>car t</en>",
+        "casio f-91w": "<en>casio f</en> 91 <en>w</en>",
+        "casio g-shock": "<en>casio g shock</en>",
+        "cbt-i": "<en>cbt i</en>",
+        "cha eun-woo": "<en>chah eun woo</en>",
+        "chappell roan": "<en>chappell roann</en>",
+        "character.ai": "<en>character dot a i</en>",
+        "chick-fil-a": "<en>chick fil a</en>",
+        "cinestill 800t": "<en>cinestill</en> 800 <en>t</en>",
+        "circle k": "<en>circle k</en>",
+        "cissp": "<en>cissp</en>",
+        "citizenm": "<en>citizenm</en>",
+        "claude.ai": "<en>claude dot aih</en>",
+        "command r": "<en>command r</en>",
+        "command r+": "<en>command r+</en>",
+        "comptia security+": "<en>comptia security+</en>",
+        "copilot+ pc": "<en>copilot+ pc</en>",
+        "copy.ai": "<en>copy dot aih</en>",
+        "coq au vin": "<en>coq au vin</en>",
+        "cosrx": "<en>cosrx</en>",
+        "cosrx snail mucin": "<en>cosrx snail mucin</en>",
+        "cptsd": "<en>cptsd</en>",
+        "cr7": "<en>c r</en> 7",
+        "crate & barrel": "<en>crate and barrel</en>",
+        "crayon shin-chan": "<en>crayon shin chann</en>",
+        "crying in h mart": "<en>crying in h mart</en>",
+        "cs2": "<en>c s</en> 2",
+        "css3": "<en>c s s</en> 3",
+        "custom gpts": "<en>custom gpts</en>",
+        "d&d": "<en>d and d</en>",
+        "d-id": "<en>d id</en>",
+        "d2c": "<en>d</en> 2 <en>c</en>",
+        "d3.js": "<en>d</en> 3 <en>js</en>",
+        "dall-e 2": "<en>d a l l e</en> 2",
+        "dall-e 3": "<en>d a l l e</en> 3",
+        "dana k. white": "<en>dana k white</en>",
+        "daos": "<en>daos</en>",
+        "dave2d": "<en>dave</en> 2 <en>d</en>",
+        "david chang": "<en>david change</en>",
+        "disney+": "<en>disney+</en>",
+        "dodge ram": "<en>dodge ramm</en>",
+        "dr. jart+": "<en>dr jart plus</en>",
+        "dragon ball z": "<en>dragon ball z</en>",
+        "dspy": "<en>dspy</en>",
+        "dungeons & dragons": "<en>dungeons and dragons</en>",
+        "e = mc2": "<en>e = mc</en> 2",
+        "e*trade": "<en>e*trade</en>",
+        "e.l.f.": "<en>e.l.f.</en>",
+        "e.t. the extra-terrestrial": "<en>e dot t the extra terrestrial</en>",
+        "e=mc2": "<en>e mc</en> 2",
+        "e=mc²": "<en>e=mc²</en>",
+        "ecpm": "<en>ecpm</en>",
+        "eileen gu": "<en>eileen guh</en>",
+        "eltamd": "<en>eltamd</en>",
+        "eltamd uv clear": "<en>eltamd uv clear</en>",
+        "epcot": "<en>epcot</en>",
+        "eric nam": "<en>eric namm</en>",
+        "ernst & young": "<en>ernst and young</en>",
+        "eslint": "<en>eslint</en>",
+        "esp32": "<en>e s p</en> 32",
+        "f-91w": "<en>f</en> 91 <en>w</en>",
+        "fafsa": "<en>fafsa</en>",
+        "farrow & ball": "<en>farrow and ball</en>",
+        "fast & furious": "<en>fast and furious</en>",
+        "felv": "<en>felv</en>",
+        "ferrari sf90": "<en>ferrari s f</en> 90",
+        "fireflies.ai": "<en>fireflies dot aih</en>",
+        "florence + the machine": "<en>florence + the machine</en>",
+        "flux.1": "<en>f l u x</en> 1",
+        "fodmap": "<en>fodmap</en>",
+        "four tet": "<en>four tett</en>",
+        "fpt corporation": "<en>fpt corporation</en>",
+        "fpt play": "<en>fpt play</en>",
+        "frances ha": "<en>frances hah</en>",
+        "franklin d. roosevelt": "<en>franklin d roosevelt</en>",
+        "g-class": "<en>g class</en>",
+        "g-dragon": "<en>g dragon</en>",
+        "g-idle": "<en>g idle</en>",
+        "g-shock": "<en>g shock</en>",
+        "g-wagon": "<en>g wagon</en>",
+        "galaxy z flip": "<en>galaxy z flip</en>",
+        "galaxy z flip 6": "<en>galaxy z flip</en> 6",
+        "galaxy z flip 7": "<en>galaxy z flip</en> 7",
+        "galaxy z fold": "<en>galaxy z fold</en>",
+        "galaxy z fold 6": "<en>galaxy z fold</en> 6",
+        "galaxy z fold 7": "<en>galaxy z fold</en> 7",
+        "gb200": "<en>g b</en> 200",
+        "genesis gv80": "<en>genesis g v</en> 80",
+        "gmt-master": "<en>gmt master</en>",
+        "graphql": "<en>graphql</en>",
+        "graphql api": "<en>graphql api</en>",
+        "grpc": "<en>grpc</en>",
+        "gs25": "<en>g s</en> 25",
+        "gsm8k": "<en>g s m</en> 8 <en>k</en>",
+        "gt-r": "<en>gt r</en>",
+        "guns n' roses": "<en>guns n' roses</en>",
+        "gzclp": "<en>gzclp</en>",
+        "h&r block": "<en>h and r block</en>",
+        "h-1b": "<en>h</en> 1 <en>b</en>",
+        "h-e-b": "<en>h e b</en>",
+        "h. pylori": "<en>h pylori</en>",
+        "h.264": "<en>h</en> 264",
+        "h.265": "<en>h</en> 265",
+        "h5n1": "<en>h</en> 5 <en>n</en> 1",
+        "ha jung-woo": "<en>hah jung woo</en>",
+        "han jisung": "<en>hann jisung</en>",
+        "han so-hee": "<en>hann so hee</en>",
+        "hasselblad x2d": "<en>hasselblad x</en> 2 <en>d</en>",
+        "hba1c": "<en>hb a</en> 1 <en>c</en>",
+        "hdr10": "<en>h d r</en> 10",
+        "head & shoulders": "<en>head and shoulders</en>",
+        "honda cr-v": "<en>honda cr v</en>",
+        "honda hr-v": "<en>honda hr v</en>",
+        "html5": "<en>h t m l</en> 5",
+        "icloud+": "<en>icloud+</en>",
+        "ifttt": "<en>ifttt</en>",
+        "ilford hp5": "<en>ilford h p</en> 5",
+        "imran khan": "<en>imran khann</en>",
+        "in-n-out": "<en>in n out</en>",
+        "in-n-out burger": "<en>in n out burger</en>",
+        "j&t express": "<en>j and t express</en>",
+        "jay-z": "<en>jay z</en>",
+        "jd.com": "<en>jd.com</en>",
+        "ji chang-wook": "<en>ji change wook</en>",
+        "johnson & johnson": "<en>johnson and johnson</en>",
+        "jstor": "<en>jstor</en>",
+        "karol g": "<en>karol g</en>",
+        "keurig k-mini": "<en>keurig k mini</en>",
+        "khan academy": "<en>khann academy</en>",
+        "kip thorne": "<en>kipp thorne</en>",
+        "kols": "<en>kols</en>",
+        "kung pao chicken": "<en>kung paoh chicken</en>",
+        "l&d": "<en>l and d</en>",
+        "la 2028": "<en>l a</en> 2028",
+        "la clippers": "<en>l a clippers</en>",
+        "la fitness": "<en>l a fitness</en>",
+        "la galaxy": "<en>l a galaxy</en>",
+        "laion-5b": "<en>l a i o n</en> 5 <en>b</en>",
+        "lamda": "<en>lah m d a</en>",
+        "langgraph": "<en>lange graph</en>",
+        "langsmith": "<en>lange smith</en>",
+        "le sserafim": "<en>le sserafim</en>",
+        "leonardo.ai": "<en>leonardo dot aih</en>",
+        "lg h&h": "<en>lg h and h</en>",
+        "lgbtq": "<en>lgbtq</en>",
+        "lgbtq+": "<en>lgbtq+</en>",
+        "lightgbm": "<en>lightgbm</en>",
+        "lipoprotein(a)": "<en>lipoprotein(a)</en>",
+        "lisa": "<en>lisa</en>",
+        "litert": "<en>litert</en>",
+        "lmarena": "<en>lmarena</en>",
+        "lmsys": "<en>lmsys</en>",
+        "logitech g pro": "<en>logitech g pro</en>",
+        "lora": "<en>lora</en>",
+        "low fodmap": "<en>low fodmap</en>",
+        "lp(a)": "<en>lp(a)</en>",
+        "lumix gh6": "<en>lumix g h</en> 6",
+        "m&m's": "<en>m and m's</en>",
+        "m&s": "<en>m and s</en>",
+        "m.d.": "<en>m.d.</en>",
+        "mane 'n tail": "<en>mane 'n tail</en>",
+        "maserati mc20": "<en>maserati m c</en> 20",
+        "masld": "<en>masld</en>",
+        "matlab": "<en>matlab</en>",
+        "mckinsey & company": "<en>mckinsey and company</en>",
+        "mclaren 720s": "<en>mc laren</en> 720 <en>s</en>",
+        "mclaren 750s": "<en>mc laren</en> 750 <en>s</en>",
+        "mercedes g-class": "<en>mercedes g class</en>",
+        "mercedes g-wagon": "<en>mercedes g wagon</en>",
+        "mercedes s-class": "<en>mercedes s class</en>",
+        "mercedes-amg": "<en>mercedes amg</en>",
+        "meta quest 3s": "<en>meta quest</en> 3 <en>s</en>",
+        "michelle phan": "<en>michelle phann</en>",
+        "mini cooper s": "<en>mini cooper s</en>",
+        "miralax": "<en>miralax</en>",
+        "mkbhd": "<en>mkbhd</en>",
+        "mlflow": "<en>mlflow</en>",
+        "mmlu-pro": "<en>mmlu pro</en>",
+        "model s": "<en>model s</en>",
+        "model s plaid": "<en>model s plaid</en>",
+        "moma": "<en>moma</en>",
+        "moocs": "<en>moocs</en>",
+        "morris chang": "<en>morris change</en>",
+        "motogp": "<en>motogp</en>",
+        "motorola razr+": "<en>motorola razr+</en>",
+        "mp3": "<en>m p</en> 3",
+        "mp4": "<en>m p</en> 4",
+        "mrna": "<en>mrna</en>",
+        "mrna vaccine": "<en>mrna vaccine</en>",
+        "msnbc": "<en>msnbc</en>",
+        "mx master 3s": "<en>m x master</en> 3 <en>s</en>",
+        "n seoul tower": "<en>n seoul tower</en>",
+        "n8n": "<en>n</en> 8 <en>n</en>",
+        "nad+": "<en>nad+</en>",
+        "nafld": "<en>nafld</en>",
+        "nam joo-hyuk": "<en>namm joo hyuk</en>",
+        "nbcuniversal": "<en>nbcuniversal</en>",
+        "nestjs": "<en>nestjs</en>",
+        "new balance 1906r": "<en>new balance</en> 1906 <en>r</en>",
+        "new balance 2002r": "<en>new balance</en> 2002 <en>r</en>",
+        "nfts": "<en>nfts</en>",
+        "nhtsa": "<en>nhtsa</en>",
+        "nissan gt-r": "<en>nissan gt r</en>",
+        "nissan z": "<en>nissan z</en>",
+        "notebooklm plus": "<en>notebooklm plus</en>",
+        "nothing ear (a)": "<en>nothing ear (a)</en>",
+        "nsaids": "<en>nsaids</en>",
+        "nsuns": "<en>nsuns</en>",
+        "nusrat fateh ali khan": "<en>nusrat fateh ali khann</en>",
+        "nvlink": "<en>nvlink</en>",
+        "nvme": "<en>nvme</en>",
+        "ob-gyn": "<en>ob gyn</en>",
+        "okrs": "<en>okrs</en>",
+        "omega sa": "<en>omega s a</en>",
+        "osiris-rex": "<en>osiris rex</en>",
+        "otter.ai": "<en>otter dot aih</en>",
+        "pac-man": "<en>pac man</en>",
+        "pailin's kitchen": "<en>pailin s kitchen</en>",
+        "palm": "<en>palm</en>",
+        "palm 2": "<en>pa l m</en> 2",
+        "pandora a/s": "<en>pandora a/s</en>",
+        "paramount+": "<en>paramount+</en>",
+        "park chan-wook": "<en>park chann wook</en>",
+        "park hang-seo": "<en>park hange seo</en>",
+        "ph": "<en>ph</en>",
+        "pixel 7a": "<en>pixel</en> 7 <en>a</en>",
+        "pixel 8a": "<en>pixel</en> 8 <en>a</en>",
+        "pixel 9a": "<en>pixel</en> 9 <en>a</en>",
+        "playstation vr2": "<en>play station v r</en> 2",
+        "porsche 911 gt3": "<en>porsche</en> 911 <en>g t</en> 3",
+        "proraw": "<en>proraw</en>",
+        "ps2": "<en>p s</en> 2",
+        "ps3": "<en>p s</en> 3",
+        "ps4": "<en>p s</en> 4",
+        "ps5": "<en>p s</en> 5",
+        "ps5 pro": "<en>p s</en> 5 <en>pro</en>",
+        "psvr2": "<en>p s v r</en> 2",
+        "pull&bear": "<en>pull and bear</en>",
+        "punkt mp02": "<en>punkt m p</en> 02",
+        "qlora": "<en>qlora</en>",
+        "qtcinderella": "<en>qtcinderella</en>",
+        "radwimps": "<en>radwimps</en>",
+        "ram dass": "<en>ramm dass</en>",
+        "ram trx": "<en>ramm t r x</en>",
+        "ray-ban": "<en>ray ban</en>",
+        "re/max": "<en>re/max</en>",
+        "readme": "<en>readme</en>",
+        "reits": "<en>reits</en>",
+        "restful api": "<en>restful api</en>",
+        "rhino 3d": "<en>rhino</en> 3 <en>d</en>",
+        "risc-v": "<en>risc v</en>",
+        "rivian r1s": "<en>rivian r</en> 1 <en>s</en>",
+        "rivian r1t": "<en>rivian r</en> 1 <en>t</en>",
+        "rlaif": "<en>r l a i f</en>",
+        "robots.txt": "<en>robots.txt</en>",
+        "rode nt-usb": "<en>rode nt usb</en>",
+        "rolex gmt-master ii": "<en>rolex gmt master ii</en>",
+        "rolex sa": "<en>rolex s a</en>",
+        "roth 401(k)": "<en>roth</en> 401 <en>k</en>",
+        "rstudio": "<en>rstudio</en>",
+        "s-log": "<en>s log</en>",
+        "s.coups": "<en>s.coups</en>",
+        "s1mple": "<en>s</en> 1 <en>mple</en>",
+        "sagittarius a*": "<en>sagittarius a*</en>",
+        "sal khan": "<en>sal khann</en>",
+        "salman khan": "<en>salman khann</en>",
+        "samuel l. jackson": "<en>samuel l jackson</en>",
+        "sdgs": "<en>sdgs</en>",
+        "security+": "<en>security+</en>",
+        "serie a": "<en>serie a</en>",
+        "shah rukh khan": "<en>shah rukh khann</en>",
+        "shangri-la": "<en>shangri lah</en>",
+        "shin min-a": "<en>shin min a</en>",
+        "shinee": "<en>shinee</en>",
+        "shure mv7": "<en>shure m v</en> 7",
+        "shure sm7b": "<en>shure s m</en> 7 <en>b</en>",
+        "sk-ii": "<en>sk ii</en>",
+        "sk-ii facial treatment essence": "<en>sk ii facial treatment essence</en>",
+        "smes": "<en>smes</en>",
+        "solidjs": "<en>solidjs</en>",
+        "sony a7c": "<en>sony a</en> 7 <en>c</en>",
+        "sony a7r v": "<en>sony a</en> 7 <en>r v</en>",
+        "spo2": "<en>sp o</en> 2",
+        "sqlite": "<en>sqlite</en>",
+        "ssense": "<en>ssense</en>",
+        "ssris": "<en>ssris</en>",
+        "stronglifts 5x5": "<en>strong lifts</en> 5 <en>x</en> 5",
+        "subscribe & save": "<en>subscribe and save</en>",
+        "swe-agent": "<en>swe agent</en>",
+        "swe-bench": "<en>swe bench</en>",
+        "swe-bench verified": "<en>swe bench verified</en>",
+        "t-bone": "<en>t bone</en>",
+        "t-mobile": "<en>t mobile</en>",
+        "t.j. maxx": "<en>t dot j maxx</en>",
+        "t3.gg": "<en>t</en> 3 <en>gg</en>",
+        "tbjzl": "<en>tbjzl</en>",
+        "tedx": "<en>tedx</en>",
+        "tensorrt": "<en>tensorrt</en>",
+        "tensorrt-llm": "<en>tensorrt llm</en>",
+        "teresa teng": "<en>teresa tengg</en>",
+        "tesla model s plaid": "<en>tesla model s plaid</en>",
+        "tiffany & co.": "<en>tiffany and co.</en>",
+        "tiffany t": "<en>tiffany t</en>",
+        "timthetatman": "<en>timm the tatman</en>",
+        "tobi lütke": "<en>tobi l tke</en>",
+        "top-k": "<en>top k</en>",
+        "toyota gr86": "<en>toyota g r</en> 86",
+        "toyota rav4": "<en>toyota r a v</en> 4",
+        "triple s": "<en>triple s</en>",
+        "truthfulqa": "<en>truthfulqa</en>",
+        "tu munich": "<en>t u munich</en>",
+        "usmle": "<en>usmle</en>",
+        "usmnt": "<en>usmnt</en>",
+        "uswnt": "<en>uswnt</en>",
+        "viktor&rolf flowerbomb": "<en>viktor and rolf flowerbomb</en>",
+        "vinfast lux a2.0": "<en>vin fast lux a</en> 2.0",
+        "vinfast lux sa2.0": "<en>vin fast lux s a</en> 2.0",
+        "vivian tu": "<en>vivian tuh</en>",
+        "vlookup": "<en>vlookup</en>",
+        "vng corporation": "<en>vng corporation</en>",
+        "vnpay": "<en>vnpay</en>",
+        "vram": "<en>vram</en>",
+        "vtsax": "<en>vtsax</en>",
+        "w2s": "<en>w</en> 2 <en>s</en>",
+        "wahoo kickr": "<en>wahoo kickr</en>",
+        "wahoo tickr": "<en>wahoo tickr</en>",
+        "wall-e": "<en>wall e</en>",
+        "walmart+": "<en>walmart+</en>",
+        "webgl": "<en>webgl</en>",
+        "webrtc": "<en>webrtc</en>",
+        "weights & biases": "<en>weights and biases</en>",
+        "west ham united": "<en>west hamm united</en>",
+        "wet n wild": "<en>wet n wild</en>",
+        "wi ha-joon": "<en>wi hah joon</en>",
+        "xanh sm": "<en>xahnhh s m</en>",
+        "xbox series s": "<en>xbox series s</en>",
+        "xgboost": "<en>xgboost</en>",
+        "xiaomi su7": "<en>xiaomi s u</en> 7",
+        "xlookup": "<en>xlookup</en>",
+        "y2k": "<en>y</en> 2 <en>k</en>",
+        "yagni": "<en>yagni</en>",
+        "yamaha hs8": "<en>yamaha h s</en> 8",
+        "yolov8": "<en>y o l ov</en> 8",
+        "zalo oa": "<en>zalo o a</en>",
+        "zing mp3": "<en>zing m p</en> 3"
+    };
+    // @generated glossary-say end
+
     // ---- Lexicon: names worth knowing. [surface, category, say]. `say` only where VieNeu's reading of
     // the surface is wrong, each one checked on its phonemizer (tools/pron-eval.js). A lexicon entry
     // is also evidence: a Vietnamese-syllable word inside one is an English name ("Tom Hanks").
@@ -207,6 +628,39 @@
         extraLoaded = true;
         const extra = root && Array.isArray(root.CST_SPEECH_LEXICON) ? root.CST_SPEECH_LEXICON : [];
         for (const e of extra) if (Array.isArray(e) && typeof e[0] === "string") addEntry(e[0], e[1], e[2]);
+        loadGlossaryNames();
+    }
+
+    // 2.6.0: every name and term the glossary keeps in English ("Kim Kardashian", "Eight Sleep",
+    // "Long Beach") reaches the subtitle as written, so it is evidence that its words are English:
+    // a lexicon unit, said in one piece, its Vietnamese-syllable words respelled the English way.
+    // Not a term the glossary renders in Vietnamese, and never a Vietnamese name: none with
+    // Vietnamese diacritics, no lone Vietnamese syllable ("Kim"), no two capitalised Vietnamese
+    // syllables side by side ("Ho Chi Minh", "Ha Long Bay"). An entry already here keeps its reading.
+    // Category "glossary" adds no all-caps reading of its own ("HRV" stays letters).
+    function glossaryName(term) {
+        const words = term.split(/\s+/);
+        if (words.length > 6 || DIACRITIC.test(term)) return false;
+        if (VI_CAPS.has(term)) return false;   // "SSI", "VTV": Vietnamese letter names, as Vietnamese say them
+        const cores = words.map(w => possessive(w).replace(/[^A-Za-z]/g, ""));
+        const viet = cores.map(w => !!w && isViet(w));
+        if (viet.every(Boolean)) return false;
+        for (let i = 1; i < cores.length; i++) if (viet[i] && viet[i - 1] && capitalised(cores[i]) && capitalised(cores[i - 1])) return false;
+        return true;
+    }
+    function loadGlossaryNames() {
+        const groups = root && root.CST_GLOSSARY_GROUPS;
+        if (!groups) return;
+        for (const g of Object.values(groups)) {
+            const vi = g.vi || {};
+            for (const t of g.terms || []) {
+                const key = String(t).trim().toLowerCase().replace(/\s+/g, " ");
+                if (!key || vi[key] || LEX.has(key) || !glossaryName(t)) continue;
+                LEX.set(key, { surface: String(t).trim(), cat: "glossary", say: GLOSSARY_SAY[key] || null });
+                LEX_MAX = Math.max(LEX_MAX, key.split(" ").length);
+            }
+        }
+        memo.clear(); renderMemo.clear();
     }
 
     // All-caps codes VieNeu spells with Vietnamese letter names, and Vietnamese say that way too
@@ -347,7 +801,8 @@
                 const words = tokens.slice(i, i + len).map(t => t.s);
                 const k1 = words.join(" ").toLowerCase();
                 const k2 = words.slice(0, -1).concat(possessive(words[len - 1])).join(" ").toLowerCase();
-                const e = LEX.get(k1) || LEX.get(k2);
+                // a name ending in a full stop ("M.D.", "e.l.f."): the tokenizer gives the stop to the trail
+                const e = LEX.get(k1) || LEX.get(k2) || (/^\./.test(tokens[i + len - 1].trail) ? LEX.get(k1 + ".") : undefined);
                 if (!e) continue;
                 // a one-word entry that is also a Vietnamese word counts only with its own case
                 if (len === 1 && tokens[i].shape === "ambig" && possessive(tokens[i].s) !== e.surface) continue;
@@ -361,9 +816,17 @@
 
         // 2. runs: lexicon units, English words, capitalised names, and the numbers of a model or
         //    version ("Gemini 2 chấm 5 Flash", "RTX 5090", "iPhone 17 Pro")
+        // A code the glossary keeps in English that VieNeu's own table expands to Vietnamese words
+        // ("CUDA", "BTC") is English letters or a word; the Vietnamese codes we know (VI_CAPS) stay
+        for (const t of tokens) {
+            if (t.shape !== "caps") continue;
+            const p = possessive(t.s);
+            t.cls = capsClass(p);
+            if (t.cls === "vi" && t.unit >= 0 && units[t.unit].cat === "glossary" && !VI_CAPS.has(p) && !/Đ/.test(p)) t.cls = "spelled";
+        }
         const englishCaps = t => {
             if (t.shape !== "caps") return false;
-            const p = possessive(t.s), c = capsClass(p);
+            const p = possessive(t.s), c = t.cls;
             if (c === "vi" || (shouting && isViet(p))) return false;
             if (c === "word") return !isViet(p);
             // an unknown code the English source line does not have was written by the translator,
@@ -472,9 +935,14 @@
             if (t.shape !== "caps" || t.span < 0) continue;
             const p = possessive(t.s);
             // a code the source line writes as a word ("Whoop") or one shaped like a word is said as one
-            if (t.unit < 0 && capsClass(p) === "spelled" && !INITIALISMS.has(p) && !EN_SPELLED.has(p) && !isViet(p) &&
+            // (2.6.0: also inside a glossary name, and a code VieNeu "reads as a word" of 4+ letters:
+            // it reads "CUDA" as Vietnamese syllables, cu đa)
+            const own = t.unit < 0 || units[t.unit].cat === "glossary";
+            const cls = t.cls;
+            if (own && (cls === "spelled" || (cls === "word" && p.length >= 4 && wordShaped(p))) && !INITIALISMS.has(p) &&
+                !EN_SPELLED.has(p) && !isViet(p) &&
                 ((englishSource && inSourceAnyCase(p) && !inSource(p)) || wordShaped(p))) { t.asWord = true; continue; }
-            if (p.length < 5 || INITIALISMS.has(p) || capsClass(p) === "vi" || VOWEL_CAPS.test(p)) continue;
+            if (p.length < 5 || INITIALISMS.has(p) || cls === "vi" || VOWEL_CAPS.test(p)) continue;
             const sp = spans[t.span];
             let score = 0;
             if (englishSource && inSource(p)) score += CONF.strong;
@@ -501,15 +969,17 @@
         switch (t.shape) {
             case "caps": {
                 if (t.letters) return { say: `<en>${p.toLowerCase().split("").join(" ")}${ps}</en>`, pri: 2 };
-                if (t.span < 0 || capsClass(p) !== "spelled") return null;
+                if (t.asWord) return { say: `<en>${p.toLowerCase()}${ps}</en>`, pri: 3 };
+                if (t.span < 0 || (t.cls || capsClass(p)) !== "spelled") return null;
                 const e = LEX.get(p.toLowerCase());
-                if ((e && e.cat !== "initialism") || t.asWord) return { say: `<en>${p.toLowerCase()}${ps}</en>`, pri: 3 };
+                if (e && e.cat !== "initialism" && e.cat !== "glossary") return { say: `<en>${p.toLowerCase()}${ps}</en>`, pri: 3 };
                 // a longer code with a vowel that is no word shape: its reading is unknown, left to the voice
                 if (p.length > 4 && !INITIALISMS.has(p)) return null;
                 return { say: `<en>${p.toLowerCase().split("").join(" ")}${ps}</en>`, pri: 2 };
             }
             case "camel": {
-                if (LEX.has(p.toLowerCase())) return null;           // in the lexicon: VieNeu reads it well
+                const known = LEX.get(p.toLowerCase());
+                if (known && known.cat !== "glossary") return null;  // in the lexicon: VieNeu reads it well
                 if (VI_CAPS.has(p)) return null;                     // "ThS" (thạc sĩ)
                 const pieces = camelPieces(p);
                 if (pieces.some(x => /^[A-Z]{2,}$/.test(x))) return null;      // "ChatGPT": VieNeu knows the acronym
@@ -524,7 +994,12 @@
                 const r = t.strong && RESPELL[p.toLowerCase()];
                 return r ? { say: `<en>${r}${ps}</en>`, pri: 1 } : null;
             }
-            default: return null;
+            default: {
+                // 2.6.0: a JavaScript library name, "Node.js": the voice said "chấm" and Vietnamese
+                // letter names for the suffix
+                const js = /^([A-Za-z][A-Za-z0-9]*)\.js$/i.exec(p);
+                return js ? { say: `<en>${js[1].toLowerCase()} j s</en>${ps}`, pri: 2 } : null;
+            }
         }
     }
 
@@ -553,6 +1028,26 @@
             const r = sayToken(o.t);
             if (r) { o.say = r.say; o.pri = r.pri; }
         }
+        // 2.6.0: initials inside an English name, "Samuel L. Jackson", "T.J. Maxx", "e.l.f.": English
+        // letter names (VieNeu said "lờ", "tê dờ"), and the initial's own full stop dropped, so the
+        // voice does not end a sentence on it
+        const englishNext = k => { const n = a.tokens[k + 1]; return !!n && n.lang === "en"; };
+        a.tokens.forEach((t, k) => {
+            if (out[k].say !== null) return;
+            const dotted = /^(?:[A-Za-z]\.){1,3}[A-Za-z]?$/.test(t.s + (t.trail === "." ? "." : "")) && /^[A-Za-z.]+$/.test(t.s);
+            const single = /^[A-Z]$/.test(t.s) && t.trail === ".";
+            if (!dotted && !single) return;
+            const prev = k > 0 ? a.tokens[k - 1] : null;
+            const inName = (prev && /^\p{Lu}/u.test(prev.s) && prev.lang === "en") || englishNext(k);
+            const lettersOnly = t.s.replace(/\./g, "");
+            if (!(single ? inName : lettersOnly.length >= 2 && (inName || t.span >= 0 || t.unit >= 0))) return;
+            out[k].say = `<en>${lettersOnly.toLowerCase().split("").join(" ")}</en>`;
+            out[k].pri = 2;
+            // the stop is the abbreviation's when the sentence goes on ("M.D. ở Mỹ"), the sentence's when
+            // a capital follows ("... e.l.f. Sau đó")
+            const n = a.tokens[k + 1];
+            out[k].dropDot = englishNext(k) || single || (!!n && !/^\p{Lu}/u.test(n.s));
+        });
         // a model number after a code: "RTX 5090" is "năm không chín không", not a quantity; "RAM 4096
         // MB" is (the planner's numberRole: a unit after it wins)
         const P = planner();
@@ -577,7 +1072,7 @@
         const words = [];
         for (const o of out) {
             if (o.say === "") { if (o.t.trail && words.length) words[words.length - 1] += o.t.trail; continue; }
-            words.push(o.t.lead + (o.say === null ? o.t.s : o.say) + o.t.trail);
+            words.push(o.t.lead + (o.say === null ? o.t.s : o.say) + (o.dropDot ? o.t.trail.replace(/^\./, "") : o.t.trail));
         }
         return { text: words.join(" "), changed: true };
     }
@@ -605,8 +1100,8 @@
     // Version of the pronunciation data and policy (lexicon, tables, CONF). Not part of any cache key:
     // the free voice's audio key holds the rendered text itself, so a policy change re-renders exactly
     // the lines whose rendered text changed, and nothing reaches the paid voice or the translation cache.
-    const PRONUNCIATION_VERSION = "1.9.0";
-    const api = { analyze, render, vieneuText, spanGaps, shapeOf, capsClass, addEntry, RESPELL, LEX, TAG_MAX, CONF,
+    const PRONUNCIATION_VERSION = "2.0.0";
+    const api = { analyze, render, vieneuText, spanGaps, shapeOf, capsClass, addEntry, glossaryName, GLOSSARY_SAY, RESPELL, LEX, TAG_MAX, CONF,
         HIGH_EN, AMBIGUOUS, HIGH_VI, PRONUNCIATION_VERSION };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_DUB_SPEECH = api;

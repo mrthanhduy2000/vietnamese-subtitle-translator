@@ -186,6 +186,10 @@
         t = t.replace(/\s=\s|(?<=\w)=(?=\w)/g, " bằng ");
         t = t.replace(/\s\+\s/g, " cộng ");
         t = t.replace(/\s*(?:->|→|=>)\s*/g, " thành ");
+        // 2.6.0: "&" inside an English name ("Johnson & Johnson", "Ben & Jerry's") is "and", said the
+        // English way; between Vietnamese words, or Vietnamese-syllable ones ("Nam & Lan"), "và"
+        const enWord = w => /^[A-Za-z][A-Za-z'’.]*$/.test(w) && !(SEG && SEG.isVietWord && SEG.isVietWord(w.replace(/['’]s$|\.$/i, "").toLowerCase()));
+        t = t.replace(/([A-Za-z][A-Za-z'’.]*)\s&\s([A-Z][A-Za-z'’.]*)/g, (m0, a, b) => (enWord(a) || enWord(b) ? `${a} and ${b}` : m0));
         t = t.replace(/\s&\s/g, " và ");
         // Đơn vị đo đọc như người Việt nói: "60 km/h" -> "60 ki-lô-mét trên giờ"
         const UNIT_SAY = { km: "ki-lô-mét", m: "mét", cm: "xen-ti-mét", mm: "mi-li-mét", kg: "ki-lô-gam", g: "gam", h: "giờ", s: "giây", ms: "mi-li-giây", min: "phút" };

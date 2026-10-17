@@ -40,6 +40,7 @@ sense of weight, not an assertion.
 | `ui.test.js` | 38 | Shortcuts (Alt+S / Alt+D / Alt+Shift+V), no blocking `alert`/`confirm` on the user's page, focus rings and reduced-motion, `role=status` toasts, the YouTube quick menu built on a mini-DOM, light/dark theme wiring, the VieNeu autostart script, auto-switch back to VieNeu when the server appears, and the release-history data |
 | `voice-refresh.test.js` | 2 | The voice picks up a refined translation of the same length without a forced refresh; the removed hand-correction feature (2.5.6) leaves no module, pencil, Settings card or `edits:*` record |
 | `review.test.js` | 3 | 2.4.7: the slid-run realignment run inside the real `content.js` (`translateWindow`: realigned before the quality check, no refine) and `youtube.js` (`ytGanBanDich` over a window seam, cues redrawn); the review tools' contracts (`REVIEW_MARK` pattern, `tools/regress.js` `compare`) |
+| `glossary-speech.test.js` | 5 | 2.6.0 glossary bridge into the voice, in its own process because it loads the glossary into `dub-speech.js`: kept names tagged English, Vietnamese names and `VI_CAPS` codes untouched, `&` -> and, initials, no stale `GLOSSARY_SAY` entry |
 | `glossary.test.js` | 15 | `glossary.js` data and the protect -> restore round trip in `content.js`: settled renderings, plurals, sentence-start capitals, user rules, groups added after a saved list |
 
 ## The two harnesses that make offline testing possible

@@ -17,7 +17,7 @@ runs in the same world, reading `content.js`'s `state` and `CST_UI` directly (no
    matcher from `glossary.js` plus the user's own keep-list. A term with an entry in its group's
    `vi` map (from `GLOSSARY_VI`, 1.8.5) is restored as that Vietnamese, not the English
    (`translateAsFor` folds plurals; user keep-list and `=>` rules override it). 2.5.9: the groups
-   hold ~14,000 terms (`glossary-extra.js` merges `glossary-data.js` in), so `buildMasterRegex`
+   hold ~14,000 terms (2.6.0: ~25,000 over 52 groups) (`glossary-extra.js` merges `glossary-data.js` in), so `buildMasterRegex`
    no longer builds one alternation (80 ms a window at 50,000 terms): it indexes terms by their
    first three characters and tries only that bucket's small sticky regex at each word start,
    returning an object `String.replace` accepts. Same matches as the old regex on 2,326 real

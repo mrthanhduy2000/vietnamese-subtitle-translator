@@ -4,6 +4,16 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.6.0", luc: "18/10/2026", ten: "Từ điển gần 25.000 thuật ngữ, giọng đọc nói tên riêng theo kiểu quốc tế",
+            y: [
+                "Từ điển thuật ngữ tăng từ khoảng 14.000 lên khoảng 24.900 mục, từ 35 lên 52 chủ đề. Chủ đề mới: nhân vật nổi tiếng, thương hiệu toàn cầu, địa danh, âm nhạc, tâm linh, dã ngoại, thủ công, đồ uống, nhiếp ảnh, kỹ thuật, nông nghiệp, động vật, triết học, ngôn ngữ, quân sự, đám cưới, kế toán.",
+                "Thêm hàng nghìn tên riêng giữ nguyên tiếng Anh: mẫu điện thoại, máy tính, đồng hồ, xe hơi, xe máy, giày, túi, mỹ phẩm, trường đại học, bảo tàng, sân bay, YouTuber, podcast, vận động viên. Địa danh có tên tiếng Việt quen thuộc được dịch đúng (Beijing thành Bắc Kinh, Ha Long Bay thành vịnh Hạ Long).",
+                "Giọng đọc VieNeu nói các tên giữ tiếng Anh theo cách phát âm quốc tế: trong 11.684 tên, số tên bị đọc thành âm tiếng Việt giảm từ 496 xuống 98 (phần còn lại chủ yếu là con số, vốn cố ý đọc tiếng Việt). Ví dụ CeraVe, CUDA đọc như tiếng Anh; Johnson & Johnson đọc là \"and\"; Samuel L. Jackson, e.l.f. đọc đúng chữ cái tiếng Anh.",
+                "Tên tiếng Việt và mã viết tắt Việt (SSI, VTV, Hoàng Thùy Linh) vẫn đọc kiểu Việt như cũ.",
+                "Tiếp tục loại các từ nhiều nghĩa (foundation, period, momentum, commit, fork, highlights...) để video đời sống không bị dịch sai nghĩa."
+            ]
+        },
+        {
             v: "2.5.9", luc: "17/10/2026", ten: "Từ điển thuật ngữ lớn hơn bảy lần, thêm 16 chủ đề đời sống",
             y: [
                 "Từ điển thuật ngữ tăng từ khoảng 1.700 lên khoảng 14.000 mục. Các chủ đề cũ (công nghệ và AI, sức khỏe, y khoa, tâm lý, marketing, kinh doanh, kinh tế, dữ liệu, pháp lý...) đều được mở rộng.",

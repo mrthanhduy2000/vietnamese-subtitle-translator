@@ -67,7 +67,7 @@ Reading all source is ~500KB, roughly 145k tokens. Don't. A normal task should l
 - Line numbers in `docs/` are anchors and they drift. Confirm with grep before editing.
 - **Grep only, never read whole:** `options.html` (~1600, ~850 of them inline CSS),
   `youtube.js` (~2000), `content.js` (~2300), `dub-engine.js` (~2400), `background.js` (~2000),
-  `glossary.js` (~1340, pure data), `glossary-data.js` (~11,500, pure data, never read even partly without grep), `dub-speech.js` (~550, a third of it a generated table),
+  `glossary.js` (~1340, pure data), `glossary-data.js` (~27,500, pure data, never read even partly without grep), `dub-speech.js` (~1100, half of it generated tables),
   `tests/hardening.test.js` (~2100), `tests/cost.test.js` (~1000).
 - Safe to read whole when you need them: `cost-policy.js` (~370), `popup.js` (~360), `yt-bridge.js`
   (~300), `subtitle-style.js` (~300), `vi-quality.js` (~580), `lang-detect.js` (~130), any `docs/` file.

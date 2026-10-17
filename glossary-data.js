@@ -187,7 +187,6 @@ Writesonic
 Perplexity Pro
 Perplexity Comet
 Arc Browser
-~Arc
 ~Poe
 Hugging Face Spaces
 Hugging Face Transformers
@@ -1128,7 +1127,6 @@ Nuxt
 SvelteKit
 Solid.js
 Astro
-~Remix
 Gatsby
 Vite
 Webpack
@@ -1580,7 +1578,6 @@ FreeStyle Libre
 Abbott Lingo
 Stelo
 continuous glucose monitor|máy đo đường huyết liên tục
-CGM
 InsideTracker
 Function Health
 Prenuvo
@@ -1633,7 +1630,7 @@ Stan Efferding
 Layne Norton
 Andy Galpin
 Peter Attia
-The Drive
+~The Drive
 ~Outlive
 Andrew Huberman
 Huberman Lab
@@ -1642,7 +1639,7 @@ Rhonda Patrick
 FoundMyFitness
 David Sinclair
 Bryan Johnson
-Don't Die
+~Don't Die
 Matthew Walker
 Why We Sleep
 Satchin Panda
@@ -1684,7 +1681,7 @@ Jeff Cavaliere
 Chris Heria
 ThenX
 Mark Rippetoe
-Starting Strength
+~Starting Strength
 StrongLifts 5x5
 5/3/1
 Jim Wendler
@@ -1889,7 +1886,6 @@ energy balance|cân bằng năng lượng
 energy expenditure|năng lượng tiêu hao
 resting metabolic rate|tỷ lệ trao đổi chất khi nghỉ
 non-exercise activity thermogenesis|sinh nhiệt ngoài tập luyện
-NEAT
 thermic effect of food|hiệu ứng nhiệt của thức ăn
 metabolic adaptation|thích nghi chuyển hóa
 metabolic rate|tốc độ trao đổi chất
@@ -2496,7 +2492,6 @@ body scan meditation|thiền quét cơ thể
 chronotype|kiểu đồng hồ sinh học
 morning person|người dậy sớm
 night owl|cú đêm
-early bird|người dậy sớm
 social jet lag|lệch giờ xã hội
 circadian clock|đồng hồ sinh học
 circadian rhythms|nhịp sinh học
@@ -3006,7 +3001,6 @@ primary care physician|bác sĩ chăm sóc ban đầu
 primary care doctor|bác sĩ chăm sóc ban đầu
 general practitioner|bác sĩ đa khoa
 family doctor|bác sĩ gia đình
-GP
 OB-GYN
 registered dietitian|chuyên gia dinh dưỡng có chứng chỉ
 nurse practitioner|y tá điều trị
@@ -4506,7 +4500,6 @@ melasma|nám
 =melasma
 post-inflammatory hyperpigmentation|tăng sắc tố sau viêm
 PIH
-PIE
 rosacea|bệnh trứng cá đỏ
 =rosacea
 eczema|chàm
@@ -4553,7 +4546,6 @@ microneedling|lăn kim
 chemical peel|lột da hóa học
 laser treatment|điều trị bằng laser
 laser hair removal|triệt lông bằng laser
-IPL
 fractional laser|laser vi điểm
 HydraFacial
 facial treatment|liệu trình chăm sóc da mặt
@@ -4631,8 +4623,6 @@ drugstore skincare|dưỡng da bình dân
 high-end makeup|mỹ phẩm cao cấp
 luxury skincare|dưỡng da cao cấp
 holy grail product|sản phẩm chân ái
-empties|vỏ sản phẩm đã dùng hết
-=empties
 project pan|dự án dùng hết
 =project pan
 beauty haul|haul làm đẹp
@@ -5063,7 +5053,6 @@ edamame|đậu nành Nhật
 =edamame
 tempeh|tempeh
 =tempeh
-tofu|đậu phụ
 seitan|seitan
 =seitan
 plant-based meat|thịt thực vật
@@ -5251,7 +5240,6 @@ mayonnaise|mayonnaise
 =mayonnaise
 umami|vị umami
 =umami
-MSG
 monosodium glutamate|bột ngọt
 Maillard reaction|phản ứng Maillard
 caramelization|caramel hóa
@@ -6588,7 +6576,6 @@ Hawaii
 Maui
 Oahu
 Kauai
-Big Island
 Honolulu
 Waikiki
 Alaska
@@ -6871,8 +6858,6 @@ humidifier|máy tạo ẩm
 dehumidifier|máy hút ẩm
 =dehumidifier
 essential oil diffuser|máy khuếch tán tinh dầu
-diffuser|máy khuếch tán
-=diffuser
 essential oils|tinh dầu
 scented candle|nến thơm
 scented candles|nến thơm
@@ -7565,7 +7550,7 @@ Lemmino
 Hank Green
 John Green
 Vlogbrothers
-Crash Course
+~Crash Course
 CrashCourse
 Lex Fridman
 Lex Fridman Podcast
@@ -7580,7 +7565,7 @@ Alex Cooper
 Armchair Expert
 Dax Shepard
 On Purpose
-Modern Wisdom
+~Modern Wisdom
 Chris Williamson
 Hidden Brain
 Shankar Vedantam
@@ -7590,7 +7575,7 @@ Freakonomics Radio
 Freakonomics
 99% Invisible
 Stuff You Should Know
-The Daily
+~The Daily
 NPR
 BBC
 CNN
@@ -7826,7 +7811,6 @@ French Open
 Roland Garros
 Australian Open
 Grand Slam
-ATP
 WTA
 Formula 1
 Formula One
@@ -8024,7 +8008,6 @@ off-season training|tập luyện trái mùa
 postseason|hậu mùa giải
 championship ring|nhẫn vô địch
 three-pointer|cú ném ba điểm
-slam dunk|cú úp rổ
 buzzer beater|cú ném ở giây cuối
 triple-double|triple-double
 =triple-double
@@ -8128,8 +8111,6 @@ pole vault|nhảy sào
 shot put|đẩy tạ
 javelin|ném lao
 =javelin
-decathlon|mười môn phối hợp
-=decathlon
 world record|kỷ lục thế giới
 =world record
 Olympic record|kỷ lục Olympic
@@ -9150,8 +9131,6 @@ nuclear reactor|lò phản ứng hạt nhân
 nuclear power plant|nhà máy điện hạt nhân
 radioactive decay|phân rã phóng xạ
 radioactivity|tính phóng xạ
-half-life|chu kỳ bán rã
-=half-life
 isotope|đồng vị
 isotopes|đồng vị
 periodic table|bảng tuần hoàn
@@ -9222,16 +9201,12 @@ supernova|siêu tân tinh
 =supernova
 nebula|tinh vân
 =nebula
-galaxy|thiên hà
-=galaxy
 galaxies|thiên hà
 Milky Way|Dải Ngân Hà
 the Milky Way|Dải Ngân Hà
 Andromeda Galaxy|Thiên hà Andromeda
 solar system|hệ Mặt Trời
 the solar system|hệ Mặt Trời
-Mercury|sao Thủy
-~Mercury
 Venus|sao Kim
 Mars|sao Hỏa
 Jupiter|sao Mộc
@@ -9377,7 +9352,6 @@ mitosis|nguyên phân
 meiosis|giảm phân
 photosynthesis|quang hợp
 cellular respiration|hô hấp tế bào
-ATP
 adenosine triphosphate|adenosine triphosphate
 prokaryote|sinh vật nhân sơ
 eukaryote|sinh vật nhân thực
@@ -9403,7 +9377,6 @@ dinosaur|khủng long
 Tyrannosaurus rex|khủng long bạo chúa
 T. rex|khủng long bạo chúa
 fossil record|hồ sơ hóa thạch
-fossils|hóa thạch
 mammals|động vật có vú
 reptiles|bò sát
 amphibians|lưỡng cư
@@ -14132,4 +14105,13473 @@ busy work|việc bận rộn vô ích
 quick wins|thắng lợi nhanh
 low-hanging fruit|việc dễ làm trước
 =low-hanging fruit
+`);
+
+// ============================================================ people (new, 2.6.0): kept as written,
+// said the international way. Full names only; a lone first or last name is too often a word.
+CST_GLOSSARY_EXTRA_ADD("people", "Nhân vật nổi tiếng", `
+# actors and actresses
+Al Pacino
+Robert De Niro
+Jack Nicholson
+Dustin Hoffman
+Harrison Ford
+Clint Eastwood
+Anthony Hopkins
+Michael Caine
+Gary Oldman
+Daniel Day-Lewis
+Joaquin Phoenix
+Christian Bale
+Matt Damon
+Ben Affleck
+Mark Wahlberg
+Matthew McConaughey
+Woody Harrelson
+Jake Gyllenhaal
+Edward Norton
+Brad Pitt
+George Clooney
+Johnny Depp
+Keanu Reeves
+Hugh Jackman
+Russell Crowe
+Liam Neeson
+Ralph Fiennes
+Colin Firth
+Benedict Cumberbatch
+Tom Hiddleston
+Idris Elba
+Daniel Craig
+Pierce Brosnan
+Sean Connery
+Jude Law
+Ewan McGregor
+James McAvoy
+Michael Fassbender
+Andrew Garfield
+Eddie Redmayne
+Dev Patel
+Riz Ahmed
+Rami Malek
+Oscar Isaac
+Adam Driver
+Austin Butler
+Jacob Elordi
+Paul Mescal
+Barry Keoghan
+Josh O'Connor
+Jeremy Allen White
+Glen Powell
+Miles Teller
+Ansel Elgort
+Noah Centineo
+Chris Pratt
+Chris Pine
+Chris Hemsworth
+Liam Hemsworth
+Jason Momoa
+Henry Cavill
+Ben Stiller
+Owen Wilson
+Adam Sandler
+Jim Carrey
+Will Ferrell
+Steve Carell
+Seth Rogen
+Jonah Hill
+Paul Rudd
+Jack Black
+Kevin Hart
+Eddie Murphy
+Chris Rock
+Dave Chappelle
+Jamie Foxx
+Denzel Washington
+Samuel L. Jackson
+Morgan Freeman
+Forest Whitaker
+Mahershala Ali
+Michael B. Jordan
+Chadwick Boseman
+Daniel Kaluuya
+John Boyega
+Lupita Nyong'o
+Viola Davis
+Octavia Spencer
+Halle Berry
+Angela Bassett
+Regina King
+Taraji P. Henson
+Zoe Saldana
+Gal Gadot
+Margot Robbie
+Saoirse Ronan
+Florence Pugh
+Anya Taylor-Joy
+Sydney Sweeney
+Jenna Ortega
+Millie Bobby Brown
+Emma Watson
+Emma Stone
+Emma Thompson
+Kate Winslet
+Cate Blanchett
+Nicole Kidman
+Naomi Watts
+Charlize Theron
+Jennifer Lawrence
+Jennifer Aniston
+Jennifer Garner
+Jennifer Lopez
+Reese Witherspoon
+Sandra Bullock
+Julia Roberts
+Meg Ryan
+Meryl Streep
+Glenn Close
+Helen Mirren
+Judi Dench
+Maggie Smith
+Olivia Colman
+Tilda Swinton
+Frances McDormand
+Amy Adams
+Natalie Portman
+Scarlett Johansson
+Keira Knightley
+Anne Hathaway
+Rachel McAdams
+Rachel Weisz
+Emily Blunt
+Jessica Chastain
+Michelle Williams
+Kirsten Dunst
+Zooey Deschanel
+Mila Kunis
+Natalie Dormer
+Lily James
+Lily Collins
+Hailee Steinfeld
+Elle Fanning
+Dakota Fanning
+Dakota Johnson
+Kristen Stewart
+Robert Pattinson
+Shailene Woodley
+Brie Larson
+Elizabeth Olsen
+Zendaya Coleman
+Tom Holland
+Timothée Chalamet
+Ryan Gosling
+Ryan Reynolds
+Blake Lively
+Leonardo DiCaprio
+Tom Hanks
+Tom Cruise
+Will Smith
+Jada Pinkett Smith
+Dwayne Johnson
+Vin Diesel
+Jason Statham
+Sylvester Stallone
+Arnold Schwarzenegger
+Bruce Willis
+Mel Gibson
+Kevin Costner
+Kevin Bacon
+Kevin Spacey
+John Travolta
+Nicolas Cage
+Tom Hardy
+Cillian Murphy
+Pedro Pascal
+Bella Ramsey
+Kit Harington
+Emilia Clarke
+Sophie Turner
+Maisie Williams
+Peter Dinklage
+Bryan Cranston
+Aaron Paul
+Jon Hamm
+Elisabeth Moss
+Jeremy Strong
+Sarah Snook
+Kieran Culkin
+Macaulay Culkin
+Jennifer Coolidge
+Jason Sudeikis
+Hannah Waddingham
+Steve Martin
+Martin Short
+Selena Gomez
+Lily Gladstone
+Michelle Yeoh
+Ke Huy Quan
+Jamie Lee Curtis
+Stephanie Hsu
+Awkwafina
+Simu Liu
+Gemma Chan
+Henry Golding
+Constance Wu
+Ali Wong
+Steven Yeun
+John Cho
+Sandra Oh
+Lucy Liu
+Daniel Dae Kim
+Randall Park
+Hong Chau
+Ma Dong-seok
+Song Kang-ho
+Lee Jung-jae
+Gong Yoo
+Hyun Bin
+Son Ye-jin
+Park Seo-joon
+Lee Min-ho
+Kim Soo-hyun
+Jun Ji-hyun
+Song Hye-kyo
+Song Joong-ki
+Bae Suzy
+IU
+Jackie Chan
+Jet Li
+Donnie Yen
+Chow Yun-fat
+Tony Leung
+Andy Lau
+Stephen Chow
+Zhang Ziyi
+Gong Li
+Fan Bingbing
+Liu Yifei
+Ken Watanabe
+Hiroyuki Sanada
+Toshiro Mifune
+Shah Rukh Khan
+Aamir Khan
+Salman Khan
+Amitabh Bachchan
+Priyanka Chopra
+Deepika Padukone
+Aishwarya Rai
+Penélope Cruz
+Antonio Banderas
+Javier Bardem
+Salma Hayek
+Sofía Vergara
+Gael García Bernal
+Diego Luna
+Marion Cotillard
+Léa Seydoux
+Audrey Tautou
+Jean Reno
+Vincent Cassel
+Isabelle Huppert
+Catherine Deneuve
+Juliette Binoche
+Gérard Depardieu
+Omar Sy
+Mads Mikkelsen
+Alexander Skarsgård
+Stellan Skarsgård
+Christoph Waltz
+Daniel Brühl
+Audrey Hepburn
+Marilyn Monroe
+Grace Kelly
+Elizabeth Taylor
+Humphrey Bogart
+Marlon Brando
+James Dean
+Charlie Chaplin
+Cary Grant
+Katharine Hepburn
+Paul Newman
+Robert Redford
+Gene Wilder
+Robin Williams
+Heath Ledger
+Philip Seymour Hoffman
+Chris Farley
+John Candy
+Patrick Swayze
+River Phoenix
+Bill Murray
+Dan Aykroyd
+Harold Ramis
+Michael J. Fox
+Christopher Lloyd
+Sigourney Weaver
+Jodie Foster
+Susan Sarandon
+Geena Davis
+Diane Keaton
+Goldie Hawn
+Kurt Russell
+Kate Hudson
+Michelle Pfeiffer
+Winona Ryder
+Drew Barrymore
+Cameron Diaz
+Lucy Hale
+Ashley Tisdale
+Vanessa Hudgens
+Zac Efron
+Shia LaBeouf
+Megan Fox
+Sarah Jessica Parker
+Kim Cattrall
+Kerry Washington
+Mindy Kaling
+Tina Fey
+Amy Poehler
+Maya Rudolph
+Kristen Wiig
+Melissa McCarthy
+Rebel Wilson
+Issa Rae
+Quinta Brunson
+Ayo Edebiri
+Natasha Lyonne
+Phoebe Waller-Bridge
+Bill Hader
+Pete Davidson
+John Mulaney
+Bo Burnham
+Nate Bargatze
+Taylor Tomlinson
+Hasan Minhaj
+Ronny Chieng
+Jo Koy
+Russell Peters
+Ricky Gervais
+Jerry Seinfeld
+Larry David
+Sarah Silverman
+Louis C.K.
+Kevin James
+Bill Burr
+Joe Rogan podcast|podcast của Joe Rogan
+Theo Von
+Andrew Schulz
+Matt Rife
+Shane Gillis
+# directors, writers, producers
+Steven Spielberg
+Martin Scorsese
+Christopher Nolan
+Quentin Tarantino
+Stanley Kubrick
+Alfred Hitchcock
+Francis Ford Coppola
+Sofia Coppola
+George Lucas
+James Cameron
+Ridley Scott
+Tony Scott
+Peter Jackson
+Guillermo del Toro
+Alfonso Cuarón
+Alejandro González Iñárritu
+Denis Villeneuve
+David Fincher
+David Lynch
+Coen brothers|anh em nhà Coen
+Joel Coen
+Ethan Coen
+Paul Thomas Anderson
+Wes Anderson
+Greta Gerwig
+Noah Baumbach
+Spike Lee
+Jordan Peele
+Ryan Coogler
+Barry Jenkins
+Ava DuVernay
+Kathryn Bigelow
+Chloé Zhao
+Jane Campion
+Sam Mendes
+Danny Boyle
+Guy Ritchie
+Edgar Wright
+Taika Waititi
+Damien Chazelle
+Darren Aronofsky
+Ari Aster
+Robert Eggers
+Yorgos Lanthimos
+Bong Joon-ho
+Park Chan-wook
+Hirokazu Kore-eda
+Akira Kurosawa
+Hayao Miyazaki
+Makoto Shinkai
+Satoshi Kon
+Wong Kar-wai
+Zhang Yimou
+Ang Lee
+John Woo
+Tim Burton
+Sam Raimi
+Zack Snyder
+Joss Whedon
+J.J. Abrams
+Rian Johnson
+Jon Favreau
+James Gunn
+Russo brothers|anh em nhà Russo
+Kevin Feige
+Shonda Rhimes
+Vince Gilligan
+Aaron Sorkin
+Charlie Kaufman
+Nora Ephron
+Judd Apatow
+Mike Flanagan
+Jordan Peele films|phim của Jordan Peele
+Michael Bay
+M. Night Shyamalan
+Clint Eastwood films|phim của Clint Eastwood
+Woody Allen
+Roman Polanski
+Oliver Stone
+Ron Howard
+Rob Reiner
+Richard Linklater
+Gus Van Sant
+Spike Jonze
+Michel Gondry
+Luca Guadagnino
+Pedro Almodóvar
+Lars von Trier
+Ingmar Bergman
+Federico Fellini
+Jean-Luc Godard
+François Truffaut
+Andrei Tarkovsky
+Sergei Eisenstein
+Orson Welles
+Billy Wilder
+Walt Disney
+Jim Henson
+Stan Lee
+Jack Kirby
+Frank Miller
+Alan Moore
+Neil Gaiman
+# musicians and singers
+Taylor Swift
+Beyoncé Knowles
+Jay-Z
+Kanye West
+Kendrick Lamar
+Drake Graham
+J. Cole
+Eminem
+Snoop Dogg
+Dr. Dre
+Ice Cube
+Tupac Shakur
+The Notorious B.I.G.
+Nas
+Lil Wayne
+Nicki Minaj
+Cardi B
+Megan Thee Stallion
+Doja Cat
+SZA
+Lizzo
+Missy Elliott
+Lauryn Hill
+Alicia Keys
+John Legend
+~Usher
+Chris Brown
+Frank Ocean
+Tyler, the Creator
+Childish Gambino
+Donald Glover
+Pharrell Williams
+Timbaland
+Kid Cudi
+Lil Nas X
+Future rapper|rapper Future
+Travis Scott
+21 Savage
+Post Malone
+Mac Miller
+Juice WRLD
+XXXTentacion
+Lil Peep
+A$AP Rocky
+Ice Spice
+Billie Eilish
+Finneas O'Connell
+Olivia Rodrigo
+Sabrina Carpenter
+Ariana Grande
+Dua Lipa
+Lady Gaga
+Katy Perry
+Rihanna Fenty
+Adele Adkins
+Ed Sheeran
+Harry Styles
+Niall Horan
+Zayn Malik
+Louis Tomlinson
+Liam Payne
+One Direction
+Justin Bieber
+Shawn Mendes
+Camila Cabello
+Charlie Puth
+Lewis Capaldi
+Sam Smith
+Hozier
+Noah Kahan
+Zach Bryan
+Morgan Wallen
+Luke Combs
+Chris Stapleton
+Kacey Musgraves
+Dolly Parton
+Shania Twain
+Carrie Underwood
+Garth Brooks
+Johnny Cash
+Willie Nelson
+Tim McGraw
+Faith Hill
+Keith Urban
+Blake Shelton
+Miranda Lambert
+Lainey Wilson
+Jelly Roll
+Bruno Mars
+Anderson .Paak
+Silk Sonic
+The Weeknd
+Abel Tesfaye
+Halsey
+Lorde
+Phoebe Bridgers
+=boygenius
+Lana Del Rey
+Mitski
+Clairo
+Gracie Abrams
+Conan Gray
+Laufey
+Tate McRae
+Doechii
+Tyla
+Raye
+Chappell Roan
+Charli XCX
+Troye Sivan
+Benson Boone
+Teddy Swims
+Hozier band|ban nhạc Hozier
+Arctic Monkeys
+Tame Impala
+The 1975
+The Killers
+The Strokes
+Vampire Weekend
+Florence + The Machine
+Coldplay band|ban nhạc Coldplay
+Chris Martin
+Imagine Dragons band|ban nhạc Imagine Dragons
+OneRepublic
+Twenty One Pilots
+Panic! at the Disco
+Fall Out Boy
+My Chemical Romance
+Paramore
+Green Day
+Blink-182
+Linkin Park
+Chester Bennington
+Foo Fighters
+Dave Grohl
+Red Hot Chili Peppers
+Pearl Jam
+Soundgarden
+Chris Cornell
+Radiohead band|ban nhạc Radiohead
+Thom Yorke
+Oasis band|ban nhạc Oasis
+Blur band|ban nhạc Blur
+U2
+Bono
+The Police
+~Sting
+Dire Straits
+Mark Knopfler
+Eric Clapton
+Jimi Hendrix
+Jimmy Page
+Robert Plant
+Freddie Mercury
+Brian May
+Mick Jagger
+Keith Richards
+Paul McCartney
+John Lennon
+George Harrison
+Ringo Starr
+Yoko Ono
+Elton John
+Billy Joel
+Bruce Springsteen
+Bob Dylan
+Joni Mitchell
+Leonard Cohen
+Neil Young
+Paul Simon
+Simon & Garfunkel
+Stevie Wonder
+Marvin Gaye
+Aretha Franklin
+Diana Ross
+Ray Charles
+James Brown
+Chuck Berry
+Little Richard
+Elvis Presley
+Buddy Holly
+Frank Sinatra
+Dean Martin
+Nat King Cole
+Louis Armstrong
+Ella Fitzgerald
+Billie Holiday
+Miles Davis
+John Coltrane
+Duke Ellington
+Herbie Hancock
+Norah Jones
+Michael Bublé
+Tony Bennett
+Andrea Bocelli
+Luciano Pavarotti
+Plácido Domingo
+Josh Groban
+Yo-Yo Ma
+Lang Lang
+Itzhak Perlman
+Hilary Hahn
+Joshua Bell
+Hans Zimmer
+John Williams composer|nhà soạn nhạc John Williams
+Ennio Morricone
+Howard Shore
+Danny Elfman
+Ludwig Göransson
+Hildur Guðnadóttir
+Max Richter
+Ólafur Arnalds
+Nils Frahm
+Philip Glass
+Steve Reich
+Brian Eno
+Ryuichi Sakamoto
+Joe Hisaishi composer|nhà soạn nhạc Joe Hisaishi
+Yiruma
+Michael Jackson
+Janet Jackson
+Prince Rogers Nelson
+Madonna Ciccone
+Whitney Houston
+Mariah Carey
+Celine Dion
+Cher
+Tina Turner
+Cyndi Lauper
+Bon Jovi
+Journey band|ban nhạc Journey
+Aerosmith
+Steven Tyler
+Guns N' Roses
+Axl Rose
+Slash guitarist|tay guitar Slash
+AC/DC
+Metallica band|ban nhạc Metallica
+James Hetfield
+Iron Maiden
+Black Sabbath
+Ozzy Osbourne
+Kiss band|ban nhạc Kiss
+Van Halen
+Eddie Van Halen
+Queen band|ban nhạc Queen
+ABBA
+Bee Gees
+Fleetwood Mac band|ban nhạc Fleetwood Mac
+Stevie Nicks
+Eagles band|ban nhạc Eagles
+The Beach Boys
+The Doors
+Jim Morrison
+Janis Joplin
+The Who
+The Kinks
+Pink Floyd band|ban nhạc Pink Floyd
+David Gilmour
+Roger Waters
+Genesis band|ban nhạc Genesis
+Phil Collins
+Peter Gabriel
+Talking Heads
+David Byrne
+Depeche Mode
+New Order
+Joy Division
+The Cure
+Robert Smith
+The Smiths
+Morrissey
+Daft Punk
+Avicii
+Calvin Harris
+David Guetta
+Tiësto
+Martin Garrix
+Marshmello
+Skrillex
+Deadmau5
+The Chainsmokers
+Zedd
+Kygo
+Alan Walker
+Swedish House Mafia
+Diplo
+Major Lazer
+Fred again..
+Fred Again
+Peggy Gou
+Bad Bunny rapper|ca sĩ Bad Bunny
+J Balvin
+Karol G
+Shakira
+Ricky Martin
+Enrique Iglesias
+Marc Anthony
+Daddy Yankee
+Luis Fonsi
+Rosalía
+Peso Pluma
+Rauw Alejandro
+Maluma
+Anitta
+Stromae
+Aya Nakamura
+Måneskin
+BTS RM|RM của BTS
+Kim Namjoon
+Jin BTS|Jin của BTS
+Suga
+Agust D
+J-Hope
+Jimin
+Park Jimin
+V BTS|V của BTS
+Kim Taehyung
+Jungkook
+Jeon Jungkook
+Jennie Kim
+Jisoo
+Rosé
+Lisa Manoban
+G-Dragon
+Taeyang
+PSY
+Gangnam Style
+Rain singer|ca sĩ Bi Rain
+BoA
+Girls' Generation
+SNSD
+Taeyeon
+Red Velvet
+EXO band|nhóm EXO
+NCT
+NCT 127
+NCT Dream
+SHINee
+Super Junior
+TXT
+Tomorrow X Together
+ENHYPEN
+ATEEZ
+ITZY
+Kep1er
+(G)I-DLE
+G-IDLE
+MAMAMOO
+BABYMONSTER
+ILLIT
+KISS OF LIFE
+RIIZE
+ZEROBASEONE
+BOYNEXTDOOR
+TWS
+ENHYPEN Jake|Jake của ENHYPEN
+Hybe Labels|nhãn HYBE
+Bang Si-hyuk
+Utada Hikaru
+Kenshi Yonezu
+YOASOBI
+Ado singer|ca sĩ Ado
+Fujii Kaze
+Official Hige Dandism
+King Gnu
+RADWIMPS
+~Aimer
+LiSA
+Jay Chou
+Teresa Teng
+Faye Wong
+G.E.M.
+JJ Lin
+Eason Chan
+Jacky Cheung
+Sơn Tùng M-TP
+Son Tung M-TP
+Mỹ Tâm
+Hoàng Thùy Linh
+Đen Vâu
+Den Vau
+Hà Anh Tuấn
+Noo Phước Thịnh
+Bích Phương
+Tóc Tiên
+Hòa Minzy
+Jack J97
+`);
+
+CST_GLOSSARY_EXTRA_ADD("people", null, `
+# business, tech, investing
+Elon Musk
+Jeff Bezos
+MacKenzie Scott
+Bill Gates
+Melinda French Gates
+Paul Allen
+Steve Ballmer
+Satya Nadella
+Tim Cook
+Steve Jobs
+Steve Wozniak
+Jony Ive
+Larry Page
+Sergey Brin
+Sundar Pichai
+Eric Schmidt
+Susan Wojcicki
+Neal Mohan
+Mark Zuckerberg
+Priscilla Chan
+Sheryl Sandberg
+Jack Dorsey
+Evan Spiegel
+Kevin Systrom
+Mike Krieger
+Brian Chesky
+Joe Gebbia
+Travis Kalanick
+Dara Khosrowshahi
+Reed Hastings
+Ted Sarandos
+Daniel Ek
+Drew Houston
+Stewart Butterfield
+Marc Benioff
+Larry Ellison
+Michael Dell
+Jensen Huang
+Lisa Su
+Pat Gelsinger
+Morris Chang
+Masayoshi Son
+Jack Ma
+Pony Ma
+Zhang Yiming
+Lei Jun
+Ren Zhengfei
+Robin Li
+Colin Huang
+Shou Zi Chew
+Sam Altman
+Greg Brockman
+Ilya Sutskever
+Mira Murati
+Dario Amodei
+Daniela Amodei
+Mike Krieger Anthropic|Mike Krieger của Anthropic
+Demis Hassabis
+Mustafa Suleyman
+Arthur Mensch
+Aravind Srinivas
+Alexandr Wang
+Emad Mostaque
+David Holz
+Clem Delangue
+Andrej Karpathy
+Yann LeCun
+Fei-Fei Li
+Andrew Ng
+Geoffrey Hinton
+Yoshua Bengio
+Peter Thiel
+Reid Hoffman
+Marc Andreessen
+Ben Horowitz
+Paul Graham
+Jessica Livingston
+Garry Tan
+Naval Ravikant
+Chamath Palihapitiya
+David Sacks
+Jason Calacanis
+Balaji Srinivasan
+Vinod Khosla
+John Doerr
+Michael Moritz
+Bill Gurley
+Keith Rabois
+Patrick Collison
+John Collison
+Tobi Lütke
+Brian Armstrong
+Vitalik Buterin
+Changpeng Zhao
+Sam Bankman-Fried
+Caroline Ellison
+Do Kwon
+Michael Saylor
+Cathie Wood
+Warren Buffett
+Charlie Munger
+Greg Abel
+Ray Dalio
+George Soros
+Carl Icahn
+Bill Ackman
+Ken Griffin
+Jim Simons
+Stanley Druckenmiller
+Howard Marks
+Peter Lynch
+John Bogle
+Benjamin Graham
+Philip Fisher
+Jamie Dimon
+Larry Fink
+David Solomon
+Jerome Powell
+Janet Yellen
+Christine Lagarde
+Mario Draghi
+Ben Bernanke
+Alan Greenspan
+Paul Volcker
+Larry Summers
+Mark Cuban
+Kevin O'Leary
+Barbara Corcoran
+Lori Greiner
+Daymond John
+Robert Herjavec
+Richard Branson
+Oprah Winfrey
+Martha Stewart
+Kim Kardashian
+Kylie Jenner
+Kris Jenner
+Khloé Kardashian
+Kourtney Kardashian
+Kendall Jenner
+Rihanna Fenty Beauty|Fenty Beauty của Rihanna
+Selena Gomez Rare Beauty|Rare Beauty của Selena Gomez
+Hailey Bieber
+Gwyneth Paltrow
+Goop
+Jessica Alba
+Reese Witherspoon Hello Sunshine|Hello Sunshine của Reese Witherspoon
+Sara Blakely
+Whitney Wolfe Herd
+Emily Weiss
+Anne Wojcicki
+Elizabeth Holmes
+Adam Neumann
+Howard Schultz
+Phil Knight
+Yvon Chouinard
+Ingvar Kamprad
+Amancio Ortega
+Bernard Arnault
+François-Henri Pinault
+Miuccia Prada
+Coco Chanel
+Karl Lagerfeld
+Giorgio Armani
+Ralph Lauren
+Calvin Klein
+Tommy Hilfiger
+Donatella Versace
+Gianni Versace
+Tom Ford
+Virgil Abloh
+Marc Jacobs
+Michael Kors
+Vera Wang
+Stella McCartney
+Vivienne Westwood
+Alexander Wang
+Phoebe Philo
+Hedi Slimane
+Demna Gvasalia
+Alessandro Michele
+Pierpaolo Piccioli
+Anna Wintour
+Ray Kroc
+Colonel Sanders
+Henry Ford
+Walt Disney company founder|người sáng lập Walt Disney
+Bob Iger
+Thomas Edison inventor|nhà phát minh Thomas Edison
+John D. Rockefeller
+Andrew Carnegie
+J.P. Morgan
+Cornelius Vanderbilt
+Jay Gould
+Lee Kun-hee
+Lee Jae-yong
+Akio Morita
+Konosuke Matsushita
+Kiichiro Toyoda
+Soichiro Honda
+Tadashi Yanai
+Hiroshi Mikitani
+Mukesh Ambani
+Gautam Adani
+Ratan Tata
+Azim Premji
+Narayana Murthy
+Phạm Nhật Vượng
+Pham Nhat Vuong
+Nguyễn Thị Phương Thảo
+# scientists, thinkers, authors
+Albert Einstein
+Isaac Newton
+Galileo Galilei
+Nicolaus Copernicus
+Johannes Kepler
+Tycho Brahe
+Marie Curie
+Pierre Curie
+Nikola Tesla
+Thomas Edison
+Michael Faraday
+James Clerk Maxwell
+Max Planck
+Niels Bohr
+Werner Heisenberg
+Erwin Schrödinger
+Paul Dirac
+Wolfgang Pauli
+Enrico Fermi
+Richard Feynman
+J. Robert Oppenheimer
+Edward Teller
+Stephen Hawking
+Roger Penrose
+Kip Thorne
+Peter Higgs
+Carl Sagan
+Neil deGrasse Tyson
+Brian Greene
+Michio Kaku
+Lawrence Krauss
+Sean Carroll
+Sabine Hossenfelder
+Brian Cox
+Jim Al-Khalili
+Charles Darwin
+Alfred Russel Wallace
+Gregor Mendel
+Louis Pasteur
+Robert Koch
+Alexander Fleming
+Edward Jenner
+Jonas Salk
+Florence Nightingale
+Hippocrates
+Galen
+Rosalind Franklin
+James Watson
+Francis Crick
+Jennifer Doudna
+Emmanuelle Charpentier
+Katalin Karikó
+Drew Weissman
+Anthony Fauci
+Siddhartha Mukherjee
+Atul Gawande
+Oliver Sacks
+Robert Sapolsky
+Antonio Damasio
+V.S. Ramachandran
+Lisa Feldman Barrett
+Daniel Kahneman
+Amos Tversky
+Richard Thaler
+Dan Ariely
+Robert Cialdini
+Steven Pinker
+Jonathan Haidt
+Adam Grant
+Angela Duckworth
+Carol Dweck
+Martin Seligman
+Mihaly Csikszentmihalyi
+Jordan Peterson
+Gabor Maté
+Bessel van der Kolk
+The Body Keeps the Score
+Esther Perel
+John Gottman
+Julie Gottman
+Brené Brown
+Susan Cain
+Malcolm Gladwell
+Yuval Noah Harari
+Sapiens
+Homo Deus
+Jared Diamond
+Guns, Germs, and Steel
+Noam Chomsky
+Richard Dawkins
+Sam Harris
+Christopher Hitchens
+Daniel Dennett
+David Attenborough
+Jane Goodall
+Rachel Carson
+Silent Spring
+E.O. Wilson
+Bill Nye
+Hank Green
+John Green
+Cal Newport
+Tim Ferriss
+James Clear
+Charles Duhigg
+Daniel Pink
+Simon Sinek
+Seth Godin
+Ryan Holiday
+Mark Manson
+Robert Greene
+The 48 Laws of Power
+Napoleon Hill
+Dale Carnegie
+Stephen Covey
+Brian Tracy
+Tony Robbins
+Mel Robbins
+Jay Shetty
+Eckhart Tolle
+Deepak Chopra
+Wayne Dyer
+Louise Hay
+Rhonda Byrne
+Michael Singer
+Paulo Coelho
+Haruki Murakami
+Kazuo Ishiguro
+Yukio Mishima
+Natsume Sōseki
+Banana Yoshimoto
+J.K. Rowling
+Stephen King
+George R.R. Martin
+J.R.R. Tolkien
+C.S. Lewis
+Roald Dahl
+Agatha Christie
+Arthur Conan Doyle
+Jane Austen
+Charlotte Brontë
+Emily Brontë
+Charles Dickens
+William Shakespeare
+Shakespeare
+Oscar Wilde
+Virginia Woolf
+James Joyce
+Ernest Hemingway
+F. Scott Fitzgerald
+The Great Gatsby
+John Steinbeck
+Mark Twain author|nhà văn Mark Twain
+Harper Lee
+To Kill a Mockingbird
+George Orwell
+Nineteen Eighty-Four
+Animal Farm
+Aldous Huxley
+Brave New World
+Ray Bradbury
+Fahrenheit 451
+Kurt Vonnegut
+J.D. Salinger
+The Catcher in the Rye
+Toni Morrison
+Maya Angelou
+Margaret Atwood
+The Handmaid's Tale
+Sylvia Plath
+Emily Dickinson
+Walt Whitman
+Robert Frost
+Edgar Allan Poe
+Leo Tolstoy
+War and Peace
+Fyodor Dostoevsky
+Crime and Punishment
+Anton Chekhov
+Franz Kafka
+The Metamorphosis
+Gabriel García Márquez
+One Hundred Years of Solitude
+Jorge Luis Borges
+Isabel Allende
+Victor Hugo
+Les Misérables
+Alexandre Dumas
+Albert Camus author|nhà văn Albert Camus
+Antoine de Saint-Exupéry
+The Little Prince|Hoàng tử bé
+Hermann Hesse
+Siddhartha
+Khaled Hosseini
+The Kite Runner
+Chimamanda Ngozi Adichie
+Sally Rooney
+Normal People
+Colleen Hoover
+It Ends with Us
+Taylor Jenkins Reid
+The Seven Husbands of Evelyn Hugo
+Emily Henry
+Rebecca Yarros
+Fourth Wing
+Sarah J. Maas
+A Court of Thorns and Roses
+Suzanne Collins
+The Hunger Games
+Rick Riordan
+Percy Jackson
+Veronica Roth
+Stephenie Meyer
+Twilight saga|loạt truyện Chạng vạng
+Dan Brown
+The Da Vinci Code
+Michelle Obama Becoming|hồi ký Becoming của Michelle Obama
+Becoming memoir|hồi ký Becoming
+Matthew Perry
+Prince Harry Spare|hồi ký Spare của Hoàng tử Harry
+Spare memoir|hồi ký Spare
+Jennette McCurdy
+I'm Glad My Mom Died
+Tara Westover
+Educated memoir|hồi ký Educated
+Michelle Zauner
+Crying in H Mart
+Ocean Vuong
+On Earth We're Briefly Gorgeous
+Viet Thanh Nguyen
+The Sympathizer
+Thích Nhất Hạnh
+Plato
+Aristotle
+Socrates
+Confucius
+Laozi
+Sun Tzu
+Machiavelli
+Niccolò Machiavelli
+René Descartes
+Immanuel Kant
+Georg Wilhelm Friedrich Hegel
+Arthur Schopenhauer
+John Stuart Mill
+Jeremy Bentham
+David Hume
+Baruch Spinoza
+Simone de Beauvoir
+Hannah Arendt
+Michel Foucault
+Ludwig Wittgenstein
+Bertrand Russell
+Alan Watts philosopher|triết gia Alan Watts
+Ayn Rand
+Atlas Shrugged
+The Fountainhead
+`);
+
+CST_GLOSSARY_EXTRA_ADD("people", null, `
+# athletes
+Lionel Messi
+Cristiano Ronaldo
+Neymar Jr.
+Kylian Mbappé
+Erling Haaland
+Mohamed Salah
+Kevin De Bruyne
+Harry Kane
+Jude Bellingham
+Vinícius Júnior
+Vinicius Jr.
+Bukayo Saka
+Phil Foden
+Marcus Rashford
+Bruno Fernandes
+Virgil van Dijk
+Trent Alexander-Arnold
+Son Heung-min
+Robert Lewandowski
+Karim Benzema
+Luka Modrić
+Toni Kroos
+Sergio Ramos
+Andrés Iniesta
+Xavi Hernández
+Pep Guardiola
+Jürgen Klopp
+José Mourinho
+Carlo Ancelotti
+Arsène Wenger
+Alex Ferguson
+Sir Alex Ferguson
+Mikel Arteta
+Thierry Henry
+Zlatan Ibrahimović
+Wayne Rooney
+Steven Gerrard
+Frank Lampard
+Gareth Bale
+Ronaldinho
+Kaká
+Rivaldo
+Roberto Carlos
+Paolo Maldini
+Andrea Pirlo
+Francesco Totti
+Gianluigi Buffon
+Johan Cruyff
+Franz Beckenbauer
+Lamine Yamal
+Pedri
+Rodri
+Alexia Putellas
+Aitana Bonmatí
+Megan Rapinoe
+Alex Morgan
+Sam Kerr
+Marta Vieira
+Michael Jordan
+LeBron James
+Bronny James
+Kobe Bryant
+Magic Johnson
+Larry Bird
+Kareem Abdul-Jabbar
+Shaquille O'Neal
+Tim Duncan
+Dirk Nowitzki
+Dwyane Wade
+Allen Iverson
+Kevin Garnett
+Stephen Curry
+Klay Thompson
+Draymond Green
+Kevin Durant
+James Harden
+Russell Westbrook
+Kawhi Leonard
+Giannis Antetokounmpo
+Nikola Jokić
+Luka Dončić
+Joel Embiid
+Jayson Tatum
+Jaylen Brown
+Anthony Edwards
+Shai Gilgeous-Alexander
+Victor Wembanyama
+Ja Morant
+Zion Williamson
+Devin Booker
+Damian Lillard
+Jimmy Butler
+Chris Paul
+Yao Ming
+Jeremy Lin
+Caitlin Clark
+Angel Reese
+A'ja Wilson
+Breanna Stewart
+Sue Bird
+Diana Taurasi
+Candace Parker
+Tom Brady
+Peyton Manning
+Patrick Mahomes
+Travis Kelce
+Jason Kelce
+Josh Allen
+Lamar Jackson
+Joe Burrow
+Jalen Hurts
+Aaron Rodgers
+Joe Montana
+Jerry Rice
+Brett Favre
+Drew Brees
+Odell Beckham Jr.
+Saquon Barkley
+Christian McCaffrey
+Justin Jefferson
+Shohei Ohtani
+Aaron Judge
+Mike Trout
+Mookie Betts
+Derek Jeter
+Babe Ruth
+Jackie Robinson
+Ichiro Suzuki
+Ken Griffey Jr.
+Barry Bonds
+Wayne Gretzky
+Sidney Crosby
+Connor McDavid
+Alex Ovechkin
+Serena Williams
+Venus Williams
+Roger Federer
+Rafael Nadal
+Novak Djokovic
+Andy Murray
+Carlos Alcaraz
+Jannik Sinner
+Daniil Medvedev
+Alexander Zverev
+Iga Świątek
+Aryna Sabalenka
+Coco Gauff
+Naomi Osaka
+Emma Raducanu
+Maria Sharapova
+Steffi Graf
+Andre Agassi
+Pete Sampras
+Billie Jean King
+Tiger Woods
+Rory McIlroy
+Scottie Scheffler
+Phil Mickelson
+Jon Rahm
+Brooks Koepka
+Nelly Korda
+Jack Nicklaus
+Arnold Palmer
+Lewis Hamilton
+Max Verstappen
+Charles Leclerc
+Lando Norris
+Oscar Piastri
+Carlos Sainz
+George Russell
+Fernando Alonso
+Sebastian Vettel
+Michael Schumacher
+Ayrton Senna
+Niki Lauda
+Toto Wolff
+Christian Horner
+Valentino Rossi
+Marc Márquez
+Usain Bolt
+Carl Lewis
+Jesse Owens
+Florence Griffith Joyner
+Allyson Felix
+Shelly-Ann Fraser-Pryce
+Sha'Carri Richardson
+Noah Lyles
+Mondo Duplantis
+Armand Duplantis
+Sydney McLaughlin-Levrone
+Eliud Kipchoge
+Kelvin Kiptum
+Mo Farah
+Paula Radcliffe
+Faith Kipyegon
+Jakob Ingebrigtsen
+Michael Phelps
+Katie Ledecky
+Ryan Lochte
+Léon Marchand
+Adam Peaty
+Simone Biles
+Gabby Douglas
+Suni Lee
+Nadia Comăneci
+Rebeca Andrade
+Kerri Strug
+Shaun White
+Chloe Kim
+Eileen Gu
+Mikaela Shiffrin
+Lindsey Vonn
+Yuzuru Hanyu
+Nathan Chen
+Kim Yuna
+Tadej Pogačar
+Jonas Vingegaard
+Chris Froome
+Mark Cavendish
+Muhammad Ali
+Mike Tyson
+Floyd Mayweather
+Manny Pacquiao
+Canelo Álvarez
+Tyson Fury
+Oleksandr Usyk
+Anthony Joshua
+Jake Paul
+Logan Paul
+Conor McGregor
+Khabib Nurmagomedov
+Israel Adesanya
+Jon Jones
+Ronda Rousey
+Georges St-Pierre
+Dana White
+The Undertaker
+John Cena
+Stone Cold Steve Austin
+Hulk Hogan
+Roman Reigns
+Kelly Slater
+Bethany Hamilton
+Tony Hawk
+Nyjah Huston
+Alex Honnold
+Tommy Caldwell
+Adam Ondra
+Janja Garnbret
+Kilian Jornet
+Courtney Dauwalter
+Scott Jurek
+Dean Karnazes
+Jim Walmsley
+Kara Goucher
+Des Linden
+Shalane Flanagan
+Molly Seidel
+Hicham El Guerrouj
+Haile Gebrselassie
+Kenenisa Bekele
+Roger Bannister
+Magnus Carlsen
+Hikaru Nakamura
+Garry Kasparov
+Bobby Fischer
+Judit Polgár
+Ding Liren
+Gukesh Dommaraju
+~Faker
+Lee Sang-hyeok
+s1mple
+Ninja streamer|streamer Ninja
+Tyler Blevins
+~Shroud
+xQc
+Pokimane
+Valkyrae
+Kai Cenat
+IShowSpeed
+Speed streamer|streamer Speed
+Dr Disrespect
+Ludwig Ahgren
+Asmongold
+Hasan Piker
+Nguyễn Quang Hải
+Nguyen Quang Hai
+Đặng Văn Lâm
+Park Hang-seo
+# creators, YouTubers, podcasters, influencers
+MrBeast
+Jimmy Donaldson
+PewDiePie
+Felix Kjellberg
+Markiplier
+Jacksepticeye
+Casey Neistat
+David Dobrik
+Emma Chamberlain
+Liza Koshy
+Lilly Singh
+Zach King
+Dude Perfect
+Rhett and Link
+Good Mythical Morning
+Smosh
+Jenna Marbles
+Shane Dawson
+Tana Mongeau
+James Charles
+Jeffree Star
+NikkieTutorials
+Michelle Phan
+Huda Kattan
+Charli D'Amelio
+Dixie D'Amelio
+Addison Rae
+Bella Poarch
+Khaby Lame
+Alix Earle
+Brittany Broski
+Drew Afualo
+Tinx
+Mikayla Nogueira
+Alex Cooper podcast|podcast của Alex Cooper
+Marques Brownlee
+iJustine
+Unbox Therapy
+Linus Sebastian
+Mrwhosetheboss
+Austin Evans
+Dave2D
+Jonathan Morrison
+Peter McKinnon
+Matti Haapoja
+Sorelle Amore
+Kara and Nate
+Lost LeBlanc
+Drew Binsky
+Mark Wiens
+Best Ever Food Review Show
+Sonny Side
+Kurt Caz
+Indigo Traveller
+Yes Theory
+Nas Daily
+Nuseir Yassin
+Mark Rober
+Michael Stevens
+Vsauce
+Derek Muller
+Veritasium
+Destin Sandlin
+SmarterEveryDay
+Tom Scott
+CGP Grey
+Kurzgesagt
+Johnny Harris
+Wendover Productions
+~Half as Interesting
+Real Engineering
+Simone Giertz
+Colin Furze
+Adam Savage
+Jamie Hyneman
+MythBusters
+Hank Green
+John Green
+Vlogbrothers
+SciShow
+~Crash Course
+Khan Academy founder Sal Khan|Sal Khan
+Sal Khan
+3Blue1Brown
+Grant Sanderson
+Numberphile
+Steve Mould
+Physics Girl
+Dianna Cowern
+Andrew Huberman
+Peter Attia
+Rhonda Patrick
+Mark Hyman
+Dr. Mike Varshavski
+Doctor Mike
+Dr. Eric Berg
+Dr. Berg
+Thomas DeLauer
+Chris Williamson
+Steven Bartlett
+Lewis Howes
+Jay Shetty podcast|podcast của Jay Shetty
+Mel Robbins podcast|podcast của Mel Robbins
+Ali Abdaal
+Thomas Frank
+Matt D'Avella
+Nathaniel Drew
+Struthless
+Jeff Su
+Tiago Forte
+August Bradley
+Marie Poulin
+Keep Productive
+Sorted Food
+Babish Culinary Universe
+Andrew Rea
+Joshua Weissman
+Nick DiGiovanni
+Max the Meat Guy
+Guga Foods
+Matty Matheson
+Brad Leone
+Claire Saffitz
+Sohla El-Waylly
+Molly Baz
+Carla Lalli Music
+Chris Morocco
+Kenji's Cooking Show
+Mark Wiens food|ẩm thực Mark Wiens
+Uncle Roger
+Nigel Ng
+Gabriel Iglesias
+Jamie Oliver chef|đầu bếp Jamie Oliver
+Gordon Ramsay chef|đầu bếp Gordon Ramsay
+Marco Pierre White
+Thomas Keller
+René Redzepi
+Massimo Bottura
+Wolfgang Puck
+Bobby Flay
+Guy Fieri
+Alton Brown
+Rachael Ray
+Giada De Laurentiis
+Ina Garten chef|đầu bếp Ina Garten
+Nigella Lawson chef|đầu bếp Nigella Lawson
+Mary Berry
+Paul Hollywood
+Prue Leith
+Julia Child chef|đầu bếp Julia Child
+Anthony Bourdain chef|đầu bếp Anthony Bourdain
+David Chang
+Roy Choi
+Eric Ripert
+Dominique Ansel
+Christina Tosi
+Erin French
+Samin Nosrat chef|đầu bếp Samin Nosrat
+Yotam Ottolenghi chef|đầu bếp Yotam Ottolenghi
+Jeff Nippard coach|huấn luyện viên Jeff Nippard
+Mike Israetel coach|huấn luyện viên Mike Israetel
+Chris Bumstead
+Sam Sulek
+Joe Wicks
+Kayla Itsines
+Emily Skye
+Whitney Simmons
+Krissy Cela
+Pamela Reif trainer|huấn luyện viên Pamela Reif
+Chloe Ting trainer|huấn luyện viên Chloe Ting
+Cassey Ho
+Adriene Mishler
+Rich Froning
+Mat Fraser
+Tia-Clair Toomey
+Ross Edgley
+Nick Bare
+Hybrid Calisthenics
+Jeff Cavaliere trainer|huấn luyện viên Jeff Cavaliere
+Bret Contreras
+Stuart McGill
+Kelly Starrett
+Ben Patrick
+Knees Over Toes Guy
+Dave Ramsey host|người dẫn Dave Ramsey
+Rachel Cruze
+Ramit Sethi host|người dẫn Ramit Sethi
+Graham Stephan YouTuber|YouTuber Graham Stephan
+Andrei Jikh YouTuber|YouTuber Andrei Jikh
+Meet Kevin
+Humphrey Yang YouTuber|YouTuber Humphrey Yang
+Patrick Boyle
+Ben Felix
+Plain Bagel
+Money Guy Show
+The Money Guy
+Brian Preston
+Bo Hanson
+Codie Sanchez
+Alex Hormozi
+Leila Hormozi
+Grant Cardone host|người dẫn Grant Cardone
+Andrew Tate
+Myron Gaines
+Hamza Ahmed
+Iman Gadzhi
+Dan Koe
+Justin Welsh
+Sahil Bloom
+Shaan Puri
+Sam Parr
+My First Million
+Lenny Rachitsky
+Lenny's Podcast
+Harry Stebbings
+20VC
+All-In Podcast
+Acquired podcast|podcast Acquired
+Ben Gilbert
+David Rosenthal
+Dwarkesh Patel
+Lex Fridman host|người dẫn Lex Fridman
+Tim Ferriss Show
+Rich Roll Podcast
+Huberman Lab host|người dẫn Huberman Lab
+Bryan Johnson founder|nhà sáng lập Bryan Johnson
+Marie Kondo host|người dẫn Marie Kondo
+Joshua Becker author|tác giả Joshua Becker
+Courtney Carver author|tác giả Courtney Carver
+Fumio Sasaki author|tác giả Fumio Sasaki
+Shira Gill
+Dana White decluttering|dọn dẹp kiểu Dana White
+Ruth Soukup
+Erin Boyle
+Rachel Aust
+Jenny Mustard
+Lavendaire
+Aileen Xu
+Pick Up Limes host|người dẫn Pick Up Limes
+Sadia Badiei
+Hannah Louise Poston
+Nathaniel Drew vlogs|vlog của Nathaniel Drew
+Muchelle B
+Muchelle
+Shelby Church
+Kalyn Nicholson
+Sanne Vliegenthart
+Ruby Granger
+Jack Edwards
+Ali Spagnola
+Kelly Wakasa
+Jessica Rose Williams
+`);
+
+CST_GLOSSARY_EXTRA_ADD("people", null, `
+# world leaders, politicians, public figures, historical
+Joe Biden
+Kamala Harris
+Donald Trump
+Melania Trump
+Ivanka Trump
+Donald Trump Jr.
+JD Vance
+J.D. Vance
+Mike Pence
+Barack Obama
+Michelle Obama
+Hillary Clinton
+Bill Clinton
+Chelsea Clinton
+George W. Bush
+George H.W. Bush
+Laura Bush
+Ronald Reagan
+Jimmy Carter
+Gerald Ford
+Richard Nixon
+Lyndon B. Johnson
+John F. Kennedy
+Jacqueline Kennedy
+Robert F. Kennedy
+Robert F. Kennedy Jr.
+RFK Jr.
+Dwight D. Eisenhower
+Harry S. Truman
+Franklin D. Roosevelt
+Eleanor Roosevelt
+Theodore Roosevelt
+Woodrow Wilson
+Abraham Lincoln
+Thomas Jefferson
+George Washington
+John Adams
+Alexander Hamilton
+Benjamin Franklin
+James Madison
+Andrew Jackson
+Ulysses S. Grant
+Nancy Pelosi
+Chuck Schumer
+Mitch McConnell
+Mike Johnson
+Kevin McCarthy
+Bernie Sanders
+Elizabeth Warren
+Alexandria Ocasio-Cortez
+AOC
+Pete Buttigieg
+Gavin Newsom
+Ron DeSantis
+Nikki Haley
+Marco Rubio
+Ted Cruz
+Lindsey Graham
+Mitt Romney
+John McCain
+Liz Cheney
+Dick Cheney
+Gretchen Whitmer
+Josh Shapiro
+Tim Walz
+Doug Emhoff
+Jill Biden
+Hunter Biden
+Vivek Ramaswamy
+Tulsi Gabbard
+Pete Hegseth
+Steve Bannon
+Tucker Carlson
+Ben Shapiro
+Candace Owens
+Rachel Maddow
+Anderson Cooper
+Sean Hannity
+Jake Tapper
+Wolf Blitzer
+Megyn Kelly
+Piers Morgan
+Christiane Amanpour
+Lester Holt
+David Muir
+Judy Woodruff
+Amna Nawaz
+Geoff Bennett
+Jon Stewart
+Bill Maher
+Ruth Bader Ginsburg
+Sonia Sotomayor
+Clarence Thomas
+John Roberts
+Amy Coney Barrett
+Brett Kavanaugh
+Ketanji Brown Jackson
+Merrick Garland
+Antony Blinken
+Henry Kissinger
+Colin Powell
+Condoleezza Rice
+Madeleine Albright
+Lloyd Austin
+King Charles III
+Queen Camilla
+Prince William
+Princess Kate
+Kate Middleton
+Prince Harry
+Meghan Markle
+Prince George
+Princess Charlotte
+Prince Louis
+Queen Elizabeth II
+Prince Philip
+Princess Diana
+Princess Anne
+Prince Andrew
+Winston Churchill
+Margaret Thatcher
+Tony Blair
+Gordon Brown
+David Cameron
+Theresa May
+Boris Johnson
+Liz Truss
+Rishi Sunak
+Keir Starmer
+Nigel Farage
+Emmanuel Macron
+Brigitte Macron
+Marine Le Pen
+Charles de Gaulle
+François Mitterrand
+Angela Merkel
+Olaf Scholz
+Friedrich Merz
+Helmut Kohl
+Ursula von der Leyen
+Giorgia Meloni
+Silvio Berlusconi
+Pedro Sánchez
+Justin Trudeau
+Mark Carney
+Pierre Poilievre
+Anthony Albanese
+Scott Morrison
+Jacinda Ardern
+Christopher Luxon
+Narendra Modi
+Rahul Gandhi
+Indira Gandhi
+Jawaharlal Nehru
+Imran Khan
+Benjamin Netanyahu
+Yitzhak Rabin
+Golda Meir
+Mahmoud Abbas
+Yasser Arafat
+Mohammed bin Salman
+MBS
+Recep Tayyip Erdoğan
+Erdogan
+Ayatollah Khamenei
+Vladimir Putin
+Dmitry Medvedev
+Sergei Lavrov
+Alexei Navalny
+Mikhail Gorbachev
+Boris Yeltsin
+Volodymyr Zelensky
+Olena Zelenska
+Xi Jinping|Tập Cận Bình
+Li Qiang|Lý Cường
+Hu Jintao|Hồ Cẩm Đào
+Deng Xiaoping|Đặng Tiểu Bình
+Mao Zedong|Mao Trạch Đông
+Chiang Kai-shek|Tưởng Giới Thạch
+Lai Ching-te|Lại Thanh Đức
+Tsai Ing-wen|Thái Anh Văn
+Kim Jong Un|Kim Jong-un
+Kim Il Sung|Kim Il-sung
+Kim Jong Il|Kim Jong-il
+Yoon Suk Yeol|Yoon Suk-yeol
+Lee Jae-myung
+Moon Jae-in
+Shinzo Abe
+Fumio Kishida
+Shigeru Ishiba
+Sanae Takaichi
+Emperor Naruhito|Nhật hoàng Naruhito
+Lee Kuan Yew|Lý Quang Diệu
+Lee Hsien Loong|Lý Hiển Long
+Lawrence Wong|Hoàng Tuần Tài
+Anwar Ibrahim
+Mahathir Mohamad
+Joko Widodo
+Prabowo Subianto
+Ferdinand Marcos Jr.
+Rodrigo Duterte
+Prayut Chan-o-cha
+Paetongtarn Shinawatra
+Thaksin Shinawatra
+Aung San Suu Kyi
+Hun Sen
+Hun Manet
+Nelson Mandela
+Desmond Tutu
+Kofi Annan
+Ban Ki-moon
+António Guterres
+Antonio Guterres
+Tedros Adhanom Ghebreyesus
+Kristalina Georgieva
+Jens Stoltenberg
+Mark Rutte
+Javier Milei
+Luiz Inácio Lula da Silva
+Lula da Silva
+Jair Bolsonaro
+Claudia Sheinbaum
+Andrés Manuel López Obrador
+Fidel Castro
+Che Guevara
+Hugo Chávez
+Nicolás Maduro
+Pope Francis|Giáo hoàng Phanxicô
+Pope Leo XIV|Giáo hoàng Lêô XIV
+Pope Benedict XVI|Giáo hoàng Biển Đức XVI
+Pope John Paul II|Giáo hoàng Gioan Phaolô II
+Dalai Lama|Đạt Lai Lạt Ma
+Mother Teresa|Mẹ Teresa
+Martin Luther|Martin Luther
+Martin Luther King Jr.
+Malala Yousafzai
+Greta Thunberg
+Rosa Parks
+Harriet Tubman
+Frederick Douglass
+Susan B. Anthony
+Gloria Steinem
+Ruth Bader Ginsburg justice|thẩm phán Ruth Bader Ginsburg
+Anne Frank
+Helen Keller
+Amelia Earhart
+Neil Armstrong
+Buzz Aldrin
+Yuri Gagarin
+Sally Ride
+John Glenn
+Valentina Tereshkova
+Chris Hadfield
+Scott Kelly
+Wright brothers|anh em nhà Wright
+Orville Wright
+Wilbur Wright
+Christopher Columbus
+Ferdinand Magellan
+Marco Polo
+Vasco da Gama
+James Cook
+Captain Cook
+Ernest Shackleton
+Roald Amundsen
+Edmund Hillary
+Tenzing Norgay
+Leonardo da Vinci
+Michelangelo Buonarroti
+Raphael
+Vincent van Gogh
+Pablo Picasso
+Claude Monet
+Salvador Dalí
+Frida Kahlo
+Andy Warhol
+Jean-Michel Basquiat
+Keith Haring
+Georgia O'Keeffe
+Jackson Pollock
+Mark Rothko
+Henri Matisse
+Paul Cézanne
+Edgar Degas
+Pierre-Auguste Renoir
+Gustav Klimt
+Edvard Munch
+The Scream
+Rembrandt van Rijn
+Johannes Vermeer
+Hieronymus Bosch
+Katsushika Hokusai
+Hokusai
+The Great Wave off Kanagawa
+Yayoi Kusama
+Takashi Murakami
+Ai Weiwei
+Banksy artist|nghệ sĩ Banksy
+Jeff Koons
+Damien Hirst
+Marina Abramović
+Bob Ross
+Wolfgang Amadeus Mozart
+Ludwig van Beethoven
+Johann Sebastian Bach
+Frédéric Chopin
+Pyotr Ilyich Tchaikovsky
+Antonio Vivaldi
+Claude Debussy
+Franz Schubert
+Johannes Brahms
+Richard Wagner
+Giuseppe Verdi
+Giacomo Puccini
+George Frideric Handel
+Joseph Haydn
+Franz Liszt
+Sergei Rachmaninoff
+Igor Stravinsky
+Erik Satie
+Gustav Mahler
+Antonín Dvořák
+Edvard Grieg
+Napoleon Bonaparte
+Julius Caesar
+Augustus Caesar
+Cleopatra VII
+Alexander the Great
+Charlemagne
+Genghis Khan|Thành Cát Tư Hãn
+Kublai Khan|Hốt Tất Liệt
+Attila the Hun
+Hannibal Barca
+Spartacus
+Joan of Arc|Jeanne d'Arc
+Queen Victoria|Nữ hoàng Victoria
+Henry VIII|Vua Henry VIII
+Elizabeth I|Nữ hoàng Elizabeth I
+Louis XIV|Vua Louis XIV
+Marie Antoinette
+Catherine the Great|Nữ hoàng Ekaterina Đại đế
+Peter the Great|Pyotr Đại đế
+Otto von Bismarck
+Adolf Hitler
+Benito Mussolini
+Joseph Stalin
+Vladimir Lenin
+Leon Trotsky
+Karl Marx
+Friedrich Engels
+Mahatma Gandhi
+Ho Chi Minh|Hồ Chí Minh
+Võ Nguyên Giáp
+Vo Nguyen Giap
+Ngô Đình Diệm
+Ngo Dinh Diem
+Trần Hưng Đạo
+Hai Bà Trưng
+Trưng Sisters|Hai Bà Trưng
+Lý Thường Kiệt
+Quang Trung
+Nguyễn Trãi
+Nguyễn Du
+The Tale of Kieu|Truyện Kiều
+Truyện Kiều
+Hồ Xuân Hương
+Emperor Gia Long|vua Gia Long
+Gia Long
+Emperor Bảo Đại|vua Bảo Đại
+Bảo Đại
+Tô Lâm
+To Lam
+Phạm Minh Chính
+Pham Minh Chinh
+Nguyễn Phú Trọng
+Nguyen Phu Trong
+Lương Cường
+Võ Văn Thưởng
+Nguyễn Xuân Phúc
+`);
+
+// ============================================================ brands (new, 2.6.0)
+CST_GLOSSARY_EXTRA_ADD("brands", "Thương hiệu và công ty toàn cầu", `
+# tech and internet companies
+Apple Inc.
+Google LLC
+Alphabet Inc.
+Microsoft Corporation
+Amazon.com
+Meta Platforms
+Netflix Inc.
+Nvidia Corporation
+Tesla Inc.
+OpenAI Foundation
+Anthropic PBC
+xAI Corp
+Samsung
+Samsung Galaxy
+LG Electronics
+LG
+SK Group
+Hyundai Motor
+Kia Motors
+Naver
+Kakao
+Coupang
+Line Corporation
+Sony Group
+Sony
+Panasonic
+Toshiba
+Hitachi
+Fujitsu
+NEC
+Sharp Corporation
+Nikon Corporation
+Olympus
+Kyocera
+Murata
+Keyence
+Nintendo
+Sega
+Bandai Namco
+Square Enix
+Capcom
+Konami
+FromSoftware
+Tencent
+Alibaba Group
+Baidu Inc.
+JD.com
+Pinduoduo
+PDD Holdings
+Meituan
+NetEase
+Huawei Technologies
+Xiaomi Corporation
+Lenovo Group
+ZTE
+DJI Innovations
+BYD Company
+CATL
+Haier
+Midea
+Hisense
+TCL
+Oppo Electronics
+Vivo Communication
+OnePlus Technology
+Realme
+Infosys
+Wipro
+Tata Consultancy Services
+TCS
+Reliance Industries
+Jio
+Flipkart
+Paytm
+Zomato
+Swiggy
+Ola
+Byju's
+Grab Holdings
+Sea Limited
+Gojek Tokopedia
+GoTo
+Traveloka
+Agoda Company
+VNG Corporation
+FPT Corporation
+Viettel Group
+VinGroup
+Vingroup
+Vinamilk
+Vietcombank
+Techcombank
+VPBank
+MB Bank
+Masan Group
+Thế Giới Di Động
+Bách Hóa Xanh
+Highlands Coffee
+Trung Nguyên
+Phúc Long
+The Coffee House
+Cộng Cà Phê
+Katinat
+Zalo
+ZaloPay
+MoMo wallet|ví MoMo
+Shopee Vietnam|Shopee Việt Nam
+Tiki Vietnam|Tiki Việt Nam
+Be Group
+Xanh SM
+Intel Corporation
+Advanced Micro Devices
+Qualcomm Incorporated
+Broadcom Inc.
+Texas Instruments
+Micron Technology
+Western Digital
+Seagate
+SanDisk
+Kingston
+Corsair Gaming
+Logitech International
+Cisco Systems
+Juniper Networks
+Arista Networks
+Dell Technologies
+Hewlett Packard Enterprise
+HP Inc.
+IBM Corporation
+Oracle Corporation
+Salesforce Inc.
+Adobe Inc.
+~Intuit
+TurboTax maker|nhà làm TurboTax
+SAP SE
+ServiceNow Inc.
+Workday Inc.
+Snowflake Inc.
+Datadog Inc.
+MongoDB Inc.
+Atlassian Corporation
+Shopify Inc.
+Square Inc.
+Block Inc.
+Stripe Inc.
+PayPal Holdings
+Visa Inc.
+Mastercard Inc.
+American Express Company
+Uber Technologies
+Lyft Inc.
+Airbnb Inc.
+DoorDash Inc.
+Instacart Maplebear
+Spotify Technology
+Pinterest Inc.
+Snap Inc.
+Reddit Inc.
+Twitter Inc.
+X Corp
+Discord Inc.
+Zoom Video Communications
+Dropbox Inc.
+Box Inc.
+Slack Technologies
+Notion Labs
+Figma Inc.
+Canva Pty
+Duolingo Inc.
+Coursera Inc.
+Udemy Inc.
+Chegg
+Roblox Corporation
+Epic Games Inc.
+Unity Technologies
+Electronic Arts
+EA Sports
+Activision Blizzard
+Blizzard Entertainment
+Riot Games
+Valve Corporation
+Ubisoft
+Take-Two Interactive
+Rockstar Games
+CD Projekt Red
+Bethesda
+Bungie
+Naughty Dog
+Insomniac Games
+Mojang
+Supercell
+miHoYo
+HoYoverse
+Krafton
+Garena
+Palantir Technologies
+Anduril Industries
+SpaceX launch provider|nhà phóng tên lửa SpaceX
+Blue Origin LLC
+Rocket Lab
+Boeing Company
+Lockheed Martin
+Northrop Grumman
+Raytheon
+RTX Corporation
+General Dynamics
+General Electric
+GE Aerospace
+Siemens
+Philips
+~Bosch
+Robert Bosch
+ABB
+Schneider Electric
+Honeywell
+3M
+John Deere
+Deere & Company
+Dyson Ltd
+iRobot Corporation
+Ring LLC
+Arlo
+Wyze
+Eufy
+Anker Innovations
+Ugreen
+Baseus
+Garmin Ltd.
+Fitbit Inc.
+Peloton Interactive
+WHOOP Inc.
+Oura Health
+GoPro Inc.
+Insta360
+Sonos Inc.
+Bose Corporation
+JBL Audio|âm thanh JBL
+~Harman
+Sennheiser electronic|Sennheiser
+Bang & Olufsen A/S|Bang & Olufsen
+Shure Incorporated
+Audio-Technica
+Beyerdynamic
+Focusrite
+Native Instruments
+Ableton
+Ableton Live
+FL Studio
+Logic Pro
+Pro Tools
+GarageBand
+Yamaha Corporation
+Roland Corporation
+Korg
+~Fender
+Gibson
+Martin Guitar
+Taylor Guitars
+Steinway & Sons
+Marshall Amplification
+# consumer goods, food, beverage
+Procter & Gamble
+P&G
+Unilever
+Nestlé S.A.
+PepsiCo Inc.
+The Coca-Cola Company
+Coca-Cola
+Mondelez
+Kraft Heinz Company
+General Mills Inc.
+Kellogg Company
+Kellanova
+Mars Incorporated
+Ferrero Group
+Hershey Company
+Danone
+Lactalis
+Heineken
+Anheuser-Busch
+AB InBev
+Budweiser
+Bud Light
+Corona beer|bia Corona
+Stella Artois
+Guinness
+Carlsberg
+Asahi
+Kirin
+Sapporo
+Tsingtao
+Tiger Beer
+Saigon Beer|bia Sài Gòn
+Bia Saigon
+Hanoi Beer|bia Hà Nội
+333 beer|bia 333
+Diageo
+Johnnie Walker
+Jack Daniel's
+Jim Beam
+Jameson
+Hennessy
+Moët & Chandon
+Dom Pérignon
+Veuve Clicquot
+Absolut Vodka
+Grey Goose
+Smirnoff
+Bacardi
+Captain Morgan
+Patrón
+Don Julio
+Casamigos
+Aperol
+Campari
+Jägermeister
+Baileys
+Kahlúa
+Suntory
+Yamazaki
+Hibiki
+Nikka
+Red Bull GmbH
+Monster Beverage
+Celsius Holdings
+Keurig Dr Pepper
+Nespresso Vertuo
+Lavazza
+~Illy
+Peet's
+Tim Hortons Inc.
+Costa Coffee
+Caffè Nero
+Pret a Manger
+Paris Baguette
+Tous Les Jours
+85°C Bakery
+Din Tai Fung
+Haidilao
+Mixue
+Luckin Coffee
+Chagee
+Heytea
+Gong Cha
+Koi Thé
+Tiger Sugar
+Chatime
+Sharetea
+Yi Fang
+The Alley
+Kung Fu Tea
+Ding Tea
+Lotteria
+Jollibee Foods
+Texas Chicken
+Popeyes Louisiana Kitchen
+Domino's Pizza
+Pizza 4P's
+Marou chocolate|sô cô la Marou
+Marou
+L'Oréal Group
+Estée Lauder Companies
+Shiseido Company
+Kao Corporation
+Amorepacific
+LG H&H
+Coty
+Revlon Inc.
+Johnson & Johnson
+Kenvue
+Colgate-Palmolive
+Colgate
+~Crest
+Oral-B
+Sensodyne
+Listerine
+Gillette
+Schick
+Braun
+Philips Sonicare
+Waterpik
+Kimberly-Clark
+Kleenex
+Huggies
+Pampers
+Charmin
+Bounty paper towels|khăn giấy Bounty
+Febreze
+Clorox Company
+SC Johnson
+Ziploc
+Tupperware
+Rubbermaid
+OXO
+Brita
+Yeti Holdings
+Stanley 1913
+Hydro Flask bottle|bình Hydro Flask
+Nalgene
+Lululemon Athletica
+Nike Inc.
+Adidas AG
+Puma SE
+Under Armour
+New Balance Athletics
+ASICS Corporation
+Skechers
+Fila
+Anta Sports
+Li-Ning
+~Decathlon
+Columbia Sportswear Company
+VF Corporation
+Inditex
+H&M Group
+Fast Retailing
+Gap Inc.
+Levi Strauss & Co.
+PVH Corp
+Kate Spade
+Michael Kors brand|thương hiệu Michael Kors
+Capri Holdings
+LVMH
+Kering
+Richemont
+Hermès International
+Chanel S.A.
+Swatch Group
+Rolex SA
+Patek Philippe
+Audemars Piguet
+Richard Mille
+Omega SA
+Tag Heuer
+TAG Heuer
+Breitling
+IWC Schaffhausen
+Cartier International
+Tiffany & Co.
+Bulgari
+Van Cleef & Arpels
+Pandora A/S
+Swarovski
+# retail, services, finance
+Walmart Inc.
+Costco Wholesale
+Target Corporation
+Kroger Co.
+Home Depot Inc.
+Lowe's Companies
+Best Buy Co.
+CVS Health
+Walgreens Boots Alliance
+Tesco
+Sainsbury's
+Marks & Spencer
+M&S
+Waitrose
+ASDA
+John Lewis
+Harrods
+Selfridges
+Primark
+IKEA Group
+Carrefour
+AEON Mall
+Lotte
+Lotte Mart
+Emart
+GS25
+CU convenience store|cửa hàng tiện lợi CU
+7-Eleven
+FamilyMart
+Lawson
+Circle K
+WinMart
+Co.opmart
+MM Mega Market
+Big C
+Don Quijote
+Donki
+Uniqlo store|cửa hàng Uniqlo
+Daiso Japan
+Muji store|cửa hàng Muji
+Miniso
+Pop Mart
+Labubu
+Sanrio
+Hello Kitty
+Kuromi
+My Melody
+Cinnamoroll
+Pompompurin
+Rilakkuma
+Sumikko Gurashi
+Jellycat
+Squishmallows
+LEGO Group
+Mattel
+Hasbro
+Barbie doll|búp bê Barbie
+Hot Wheels
+Nerf
+Play-Doh
+Fisher-Price
+Disney Company
+The Walt Disney Company
+Warner Bros.
+Warner Bros. Discovery
+Universal Pictures
+Paramount Pictures
+Sony Pictures
+Lionsgate
+A24
+Studio Ghibli films|phim của Studio Ghibli
+~Toho
+Marvel Studios
+Lucasfilm
+Pixar Animation Studios
+DreamWorks Animation
+Comcast
+NBCUniversal
+Fox Corporation
+CBS
+ABC
+NBC
+BBC Studios
+Channel 4
+ITV
+Canal+
+NHK
+KBS
+MBC
+SBS
+JTBC
+tvN
+CJ ENM
+VTV
+Goldman Sachs Group
+JPMorgan Chase & Co.
+Bank of America Corporation
+Citigroup
+Wells Fargo & Company
+Morgan Stanley Wealth|quản lý tài sản Morgan Stanley
+BlackRock Inc.
+Vanguard Group
+Fidelity Investments
+Charles Schwab Corporation
+State Street
+HSBC
+Barclays
+Lloyds Bank
+NatWest
+Standard Chartered
+Deutsche Bank
+UBS
+Credit Suisse
+BNP Paribas
+Société Générale
+Santander
+ING
+Mitsubishi UFJ
+MUFG
+Mizuho
+SMBC
+DBS Bank
+OCBC
+UOB
+Maybank
+Allianz
+AXA
+~Prudential
+Manulife
+AIA
+MetLife
+Berkshire Hathaway Inc.
+Geico
+Progressive Insurance
+State Farm
+Allstate
+Moody's
+S&P Global
+Fitch Ratings
+Bloomberg L.P.
+Reuters agency|hãng tin Reuters
+Nasdaq Inc.
+Intercontinental Exchange
+CME Group
+Coinbase Global
+Robinhood Markets
+Kraken Digital|sàn Kraken
+Binance exchange|sàn Binance
+Visa card|thẻ Visa
+Mastercard card|thẻ Mastercard
+UnionPay
+JCB
+Western Union
+MoneyGram
+Remitly
+Revolut Ltd|Revolut
+Wise plc|Wise
+Klarna Bank|Klarna
+Affirm Holdings|Affirm
+FedEx
+UPS
+DHL
+USPS
+Royal Mail
+Maersk
+Amazon Logistics
+Shopee Express
+Giao Hàng Nhanh
+Giao Hàng Tiết Kiệm
+J&T Express
+Ninja Van
+Vietnam Post
+`);
+
+CST_GLOSSARY_EXTRA_ADD("brands", null, `
+# cars, travel, hospitality
+Toyota Motor
+Honda Motor
+Nissan Motor
+Mazda Motor
+Subaru Corporation
+Suzuki Motor
+Mitsubishi Motors
+Volkswagen Group
+BMW Group
+Mercedes-Benz Group
+Stellantis N.V.
+Renault Group
+Volvo Cars
+Geely
+Great Wall Motors
+Chery
+SAIC Motor
+MG Motor
+Tata Motors
+Mahindra
+Ford Motor Company
+General Motors Company
+Rivian Automotive
+Lucid Group
+Polestar Automotive
+VinFast Auto
+Ferrari N.V.
+Porsche AG
+Lamborghini Automobili|Lamborghini
+Bugatti Rimac
+Michelin
+Bridgestone
+~Goodyear
+Continental tires|lốp Continental
+Pirelli
+Shell plc
+Shell gas station|cây xăng Shell
+ExxonMobil
+~Chevron
+BP
+TotalEnergies
+Saudi Aramco
+Aramco
+Petrolimex
+PetroVietnam
+Marriott International
+Hilton Worldwide
+Hyatt Hotels
+InterContinental Hotels Group
+Accor Hotels|Accor
+Wyndham
+Choice Hotels
+Four Seasons Hotels
+Mandarin Oriental Hotel|khách sạn Mandarin Oriental
+Rosewood Hotels
+Six Senses
+Banyan Tree
+Capella Hotels
+Aman resort|khu nghỉ dưỡng Aman
+Vinpearl
+Muong Thanh|Mường Thanh
+Club Med
+Expedia Group
+Booking Holdings
+Trip.com Group
+Tripadvisor Inc.
+Klook
+GetYourGuide
+~Viator
+Hostelworld Group
+Delta Air Lines Inc.
+United Airlines Holdings
+American Airlines Group
+Southwest Airlines Co.
+JetBlue Airways
+Lufthansa Group
+Air France-KLM
+IAG
+Emirates Airline
+Qatar Airways Group
+Singapore Airlines Group
+Jetstar
+Cebu Pacific
+Philippine Airlines
+Garuda Indonesia
+Malaysia Airlines
+Thai AirAsia
+Pacific Airlines
+Vietravel Airlines
+# apps and services people name in videos
+Google Search
+Google Maps
+Google Earth
+Google Translate
+Google Lens
+Google Assistant
+Google Docs editor|trình soạn thảo Google Docs
+Google Drive storage|lưu trữ Google Drive
+Google One
+Google Pixel phone|điện thoại Google Pixel
+Gmail inbox|hộp thư Gmail
+YouTube Kids
+YouTube TV
+YouTube Studio
+YouTube Premium subscription|gói YouTube Premium
+Apple Music subscription|gói Apple Music
+Apple Maps
+iMessage
+FaceTime
+Siri Shortcuts
+Apple Notes app|ứng dụng Apple Notes
+Apple Reminders
+Apple Health Records|hồ sơ sức khỏe Apple
+Apple Fitness Plus
+Apple Arcade games|trò chơi Apple Arcade
+Microsoft Edge
+Microsoft Teams app|ứng dụng Microsoft Teams
+Microsoft Word app|ứng dụng Microsoft Word
+Microsoft OneNote
+OneNote
+Microsoft To Do
+Bing search|tìm kiếm Bing
+Firefox
+Mozilla Firefox
+Mozilla
+Brave browser|trình duyệt Brave
+Opera browser|trình duyệt Opera
+Vivaldi browser|trình duyệt Vivaldi
+DuckDuckGo
+Arc browser|trình duyệt Arc
+Chrome browser|trình duyệt Chrome
+Google Chrome
+WhatsApp Business
+Facebook Messenger
+Instagram Threads
+Telegram Messenger
+Signal app|ứng dụng Signal
+Viber
+WeChat Pay
+Alipay
+KakaoTalk app|ứng dụng KakaoTalk
+LINE app|ứng dụng LINE
+Zalo app|ứng dụng Zalo
+Tinder app|ứng dụng Tinder
+Hinge app|ứng dụng Hinge
+Bumble app|ứng dụng Bumble
+Strava app|ứng dụng Strava
+AllTrails
+Komoot
+Citymapper
+Waze
+Uber app|ứng dụng Uber
+Grab app|ứng dụng Grab
+Airbnb app|ứng dụng Airbnb
+Venmo app|ứng dụng Venmo
+Cash App payments|thanh toán Cash App
+Duolingo app|ứng dụng Duolingo
+Headspace app|ứng dụng Headspace
+Calm app|ứng dụng Calm
+Notion app|ứng dụng Notion
+Obsidian app|ứng dụng Obsidian
+Todoist app|ứng dụng Todoist
+Evernote app|ứng dụng Evernote
+Canva app|ứng dụng Canva
+CapCut app|ứng dụng CapCut
+VSCO
+Lightroom Mobile
+Snapseed
+Picsart
+Facetune
+BeautyPlus
+Meitu
+SNOW app|ứng dụng SNOW
+Shazam
+Audible app|ứng dụng Audible
+Kindle app|ứng dụng Kindle
+Libby app|ứng dụng Libby
+Goodreads app|ứng dụng Goodreads
+Letterboxd app|ứng dụng Letterboxd
+Pinterest board|bảng Pinterest
+Reddit thread|chủ đề Reddit
+Quora
+Medium article|bài viết Medium
+Substack post|bài viết Substack
+Patreon page|trang Patreon
+OnlyFans account|tài khoản OnlyFans
+Linktree page|trang Linktree
+Etsy seller|người bán Etsy
+Depop seller|người bán Depop
+Poshmark closet|tủ đồ Poshmark
+Vinted app|ứng dụng Vinted
+Mercari app|ứng dụng Mercari
+Temu app|ứng dụng Temu
+Shein haul|haul Shein
+Amazon haul|haul Amazon
+Amazon Prime membership|thẻ thành viên Amazon Prime
+Amazon Prime Video subscription|gói Amazon Prime Video
+Netflix subscription|gói Netflix
+Disney+ subscription|gói Disney+
+Spotify playlist|danh sách phát Spotify
+Spotify Wrapped recap|tổng kết Spotify Wrapped
+Twitch stream|buổi phát trực tiếp Twitch
+Discord server|máy chủ Discord
+Slack workspace|không gian làm việc Slack
+Zoom link|đường dẫn Zoom
+Google Meet link|đường dẫn Google Meet
+Calendly link|đường dẫn Calendly
+Dropbox folder|thư mục Dropbox
+WeTransfer
+Wikipedia
+Wikimedia
+Internet Archive
+Wayback Machine
+Project Gutenberg
+Craigslist listing|tin đăng Craigslist
+Zillow listing|tin đăng Zillow
+Redfin listing|tin đăng Redfin
+Nextdoor app|ứng dụng Nextdoor
+Yelp review|đánh giá Yelp
+Google review|đánh giá Google
+TripAdvisor review|đánh giá TripAdvisor
+Rotten Tomatoes score|điểm Rotten Tomatoes
+IMDb rating|điểm IMDb
+Metacritic score|điểm Metacritic
+Steam sale|đợt giảm giá Steam
+Epic Games Store
+PlayStation Store
+PlayStation Plus
+Xbox Live
+Nintendo eShop
+Nintendo Switch Online
+Apple Arcade subscription|gói Apple Arcade
+Game Pass Ultimate
+Crunchyroll subscription|gói Crunchyroll
+Funimation
+Viki
+Rakuten Viki
+iQIYI
+WeTV
+Youku
+Bilibili
+Niconico
+FPT Play
+VieON
+Netflix Vietnam|Netflix Việt Nam
+ZingMP3
+Zing MP3
+NhacCuaTui
+`);
+
+// ============================================================ places (new, 2.6.0): a country or a city
+// with a settled Vietnamese name gets it ("Germany|Đức", "Beijing|Bắc Kinh"); the rest stay as written
+CST_GLOSSARY_EXTRA_ADD("places", "Quốc gia, thành phố và địa danh", `
+United States|Hoa Kỳ
+United States of America|Hợp chúng quốc Hoa Kỳ
+the United States|Hoa Kỳ
+the US|Mỹ
+the U.S.|Mỹ
+United Kingdom|Vương quốc Anh
+the United Kingdom|Vương quốc Anh
+the UK|Vương quốc Anh
+Great Britain|Anh
+England|Anh
+Scotland|Scotland
+Wales|xứ Wales
+Northern Ireland|Bắc Ireland
+Ireland|Ireland
+~Canada|Canada
+Mexico|Mexico
+~Brazil|Brazil
+Argentina|Argentina
+~Chile|Chile
+Peru|Peru
+Colombia|Colombia
+Venezuela|Venezuela
+Ecuador|Ecuador
+~Bolivia|Bolivia
+Uruguay|Uruguay
+Paraguay|Paraguay
+Cuba|Cuba
+Jamaica|Jamaica
+Haiti|Haiti
+Dominican Republic|Cộng hòa Dominica
+Puerto Rico|Puerto Rico
+Costa Rica|Costa Rica
+~Panama|Panama
+Guatemala|Guatemala
+Honduras|Honduras
+El Salvador|El Salvador
+Nicaragua|Nicaragua
+France|Pháp
+Germany|Đức
+Italy|Ý
+Spain|Tây Ban Nha
+Portugal|Bồ Đào Nha
+Netherlands|Hà Lan
+the Netherlands|Hà Lan
+Holland|Hà Lan
+Belgium|Bỉ
+Switzerland|Thụy Sĩ
+Austria|Áo
+Sweden|Thụy Điển
+Norway|Na Uy
+Denmark|Đan Mạch
+~Finland|Phần Lan
+~Iceland|Iceland
+Poland|Ba Lan
+Czech Republic|Cộng hòa Séc
+Czechia|Séc
+Slovakia|Slovakia
+Hungary|Hungary
+Romania|Romania
+Bulgaria|Bulgaria
+Greece|Hy Lạp
+Croatia|Croatia
+Serbia|Serbia
+Slovenia|Slovenia
+Bosnia and Herzegovina|Bosnia và Herzegovina
+Montenegro|Montenegro
+Albania|Albania
+North Macedonia|Bắc Macedonia
+Ukraine|Ukraina
+~Russia|Nga
+Belarus|Belarus
+Moldova|Moldova
+Lithuania|Litva
+Latvia|Latvia
+Estonia|Estonia
+Luxembourg|Luxembourg
+Monaco|Monaco
+Malta|Malta
+Cyprus|Síp
+~Turkey|Thổ Nhĩ Kỳ
+Türkiye|Thổ Nhĩ Kỳ
+Israel|Israel
+Palestine|Palestine
+Lebanon|Liban
+Syria|Syria
+Iraq|Iraq
+Iran|Iran
+Saudi Arabia|Ả Rập Xê Út
+United Arab Emirates|Các Tiểu vương quốc Ả Rập Thống nhất
+UAE
+Qatar|Qatar
+Kuwait|Kuwait
+Bahrain|Bahrain
+Oman|Oman
+Yemen|Yemen
+Egypt|Ai Cập
+~Morocco|Ma-rốc
+Algeria|Algeria
+Tunisia|Tunisia
+Libya|Libya
+Sudan|Sudan
+Ethiopia|Ethiopia
+Kenya|Kenya
+Tanzania|Tanzania
+Uganda|Uganda
+Rwanda|Rwanda
+Nigeria|Nigeria
+Ghana|Ghana
+Senegal|Senegal
+Ivory Coast|Bờ Biển Ngà
+Cameroon|Cameroon
+Congo|Congo
+Democratic Republic of the Congo|Cộng hòa Dân chủ Congo
+Angola|Angola
+Zambia|Zambia
+~Zimbabwe|Zimbabwe
+~Mozambique|Mozambique
+Madagascar|Madagascar
+South Africa|Nam Phi
+Namibia|Namibia
+Botswana|Botswana
+~China|Trung Quốc
+~Japan|Nhật Bản
+South Korea|Hàn Quốc
+North Korea|Triều Tiên
+Korea|Hàn Quốc
+Taiwan|Đài Loan
+Hong Kong|Hồng Kông
+Macau|Ma Cao
+Mongolia|Mông Cổ
+Vietnam|Việt Nam
+Viet Nam|Việt Nam
+Laos|Lào
+Cambodia|Campuchia
+Thailand|Thái Lan
+Myanmar|Myanmar
+Burma|Miến Điện
+Malaysia|Malaysia
+Singapore|Singapore
+Indonesia|Indonesia
+Philippines|Philippines
+the Philippines|Philippines
+Brunei|Brunei
+Timor-Leste|Timor-Leste
+East Timor|Đông Timor
+India|Ấn Độ
+Pakistan|Pakistan
+Bangladesh|Bangladesh
+Sri Lanka|Sri Lanka
+Nepal|Nepal
+Bhutan|Bhutan
+Maldives|Maldives
+Afghanistan|Afghanistan
+Kazakhstan|Kazakhstan
+Uzbekistan|Uzbekistan
+Australia|Úc
+New Zealand|New Zealand
+Fiji|Fiji
+Papua New Guinea|Papua New Guinea
+Greenland|Greenland
+~Antarctica|Nam Cực
+the Arctic|Bắc Cực
+~Arctic|Bắc Cực
+Europe|châu Âu
+Asia|châu Á
+Africa|châu Phi
+North America|Bắc Mỹ
+South America|Nam Mỹ
+Latin America|Mỹ Latinh
+Central America|Trung Mỹ
+Southeast Asia|Đông Nam Á
+East Asia|Đông Á
+South Asia|Nam Á
+Central Asia|Trung Á
+Western Europe|Tây Âu
+Eastern Europe|Đông Âu
+Scandinavia|Bắc Âu
+the Caribbean|vùng Caribe
+Caribbean|Caribe
+Oceania|châu Đại Dương
+Beijing|Bắc Kinh
+~Shanghai|Thượng Hải
+Guangzhou|Quảng Châu
+Shenzhen|Thâm Quyến
+Chengdu|Thành Đô
+Chongqing|Trùng Khánh
+Hangzhou|Hàng Châu
+Nanjing|Nam Kinh
+Wuhan|Vũ Hán
+Xi'an|Tây An
+Suzhou|Tô Châu
+Tianjin|Thiên Tân
+Harbin|Cáp Nhĩ Tân
+Kunming|Côn Minh
+Guilin|Quế Lâm
+Lhasa|Lhasa
+~Tibet|Tây Tạng
+Xinjiang|Tân Cương
+Taipei|Đài Bắc
+Kaohsiung|Cao Hùng
+Taichung|Đài Trung
+Pyongyang|Bình Nhưỡng
+Moscow|Moskva
+Saint Petersburg|Sankt-Peterburg
+St. Petersburg|Sankt-Peterburg
+Kyiv|Kyiv
+Kiev|Kyiv
+Vientiane|Viêng Chăn
+Phnom Penh|Phnom Penh
+Siem Reap|Siem Reap
+Bangkok city|thành phố Bangkok
+Rome|Roma
+Athens|Athens
+Vienna|Viên
+Prague|Praha
+~Warsaw|Warszawa
+Copenhagen|Copenhagen
+Munich|München
+Cologne|Köln
+Lisbon|Lisbon
+~Geneva|Genève
+Brussels|Brussels
+Florence city|thành phố Florence
+Venice city|thành phố Venice
+Naples|Napoli
+Milan|Milan
+Seville|Sevilla
+New Delhi|New Delhi
+Mumbai|Mumbai
+Bangalore|Bangalore
+Jerusalem|Jerusalem
+Mecca|Mecca
+Cairo|Cairo
+Istanbul|Istanbul
+Tehran|Tehran
+Dubai|Dubai
+Abu Dhabi|Abu Dhabi
+Doha|Doha
+Riyadh|Riyadh
+Tel Aviv|Tel Aviv
+New York City
+New York
+NYC
+Manhattan
+Brooklyn
+~Queens
+the Bronx
+Staten Island
+Los Angeles
+LA
+L.A.
+San Francisco
+SF
+the Bay Area|vùng Vịnh San Francisco
+San Jose
+Oakland
+Berkeley city|thành phố Berkeley
+Palo Alto
+Mountain View
+Cupertino
+Menlo Park
+Sunnyvale
+Seattle
+Portland
+Boise
+Salt Lake City
+Denver
+~Phoenix
+Scottsdale
+Tucson
+Las Vegas
+Reno
+San Diego
+Santa Monica
+Malibu
+Beverly Hills
+Hollywood district|khu Hollywood
+Pasadena
+Irvine
+Orange County
+Sacramento
+~Fresno
+Austin
+Dallas
+Houston
+San Antonio
+Fort Worth
+El Paso
+Chicago
+Detroit
+Milwaukee
+Minneapolis
+St. Louis
+Kansas City
+Indianapolis
+Columbus
+Cleveland
+Cincinnati
+Pittsburgh
+Philadelphia
+Baltimore
+Washington, D.C.
+Washington DC
+D.C.
+~Boston
+Cambridge, Massachusetts
+Hartford
+New Haven
+Newark
+Jersey City
+Hoboken
+Atlanta
+Charlotte
+Raleigh
+Durham
+Nashville
+Memphis
+New Orleans
+Miami
+Orlando city|thành phố Orlando
+Tampa
+Jacksonville
+Fort Lauderdale
+Savannah
+Charleston
+Richmond
+Louisville
+Oklahoma City
+Albuquerque
+Santa Fe
+~Anchorage
+Honolulu city|thành phố Honolulu
+California
+Texas
+Florida
+New York State|bang New York
+Washington State|bang Washington
+Oregon
+Nevada
+Arizona
+Utah
+~Colorado
+Idaho
+~Montana
+Wyoming
+New Mexico
+Alaska
+Hawaii state|bang Hawaii
+Illinois
+~Michigan
+Ohio
+Indiana
+Wisconsin
+Minnesota
+Iowa
+Missouri
+Kansas
+Nebraska
+North Dakota
+South Dakota
+Oklahoma
+Arkansas
+Louisiana
+Mississippi
+Alabama
+Tennessee
+Kentucky
+North Carolina
+South Carolina
+Virginia
+West Virginia
+Maryland
+Delaware
+Pennsylvania
+New Jersey
+Connecticut
+Rhode Island
+Massachusetts
+Vermont
+New Hampshire
+Maine
+Midwest|vùng Trung Tây
+the Midwest|vùng Trung Tây
+West Coast|Bờ Tây
+East Coast|Bờ Đông
+the South|miền Nam nước Mỹ
+New England|vùng New England
+Pacific Northwest|vùng Tây Bắc Thái Bình Dương
+Sun Belt|Vành đai Mặt Trời
+Bible Belt|Vành đai Kinh Thánh
+Rust Belt|Vành đai Rỉ sét
+Toronto
+Vancouver
+Montreal
+Ottawa
+Calgary
+Edmonton
+Quebec City
+Mexico City
+Guadalajara
+Monterrey
+Oaxaca
+Playa del Carmen
+Puerto Vallarta
+Cabo San Lucas
+Havana
+San Juan
+Rio de Janeiro
+São Paulo
+Buenos Aires
+Santiago
+Lima
+Cusco
+Bogotá
+Medellín
+Cartagena
+Quito
+London
+Manchester
+Liverpool city|thành phố Liverpool
+Birmingham
+Leeds
+Bristol
+Brighton
+Oxford city|thành phố Oxford
+Edinburgh
+Glasgow
+Dublin
+Belfast
+Cardiff
+Paris
+Lyon
+Marseille
+Bordeaux
+Strasbourg
+Cannes city|thành phố Cannes
+~Berlin
+Hamburg
+Frankfurt
+Stuttgart
+Düsseldorf
+Amsterdam
+Rotterdam
+The Hague
+Antwerp
+Bruges
+Zurich
+Basel
+~Lucerne
+Interlaken
+Zermatt
+Salzburg
+Innsbruck
+Hallstatt
+Budapest
+Kraków
+Dubrovnik
+Ljubljana
+Sarajevo
+Belgrade
+Bucharest
+Sofia
+Tallinn
+Riga
+Vilnius
+Helsinki
+Stockholm
+Oslo
+Bergen
+Reykjavik
+Madrid
+Barcelona city|thành phố Barcelona
+Valencia
+~Granada
+Málaga
+Ibiza
+Mallorca
+~Porto
+Lisbon city|thành phố Lisbon
+Madeira
+Azores
+Santorini island|đảo Santorini
+Crete
+Rhodes
+Corfu
+Sicily
+Sardinia
+Capri
+Positano
+~Sorrento
+Pisa
+Verona
+Bologna
+Turin
+Genoa
+Monte Carlo
+Tokyo
+Osaka city|thành phố Osaka
+Kyoto city|thành phố Kyoto
+Nara city|thành phố Nara
+Hiroshima city|thành phố Hiroshima
+Fukuoka
+Sapporo city|thành phố Sapporo
+Yokohama
+Kobe
+Nagoya
+Kanazawa
+Hakone
+Nikko
+Kamakura
+Takayama
+Shirakawa-go
+Seoul
+Busan
+Incheon
+Daegu
+Gyeongju
+Jeonju
+Singapore city|thành phố Singapore
+Kuala Lumpur
+~Penang
+Langkawi
+Malacca
+Jakarta
+Yogyakarta
+Lombok
+~Manila
+Cebu
+Boracay
+Palawan
+El Nido
+Siargao
+Bohol
+Chiang Rai
+Pattaya
+Krabi
+Koh Samui
+Koh Phangan
+Koh Tao
+Phi Phi Islands
+Hua Hin
+Yangon
+Mandalay
+Bagan
+Luang Prabang
+Kathmandu
+Pokhara
+Colombo
+~Goa
+Jaipur
+Agra
+Varanasi
+Kerala
+Rishikesh
+Sydney
+Melbourne
+Brisbane
+Perth
+Adelaide
+Gold Coast
+Byron Bay
+Cairns
+Tasmania
+Auckland
+~Wellington
+Queenstown
+Christchurch
+Cape Town
+Johannesburg
+Nairobi
+Zanzibar
+Marrakech
+Casablanca
+Chefchaouen
+Tulum city|thành phố Tulum
+Hà Nội
+Hồ Chí Minh City|Thành phố Hồ Chí Minh
+HCMC|TP.HCM
+Hai Phong|Hải Phòng
+Hải Phòng
+Can Tho|Cần Thơ
+Cần Thơ
+Quy Nhon|Quy Nhơn
+Vung Tau|Vũng Tàu
+Mui Ne|Mũi Né
+Phan Thiet|Phan Thiết
+Ninh Binh|Ninh Bình
+Ha Giang|Hà Giang
+Ha Long|Hạ Long
+Cat Ba|Cát Bà
+Phong Nha|Phong Nha
+Con Dao|Côn Đảo
+Moc Chau|Mộc Châu
+Mu Cang Chai|Mù Cang Chải
+Ban Gioc Waterfall|thác Bản Giốc
+Hoan Kiem Lake|hồ Hoàn Kiếm
+Old Quarter|phố cổ
+Ben Thanh Market|chợ Bến Thành
+Cu Chi Tunnels|địa đạo Củ Chi
+Marble Mountains|Ngũ Hành Sơn
+Ba Na Hills|Bà Nà Hills
+My Son Sanctuary|thánh địa Mỹ Sơn
+Son Doong Cave|hang Sơn Đoòng
+Fansipan
+Imperial City of Hue|Đại Nội Huế
+`);
+
+// ============================================================ medicine: drug names, said the international way
+CST_GLOSSARY_EXTRA_ADD("medicine", null, `
+=atorvastatin
+=rosuvastatin
+=simvastatin
+=pravastatin
+=lisinopril
+=enalapril
+=ramipril
+=losartan
+=valsartan
+=irbesartan
+=telmisartan
+=amlodipine
+=nifedipine
+=diltiazem
+=verapamil
+=metoprolol
+=atenolol
+=propranolol
+=carvedilol
+=bisoprolol
+=hydrochlorothiazide
+=furosemide
+=spironolactone
+=chlorthalidone
+=warfarin
+=apixaban
+=rivaroxaban
+=dabigatran
+=clopidogrel
+=heparin
+=enoxaparin
+=digoxin
+=amiodarone
+=nitroglycerin
+=metformin hydrochloride
+=glipizide
+=glyburide
+=glimepiride
+=sitagliptin
+=empagliflozin
+=dapagliflozin
+=canagliflozin
+=liraglutide
+=dulaglutide
+=exenatide
+=insulin glargine
+=insulin lispro
+=levothyroxine
+=liothyronine
+=methimazole
+=prednisone
+=prednisolone
+=dexamethasone
+=hydrocortisone
+=budesonide
+=fluticasone
+=albuterol
+=salbutamol
+=montelukast
+=cetirizine
+=loratadine
+=fexofenadine
+=diphenhydramine
+=pseudoephedrine
+=guaifenesin
+=dextromethorphan
+=omeprazole
+=esomeprazole
+=pantoprazole
+=lansoprazole
+=famotidine
+=ranitidine
+=ondansetron
+=metoclopramide
+=loperamide
+=bismuth subsalicylate
+=docusate
+=polyethylene glycol
+=amoxicillin
+=amoxicillin-clavulanate
+=azithromycin
+=clarithromycin
+=doxycycline
+=minocycline
+=ciprofloxacin
+=levofloxacin
+=cephalexin
+=ceftriaxone
+=penicillin
+=vancomycin
+=clindamycin
+=metronidazole
+=nitrofurantoin
+=trimethoprim
+=sulfamethoxazole
+=fluconazole
+=terbinafine
+=nystatin
+=acyclovir
+=valacyclovir
+=oseltamivir
+=Tamiflu
+=Paxlovid
+=nirmatrelvir
+=remdesivir
+=ivermectin
+=hydroxychloroquine
+=sertraline
+=fluoxetine
+=escitalopram
+=citalopram
+=paroxetine
+=venlafaxine
+=duloxetine
+=bupropion
+=mirtazapine
+=trazodone
+=amitriptyline
+=lithium carbonate
+=lamotrigine
+=valproate
+=quetiapine
+=aripiprazole
+=olanzapine
+=risperidone
+=clozapine
+=haloperidol
+=alprazolam
+=lorazepam
+=clonazepam
+=diazepam
+=zolpidem
+=buspirone
+=hydroxyzine
+=gabapentin
+=pregabalin
+=topiramate
+=levetiracetam
+=carbamazepine
+=methylphenidate
+=amphetamine
+=lisdexamfetamine
+=Vyvanse
+=Concerta
+=Strattera
+=atomoxetine
+=guanfacine
+=modafinil
+=armodafinil
+=naltrexone
+=buprenorphine
+=methadone
+=naloxone
+=Narcan
+=oxycodone
+=hydrocodone
+=morphine
+=tramadol
+=codeine
+=OxyContin
+=Percocet
+=Vicodin
+=sumatriptan
+=rizatriptan
+=celecoxib
+=naproxen
+=diclofenac
+=meloxicam
+=allopurinol
+=colchicine
+=methotrexate
+=hydroxyurea
+=tamoxifen
+=letrozole
+=anastrozole
+=trastuzumab
+=Herceptin
+=pembrolizumab
+=Keytruda
+=nivolumab
+=Opdivo
+=rituximab
+=adalimumab
+=Humira
+=etanercept
+=infliximab
+=Ozempic pen|bút tiêm Ozempic
+=finasteride
+=minoxidil
+=Rogaine
+=dutasteride
+=tadalafil
+=sildenafil
+=Cialis
+=spironolactone for acne|spironolactone trị mụn
+=isotretinoin
+=Accutane
+=clindamycin gel|gel clindamycin
+=hydroquinone
+=ketoconazole
+=Nizoral
+=estradiol
+=levonorgestrel
+=mifepristone
+=misoprostol
+=oxytocin injection|tiêm oxytocin
+=Botox injections|tiêm Botox
+=hyaluronic acid filler|chất làm đầy axit hyaluronic
+=Juvederm
+=Restylane
+=Dysport
+=Xeomin
+=Kybella
+=Zepbound injection|tiêm Zepbound
+=retatrutide
+=orforglipron
+=testosterone replacement therapy|liệu pháp thay thế testosterone
+=TRT
+=HCG
+=clomiphene
+=Clomid
+=letrozole for fertility|letrozole hỗ trợ sinh sản
+=Lexapro tablets|viên Lexapro
+=Benadryl
+=Zyrtec
+=Claritin
+=Allegra
+=Sudafed
+=Mucinex
+=NyQuil
+=DayQuil
+=Pepto-Bismol
+=Imodium
+=Rolaids
+=Prilosec
+=Nexium
+=Zantac
+=Pepcid
+=MiraLAX
+=Dramamine
+=Excedrin
+=Aleve
+=Midol
+=Neosporin
+=Hydrocortisone cream|kem hydrocortisone
+=Vicks VapoRub
+=Flonase
+=Nasacort
+=Afrin
+=Visine
+=Mylanta
+=Boost nutrition drink|sữa dinh dưỡng Boost
+`);
+
+// ============================================================ music (new)
+CST_GLOSSARY_EXTRA_ADD("music", "Âm nhạc và nhạc cụ", `
+music theory|nhạc lý
+sheet music|bản nhạc
+musical notation|ký âm
+treble clef|khóa Sol
+bass clef|khóa Fa
+time signature|nhịp phách
+key signature|hóa biểu
+major key|giọng trưởng
+minor key|giọng thứ
+major scale|âm giai trưởng
+minor scale|âm giai thứ
+pentatonic scale|âm giai ngũ cung
+chromatic scale|âm giai cromatic
+chord progression|vòng hợp âm
+chord progressions|vòng hợp âm
+power chord|hợp âm power
+barre chord|hợp âm chặn
+open chord|hợp âm mở
+major chord|hợp âm trưởng
+minor chord|hợp âm thứ
+seventh chord|hợp âm bảy
+circle of fifths|vòng quãng năm
+perfect pitch|cảm âm tuyệt đối
+relative pitch|cảm âm tương đối
+ear training|luyện tai
+sight-reading|đọc nhạc tại chỗ
+sight reading|đọc nhạc tại chỗ
+tempo marking|ký hiệu nhịp độ
+beats per minute|số phách mỗi phút
+metronome|máy đếm nhịp
+=metronome
+syncopation|nhịp nghịch phách
+=syncopation
+crescendo|mạnh dần
+=crescendo
+staccato|ngắt âm
+=staccato
+legato|liền tiếng
+=legato
+vibrato|rung giọng
+=vibrato
+falsetto|giọng giả thanh
+=falsetto
+head voice|giọng đầu
+chest voice|giọng ngực
+mixed voice|giọng pha
+vocal range|quãng giọng
+vocal cords|dây thanh quản
+vocal warm-up|khởi động giọng
+vocal coach|huấn luyện viên thanh nhạc
+singing lessons|học thanh nhạc
+breath support|hỗ trợ hơi thở khi hát
+belting|hát belting
+=belting
+counterpoint|đối âm
+=counterpoint
+arpeggio|hợp âm rải
+=arpeggio
+arpeggios|hợp âm rải
+riff|đoạn riff
+=riff
+guitar solo|đoạn solo guitar
+fingerpicking|gảy ngón
+=fingerpicking
+strumming pattern|kiểu quạt chả
+capo|kẹp capo
+=capo
+fretboard|cần đàn
+=fretboard
+acoustic guitar|đàn guitar thùng
+electric guitar|đàn guitar điện
+classical guitar|đàn guitar cổ điển
+bass guitar|đàn bass
+ukulele|đàn ukulele
+=ukulele
+grand piano|đàn piano cơ lớn
+upright piano|đàn piano đứng
+digital piano|đàn piano điện
+keyboard instrument|nhạc cụ phím
+synthesizer|đàn tổng hợp âm thanh
+=synthesizer
+synth|synth
+=synth
+drum kit|bộ trống
+drum set|bộ trống
+snare drum|trống snare
+bass drum|trống bass
+hi-hat|chũm chọe hi-hat
+cymbals|chũm chọe
+electronic drums|trống điện tử
+cajón|trống cajón
+=cajon
+violin|đàn violin
+=violin
+viola|đàn viola
+=viola
+cello|đàn cello
+=cello
+double bass|đàn contrabass
+harp|đàn hạc
+=harp
+flute|sáo
+=flute
+clarinet|kèn clarinet
+=clarinet
+oboe|kèn oboe
+=oboe
+bassoon|kèn bassoon
+=bassoon
+saxophone|kèn saxophone
+=saxophone
+trumpet|kèn trumpet
+=trumpet
+trombone|kèn trombone
+=trombone
+French horn|kèn cor
+tuba|kèn tuba
+=tuba
+harmonica|kèn harmonica
+=harmonica
+accordion|đàn accordion
+=accordion
+banjo|đàn banjo
+=banjo
+mandolin|đàn mandolin
+=mandolin
+xylophone|đàn xylophone
+=xylophone
+marimba|đàn marimba
+=marimba
+kalimba|đàn kalimba
+=kalimba
+handpan|trống handpan
+=handpan
+orchestra|dàn nhạc
+=orchestra
+symphony orchestra|dàn nhạc giao hưởng
+philharmonic|dàn nhạc giao hưởng
+chamber music|nhạc thính phòng
+string quartet|tứ tấu đàn dây
+concerto|bản concerto
+=concerto
+symphony|bản giao hưởng
+=symphony
+sonata|bản sonata
+=sonata
+opera|nhạc kịch opera
+=opera
+aria|aria
+=aria
+musical theatre|nhạc kịch
+musical theater|nhạc kịch
+Broadway musical|nhạc kịch Broadway
+composer|nhà soạn nhạc
+=composer
+songwriter|nhạc sĩ
+=songwriter
+music producer|nhà sản xuất âm nhạc
+record producer|nhà sản xuất thu âm
+sound engineer|kỹ sư âm thanh
+mixing and mastering|phối và master
+mixing engineer|kỹ sư phối âm
+mastering engineer|kỹ sư master
+recording studio|phòng thu âm
+home studio|phòng thu tại nhà
+audio interface|card âm thanh
+studio monitors|loa kiểm âm
+condenser microphone|micro condenser
+dynamic microphone|micro dynamic
+pop filter|màng lọc âm
+DAW
+digital audio workstation|phần mềm sản xuất âm nhạc
+MIDI keyboard|bàn phím MIDI
+MIDI controller|bộ điều khiển MIDI
+VST plugin|plugin VST
+sample pack|gói mẫu âm thanh
+beat making|làm beat
+beatmaker|người làm beat
+=beatmaker
+lo-fi beats|beat lo-fi
+backing track|nhạc nền
+karaoke|karaoke
+=karaoke
+cover song|bản cover
+=cover song
+acoustic version|phiên bản acoustic
+live performance|biểu diễn trực tiếp
+live album|album trực tiếp
+unplugged|mộc
+=unplugged
+music genre|thể loại nhạc
+pop music|nhạc pop
+rock music|nhạc rock
+indie rock|indie rock
+=indie rock
+alternative rock|rock alternative
+punk rock|punk rock
+=punk rock
+heavy metal|heavy metal
+=heavy metal
+hard rock|hard rock
+=hard rock
+grunge|grunge
+=grunge
+jazz|nhạc jazz
+=jazz
+soul music|nhạc soul
+disco|nhạc disco
+=disco
+house music|nhạc house
+techno|nhạc techno
+=techno
+trance music|nhạc trance
+drum and bass|drum and bass
+=drum and bass
+dubstep|dubstep
+=dubstep
+reggae|nhạc reggae
+=reggae
+reggaeton|reggaeton
+=reggaeton
+Afrobeats|nhạc Afrobeats
+salsa music|nhạc salsa
+bossa nova|bossa nova
+=bossa nova
+country music|nhạc đồng quê
+folk music|nhạc dân gian
+bluegrass|nhạc bluegrass
+=bluegrass
+gospel music|nhạc phúc âm
+classical music era|thời kỳ âm nhạc cổ điển
+baroque music|nhạc Baroque
+city pop|city pop
+=city pop
+synthwave|synthwave
+=synthwave
+vaporwave|vaporwave
+=vaporwave
+bedroom pop|bedroom pop
+=bedroom pop
+hyperpop|hyperpop
+=hyperpop
+trap music|nhạc trap
+drill music|nhạc drill
+boom bap|boom bap
+=boom bap
+~Bolero|nhạc bolero
+Trịnh Công Sơn
+music festival lineup|danh sách nghệ sĩ lễ hội âm nhạc
+headliner|nghệ sĩ chính
+=headliner
+opening act|nghệ sĩ mở màn
+mosh pit|khu nhảy pogo
+front row|hàng ghế đầu
+=front row
+VIP tickets|vé VIP
+presale|bán trước
+=presale
+music streaming|nghe nhạc trực tuyến
+royalties|tiền bản quyền
+=royalties
+music video premiere|ra mắt video ca nhạc
+chart-topping|đứng đầu bảng xếp hạng
+number one hit|bản hit số một
+Grammy-winning|đoạt giải Grammy
+platinum record|đĩa bạch kim
+gold record|đĩa vàng
+vinyl record|đĩa than
+vinyl records|đĩa than
+record player|máy hát đĩa than
+turntable|bàn xoay đĩa
+=turntable
+cassette tape|băng cassette
+playlist|danh sách phát
+=playlist
+earworm|giai điệu ám ảnh
+=earworm
+music therapy|liệu pháp âm nhạc
+`);
+
+// ============================================================ spirituality (new)
+CST_GLOSSARY_EXTRA_ADD("spirituality", "Tâm linh, chiêm tinh và tôn giáo", `
+astrology|chiêm tinh học
+=astrology
+horoscope|tử vi
+=horoscope
+zodiac sign|cung hoàng đạo
+zodiac signs|cung hoàng đạo
+star sign|cung hoàng đạo
+birth chart|bản đồ sao
+natal chart|bản đồ sao
+sun sign|cung Mặt Trời
+moon sign|cung Mặt Trăng
+rising sign|cung Mọc
+Mercury retrograde|sao Thủy nghịch hành
+retrograde|nghịch hành
+Saturn return|sự trở lại của sao Thổ
+~Aries|Bạch Dương
+~Taurus|Kim Ngưu
+~Gemini sign|cung Song Tử
+~Cancer sign|cung Cự Giải
+~Leo sign|cung Sư Tử
+~Virgo|Xử Nữ
+~Libra|Thiên Bình
+~Scorpio|Bọ Cạp
+~Sagittarius|Nhân Mã
+~Capricorn|Ma Kết
+~Aquarius|Bảo Bình
+~Pisces|Song Ngư
+Chinese zodiac|con giáp
+year of the dragon|năm Thìn
+Year of the Dragon|năm Thìn
+Year of the Snake|năm Tỵ
+Year of the Horse|năm Ngọ
+Year of the Rabbit|năm Mão
+Year of the Tiger|năm Dần
+Lunar New Year|Tết Nguyên đán
+Tet|Tết
+Tết
+Mid-Autumn Festival|Tết Trung thu
+feng shui|phong thủy
+=feng shui
+tarot|bói bài tarot
+=tarot
+tarot cards|bài tarot
+tarot reading|xem bài tarot
+tarot reader|người đọc bài tarot
+tarot deck|bộ bài tarot
+oracle cards|bài oracle
+numerology|thần số học
+=numerology
+life path number|số chủ đạo
+angel numbers|số thiên thần
+angel number|số thiên thần
+11:11
+manifesting|hiện thực hóa mong muốn
+law of attraction manifesting|hiện thực hóa theo luật hấp dẫn
+crystals|đá năng lượng
+crystal healing|chữa lành bằng đá
+healing crystals|đá chữa lành
+amethyst|thạch anh tím
+=amethyst
+rose quartz|thạch anh hồng
+clear quartz|thạch anh trắng
+sage cleansing|xông xô thơm
+smudging|xông xô thơm
+=smudging
+palo santo|gỗ palo santo
+=palo santo
+chakra|luân xa
+=chakra
+chakras|luân xa
+third eye|con mắt thứ ba
+=third eye
+aura|hào quang
+energy healing|chữa lành năng lượng
+Reiki|Reiki
+=reiki
+sound bath|tắm âm thanh
+singing bowl|chuông xoay
+singing bowls|chuông xoay
+spiritual awakening|thức tỉnh tâm linh
+spiritual journey|hành trình tâm linh
+spiritual practice|thực hành tâm linh
+spirituality|tâm linh
+=spirituality
+higher self|bản thể cao hơn
+inner wisdom|trí tuệ bên trong
+intuition|trực giác
+=intuition
+synchronicity|sự đồng hiện
+=synchronicity
+divine timing|thời điểm thiêng liêng
+karma|nghiệp
+=karma
+dharma|pháp
+=dharma
+samsara|luân hồi
+=samsara
+reincarnation|đầu thai
+=reincarnation
+enlightenment spiritual|giác ngộ
+mantra|câu thần chú
+=mantra
+mantras|câu thần chú
+namaste|namaste
+=namaste
+mala beads|chuỗi hạt mala
+meditation retreat|khóa tu thiền
+silent retreat|khóa tu im lặng
+Vipassana|thiền Vipassana
+=vipassana
+Zen meditation|thiền Zen
+walking meditation|thiền hành
+Plum Village|Làng Mai
+plum village|Làng Mai
+monastery|tu viện
+=monastery
+Buddhist monk|nhà sư Phật giáo
+monk|nhà sư
+nun|ni cô
+pagoda|chùa
+=pagoda
+Buddha|Đức Phật
+the Buddha|Đức Phật
+~Bodhisattva|Bồ Tát
+Guanyin|Quan Âm
+Four Noble Truths|Tứ diệu đế
+Noble Eightfold Path|Bát chánh đạo
+Eightfold Path|Bát chánh đạo
+Middle Way|Trung đạo
+loving-kindness|lòng từ
+compassion practice|thực hành từ bi
+Theravada|Phật giáo Nguyên thủy
+Mahayana|Phật giáo Đại thừa
+Tibetan Buddhism|Phật giáo Tây Tạng
+Christianity|Kitô giáo
+~Catholicism|Công giáo
+Catholic Church|Giáo hội Công giáo
+~Protestantism|Tin Lành
+~Protestant|Tin Lành
+~Evangelical|Tin Lành Phúc âm
+Orthodox Church|Chính thống giáo
+Islam|Hồi giáo
+Muslim|người Hồi giáo
+Muslims|người Hồi giáo
+Judaism|Do Thái giáo
+Jewish|Do Thái
+Hinduism|Ấn Độ giáo
+Hindu|người theo Ấn Độ giáo
+Sikhism|đạo Sikh
+Taoism|Đạo giáo
+Confucianism|Nho giáo
+Shinto|Thần đạo
+Caodaism|đạo Cao Đài
+Cao Dai|đạo Cao Đài
+Hoa Hao|Phật giáo Hòa Hảo
+ancestor worship|thờ cúng tổ tiên
+The Bible|Kinh Thánh
+the Bible|Kinh Thánh
+Bible|Kinh Thánh
+Old Testament|Cựu Ước
+New Testament|Tân Ước
+~Gospel|Phúc âm
+the Gospel|Phúc âm
+Book of Genesis|sách Sáng Thế Ký
+Quran|kinh Qur'an
+Koran|kinh Qur'an
+~Torah|kinh Torah
+Talmud|kinh Talmud
+Bhagavad Gita|Chí Tôn Ca
+Vedas|kinh Veda
+Tao Te Ching book|sách Đạo Đức Kinh
+Heart Sutra|Bát Nhã Tâm Kinh
+Lotus Sutra|kinh Pháp Hoa
+Jesus Christ|Chúa Giê-su
+Jesus|Chúa Giê-su
+Virgin Mary|Đức Mẹ Maria
+Holy Spirit|Chúa Thánh Thần
+Allah|Thánh Allah
+Prophet Muhammad|nhà tiên tri Muhammad
+Muhammad|Muhammad
+Moses|Môsê
+Abraham|Abraham
+Adam and Eve|Adam và Eva
+Noah's Ark|con thuyền Noah
+Garden of Eden|Vườn Địa Đàng
+purgatory|luyện ngục
+the afterlife|thế giới bên kia
+afterlife|thế giới bên kia
+=afterlife
+guardian angel|thiên thần hộ mệnh
+the devil|ác quỷ
+~Satan|quỷ Satan
+church service|buổi lễ nhà thờ
+Sunday service|lễ Chủ nhật
+Lord's Prayer|Kinh Lạy Cha
+rosary|chuỗi Mân Côi
+=rosary
+baptism|lễ rửa tội
+=baptism
+pastor|mục sư
+=pastor
+priest|linh mục
+=priest
+the Pope|Giáo hoàng
+~Pope|Giáo hoàng
+Vatican Church|Tòa Thánh Vatican
+mosque|nhà thờ Hồi giáo
+=mosque
+synagogue|giáo đường Do Thái
+=synagogue
+imam|giáo sĩ Hồi giáo
+=imam
+rabbi|giáo sĩ Do Thái
+=rabbi
+Ramadan|tháng Ramadan
+Eid al-Fitr|lễ Eid al-Fitr
+Eid|lễ Eid
+Hajj|cuộc hành hương Hajj
+halal|halal
+=halal
+kosher|kosher
+=kosher
+~Passover|lễ Vượt Qua
+Hanukkah|lễ Hanukkah
+Yom Kippur|lễ Yom Kippur
+Rosh Hashanah|Tết Do Thái
+Christmas|Giáng sinh
+Christmas Eve|đêm Giáng sinh
+Christmas Day|ngày Giáng sinh
+~Easter|lễ Phục sinh
+Easter Sunday|Chủ nhật Phục sinh
+Good Friday|Thứ Sáu Tuần Thánh
+~Lent|Mùa Chay
+Advent|Mùa Vọng
+Diwali|lễ hội ánh sáng Diwali
+Holi|lễ hội Holi
+Vesak|lễ Phật Đản
+Buddha's Birthday|lễ Phật Đản
+Vu Lan|lễ Vu Lan
+Halloween|Halloween
+Day of the Dead|Ngày của người chết
+Día de los Muertos|Ngày của người chết
+~Thanksgiving|Lễ Tạ ơn
+Valentine's Day|ngày Valentine
+Mother's Day|Ngày của Mẹ
+Father's Day|Ngày của Cha
+New Year's Eve|đêm Giao thừa
+New Year's Day|ngày đầu năm mới
+Independence Day|ngày Quốc khánh
+Fourth of July|ngày 4 tháng 7
+Memorial Day|ngày Tưởng niệm
+Labor Day|ngày Lao động
+Black History Month|Tháng Lịch sử người da đen
+Women's History Month|Tháng Lịch sử Phụ nữ
+International Women's Day|Ngày Quốc tế Phụ nữ
+Earth Day celebration|lễ kỷ niệm Ngày Trái Đất
+Oktoberfest
+~Carnival|lễ hội Carnival
+Mardi Gras|lễ hội Mardi Gras
+Songkran|Tết té nước Songkran
+Chuseok|Tết Trung thu Hàn Quốc
+Obon|lễ Obon
+Hanami|ngắm hoa anh đào
+hanami|ngắm hoa anh đào
+cherry blossom season|mùa hoa anh đào
+cherry blossoms|hoa anh đào
+atheism|chủ nghĩa vô thần
+atheist|người vô thần
+=atheist
+agnostic|người theo thuyết bất khả tri
+=agnostic
+secular|thế tục
+=secular
+religious freedom|tự do tôn giáo
+faith-based|dựa trên đức tin
+pilgrimage|cuộc hành hương
+=pilgrimage
+Camino de Santiago|con đường hành hương Santiago
+`);
+
+// ============================================================ outdoors (new)
+CST_GLOSSARY_EXTRA_ADD("outdoors", "Dã ngoại, cắm trại và câu cá", `
+car camping|cắm trại bằng ô tô
+backcountry camping|cắm trại vùng hoang dã
+wild camping|cắm trại hoang dã
+dispersed camping|cắm trại tự do
+campsite|khu cắm trại
+=campsite
+campground|bãi cắm trại
+=campground
+tent stakes|cọc lều
+sleeping bag|túi ngủ
+sleeping pad|đệm ngủ
+camping stove|bếp cắm trại
+camp chair|ghế cắm trại
+camping gear|đồ cắm trại
+hiking boots|giày leo núi
+trail runners|giày chạy địa hình
+hiking poles|gậy leo núi
+trekking poles|gậy leo núi
+daypack|ba lô đi trong ngày
+=daypack
+hydration pack|ba lô nước
+water filter|bộ lọc nước
+headlamp|đèn đội đầu
+=headlamp
+bear spray|bình xịt chống gấu
+bear canister|hộp chống gấu
+first aid kit|bộ sơ cứu
+emergency blanket|chăn khẩn cấp
+multitool|dụng cụ đa năng
+=multitool
+pocket knife|dao bỏ túi
+fire starter|dụng cụ nhóm lửa
+campfire|lửa trại
+=campfire
+leave no trace|không để lại dấu vết
+Leave No Trace|nguyên tắc Không để lại dấu vết
+thru-hike|đi bộ xuyên tuyến
+thru-hiker|người đi bộ xuyên tuyến
+Appalachian Trail
+Pacific Crest Trail
+PCT
+John Muir Trail
+Continental Divide Trail
+Camino Frances
+Tour du Mont Blanc
+West Highland Way
+Inca Trail
+Annapurna Circuit
+trailhead|điểm đầu đường mòn
+=trailhead
+elevation gain|độ cao leo
+switchbacks|đường zíc zắc
+altitude sickness|say độ cao
+base weight|trọng lượng ba lô cơ bản
+ultralight backpacking|du lịch bụi siêu nhẹ
+ultralight gear|đồ siêu nhẹ
+hammock camping|cắm trại bằng võng
+hammock|võng
+=hammock
+bivy sack|túi ngủ bivy
+REI
+REI Co-op
+Patagonia Inc.
+Arc'teryx jacket|áo khoác Arc'teryx
+The North Face jacket|áo khoác The North Face
+Osprey Packs
+~Osprey
+Gregory Packs|ba lô Gregory
+Black Diamond
+Petzl
+MSR
+Jetboil
+Coleman
+Big Agnes
+Nemo Equipment
+Therm-a-Rest
+Sea to Summit
+Merrell
+~Salomon
+Altra
+Hoka trail shoes|giày địa hình Hoka
+Garmin inReach
+satellite messenger|thiết bị nhắn tin vệ tinh
+national forest|rừng quốc gia
+state park|công viên tiểu bang
+wilderness area|khu hoang dã
+park ranger|kiểm lâm
+wildlife sighting|bắt gặp động vật hoang dã
+birdwatching|ngắm chim
+=birdwatching
+bird watching|ngắm chim
+stargazing|ngắm sao
+=stargazing
+dark sky park|công viên bầu trời tối
+foraging|hái lượm thực phẩm hoang dã
+=foraging
+wild mushrooms|nấm dại
+fishing rod|cần câu
+fishing reel|máy câu
+fishing line|dây câu
+fishing lure|mồi câu giả
+fly fishing|câu cá bằng ruồi giả
+ice fishing|câu cá trên băng
+deep sea fishing|câu cá biển sâu
+catch and release|bắt rồi thả
+tackle box|hộp đồ câu
+fishing license|giấy phép câu cá
+bass fishing|câu cá vược
+kayak fishing|câu cá trên kayak
+canoe|xuồng canoe
+=canoe
+canoeing|chèo xuồng
+=canoeing
+rafting|chèo bè vượt thác
+whitewater rafting|chèo thuyền vượt thác
+canyoning|vượt thác
+=canyoning
+zip line|đu dây
+ziplining|đu dây
+=zipline
+paragliding|dù lượn
+=paragliding
+skydiving|nhảy dù
+=skydiving
+bungee jumping|nhảy bungee
+hot air balloon|khinh khí cầu
+caving|thám hiểm hang động
+=caving
+spelunking|thám hiểm hang động
+=spelunking
+off-roading|đi địa hình
+overlanding|du lịch đường bộ tự túc
+=overlanding
+roof tent|lều nóc xe
+rooftop tent|lều nóc xe
+camper van|xe cắm trại
+campervan|xe cắm trại
+=campervan
+RV|xe nhà di động
+recreational vehicle|xe nhà di động
+travel trailer|nhà kéo du lịch
+Airstream
+RV park|bãi đỗ xe nhà di động
+glamping tent|lều cắm trại sang trọng
+bushcraft|kỹ năng sinh tồn trong rừng
+=bushcraft
+survival skills|kỹ năng sinh tồn
+wilderness survival|sinh tồn nơi hoang dã
+Bear Grylls
+Man vs. Wild
+Survivorman
+`);
+
+// ============================================================ crafts (new)
+CST_GLOSSARY_EXTRA_ADD("crafts", "Thủ công, may vá và DIY", `
+knitting|đan len
+=knitting
+crochet|móc len
+=crochet
+crocheting|móc len
+knitting needles|que đan
+crochet hook|kim móc
+yarn weight|độ dày sợi len
+amigurumi|thú bông móc len
+=amigurumi
+granny square|ô vuông móc len
+cross-stitch|thêu chữ thập
+cross stitch|thêu chữ thập
+embroidery|thêu
+=embroidery
+embroidery hoop|khung thêu
+needlepoint|thêu kim
+quilting|chần bông
+=quilting
+sewing machine|máy khâu
+sewing pattern|rập may
+hand sewing|khâu tay
+serger|máy vắt sổ
+=serger
+seam allowance|đường may chừa
+hemming|lên lai
+macramé|thắt dây macramé
+macrame|thắt dây macramé
+=macrame
+felting|làm nỉ
+needle felting|châm nỉ
+pottery|làm gốm
+=pottery
+pottery wheel|bàn xoay gốm
+ceramics|gốm sứ
+=ceramics
+kiln|lò nung
+=kiln
+air-dry clay|đất sét tự khô
+polymer clay|đất sét polymer
+resin art|nghệ thuật resin
+epoxy resin|nhựa epoxy
+candle making|làm nến
+soap making|làm xà phòng
+jewelry making|làm trang sức
+beading|kết hạt
+=beading
+scrapbooking|làm sổ lưu niệm
+=scrapbooking
+journaling supplies|dụng cụ viết nhật ký
+washi tape|băng dính washi
+calligraphy pen|bút thư pháp
+brush lettering|viết chữ bằng bút cọ
+origami|gấp giấy origami
+=origami
+paper crafts|thủ công giấy
+paper quilling|cuộn giấy nghệ thuật
+bookbinding|đóng sách thủ công
+=bookbinding
+woodworking|làm đồ gỗ
+=woodworking
+wood carving|chạm khắc gỗ
+whittling|đẽo gỗ
+=whittling
+power tools|dụng cụ điện
+hand tools|dụng cụ cầm tay
+table saw|máy cưa bàn
+miter saw|máy cưa góc
+circular saw|máy cưa đĩa
+jigsaw tool|máy cưa lọng
+power drill|máy khoan
+impact driver|máy bắn vít
+orbital sander|máy chà nhám rung
+sandpaper|giấy nhám
+wood glue|keo dán gỗ
+wood stain|màu nhuộm gỗ
+wood finish|lớp hoàn thiện gỗ
+DIY furniture|đồ nội thất tự làm
+furniture flip|làm mới đồ nội thất
+upcycled furniture|đồ nội thất tái chế
+chalk paint|sơn phấn
+spray paint|sơn xịt
+paint brush|cọ sơn
+painter's tape|băng dính sơn
+Cricut
+Cricut machine|máy Cricut
+heat press|máy ép nhiệt
+screen printing|in lụa
+block printing|in khắc
+3D printed|in 3D
+laser cutter|máy cắt laser
+maker space|xưởng chế tạo
+makerspace|xưởng chế tạo
+Michaels craft store|cửa hàng Michaels
+Hobby Lobby
+Joann
+JOANN
+Ravelry
+Etsy pattern|mẫu Etsy
+`);
+
+// ============================================================ drinks (new)
+CST_GLOSSARY_EXTRA_ADD("drinks", "Cà phê, trà, rượu và đồ uống", `
+specialty coffee|cà phê đặc sản
+third wave coffee|cà phê làn sóng thứ ba
+single origin|cà phê đơn nguồn
+single-origin coffee|cà phê đơn nguồn
+coffee beans|hạt cà phê
+whole bean coffee|cà phê nguyên hạt
+ground coffee|cà phê xay
+instant coffee|cà phê hòa tan
+decaf|cà phê không caffeine
+=decaf
+light roast|rang nhạt
+medium roast|rang vừa
+dark roast|rang đậm
+arabica|cà phê arabica
+=arabica
+robusta|cà phê robusta
+=robusta
+coffee grinder|máy xay cà phê
+burr grinder|máy xay đĩa
+grind size|độ mịn xay
+coffee scale|cân cà phê
+gooseneck kettle|ấm rót cổ ngỗng
+V60
+Hario V60
+Kalita Wave
+moka pot|bình moka
+=moka pot
+siphon coffee|cà phê siphon
+phin filter|phin cà phê
+Vietnamese coffee|cà phê Việt Nam
+Vietnamese iced coffee|cà phê sữa đá
+egg coffee|cà phê trứng
+coconut coffee|cà phê cốt dừa
+salt coffee|cà phê muối
+espresso|espresso
+=espresso
+ristretto|ristretto
+=ristretto
+lungo|lungo
+=lungo
+affogato|affogato
+=affogato
+latte art|vẽ hình trên latte
+microfoam|bọt sữa mịn
+=microfoam
+milk frother|máy đánh sữa
+steam wand|vòi đánh sữa
+crema|lớp crema
+=crema
+brew ratio|tỷ lệ pha
+barista|nhân viên pha chế
+=barista
+coffee shop|quán cà phê
+coffee culture|văn hóa cà phê
+caffeine addiction|nghiện caffeine
+loose leaf tea|trà lá rời
+tea bags|túi trà
+green tea|trà xanh
+black tea|trà đen
+oolong tea|trà ô long
+oolong|trà ô long
+white tea|bạch trà
+pu-erh|trà phổ nhĩ
+=pu-erh
+jasmine tea|trà nhài
+chamomile tea|trà hoa cúc
+peppermint tea|trà bạc hà
+herbal tea|trà thảo mộc
+rooibos|trà rooibos
+=rooibos
+earl grey|trà Earl Grey
+Earl Grey|trà Earl Grey
+English breakfast tea|trà English Breakfast
+masala chai|trà masala
+yerba mate|trà mate
+=yerba mate
+hojicha|trà rang hojicha
+=hojicha
+genmaicha|trà gạo rang genmaicha
+=genmaicha
+sencha|trà sencha
+=sencha
+gyokuro|trà gyokuro
+=gyokuro
+ceremonial grade matcha|matcha loại nghi lễ
+culinary grade matcha|matcha loại nấu ăn
+tea ceremony|trà đạo
+gongfu tea|pha trà kiểu công phu
+teapot|ấm trà
+=teapot
+milk tea|trà sữa
+Thai tea|trà Thái
+taro milk tea|trà sữa khoai môn
+brown sugar boba|trà sữa đường đen
+cheese foam|kem phô mai
+fruit tea|trà trái cây
+wine tasting|nếm rượu vang
+wine pairing|kết hợp rượu vang
+sommelier|chuyên gia rượu vang
+=sommelier
+red wine|rượu vang đỏ
+white wine|rượu vang trắng
+rosé wine|rượu vang hồng
+sparkling wine|rượu vang sủi
+natural wine|rượu vang tự nhiên
+orange wine|rượu vang cam
+Cabernet Sauvignon
+Merlot
+Pinot Noir
+Syrah
+Shiraz
+Malbec
+~Zinfandel
+Sangiovese
+Tempranillo
+Chardonnay
+Sauvignon Blanc
+Pinot Grigio
+Riesling
+Moscato
+Prosecco
+~Champagne
+=champagne
+Cava wine|rượu vang sủi Cava
+Bordeaux wine|rượu vang Bordeaux
+Burgundy wine|rượu vang Burgundy
+Napa Valley wine|rượu vang Napa Valley
+tannins|tanin
+vintage year|niên vụ
+decanter|bình thở rượu
+=decanter
+craft beer|bia thủ công
+craft brewery|nhà máy bia thủ công
+IPA
+India pale ale|bia IPA
+lager|bia lager
+=lager
+pilsner|bia pilsner
+=pilsner
+sour beer|bia chua
+hard seltzer|nước có cồn
+White Claw
+whiskey|rượu whiskey
+=whiskey
+whisky|rượu whisky
+=whisky
+bourbon|rượu bourbon
+=bourbon
+single malt|whisky mạch nha đơn
+tequila|rượu tequila
+=tequila
+mezcal|rượu mezcal
+=mezcal
+vodka|rượu vodka
+=vodka
+gin|rượu gin
+rum|rượu rum
+=rum
+brandy|rượu brandy
+=brandy
+cognac|rượu cognac
+=cognac
+soju|rượu soju
+=soju
+makgeolli|rượu makgeolli
+=makgeolli
+baijiu|rượu baijiu
+=baijiu
+cocktail|cocktail
+=cocktail
+cocktails|cocktail
+mocktail|mocktail
+=mocktail
+mocktails|mocktail
+mixology|nghệ thuật pha chế
+=mixology
+bartender|nhân viên quầy bar
+=bartender
+Old Fashioned
+Negroni
+~Margarita
+Mojito
+Martini
+espresso martini|espresso martini
+Aperol Spritz
+Moscow Mule
+Piña Colada
+Cosmopolitan cocktail|cocktail Cosmopolitan
+Manhattan cocktail|cocktail Manhattan
+Daiquiri
+Bloody Mary
+Mai Tai
+Long Island Iced Tea
+happy hour|giờ khuyến mãi
+=happy hour
+sober curious|tò mò lối sống không rượu
+Dry January|tháng Một không rượu
+alcohol-free|không cồn
+non-alcoholic|không cồn
+=non-alcoholic
+NA beer|bia không cồn
+hangover|cơn say xỉn hôm sau
+=hangover
+blood alcohol content|nồng độ cồn trong máu
+binge drinking|uống rượu quá chén
+alcohol use disorder|rối loạn sử dụng rượu
+Alcoholics Anonymous|Hội Người nghiện rượu Ẩn danh
+AA meeting|buổi họp AA
+sparkling water|nước có ga
+kombucha brewing|ủ kombucha
+cold-pressed juice|nước ép lạnh
+smoothie|sinh tố
+=smoothie
+smoothies|sinh tố
+protein smoothie|sinh tố protein
+green juice|nước ép xanh
+celery juice|nước ép cần tây
+coconut water|nước dừa
+electrolyte water|nước điện giải
+alkaline water|nước kiềm
+`);
+
+// ============================================================ photography (new)
+CST_GLOSSARY_EXTRA_ADD("photography", "Nhiếp ảnh và quay phim", `
+street photography|nhiếp ảnh đường phố
+portrait photography|chụp chân dung
+landscape photography|nhiếp ảnh phong cảnh
+wildlife photography|nhiếp ảnh động vật hoang dã
+food photography|chụp ảnh món ăn
+product photography|chụp ảnh sản phẩm
+wedding photography|chụp ảnh cưới
+astrophotography|chụp ảnh thiên văn
+=astrophotography
+macro photography|chụp macro
+long exposure|phơi sáng dài
+double exposure|phơi sáng kép
+manual mode|chế độ thủ công
+aperture priority|ưu tiên khẩu độ
+shutter priority|ưu tiên tốc độ
+auto mode|chế độ tự động
+f-stop|chỉ số f
+f-stops|chỉ số f
+wide aperture|khẩu độ lớn
+shallow depth of field|độ sâu trường ảnh nông
+prime lens|ống kính một tiêu cự
+zoom lens|ống kính zoom
+wide-angle lens|ống kính góc rộng
+macro lens|ống kính macro
+fisheye lens|ống kính mắt cá
+kit lens|ống kính kit
+50mm lens|ống kính 50mm
+35mm lens|ống kính 35mm
+35mm film|phim 35mm
+full-frame|cảm biến full-frame
+=full-frame
+full frame camera|máy ảnh full-frame
+APS-C
+crop sensor|cảm biến crop
+image sensor|cảm biến ảnh
+dynamic range|dải tương phản động
+noise reduction|giảm nhiễu
+high ISO|ISO cao
+autofocus|lấy nét tự động
+=autofocus
+manual focus|lấy nét tay
+eye autofocus|lấy nét theo mắt
+focus peaking|tô sáng vùng nét
+viewfinder|kính ngắm
+=viewfinder
+electronic viewfinder|kính ngắm điện tử
+tripod|chân máy
+=tripod
+monopod|chân máy đơn
+ND filter|kính lọc ND
+polarizing filter|kính lọc phân cực
+lens hood|loa che nắng
+camera bag|túi máy ảnh
+camera strap|dây đeo máy ảnh
+flash photography|chụp có đèn flash
+speedlight|đèn flash rời
+natural lighting|ánh sáng tự nhiên
+studio lighting|ánh sáng studio
+three-point lighting|bố trí ba đèn
+key light|đèn chính
+fill light|đèn phụ
+backlight|đèn ngược
+=backlight
+rim light|đèn viền
+reflector|tấm hắt sáng
+=reflector
+diffuser photography|tấm tản sáng
+golden hour light|ánh sáng giờ vàng
+hard light|ánh sáng cứng
+soft light|ánh sáng mềm
+photo shoot|buổi chụp ảnh
+photoshoot|buổi chụp ảnh
+=photoshoot
+photographer|nhiếp ảnh gia
+=photographer
+videographer|người quay phim
+=videographer
+filmmaker|nhà làm phim
+=filmmaker
+filmmaking|làm phim
+=filmmaking
+cinematographer|nhà quay phim
+=cinematographer
+director of photography|đạo diễn hình ảnh
+camera operator|người điều khiển máy quay
+gaffer|trưởng ánh sáng
+production assistant|trợ lý sản xuất
+pre-production|tiền kỳ
+post-production|hậu kỳ
+shot list|danh sách cảnh quay
+establishing shot|cảnh thiết lập
+close-up|cận cảnh
+=close-up
+wide shot|toàn cảnh
+medium shot|cảnh trung
+tracking shot|cảnh quay đuổi
+drone shot|cảnh quay flycam
+POV shot|cảnh quay góc nhìn thứ nhất
+dolly zoom|zoom dolly
+handheld shot|cảnh quay cầm tay
+color grade|chỉnh màu
+log profile|hồ sơ màu log
+S-Log
+LOG footage|cảnh quay log
+4K footage|cảnh quay 4K
+footage|cảnh quay
+=footage
+raw footage|cảnh quay thô
+editing software|phần mềm dựng phim
+timeline editing|dựng trên timeline
+rough cut|bản dựng thô
+final cut|bản dựng cuối
+export settings|cài đặt xuất video
+bitrate|tốc độ bit
+=bitrate
+codec|codec
+=codec
+H.264
+H.265
+HEVC
+ProRes RAW
+aspect ratio 16:9|tỷ lệ 16:9
+vertical video|video dọc
+horizontal video|video ngang
+=vertical video
+film grain|hạt phim
+=film grain
+film simulation|giả lập phim
+film stock|loại phim
+Kodak Portra
+Portra 400
+Kodak Gold
+Ektar
+Ilford HP5
+Cinestill 800T
+~Kodak
+Fujifilm recipe|công thức màu Fujifilm
+Fujifilm X-T5
+Fujifilm X-S20
+Sony A7 IV
+Sony A7C
+Sony ZV-1
+Sony ZV-E10
+Sony FX3
+Canon EOS R5
+Canon EOS R6
+Canon R50
+Nikon Z6
+Nikon Z8
+Panasonic Lumix
+Lumix GH6
+Blackmagic Design
+Blackmagic Pocket Cinema Camera
+RED camera|máy quay RED
+ARRI
+ARRI Alexa
+DJI Ronin
+DJI Mini 4 Pro
+DJI Air 3
+DJI Mavic 3
+DJI Osmo Pocket 3
+DJI Mic 2
+Rode Wireless GO
+Insta360 X4
+Peak Design
+Lowepro
+Manfrotto
+Godox
+Aputure
+Nanlite
+SmallRig
+Moment lenses|ống kính Moment
+Halide camera app|ứng dụng camera Halide
+Blackmagic Camera app|ứng dụng Blackmagic Camera
+ProCam
+Lightroom Classic
+Capture One
+Darktable
+Photoshop Generative Fill|Generative Fill trong Photoshop
+Unsplash
+Pexels
+Shutterstock
+Getty Images
+Adobe Stock
+stock footage|cảnh quay có sẵn
+stock photos|ảnh có sẵn
+royalty-free|miễn phí bản quyền
+=royalty-free
+Creative Commons license|giấy phép Creative Commons
+`);
+
+// ============================================================ engineering (new)
+CST_GLOSSARY_EXTRA_ADD("engineering", "Kỹ thuật và xây dựng", `
+mechanical engineering|kỹ thuật cơ khí
+electrical engineering|kỹ thuật điện
+civil engineering|kỹ thuật xây dựng
+chemical engineering|kỹ thuật hóa học
+aerospace engineering|kỹ thuật hàng không vũ trụ
+biomedical engineering|kỹ thuật y sinh
+industrial engineering|kỹ thuật công nghiệp
+structural engineering|kỹ thuật kết cấu
+environmental engineering|kỹ thuật môi trường
+mechanical engineer|kỹ sư cơ khí
+electrical engineer|kỹ sư điện
+civil engineer|kỹ sư xây dựng
+structural engineer|kỹ sư kết cấu
+CAD
+computer-aided design|thiết kế có máy tính hỗ trợ
+AutoCAD
+SolidWorks
+Fusion 360
+Revit
+SketchUp
+Rhino 3D
+ANSYS
+finite element analysis|phân tích phần tử hữu hạn
+FEA
+CNC machine|máy CNC
+CNC machining|gia công CNC
+injection molding|ép phun
+additive manufacturing|sản xuất bồi đắp
+load-bearing wall|tường chịu lực
+reinforced concrete|bê tông cốt thép
+steel beam|dầm thép
+I-beam|dầm chữ I
+foundation slab|móng bè
+rebar|cốt thép
+=rebar
+truss|giàn
+=truss
+cantilever|công xôn
+=cantilever
+suspension bridge|cầu treo
+cable-stayed bridge|cầu dây văng
+arch bridge|cầu vòm
+skyscraper|nhà chọc trời
+=skyscraper
+high-rise building|tòa nhà cao tầng
+construction site|công trường
+general contractor|tổng thầu
+subcontractor|nhà thầu phụ
+=subcontractor
+building code|quy chuẩn xây dựng
+building permit|giấy phép xây dựng
+blueprints|bản vẽ thiết kế
+blueprint drawing|bản vẽ kỹ thuật
+architectural drawing|bản vẽ kiến trúc
+HVAC
+heating, ventilation, and air conditioning|sưởi, thông gió và điều hòa không khí
+plumbing|hệ thống ống nước
+=plumbing
+welding|hàn
+=welding
+welder|thợ hàn
+=welder
+insulation|cách nhiệt
+=insulation
+spray foam insulation|cách nhiệt bọt phun
+double glazing|kính hai lớp
+solar water heater|máy nước nóng năng lượng mặt trời
+circuit breaker panel|tủ cầu dao
+electrical panel|tủ điện
+GFCI outlet|ổ cắm chống giật
+voltage|điện áp
+=voltage
+amperage|cường độ dòng điện
+wattage|công suất
+=wattage
+alternating current|dòng điện xoay chiều
+direct current|dòng điện một chiều
+AC power|điện xoay chiều
+DC power|điện một chiều
+transformer station|trạm biến áp
+power outage|mất điện
+ohm|ôm
+Ohm's law|định luật Ohm
+resistor|điện trở
+=resistor
+capacitor|tụ điện
+=capacitor
+inductor|cuộn cảm
+=inductor
+diode|điốt
+=diode
+LED light|đèn LED
+printed circuit board|bảng mạch in
+PCB
+soldering|hàn mạch
+=soldering
+soldering iron|mỏ hàn
+multimeter|đồng hồ vạn năng
+=multimeter
+oscilloscope|máy hiện sóng
+=oscilloscope
+breadboard|bảng mạch thử
+=breadboard
+servo motor|động cơ servo
+stepper motor|động cơ bước
+electric motor|động cơ điện
+combustion engine|động cơ đốt
+gear ratio|tỷ số truyền
+hydraulics|thủy lực
+=hydraulics
+pneumatics|khí nén
+=pneumatics
+fluid dynamics|động lực học chất lưu
+aerodynamics|khí động lực học
+=aerodynamics
+thermal conductivity|độ dẫn nhiệt
+heat exchanger|bộ trao đổi nhiệt
+stress and strain|ứng suất và biến dạng
+tensile strength|độ bền kéo
+fatigue failure|phá hủy do mỏi
+safety factor|hệ số an toàn
+reverse engineering|kỹ thuật đảo ngược
+prototyping lab|phòng làm mẫu
+quality control engineer|kỹ sư kiểm soát chất lượng
+manufacturing process|quy trình sản xuất
+assembly line|dây chuyền lắp ráp
+factory floor|xưởng sản xuất
+automation engineering|kỹ thuật tự động hóa
+industrial robot|robot công nghiệp
+PLC
+programmable logic controller|bộ điều khiển logic khả trình
+SCADA
+smart factory|nhà máy thông minh
+Industry 4.0|Công nghiệp 4.0
+digital twin model|mô hình bản sao số
+megaproject|siêu dự án
+=megaproject
+infrastructure project|dự án hạ tầng
+high-speed railway|đường sắt cao tốc
+metro line|tuyến tàu điện
+tunnel boring machine|máy khoan hầm
+Panama Canal|kênh đào Panama
+Suez Canal|kênh đào Suez
+Hoover Dam|đập Hoover
+Three Gorges Dam|đập Tam Hiệp
+Channel Tunnel|đường hầm eo biển Manche
+Burj Khalifa tower|tháp Burj Khalifa
+Shanghai Tower|tháp Thượng Hải
+Taipei 101
+Landmark 81
+Bitexco Financial Tower|tòa tháp Bitexco
+Lotte Center Hanoi|Lotte Center Hà Nội
+Golden Gate|Cầu Cổng Vàng
+Sydney Harbour Bridge|cầu cảng Sydney
+Millau Viaduct|cầu cạn Millau
+`);
+
+// ============================================================ agriculture (new)
+CST_GLOSSARY_EXTRA_ADD("agriculture", "Nông nghiệp", `
+crop rotation|luân canh
+cover crops|cây che phủ
+cover crop|cây che phủ
+no-till farming|canh tác không cày xới
+soil health|sức khỏe đất
+topsoil|lớp đất mặt
+=topsoil
+soil erosion|xói mòn đất
+irrigation|tưới tiêu
+=irrigation
+drip irrigation|tưới nhỏ giọt
+greenhouse farming|canh tác nhà kính
+hydroponics|thủy canh
+=hydroponics
+aquaponics|aquaponics
+=aquaponics
+aeroponics|khí canh
+=aeroponics
+pesticides|thuốc trừ sâu
+pesticide|thuốc trừ sâu
+=pesticide
+herbicide|thuốc diệt cỏ
+=herbicide
+fertilizer|phân bón
+=fertilizer
+synthetic fertilizer|phân bón tổng hợp
+organic fertilizer|phân bón hữu cơ
+manure|phân chuồng
+=manure
+glyphosate|glyphosate
+=glyphosate
+genetically modified crops|cây trồng biến đổi gen
+GMO crops|cây trồng GMO
+monoculture|độc canh
+=monoculture
+polyculture|đa canh
+crop yield|năng suất cây trồng
+harvest season|mùa thu hoạch
+rice paddy|ruộng lúa
+rice paddies|ruộng lúa
+terraced fields|ruộng bậc thang
+rice terraces|ruộng bậc thang
+wet rice cultivation|trồng lúa nước
+livestock|gia súc
+=livestock
+cattle ranch|trang trại chăn nuôi bò
+dairy farm|trang trại bò sữa
+poultry farm|trang trại gia cầm
+free-range chickens|gà thả vườn
+cage-free eggs|trứng gà không nuôi lồng
+pasture-raised|nuôi trên đồng cỏ
+=pasture-raised
+grass-fed|ăn cỏ
+=grass-fed
+feedlot|trại vỗ béo
+=feedlot
+animal welfare|phúc lợi động vật
+aquaculture|nuôi trồng thủy sản
+=aquaculture
+fish farming|nuôi cá
+shrimp farming|nuôi tôm
+beekeeping|nuôi ong
+=beekeeping
+beekeeper|người nuôi ong
+honeybees|ong mật
+colony collapse disorder|hội chứng sụp đổ đàn ong
+pollinators|loài thụ phấn
+smallholder farmers|nông hộ nhỏ
+family farm|trang trại gia đình
+farm subsidies|trợ cấp nông nghiệp
+agribusiness|kinh doanh nông nghiệp
+=agribusiness
+agritech|công nghệ nông nghiệp
+precision agriculture|nông nghiệp chính xác
+farm-to-fork|từ trang trại đến bàn ăn
+food supply chain|chuỗi cung ứng thực phẩm
+food system|hệ thống thực phẩm
+food sovereignty|chủ quyền lương thực
+seed bank|ngân hàng hạt giống
+heirloom seeds|hạt giống truyền thống
+heirloom tomatoes|cà chua giống cổ
+tractor|máy kéo
+=tractor
+combine harvester|máy gặt đập liên hợp
+farmhand|người làm thuê nông trại
+homestead|trang trại tự cung tự cấp
+=homestead
+orchard|vườn cây ăn quả
+=orchard
+vineyard|vườn nho
+=vineyard
+plantation|đồn điền
+=plantation
+coffee plantation|đồn điền cà phê
+tea plantation|đồi chè
+durian|sầu riêng
+=durian
+dragon fruit|thanh long
+jackfruit|mít
+=jackfruit
+lychee|vải thiều
+=lychee
+longan|nhãn
+=longan
+rambutan|chôm chôm
+=rambutan
+mangosteen|măng cụt
+=mangosteen
+passion fruit|chanh dây
+pomelo|bưởi
+=pomelo
+`);
+
+// ============================================================ animals (new)
+CST_GLOSSARY_EXTRA_ADD("animals", "Động vật và thiên nhiên", `
+blue whale|cá voi xanh
+humpback whale|cá voi lưng gù
+orca|cá voi sát thủ
+=orca
+killer whale|cá voi sát thủ
+sperm whale|cá nhà táng
+great white shark|cá mập trắng lớn
+whale shark|cá mập voi
+hammerhead shark|cá mập đầu búa
+manta ray|cá đuối manta
+stingray|cá đuối gai độc
+=stingray
+sea turtle|rùa biển
+sea turtles|rùa biển
+octopus|bạch tuộc
+=octopus
+squid|mực
+jellyfish|sứa
+=jellyfish
+sea otter|rái cá biển
+sea lion|sư tử biển
+walrus|hải mã
+=walrus
+narwhal|kỳ lân biển
+=narwhal
+bottlenose dolphin|cá heo mũi chai
+dolphins|cá heo
+coral reef|rạn san hô
+coral reefs|rạn san hô
+polar bear|gấu Bắc Cực
+polar bears|gấu Bắc Cực
+grizzly bear|gấu xám
+brown bear|gấu nâu
+black bear|gấu đen
+giant panda|gấu trúc khổng lồ
+red panda|gấu trúc đỏ
+koala|gấu koala
+=koala
+kangaroo|chuột túi
+=kangaroo
+wombat|gấu túi mũi trần
+=wombat
+platypus|thú mỏ vịt
+=platypus
+sloth|con lười
+=sloth
+capybara|chuột lang nước
+=capybara
+quokka|chuột túi quokka
+=quokka
+axolotl|kỳ giông axolotl
+=axolotl
+meerkat|cầy meerkat
+=meerkat
+hedgehog|nhím kiểng
+=hedgehog
+porcupine|nhím
+=porcupine
+raccoon|gấu mèo
+=raccoon
+skunk|chồn hôi
+=skunk
+opossum|thú có túi opossum
+=opossum
+beaver|hải ly
+=beaver
+otter|rái cá
+=otter
+chipmunk|sóc chuột
+=chipmunk
+African elephant|voi châu Phi
+Asian elephant|voi châu Á
+elephants|voi
+giraffe|hươu cao cổ
+=giraffe
+zebra|ngựa vằn
+=zebra
+hippopotamus|hà mã
+hippo|hà mã
+=hippo
+rhinoceros|tê giác
+rhino|tê giác
+=rhino
+cheetah|báo săn
+=cheetah
+leopard|báo hoa mai
+=leopard
+jaguar animal|báo đốm
+snow leopard|báo tuyết
+Bengal tiger|hổ Bengal
+Siberian tiger|hổ Siberia
+lion pride|bầy sư tử
+gorilla|khỉ đột
+=gorilla
+chimpanzee|tinh tinh
+=chimpanzee
+orangutan|đười ươi
+=orangutan
+bonobo|tinh tinh lùn
+=bonobo
+lemur|vượn cáo
+=lemur
+macaque|khỉ đuôi dài
+=macaque
+gibbon|vượn
+=gibbon
+hyena|linh cẩu
+=hyena
+wildebeest|linh dương đầu bò
+=wildebeest
+bison|bò rừng bison
+=bison
+moose|nai sừng tấm
+=moose
+reindeer|tuần lộc
+=reindeer
+arctic fox|cáo Bắc Cực
+red fox|cáo đỏ
+gray wolf|sói xám
+wolf pack|bầy sói
+coyote|sói đồng cỏ
+=coyote
+bald eagle|đại bàng đầu trắng
+golden eagle|đại bàng vàng
+peregrine falcon|chim cắt lớn
+owl|cú mèo
+hummingbird|chim ruồi
+=hummingbird
+flamingo|hồng hạc
+=flamingo
+penguin|chim cánh cụt
+=penguin
+penguins|chim cánh cụt
+emperor penguin|chim cánh cụt hoàng đế
+albatross|chim hải âu lớn
+=albatross
+pelican|bồ nông
+=pelican
+toucan|chim tucan
+=toucan
+crow intelligence|trí thông minh của quạ
+komodo dragon|rồng Komodo
+Komodo dragon|rồng Komodo
+crocodile|cá sấu
+alligator|cá sấu Mỹ
+=alligator
+python snake|trăn
+king cobra|rắn hổ mang chúa
+rattlesnake|rắn đuôi chuông
+=rattlesnake
+chameleon|tắc kè hoa
+=chameleon
+gecko|tắc kè
+=gecko
+iguana|kỳ nhông
+=iguana
+tree frog|ếch cây
+poison dart frog|ếch phi tiêu độc
+honeybee|ong mật
+=honeybee
+bumblebee|ong nghệ
+=bumblebee
+monarch butterfly|bướm vua
+firefly|đom đóm
+fireflies|đom đóm
+dragonfly|chuồn chuồn
+=dragonfly
+praying mantis|bọ ngựa
+tarantula|nhện tarantula
+=tarantula
+scorpion|bọ cạp
+=scorpion
+termite|mối
+=termite
+mosquito|muỗi
+=mosquito
+apex predator|động vật săn mồi đỉnh
+predator and prey|kẻ săn mồi và con mồi
+food chain apex|đỉnh chuỗi thức ăn
+migration pattern|tập tính di cư
+animal migration|di cư của động vật
+hibernation|ngủ đông
+=hibernation
+camouflage|ngụy trang
+=camouflage
+echolocation|định vị bằng tiếng vang
+=echolocation
+nocturnal animals|động vật sống về đêm
+cold-blooded|máu lạnh
+warm-blooded|máu nóng
+marine biology|sinh học biển
+marine biologist|nhà sinh học biển
+zoology|động vật học
+=zoology
+botany|thực vật học
+=botany
+ornithology|điểu học
+=ornithology
+entomology|côn trùng học
+=entomology
+wildlife sanctuary|khu bảo tồn động vật hoang dã
+national wildlife refuge|khu bảo tồn động vật hoang dã quốc gia
+safari park|vườn thú safari
+zoo|sở thú
+=zoo
+aquarium visit|tham quan thủy cung
+WWF
+World Wildlife Fund|Quỹ Quốc tế Bảo vệ Thiên nhiên
+IUCN Red List|Sách Đỏ IUCN
+critically endangered|cực kỳ nguy cấp
+=critically endangered
+poaching|săn trộm
+=poaching
+ivory trade|buôn bán ngà voi
+redwood|cây gỗ đỏ
+=redwood
+giant sequoia|cây cù tùng khổng lồ
+bamboo forest|rừng tre
+mangrove|rừng ngập mặn
+=mangrove
+mangroves|rừng ngập mặn
+rainforest canopy|tán rừng mưa
+old-growth forest|rừng nguyên sinh
+wildflowers|hoa dại
+sunflower field|cánh đồng hoa hướng dương
+lavender field|cánh đồng oải hương
+cherry blossom tree|cây anh đào
+maple tree|cây phong
+oak tree|cây sồi
+pine tree|cây thông
+lotus flower|hoa sen
+water lily|hoa súng
+orchid|hoa lan
+=orchid
+orchids|hoa lan
+tulip|hoa tulip
+=tulip
+tulips|hoa tulip
+peony|hoa mẫu đơn
+=peony
+hydrangea|hoa cẩm tú cầu
+=hydrangea
+`);
+
+// ============================================================ philosophy (new)
+CST_GLOSSARY_EXTRA_ADD("philosophy", "Triết học và tư tưởng", `
+metaphysics|siêu hình học
+=metaphysics
+epistemology|nhận thức luận
+=epistemology
+ontology|bản thể luận
+=ontology
+moral philosophy|triết học đạo đức
+political philosophy|triết học chính trị
+philosophy of mind|triết học tâm trí
+philosophy of science|triết học khoa học
+utilitarianism|chủ nghĩa vị lợi
+=utilitarianism
+consequentialism|thuyết hệ quả
+=consequentialism
+deontology|nghĩa vụ luận
+=deontology
+virtue ethics|đạo đức học đức hạnh
+categorical imperative|mệnh lệnh tuyệt đối
+trolley problem|bài toán xe điện
+the trolley problem|bài toán xe điện
+thought experiment|thí nghiệm tư duy
+free will|ý chí tự do
+determinism|thuyết tất định
+=determinism
+moral relativism|thuyết tương đối đạo đức
+moral realism|thuyết hiện thực đạo đức
+the good life|cuộc sống tốt đẹp
+eudaimonia|eudaimonia
+=eudaimonia
+hedonism|chủ nghĩa khoái lạc
+=hedonism
+Epicureanism|chủ nghĩa Epicurus
+cynicism philosophy|chủ nghĩa khuyển nho
+rationalism|chủ nghĩa duy lý
+=rationalism
+empiricism|chủ nghĩa kinh nghiệm
+=empiricism
+dualism|thuyết nhị nguyên
+=dualism
+mind-body problem|vấn đề tâm trí và cơ thể
+hard problem of consciousness|vấn đề khó của ý thức
+consciousness|ý thức
+=consciousness
+qualia|cảm thụ
+=qualia
+panpsychism|thuyết vạn vật hữu linh
+=panpsychism
+simulation hypothesis|giả thuyết mô phỏng
+simulation theory|thuyết mô phỏng
+Ship of Theseus|con tàu của Theseus
+Plato's cave|hang động của Plato
+allegory of the cave|ngụ ngôn hang động
+Socratic method|phương pháp Socrates
+dialectic|phép biện chứng
+=dialectic
+dialectical materialism|chủ nghĩa duy vật biện chứng
+Hegelian dialectic|phép biện chứng Hegel
+cogito ergo sum|tôi tư duy nên tôi tồn tại
+I think, therefore I am|tôi tư duy nên tôi tồn tại
+tabula rasa|tấm bảng trắng
+=tabula rasa
+Pascal's wager|vụ cược của Pascal
+Occam's razor principle|nguyên tắc dao cạo Occam
+the absurd|cái phi lý
+existential angst|nỗi âu lo hiện sinh
+bad faith|ngụy tín
+authenticity|tính chân thực
+=authenticity
+will to power|ý chí quyền lực
+Übermensch|siêu nhân
+God is dead|Chúa đã chết
+eternal recurrence|sự quy hồi vĩnh cửu
+nihilist|người theo chủ nghĩa hư vô
+=nihilist
+Stoics|các triết gia khắc kỷ
+the Stoics|các triết gia khắc kỷ
+Taoist philosophy|triết lý Đạo giáo
+wu wei|vô vi
+=wu wei
+yin and yang|âm dương
+yin yang|âm dương
+Confucian values|giá trị Nho giáo
+filial piety|lòng hiếu thảo
+Zen koan|công án Thiền
+koan|công án
+=koan
+phenomenology|hiện tượng học
+=phenomenology
+postmodernism|chủ nghĩa hậu hiện đại
+=postmodernism
+structuralism|chủ nghĩa cấu trúc
+deconstruction|giải cấu trúc
+critical theory|lý thuyết phê phán
+Frankfurt School|Trường phái Frankfurt
+social constructivism|thuyết kiến tạo xã hội
+pragmatism|chủ nghĩa thực dụng
+=pragmatism
+transhumanism|chủ nghĩa siêu nhân học
+=transhumanism
+effective altruism|chủ nghĩa vị tha hiệu quả
+longtermism|chủ nghĩa dài hạn
+=longtermism
+rationalist community|cộng đồng duy lý
+Socratic dialogue|đối thoại Socrates
+Nicomachean Ethics|Đạo đức học Nicomachean
+Critique of Pure Reason|Phê phán lý tính thuần túy
+Beyond Good and Evil|Bên kia thiện ác
+Thus Spoke Zarathustra|Zarathustra đã nói như thế
+~Leviathan|Leviathan
+Being and Time|Tồn tại và thời gian
+Being and Nothingness|Tồn tại và hư vô
+The Second Sex|Giới tính thứ hai
+Martin Heidegger
+Edmund Husserl
+Søren Kierkegaard philosopher|triết gia Søren Kierkegaard
+Arthur Schopenhauer philosopher|triết gia Arthur Schopenhauer
+Peter Singer
+Derek Parfit
+John Rawls
+Robert Nozick
+Thomas Nagel
+David Chalmers
+Daniel Dennett philosopher|triết gia Daniel Dennett
+Slavoj Žižek
+Judith Butler
+Michel de Montaigne
+Blaise Pascal
+Voltaire
+Rousseau
+Thomas Aquinas
+Augustine of Hippo
+Saint Augustine|Thánh Augustinô
+Diogenes
+Heraclitus
+Parmenides
+Pythagoras philosopher|triết gia Pythagoras
+Zeno of Elea
+Zeno's paradox|nghịch lý Zeno
+Mencius|Mạnh Tử
+Zhuangzi|Trang Tử
+Chuang Tzu|Trang Tử
+Mozi|Mặc Tử
+Nagarjuna|Long Thọ
+`);
+
+// ============================================================ languages (new)
+CST_GLOSSARY_EXTRA_ADD("languages", "Ngôn ngữ và học ngoại ngữ", `
+English language|tiếng Anh
+Mandarin Chinese|tiếng Quan Thoại
+~Mandarin|tiếng Quan Thoại
+Cantonese|tiếng Quảng Đông
+Japanese language|tiếng Nhật
+Korean language|tiếng Hàn
+Vietnamese language|tiếng Việt
+Thai language|tiếng Thái
+Spanish language|tiếng Tây Ban Nha
+French language|tiếng Pháp
+German language|tiếng Đức
+Italian language|tiếng Ý
+Portuguese language|tiếng Bồ Đào Nha
+Russian language|tiếng Nga
+Arabic|tiếng Ả Rập
+Hindi|tiếng Hindi
+Bengali|tiếng Bengal
+Urdu|tiếng Urdu
+Indonesian language|tiếng Indonesia
+Tagalog|tiếng Tagalog
+Swahili|tiếng Swahili
+Hebrew|tiếng Do Thái
+Turkish language|tiếng Thổ Nhĩ Kỳ
+Greek language|tiếng Hy Lạp
+Latin language|tiếng Latin
+Esperanto|tiếng Esperanto
+American English|tiếng Anh Mỹ
+British English|tiếng Anh Anh
+native speaker|người bản xứ
+native speakers|người bản xứ
+non-native speaker|người không phải bản xứ
+second language|ngôn ngữ thứ hai
+foreign language|ngoại ngữ
+language learning|học ngoại ngữ
+language learner|người học ngoại ngữ
+language acquisition|tiếp thu ngôn ngữ
+second language acquisition|tiếp thu ngôn ngữ thứ hai
+comprehensible input|đầu vào dễ hiểu
+Stephen Krashen
+immersion learning|học bằng đắm chìm
+language immersion|đắm chìm ngôn ngữ
+language exchange|trao đổi ngôn ngữ
+language partner|bạn trao đổi ngôn ngữ
+HelloTalk
+Tandem app|ứng dụng Tandem
+=italki
+Preply
+Pimsleur
+Rosetta Stone
+Memrise
+Busuu
+LingQ
+Lingodeer
+Drops app|ứng dụng Drops
+Language Reactor
+Language Transfer
+polyglot|người đa ngôn ngữ
+=polyglot
+bilingual|song ngữ
+=bilingual
+multilingual|đa ngôn ngữ
+=multilingual
+fluency|sự lưu loát
+=fluency
+fluent speaker|người nói lưu loát
+accent reduction|giảm giọng địa phương
+native accent|giọng bản xứ
+pronunciation practice|luyện phát âm
+shadowing technique|kỹ thuật shadowing
+shadowing|nói nhại
+=shadowing
+minimal pairs|cặp tối thiểu
+International Phonetic Alphabet|Bảng ký hiệu ngữ âm quốc tế
+IPA chart|bảng IPA
+phonetics|ngữ âm học
+=phonetics
+phonology|âm vị học
+=phonology
+syntax|cú pháp
+=syntax
+semantics|ngữ nghĩa học
+=semantics
+pragmatics|ngữ dụng học
+=pragmatics
+morphology|hình thái học
+=morphology
+linguistics|ngôn ngữ học
+=linguistics
+linguist|nhà ngôn ngữ học
+sociolinguistics|ngôn ngữ học xã hội
+etymology|từ nguyên học
+=etymology
+grammar rules|quy tắc ngữ pháp
+verb tenses|thì của động từ
+present perfect|thì hiện tại hoàn thành
+past simple|thì quá khứ đơn
+present continuous|thì hiện tại tiếp diễn
+future tense|thì tương lai
+past tense|thì quá khứ
+irregular verbs|động từ bất quy tắc
+phrasal verbs|cụm động từ
+phrasal verb|cụm động từ
+idioms|thành ngữ
+idiom|thành ngữ
+=idiom
+slang|tiếng lóng
+=slang
+collocations|cụm từ cố định
+vocabulary list|danh sách từ vựng
+word families|họ từ
+false friends|từ đồng dạng khác nghĩa
+tonal language|ngôn ngữ có thanh điệu
+honorifics|kính ngữ
+=honorifics
+keigo|kính ngữ tiếng Nhật
+=keigo
+hiragana|chữ hiragana
+=hiragana
+katakana|chữ katakana
+=katakana
+kanji|chữ kanji
+=kanji
+hangul|chữ Hangul
+Hangul|chữ Hangul
+pinyin|bính âm
+=pinyin
+Chinese characters|chữ Hán
+simplified Chinese|chữ Hán giản thể
+traditional Chinese|chữ Hán phồn thể
+Chu Nom|chữ Nôm
+Quốc ngữ|chữ Quốc ngữ
+JLPT
+JLPT N1
+JLPT N2
+JLPT N3
+JLPT N5
+TOPIK
+HSK
+DELF
+DELE
+Goethe-Zertifikat
+CEFR
+A1 level|trình độ A1
+B2 level|trình độ B2
+C1 level|trình độ C1
+Cambridge English
+Cambridge English exam|kỳ thi tiếng Anh Cambridge
+IELTS Academic|IELTS học thuật
+IELTS General|IELTS tổng quát
+IELTS band score|điểm IELTS
+band score|điểm band
+Duolingo English Test
+PTE
+speaking test|bài thi nói
+listening comprehension|nghe hiểu
+reading comprehension|đọc hiểu
+writing task|bài viết
+essay writing|viết luận
+ESL
+EFL
+TESOL
+TEFL
+CELTA
+English teacher|giáo viên tiếng Anh
+English tutor|gia sư tiếng Anh
+translator and interpreter|biên dịch và phiên dịch
+interpreter booth|phòng phiên dịch
+simultaneous interpretation|phiên dịch song song
+consecutive interpretation|phiên dịch đuổi
+machine translation tool|công cụ dịch máy
+DeepL
+DeepL Translator
+subtitles|phụ đề
+closed captions|phụ đề ẩn
+dubbing|lồng tiếng
+=dubbing
+voice actor|diễn viên lồng tiếng
+=voice actor
+`);
+
+// ============================================================ military (new)
+CST_GLOSSARY_EXTRA_ADD("military", "Quân sự và hàng không", `
+armed forces|lực lượng vũ trang
+US Army|Lục quân Mỹ
+U.S. Army|Lục quân Mỹ
+US Navy|Hải quân Mỹ
+U.S. Navy|Hải quân Mỹ
+US Air Force|Không quân Mỹ
+U.S. Air Force|Không quân Mỹ
+US Marine Corps|Thủy quân lục chiến Mỹ
+Marine Corps|Thủy quân lục chiến
+Space Force|Lực lượng Vũ trụ
+Coast Guard|Lực lượng Tuần duyên
+National Guard|Vệ binh Quốc gia
+Navy SEALs|lực lượng SEAL của Hải quân Mỹ
+Navy SEAL|lính SEAL
+Green Berets|lực lượng Mũ nồi xanh
+special forces|lực lượng đặc nhiệm
+special operations|tác chiến đặc biệt
+Department of Defense|Bộ Quốc phòng
+Department of War|Bộ Chiến tranh
+Secretary of Defense|Bộ trưởng Quốc phòng
+Joint Chiefs of Staff|Hội đồng Tham mưu trưởng Liên quân
+commander in chief|tổng tư lệnh
+four-star general|tướng bốn sao
+admiral|đô đốc
+=admiral
+sergeant|trung sĩ
+=sergeant
+private first class|binh nhất
+Veterans Day|Ngày Cựu chiến binh
+boot camp|trại huấn luyện tân binh
+=boot camp
+basic training|huấn luyện cơ bản
+deployment military|triển khai quân
+military base|căn cứ quân sự
+aircraft carrier|tàu sân bay
+destroyer|tàu khu trục
+=destroyer
+frigate|tàu hộ vệ
+=frigate
+submarine|tàu ngầm
+=submarine
+nuclear submarine|tàu ngầm hạt nhân
+fighter jet|máy bay chiến đấu
+fighter jets|máy bay chiến đấu
+stealth fighter|máy bay tàng hình
+bomber|máy bay ném bom
+F-35
+F-22 Raptor
+F-16
+F-15
+B-2 Spirit
+B-52
+SR-71 Blackbird
+Su-57
+MiG-29
+Black Hawk helicopter|trực thăng Black Hawk
+Apache helicopter|trực thăng Apache
+Chinook
+drone strike|tấn công bằng UAV
+military drone|UAV quân sự
+unmanned aerial vehicle|phương tiện bay không người lái
+UAV
+Bayraktar TB2
+Shahed drone|UAV Shahed
+FPV drone|drone FPV
+ballistic missile|tên lửa đạn đạo
+intercontinental ballistic missile|tên lửa đạn đạo xuyên lục địa
+ICBM
+cruise missile|tên lửa hành trình
+hypersonic missile|tên lửa siêu vượt âm
+air defense system|hệ thống phòng không
+missile defense|phòng thủ tên lửa
+Iron Dome
+Patriot missile|tên lửa Patriot
+HIMARS
+Javelin missile|tên lửa Javelin
+Stinger missile|tên lửa Stinger
+Abrams tank|xe tăng Abrams
+Leopard 2
+main battle tank|xe tăng chiến đấu chủ lực
+artillery|pháo binh
+=artillery
+howitzer|lựu pháo
+=howitzer
+assault rifle|súng trường tấn công
+AK-47
+AR-15
+M16
+sniper rifle|súng bắn tỉa
+landmine|mìn
+=landmine
+landmines|mìn
+unexploded ordnance|bom mìn chưa nổ
+Agent Orange|chất độc da cam
+napalm|bom napalm
+=napalm
+nuclear warhead|đầu đạn hạt nhân
+nuclear arsenal|kho vũ khí hạt nhân
+nuclear test|thử hạt nhân
+Doomsday Clock|Đồng hồ Ngày tận thế
+mutually assured destruction|hủy diệt lẫn nhau được bảo đảm
+deterrence|răn đe
+=deterrence
+military-industrial complex|tổ hợp công nghiệp quân sự
+defense budget|ngân sách quốc phòng
+defense contractor|nhà thầu quốc phòng
+arms deal|thương vụ vũ khí
+arms embargo|cấm vận vũ khí
+military aid|viện trợ quân sự
+proxy war|chiến tranh ủy nhiệm
+guerrilla warfare|chiến tranh du kích
+cyber warfare|chiến tranh mạng
+information warfare|chiến tranh thông tin
+psychological operations|tác chiến tâm lý
+counterinsurgency|chống nổi dậy
+insurgency|cuộc nổi dậy
+=insurgency
+occupation forces|lực lượng chiếm đóng
+front line|tiền tuyến
+frontline|tiền tuyến
+no-fly zone|vùng cấm bay
+martial law|thiết quân luật
+conscription|nghĩa vụ quân sự bắt buộc
+=conscription
+military draft|chế độ quân dịch
+draft dodger|người trốn quân dịch
+PTSD in veterans|PTSD ở cựu chiến binh
+Geneva Conventions|Công ước Geneva
+prisoner of war|tù binh
+POW
+war correspondent|phóng viên chiến trường
+commercial aviation|hàng không dân dụng
+air traffic control|kiểm soát không lưu
+air traffic controller|kiểm soát viên không lưu
+pilot license|bằng phi công
+commercial pilot|phi công thương mại
+co-pilot|phi công phụ
+=co-pilot
+copilot seat|ghế phi công phụ
+cockpit|buồng lái
+=cockpit
+autopilot system|hệ thống lái tự động
+black box|hộp đen
+=black box
+flight recorder|máy ghi dữ liệu chuyến bay
+landing gear|bộ càng đáp
+runway incursion|xâm nhập đường băng
+emergency landing|hạ cánh khẩn cấp
+cruising altitude|độ cao bay hành trình
+jet engine|động cơ phản lực
+turbofan|động cơ phản lực cánh quạt
+=turbofan
+jet fuel|nhiên liệu phản lực
+sustainable aviation fuel|nhiên liệu hàng không bền vững
+supersonic flight|bay siêu thanh
+Concorde
+sonic boom|tiếng nổ siêu thanh
+FAA
+Federal Aviation Administration|Cục Hàng không Liên bang Mỹ
+NTSB
+ICAO
+IATA
+air crash investigation|điều tra tai nạn máy bay
+plane crash|tai nạn máy bay
+near miss|suýt va chạm
+=near miss
+`);
+
+// ============================================================ weddings (new)
+CST_GLOSSARY_EXTRA_ADD("weddings", "Đám cưới và sự kiện", `
+wedding planning|lên kế hoạch đám cưới
+wedding planner|người tổ chức đám cưới
+wedding venue|địa điểm tổ chức cưới
+wedding budget|ngân sách đám cưới
+wedding dress|váy cưới
+wedding gown|váy cưới
+bridal shop|cửa hàng váy cưới
+Say Yes to the Dress
+wedding ring|nhẫn cưới
+engagement party|tiệc đính hôn
+marriage proposal|lời cầu hôn
+=marriage proposal
+she said yes|cô ấy đã đồng ý
+bride|cô dâu
+=bride
+bride and groom|cô dâu chú rể
+bridesmaid|phù dâu
+=bridesmaid
+bridesmaids|phù dâu
+maid of honor|phù dâu chính
+best man|phù rể chính
+groomsmen|phù rể
+flower girl|bé cầm hoa
+ring bearer|bé cầm nhẫn
+officiant|người chủ hôn
+=officiant
+wedding vows|lời thề nguyện
+exchange of vows|trao lời thề nguyện
+wedding ceremony|lễ cưới
+wedding reception|tiệc cưới
+rehearsal dinner|tiệc tổng duyệt
+first dance|điệu nhảy đầu tiên
+=first dance
+wedding cake|bánh cưới
+cake cutting|cắt bánh cưới
+bouquet toss|tung hoa cưới
+bridal bouquet|bó hoa cô dâu
+wedding favors|quà cảm ơn khách mời
+save the date|thông báo giữ ngày
+=save the date
+wedding invitation|thiệp cưới
+RSVP
+plus-one|người đi kèm
+=plus-one
+guest list|danh sách khách mời
+seating chart|sơ đồ chỗ ngồi
+wedding registry|danh sách quà cưới
+destination wedding|đám cưới ở nơi xa
+elopement|đám cưới bí mật
+=elopement
+micro wedding|đám cưới nhỏ
+courthouse wedding|đăng ký kết hôn tại tòa
+civil ceremony|nghi lễ dân sự
+wedding photographer|nhiếp ảnh gia đám cưới
+wedding videographer|người quay phim đám cưới
+pre-wedding photoshoot|chụp ảnh cưới trước ngày cưới
+honeymoon|tuần trăng mật
+=honeymoon
+newlyweds|cặp vợ chồng mới cưới
+=newlyweds
+bachelor party|tiệc độc thân của chú rể
+bachelorette party|tiệc độc thân của cô dâu
+bridal shower|tiệc chia tay đời độc thân của cô dâu
+wedding anniversary|kỷ niệm ngày cưới
+vow renewal|làm lại lời thề nguyện
+engagement ceremony|lễ ăn hỏi
+tea ceremony wedding|lễ dâng trà ngày cưới
+áo dài wedding|áo dài cưới
+birthday party|tiệc sinh nhật
+surprise party|tiệc bất ngờ
+housewarming party|tiệc tân gia
+graduation party|tiệc tốt nghiệp
+dinner party|tiệc tối
+potluck|tiệc mỗi người góp một món
+=potluck
+event planning|tổ chức sự kiện
+event planner|người tổ chức sự kiện
+event venue|địa điểm tổ chức sự kiện
+catering|dịch vụ ăn uống
+=catering
+caterer|đơn vị cung cấp đồ ăn
+open bar|quầy bar miễn phí
+dress code|quy định trang phục
+black tie|trang phục dạ tiệc
+black-tie event|sự kiện dạ tiệc
+cocktail attire|trang phục cocktail
+business casual|trang phục công sở thoải mái
+smart casual|trang phục lịch sự thoải mái
+gala|dạ tiệc
+=gala
+charity gala|dạ tiệc từ thiện
+fundraiser|sự kiện gây quỹ
+=fundraiser
+baby announcement|thông báo có em bé
+`);
+
+// ============================================================ accounting (new)
+CST_GLOSSARY_EXTRA_ADD("accounting", "Kế toán, thuế và ngân hàng", `
+accountant|kế toán viên
+=accountant
+certified public accountant|kế toán viên công chứng
+CPA exam|kỳ thi CPA
+bookkeeping|ghi sổ sách
+=bookkeeping
+bookkeeper|nhân viên ghi sổ
+double-entry bookkeeping|ghi sổ kép
+general ledger|sổ cái
+journal entry|bút toán
+debit and credit|nợ và có
+accrual accounting|kế toán dồn tích
+cash basis accounting|kế toán theo cơ sở tiền mặt
+GAAP
+IFRS
+generally accepted accounting principles|các nguyên tắc kế toán được chấp nhận chung
+auditor|kiểm toán viên
+=auditor
+external audit|kiểm toán độc lập
+internal audit|kiểm toán nội bộ
+tax audit|thanh tra thuế
+financial audit|kiểm toán tài chính
+depreciation schedule|lịch khấu hao
+straight-line depreciation|khấu hao đường thẳng
+amortization schedule|lịch trả nợ
+accrued expenses|chi phí dồn tích
+deferred revenue|doanh thu chưa thực hiện
+retained earnings|lợi nhuận giữ lại
+shareholders' equity|vốn chủ sở hữu
+owner's equity|vốn chủ sở hữu
+total assets|tổng tài sản
+current assets|tài sản ngắn hạn
+fixed assets|tài sản cố định
+intangible assets|tài sản vô hình
+goodwill accounting|lợi thế thương mại
+current liabilities|nợ ngắn hạn
+long-term liabilities|nợ dài hạn
+liquidity ratio|tỷ số thanh khoản
+current ratio|tỷ số thanh toán hiện hành
+quick ratio|tỷ số thanh toán nhanh
+debt-to-equity ratio|tỷ lệ nợ trên vốn chủ sở hữu
+return on equity|lợi nhuận trên vốn chủ sở hữu
+ROE
+return on assets|lợi nhuận trên tổng tài sản
+ROA
+price-to-earnings ratio|chỉ số giá trên thu nhập
+P/E ratio|chỉ số P/E
+earnings before interest and taxes|lợi nhuận trước lãi vay và thuế
+net present value|giá trị hiện tại ròng
+internal rate of return|tỷ suất hoàn vốn nội bộ
+discounted cash flow|dòng tiền chiết khấu
+payback period|thời gian hoàn vốn
+budget variance|chênh lệch ngân sách
+cost accounting|kế toán chi phí
+management accounting|kế toán quản trị
+forensic accounting|kế toán điều tra
+QuickBooks
+Xero
+FreshBooks
+Wave accounting|phần mềm kế toán Wave
+Sage accounting|phần mềm kế toán Sage
+MISA
+tax filing|khai thuế
+file taxes|khai thuế
+filing taxes|khai thuế
+tax preparer|người làm hồ sơ thuế
+tax advisor|cố vấn thuế
+tax code|luật thuế
+tax loophole|kẽ hở thuế
+tax haven|thiên đường thuế
+tax havens|thiên đường thuế
+offshore account|tài khoản ở nước ngoài
+withholding tax|thuế khấu trừ tại nguồn
+payroll tax|thuế tiền lương
+property tax bill|hóa đơn thuế tài sản
+value-added tax|thuế giá trị gia tăng
+goods and services tax|thuế hàng hóa và dịch vụ
+GST
+excise tax|thuế tiêu thụ đặc biệt
+import duty|thuế nhập khẩu
+customs duty|thuế hải quan
+personal income tax|thuế thu nhập cá nhân
+tax identification number|mã số thuế
+estimated taxes|thuế tạm tính
+quarterly taxes|thuế theo quý
+tax refund check|séc hoàn thuế
+tax season stress|căng thẳng mùa thuế
+retail banking|ngân hàng bán lẻ
+commercial banking|ngân hàng thương mại
+private banking|ngân hàng tư nhân
+wealth management|quản lý tài sản
+asset management|quản lý tài sản
+bank account|tài khoản ngân hàng
+joint account|tài khoản chung
+bank statement|sao kê ngân hàng
+bank transfer|chuyển khoản ngân hàng
+wire transfer|chuyển khoản điện tử
+ACH transfer|chuyển khoản ACH
+SWIFT code|mã SWIFT
+IBAN
+routing number|số định tuyến ngân hàng
+account number|số tài khoản
+direct deposit|gửi tiền trực tiếp
+mobile banking|ngân hàng di động
+online banking|ngân hàng trực tuyến
+internet banking|ngân hàng trực tuyến
+ATM
+ATM fee|phí rút tiền ATM
+PIN code|mã PIN
+debit card fraud|gian lận thẻ ghi nợ
+chargeback|hoàn tiền giao dịch
+=chargeback
+credit union|hiệp hội tín dụng
+savings bank|ngân hàng tiết kiệm
+interest income|thu nhập từ lãi
+loan officer|nhân viên tín dụng
+credit check|kiểm tra tín dụng
+hard credit inquiry|tra cứu tín dụng
+collateral|tài sản thế chấp
+=collateral
+cosigner|người đồng ký
+=cosigner
+loan default|vỡ nợ khoản vay
+default rate|tỷ lệ vỡ nợ
+debt collector|người đòi nợ
+debt collection|thu hồi nợ
+bankruptcy filing|nộp đơn phá sản
+KYC check|kiểm tra KYC
+anti-money laundering|phòng chống rửa tiền
+`);
+
+// ============================================================ entertainment: titles kept as written
+CST_GLOSSARY_EXTRA_ADD("entertainment", null, `
+# films
+The Shawshank Redemption
+The Godfather Part II
+The Dark Knight Rises
+Batman Begins
+The Batman
+Joker movie|phim Joker
+Joker: Folie à Deux
+Schindler's List
+Saving Private Ryan
+Jurassic World
+Back to the Future
+Raiders of the Lost Ark
+Indiana Jones
+E.T. the Extra-Terrestrial
+Star Wars: A New Hope
+The Empire Strikes Back
+Return of the Jedi
+The Force Awakens
+The Last Jedi
+The Rise of Skywalker
+Rogue One
+The Mandalorian
+Andor
+Ahsoka
+Obi-Wan Kenobi
+The Fellowship of the Ring
+The Two Towers
+The Return of the King
+Harry Potter and the Sorcerer's Stone
+Harry Potter and the Philosopher's Stone
+Harry Potter and the Deathly Hallows
+Fantastic Beasts
+The Avengers
+Avengers: Infinity War
+Avengers: Age of Ultron
+Captain America: Civil War
+Black Panther
+Wakanda Forever
+Guardians of the Galaxy
+Thor: Ragnarok
+Doctor Strange
+Spider-Man: No Way Home
+Spider-Man: Into the Spider-Verse
+Across the Spider-Verse
+Deadpool & Wolverine
+Deadpool
+Wonder Woman
+Man of Steel
+Aquaman
+Justice League
+The Suicide Squad
+Venom movie|phim Venom
+The Lion King remake|phim Vua sư tử bản làm lại
+Frozen II
+Zootopia
+Coco movie|phim Coco
+Up movie|phim Up
+WALL-E
+Ratatouille
+The Incredibles
+Monsters, Inc.
+Cars movie|phim Cars
+Soul movie|phim Soul
+Turning Red
+Elemental movie|phim Elemental
+Moana 2
+Kung Fu Panda
+How to Train Your Dragon
+Despicable Me
+Minions
+The Super Mario Bros. Movie
+Spirited Away film|phim Vùng đất linh hồn
+My Neighbor Totoro film|phim Hàng xóm của tôi là Totoro
+Princess Mononoke film|phim Công chúa Mononoke
+Your Name
+Kimi no Na wa
+Weathering with You
+Suzume
+The Boy and the Heron
+Grave of the Fireflies
+Akira
+Ghost in the Shell
+Perfect Blue
+Train to Busan
+Oldboy
+Decision to Leave
+Past Lives
+Minari
+Memories of Murder
+The Handmaiden
+Crouching Tiger, Hidden Dragon
+In the Mood for Love
+Chungking Express
+Hero movie|phim Anh hùng
+Lost in Translation
+Drive My Car
+Shoplifters
+Perfect Days
+Godzilla Minus One
+Everything Everywhere All at Once movie|phim Everything Everywhere All at Once
+The Social Network
+Fight Club
+Se7en
+Gone Girl
+Zodiac movie|phim Zodiac
+The Silence of the Lambs
+Goodfellas
+Taxi Driver
+Raging Bull
+The Departed
+The Wolf of Wall Street movie|phim Sói già phố Wall
+Killers of the Flower Moon
+The Irishman
+Casino movie|phim Casino
+~Scarface
+Heat movie|phim Heat
+Reservoir Dogs
+Kill Bill
+Django Unchained
+Inglourious Basterds
+Once Upon a Time in Hollywood
+The Hateful Eight
+No Country for Old Men
+Fargo
+The Big Lebowski
+There Will Be Blood
+Boogie Nights
+Phantom Thread
+The Grand Budapest Hotel
+Moonrise Kingdom
+The Royal Tenenbaums
+Fantastic Mr. Fox
+Asteroid City
+Lady Bird
+Frances Ha
+Marriage Story
+Little Women movie|phim Những người phụ nữ bé nhỏ
+Barbie movie|phim Barbie
+Oppenheimer film|phim Oppenheimer
+Dunkirk
+The Prestige
+Blade Runner
+Blade Runner 2049
+Arrival movie|phim Arrival
+Sicario
+Prisoners movie|phim Prisoners
+Dune Part Two
+Gladiator II
+Alien movie|phim Alien
+The Martian
+Interstellar movie|phim Interstellar
+Gravity movie|phim Gravity
+The Revenant
+La La Land movie|phim La La Land
+Get Out
+Us movie|phim Us
+Midsommar
+The Witch
+The Lighthouse
+The Shining
+2001: A Space Odyssey
+A Clockwork Orange
+Full Metal Jacket
+Apocalypse Now
+The Deer Hunter
+Good Morning, Vietnam
+Rambo
+Top Gun
+Mission: Impossible – Fallout
+Fast Five
+Furious 7
+John Wick: Chapter 4
+The Matrix Reloaded
+Terminator 2
+The Terminator
+Die Hard
+Home Alone
+Mrs. Doubtfire
+Jumanji
+Ghostbusters
+Pretty Woman
+Notting Hill
+Love Actually
+The Notebook
+About Time
+When Harry Met Sally
+Sleepless in Seattle
+You've Got Mail
+Crazy Rich Asians
+To All the Boys I've Loved Before
+Bridget Jones's Diary
+Mamma Mia!
+The Greatest Showman
+Les Misérables musical|nhạc kịch Những người khốn khổ
+The Sound of Music
+Singin' in the Rain
+Casablanca film|phim Casablanca
+Gone with the Wind
+Citizen Kane
+Psycho film|phim Psycho
+Vertigo film|phim Vertigo
+Rear Window
+The Wizard of Oz
+Breakfast at Tiffany's
+Roman Holiday
+Some Like It Hot
+Dead Poets Society
+Good Will Hunting
+The Pursuit of Happyness
+The Truman Show film|phim The Truman Show
+Eternal Sunshine of the Spotless Mind
+Her movie|phim Her
+Ex Machina
+The Matrix trilogy|bộ ba Ma trận
+Inside Out film|phim Inside Out
+Soul film|phim Soul
+Up film|phim Up
+Coco film|phim Coco
+Wicked: For Good
+Superman movie|phim Superman
+Fantastic Four
+Thunderbolts
+Sinners movie|phim Sinners
+Anora
+The Brutalist
+Emilia Pérez
+Poor Things
+The Substance
+Saltburn
+Challengers
+Civil War movie|phim Civil War
+~Furiosa
+Twisters
+Inside Out 2 movie|phim Inside Out 2
+Mufasa
+Wonka
+Elvis movie|phim Elvis
+Tár
+The Whale
+Aftersun
+The Holdovers
+Anatomy of a Fall
+The Zone of Interest
+Killers of the Flower Moon movie|phim Killers of the Flower Moon
+Bố Già
+Mai movie|phim Mai
+Hai Phượng
+Lật Mặt
+# series
+Game of Thrones series|loạt phim Game of Thrones
+Breaking Bad series|loạt phim Breaking Bad
+The Sopranos series|loạt phim The Sopranos
+The Wire series|loạt phim The Wire
+Friends sitcom|phim sitcom Friends
+How I Met Your Mother
+The Big Bang Theory
+Modern Family
+Parks and Recreation
+Brooklyn Nine-Nine
+The Good Place
+Arrested Development
+Community series|loạt phim Community
+30 Rock
+Curb Your Enthusiasm
+Abbott Elementary
+Only Murders in the Building
+Hacks
+The Bear series|loạt phim The Bear
+Ted Lasso series|loạt phim Ted Lasso
+Severance series|loạt phim Severance
+Succession series|loạt phim Succession
+The White Lotus series|loạt phim The White Lotus
+Yellowjackets
+The Last of Us series|loạt phim The Last of Us
+House of Cards
+Mindhunter
+Ozark
+Narcos
+Money Heist
+La Casa de Papel
+Dark series|loạt phim Dark
+Squid Game 2
+Physical: 100
+Alice in Borderland
+Kingdom series|loạt phim Kingdom
+Crash Landing on You
+Descendants of the Sun
+Reply 1988
+Hospital Playlist
+Itaewon Class
+Extraordinary Attorney Woo
+The Glory
+Queen of Tears
+Lovely Runner
+When Life Gives You Tangerines
+Moving K-drama|phim Moving
+Twinkling Watermelon
+Business Proposal
+Vincenzo
+Hometown Cha-Cha-Cha
+Squid Game: The Challenge
+Beef series|loạt phim Beef
+Shōgun
+Shogun series|loạt phim Shōgun
+The Crown series|loạt phim The Crown
+Downton Abbey
+Peaky Blinders
+~Sherlock
+Doctor Who
+Fleabag
+Normal People series|loạt phim Normal People
+Killing Eve
+Bridgerton series|loạt phim Bridgerton
+Emily in Paris series|loạt phim Emily in Paris
+Gilmore Girls series|loạt phim Gilmore Girls
+Gossip Girl
+Sex and the City
+And Just Like That
+Desperate Housewives
+Grey's Anatomy series|loạt phim Grey's Anatomy
+House M.D.
+Mad Men series|loạt phim Mad Men
+Lost series|loạt phim Lost
+Prison Break
+24 series|loạt phim 24
+The X-Files
+Twin Peaks
+Stranger Things series|loạt phim Stranger Things
+The Walking Dead
+Westworld
+Black Mirror series|loạt phim Black Mirror
+The Boys
+The Witcher series|loạt phim The Witcher
+The Wheel of Time
+Fallout series|loạt phim Fallout
+~Reacher
+Jack Ryan
+Slow Horses
+Bluey episodes|các tập Bluey
+Love Is Blind
+Love Island
+The Bachelor
+The Bachelorette
+The Amazing Race
+Big Brother
+American Idol
+The Voice
+America's Got Talent
+Britain's Got Talent
+RuPaul's Drag Race
+Queer Eye
+Selling Sunset series|loạt phim Selling Sunset
+Tiger King
+Making a Murderer
+The Jinx
+Dahmer
+Planet Earth
+Our Planet
+Blue Planet
+Chef's Table series|loạt phim Chef's Table
+Street Food: Asia
+Salt Fat Acid Heat show|chương trình Salt Fat Acid Heat
+Last Week Tonight with John Oliver
+The Daily Show
+Hot Ones
+Sean Evans
+First We Feast
+Running Man
+Running Man Korea|Running Man Hàn Quốc
+Infinite Challenge
+2 Days 1 Night
+I Live Alone
+# anime and manga
+One Piece
+Naruto
+Naruto Shippuden
+Boruto
+Dragon Ball
+Dragon Ball Z
+Dragon Ball Super
+Attack on Titan
+Shingeki no Kyojin
+Demon Slayer
+Kimetsu no Yaiba
+Jujutsu Kaisen
+My Hero Academia
+Chainsaw Man
+Spy x Family
+Frieren
+Frieren: Beyond Journey's End
+Solo Leveling
+Haikyuu!!
+Haikyu
+Fullmetal Alchemist
+Fullmetal Alchemist: Brotherhood
+Death Note
+Hunter x Hunter
+One Punch Man
+Mob Psycho 100
+Tokyo Ghoul
+Neon Genesis Evangelion
+~Evangelion
+Cowboy Bebop
+Sailor Moon
+Cardcaptor Sakura
+Doraemon
+Detective Conan
+Case Closed
+Crayon Shin-chan
+Pokémon anime|anime Pokémon
+Slam Dunk
+Blue Lock
+Kaiju No. 8
+Oshi no Ko
+Dandadan
+Sakamoto Days
+Vinland Saga
+Steins;Gate
+Code Geass
+Your Lie in April
+A Silent Voice
+Violet Evergarden
+Clannad
+Toradora!
+Fruits Basket
+Ouran High School Host Club
+Studio Ghibli collection|tuyển tập Studio Ghibli
+Crunchyroll Anime Awards|giải Anime Crunchyroll
+shonen|shonen
+=shonen
+shojo|shojo
+=shojo
+isekai|isekai
+=isekai
+seinen|seinen
+=seinen
+manhwa|manhwa
+=manhwa
+manhua|manhua
+=manhua
+light novel|light novel
+=light novel
+otaku|otaku
+=otaku
+weeb|weeb
+=weeb
+# games
+The Legend of Zelda: Breath of the Wild
+The Legend of Zelda: Tears of the Kingdom
+Super Mario Odyssey
+Super Mario Bros. Wonder
+Mario Kart 8
+Mario Kart
+Super Smash Bros.
+Super Smash Bros. Ultimate
+Animal Crossing: New Horizons
+Pokémon Scarlet and Violet
+Pokémon Legends: Arceus
+Splatoon
+Kirby
+Metroid
+Donkey Kong
+Pikmin
+Fire Emblem
+Xenoblade Chronicles
+Final Fantasy
+Final Fantasy VII
+Final Fantasy VII Remake
+Final Fantasy XIV
+Final Fantasy XVI
+Dragon Quest
+Kingdom Hearts
+Persona 5
+Metaphor: ReFantazio
+Monster Hunter
+Monster Hunter Wilds
+Resident Evil
+Resident Evil 4
+Street Fighter
+Street Fighter 6
+~Tekken
+Tekken 8
+Mortal Kombat
+Metal Gear Solid
+Silent Hill
+Death Stranding
+Sekiro
+Bloodborne
+Dark Souls III
+Elden Ring: Shadow of the Erdtree
+Black Myth: Wukong
+Ghost of Tsushima
+Ghost of Yōtei
+God of War
+God of War Ragnarök
+The Last of Us Part II
+~Uncharted
+Horizon Zero Dawn
+Horizon Forbidden West
+Spider-Man 2
+Marvel's Spider-Man
+Gran Turismo
+Astro Bot
+Halo Infinite
+Gears of War
+Forza Horizon
+Forza Motorsport
+Starfield
+The Elder Scrolls V: Skyrim
+Fallout 4
+Fallout: New Vegas
+Doom Eternal
+Diablo IV
+World of Warcraft
+Overwatch 2
+StarCraft
+~Hearthstone
+Call of Duty: Warzone
+Call of Duty: Black Ops
+Apex Legends game|trò chơi Apex Legends
+Fortnite Battle Royale
+PUBG: Battlegrounds
+Rainbow Six Siege
+Destiny 2
+Valorant game|trò chơi Valorant
+Counter-Strike 2
+Dota 2 game|trò chơi Dota 2
+League of Legends: Wild Rift
+Teamfight Tactics
+Arena of Valor
+Liên Quân Mobile
+Honor of Kings
+Clash of Clans
+Clash Royale
+Brawl Stars
+Candy Crush Saga
+Subway Surfers
+Temple Run
+Angry Birds
+Flappy Bird
+Pokémon TCG Pocket
+Genshin Impact game|trò chơi Genshin Impact
+Honkai Impact 3rd
+Zenless Zone Zero
+Wuthering Waves
+Blue Archive
+Fate/Grand Order
+Arknights
+Minecraft game|trò chơi Minecraft
+Roblox game|trò chơi Roblox
+Terraria
+Stardew Valley game|trò chơi Stardew Valley
+Hollow Knight
+Hollow Knight: Silksong
+Hades
+Hades II
+~Cuphead
+Undertale
+Outer Wilds
+Disco Elysium
+Baldur's Gate 3 game|trò chơi Baldur's Gate 3
+Divinity: Original Sin 2
+The Witcher 3
+The Witcher 3: Wild Hunt
+Cyberpunk 2077 game|trò chơi Cyberpunk 2077
+Red Dead Redemption 2
+Grand Theft Auto V
+Grand Theft Auto VI
+It Takes Two
+Split Fiction
+Portal 2
+Half-Life
+Half-Life 2
+Left 4 Dead
+Team Fortress 2
+Among Us game|trò chơi Among Us
+Fall Guys
+Rocket League
+Lethal Company
+Palworld
+Helldivers 2
+Balatro
+Vampire Survivors
+Slay the Spire
+Dead Cells
+The Binding of Isaac
+Factorio
+RimWorld
+Civilization VI
+Sid Meier's Civilization
+Age of Empires
+Age of Empires II
+Cities: Skylines
+SimCity
+The Sims 4 game|trò chơi The Sims 4
+Euro Truck Simulator 2
+Microsoft Flight Simulator
+Sea of Thieves
+No Man's Sky
+Elite Dangerous
+EVE Online
+RuneScape
+Old School RuneScape
+MapleStory
+Ragnarok Online
+Audition game|trò chơi Audition
+Võ Lâm Truyền Kỳ
+FIFA Online 4
+EA Sports FC
+EA Sports FC 25
+FIFA 23
+NBA 2K
+Madden NFL
+Wii Sports
+Guitar Hero
+Just Dance
+Beat Saber
+Pac-Man
+Space Invaders
+Galaga
+Street Fighter II
+Sonic the Hedgehog
+Mega Man
+Castlevania
+Crash Bandicoot
+Spyro
+Tomb Raider
+Lara Croft
+Assassin's Creed
+Assassin's Creed Shadows
+Far Cry
+Watch Dogs
+Prince of Persia
+Rayman
+Just Cause
+Hitman
+Dishonored
+BioShock
+Mass Effect
+Dragon Age
+Star Wars Jedi: Survivor
+Hogwarts Legacy
+Alan Wake 2
+Control game|trò chơi Control
+Silent Hill 2
+Dead Space
+Five Nights at Freddy's
+Phasmophobia
+Poppy Playtime
+Getting Over It
+Geometry Dash
+=osu!
+Tetris Effect
+Wordle game|trò chơi Wordle
+Chess.com app|ứng dụng Chess.com
+Lichess
+speedrun|speedrun
+=speedrun
+speedrunner|người chơi speedrun
+let's play|video chơi game
+=let's play
+walkthrough|hướng dẫn chơi
+=walkthrough
+patch notes game|ghi chú bản cập nhật game
+battle pass|vé chiến trận
+loot box|hộp quà ngẫu nhiên
+loot boxes|hộp quà ngẫu nhiên
+gacha|gacha
+=gacha
+microtransactions|giao dịch vi mô
+early access game|game truy cập sớm
+indie game|trò chơi độc lập
+indie games|trò chơi độc lập
+AAA game|trò chơi AAA
+open-world game|trò chơi thế giới mở
+open world|thế giới mở
+battle royale|sinh tồn
+=battle royale
+first-person shooter|game bắn súng góc nhìn thứ nhất
+FPS game|game FPS
+MMORPG game|game MMORPG
+roguelike|roguelike
+=roguelike
+soulslike|soulslike
+=soulslike
+metroidvania|metroidvania
+=metroidvania
+cozy games|game thư giãn
+couch co-op|chơi chung trên một máy
+`);
+
+CST_GLOSSARY_EXTRA_ADD("sports", null, `
+Atlanta Hawks
+Boston Celtics team|đội Boston Celtics
+Brooklyn Nets
+Charlotte Hornets
+Chicago Bulls team|đội Chicago Bulls
+Cleveland Cavaliers
+Dallas Mavericks
+Denver Nuggets
+Detroit Pistons
+Golden State Warriors team|đội Golden State Warriors
+Houston Rockets
+Indiana Pacers
+Los Angeles Clippers
+LA Clippers
+Los Angeles Lakers team|đội Los Angeles Lakers
+Memphis Grizzlies
+Miami Heat team|đội Miami Heat
+Milwaukee Bucks
+Minnesota Timberwolves
+New Orleans Pelicans
+New York Knicks team|đội New York Knicks
+Oklahoma City Thunder
+Orlando Magic
+Philadelphia 76ers
+Phoenix Suns
+Portland Trail Blazers
+Sacramento Kings
+San Antonio Spurs
+Toronto Raptors
+Utah Jazz
+Washington Wizards
+Arizona Cardinals
+Atlanta Falcons
+Baltimore Ravens
+Buffalo Bills
+Carolina Panthers
+Chicago Bears
+Cincinnati Bengals
+Cleveland Browns
+Dallas Cowboys team|đội Dallas Cowboys
+Denver Broncos
+Detroit Lions
+Green Bay Packers team|đội Green Bay Packers
+Houston Texans
+Indianapolis Colts
+Jacksonville Jaguars
+Kansas City Chiefs team|đội Kansas City Chiefs
+Las Vegas Raiders
+Los Angeles Chargers
+Los Angeles Rams
+Miami Dolphins
+Minnesota Vikings
+New England Patriots team|đội New England Patriots
+New Orleans Saints
+New York Giants
+New York Jets
+Philadelphia Eagles
+Pittsburgh Steelers
+San Francisco 49ers
+Seattle Seahawks
+Tampa Bay Buccaneers
+Tennessee Titans
+Washington Commanders
+Arizona Diamondbacks
+Atlanta Braves
+Baltimore Orioles
+Boston Red Sox team|đội Boston Red Sox
+Chicago Cubs
+Chicago White Sox
+Cincinnati Reds
+Cleveland Guardians
+Colorado Rockies
+Detroit Tigers
+Houston Astros
+Kansas City Royals
+Los Angeles Angels
+Los Angeles Dodgers team|đội Los Angeles Dodgers
+Miami Marlins
+Milwaukee Brewers
+Minnesota Twins
+New York Mets
+New York Yankees team|đội New York Yankees
+Oakland Athletics
+Philadelphia Phillies
+Pittsburgh Pirates
+San Diego Padres
+San Francisco Giants
+Seattle Mariners
+St. Louis Cardinals
+Tampa Bay Rays
+Texas Rangers
+Toronto Blue Jays
+Washington Nationals
+Boston Bruins
+Chicago Blackhawks
+Detroit Red Wings
+Edmonton Oilers
+Montreal Canadiens
+New York Rangers
+Pittsburgh Penguins
+Toronto Maple Leafs
+Vegas Golden Knights
+Florida Panthers
+Tampa Bay Lightning
+Colorado Avalanche
+Seattle Kraken
+Aston Villa
+Brighton & Hove Albion
+Crystal Palace
+Everton
+~Fulham
+Leeds United
+Leicester City
+Newcastle United
+Nottingham Forest
+West Ham United
+Wolverhampton Wanderers
+Brentford
+Bournemouth
+Southampton
+Sunderland
+Atlético Madrid
+Atletico Madrid
+Sevilla FC
+Real Sociedad
+Athletic Bilbao
+Valencia CF
+Villarreal
+Borussia Dortmund
+RB Leipzig
+Bayer Leverkusen
+Napoli
+AS Roma
+Lazio
+Atalanta
+Inter Milan team|đội Inter Milan
+Ajax
+PSV Eindhoven
+Feyenoord
+Benfica
+FC Porto
+Sporting CP
+Celtic FC
+Rangers FC
+Galatasaray
+Fenerbahçe
+Al-Nassr
+Al-Hilal
+Al Nassr
+Inter Miami CF
+Club América
+Boca Juniors
+River Plate
+Flamengo
+Santos FC
+Hà Nội FC
+Hanoi FC|câu lạc bộ Hà Nội
+Hoàng Anh Gia Lai
+HAGL
+Vietnam national football team|đội tuyển bóng đá quốc gia Việt Nam
+Golden Dragons|Những chú rồng vàng
+Team USA|đội tuyển Mỹ
+USMNT
+USWNT
+Les Bleus
+Azzurri
+Selección
+La Albiceleste
+Seleção
+Three Lions|Tam Sư
+All Blacks
+Wallabies
+Springboks
+New York Yankees cap|mũ New York Yankees
+Harlem Globetrotters
+Dream Team
+Golden State dynasty|triều đại Golden State
+Big Ten
+SEC football|bóng đá SEC
+Ivy League sports|thể thao Ivy League
+Rose Bowl
+Sugar Bowl
+College Football Playoff
+Heisman Trophy
+Lombardi Trophy
+Larry O'Brien Trophy
+Claret Jug
+Green Jacket|áo khoác xanh
+Augusta National
+St Andrews
+Wembley Stadium
+Old Trafford
+Anfield
+Camp Nou
+Santiago Bernabéu
+Allianz Arena
+San Siro
+Emirates Stadium
+Stamford Bridge
+Etihad Stadium
+Tottenham Hotspur Stadium
+Madison Square Garden
+Yankee Stadium
+Fenway Park
+Wrigley Field
+Dodger Stadium
+Lambeau Field
+SoFi Stadium
+AT&T Stadium
+Mercedes-Benz Stadium
+Crypto.com Arena
+Staples Center
+Chase Center
+TD Garden
+United Center
+Rogers Centre
+Maracanã
+Mỹ Đình Stadium|sân vận động Mỹ Đình
+Mỹ Đình
+Tokyo Dome
+Bird's Nest|sân vận động Tổ Chim
+Olympic Stadium|sân vận động Olympic
+Wimbledon Centre Court|sân trung tâm Wimbledon
+Arthur Ashe Stadium
+Rod Laver Arena
+Philippe-Chatrier
+Monaco circuit|đường đua Monaco
+Silverstone
+Monza
+Spa-Francorchamps
+Suzuka
+Circuit of the Americas
+Las Vegas Grand Prix|Giải đua Las Vegas
+Miami Grand Prix|Giải đua Miami
+British Grand Prix|Giải đua Anh
+Singapore Grand Prix|Giải đua Singapore
+Indianapolis 500
+Indy 500
+Daytona 500
+Le Mans
+24 Hours of Le Mans|24 giờ Le Mans
+Dakar Rally
+Kentucky Derby
+Royal Ascot
+Grand National
+Boston Marathon race|giải chạy Boston Marathon
+Berlin Marathon
+Chicago Marathon
+Tokyo Marathon
+Comrades Marathon
+Western States 100
+UTMB
+Hardrock 100
+Badwater 135
+Spartan Beast
+Ironman World Championship
+~Kona
+Iditarod
+America's Cup
+Ryder Cup golf|giải golf Ryder Cup
+Solheim Cup
+Davis Cup
+Laver Cup
+Billie Jean King Cup
+X Games
+Winter X Games
+Red Bull Rampage
+Red Bull Cliff Diving
+World Surf League
+Pipeline Masters
+`);
+
+CST_GLOSSARY_EXTRA_ADD("people", null, `
+Lee Byung-hun
+Ha Jung-woo
+Jung Ho-yeon
+Park Bo-gum
+Park Bo-young
+Kim Tae-ri
+Kim Go-eun
+Kim Ji-won
+Han So-hee
+Song Kang
+Cha Eun-woo
+Lee Do-hyun
+Byeon Woo-seok
+Kim Hye-yoon
+Ji Chang-wook
+Lee Jong-suk
+Seo In-guk
+Nam Joo-hyuk
+Kim Seon-ho
+Shin Min-a
+Kim Woo-bin
+Lee Jung-jae actor|diễn viên Lee Jung-jae
+Wi Ha-joon
+Gong Hyo-jin
+Jun Ji-hyun actress|diễn viên Jun Ji-hyun
+Bae Doona
+Jeon Do-yeon
+Youn Yuh-jung
+Choi Woo-shik
+Park So-dam
+Lee Sun-kyun
+Go Youn-jung
+Kim Soo-hyun actor|diễn viên Kim Soo-hyun
+IU actress|diễn viên IU
+Yoo Jae-suk
+Kang Ho-dong
+Shin Dong-yup
+Na Young-seok
+Lee Kwang-soo
+Song Ji-hyo
+Kim Jong-kook
+Haha comedian|danh hài Haha
+Dilraba Dilmurat
+Zhao Lusi
+Yang Mi
+Yang Zi
+Zhao Liying
+Dylan Wang
+Xiao Zhan
+Wang Yibo
+Yang Yang
+Lay Zhang
+Jackson Wang
+Kris Wu
+Lu Han
+Angelababy
+Jay Park
+Henry Lau
+Eric Nam
+Amber Liu
+Tablo
+Epik High
+Zico
+Dean singer|ca sĩ DEAN
+Crush singer|ca sĩ Crush
+Heize
+Hwasa
+Taemin
+Kai EXO|Kai của EXO
+Baekhyun
+Chanyeol
+D.O.
+Doh Kyung-soo
+Sehun
+Suho
+Chen EXO|Chen của EXO
+Xiumin
+Mark Lee
+Taeyong
+Jaehyun
+Haechan
+Jeno
+Jaemin
+Bang Chan
+Hyunjin
+Felix Lee
+Han Jisung
+Lee Know
+Changbin
+Seungmin
+I.N
+Hongjoong
+San ATEEZ|San của ATEEZ
+Wooyoung
+Mingyu
+Wonwoo
+Jeonghan
+Joshua Hong
+Hoshi
+Woozi
+Vernon
+Seungkwan
+DK
+Jun SEVENTEEN|Jun của SEVENTEEN
+The8
+S.Coups
+Nayeon
+Jeongyeon
+Momo TWICE|Momo của TWICE
+Sana
+Jihyo
+Mina TWICE|Mina của TWICE
+Dahyun
+Chaeyoung
+Tzuyu
+Karina aespa|Karina của aespa
+Winter aespa|Winter của aespa
+Giselle
+Ningning
+Wonyoung
+Jang Wonyoung
+An Yujin
+Kazuha
+Sakura Miyawaki
+Kim Chaewon
+Huh Yunjin
+Minji
+Hanni
+Danielle Marsh
+Haerin
+Hyein
+Yeji
+Ryujin
+Chaeryeong
+Lia ITZY|Lia của ITZY
+Yuna ITZY|Yuna của ITZY
+Soyeon
+Miyeon
+Yuqi
+Shuhua
+Seulgi
+Irene Bae
+Wendy Son
+Joy Park
+Yeri
+Taeyeon solo|Taeyeon solo
+Sunmi
+HyunA
+Chungha
+CL singer|ca sĩ CL
+Somi
+Jeon Somi
+Lee Hi
+Akdong Musician
+AKMU
+BIGBANG T.O.P|T.O.P của BIGBANG
+Daesung
+Seungri
+Kenzo Tange
+Yoshitomo Nara
+Hikaru Utada
+Ayumi Hamasaki
+Namie Amuro
+Kyary Pamyu Pamyu
+Perfume band|nhóm Perfume
+BABYMETAL
+ONE OK ROCK
+Mrs. GREEN APPLE
+Vaundy
+Aimyon
+Spitz band|ban nhạc Spitz
+Mr. Children
+Arashi
+SMAP
+Snow Man
+King & Prince
+Nogizaka46
+AKB48
+Hatsune Miku
+Kenshi Yonezu singer|ca sĩ Kenshi Yonezu
+Joji
+Rich Brian
+NIKI
+88rising
+Keshi
+=beabadoobee
+Raveena
+Jai Paul
+Arijit Singh
+A.R. Rahman
+Diljit Dosanjh
+Shreya Ghoshal
+Sidhu Moose Wala
+AP Dhillon
+Asha Bhosle
+Lata Mangeshkar
+Anirudh Ravichander
+Nusrat Fateh Ali Khan
+Burna Boy
+Wizkid
+Davido
+Tems
+Rema
+Ayra Starr
+Fela Kuti
+Angélique Kidjo
+Youssou N'Dour
+Miriam Makeba
+Black Coffee DJ|DJ Black Coffee
+Amr Diab
+Fairuz
+Umm Kulthum
+Tarkan
+Sezen Aksu
+Mon Laferte
+Natalia Lafourcade
+Carlos Vives
+Juanes
+Gloria Estefan
+Celia Cruz
+Selena Quintanilla
+Vicente Fernández
+Alejandro Fernández
+Christian Nodal
+Becky G
+Ozuna
+Myke Towers
+Feid
+Young Miko
+Tini Stoessel
+Lali Espósito
+Paulo Londra
+Bizarrap
+Duki
+Nicki Nicole
+Emilia Mernes
+Aitana singer|ca sĩ Aitana
+Pablo Alborán
+Alejandro Sanz
+Julio Iglesias
+Rocío Dúrcal
+Ana Gabriel
+Edith Piaf
+Charles Aznavour
+Serge Gainsbourg
+Jane Birkin
+Françoise Hardy
+Christine and the Queens
+Zaz singer|ca sĩ Zaz
+Indila
+Angèle
+Rammstein
+Kraftwerk
+Scorpions band|ban nhạc Scorpions
+Nena
+Helene Fischer
+Robbie Williams
+Take That
+Spice Girls
+Victoria Beckham
+Mel B
+Geri Halliwell
+Little Mix
+Girls Aloud
+Cheryl Cole
+Amy Winehouse
+Florence Welch
+Ellie Goulding
+Jessie J
+Rita Ora
+Anne-Marie
+Mabel
+Raye singer|ca sĩ RAYE
+Stormzy
+Dave rapper|rapper Dave
+Central Cee
+Skepta
+Little Simz
+Ed Sheeran tour|chuyến lưu diễn Ed Sheeran
+James Arthur
+Tom Odell
+George Ezra
+Calum Scott
+Dermot Kennedy
+Niall Horan solo|Niall Horan solo
+Glass Animals
+Muse band|ban nhạc Muse
+Matt Bellamy
+Kasabian
+Arctic Monkeys frontman Alex Turner|Alex Turner
+Alex Turner
+Liam Gallagher
+Noel Gallagher
+Damon Albarn
+Gorillaz
+Massive Attack
+Portishead
+The Chemical Brothers
+Fatboy Slim
+Jamie xx
+The xx
+Four Tet
+Bonobo musician|nhạc sĩ Bonobo
+ODESZA
+Rüfüs Du Sol
+Kaytranada
+Porter Robinson
+Madeon
+Illenium
+Gryffin
+Seven Lions
+San Holo
+Lane 8
+Ben Böhmer
+Anyma
+Keinemusik
+`);
+
+// ============================================================ products, said the international way
+CST_GLOSSARY_EXTRA_ADD("gadgets", null, `
+iPhone 11
+iPhone 11 Pro
+iPhone 12
+iPhone 12 Pro
+iPhone 12 mini
+iPhone 13
+iPhone 13 Pro
+iPhone 13 mini
+iPhone 14
+iPhone 14 Plus
+iPhone 14 Pro
+iPhone 14 Pro Max
+iPhone 15 Plus
+iPhone 16 Plus
+iPhone X
+iPhone XR
+iPhone XS
+iPhone 8
+iPhone 7
+iPhone 6
+iPad 10th generation|iPad thế hệ 10
+iPad Pro M4
+iPad Air M2
+iPad Air M3
+MacBook Air 13-inch|MacBook Air 13 inch
+MacBook Air 15-inch|MacBook Air 15 inch
+MacBook Pro 14-inch|MacBook Pro 14 inch
+MacBook Pro 16-inch|MacBook Pro 16 inch
+MacBook Neo
+Mac mini M4
+iMac M4
+Apple Watch Series 9
+Apple Watch SE 3
+AirPods 3
+AirPods 2
+Apple TV 4K
+HomePod
+HomePod mini
+Vision Pro
+Magic Keyboard for iPad|Magic Keyboard cho iPad
+Galaxy S23
+Galaxy S23 Ultra
+Galaxy S22
+Galaxy S21
+Galaxy S25 Edge
+Galaxy A55
+Galaxy A35
+Galaxy A15
+Galaxy Z Flip 6
+Galaxy Z Fold 6
+Galaxy Z Flip 7
+Galaxy Note
+Galaxy Note 20
+Galaxy Tab S9
+Galaxy Tab S10
+Galaxy Watch 7
+Galaxy Watch Ultra
+Galaxy Buds 3 Pro
+Galaxy Buds FE
+Pixel 8
+Pixel 8 Pro
+Pixel 8a
+Pixel 9a
+Pixel 9 Pro Fold
+Pixel 7
+Pixel 7a
+Pixel Tablet
+Pixel Watch 2
+Pixel Buds Pro 2
+OnePlus 12
+OnePlus 13
+OnePlus Open
+Nothing Phone 2
+Nothing Phone 3
+Nothing Ear
+CMF Phone
+Xiaomi 14
+Xiaomi 14 Ultra
+Xiaomi 15 Ultra
+Redmi Note 13
+Redmi Note 14
+POCO F6
+Huawei Mate 60
+Huawei Mate 70
+Huawei Mate XT
+Huawei P60
+Huawei Pura 70
+Honor Magic 6
+Honor Magic V3
+Oppo Find X8
+Oppo Find N3
+Oppo Reno 12
+Vivo X100
+Vivo X200
+Sony Xperia 1 VI
+Asus ROG Phone
+Asus Zenfone
+Motorola Razr+
+Motorola Edge
+Fairphone
+Fairphone 5
+Nokia 3310
+BlackBerry Bold
+Kindle Paperwhite 2024|Kindle Paperwhite 2024
+Kindle Basic
+Kobo Clara
+Kobo Libra Colour
+Boox Palma
+Boox Go
+reMarkable Paper Pro
+Supernote
+Daylight Computer
+Light Phone 3
+Punkt MP02
+Nintendo Switch Lite
+Nintendo 3DS
+Nintendo DS
+Game Boy
+Game Boy Advance
+Nintendo 64
+Super Nintendo
+SNES
+NES
+Wii
+Wii U
+GameCube
+PlayStation 2
+PS2
+PlayStation 3
+PS3
+PlayStation 4
+PlayStation 5 Pro
+PS5 Pro
+PlayStation Portal
+PS Vita
+PSP
+DualSense
+DualShock
+Xbox One
+Xbox 360
+Xbox Series S
+Xbox controller|tay cầm Xbox
+Steam Deck OLED
+ROG Ally X
+Legion Go
+Meta Quest Pro
+Oculus Quest 2
+Valve Index
+PlayStation VR2
+PSVR2
+AirPods Max 2
+Sony WF-1000XM5
+Sony WH-1000XM4
+Bose QuietComfort Ultra
+Bose QC45
+Sennheiser Momentum 4
+Beats Studio Pro
+Beats Fit Pro
+Beats Solo 4
+Shokz OpenRun
+Shokz OpenFit
+Jabra Elite
+Nothing Ear (a)
+Marshall Major
+JBL Flip
+JBL Charge
+JBL Go
+UE Boom
+Sonos Era 100
+Sonos Era 300
+Sonos Ace
+Bose SoundLink
+Amazon Echo Show
+Echo Show
+Google Nest Mini
+Nest Audio
+Ring Video Doorbell
+Arlo Pro
+Eufy Security
+Wyze Cam
+Philips Hue bulbs|bóng đèn Philips Hue
+Nanoleaf
+Govee
+Dyson V8
+Dyson V11
+Dyson Gen5detect
+Dyson Pure Cool
+Dyson Airstrait
+Dyson Zone
+Roomba j7
+Roborock S8
+Roborock Q Revo
+Ecovacs Deebot
+Shark Robot
+Theragun Mini
+Theragun Pro
+Hypervolt Go
+Oura Ring Gen3
+Oura Ring Gen 4
+Ultrahuman Ring Air
+Samsung Galaxy Ring
+Garmin Forerunner 55
+Garmin Forerunner 255
+Garmin Fenix 7
+Garmin Fenix 8
+Garmin Venu 3
+Garmin Epix Pro
+Garmin Instinct 2
+Garmin Index S2
+Coros Pace 3
+Coros Apex 2
+Polar Vantage
+Polar H10
+Wahoo KICKR
+Wahoo TICKR
+Withings Body Scale|cân Withings Body
+Fitbit Charge 6
+Fitbit Inspire 3
+Fitbit Versa 4
+Fitbit Sense 2
+WHOOP Body
+Eight Sleep Pod 4
+Eight Sleep Pod 5
+Hatch Restore 2
+Loftie
+Ninja Creami
+Ninja Foodi
+Ninja Air Fryer|nồi chiên không dầu Ninja
+Cosori air fryer|nồi chiên không dầu Cosori
+Instant Pot Duo
+Instant Vortex
+Breville Barista Express
+Breville Bambino
+Breville Oracle
+Nespresso Vertuo Next
+Nespresso Essenza
+Keurig K-Mini
+Fellow Stagg
+Fellow Ode
+Baratza Encore
+Comandante grinder|máy xay Comandante
+1Zpresso
+Timemore
+Hario Skerton
+De'Longhi
+Jura
+Moccamaster
+Technivorm Moccamaster
+Vitamix A3500
+Blendtec
+KitchenAid Artisan
+Le Creuset Dutch oven|nồi gang Le Creuset
+Lodge skillet|chảo gang Lodge
+Staub cocotte|nồi Staub
+HexClad pan|chảo HexClad
+Made In cookware|dụng cụ nấu Made In
+Global knife|dao Global
+Shun knife|dao Shun
+Wüsthof
+Victorinox
+Thermapen
+ThermoWorks
+Traeger
+Weber grill|bếp nướng Weber
+~Weber
+Big Green Egg
+Solo Stove
+Ooni pizza oven|lò pizza Ooni
+Ooni
+Yeti cooler|thùng giữ lạnh Yeti
+Yeti Rambler
+Stanley Quencher
+Owala FreeSip
+Hydro Flask Wide Mouth
+CamelBak
+LifeStraw
+Sawyer Squeeze
+Jetboil Flash
+MSR PocketRocket
+Garmin inReach Mini
+Black Diamond Spot
+BioLite
+Goal Zero
+Jackery
+EcoFlow
+Anker PowerCore
+Anker Prime
+MagSafe Battery Pack|bộ pin MagSafe
+Logitech MX Keys
+Logitech MX Anywhere
+Keychron K2
+Keychron Q1
+HHKB
+Happy Hacking Keyboard
+Kinesis Advantage
+Apple Magic Mouse|chuột Apple Magic Mouse
+Razer DeathAdder
+Logitech G Pro
+SteelSeries Arctis
+HyperX Cloud
+Elgato Stream Deck|bàn điều khiển Elgato Stream Deck
+Elgato Key Light
+Elgato Facecam
+Logitech Brio
+Insta360 Link
+Shure SM7B
+Shure MV7
+Rode NT-USB
+Rode PodMic
+Blue Yeti X
+Audio-Technica AT2020
+Focusrite Scarlett
+Scarlett 2i2
+Universal Audio Apollo
+Universal Audio
+Yamaha HS8
+KRK Rokit
+Sony A6400
+Sony A6700
+Sony A7R V
+Sony A1
+Canon EOS R8
+Canon EOS R7
+Canon G7X
+Canon G7 X Mark III
+Fujifilm X100F
+Fujifilm X-T4
+Fujifilm X-E4
+Fujifilm GFX
+Ricoh GR III
+Ricoh GR IIIx
+Leica Q3
+Leica M11
+Hasselblad
+Hasselblad X2D
+Polaroid Now
+Instax Mini
+Instax Mini 12
+Kodak Ektar H35
+Olympus OM-1
+OM System
+GoPro Hero 12
+GoPro Hero 13
+DJI Osmo Action
+DJI Osmo Mobile
+DJI Pocket 3
+DJI Neo
+DJI Avata
+DJI Mini 3
+DJI RS 4
+Insta360 Ace Pro
+Insta360 X3
+Peak Design Everyday Backpack|ba lô Peak Design Everyday
+Peak Design Travel Backpack|ba lô Peak Design Travel
+Bellroy
+Aer backpack|ba lô Aer
+Tom Bihn
+Away suitcase|vali Away
+Away luggage|hành lý Away
+Rimowa
+~Samsonite
+Monos
+Béis
+Calpak
+Osprey Farpoint
+`);
+
+CST_GLOSSARY_EXTRA_ADD("automotive", null, `
+Tesla Model S Plaid
+Model S Plaid
+Model 3 Highland
+Model Y Juniper
+Cybercab
+Toyota Land Cruiser
+Land Cruiser
+Toyota 4Runner
+4Runner
+Toyota Tacoma
+Tacoma
+Toyota Tundra
+Toyota Highlander
+Toyota Sienna
+Toyota Supra
+Supra
+Toyota GR86
+GR Yaris
+Toyota Vios
+Toyota Innova
+Toyota Fortuner
+Toyota Hilux
+Toyota Yaris
+Toyota bZ4X
+Lexus RX
+Lexus LX
+Lexus ES
+Lexus NX
+Lexus LFA
+Honda Fit
+Honda Jazz
+Honda HR-V
+Honda Pilot
+Honda Odyssey
+Honda City
+Honda Wave
+Honda Vision
+Honda Air Blade
+Honda SH
+Honda Winner
+Honda Super Cub
+Honda NSX
+Honda Prologue
+Acura Integra
+Acura MDX
+Nissan GT-R
+GT-R
+Nissan Z
+Nissan Rogue
+Nissan Altima
+Nissan Navara
+Nissan Ariya
+Mazda CX-5
+Mazda CX-30
+Mazda CX-50
+Mazda CX-90
+Mazda3
+Mazda 3
+Mazda MX-5 Miata
+Subaru WRX
+Subaru Forester
+Subaru Crosstrek
+Subaru BRZ
+Mitsubishi Xpander
+Mitsubishi Outlander
+Mitsubishi Pajero
+Suzuki Swift
+Suzuki Jimny
+Jimny
+Hyundai Ioniq 6
+Ioniq 6
+Hyundai Tucson
+Hyundai Santa Fe
+Hyundai Elantra
+Hyundai Accent
+Hyundai Creta
+Hyundai Kona
+Hyundai Palisade
+Kia EV3
+Kia Sorento
+Kia Seltos
+Kia Sportage
+Kia Telluride
+Kia Morning
+Kia Carnival
+Genesis GV80
+Genesis G80
+Ford F-250
+Ford Ranger
+Ford Ranger Raptor
+Ford Everest
+Ford Explorer
+Ford Expedition
+Ford Escape
+Ford Maverick
+Ford Focus
+Ford Fiesta
+Ford Transit
+Ford GT
+Shelby Mustang
+Chevrolet Silverado
+Chevrolet Tahoe
+Chevrolet Suburban
+Chevrolet Equinox
+Chevy Equinox EV
+Chevrolet Camaro
+Camaro
+Chevrolet Corvette
+Chevrolet Malibu
+Chevy Bolt EV
+Cadillac Escalade
+~Escalade
+Cadillac Lyriq
+GMC Sierra
+GMC Hummer EV
+Hummer EV
+~Hummer
+Jeep Grand Cherokee
+Grand Cherokee
+Jeep Cherokee
+Jeep Gladiator
+Dodge Challenger
+Dodge Charger
+Dodge Ram
+Ram 1500
+Ram TRX
+Chrysler Pacifica
+Tesla Roadster
+Rivian R3
+Lucid Air Sapphire
+Polestar 2
+Polestar 3
+BYD Atto 3
+BYD Seal
+BYD Dolphin
+BYD Song
+BYD Han
+BYD Tang
+BYD Seagull
+BYD Shark
+NIO ET7
+XPeng G9
+Zeekr 001
+Li Auto L9
+Xiaomi YU7
+Huawei Aito
+Aito M9
+VinFast VF 5
+VinFast VF 6
+VinFast VF 7
+VinFast VF 9
+VinFast Fadil
+VinFast Lux A2.0
+VinFast Lux SA2.0
+VinFast Klara
+VinFast Evo
+VinFast Feliz
+VinFast Theon
+Volkswagen Golf GTI
+Golf GTI
+VW Beetle
+Volkswagen Beetle
+VW Polo
+VW Passat
+VW Tiguan
+VW Atlas
+VW ID. Buzz
+ID. Buzz
+VW ID.3
+VW Bus
+Audi A4
+Audi A6
+Audi Q5
+Audi Q7
+Audi Q8
+Audi R8
+Audi RS6
+Audi Q4 e-tron
+BMW 3 Series
+BMW 5 Series
+BMW 7 Series
+BMW X3
+BMW X5
+BMW X7
+BMW M3
+BMW M4
+BMW M5
+BMW i7
+BMW iX3
+BMW Z4
+Mercedes C-Class
+Mercedes E-Class
+Mercedes S-Class
+Mercedes G-Class
+G-Class
+Mercedes GLE
+Mercedes GLC
+Mercedes EQS
+Mercedes-AMG
+AMG
+Mercedes Sprinter
+Sprinter van|xe van Sprinter
+Porsche Cayenne
+~Cayenne
+Porsche Macan
+~Macan
+Porsche Panamera
+Panamera
+Porsche 911 GT3
+911 GT3
+Porsche 718
+Porsche Boxster
+Porsche Cayman
+Ferrari 488
+Ferrari SF90
+Ferrari Roma
+Ferrari Purosangue
+Ferrari 296
+Ferrari F8
+LaFerrari
+Lamborghini Urus
+~Urus
+Lamborghini Huracán
+Huracán
+Lamborghini Aventador
+Aventador
+Lamborghini Revuelto
+McLaren 720S
+McLaren 750S
+McLaren P1
+McLaren Senna
+Bugatti Chiron
+Bugatti Veyron
+Bugatti Tourbillon
+Koenigsegg Jesko
+Koenigsegg Regera
+Pagani Huayra
+Pagani Zonda
+Rolls-Royce Phantom
+Rolls-Royce Cullinan
+Rolls-Royce Ghost
+Rolls-Royce Spectre
+Bentley Continental GT
+Bentley Bentayga
+Aston Martin DB11
+Aston Martin DB12
+Aston Martin Vantage
+Maserati MC20
+Maserati Ghibli
+Maserati Levante
+Alfa Romeo Giulia
+Alfa Romeo Stelvio
+Range Rover Sport
+Range Rover Evoque
+Range Rover Velar
+Land Rover Defender
+Defender 110
+Land Rover Discovery
+Jaguar F-Type
+Jaguar I-Pace
+Volvo XC40
+Volvo XC60
+Volvo XC90
+Volvo EX30
+Volvo EX90
+Mini Cooper S
+Mini Countryman
+Fiat 500
+Fiat Panda
+Peugeot 208
+Peugeot 3008
+Renault Clio
+Renault Zoe
+Dacia Duster
+Škoda Octavia
+Skoda Octavia
+Seat Ibiza
+Cupra Born
+Lotus Emira
+Lotus Eletre
+Morgan Plus Four
+Caterham Seven
+Harley-Davidson Sportster
+Harley-Davidson Fat Boy
+Ducati Panigale
+Ducati Monster
+Ducati Scrambler
+Kawasaki Ninja
+Kawasaki Z900
+Yamaha R1
+Yamaha R15
+Yamaha Exciter
+Yamaha NVX
+Yamaha Grande
+Yamaha Janus
+Yamaha Sirius
+BMW GS
+BMW R 1250 GS
+Triumph Bonneville
+Triumph Street Triple
+Royal Enfield
+Royal Enfield Classic 350
+KTM Duke
+Vespa Primavera
+Vespa Sprint
+Piaggio Liberty
+Zero Motorcycles
+Super73
+VanMoof
+Brompton
+~Specialized
+Trek Bikes|xe đạp Trek
+Giant Bicycles|xe đạp Giant
+Cannondale
+Canyon bikes|xe đạp Canyon
+Cervélo
+Pinarello
+Colnago
+Bianchi
+Rad Power Bikes
+Lime e-bike|xe đạp điện Lime
+Citi Bike
+`);
+
+// ============================================================ places, part 2: schools, landmarks, airports, more cities
+CST_GLOSSARY_EXTRA_ADD("places", null, `
+Harvard University|Đại học Harvard
+Stanford University|Đại học Stanford
+Yale University|Đại học Yale
+Princeton University|Đại học Princeton
+Columbia University|Đại học Columbia
+Cornell University|Đại học Cornell
+Brown University|Đại học Brown
+Dartmouth College
+University of Pennsylvania|Đại học Pennsylvania
+UPenn
+Duke University|Đại học Duke
+Northwestern University|Đại học Northwestern
+University of Chicago|Đại học Chicago
+UChicago
+Johns Hopkins University|Đại học Johns Hopkins
+Caltech
+Carnegie Mellon University|Đại học Carnegie Mellon
+Carnegie Mellon
+UC Berkeley
+UCLA
+USC
+NYU
+New York University|Đại học New York
+Georgetown University|Đại học Georgetown
+Vanderbilt University|Đại học Vanderbilt
+Rice University|Đại học Rice
+Emory University|Đại học Emory
+University of Michigan|Đại học Michigan
+University of Texas at Austin|Đại học Texas tại Austin
+UT Austin
+Georgia Tech
+Purdue University|Đại học Purdue
+University of Washington|Đại học Washington
+University of Toronto|Đại học Toronto
+McGill University|Đại học McGill
+University of British Columbia|Đại học British Columbia
+University of Oxford|Đại học Oxford
+University of Cambridge|Đại học Cambridge
+Imperial College London
+London School of Economics
+LSE
+King's College London
+University College London
+UCL
+University of Edinburgh|Đại học Edinburgh
+ETH Zurich
+EPFL
+Sorbonne
+Sciences Po
+INSEAD
+HEC Paris
+Bocconi
+TU Munich
+Heidelberg University|Đại học Heidelberg
+University of Tokyo|Đại học Tokyo
+Kyoto University|Đại học Kyoto
+Waseda University|Đại học Waseda
+Keio University|Đại học Keio
+Seoul National University|Đại học Quốc gia Seoul
+KAIST
+Yonsei University|Đại học Yonsei
+Korea University|Đại học Korea
+Tsinghua University|Đại học Thanh Hoa
+Peking University|Đại học Bắc Kinh
+Fudan University|Đại học Phúc Đán
+National University of Singapore|Đại học Quốc gia Singapore
+NUS
+Nanyang Technological University|Đại học Công nghệ Nanyang
+NTU
+University of Melbourne|Đại học Melbourne
+University of Sydney|Đại học Sydney
+Australian National University|Đại học Quốc gia Úc
+Monash University|Đại học Monash
+RMIT
+RMIT Vietnam|RMIT Việt Nam
+Fulbright University Vietnam|Đại học Fulbright Việt Nam
+VinUni
+Harvard Business School
+HBS
+Wharton
+Stanford GSB
+MIT Sloan
+Kellogg School of Management
+Booth School of Business
+Juilliard
+Berklee
+Berklee College of Music
+Parsons
+Central Saint Martins
+RISD
+Le Cordon Bleu
+Louvre
+Musée d'Orsay
+Centre Pompidou
+British Museum
+Tate Modern
+National Gallery
+Victoria and Albert Museum
+V&A
+Natural History Museum
+Metropolitan Museum of Art
+the Met|bảo tàng Met
+MoMA
+Guggenheim
+Smithsonian
+Getty Center
+Uffizi
+Vatican Museums|Bảo tàng Vatican
+Sistine Chapel|Nhà nguyện Sistine
+~Prado
+Rijksmuseum
+Van Gogh Museum|Bảo tàng Van Gogh
+~Hermitage
+teamLab
+teamLab Planets
+teamLab Borderless
+Eiffel Tower|tháp Eiffel
+Arc de Triomphe|Khải Hoàn Môn
+Notre-Dame
+Notre Dame
+Champs-Élysées
+Montmartre
+Versailles
+Palace of Versailles|Cung điện Versailles
+Mont Saint-Michel
+Big Ben
+Tower Bridge
+London Eye
+Buckingham Palace|Cung điện Buckingham
+Westminster Abbey|Tu viện Westminster
+Stonehenge
+Colosseum|Đấu trường La Mã
+Trevi Fountain|Đài phun nước Trevi
+Leaning Tower of Pisa|tháp nghiêng Pisa
+Sagrada Família
+Sagrada Familia
+Park Güell
+Alhambra
+Acropolis
+Parthenon
+Santorini
+Mykonos
+Neuschwanstein
+Brandenburg Gate|Cổng Brandenburg
+Berlin Wall|Bức tường Berlin
+Red Square|Quảng trường Đỏ
+Kremlin
+Statue of Liberty|Tượng Nữ thần Tự do
+Empire State Building
+Times Square
+Central Park
+Brooklyn Bridge|cầu Brooklyn
+Golden Gate Bridge|cầu Cổng Vàng
+Golden Gate
+Hollywood Sign
+Hollywood Walk of Fame
+Las Vegas Strip
+Grand Canyon
+Yellowstone
+Yosemite
+Zion National Park
+Niagara Falls|thác Niagara
+Mount Rushmore
+Machu Picchu
+Christ the Redeemer|tượng Chúa Cứu Thế
+Chichén Itzá
+Great Wall of China|Vạn Lý Trường Thành
+Great Wall|Vạn Lý Trường Thành
+Forbidden City|Tử Cấm Thành
+Terracotta Army|Đội quân đất nung
+Taj Mahal
+Angkor Wat
+Petronas Towers|Tháp đôi Petronas
+Marina Bay Sands
+Gardens by the Bay
+Burj Khalifa
+Burj Al Arab
+Palm Jumeirah
+Pyramids of Giza|Kim tự tháp Giza
+Petra
+Mount Fuji|núi Phú Sĩ
+Shibuya Crossing
+Tokyo Tower
+Tokyo Skytree
+Senso-ji
+Fushimi Inari
+Arashiyama
+Kinkaku-ji
+Gyeongbokgung
+N Seoul Tower
+Namsan Tower
+Myeongdong
+Gangnam
+Hongdae
+Itaewon
+Bukchon
+Taipei 101
+Victoria Peak
+Sydney Opera House|Nhà hát Opera Sydney
+Harbour Bridge
+Bondi Beach
+Great Barrier Reef|rạn san hô Great Barrier
+Uluru
+Mount Everest|đỉnh Everest
+Everest
+Kilimanjaro
+Matterhorn
+Mont Blanc
+Ha Long Bay|vịnh Hạ Long
+Halong Bay|vịnh Hạ Long
+Hoi An Ancient Town|phố cổ Hội An
+Phong Nha|Phong Nha
+Son Doong|Sơn Đoòng
+Hang Son Doong|hang Sơn Đoòng
+Golden Bridge|Cầu Vàng
+Ba Na Hills|Bà Nà Hills
+Sa Pa|Sa Pa
+Sapa|Sa Pa
+Phu Quoc|Phú Quốc
+Nha Trang|Nha Trang
+Da Lat|Đà Lạt
+Dalat|Đà Lạt
+Mui Ne|Mũi Né
+Con Dao|Côn Đảo
+Ninh Binh|Ninh Bình
+Trang An|Tràng An
+Ha Giang|Hà Giang
+Mekong Delta|đồng bằng sông Cửu Long
+Ben Thanh Market|chợ Bến Thành
+Hoan Kiem Lake|hồ Hoàn Kiếm
+Old Quarter|Phố cổ
+Bui Vien|Bùi Viện
+Landmark 81
+Bitexco
+JFK
+JFK Airport|sân bay JFK
+LAX
+LaGuardia
+O'Hare
+Heathrow
+Gatwick
+Charles de Gaulle
+CDG
+Changi
+Changi Airport|sân bay Changi
+Narita
+Haneda
+Incheon
+Incheon Airport|sân bay Incheon
+Suvarnabhumi
+Dubai International|sân bay Dubai
+DXB
+Schiphol
+Frankfurt Airport|sân bay Frankfurt
+Hong Kong International Airport|sân bay quốc tế Hồng Kông
+Tan Son Nhat|Tân Sơn Nhất
+Noi Bai|Nội Bài
+Long Thanh Airport|sân bay Long Thành
+Silicon Valley|Thung lũng Silicon
+Wall Street|phố Wall
+Fifth Avenue|Đại lộ số 5
+Broadway
+SoHo
+Williamsburg
+Manhattan
+Brooklyn
+~Queens
+the Bronx|Bronx
+Staten Island
+Harlem
+Upper East Side
+Upper West Side
+~Midtown
+Chinatown|khu phố Tàu
+Koreatown
+Little Italy
+Beverly Hills
+Santa Monica
+Venice Beach
+Malibu
+Silver Lake
+Palo Alto
+Mountain View
+Cupertino
+Menlo Park
+San Jose
+Oakland
+Napa Valley
+Sonoma
+Lake Tahoe
+Big Sur
+Palm Springs
+Joshua Tree
+Scottsdale
+Sedona
+~Aspen
+~Vail
+Park City
+Jackson Hole
+Martha's Vineyard
+Nantucket
+the Hamptons|Hamptons
+Cape Cod
+Key West
+South Beach
+Shoreditch
+Notting Hill
+Camden
+Covent Garden
+~Kensington
+Mayfair
+Le Marais
+Saint-Germain
+Kreuzberg
+Trastevere
+Shinjuku
+Shibuya
+Harajuku
+Ginza
+Roppongi
+Akihabara
+Asakusa
+Omotesando
+Nakameguro
+Shimokitazawa
+Dotonbori
+Namba
+Gion
+Hakone
+Nikko
+Kamakura
+Nara
+Kanazawa
+Takayama
+Niseko
+Okinawa
+Hokkaido
+Kyushu
+Shikoku
+Jeju
+Jeju Island|đảo Jeju
+Busan
+Incheon
+Daegu
+Gyeongju
+Tainan
+Taichung
+Kaohsiung
+Jiufen
+Macau|Ma Cao
+Shenzhen|Thâm Quyến
+Guangzhou|Quảng Châu
+Chengdu|Thành Đô
+Chongqing|Trùng Khánh
+Hangzhou|Hàng Châu
+Xi'an|Tây An
+Suzhou|Tô Châu
+Nanjing|Nam Kinh
+Wuhan|Vũ Hán
+Guilin|Quế Lâm
+Lijiang|Lệ Giang
+Harbin|Cáp Nhĩ Tân
+Hainan|Hải Nam
+Sanya|Tam Á
+Zhangjiajie|Trương Gia Giới
+Yunnan|Vân Nam
+Tibet|Tây Tạng
+Lhasa
+Inner Mongolia|Nội Mông
+Ulaanbaatar
+Bali
+Ubud
+Canggu
+Seminyak
+Uluwatu
+Lombok
+Komodo
+Yogyakarta
+Bandung
+Phuket
+Krabi
+Koh Samui
+Koh Phangan
+Koh Tao
+Chiang Mai
+Chiang Rai
+Pattaya
+Hua Hin
+Ayutthaya
+Siem Reap
+Phnom Penh
+Luang Prabang
+Vientiane
+Yangon
+Bagan
+Kuala Lumpur
+Penang
+Langkawi
+Malacca
+Kota Kinabalu
+Borneo
+Boracay
+Palawan
+El Nido
+Cebu
+Siargao
+Manila
+Maldives|Maldives
+Sri Lanka
+Kathmandu
+Mumbai
+New Delhi
+Delhi
+Bangalore
+Bengaluru
+Goa
+Jaipur
+Kerala
+Varanasi
+Dubai
+Abu Dhabi
+Doha
+Riyadh
+Istanbul
+Cappadocia
+Marrakech
+Cairo
+Cape Town
+Nairobi
+Zanzibar
+Serengeti
+Lagos
+Reykjavik
+Tromsø
+Lofoten
+Oslo
+Stockholm
+Copenhagen
+Helsinki
+Lapland
+Amsterdam
+Brussels
+Bruges
+Zurich
+Geneva
+Lucerne
+Interlaken
+Zermatt
+Salzburg
+Vienna|Viên
+Prague|Praha
+Budapest
+Krakow
+Warsaw|Vác-sa-va
+Dubrovnik
+Lisbon
+Porto
+Madeira
+Azores
+Seville
+Barcelona
+Madrid
+Ibiza
+Mallorca
+Valencia
+Granada
+Florence
+Venice
+Milan
+Naples
+Amalfi Coast|bờ biển Amalfi
+Positano
+Cinque Terre
+Lake Como|hồ Como
+Tuscany
+Sicily
+Sardinia
+Provence
+Côte d'Azur
+French Riviera
+~Nice
+Cannes
+Monaco
+Bordeaux
+Lyon
+Marseille
+Edinburgh
+Glasgow
+Manchester
+Liverpool
+Oxford
+Cambridge
+~Bath
+Cotswolds
+Lake District
+Dublin
+Banff
+~Whistler
+Vancouver
+Toronto
+Montreal
+Quebec City
+Mexico City
+Tulum
+Cancun
+Oaxaca
+Havana
+Buenos Aires
+Patagonia
+Rio de Janeiro
+São Paulo
+Lima
+Cusco
+Bogotá
+Medellín
+Cartagena
+Santiago
+Galápagos
+Queenstown
+Auckland
+Melbourne
+Sydney
+Brisbane
+Gold Coast
+Perth
+Tasmania
+Fiji
+Bora Bora
+Tahiti
+Maui
+Honolulu
+Waikiki
+Oahu
+Kauai
+Alaska
+Anchorage
+`);
+
+// ============================================================ world dishes and ingredients
+CST_GLOSSARY_EXTRA_ADD("food", null, `
+=ramen
+=udon
+=soba
+=tempura
+=tonkatsu
+=katsu
+=katsu curry
+=karaage
+=gyoza
+=takoyaki
+=okonomiyaki
+=yakitori
+=yakiniku
+=shabu-shabu
+=sukiyaki
+=onigiri
+=bento
+=donburi
+=gyudon
+=oyakodon
+=katsudon
+=chirashi
+=nigiri
+=sashimi
+=temaki
+=omakase
+=izakaya
+=miso soup
+=matcha latte
+=mochi
+=dorayaki
+=taiyaki
+=dango
+=wagyu
+=A5 wagyu
+=bibimbap
+=bulgogi
+=galbi
+=samgyeopsal
+=kimbap
+=gimbap
+=tteokbokki
+=japchae
+=jjajangmyeon
+=jjigae
+=kimchi jjigae
+=sundubu
+=samgyetang
+=naengmyeon
+=bingsu
+=hotteok
+=soju
+=makgeolli
+=banchan
+=Korean BBQ
+=dim sum
+=har gow
+=siu mai
+=char siu
+=xiaolongbao
+=bao
+=baozi
+=hot pot|lẩu
+=mapo tofu
+=kung pao chicken
+=Peking duck|vịt quay Bắc Kinh
+=chow mein
+=lo mein
+=fried rice|cơm chiên
+=wonton
+=congee|cháo
+=boba
+=bubble tea|trà sữa trân châu
+=milk tea|trà sữa
+=pad thai
+=pad see ew
+=tom yum
+=tom kha
+=green curry|cà ri xanh
+=red curry|cà ri đỏ
+=massaman curry
+=khao soi
+=som tam
+=mango sticky rice|xôi xoài
+=satay
+=nasi goreng
+=mie goreng
+=rendang
+=nasi lemak
+=laksa
+=roti canai
+=Hainanese chicken rice|cơm gà Hải Nam
+=chicken rice|cơm gà
+=adobo
+=sinigang
+=lechon
+=halo-halo
+=biryani
+=butter chicken|gà bơ
+=tikka masala
+=chicken tikka masala
+=tandoori
+=naan
+=samosa
+=dal
+=paneer
+=masala chai
+=chai latte
+=lassi
+=hummus
+=falafel
+=shawarma
+=kebab
+=döner
+=doner kebab
+=tabbouleh
+=baba ganoush
+=pita
+=shakshuka
+=tagine
+=couscous
+=baklava
+=gyro
+=souvlaki
+=tzatziki
+=moussaka
+=spanakopita
+=paella
+=tapas
+=gazpacho
+=churros
+=jamón
+=tortilla española
+=pizza margherita
+=margherita pizza
+=Neapolitan pizza|pizza Napoli
+=pepperoni pizza
+=carbonara
+=cacio e pepe
+=bolognese
+=lasagna
+=risotto
+=gnocchi
+=ravioli
+=tortellini
+=fettuccine alfredo
+=pesto
+=bruschetta
+=focaccia
+=ciabatta
+=burrata
+=mozzarella
+=parmesan
+=prosciutto
+=tiramisu
+=panna cotta
+=gelato
+=cannoli
+=affogato
+=croissant
+=pain au chocolat
+=baguette
+=crêpe
+=crepe
+=quiche
+=ratatouille
+=coq au vin
+=beef bourguignon
+=bouillabaisse
+=croque monsieur
+=macaron
+=macarons
+=éclair
+=crème brûlée
+=soufflé
+=brioche
+=escargot
+=foie gras
+=fondue
+=raclette
+=schnitzel
+=bratwurst
+=pretzel
+=strudel
+=goulash
+=pierogi
+=borscht
+=fish and chips
+=shepherd's pie
+=full English breakfast
+=bangers and mash
+=scone
+=scones
+=Yorkshire pudding
+=sticky toffee pudding
+=haggis
+=tacos
+=taco
+=burrito
+=quesadilla
+=enchiladas
+=nachos
+=guacamole
+=pico de gallo
+=tamales
+=pozole
+=elote
+=al pastor
+=birria
+=carnitas
+=ceviche
+=empanada
+=empanadas
+=arepa
+=feijoada
+=churrasco
+=pão de queijo
+=poke
+=poke bowl
+=acai bowl
+=açaí bowl
+=smoothie bowl
+=avocado toast
+=eggs Benedict
+=pancakes
+=waffles
+=French toast
+=bagel
+=bagels
+=lox
+=cream cheese
+=mac and cheese
+=grilled cheese
+=BLT
+=club sandwich
+=Philly cheesesteak
+=cheeseburger
+=smash burger
+=hot dog
+=corn dog
+=buffalo wings
+=chicken wings
+=fried chicken|gà rán
+=Nashville hot chicken
+=chicken tenders
+=chicken nuggets
+=BBQ ribs
+=brisket
+=pulled pork
+=clam chowder
+=lobster roll
+=crab cakes
+=jambalaya
+=gumbo
+=cornbread
+=biscuits and gravy
+=meatloaf
+=pot roast
+=Caesar salad
+=Cobb salad
+=Greek salad
+=caprese
+=coleslaw
+=potato salad
+=french fries|khoai tây chiên
+=fries|khoai tây chiên
+=hash browns
+=onion rings
+=mashed potatoes|khoai tây nghiền
+=brownie
+=brownies
+=cheesecake
+=New York cheesecake
+=Basque cheesecake
+=red velvet
+=carrot cake
+=banana bread
+=cinnamon roll
+=cinnamon rolls
+=donut
+=donuts
+=doughnut
+=cupcake
+=cupcakes
+=muffin
+=muffins
+=chocolate chip cookies
+=apple pie
+=pumpkin pie
+=pecan pie
+=key lime pie
+=s'mores
+=sundae
+=milkshake
+=sourdough
+=sourdough bread
+=rye bread
+=pumpernickel
+=granola
+=overnight oats
+=protein bar
+=protein shake
+=protein pancakes
+=charcuterie board
+=charcuterie
+=grazing board
+=tasting menu
+=Michelin star|sao Michelin
+=Michelin-starred
+=street food|ẩm thực đường phố
+=food truck
+=brunch
+=mukbang
+=ASMR eating
+=banh mi|bánh mì
+=pho|phở
+=bun cha|bún chả
+=bun bo Hue|bún bò Huế
+=com tam|cơm tấm
+=goi cuon|gỏi cuốn
+=spring rolls|chả giò
+=fresh spring rolls|gỏi cuốn
+=summer rolls|gỏi cuốn
+=banh xeo|bánh xèo
+=ca phe sua da|cà phê sữa đá
+=Vietnamese coffee|cà phê Việt Nam
+=egg coffee|cà phê trứng
+=fish sauce|nước mắm
+=sriracha
+=gochujang
+=gochugaru
+=doenjang
+=miso
+=mirin
+=dashi
+=bonito flakes
+=nori
+=wasabi
+=furikake
+=ponzu
+=yuzu
+=togarashi
+=shichimi
+=sansho
+=panko
+=tahini
+=harissa
+=za'atar
+=sumac
+=garam masala
+=turmeric|nghệ
+=cumin|thì là Ai Cập
+=cardamom|bạch đậu khấu
+=saffron|nghệ tây
+=paprika|ớt bột paprika
+=smoked paprika
+=chipotle
+=jalapeño
+=jalapeno
+=habanero
+=ghost pepper
+=Carolina Reaper
+=Scoville
+=Scoville scale|thang Scoville
+=truffle|nấm truffle
+=truffle oil
+=balsamic vinegar|giấm balsamic
+=apple cider vinegar|giấm táo
+=extra virgin olive oil|dầu ô liu nguyên chất
+=EVOO
+=ghee
+=umami
+=kombu
+=quinoa
+=farro
+=bulgur
+=chia seeds|hạt chia
+=flax seeds|hạt lanh
+=hemp seeds|hạt gai dầu
+=nutritional yeast
+=tempeh
+=seitan
+=edamame
+=jackfruit|mít
+=oat milk|sữa yến mạch
+=almond milk|sữa hạnh nhân
+=soy milk|sữa đậu nành
+=coconut milk|nước cốt dừa
+=Greek yogurt|sữa chua Hy Lạp
+=kefir
+=kombucha
+=sauerkraut
+=pickles
+=kimchi
+=cottage cheese
+=ricotta
+=feta
+=brie
+=camembert
+=gouda
+=cheddar
+=gruyère
+=gruyere
+=manchego
+=halloumi
+=blue cheese
+=gorgonzola
+=pecorino
+=mascarpone
+=Wagyu
+=Kobe beef|bò Kobe
+=ribeye
+=rib eye
+=filet mignon
+=tomahawk steak
+=New York strip
+=T-bone
+=sirloin
+=tenderloin
+=skirt steak
+=flank steak
+=short ribs
+=pork belly|ba chỉ
+=Iberico
+=prime rib
+=dry-aged
+=dry aged beef|thịt bò ủ khô
+=medium rare
+=sous vide
+=reverse sear
+=Maillard reaction|phản ứng Maillard
+=mise en place
+=al dente
+=flambé
+=confit
+=chiffonade
+=brunoise
+=roux
+=béchamel
+=hollandaise
+=beurre blanc
+=emulsion|nhũ tương
+=deglaze
+`);
+
+// ============================================================ fashion and beauty brands, products and jargon
+CST_GLOSSARY_EXTRA_ADD("beauty", null, `
+La Roche-Posay
+Cicaplast
+Effaclar
+Anthelios
+CeraVe
+CeraVe Moisturizing Cream|kem dưỡng ẩm CeraVe
+CeraVe Hydrating Cleanser|sữa rửa mặt CeraVe Hydrating
+Cetaphil
+Vanicream
+Neutrogena
+Neutrogena Hydro Boost
+Aveeno
+Eucerin
+Bioderma
+Bioderma Sensibio
+Avène
+Vichy
+Vichy Minéral 89
+Uriage
+Embryolisse
+Nuxe
+Caudalie
+Clarins
+Lancôme
+Lancôme Advanced Génifique
+Estée Lauder
+Estée Lauder Advanced Night Repair
+Advanced Night Repair
+Clinique
+Clinique Moisture Surge
+~Origins
+Kiehl's
+Kiehl's Ultra Facial Cream
+Shiseido
+Shiseido Ultimune
+SK-II
+SK-II Facial Treatment Essence
+Facial Treatment Essence
+Sulwhasoo
+Sulwhasoo First Care
+Laneige
+Laneige Lip Sleeping Mask
+Lip Sleeping Mask
+Innisfree
+COSRX
+COSRX Snail Mucin
+Snail Mucin
+Advanced Snail 96
+Beauty of Joseon
+Relief Sun
+Round Lab
+Anua
+Anua Heartleaf
+Torriden
+Torriden Dive-In
+Skin1004
+Centella Ampoule
+Isntree
+Mediheal
+Dr. Jart+
+Cicapair
+Klairs
+Some By Mi
+Pyunkang Yul
+Etude House
+~Etude
+Missha
+Missha Time Revolution
+Holika Holika
+Banila Co
+Clean It Zero
+Hada Labo
+Hada Labo Gokujyun
+Biore
+Bioré
+Biore UV Aqua Rich
+Anessa
+Skin Aqua
+Canmake
+Melano CC
+DHC
+DHC Deep Cleansing Oil
+Senka
+Senka Perfect Whip
+Shu Uemura
+Tatcha
+Tatcha Dewy Skin Cream
+Drunk Elephant
+Drunk Elephant Protini
+Glow Recipe
+Glow Recipe Watermelon Glow
+Summer Fridays
+Summer Fridays Jet Lag Mask
+Youth to the People
+Tower 28
+Supergoop
+Supergoop Unseen Sunscreen
+Unseen Sunscreen
+EltaMD
+EltaMD UV Clear
+Paula's Choice
+Paula's Choice BHA
+2% BHA Liquid Exfoliant
+The Ordinary
+The Ordinary Niacinamide
+The Inkey List
+Naturium
+Good Molecules
+Byoma
+Bubble Skincare
+Starface
+Hero Cosmetics
+Mighty Patch
+Peace Out
+Mario Badescu
+Mario Badescu Drying Lotion
+Sunday Riley
+Sunday Riley Good Genes
+Good Genes
+Dr. Dennis Gross
+Murad
+Peter Thomas Roth
+Kate Somerville
+Dermalogica
+Dermalogica Daily Microfoliant
+Medik8
+Medik8 Crystal Retinal
+Crystal Retinal
+Skinceuticals
+SkinCeuticals
+SkinCeuticals C E Ferulic
+C E Ferulic
+Obagi
+Tretinoin
+Differin
+Differin Gel
+Aquaphor
+Vaseline
+Carmex
+Burt's Bees
+Glossier
+Glossier You
+Glossier Boy Brow
+Boy Brow
+Cloud Paint
+Rare Beauty
+Rare Beauty Soft Pinch
+Soft Pinch Liquid Blush
+Fenty Beauty
+Fenty Skin
+Gloss Bomb
+Pro Filt'r
+Charlotte Tilbury
+Charlotte Tilbury Pillow Talk
+Pillow Talk
+Flawless Filter
+Hollywood Flawless Filter
+Airbrush Flawless
+Huda Beauty
+Easy Bake
+Laura Mercier
+Laura Mercier Translucent Setting Powder
+Translucent Setting Powder
+NARS
+NARS Radiant Creamy Concealer
+Radiant Creamy Concealer
+NARS Orgasm
+Orgasm blush|má hồng Orgasm
+MAC Cosmetics
+MAC Ruby Woo
+Ruby Woo
+MAC Studio Fix
+Urban Decay
+Urban Decay All Nighter
+All Nighter
+Naked palette|bảng mắt Naked
+Benefit Cosmetics
+Benefit Hoola
+~Hoola
+Benefit Gimme Brow
+Too Faced
+Better Than Sex mascara|mascara Better Than Sex
+Tarte
+Tarte Shape Tape
+Shape Tape
+Anastasia Beverly Hills
+ABH
+Brow Wiz
+Dior Backstage
+Dior Lip Glow
+Dior Addict
+Dior Forever
+Dior Sauvage
+Chanel No. 5
+Chanel Les Beiges
+Chanel Coco Mademoiselle
+YSL Libre
+YSL Touche Éclat
+Armani Beauty
+Armani Luminous Silk
+Luminous Silk
+Giorgio Armani Beauty
+Tom Ford Beauty
+Tom Ford Lost Cherry
+Lost Cherry
+~Hourglass
+Hourglass Ambient Lighting
+Pat McGrath
+Pat McGrath Labs
+Natasha Denona
+Haus Labs
+Kylie Cosmetics
+Kylie Lip Kit
+KKW Beauty
+SKKN
+Rhode
+Rhode Peptide Lip Treatment
+Peptide Lip Treatment
+Rhode Glazing Milk
+Glazing Milk
+Milk Makeup
+Kosas
+Ilia
+~Merit
+Merit Beauty
+Saie
+Westman Atelier
+Danessa Myricks
+Makeup by Mario
+Makeup Revolution
+Revolution Beauty
+e.l.f. Cosmetics
+e.l.f. Power Grip Primer
+Power Grip Primer
+Halo Glow
+NYX
+NYX Professional Makeup
+Maybelline
+Maybelline Sky High
+Sky High mascara|mascara Sky High
+Maybelline Fit Me
+Fit Me foundation|kem nền Fit Me
+Maybelline Superstay
+L'Oréal
+L'Oréal Paris
+L'Oréal Revitalift
+Revitalift
+L'Oréal Telescopic
+Lancôme Lash Idôle
+Lash Idôle
+Lancôme Hypnôse
+Covergirl
+Revlon
+Revlon One-Step
+Revlon One-Step Hair Dryer
+Rimmel
+Essence Lash Princess
+Lash Princess
+Wet n Wild
+Milani
+Colourpop
+ColourPop
+Morphe
+Juvia's Place
+Beautyblender
+Real Techniques
+Real Techniques sponge|mút Real Techniques
+Sigma Beauty
+Tweezerman
+Shiseido eyelash curler|kẹp mi Shiseido
+Kevyn Aucoin
+Bobbi Brown
+Smashbox
+Smashbox Photo Finish
+Too Faced Born This Way
+Born This Way foundation|kem nền Born This Way
+Estée Lauder Double Wear
+Double Wear
+Fenty Pro Filt'r
+Sephora Collection
+Sephora Favorites
+Ulta
+Ulta Beauty
+Olaplex
+Olaplex No. 3
+Olaplex No. 7
+K18
+K18 Hair Mask|mặt nạ tóc K18
+Moroccanoil
+Moroccanoil Treatment
+Kérastase
+Kerastase
+Redken
+Redken Acidic Bonding
+Pureology
+Bumble and bumble
+Ouai
+Ouai Hair Oil
+Briogeo
+~Verb
+Living Proof
+Amika
+Gisou
+Gisou Honey Infused Hair Oil
+Color Wow
+Color Wow Dream Coat
+Dream Coat
+Davines
+Aveda
+Paul Mitchell
+Head & Shoulders
+Pantene
+TRESemmé
+Dove
+Herbal Essences
+SheaMoisture
+Cantu
+Mielle
+Mielle Rosemary Oil
+Rosemary Mint Oil
+Nizoral
+Mane 'n Tail
+~Batiste
+Batiste Dry Shampoo
+Dyson Airwrap
+Airwrap
+Dyson Supersonic
+~Supersonic
+Dyson Corrale
+Corrale
+GHD
+GHD Platinum
+T3
+Shark FlexStyle
+FlexStyle
+Laifen
+Revlon One Step
+Bio Ionic
+CHI flat iron|máy duỗi CHI
+Babyliss
+BaByliss Pro
+Wet Brush
+Tangle Teezer
+Mason Pearson
+Slip pillowcase|vỏ gối Slip
+Slip silk|lụa Slip
+~Kitsch
+Philips Lumea
+Braun Silk-Expert
+Braun IPL
+Ulike
+Ulike Air 10
+Foreo
+Foreo Luna
+Foreo UFO
+NuFace
+NuFace Trinity
+CurrentBody
+CurrentBody LED mask|mặt nạ LED CurrentBody
+Omnilux
+Dr. Dennis Gross LED
+TheraFace
+Solawave
+ZIIP
+Gua sha|cạo gió gua sha
+=gua sha
+=jade roller
+=ice roller
+=LED mask
+=red light therapy|liệu pháp ánh sáng đỏ
+=microcurrent
+=dermaplaning
+=microneedling
+=derma roller
+=chemical peel|lột da hóa học
+=HydraFacial
+HydraFacial
+=Botox
+=baby Botox
+=lip filler|tiêm filler môi
+=Juvederm
+=Restylane
+=Sculptra
+=Profhilo
+=Ultherapy
+=Thermage
+=Morpheus8
+=CoolSculpting
+=Emsculpt
+=laser hair removal|triệt lông bằng laser
+=PRP facial
+=vampire facial
+=skin booster
+=Rejuran
+=salmon DNA|DNA cá hồi
+=exosomes
+=PDRN
+=polynucleotides
+=Juvelook
+=buccal fat removal|cắt mỡ má
+=rhinoplasty|nâng mũi
+=blepharoplasty|cắt mí mắt
+=double eyelid surgery|phẫu thuật cắt mí
+=facelift|căng da mặt
+=brow lift
+=lip flip
+=fox eye
+=BBL
+=Brazilian butt lift
+=tummy tuck
+=lipo
+=liposuction|hút mỡ
+=breast augmentation|nâng ngực
+=veneers|dán sứ veneer
+=Invisalign
+=teeth whitening|tẩy trắng răng
+=whitening strips
+=Crest Whitestrips
+Crest Whitestrips
+=water flosser|máy tăm nước
+Waterpik
+=oil pulling
+=tongue scraper|dụng cụ cạo lưỡi
+=lash lift|uốn mi
+=lash extensions|nối mi
+=brow lamination|ép mày
+=microblading|điêu khắc chân mày
+=nano brows
+=powder brows
+=lip blush|phun môi
+=permanent makeup|trang điểm vĩnh viễn
+=gel nails|móng gel
+=gel manicure
+=acrylic nails|móng bột
+=acrylics
+=press-on nails|móng giả dán
+=press-ons
+=dip powder
+=BIAB
+=builder gel
+=nail art|vẽ móng
+=French tip
+=French manicure
+=chrome nails
+=glazed donut nails
+=cat eye nails
+=jelly nails
+=almond nails
+=coffin nails
+=stiletto nails
+=squoval
+=cuticle oil|dầu dưỡng móng
+=pedicure
+=manicure
+=mani-pedi
+=balayage
+=babylights
+=lowlights
+=ombré
+=ombre
+=root touch-up
+=purple shampoo
+=bond builder
+=keratin treatment|phục hồi keratin
+=Brazilian blowout
+=silk press
+=perm
+=digital perm
+=body wave
+=Korean perm
+=wolf cut
+=butterfly cut
+=mullet
+=pixie cut
+=bob cut
+=curtain bangs|mái thưa bay
+=wispy bangs
+=face-framing layers
+=lived-in color
+=money piece
+=glass hair
+=slick back bun
+=clean girl bun
+=claw clip|kẹp càng cua
+=scrunchie
+=heatless curls
+=curly girl method
+=plopping
+=leave-in conditioner|dầu xả không xả
+=leave-in
+=hair mask|mặt nạ tóc
+=hair oil|dầu dưỡng tóc
+=heat protectant|xịt chống nhiệt
+=dry shampoo|dầu gội khô
+=scalp scrub|tẩy tế bào chết da đầu
+=scalp serum
+=hair growth serum
+=minoxidil
+=finasteride
+=hair transplant|cấy tóc
+=FUE
+=PRP
+=skin cycling
+=slugging
+=skin flooding
+=double cleansing|làm sạch hai bước
+=double cleanse
+=oil cleanser|dầu tẩy trang
+=cleansing balm|sáp tẩy trang
+=micellar water|nước tẩy trang micellar
+=ampoule
+=moisturizer|kem dưỡng ẩm
+=sunscreen|kem chống nắng
+=SPF
+=PA++++
+=broad spectrum
+=mineral sunscreen|kem chống nắng vật lý
+=chemical sunscreen|kem chống nắng hóa học
+=zinc oxide|kẽm oxit
+=titanium dioxide
+=white cast|vệt trắng
+=tinted sunscreen
+=sunscreen stick
+=retinol
+=retinoid
+=retinoids
+=tretinoin
+=adapalene
+=bakuchiol
+=niacinamide
+=hyaluronic acid|axit hyaluronic
+=vitamin C serum|serum vitamin C
+=ascorbic acid
+=azelaic acid|axit azelaic
+=salicylic acid|axit salicylic
+=glycolic acid|axit glycolic
+=lactic acid|axit lactic
+=mandelic acid
+=tranexamic acid|axit tranexamic
+=kojic acid
+=alpha arbutin
+=AHA
+=BHA
+=PHA
+=ceramides
+=ceramide
+=peptides
+=copper peptides
+=squalane
+=centella
+=Centella asiatica|rau má
+=cica
+=snail mucin
+=propolis
+=mugwort
+=heartleaf
+=rice water
+=galactomyces
+=PDRN serum
+=panthenol
+=allantoin
+=urea cream
+=benzoyl peroxide
+=sulfur mask
+=clay mask|mặt nạ đất sét
+=sheet mask|mặt nạ giấy
+=sleeping mask|mặt nạ ngủ
+=peel-off mask
+=pimple patch|miếng dán mụn
+=pimple patches
+=hydrocolloid patch
+=toner pads
+=exfoliator|tẩy tế bào chết
+=physical exfoliant
+=chemical exfoliant
+=skin purging
+=closed comedones|mụn ẩn
+=blackheads|mụn đầu đen
+=whiteheads|mụn đầu trắng
+=sebaceous filaments
+=fungal acne
+=hormonal acne|mụn nội tiết
+=cystic acne|mụn nang
+=acne scars|sẹo mụn
+=PIH
+=hyperpigmentation|tăng sắc tố
+=melasma|nám
+=dark spots|đốm nâu
+=dehydrated skin|da mất nước
+=oily skin|da dầu
+=dry skin|da khô
+=combination skin|da hỗn hợp
+=sensitive skin|da nhạy cảm
+=skin barrier|hàng rào bảo vệ da
+=damaged skin barrier|hàng rào da bị tổn thương
+=moisture barrier
+=TEWL
+=glass skin
+=dewy skin
+=dewy finish
+=matte finish
+=no-makeup makeup
+=clean girl makeup
+=soft glam
+=full glam
+=Latina makeup
+=douyin makeup
+=igari makeup
+=cold girl makeup
+=strawberry makeup
+=underpainting
+=color correcting|hiệu chỉnh màu
+=color corrector
+=setting spray|xịt khóa nền
+=setting powder|phấn phủ
+=skin tint
+=BB cream
+=CC cream
+=cushion foundation|phấn nước
+=cushion compact
+=contouring|tạo khối
+=lip liner|chì kẻ môi
+=lip gloss|son bóng
+=lip oil|son dưỡng dạng dầu
+=lip tint|son tint
+=lip balm|son dưỡng
+=lip stain
+=liquid lipstick|son kem
+=overlining
+=eyeliner|kẻ mắt
+=winged liner|kẻ mắt mèo
+=tightlining
+=mascara
+=lash curler|kẹp mi
+=false lashes|mi giả
+=lash glue
+=eyeshadow palette|bảng phấn mắt
+=brow gel
+=brow pencil|chì kẻ mày
+=soap brows
+=beauty sponge|mút trang điểm
+=undertone|tông da nền
+=cool undertone|tông lạnh
+=warm undertone|tông ấm
+=neutral undertone|tông trung tính
+=olive undertone
+=shade match
+=shade range
+=swatch
+=swatches
+=dupe
+=dupes
+=PR package
+=GRWM
+=get ready with me
+=skincare routine|quy trình chăm sóc da
+=morning routine
+=night routine
+=everything shower
+=shower routine
+=body care
+=body oil
+=body lotion
+=body scrub
+=body wash
+=keratosis pilaris|dày sừng nang lông
+=strawberry legs
+=self-tanner
+=fake tan
+=spray tan
+=tanning
+=sunless tanning
+=perfume|nước hoa
+=fragrance|nước hoa
+=eau de parfum
+=EDP
+=eau de toilette
+=EDT
+=parfum
+=body mist
+=scent layering
+=top notes|hương đầu
+=heart notes|hương giữa
+=base notes|hương cuối
+=sillage
+=niche fragrance|nước hoa niche
+=designer fragrance
+=gourmand
+=oud
+=vanilla perfume
+=Le Labo
+Le Labo Santal 33
+Santal 33
+Byredo
+Maison Margiela Replica
+Replica fragrance|nước hoa Replica
+Maison Francis Kurkdjian
+Baccarat Rouge 540
+Baccarat Rouge
+Creed Aventus
+Aventus
+Jo Malone
+Jo Malone London
+Diptyque
+Kayali
+Sol de Janeiro
+Sol de Janeiro Cheirosa 62
+Cheirosa 62
+Bum Bum Cream
+Ariana Grande Cloud
+Cloud perfume|nước hoa Cloud
+Glossier You perfume|nước hoa Glossier You
+Phlur
+~Dossier
+Bath & Body Works
+Victoria's Secret Bombshell
+~Bombshell
+Carolina Herrera Good Girl
+Good Girl perfume|nước hoa Good Girl
+Viktor&Rolf Flowerbomb
+Flowerbomb
+Marc Jacobs Daisy
+Daisy perfume|nước hoa Daisy
+Paco Rabanne
+1 Million perfume|nước hoa 1 Million
+Bleu de Chanel
+Acqua di Gio
+Acqua di Giò
+Versace Eros
+Dior Homme
+Prada Paradoxe
+Valentino Born in Roma
+Born in Roma
+Mugler Alien
+Lattafa
+Armaf
+Armaf Club de Nuit
+Club de Nuit
+`);
+
+// ============================================================ fashion: houses, labels, pieces, jargon
+CST_GLOSSARY_EXTRA_ADD("fashion", null, `
+Louis Vuitton
+LV
+Louis Vuitton Neverfull
+Neverfull
+~Speedy
+Louis Vuitton Speedy
+Keepall
+Hermès
+Hermes
+Birkin
+Birkin bag|túi Birkin
+Kelly bag|túi Kelly
+Hermès Kelly
+~Constance
+~Evelyne
+Picotin
+Oran sandals|dép Oran
+Chanel Classic Flap
+Classic Flap
+Chanel 2.55
+Chanel 22
+Chanel Boy Bag
+Wallet on Chain
+WOC
+Dior Saddle
+Saddle bag|túi Saddle
+Lady Dior
+Dior Book Tote
+Book Tote
+Dior Oblique
+Gucci Marmont
+Gucci Jackie
+Gucci Horsebit
+Gucci Dionysus
+Gucci Ace
+Prada Re-Edition
+Re-Edition 2005
+Prada Galleria
+Prada Cleo
+Miu Miu
+Miu Miu Wander
+Bottega Veneta
+Bottega Jodie
+Bottega Cassette
+Bottega Pouch
+Intrecciato
+Celine
+Celine Triomphe
+Triomphe
+Celine Luggage
+Loewe
+Loewe Puzzle
+Puzzle bag|túi Puzzle
+Loewe Flamenco
+Saint Laurent
+YSL
+Saint Laurent Loulou
+Loulou
+Le 5 à 7
+Balenciaga
+Balenciaga City
+Le Cagole
+Balenciaga Triple S
+Triple S
+Balenciaga Track
+Givenchy
+Givenchy Antigona
+Antigona
+Fendi
+Fendi Baguette
+Fendi Peekaboo
+~Peekaboo
+Fendi First
+Valentino
+Valentino Rockstud
+Rockstud
+Valentino Garavani
+Versace
+~Medusa
+Dolce & Gabbana
+Dolce and Gabbana
+D&G
+Burberry
+Burberry trench coat|áo trench Burberry
+Burberry check|họa tiết caro Burberry
+Alexander McQueen
+McQueen sneakers|giày McQueen
+Alexander Wang
+Off-White
+Vetements
+Maison Margiela
+Margiela
+Tabi boots|giày Tabi
+Tabi
+Rick Owens
+Comme des Garçons
+CDG Play
+Yohji Yamamoto
+Issey Miyake
+Pleats Please
+Bao Bao Issey Miyake
+Jil Sander
+The Row
+Margaux bag|túi Margaux
+Khaite
+Toteme
+Totême
+Lemaire
+Lemaire Croissant
+Acne Studios
+Ganni
+Jacquemus
+Le Chiquito
+Le Bambino
+Coperni
+Swipe bag|túi Swipe
+Mugler
+Schiaparelli
+Balmain
+Chloé
+Chloe
+Chloé Woody
+Woody tote|túi Woody
+Marc Jacobs
+The Tote Bag
+Marc Jacobs Tote
+~Coach
+Coach Tabby
+Tabby bag|túi Tabby
+Coach Brooklyn
+Kate Spade
+Michael Kors
+Tory Burch
+Furla
+Longchamp
+Le Pliage
+Longchamp Le Pliage
+Polène
+Polene
+Telfar
+Telfar Shopping Bag
+Staud
+Cult Gaia
+JW Anderson
+Simone Rocha
+Molly Goddard
+Sandy Liang
+Collina Strada
+Marine Serre
+Ludovic de Saint Sernin
+Thom Browne
+Ami Paris
+Kenzo
+Maison Kitsuné
+Kitsuné
+A.P.C.
+APC
+Sézane
+Rouje
+~Reformation
+Aritzia
+Wilfred
+Babaton
+Tna
+Free People
+Anthropologie
+Urban Outfitters
+Madewell
+J.Crew
+Everlane
+~Quince
+Cuyana
+~Mango
+Massimo Dutti
+Pull&Bear
+Bershka
+Stradivarius
+COS
+& Other Stories
+Arket
+~Weekday
+Monki
+Abercrombie & Fitch
+Abercrombie
+Hollister
+American Eagle
+~Aerie
+Old Navy
+Banana Republic
+Gap
+Levi's
+Levi's 501
+501 jeans|quần jean 501
+Wrangler
+Lee jeans|quần jean Lee
+~Diesel
+True Religion
+AGOLDE
+Agolde
+Citizens of Humanity
+Mother Denim
+~Frame
+Re/Done
+Paige
+Ralph Lauren
+Polo Ralph Lauren
+Tommy Hilfiger
+Calvin Klein
+Hugo Boss
+BOSS
+Lacoste
+Fred Perry
+Ted Baker
+Paul Smith
+Barbour
+Barbour jacket|áo khoác Barbour
+Belstaff
+Moncler
+Canada Goose
+Mackage
+Arc'teryx
+Arcteryx
+Arc'teryx Beta
+Patagonia
+Patagonia Better Sweater
+Better Sweater
+Patagonia Retro-X
+Synchilla
+The North Face
+North Face
+Nuptse
+TNF Nuptse
+Salomon
+Salomon XT-6
+XT-6
+Hoka
+Hoka Clifton
+Hoka Bondi
+On Running
+On Cloud
+Cloudmonster
+Cloudnova
+Brooks
+Brooks Ghost
+Brooks Glycerin
+Asics
+ASICS
+Asics Gel-Kayano
+Gel-Kayano
+Asics Gel-1130
+Gel-1130
+Asics Gel-Nimbus
+Onitsuka Tiger
+Mexico 66
+New Balance 550
+New Balance 990
+New Balance 2002R
+New Balance 9060
+New Balance 530
+New Balance 574
+New Balance 1906R
+Nike Air Force 1
+Air Force 1
+AF1
+Nike Dunk
+Nike Dunk Low
+Dunk Low
+Panda Dunks
+Air Jordan 1
+Jordan 1
+Jordan 4
+Air Jordan 4
+Jordan 11
+Air Max 90
+Air Max 97
+Air Max 1
+Nike Cortez
+Nike Blazer
+Nike Vomero
+Nike Pegasus
+Nike Alphafly
+Alphafly
+Vaporfly
+Nike Vaporfly
+Nike Metcon
+Nike Tech Fleece
+Tech Fleece
+Adidas Samba
+Samba OG
+Adidas Gazelle
+~Gazelle
+Adidas Spezial
+Adidas Campus
+Adidas Superstar
+Adidas Stan Smith
+Stan Smith
+Adidas Ultraboost
+Ultraboost
+Yeezy
+Yeezy Boost 350
+Yeezy Slide
+Adidas Adizero
+Adizero Adios Pro
+Puma Speedcat
+Puma Suede
+Puma Palermo
+Reebok Club C
+Club C
+Converse Chuck Taylor
+Chuck Taylor
+Chuck 70
+Vans Old Skool
+Old Skool
+Vans Sk8-Hi
+Vans Authentic
+Vans Slip-On
+Common Projects
+Golden Goose
+Veja
+Allbirds
+Birkenstock
+Birkenstock Boston
+Boston clogs|guốc Boston
+Birkenstock Arizona
+Arizona sandals|dép Arizona
+Crocs
+Crocs Classic Clog
+Ugg
+UGG
+Ugg Tasman
+Tasman
+Ugg Ultra Mini
+Dr. Martens
+Doc Martens
+Docs 1460
+Dr. Martens 1460
+~Timberland
+Timberland boots|giày Timberland
+Red Wing
+Blundstone
+Hunter boots|ủng Hunter
+Sorel
+Teva
+Chaco
+Hey Dude
+Skechers
+Rothy's
+Sam Edelman
+Steve Madden
+Jimmy Choo
+Christian Louboutin
+Louboutin
+red bottoms|giày đế đỏ
+Manolo Blahnik
+Manolo
+Hangisi
+Aquazzura
+Gianvito Rossi
+Stuart Weitzman
+Amina Muaddi
+Roger Vivier
+Ferragamo
+Salvatore Ferragamo
+Tod's
+Gucci loafers|giày lười Gucci
+Horsebit loafers|giày lười Horsebit
+G.H. Bass
+Sebago
+Sperry
+Mary Janes|giày Mary Jane
+=Mary Jane shoes|giày Mary Jane
+=ballet flats|giày búp bê
+=loafers|giày lười
+=penny loafers
+=slingbacks
+=kitten heels|giày gót thấp
+=platform shoes|giày đế xuồng
+=chunky sneakers
+=dad sneakers
+=dad shoes
+=running shoes|giày chạy bộ
+=trail runners
+=Chelsea boots|bốt Chelsea
+=combat boots|bốt chiến binh
+=knee-high boots|bốt cao cổ
+=cowboy boots|bốt cao bồi
+=ankle boots|bốt cổ ngắn
+=riding boots
+=snow boots
+=clogs
+=espadrilles
+=flip-flops|dép xỏ ngón
+=Rolex Submariner
+~Submariner
+Rolex Daytona
+Daytona
+Rolex Datejust
+Datejust
+Rolex GMT-Master II
+GMT-Master
+Pepsi bezel|viền Pepsi
+Rolex Explorer
+Rolex Day-Date
+Day-Date
+Rolex Oyster Perpetual
+Oyster Perpetual
+Patek Philippe
+~Nautilus
+Patek Nautilus
+Aquanaut
+Audemars Piguet
+AP Royal Oak
+Royal Oak
+Richard Mille
+Vacheron Constantin
+~Overseas
+A. Lange & Söhne
+Jaeger-LeCoultre
+~Reverso
+Omega Speedmaster
+Speedmaster
+Moonwatch
+Omega Seamaster
+Seamaster
+MoonSwatch
+Cartier Tank
+Cartier Santos
+Cartier Love bracelet|vòng Cartier Love
+Love bracelet|vòng tay Love
+Juste un Clou
+Cartier Panthère
+Tag Heuer
+TAG Heuer
+TAG Heuer Carrera
+Carrera
+Tudor
+Tudor Black Bay
+Black Bay
+Breitling
+Breitling Navitimer
+Navitimer
+IWC
+IWC Portugieser
+Panerai
+Hublot
+Grand Seiko
+Grand Seiko Snowflake
+Seiko 5
+Seiko Presage
+Seiko Prospex
+King Seiko
+Casio G-Shock
+G-Shock
+CasiOak
+Casio F-91W
+F-91W
+Citizen Eco-Drive
+Eco-Drive
+Tissot PRX
+PRX
+Hamilton Khaki
+Hamilton Khaki Field
+Swatch
+Timex
+Timex Marlin
+Daniel Wellington
+~Fossil
+Tiffany & Co.
+Tiffany
+Tiffany T
+Tiffany setting|ổ Tiffany
+Van Cleef & Arpels
+Van Cleef
+Alhambra necklace|dây chuyền Alhambra
+Bulgari
+Bvlgari
+Serpenti
+B.zero1
+Boucheron
+Chaumet
+~Graff
+Harry Winston
+David Yurman
+Mejuri
+Pandora
+Pandora charm|charm Pandora
+Swarovski
+Monica Vinader
+Missoma
+~Catbird
+Gorjana
+Kendra Scott
+=fine jewelry|trang sức cao cấp
+=demi-fine jewelry
+=costume jewelry|trang sức thời trang
+=solid gold|vàng nguyên khối
+=gold vermeil
+=gold-plated|mạ vàng
+=gold filled
+=sterling silver|bạc 925
+=lab-grown diamond|kim cương nhân tạo
+=lab diamond
+=moissanite
+=carat|carat
+=4Cs
+=cut clarity color carat
+=halo setting
+=pavé
+=eternity band
+=tennis bracelet
+=tennis necklace
+=signet ring|nhẫn signet
+=stacking rings
+=ear stack
+=permanent jewelry|vòng hàn vĩnh viễn
+=charm bracelet
+=paperclip chain
+=Cuban link
+=rope chain
+=haute couture
+=couture
+=prêt-à-porter
+=ready-to-wear|may sẵn
+=RTW
+=resort collection
+=cruise collection
+=pre-fall
+=capsule collection|bộ sưu tập capsule
+=collab|hợp tác
+=restock
+=sold out|cháy hàng
+=waitlist|danh sách chờ
+=quota bag
+=resale value|giá bán lại
+=resale|bán lại
+=reseller
+=legit check|kiểm tra hàng thật
+=authentication|xác thực
+=superfake
+=replica
+=1:1 replica
+=dupe bag
+=deadstock
+=VNDS
+=hypebeast
+=streetwear
+=gorpcore
+=blokecore
+=normcore
+=quiet luxury|sang trọng thầm lặng
+=old money aesthetic|phong cách old money
+=old money style
+=stealth wealth
+=coastal grandmother
+=coquette
+=balletcore
+=mob wife aesthetic
+=clean girl aesthetic
+=dark academia
+=light academia
+=cottagecore
+=Y2K
+=Y2K fashion
+=indie sleaze
+=boho
+=boho chic
+=preppy
+=grunge
+=goth
+=punk
+=maximalist
+=capsule wardrobe|tủ đồ tối giản
+=wardrobe staples|món đồ cơ bản
+=wardrobe essentials
+=closet staples
+=investment piece
+=cost per wear|chi phí mỗi lần mặc
+=fast fashion|thời trang nhanh
+=slow fashion|thời trang chậm
+=sustainable fashion|thời trang bền vững
+=thrifting|săn đồ cũ
+=thrift store|tiệm đồ cũ
+=thrift flip
+=secondhand|đồ cũ
+=pre-loved
+=consignment|ký gửi
+=upcycling|tái chế sáng tạo
+=OOTD
+=fit check
+=outfit check
+=lookbook
+=try-on haul
+=styling tips
+=color palette|bảng màu
+=color analysis|phân tích màu sắc cá nhân
+=seasonal color analysis
+=body type|dáng người
+=hourglass figure|dáng đồng hồ cát
+=pear shape|dáng quả lê
+=apple shape|dáng quả táo
+=inverted triangle|dáng tam giác ngược
+=rectangle body
+=Kibbe
+=petite
+=plus size|ngoại cỡ
+=size inclusive
+=true to size|đúng size
+=size up|lên một size
+=size down|xuống một size
+=oversized fit
+=relaxed fit
+=slim fit
+=skinny jeans
+=straight leg jeans
+=wide-leg jeans
+=wide-leg pants
+=barrel jeans
+=baggy jeans
+=mom jeans
+=boyfriend jeans
+=flare jeans
+=bootcut jeans
+=low-rise jeans
+=high-waisted jeans
+=raw denim
+=selvedge denim
+=chinos
+=cargo pants|quần túi hộp
+=cargo shorts
+=joggers
+=sweatpants
+=leggings
+=bike shorts
+=tennis skirt
+=pleated skirt|váy xếp ly
+=midi skirt|chân váy midi
+=maxi dress|đầm maxi
+=midi dress
+=slip dress|đầm hai dây lụa
+=wrap dress|đầm quấn
+=little black dress|đầm đen nhỏ
+=LBD
+=sundress
+=blazer
+=oversized blazer
+=trench coat|áo trench
+=peacoat
+=puffer jacket|áo phao
+=puffer
+=bomber jacket
+=leather jacket|áo khoác da
+=denim jacket|áo khoác jean
+=shacket
+=cardigan
+=crewneck
+=turtleneck|áo cổ lọ
+=mock neck
+=quarter zip
+=hoodie
+=zip-up hoodie
+=sweatshirt
+=graphic tee
+=baby tee
+=crop top
+=tank top
+=camisole
+=bodysuit
+=button-down
+=button-up shirt
+=Oxford shirt
+=polo shirt|áo polo
+=flannel
+=overshirt
+=corset top
+=bustier
+=halter top
+=tube top
+=off-the-shoulder
+=puff sleeves|tay phồng
+=bell sleeves
+=square neck
+=sweetheart neckline
+=V-neck
+=scoop neck
+=cowl neck
+=bias cut
+=A-line
+=bodycon
+=peplum
+=ruching
+=smocking
+=ruffles
+=tulle
+=organza
+=chiffon
+=satin
+=silk|lụa
+=cashmere
+=merino wool|len merino
+=alpaca wool
+=mohair
+=linen|vải lanh
+=cotton poplin
+=seersucker
+=corduroy
+=tweed
+=bouclé
+=boucle
+=velvet
+=suede
+=faux leather|da giả
+=vegan leather|da thuần chay
+=patent leather
+=shearling
+=sherpa
+=fleece
+=Gore-Tex
+=nylon
+=polyester
+=spandex
+=elastane
+=rayon
+=viscose
+=Tencel
+=lyocell
+=recycled polyester
+=organic cotton|cotton hữu cơ
+=deadstock fabric
+=heavyweight tee
+=rib knit
+=cable knit
+=chunky knit
+=fair isle
+=argyle
+=houndstooth
+=gingham
+=plaid
+=tartan
+=pinstripe
+=polka dots
+=animal print
+=leopard print
+=zebra print
+=snake print
+=camo
+=tie-dye
+=monogram
+=logomania
+=quiet logo
+=tailoring
+=bespoke
+=made-to-measure
+=alterations
+=hemming
+=tailored fit
+=double-breasted
+=single-breasted
+=notch lapel
+=peak lapel
+=three-piece suit
+=tuxedo
+=black tie
+=white tie
+=cocktail attire
+=business casual
+=smart casual
+=dress code
+=athleisure
+=loungewear
+=sleepwear
+=shapewear
+=Skims
+SKIMS
+Spanx
+Lululemon
+Lululemon Align
+Align leggings|quần Align
+Lululemon Define
+Define jacket|áo khoác Define
+Lululemon Scuba
+Scuba hoodie|áo hoodie Scuba
+Lululemon Belt Bag
+Everywhere Belt Bag
+Alo Yoga
+~Alo
+Vuori
+Gymshark
+Outdoor Voices
+Set Active
+Beyond Yoga
+Girlfriend Collective
+Athleta
+Fabletics
+Under Armour
+Lorna Jane
+Rhone
+Ten Thousand
+Tracksmith
+Satisfy Running
+Ciele
+Bandit Running
+District Vision
+~Represent
+Fear of God
+~Essentials
+Fear of God Essentials
+Stüssy
+Stussy
+~Supreme
+~Palace
+~Kith
+Aimé Leon Dore
+ALD
+Bape
+A Bathing Ape
+BAPE
+Carhartt
+Carhartt WIP
+Dickies
+Corteiz
+Trapstar
+Sp5der
+Chrome Hearts
+Hellstar
+Denim Tears
+Human Made
+~Needles
+Kapital
+Visvim
+Uniqlo U
+Uniqlo Heattech
+Heattech
+AIRism
+Uniqlo AIRism
+Uniqlo Ultra Light Down
+Ultra Light Down
+Uniqlo C
+Uniqlo Round Mini Shoulder Bag|túi Uniqlo Round Mini
+Muji
+GU
+Zara
+Zara TRF
+H&M
+Shein
+SHEIN
+Temu
+~Cider
+Princess Polly
+Edikted
+Oh Polly
+PrettyLittleThing
+PLT
+~Boohoo
+Fashion Nova
+~Revolve
+SSENSE
+Ssense
+Farfetch
+Net-a-Porter
+Mytheresa
+MatchesFashion
+Nordstrom
+Nordstrom Rack
+Saks Fifth Avenue
+Saks
+Bergdorf Goodman
+Neiman Marcus
+Bloomingdale's
+Selfridges
+Harrods
+Liberty London
+Galeries Lafayette
+Le Bon Marché
+Dover Street Market
+Isetan
+Shinsegae
+Lotte Department Store
+Vincom
+Takashimaya
+The RealReal
+Vestiaire Collective
+~Rebag
+Fashionphile
+StockX
+GOAT
+Grailed
+Depop
+Poshmark
+Vinted
+ThredUp
+eBay
+Rent the Runway
+`);
+
+// ============================================================ software, cloud and AI, part 3
+CST_GLOSSARY_EXTRA_ADD("tech", null, `
+=agentic AI|AI dạng tác tử
+=AI agent|tác tử AI
+=AI agents|các tác tử AI
+=multi-agent system|hệ đa tác tử
+=agent loop|vòng lặp tác tử
+=tool use|sử dụng công cụ
+=tool calling|gọi công cụ
+=function calling|gọi hàm
+=computer use|điều khiển máy tính
+=browser agent|tác tử trình duyệt
+=coding agent|tác tử lập trình
+=AI coding assistant|trợ lý lập trình AI
+=vibe coding
+=vibe coder
+=prompt engineering|kỹ thuật viết prompt
+=context engineering|kỹ thuật ngữ cảnh
+=system prompt|prompt hệ thống
+=context window|cửa sổ ngữ cảnh
+=long context|ngữ cảnh dài
+=token limit|giới hạn token
+=tokens per second|token mỗi giây
+=reasoning model|mô hình suy luận
+=thinking model|mô hình suy nghĩ
+=chain of thought|chuỗi suy luận
+=chain-of-thought|chuỗi suy luận
+=inference-time compute
+=scaling laws|quy luật mở rộng
+=frontier model|mô hình tiên phong
+=frontier lab|phòng thí nghiệm tiên phong
+=foundation model|mô hình nền tảng
+=base model|mô hình gốc
+=open-weight model|mô hình mở trọng số
+=open weights|trọng số mở
+=open-source model|mô hình mã nguồn mở
+=closed model|mô hình đóng
+=small language model|mô hình ngôn ngữ nhỏ
+=SLM
+=multimodal model|mô hình đa phương thức
+=vision language model|mô hình thị giác ngôn ngữ
+=VLM
+=world model|mô hình thế giới
+=diffusion model|mô hình khuếch tán
+=text-to-image|chuyển văn bản thành ảnh
+=text-to-video|chuyển văn bản thành video
+=text-to-speech|chuyển văn bản thành giọng nói
+=speech-to-text|chuyển giọng nói thành văn bản
+=voice cloning|nhân bản giọng nói
+=voice clone|giọng nhân bản
+=AI voice|giọng AI
+=AI avatar|nhân vật đại diện AI
+=AI-generated|do AI tạo
+=AI slop|nội dung AI rác
+=deepfakes|video giả mạo deepfake
+=hallucinations|ảo giác của AI
+=AI hallucination|ảo giác AI
+=retrieval|truy xuất
+=vector database|cơ sở dữ liệu vector
+=vector search|tìm kiếm vector
+=embedding model|mô hình nhúng
+=semantic search|tìm kiếm ngữ nghĩa
+=reranker
+=knowledge graph|đồ thị tri thức
+=GraphRAG
+=agent memory|bộ nhớ tác tử
+=long-term memory|bộ nhớ dài hạn
+=guardrails|rào chắn an toàn
+=red teaming|kiểm thử tấn công
+=jailbreak|bẻ khóa
+=jailbreaking|bẻ khóa mô hình
+=prompt injection|chèn lệnh vào prompt
+=AI alignment|căn chỉnh AI
+=alignment problem|bài toán căn chỉnh
+=AI safety|an toàn AI
+=AI ethics|đạo đức AI
+=AI regulation|quản lý AI
+=EU AI Act|Đạo luật AI của EU
+=AI Act|Đạo luật AI
+=superintelligence|siêu trí tuệ
+=ASI
+=AGI
+=p(doom)
+=AI winter|mùa đông AI
+=AI bubble|bong bóng AI
+=AI race|cuộc đua AI
+=AI arms race|chạy đua vũ trang AI
+=GPU cluster|cụm GPU
+=data center|trung tâm dữ liệu
+=hyperscaler
+=hyperscalers
+=AI chip|chip AI
+=AI accelerator|bộ tăng tốc AI
+=TPU
+=NPU
+=HBM
+=CUDA cores|nhân CUDA
+=tensor cores|nhân tensor
+=FLOPS
+=petaflops
+=exaflops
+=teraflops
+=inference|suy luận
+=training run|đợt huấn luyện
+=pretraining|tiền huấn luyện
+=pre-training|tiền huấn luyện
+=post-training|hậu huấn luyện
+=fine-tune|tinh chỉnh
+=fine-tuned|đã tinh chỉnh
+=instruction tuning|tinh chỉnh theo chỉ dẫn
+=RLHF
+=RLAIF
+=DPO
+=reinforcement learning from human feedback|học tăng cường từ phản hồi của con người
+=reward model|mô hình phần thưởng
+=reward hacking|gian lận phần thưởng
+=distillation|chưng cất mô hình
+=model distillation|chưng cất mô hình
+=quantization|lượng tử hóa
+=quantized|đã lượng tử hóa
+=LoRA
+=QLoRA
+=PEFT
+=mixture of experts|hỗn hợp chuyên gia
+=MoE
+=transformer architecture|kiến trúc transformer
+=attention mechanism|cơ chế chú ý
+=self-attention|tự chú ý
+=attention heads|đầu chú ý
+=KV cache
+=positional encoding|mã hóa vị trí
+=billion parameters|tỷ tham số
+=model weights|trọng số mô hình
+=benchmark|điểm chuẩn
+=benchmarks|các bài đánh giá chuẩn
+=leaderboard|bảng xếp hạng
+=evals|bộ đánh giá
+=MMLU
+=GPQA
+=SWE-bench
+=HumanEval
+=ARC-AGI
+=Humanity's Last Exam
+=LMArena
+=Chatbot Arena
+=Elo rating|điểm Elo
+=synthetic data|dữ liệu tổng hợp
+=training data|dữ liệu huấn luyện
+=data labeling|gán nhãn dữ liệu
+=annotation|chú thích dữ liệu
+=dataset|bộ dữ liệu
+=web scraping|cào dữ liệu web
+=scraper
+=crawler|trình thu thập
+=robots.txt
+=MCP
+=Model Context Protocol
+=MCP server
+=A2A
+=API key|khóa API
+=API call|lệnh gọi API
+=API calls|các lệnh gọi API
+=rate limit|giới hạn tần suất
+=rate limiting|giới hạn tần suất
+=endpoint|điểm cuối
+=webhook
+=webhooks
+=REST API
+=GraphQL
+=gRPC
+=WebSocket
+=JSON
+=YAML
+=XML
+=CSV
+=SDK
+=CLI
+=IDE
+=VS Code
+VS Code
+Visual Studio Code
+Cursor
+Windsurf
+~Zed
+JetBrains
+IntelliJ
+PyCharm
+Xcode
+Android Studio
+Neovim
+Vim
+Emacs
+Sublime Text
+Replit
+CodeSandbox
+StackBlitz
+Bolt.new
+v0
+Lovable
+Devin
+~Cognition
+Codex
+OpenAI Codex
+Claude Code
+Gemini CLI
+Aider
+Cline
+Roo Code
+Continue.dev
+Tabnine
+Codeium
+Sourcegraph
+Cody
+GitHub Copilot
+Copilot
+Amazon Q
+CodeWhisperer
+Jules
+Firebase Studio
+Google AI Studio
+AI Studio
+Vertex AI
+~Bedrock
+Amazon Bedrock
+Azure OpenAI
+SageMaker
+Hugging Face
+Hugging Face Hub
+Kaggle
+Colab
+Google Colab
+Jupyter
+Jupyter Notebook
+JupyterLab
+Ollama
+LM Studio
+=llama.cpp
+vLLM
+TensorRT
+ONNX
+~Triton
+LangChain
+LangGraph
+LlamaIndex
+CrewAI
+AutoGen
+DSPy
+~Haystack
+Pinecone
+Weaviate
+~Chroma
+Qdrant
+Milvus
+=pgvector
+Supabase
+Firebase
+~Neon
+PlanetScale
+Turso
+Prisma
+~Drizzle
+MongoDB
+Redis
+PostgreSQL
+Postgres
+MySQL
+SQLite
+DynamoDB
+Cassandra
+Elasticsearch
+OpenSearch
+Snowflake
+Databricks
+BigQuery
+Redshift
+=dbt
+Airflow
+Kafka
+Apache Kafka
+~Spark
+Apache Spark
+Flink
+Hadoop
+Docker
+Docker Compose
+Kubernetes
+K8s
+k8s
+~Helm
+Terraform
+Pulumi
+Ansible
+Jenkins
+GitHub Actions
+GitLab CI
+CircleCI
+ArgoCD
+Prometheus
+Grafana
+Datadog
+~Sentry
+New Relic
+PagerDuty
+Splunk
+Cloudflare Workers
+Cloudflare Pages
+Vercel
+Netlify
+~Render
+~Railway
+Fly.io
+Heroku
+DigitalOcean
+Linode
+Hetzner
+AWS Lambda
+~Lambda
+EC2
+S3
+Amazon S3
+CloudFront
+Route 53
+RDS
+ECS
+EKS
+Fargate
+~Azure
+Microsoft Azure
+GCP
+Google Cloud
+Cloud Run
+App Engine
+Firestore
+Node.js
+Deno
+~Bun
+=npm
+=pnpm
+~Yarn
+Vite
+Webpack
+=esbuild
+Turbopack
+Babel
+TypeScript
+JavaScript
+React
+React Native
+Next.js
+Astro
+Svelte
+SvelteKit
+Vue
+Vue.js
+Nuxt
+Angular
+Solid.js
+SolidJS
+=htmx
+jQuery
+Tailwind
+Tailwind CSS
+Bootstrap
+=shadcn/ui
+=shadcn
+Material UI
+Chakra UI
+Three.js
+D3.js
+Chart.js
+Electron
+Tauri
+Flutter
+SwiftUI
+UIKit
+Jetpack Compose
+Kotlin
+Swift
+Objective-C
+Rust
+Golang
+Python
+Java
+C#
+C++
+Ruby
+Ruby on Rails
+Rails
+PHP
+Laravel
+Django
+Flask
+FastAPI
+~Express
+Express.js
+NestJS
+Spring Boot
+.NET
+ASP.NET
+Elixir
+Phoenix
+Haskell
+Scala
+Clojure
+Lua
+~Zig
+Julia
+R language|ngôn ngữ R
+MATLAB
+Bash
+PowerShell
+Zsh
+WebAssembly
+Wasm
+WASM
+HTML
+CSS
+SQL
+NoSQL
+Git
+GitHub
+GitLab
+Bitbucket
+Stack Overflow
+LeetCode
+HackerRank
+Codeforces
+Advent of Code
+=pull request
+=merge conflict|xung đột khi gộp
+=code review|đánh giá mã
+=main branch|nhánh chính
+=feature branch|nhánh tính năng
+=rebase
+=cherry-pick
+=monorepo
+=open source|mã nguồn mở
+=open-source|mã nguồn mở
+=closed source|mã nguồn đóng
+=MIT license|giấy phép MIT
+=GPL
+=Apache license|giấy phép Apache
+=repo
+=README
+=changelog|nhật ký thay đổi
+=release notes|ghi chú phát hành
+=semantic versioning|đánh số phiên bản ngữ nghĩa
+=semver
+=CI/CD
+=continuous integration|tích hợp liên tục
+=continuous deployment|triển khai liên tục
+=DevOps
+=DevSecOps
+=MLOps
+=LLMOps
+=SRE
+=site reliability engineering|kỹ thuật độ tin cậy hệ thống
+=infrastructure as code|hạ tầng dưới dạng mã
+=IaC
+=microservices|vi dịch vụ
+=serverless|phi máy chủ
+=containerization|container hóa
+=virtual machine|máy ảo
+=VM
+=load balancer|bộ cân bằng tải
+=load balancing|cân bằng tải
+=autoscaling|tự động mở rộng
+=horizontal scaling|mở rộng theo chiều ngang
+=vertical scaling|mở rộng theo chiều dọc
+=CDN
+=edge computing|điện toán biên
+=caching|bộ nhớ đệm
+=cache hit
+=cache miss
+=latency|độ trễ
+=throughput|thông lượng
+=uptime|thời gian hoạt động
+=SLA
+=observability|khả năng quan sát
+=monitoring|giám sát
+=telemetry|dữ liệu đo từ xa
+=incident|sự cố
+=postmortem|phân tích sau sự cố
+=on-call|trực sự cố
+=hotfix|bản vá nóng
+=rollback|khôi phục bản cũ
+=feature flag|cờ tính năng
+=A/B test|thử nghiệm A/B
+=A/B testing|thử nghiệm A/B
+=canary release|phát hành canary
+=blue-green deployment|triển khai xanh lam xanh lục
+=staging environment|môi trường thử nghiệm
+=prod
+=localhost
+=dev environment|môi trường phát triển
+=unit test|kiểm thử đơn vị
+=unit tests|kiểm thử đơn vị
+=integration test|kiểm thử tích hợp
+=end-to-end test|kiểm thử đầu cuối
+=E2E
+=test coverage|độ phủ kiểm thử
+=TDD
+=test-driven development|phát triển hướng kiểm thử
+=regression test|kiểm thử hồi quy
+=bug fix|sửa lỗi
+=edge case|trường hợp biên
+=edge cases|các trường hợp biên
+=race condition|điều kiện tranh chấp
+=memory leak|rò rỉ bộ nhớ
+=stack trace
+=null pointer|con trỏ null
+=segfault
+=infinite loop|vòng lặp vô hạn
+=deadlock|khóa chết
+=tech debt|nợ kỹ thuật
+=technical debt|nợ kỹ thuật
+=refactor|tái cấu trúc mã
+=refactoring|tái cấu trúc mã
+=legacy code|mã cũ
+=spaghetti code|mã rối
+=boilerplate|mã khuôn mẫu
+=clean code|mã sạch
+=design pattern|mẫu thiết kế
+=design patterns|mẫu thiết kế
+=SOLID principles|nguyên tắc SOLID
+=YAGNI
+=OOP
+=object-oriented programming|lập trình hướng đối tượng
+=functional programming|lập trình hàm
+=async
+=async/await
+=recursion|đệ quy
+=algorithm|thuật toán
+=data structure|cấu trúc dữ liệu
+=data structures|cấu trúc dữ liệu
+=Big O notation|ký hiệu Big O
+=Big O
+=time complexity|độ phức tạp thời gian
+=space complexity|độ phức tạp không gian
+=binary search|tìm kiếm nhị phân
+=linked list|danh sách liên kết
+=hash table|bảng băm
+=hash map
+=binary tree|cây nhị phân
+=dynamic programming|quy hoạch động
+=sorting algorithm|thuật toán sắp xếp
+=frontend
+=front-end
+=backend
+=back-end
+=full-stack
+=full stack developer|lập trình viên full-stack
+=software engineer|kỹ sư phần mềm
+=software developer|lập trình viên
+=web developer|lập trình viên web
+=mobile developer|lập trình viên di động
+=data engineer|kỹ sư dữ liệu
+=ML engineer|kỹ sư học máy
+=AI engineer|kỹ sư AI
+=research scientist|nhà khoa học nghiên cứu
+=product manager|quản lý sản phẩm
+=engineering manager|quản lý kỹ thuật
+=tech lead|trưởng nhóm kỹ thuật
+=staff engineer|kỹ sư cấp staff
+=principal engineer|kỹ sư trưởng
+=CTO
+=10x engineer|kỹ sư 10x
+=junior developer|lập trình viên mới vào nghề
+=senior developer|lập trình viên cấp cao
+=intern|thực tập sinh
+=coding bootcamp|khóa học lập trình cấp tốc
+=hackathon
+=FAANG
+=MAANG
+=Big Tech
+=startup|công ty khởi nghiệp
+=tech layoffs|làn sóng sa thải trong ngành công nghệ
+=remote work|làm việc từ xa
+=no-code
+=low-code
+=SaaS
+=PaaS
+=IaaS
+=B2B SaaS
+=API-first
+=mobile-first
+=cloud-native
+=open API
+=UX
+=UI
+=UI/UX
+=user experience|trải nghiệm người dùng
+=user interface|giao diện người dùng
+=wireframe
+=prototype|nguyên mẫu
+=design system|hệ thống thiết kế
+=dark mode|chế độ tối
+=light mode|chế độ sáng
+=responsive design|thiết kế đáp ứng
+=a11y
+=i18n
+=SEO
+=page speed|tốc độ tải trang
+=Core Web Vitals
+~Lighthouse
+=PWA
+=progressive web app|ứng dụng web tiến bộ
+=browser extension|tiện ích trình duyệt
+=Chrome extension|tiện ích Chrome
+=Manifest V3
+=user agent
+=cookies banner
+=GDPR
+=CCPA
+=two-factor authentication|xác thực hai lớp
+=2FA
+=MFA
+=passkey
+=passkeys
+=SSO
+=single sign-on|đăng nhập một lần
+=OAuth
+=JWT
+=encryption|mã hóa
+=end-to-end encryption|mã hóa đầu cuối
+=E2EE
+=zero-knowledge
+=hashing|băm
+=password manager|trình quản lý mật khẩu
+=VPN
+=firewall|tường lửa
+=malware|phần mềm độc hại
+=ransomware|mã độc tống tiền
+=phishing|lừa đảo qua mạng
+=data breach|rò rỉ dữ liệu
+=zero-day
+=bug bounty|săn lỗi nhận thưởng
+=penetration testing|kiểm thử xâm nhập
+=pentest
+=DDoS
+=bot traffic|lưu lượng bot
+=captcha
+=CAPTCHA
+=spam filter|bộ lọc thư rác
+=quantum computing|điện toán lượng tử
+=quantum computer|máy tính lượng tử
+=qubit
+=qubits
+=quantum supremacy|ưu thế lượng tử
+=quantum advantage|lợi thế lượng tử
+=Willow chip|chip Willow
+=edge AI|AI tại biên
+=on-device AI|AI trên thiết bị
+=AI PC|máy tính AI
+=Copilot+ PC
+=Apple Intelligence
+=Galaxy AI
+=Circle to Search
+=Gemini Live
+=Advanced Voice Mode
+=ChatGPT Plus
+=ChatGPT Pro
+=ChatGPT Team
+=ChatGPT Enterprise
+=Claude Pro
+=Claude Max
+=Gemini Advanced
+=Google One AI Premium
+=Perplexity Pro
+=Midjourney v7
+=DALL-E 3
+=Sora 2
+=Veo 3
+=Imagen 4
+=Nano Banana
+~Flux
+=Stable Diffusion XL
+=SDXL
+=ComfyUI
+=Automatic1111
+=ControlNet
+=Runway Gen-4
+=Kling
+=Hailuo
+=Pika
+=Luma Dream Machine
+=Suno
+=Udio
+=ElevenLabs
+=HeyGen
+=Synthesia
+=Descript
+=CapCut
+=Opus Clip
+=NotebookLM
+=Audio Overview
+=Deep Research
+=ChatGPT Agent
+=Atlas browser
+=Comet browser
+=Dia browser
+=Arc browser
+~Brave
+=Vivaldi
+=Opera GX
+=Firefox
+~Safari
+=Microsoft Edge
+~Chromium
+=Chrome OS
+=ChromeOS
+=Linux
+=Ubuntu
+=Debian
+=Fedora
+=Arch Linux
+=Windows 11
+=Windows 10
+=macOS
+=macOS Sequoia
+=macOS Tahoe
+=iOS 18
+=iOS 26
+=iPadOS
+=watchOS
+=visionOS
+=Android 15
+=Android 16
+=One UI
+=HyperOS
+=HarmonyOS
+=Liquid Glass
+`);
+
+// ============================================================ medicine and the body, part 3
+CST_GLOSSARY_EXTRA_ADD("medicine", null, `
+=prefrontal cortex|vỏ não trước trán
+=amygdala|hạch hạnh nhân
+=hippocampus|hồi hải mã
+=hypothalamus|vùng dưới đồi
+=pituitary gland|tuyến yên
+=pineal gland|tuyến tùng
+=thyroid gland|tuyến giáp
+=adrenal glands|tuyến thượng thận
+=vagus nerve|dây thần kinh phế vị
+=nervous system|hệ thần kinh
+=central nervous system|hệ thần kinh trung ương
+=autonomic nervous system|hệ thần kinh tự chủ
+=sympathetic nervous system|hệ thần kinh giao cảm
+=parasympathetic nervous system|hệ thần kinh phó giao cảm
+=fight or flight|phản ứng chiến hay chạy
+=fight-or-flight|phản ứng chiến hay chạy
+=rest and digest|nghỉ ngơi và tiêu hóa
+=neurotransmitter|chất dẫn truyền thần kinh
+=neurotransmitters|chất dẫn truyền thần kinh
+=dopamine|dopamine
+=serotonin
+=oxytocin
+=endorphins
+=adrenaline
+=noradrenaline
+=norepinephrine
+=GABA
+=acetylcholine
+=glutamate
+=melatonin
+=cortisol
+=insulin
+=glucagon
+=leptin
+=ghrelin
+=GLP-1
+=estrogen
+=progesterone
+=testosterone
+=DHEA
+=growth hormone|hormone tăng trưởng
+=HGH
+=thyroid hormone|hormone tuyến giáp
+=TSH
+=T3
+=T4
+=neuroplasticity|tính dẻo thần kinh
+=neurons|tế bào thần kinh
+=neuron|tế bào thần kinh
+=synapse|khớp thần kinh
+=synapses|khớp thần kinh
+=gray matter|chất xám
+=white matter|chất trắng
+=brain fog|sương mù não
+=gut-brain axis|trục ruột não
+=gut microbiome|hệ vi sinh đường ruột
+=microbiome|hệ vi sinh vật
+=gut health|sức khỏe đường ruột
+=leaky gut|hội chứng rò rỉ ruột
+=small intestine|ruột non
+=large intestine|ruột già
+=liver|gan
+=kidneys|thận
+=pancreas|tụy
+=gallbladder|túi mật
+=spleen|lá lách
+=esophagus|thực quản
+=lymphatic system|hệ bạch huyết
+=lymph nodes|hạch bạch huyết
+=immune system|hệ miễn dịch
+=white blood cells|bạch cầu
+=red blood cells|hồng cầu
+=platelets|tiểu cầu
+=hemoglobin|huyết sắc tố
+=antibodies|kháng thể
+=antibody|kháng thể
+=antigen|kháng nguyên
+=T cells|tế bào T
+=B cells|tế bào B
+=stem cells|tế bào gốc
+=mitochondria|ty thể
+=mitochondrial|thuộc ty thể
+=NAD+
+=telomeres|telomere
+=autophagy|tự thực
+=apoptosis|chết tế bào theo chương trình
+=senescence|lão hóa tế bào
+=senescent cells|tế bào lão hóa
+=oxidative stress|stress oxy hóa
+=free radicals|gốc tự do
+=antioxidants|chất chống oxy hóa
+=inflammation|viêm
+=chronic inflammation|viêm mãn tính
+=inflammatory|gây viêm
+=anti-inflammatory|chống viêm
+=insulin resistance|kháng insulin
+=insulin sensitivity|độ nhạy insulin
+=blood sugar|đường huyết
+=blood sugar spike|đường huyết tăng vọt
+=glucose spike|đường huyết tăng vọt
+=glucose|glucose
+=glycemic index|chỉ số đường huyết
+=glycemic load|tải lượng đường huyết
+=HbA1c
+=A1C
+=fasting glucose|đường huyết lúc đói
+=prediabetes|tiền tiểu đường
+=type 1 diabetes|tiểu đường type 1
+=type 2 diabetes|tiểu đường type 2
+=metabolic syndrome|hội chứng chuyển hóa
+=metabolic health|sức khỏe chuyển hóa
+=metabolism|trao đổi chất
+=basal metabolic rate|tỷ lệ trao đổi chất cơ bản
+=BMR
+=TDEE
+=thermogenesis|sinh nhiệt
+=brown fat|mỡ nâu
+=visceral fat|mỡ nội tạng
+=subcutaneous fat|mỡ dưới da
+=body fat percentage|tỷ lệ mỡ cơ thể
+=lean mass|khối lượng nạc
+=muscle mass|khối lượng cơ
+=sarcopenia|chứng teo cơ do tuổi già
+=bone density|mật độ xương
+=osteoporosis|loãng xương
+=osteopenia|thiếu xương
+=VO2 max
+=resting heart rate|nhịp tim lúc nghỉ
+=heart rate variability|biến thiên nhịp tim
+=HRV
+=blood pressure|huyết áp
+=systolic|tâm thu
+=diastolic|tâm trương
+=hypertension|tăng huyết áp
+=hypotension|huyết áp thấp
+=cholesterol|cholesterol
+=LDL
+=HDL
+=triglycerides|chất béo trung tính
+=ApoB
+=Lp(a)
+=lipoprotein(a)
+=arterial plaque|mảng xơ vữa động mạch
+=atherosclerosis|xơ vữa động mạch
+=heart attack|đau tim
+=cardiac arrest|ngừng tim
+=arrhythmia|rối loạn nhịp tim
+=atrial fibrillation|rung nhĩ
+=AFib
+=AFIB
+=heart failure|suy tim
+=coronary artery disease|bệnh động mạch vành
+=CAC score|điểm vôi hóa mạch vành
+=calcium score|điểm vôi hóa mạch vành
+=ECG
+=EKG
+=echocardiogram|siêu âm tim
+=stent|ống đỡ động mạch
+=bypass surgery|phẫu thuật bắc cầu
+=pacemaker|máy tạo nhịp tim
+=statins|thuốc statin
+=statin|thuốc statin
+=blood thinner|thuốc chống đông máu
+=blood thinners|thuốc chống đông máu
+=aspirin
+=ibuprofen
+=acetaminophen
+=paracetamol
+=Tylenol
+=Advil
+=naproxen
+=NSAIDs
+=NSAID
+=antibiotics|kháng sinh
+=antibiotic|kháng sinh
+=antibiotic resistance|kháng kháng sinh
+=antiviral|thuốc kháng virus
+=antihistamine|thuốc kháng histamine
+=antihistamines|thuốc kháng histamine
+=antidepressants|thuốc chống trầm cảm
+=antidepressant|thuốc chống trầm cảm
+=SSRIs
+=SSRI
+=SNRI
+=benzodiazepines
+=Xanax
+=Adderall
+=Ritalin
+=Vyvanse
+=Prozac
+=Zoloft
+=Lexapro
+=Wellbutrin
+=melatonin gummies
+=sleeping pills|thuốc ngủ
+=opioids|thuốc phiện dạng opioid
+=opioid|opioid
+=fentanyl
+=naloxone
+=Narcan
+=painkillers|thuốc giảm đau
+=painkiller|thuốc giảm đau
+=placebo|giả dược
+=placebo effect|hiệu ứng giả dược
+=nocebo effect|hiệu ứng nocebo
+=side effects|tác dụng phụ
+=side effect|tác dụng phụ
+=contraindications|chống chỉ định
+=dosage|liều lượng
+=over-the-counter|không kê đơn
+=OTC
+=generic drug|thuốc gốc
+=brand-name drug|thuốc biệt dược
+=clinical trial|thử nghiệm lâm sàng
+=clinical trials|thử nghiệm lâm sàng
+=randomized controlled trial|thử nghiệm ngẫu nhiên có đối chứng
+=RCT
+=double-blind|mù đôi
+=meta-analysis|phân tích tổng hợp
+=systematic review|tổng quan hệ thống
+=peer-reviewed|được bình duyệt
+=observational study|nghiên cứu quan sát
+=cohort study|nghiên cứu đoàn hệ
+=case study|nghiên cứu trường hợp
+=sample size|cỡ mẫu
+=control group|nhóm đối chứng
+=correlation|tương quan
+=causation|quan hệ nhân quả
+=correlation is not causation|tương quan không phải nhân quả
+=relative risk|nguy cơ tương đối
+=absolute risk|nguy cơ tuyệt đối
+=statistically significant|có ý nghĩa thống kê
+=p-value|giá trị p
+=confidence interval|khoảng tin cậy
+=FDA
+=FDA-approved|được FDA phê duyệt
+=FDA approval|phê duyệt của FDA
+=CDC
+=WHO
+=NIH
+=NHS
+=Mayo Clinic
+=Cleveland Clinic
+=Johns Hopkins Hospital
+=Mass General
+=MD Anderson
+=Memorial Sloan Kettering
+=Bumrungrad
+=Vinmec
+=FV Hospital
+=Bach Mai Hospital|Bệnh viện Bạch Mai
+=Cho Ray Hospital|Bệnh viện Chợ Rẫy
+=ER|phòng cấp cứu
+=emergency room|phòng cấp cứu
+=ICU
+=intensive care unit|phòng chăm sóc đặc biệt
+=urgent care|phòng khám cấp cứu
+=primary care physician|bác sĩ đa khoa
+=PCP
+=general practitioner|bác sĩ đa khoa
+=cardiologist|bác sĩ tim mạch
+=dermatologist|bác sĩ da liễu
+=endocrinologist|bác sĩ nội tiết
+=gastroenterologist|bác sĩ tiêu hóa
+=neurologist|bác sĩ thần kinh
+=psychiatrist|bác sĩ tâm thần
+=psychologist|nhà tâm lý học
+=therapist|nhà trị liệu
+=oncologist|bác sĩ ung bướu
+=pediatrician|bác sĩ nhi khoa
+=OB-GYN
+=gynecologist|bác sĩ phụ khoa
+=urologist|bác sĩ tiết niệu
+=orthopedic surgeon|bác sĩ phẫu thuật chỉnh hình
+=physical therapist|chuyên viên vật lý trị liệu
+=physiotherapist|chuyên viên vật lý trị liệu
+=chiropractor|chuyên gia nắn chỉnh cột sống
+=osteopath|chuyên gia nắn xương
+=dietitian|chuyên gia dinh dưỡng
+=registered dietitian|chuyên gia dinh dưỡng được cấp phép
+=nutritionist|chuyên gia dinh dưỡng
+=anesthesiologist|bác sĩ gây mê
+=radiologist|bác sĩ chẩn đoán hình ảnh
+=ophthalmologist|bác sĩ nhãn khoa
+=optometrist|chuyên viên đo thị lực
+=dentist|nha sĩ
+=orthodontist|bác sĩ chỉnh nha
+=ENT
+=surgeon|bác sĩ phẫu thuật
+=nurse practitioner|y tá chuyên khoa
+=registered nurse|y tá có chứng chỉ
+=RN
+=paramedic|nhân viên cấp cứu
+=EMT
+=resident doctor|bác sĩ nội trú
+=med school|trường y
+=medical school|trường y
+=MCAT
+=USMLE
+=MRI
+=CT scan|chụp CT
+=CAT scan|chụp CT
+=PET scan|chụp PET
+=X-ray|chụp X-quang
+=ultrasound|siêu âm
+=mammogram|chụp nhũ ảnh
+=colonoscopy|nội soi đại tràng
+=endoscopy|nội soi
+=biopsy|sinh thiết
+=blood test|xét nghiệm máu
+=blood work|xét nghiệm máu
+=bloodwork|xét nghiệm máu
+=lab results|kết quả xét nghiệm
+=CBC
+=metabolic panel|bảng xét nghiệm chuyển hóa
+=lipid panel|bảng mỡ máu
+=urinalysis|xét nghiệm nước tiểu
+=DEXA scan|đo mật độ xương DEXA
+=full-body MRI|chụp MRI toàn thân
+=Prenuvo
+=Function Health
+=genetic testing|xét nghiệm di truyền
+=23andMe
+=AncestryDNA
+=BRCA
+=APOE4
+=diagnosis|chẩn đoán
+=misdiagnosis|chẩn đoán sai
+=prognosis|tiên lượng
+=symptoms|triệu chứng
+=chronic illness|bệnh mãn tính
+=chronic pain|đau mãn tính
+=autoimmune disease|bệnh tự miễn
+=autoimmune|tự miễn
+=lupus
+=rheumatoid arthritis|viêm khớp dạng thấp
+=Hashimoto's
+=Graves' disease|bệnh Basedow
+=celiac disease|bệnh celiac
+=Crohn's disease|bệnh Crohn
+=ulcerative colitis|viêm loét đại tràng
+=IBS
+=irritable bowel syndrome|hội chứng ruột kích thích
+=IBD
+=SIBO
+=GERD
+=acid reflux|trào ngược axit
+=heartburn|ợ nóng
+=bloating|đầy hơi
+=constipation|táo bón
+=diarrhea|tiêu chảy
+=food poisoning|ngộ độc thực phẩm
+=food allergy|dị ứng thực phẩm
+=food intolerance|không dung nạp thực phẩm
+=lactose intolerance|không dung nạp lactose
+=lactose intolerant|không dung nạp lactose
+=gluten intolerance|không dung nạp gluten
+=gluten-free|không chứa gluten
+=dairy-free|không sữa
+=histamine intolerance|không dung nạp histamine
+=FODMAP
+=low FODMAP
+=anaphylaxis|sốc phản vệ
+=EpiPen
+=eczema|chàm
+=psoriasis|vảy nến
+=rosacea|chứng đỏ mặt rosacea
+=acne|mụn trứng cá
+=dermatitis|viêm da
+=hives|nổi mề đay
+=chickenpox|thủy đậu
+=measles|sởi
+=mumps|quai bị
+=rubella
+=flu|cúm
+=influenza|cúm
+=common cold|cảm lạnh
+=COVID-19
+=COVID
+=long COVID|hậu COVID
+=RSV
+=strep throat|viêm họng liên cầu
+=pneumonia|viêm phổi
+=bronchitis|viêm phế quản
+=asthma|hen suyễn
+=COPD
+=tuberculosis|bệnh lao
+=dengue|sốt xuất huyết
+=dengue fever|sốt xuất huyết
+=malaria|sốt rét
+=hepatitis B|viêm gan B
+=hepatitis C|viêm gan C
+=HPV
+=HPV vaccine|vắc xin HPV
+=HIV
+=AIDS
+=PrEP
+=STI
+=STD
+=UTI
+=urinary tract infection|nhiễm trùng đường tiết niệu
+=kidney stones|sỏi thận
+=gallstones|sỏi mật
+=appendicitis|viêm ruột thừa
+=fatty liver|gan nhiễm mỡ
+=NAFLD
+=cirrhosis|xơ gan
+=gout|bệnh gút
+=uric acid|axit uric
+=anemia|thiếu máu
+=iron deficiency|thiếu sắt
+=vitamin D deficiency|thiếu vitamin D
+=B12 deficiency|thiếu B12
+=dehydration|mất nước
+=electrolytes|chất điện giải
+=heat stroke|say nắng
+=heat exhaustion|kiệt sức vì nóng
+=hypothermia|hạ thân nhiệt
+=concussion|chấn động não
+=traumatic brain injury|chấn thương sọ não
+=TBI
+=migraine|đau nửa đầu
+=migraines|chứng đau nửa đầu
+=tension headache|đau đầu do căng thẳng
+=vertigo|chóng mặt
+=tinnitus|ù tai
+=sleep apnea|ngưng thở khi ngủ
+=insomnia|mất ngủ
+=narcolepsy|chứng ngủ rũ
+=restless leg syndrome|hội chứng chân không yên
+=sleep paralysis|bóng đè
+=circadian rhythm|nhịp sinh học
+=circadian rhythms|nhịp sinh học
+=chronotype|kiểu đồng hồ sinh học
+=night owl|cú đêm
+=sleep debt|nợ ngủ
+=REM sleep|giấc ngủ REM
+=deep sleep|giấc ngủ sâu
+=light sleep|giấc ngủ nông
+=sleep cycle|chu kỳ giấc ngủ
+=sleep hygiene|vệ sinh giấc ngủ
+=sleep quality|chất lượng giấc ngủ
+=blue light|ánh sáng xanh
+=morning sunlight|ánh nắng buổi sáng
+=cancer|ung thư
+=tumor|khối u
+=benign|lành tính
+=malignant|ác tính
+=metastasis|di căn
+=chemotherapy|hóa trị
+=chemo|hóa trị
+=radiation therapy|xạ trị
+=immunotherapy|liệu pháp miễn dịch
+=CAR-T
+=targeted therapy|liệu pháp nhắm trúng đích
+=remission|thuyên giảm
+=survival rate|tỷ lệ sống sót
+=breast cancer|ung thư vú
+=lung cancer|ung thư phổi
+=colon cancer|ung thư đại tràng
+=colorectal cancer|ung thư đại trực tràng
+=prostate cancer|ung thư tuyến tiền liệt
+=skin cancer|ung thư da
+=melanoma|ung thư hắc tố
+=pancreatic cancer|ung thư tụy
+=liver cancer|ung thư gan
+=stomach cancer|ung thư dạ dày
+=cervical cancer|ung thư cổ tử cung
+=thyroid cancer|ung thư tuyến giáp
+=leukemia|bệnh bạch cầu
+=lymphoma|u lympho
+=Alzheimer's|bệnh Alzheimer
+=Alzheimer's disease|bệnh Alzheimer
+=dementia|sa sút trí tuệ
+=Parkinson's|bệnh Parkinson
+=Parkinson's disease|bệnh Parkinson
+=ALS
+=multiple sclerosis|đa xơ cứng
+=epilepsy|động kinh
+=autism|tự kỷ
+=autism spectrum|phổ tự kỷ
+=autistic|tự kỷ
+=ADHD
+=neurodivergent|đa dạng thần kinh
+=neurodiversity|đa dạng thần kinh
+=dyslexia|chứng khó đọc
+=OCD
+=PTSD
+=CPTSD
+=bipolar disorder|rối loạn lưỡng cực
+=bipolar|lưỡng cực
+=schizophrenia|tâm thần phân liệt
+=borderline personality disorder|rối loạn nhân cách ranh giới
+=BPD
+=NPD
+=narcissistic personality disorder|rối loạn nhân cách ái kỷ
+=eating disorder|rối loạn ăn uống
+=anorexia|chán ăn tâm thần
+=bulimia|chứng cuồng ăn
+=binge eating|ăn uống vô độ
+=generalized anxiety disorder|rối loạn lo âu lan tỏa
+=GAD
+=panic attack|cơn hoảng loạn
+=panic attacks|cơn hoảng loạn
+=panic disorder|rối loạn hoảng sợ
+=social anxiety|lo âu xã hội
+=seasonal affective disorder|rối loạn cảm xúc theo mùa
+=postpartum depression|trầm cảm sau sinh
+=major depressive disorder|rối loạn trầm cảm nặng
+=burnout|kiệt sức
+=CBT
+=cognitive behavioral therapy|liệu pháp nhận thức hành vi
+=DBT
+=EMDR
+=talk therapy|liệu pháp trò chuyện
+=exposure therapy|liệu pháp phơi nhiễm
+=psychedelic therapy|liệu pháp ảo giác
+=psilocybin
+=ketamine
+=ketamine therapy|liệu pháp ketamine
+=MDMA
+=microdosing|dùng liều siêu nhỏ
+=ayahuasca
+=pregnancy|mang thai
+=pregnant|mang thai
+=first trimester|tam cá nguyệt thứ nhất
+=second trimester|tam cá nguyệt thứ hai
+=third trimester|tam cá nguyệt thứ ba
+=trimester|tam cá nguyệt
+=morning sickness|ốm nghén
+=gestational diabetes|tiểu đường thai kỳ
+=preeclampsia|tiền sản giật
+=C-section|sinh mổ
+=cesarean|sinh mổ
+=epidural|gây tê ngoài màng cứng
+=natural birth|sinh thường
+=IVF
+=in vitro fertilization|thụ tinh trong ống nghiệm
+=egg freezing|trữ đông trứng
+=fertility|khả năng sinh sản
+=infertility|vô sinh
+=ovulation|rụng trứng
+=menstrual cycle|chu kỳ kinh nguyệt
+=PMS
+=PMDD
+=PCOS
+=endometriosis|lạc nội mạc tử cung
+=fibroids|u xơ tử cung
+=menopause|mãn kinh
+=perimenopause|tiền mãn kinh
+=hot flashes|cơn bốc hỏa
+=HRT
+=hormone replacement therapy|liệu pháp thay thế hormone
+=birth control|biện pháp tránh thai
+=IUD
+=birth control pill|thuốc tránh thai
+=Plan B pill|thuốc tránh thai khẩn cấp
+=erectile dysfunction|rối loạn cương dương
+=low testosterone|testosterone thấp
+=TRT
+=testosterone replacement therapy|liệu pháp thay thế testosterone
+=prostate|tuyến tiền liệt
+=vasectomy|thắt ống dẫn tinh
+=sperm count|số lượng tinh trùng
+`);
+
+// ============================================================ creators, podcasters, athletes, part 3
+CST_GLOSSARY_EXTRA_ADD("people", null, `
+MrBeast
+Jimmy Donaldson
+Karl Jacobs
+Chandler Hallow
+PewDiePie
+Felix Kjellberg
+Markiplier
+Jacksepticeye
+GeorgeNotFound
+Sapnap
+Technoblade
+~Ninja
+Tyler Blevins
+Pokimane
+xQc
+Kai Cenat
+IShowSpeed
+Adin Ross
+Ludwig
+Ludwig Ahgren
+Valkyrae
+Sykkuno
+Disguised Toast
+Shroud
+TimTheTatman
+DrLupo
+Asmongold
+HasanAbi
+Hasan Piker
+~Destiny
+Mizkif
+Emiru
+QTCinderella
+Amouranth
+Ibai
+TheGrefg
+Rubius
+AuronPlay
+Gaules
+Casimiro
+KSI
+Logan Paul
+Jake Paul
+Sidemen
+Vikkstar
+Miniminter
+Zerkaa
+W2S
+Behzinga
+TBJZL
+Dude Perfect
+Mark Rober
+Veritasium
+Derek Muller
+Vsauce
+Michael Stevens
+Kurzgesagt
+SmarterEveryDay
+Destin Sandlin
+Tom Scott
+CGP Grey
+Vox
+Johnny Harris
+Wendover Productions
+Real Engineering
+~Half as Interesting
+Lemmino
+Kento Bento
+Joe Scott
+Hank Green
+John Green
+Vlogbrothers
+~Crash Course
+SciShow
+Physics Girl
+Dianna Cowern
+3Blue1Brown
+Grant Sanderson
+Numberphile
+Computerphile
+Stand-up Maths
+Matt Parker
+Steve Mould
+NileRed
+Nile Blue
+Cody's Lab
+Colin Furze
+Michael Reeves
+William Osman
+Allen Pan
+Stuff Made Here
+Simone Giertz
+Adam Savage
+Linus Tech Tips
+Linus Sebastian
+Marques Brownlee
+MKBHD
+iJustine
+Unbox Therapy
+Lewis Hilsenteger
+Mrwhosetheboss
+Arun Maini
+Dave2D
+JerryRigEverything
+Zack Nelson
+Austin Evans
+Snazzy Labs
+Quinn Nelson
+Gamers Nexus
+Steve Burke
+Hardware Unboxed
+Jayztwocents
+Louis Rossmann
+Fireship
+ThePrimeagen
+Theo Browne
+t3.gg
+Web Dev Simplified
+Traversy Media
+freeCodeCamp
+Andrej Karpathy
+Lex Fridman
+Two Minute Papers
+Yannic Kilcher
+Matt Wolfe
+AI Explained
+Wes Roth
+Matthew Berman
+Ali Abdaal
+Thomas Frank
+Matt D'Avella
+Nathaniel Drew
+Struthless
+Mark Manson
+Simon Sinek
+Jay Shetty
+Mel Robbins
+Brené Brown
+Tony Robbins
+Gary Vaynerchuk
+GaryVee
+Alex Hormozi
+Leila Hormozi
+Codie Sanchez
+Grant Cardone
+Dan Koe
+Iman Gadzhi
+Graham Stephan
+Andrei Jikh
+Meet Kevin
+Humphrey Yang
+Caleb Hammer
+Dave Ramsey
+Ramit Sethi
+Vivian Tu
+Your Rich BFF
+Tori Dunlap
+Nischa
+Ben Felix
+Patrick Boyle
+Coffeezilla
+Joe Rogan
+The Joe Rogan Experience
+JRE
+Andrew Huberman
+Huberman Lab
+Peter Attia
+~The Drive
+Rhonda Patrick
+Mark Hyman
+David Sinclair
+Bryan Johnson
+~Don't Die
+Steven Bartlett
+The Diary of a CEO
+Diary of a CEO
+Chris Williamson
+~Modern Wisdom
+Tim Ferriss
+The Tim Ferriss Show
+Rich Roll
+Dax Shepard
+Armchair Expert
+Alex Cooper
+Call Her Daddy
+Emma Chamberlain
+~Anything Goes
+Theo Von
+~This Past Weekend
+Andrew Schulz
+~Flagrant
+Shane Gillis
+Matt Rife
+Mark Normand
+Bert Kreischer
+Tom Segura
+Your Mom's House
+Bobby Lee
+TigerBelly
+~Bad Friends
+Kill Tony
+Tony Hinchcliffe
+H3 Podcast
+Ethan Klein
+Philip DeFranco
+Pod Save America
+~The Daily
+Ezra Klein
+Ben Shapiro
+Jordan Peterson
+Sam Harris
+~Making Sense
+Russell Brand
+Tucker Carlson
+Candace Owens
+Charlie Kirk
+Piers Morgan
+Piers Morgan Uncensored
+Hot Ones
+Sean Evans
+First We Feast
+Good Mythical Morning
+Rhett and Link
+Smosh
+Dude Perfect
+Yes Theory
+Drew Binsky
+Mark Wiens
+Best Ever Food Review Show
+Sonny Side
+Kara and Nate
+Lost LeBlanc
+Kristen Bor
+Nas Daily
+Nuseir Yassin
+Bald and Bankrupt
+Indigo Traveller
+Gordon Ramsay
+Joshua Weissman
+Babish
+Binging with Babish
+Andrew Rea
+Nick DiGiovanni
+Matty Matheson
+Ethan Chlebowski
+J. Kenji López-Alt
+Kenji López-Alt
+Adam Ragusea
+Internet Shaquille
+Sorted Food
+Bon Appétit
+Claire Saffitz
+Brad Leone
+~Tasty
+Maangchi
+Aaron and Claire
+Chef John
+Food Wishes
+Pailin Chongchitnant
+Hot Thai Kitchen
+Uncle Roger
+Nigel Ng
+Mr. Nigel Ng
+Emmymade
+Tabitha Brown
+Salt Bae
+Nusret
+Keith Lee
+The Food Ranger
+Trevor James
+Jeremy Ethier
+Jeff Nippard
+Athlean-X
+Jeff Cavaliere
+Mike Israetel
+Renaissance Periodization
+Dr. Mike Israetel
+Sam Sulek
+Chris Bumstead
+CBum
+Ronnie Coleman
+Arnold Schwarzenegger
+Ramon Dino
+Mike O'Hearn
+Larry Wheels
+Eddie Hall
+Hafthor Bjornsson
+Brian Shaw
+Jay Cutler
+Rich Piana
+Greg Doucette
+Stan Efferding
+Alan Thrall
+Mark Rippetoe
+~Starting Strength
+Jeff Nippard Fundamentals
+Natacha Océane
+Stephanie Buttermore
+Sydney Cummings
+Chloe Ting
+Pamela Reif
+Blogilates
+Cassey Ho
+Yoga with Adriene
+Adriene Mishler
+Emi Wong
+MadFit
+Kayla Itsines
+Joe Wicks
+David Goggins
+Jocko Willink
+Cameron Hanes
+Nick Bare
+Kipchoge
+Eliud Kipchoge
+Kilian Jornet
+Courtney Dauwalter
+Mo Farah
+Usain Bolt
+Noah Lyles
+Sydney McLaughlin
+Faith Kipyegon
+Jakob Ingebrigtsen
+Mondo Duplantis
+Armand Duplantis
+Michael Phelps
+Katie Ledecky
+Léon Marchand
+Leon Marchand
+Ryan Lochte
+Caeleb Dressel
+Simone Biles
+Suni Lee
+Sunisa Lee
+Rebeca Andrade
+Gabby Douglas
+Nadia Comăneci
+Shaun White
+Chloe Kim
+Eileen Gu
+Mikaela Shiffrin
+Lindsey Vonn
+Tony Hawk
+Nyjah Huston
+Sky Brown
+Alex Honnold
+Tommy Caldwell
+Jimmy Chin
+Nirmal Purja
+Nims Purja
+Kelly Slater
+Bethany Hamilton
+Laird Hamilton
+Carissa Moore
+Lionel Messi
+Messi
+Cristiano Ronaldo
+Ronaldo
+CR7
+Neymar
+Kylian Mbappé
+Mbappé
+Mbappe
+Erling Haaland
+Haaland
+Jude Bellingham
+Bellingham
+Vinícius Júnior
+Vinicius Jr
+Lamine Yamal
+Yamal
+Pedri
+Gavi
+Rodri
+Kevin De Bruyne
+De Bruyne
+Mohamed Salah
+Salah
+Virgil van Dijk
+Harry Kane
+Kane
+Bukayo Saka
+Saka
+Phil Foden
+Declan Rice
+Cole Palmer
+Son Heung-min
+Son Heung-min Tottenham
+Kim Min-jae
+Lee Kang-in
+Kaoru Mitoma
+Takefusa Kubo
+Robert Lewandowski
+Lewandowski
+Luka Modrić
+Modric
+Toni Kroos
+Karim Benzema
+Benzema
+Antoine Griezmann
+Griezmann
+Zlatan Ibrahimović
+Zlatan
+Wayne Rooney
+David Beckham
+Beckham
+Zinedine Zidane
+Zidane
+Ronaldinho
+Kaká
+Pelé
+Pele
+Diego Maradona
+Maradona
+Johan Cruyff
+Thierry Henry
+Andrés Iniesta
+Xavi
+Xavi Hernández
+Sergio Ramos
+Gerard Piqué
+Manuel Neuer
+Gianluigi Buffon
+Iker Casillas
+Pep Guardiola
+Guardiola
+Jürgen Klopp
+Klopp
+José Mourinho
+Mourinho
+Carlo Ancelotti
+Ancelotti
+Alex Ferguson
+Sir Alex Ferguson
+Arsène Wenger
+Wenger
+Mikel Arteta
+Arteta
+Xabi Alonso
+Diego Simeone
+Hansi Flick
+Luis Enrique
+Park Hang-seo
+Philippe Troussier
+Kim Sang-sik
+Nguyen Quang Hai|Nguyễn Quang Hải
+Quang Hai|Quang Hải
+Nguyen Cong Phuong|Nguyễn Công Phượng
+Cong Phuong|Công Phượng
+Doan Van Hau|Đoàn Văn Hậu
+Nguyen Tien Linh|Nguyễn Tiến Linh
+Dang Van Lam|Đặng Văn Lâm
+Nguyen Xuan Son|Nguyễn Xuân Son
+LeBron James
+LeBron
+Stephen Curry
+Steph Curry
+Kevin Durant
+KD
+Giannis Antetokounmpo
+Giannis
+Nikola Jokić
+Jokic
+Luka Dončić
+Luka Doncic
+Joel Embiid
+Jayson Tatum
+Anthony Edwards
+Shai Gilgeous-Alexander
+SGA
+Victor Wembanyama
+Wembanyama
+Wemby
+Ja Morant
+Devin Booker
+Damian Lillard
+Kyrie Irving
+James Harden
+Jimmy Butler
+Kawhi Leonard
+Paul George
+Russell Westbrook
+Chris Paul
+Klay Thompson
+Draymond Green
+Zion Williamson
+Michael Jordan
+Kobe Bryant
+Kobe
+Shaquille O'Neal
+Shaq
+Magic Johnson
+Larry Bird
+Kareem Abdul-Jabbar
+Tim Duncan
+Dirk Nowitzki
+Yao Ming
+Caitlin Clark
+A'ja Wilson
+Breanna Stewart
+Sabrina Ionescu
+Angel Reese
+Patrick Mahomes
+Mahomes
+Travis Kelce
+Kelce
+Tom Brady
+Josh Allen
+Lamar Jackson
+Joe Burrow
+Jalen Hurts
+Aaron Rodgers
+Peyton Manning
+Justin Jefferson
+Saquon Barkley
+Shohei Ohtani
+Ohtani
+Aaron Judge
+Mookie Betts
+Mike Trout
+Juan Soto
+Roger Federer
+Federer
+Rafael Nadal
+Nadal
+Novak Djokovic
+Djokovic
+Carlos Alcaraz
+Alcaraz
+Jannik Sinner
+Daniil Medvedev
+Alexander Zverev
+Serena Williams
+Venus Williams
+Iga Świątek
+Iga Swiatek
+Aryna Sabalenka
+Sabalenka
+Coco Gauff
+Naomi Osaka
+Emma Raducanu
+Andy Murray
+Lewis Hamilton
+Max Verstappen
+Verstappen
+Charles Leclerc
+Lando Norris
+Oscar Piastri
+George Russell
+Carlos Sainz
+Fernando Alonso
+Sergio Pérez
+Checo Pérez
+Kimi Antonelli
+Michael Schumacher
+Ayrton Senna
+~Senna
+Niki Lauda
+Toto Wolff
+Christian Horner
+Guenther Steiner
+Valentino Rossi
+Marc Márquez
+Marc Marquez
+Francesco Bagnaia
+Tiger Woods
+Rory McIlroy
+Scottie Scheffler
+Jon Rahm
+Bryson DeChambeau
+Phil Mickelson
+Nelly Korda
+Lydia Ko
+Conor McGregor
+Khabib Nurmagomedov
+Khabib
+Islam Makhachev
+Jon Jones
+Alex Pereira
+Israel Adesanya
+Francis Ngannou
+Ronda Rousey
+Dana White
+Mike Tyson
+Muhammad Ali
+Floyd Mayweather
+Manny Pacquiao
+Canelo Álvarez
+~Canelo
+Tyson Fury
+Anthony Joshua
+Oleksandr Usyk
+Usyk
+Naoya Inoue
+Terence Crawford
+Gervonta Davis
+~Faker
+Lee Sang-hyeok
+~Uzi
+TheShy
+Chovy
+ShowMaker
+s1mple
+ZywOo
+Tenz
+Bugha
+Nguyen Thuy Linh|Nguyễn Thùy Linh
+Hoang Xuan Vinh|Hoàng Xuân Vinh
+Nguyen Thi Oanh|Nguyễn Thị Oanh
+Nguyen Huy Hoang|Nguyễn Huy Hoàng
+Ly Hoang Nam|Lý Hoàng Nam
+`);
+
+// ============================================================ space and physics
+CST_GLOSSARY_EXTRA_ADD("science", null, `
+NASA
+ESA
+JAXA
+ISRO
+CNSA
+Roscosmos
+SpaceX
+Blue Origin
+Rocket Lab
+Virgin Galactic
+Axiom Space
+Starship
+Super Heavy
+Falcon 9
+Falcon Heavy
+Dragon capsule|tàu Dragon
+Crew Dragon
+Starlink
+Starlink satellites|vệ tinh Starlink
+New Glenn
+New Shepard
+Artemis
+Artemis program|chương trình Artemis
+Artemis II
+Artemis III
+Apollo 11
+Apollo program|chương trình Apollo
+Apollo 13
+Gemini program|chương trình Gemini
+Space Shuttle|tàu con thoi
+Challenger disaster|thảm họa Challenger
+Columbia disaster|thảm họa Columbia
+International Space Station|Trạm Vũ trụ Quốc tế
+ISS
+Tiangong
+Hubble
+Hubble Space Telescope|kính viễn vọng không gian Hubble
+James Webb Space Telescope|kính viễn vọng không gian James Webb
+James Webb
+JWST
+Webb telescope|kính viễn vọng Webb
+Chandra
+Kepler
+Kepler telescope|kính viễn vọng Kepler
+TESS
+Euclid
+Vera Rubin Observatory|Đài thiên văn Vera Rubin
+Event Horizon Telescope
+LIGO
+CERN
+Large Hadron Collider|Máy gia tốc hạt lớn
+LHC
+Voyager 1
+Voyager 2
+~Voyager
+Pioneer 10
+New Horizons
+Cassini
+Juno
+~Perseverance
+Perseverance rover|xe tự hành Perseverance
+Curiosity rover|xe tự hành Curiosity
+~Ingenuity
+Ingenuity helicopter|trực thăng Ingenuity
+Opportunity rover|xe tự hành Opportunity
+Spirit rover|xe tự hành Spirit
+Chandrayaan-3
+Chang'e
+Europa Clipper
+Psyche mission|sứ mệnh Psyche
+OSIRIS-REx
+DART mission|sứ mệnh DART
+Parker Solar Probe
+Sputnik
+Yuri Gagarin
+Neil Armstrong
+Buzz Aldrin
+Sally Ride
+Valentina Tereshkova
+Chris Hadfield
+Scott Kelly
+Pham Tuan|Phạm Tuân
+Carl Sagan
+Neil deGrasse Tyson
+Brian Cox
+Michio Kaku
+Brian Greene
+Sabine Hossenfelder
+Avi Loeb
+Kip Thorne
+Roger Penrose
+Edwin Hubble
+Galileo
+Galileo Galilei
+Copernicus
+Johannes Kepler
+Tycho Brahe
+Isaac Newton
+~Newton
+Albert Einstein
+Einstein
+Niels Bohr
+Max Planck
+Werner Heisenberg
+Erwin Schrödinger
+Schrödinger
+Paul Dirac
+Richard Feynman
+Feynman
+Enrico Fermi
+J. Robert Oppenheimer
+Oppenheimer
+Marie Curie
+Nikola Tesla
+Michael Faraday
+James Clerk Maxwell
+Stephen Hawking
+~Hawking
+Peter Higgs
+=Milky Way|Dải Ngân Hà
+=Andromeda|thiên hà Andromeda
+=Andromeda galaxy|thiên hà Andromeda
+=solar system|hệ Mặt Trời
+=the solar system|hệ Mặt Trời
+=Venus|sao Kim
+=Mars|sao Hỏa
+=Jupiter|sao Mộc
+=Saturn|sao Thổ
+=Uranus|sao Thiên Vương
+=Neptune|sao Hải Vương
+=Pluto|sao Diêm Vương
+=dwarf planet|hành tinh lùn
+=exoplanet|ngoại hành tinh
+=exoplanets|ngoại hành tinh
+=habitable zone|vùng có thể sống được
+=Goldilocks zone|vùng Goldilocks
+=Proxima Centauri
+=Alpha Centauri
+=TRAPPIST-1
+=Betelgeuse
+=North Star|sao Bắc Cực
+=Big Dipper|chòm sao Bắc Đẩu
+=asteroid belt|vành đai tiểu hành tinh
+=Kuiper Belt|vành đai Kuiper
+=Oort cloud|đám mây Oort
+=asteroid|tiểu hành tinh
+=comet|sao chổi
+=meteor|sao băng
+=meteor shower|mưa sao băng
+=meteorite|thiên thạch
+=Halley's Comet|sao chổi Halley
+=Perseids|mưa sao băng Anh Tiên
+=Geminids|mưa sao băng Song Tử
+=solar eclipse|nhật thực
+=lunar eclipse|nguyệt thực
+=total solar eclipse|nhật thực toàn phần
+=blood moon|trăng máu
+=supermoon|siêu trăng
+=blue moon|trăng xanh
+=full moon|trăng tròn
+=new moon|trăng non
+=northern lights|cực quang phương Bắc
+=aurora borealis|cực quang phương Bắc
+=solar flare|bão lửa Mặt Trời
+=solar storm|bão Mặt Trời
+=geomagnetic storm|bão địa từ
+=coronal mass ejection|phun trào nhật hoa
+=sunspots|vết đen Mặt Trời
+=black hole|lỗ đen
+=black holes|lỗ đen
+=supermassive black hole|lỗ đen siêu khối lượng
+=Sagittarius A*
+=event horizon|chân trời sự kiện
+=singularity|điểm kỳ dị
+=wormhole|hố giun
+=white dwarf|sao lùn trắng
+=neutron star|sao neutron
+=pulsar|sao xung
+=quasar|chuẩn tinh
+=supernova|siêu tân tinh
+=red giant|sao khổng lồ đỏ
+=nebula|tinh vân
+=galaxies|thiên hà
+=light-year|năm ánh sáng
+=light years|năm ánh sáng
+=light-years|năm ánh sáng
+=parsec
+=astronomical unit|đơn vị thiên văn
+=Big Bang|Vụ Nổ Lớn
+=the Big Bang|Vụ Nổ Lớn
+=cosmic microwave background|bức xạ phông vi sóng vũ trụ
+=CMB
+=dark matter|vật chất tối
+=dark energy|năng lượng tối
+=cosmic inflation|lạm phát vũ trụ
+=multiverse|đa vũ trụ
+=Fermi paradox|nghịch lý Fermi
+=Drake equation|phương trình Drake
+=Great Filter|Bộ lọc Vĩ đại
+=Kardashev scale|thang Kardashev
+=Dyson sphere|quả cầu Dyson
+=SETI
+=UAP
+=UFO
+=extraterrestrial|người ngoài hành tinh
+=aliens|người ngoài hành tinh
+=Area 51
+=Roswell
+=low Earth orbit|quỹ đạo Trái Đất tầm thấp
+=geostationary orbit|quỹ đạo địa tĩnh
+=escape velocity|vận tốc thoát
+=zero gravity|không trọng lực
+=microgravity|vi trọng lực
+=spacewalk|đi bộ ngoài không gian
+=astronaut|phi hành gia
+=astronauts|phi hành gia
+=cosmonaut|nhà du hành vũ trụ
+=space tourism|du lịch vũ trụ
+=space debris|rác vũ trụ
+=Kessler syndrome|hội chứng Kessler
+=reusable rocket|tên lửa tái sử dụng
+=launch pad|bệ phóng
+=liftoff|cất cánh
+=countdown|đếm ngược
+=splashdown|hạ cánh xuống biển
+=Mars colony|thuộc địa trên sao Hỏa
+=terraforming|cải tạo hành tinh
+=general relativity|thuyết tương đối rộng
+=special relativity|thuyết tương đối hẹp
+=theory of relativity|thuyết tương đối
+=E=mc²
+=E=mc2
+=time dilation|giãn nở thời gian
+=spacetime|không thời gian
+=gravitational waves|sóng hấp dẫn
+=quantum mechanics|cơ học lượng tử
+=quantum physics|vật lý lượng tử
+=quantum entanglement|vướng víu lượng tử
+=entanglement|vướng víu lượng tử
+=superposition|chồng chập lượng tử
+=uncertainty principle|nguyên lý bất định
+=Heisenberg uncertainty principle|nguyên lý bất định Heisenberg
+=Schrödinger's cat|con mèo của Schrödinger
+=wave-particle duality|lưỡng tính sóng hạt
+=double-slit experiment|thí nghiệm khe đôi
+=observer effect|hiệu ứng người quan sát
+=quantum tunneling|hiệu ứng đường hầm lượng tử
+=string theory|lý thuyết dây
+=theory of everything|thuyết vạn vật
+=Standard Model|Mô hình Chuẩn
+=Higgs boson|hạt Higgs
+=God particle|hạt của Chúa
+=quarks|hạt quark
+=neutrino|hạt neutrino
+=neutrinos|hạt neutrino
+=antimatter|phản vật chất
+=particle accelerator|máy gia tốc hạt
+=nuclear fission|phân hạch hạt nhân
+=nuclear fusion|nhiệt hạch
+=fusion energy|năng lượng nhiệt hạch
+=fusion reactor|lò phản ứng nhiệt hạch
+=tokamak
+=ITER
+=thermodynamics|nhiệt động lực học
+=second law of thermodynamics|định luật hai nhiệt động lực học
+=entropy|entropy
+=absolute zero|độ không tuyệt đối
+=speed of light|tốc độ ánh sáng
+=speed of sound|tốc độ âm thanh
+=sound barrier|bức tường âm thanh
+=sonic boom|tiếng nổ siêu thanh
+=Doppler effect|hiệu ứng Doppler
+=electromagnetic spectrum|phổ điện từ
+=electromagnetic|điện từ
+=infrared|hồng ngoại
+=ultraviolet|tia cực tím
+=UV
+=UV rays|tia UV
+=UV index|chỉ số UV
+=gamma rays|tia gamma
+=radio waves|sóng vô tuyến
+=microwaves|vi sóng
+=Newton's laws|các định luật Newton
+=Newton's third law|định luật thứ ba của Newton
+=law of gravity|định luật hấp dẫn
+=kinetic energy|động năng
+=potential energy|thế năng
+=centrifugal force|lực ly tâm
+=centripetal force|lực hướng tâm
+=torque|mô-men xoắn
+=buoyancy|lực nổi
+=surface tension|sức căng bề mặt
+=superconductor|chất siêu dẫn
+=superconductivity|tính siêu dẫn
+=semiconductor|chất bán dẫn
+=semiconductors|chất bán dẫn
+=transistor|bóng bán dẫn
+=transistors|bóng bán dẫn
+=Moore's law|định luật Moore
+=periodic table|bảng tuần hoàn
+=atom|nguyên tử
+=atoms|nguyên tử
+=molecule|phân tử
+=molecules|phân tử
+=electron|electron
+=electrons|electron
+=proton|proton
+=protons|proton
+=isotope|đồng vị
+=isotopes|đồng vị
+=radioactive|phóng xạ
+=radioactivity|tính phóng xạ
+=carbon dating|định tuổi bằng carbon
+=carbon-14
+=pH
+=pH level|độ pH
+=polymer|polyme
+=polymers|polyme
+=microplastics|vi nhựa
+=nanoplastics|hạt nano nhựa
+=PFAS
+=forever chemicals|hóa chất vĩnh cửu
+=BPA
+=phthalates
+=heavy metals|kim loại nặng
+=lead poisoning|ngộ độc chì
+=DNA
+=RNA
+=mRNA
+=mRNA vaccine|vắc xin mRNA
+=genome|bộ gen
+=human genome|bộ gen người
+=Human Genome Project|Dự án Bộ gen Người
+=genes|gen
+=genetics|di truyền học
+=epigenetics|di truyền biểu sinh
+=gene expression|biểu hiện gen
+=gene editing|chỉnh sửa gen
+=gene therapy|liệu pháp gen
+=mutation|đột biến
+=mutations|đột biến
+=chromosome|nhiễm sắc thể
+=chromosomes|nhiễm sắc thể
+=natural selection|chọn lọc tự nhiên
+=theory of evolution|thuyết tiến hóa
+=survival of the fittest|kẻ mạnh nhất sinh tồn
+=common ancestor|tổ tiên chung
+=Homo sapiens
+=Neanderthals|người Neanderthal
+=Neanderthal|người Neanderthal
+=Denisovans|người Denisova
+=hominids|họ người
+=Lucy fossil|hóa thạch Lucy
+=dinosaurs|khủng long
+=dinosaur|khủng long
+=T. rex
+=Tyrannosaurus rex
+=Velociraptor
+=Triceratops
+=Stegosaurus
+=Brachiosaurus
+=Spinosaurus
+=pterodactyl
+=mass extinction|đại tuyệt chủng
+=extinction event|sự kiện tuyệt chủng
+=asteroid impact|va chạm thiên thạch
+=Jurassic|kỷ Jura
+=cretaceous|kỷ Phấn trắng
+=Triassic|kỷ Tam điệp
+=Ice Age|kỷ băng hà
+=woolly mammoth|voi ma mút lông xoăn
+=de-extinction|hồi sinh loài tuyệt chủng
+=Colossal Biosciences
+=dire wolf|sói dire
+=plate tectonics|kiến tạo mảng
+=tectonic plates|mảng kiến tạo
+=earthquake|động đất
+=tsunami|sóng thần
+=volcano|núi lửa
+=eruption|phun trào
+=Ring of Fire|Vành đai Lửa
+=Richter scale|thang Richter
+=fault line|đường đứt gãy
+=San Andreas Fault|đứt gãy San Andreas
+=Pangaea|siêu lục địa Pangaea
+=continental drift|trôi dạt lục địa
+=Earth's core|lõi Trái Đất
+=magnetic field|từ trường
+=ozone layer|tầng ozone
+=troposphere|tầng đối lưu
+=stratosphere|tầng bình lưu
+=greenhouse effect|hiệu ứng nhà kính
+=greenhouse gases|khí nhà kính
+=El Niño|hiện tượng El Niño
+=El Nino|hiện tượng El Niño
+=La Niña|hiện tượng La Niña
+=La Nina|hiện tượng La Niña
+=jet stream|dòng tia
+=polar vortex|xoáy cực
+=heat dome|vòm nhiệt
+=heatwave|đợt nắng nóng
+=heat wave|đợt nắng nóng
+=typhoon|bão
+=hurricane|bão
+=cyclone|lốc xoáy
+=tornado|lốc xoáy
+=monsoon|gió mùa
+=flash flood|lũ quét
+=landslide|sạt lở đất
+=drought|hạn hán
+=wildfire|cháy rừng
+=wildfires|cháy rừng
+=sea level rise|nước biển dâng
+=glacier|sông băng
+=glaciers|sông băng
+=permafrost|băng vĩnh cửu
+=coral bleaching|san hô tẩy trắng
+=ocean acidification|axit hóa đại dương
+=Mariana Trench|rãnh Mariana
+=deep sea|biển sâu
+=hydrothermal vents|miệng phun thủy nhiệt
+=bioluminescence|phát quang sinh học
+=photosynthesis|quang hợp
+=chlorophyll|diệp lục
+=ecosystem|hệ sinh thái
+=ecosystems|hệ sinh thái
+=food chain|chuỗi thức ăn
+=food web|lưới thức ăn
+=biodiversity|đa dạng sinh học
+=keystone species|loài chủ chốt
+=invasive species|loài xâm lấn
+=endangered species|loài có nguy cơ tuyệt chủng
+=apex predator|động vật săn mồi đầu bảng
+=symbiosis|cộng sinh
+=mycelium|hệ sợi nấm
+=fungi|nấm
+=bacteria|vi khuẩn
+=virus|virus
+=viruses|virus
+=microbes|vi sinh vật
+=pathogen|mầm bệnh
+=pathogens|mầm bệnh
+=pandemic|đại dịch
+=epidemic|dịch bệnh
+=endemic|lưu hành địa phương
+=herd immunity|miễn dịch cộng đồng
+=vaccine|vắc xin
+=vaccines|vắc xin
+=vaccination|tiêm chủng
+=booster shot|mũi tiêm nhắc lại
+=scientific method|phương pháp khoa học
+=hypothesis|giả thuyết
+=independent variable|biến độc lập
+=dependent variable|biến phụ thuộc
+=replication crisis|khủng hoảng tái lập
+=Occam's razor|dao cạo Occam
+=Nobel Prize|giải Nobel
+=Nobel laureate|người đoạt giải Nobel
+=Nobel Prize in Physics|giải Nobel Vật lý
+=Nobel Prize in Chemistry|giải Nobel Hóa học
+=Nobel Prize in Medicine|giải Nobel Y học
+=Fields Medal|Huy chương Fields
+=Turing Award|giải Turing
+=Breakthrough Prize|giải Breakthrough
 `);
