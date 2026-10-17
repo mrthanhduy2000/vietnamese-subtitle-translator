@@ -67,9 +67,9 @@ Reading all source is ~500KB, roughly 145k tokens. Don't. A normal task should l
 - Line numbers in `docs/` are anchors and they drift. Confirm with grep before editing.
 - **Grep only, never read whole:** `options.html` (~1600, ~850 of them inline CSS),
   `youtube.js` (~2000), `content.js` (~2300), `dub-engine.js` (~2400), `background.js` (~2000),
-  `glossary.js` (~1340, pure data), `dub-speech.js` (~550, a third of it a generated table),
+  `glossary.js` (~1340, pure data), `glossary-data.js` (~11,500, pure data, never read even partly without grep), `dub-speech.js` (~550, a third of it a generated table),
   `tests/hardening.test.js` (~2100), `tests/cost.test.js` (~1000).
-- Safe to read whole when you need them: `cost-policy.js` (~370), `popup.js` (~300), `yt-bridge.js`
+- Safe to read whole when you need them: `cost-policy.js` (~370), `popup.js` (~360), `yt-bridge.js`
   (~300), `subtitle-style.js` (~300), `vi-quality.js` (~580), `lang-detect.js` (~130), any `docs/` file.
 - These sizes drift. `node tools/doc-sizes.js` rewrites the line and test counts in `docs/MAP.md`
   and `docs/TESTING.md`, and lists any size quoted here that is off by more than 15%.
@@ -82,7 +82,7 @@ Reading all source is ~500KB, roughly 145k tokens. Don't. A normal task should l
 | YouTube overlay, position, control-bar button, quick menu | `docs/SUBTITLE.md` §YouTube, then grep `youtube.js` |
 | Coursera subtitles | `docs/SUBTITLE.md` §Coursera, then grep `content.js` |
 | Vietnamese line breaking / cue splitting | `vi-segmenter.js` (`segmentGroupSafe`), `tests/fixtures.js` |
-| Translation quality, wrong term, English left in | `context-engine.js`, `vi-quality.js`, grep the term in `glossary.js` |
+| Translation quality, wrong term, English left in | `context-engine.js`, `vi-quality.js`, grep the term in `glossary.js` and `glossary-data.js` (format: top of `glossary-extra.js`) |
 | Dubbing out of sync, late, drifting, too fast or slow | `docs/DUBBING.md` §SYNC, then `dub-engine.js` `SYNC` block (`grep -n "const SYNC"`, ~140 lines) |
 | No voice at all | `docs/DUBBING.md` §providers. Check the server first: `curl 127.0.0.1:8000/health` |
 | Voice pacing, pauses, prosody | `dub-planner.js` (`buildDubScript`, `planSegment`) + `docs/DUBBING.md` |

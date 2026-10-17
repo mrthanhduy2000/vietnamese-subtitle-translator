@@ -197,14 +197,73 @@ function termToPattern(term) {
     return escapeRegex(term);
 }
 
-// Dung bieu thuc gop tu danh sach thuat ngu, sap xep cum dai truoc
-// de "Claude Code" duoc bat truoc "Claude"
+// A matcher over many terms that String.prototype.replace accepts like a global regex (2.5.9).
+// One alternation of every term ("(?:termA|termB|...)") costs time per term at every position of the
+// text: about 80 ms on a short window at 50,000 terms. Here the terms are indexed by the first three
+// characters (lowercased) every match of them starts with, and at each position where a word may
+// start only that bucket's own small regex is tried. Same results as the one big alternation: longer
+// terms first ("Claude Code" before "Claude"), plurals through termToPattern, no letter or digit
+// right before or after a match.
 function buildMasterRegex(terms, flags) {
     if (terms.length === 0) return null;
-    const sorted = [...terms].sort((a, b) => b.length - a.length);
-    const parts = sorted.map(termToPattern);
-    // Khong cho khop khi ky tu lien ke la chu hoac so
-    return new RegExp(`(?<![\\w])(?:${parts.join("|")})(?![\\w])`, flags);
+    const ci = flags.includes("i");
+    const buckets = [new Map(), new Map(), new Map()];   // key length 1, 2, 3
+    for (const term of terms) {
+        // the literal start every match shares: "study" matches "stud(y|ies)"
+        const lit = /[bcdfghjklmnpqrstvwxz]y$/i.test(term) ? term.slice(0, -1) : term;
+        if (!lit) continue;
+        const key = lit.slice(0, 3).toLowerCase();
+        const m = buckets[key.length - 1];
+        if (!m.has(key)) m.set(key, []);
+        m.get(key).push(term);
+    }
+    const compiled = new Map();
+    const bucketRegex = (k, key) => {
+        const id = k + key;
+        let re = compiled.get(id);
+        if (re === undefined) {
+            const list = buckets[k].get(key);
+            re = list ? new RegExp(`(?:${list.slice().sort((a, b) => b.length - a.length).map(termToPattern).join("|")})(?![\\w])`, ci ? "iy" : "y") : null;
+            compiled.set(id, re);
+        }
+        return re;
+    };
+    const isWord = c => /\w/.test(c);
+    const matchAt = (text, i) => {
+        for (let k = 2; k >= 0; k--) {
+            if (i + k >= text.length) continue;
+            const re = bucketRegex(k, text.substr(i, k + 1).toLowerCase());
+            if (!re) continue;
+            re.lastIndex = i;
+            const m = re.exec(text);
+            if (m) return m[0];
+        }
+        return null;
+    };
+    return {
+        lastIndex: 0,
+        size: terms.length,
+        // every match, left to right, not overlapping (what a global regex's replace visits)
+        matches(text) {
+            const out = [];
+            for (let i = 0; i < text.length; i++) {
+                if (i > 0 && isWord(text[i - 1])) continue;
+                const m = matchAt(text, i);
+                if (m) { out.push({ index: i, text: m }); i += m.length - 1; }
+            }
+            return out;
+        },
+        test(text) { return this.matches(String(text)).length > 0; },
+        [Symbol.replace](text, fn) {
+            text = String(text);
+            let out = "", last = 0;
+            for (const m of this.matches(text)) {
+                out += text.slice(last, m.index) + (typeof fn === "function" ? fn(m.text, m.index, text) : fn);
+                last = m.index + m.text.length;
+            }
+            return out + text.slice(last);
+        }
+    };
 }
 
 // ---------- Thuat ngu phu thuoc ngu canh ----------
@@ -506,9 +565,14 @@ async function requestUnit(req, opts = {}) {
     return { ...res, translations };
 }
 
+// Words the quality check lets stand in English: those of terms kept in English. A term with a
+// Vietnamese rendering comes back in Vietnamese, so its words ("interest", "rate") are no excuse for
+// English left in a line (2.5.9: with thousands of rendered terms they had whitelisted most words).
 function qualityKeepSet() {
     if (!state._qualityKeep || state._qualityKeepSrc !== state.glossaryKeep) {
-        state._qualityKeep = new Set(state.glossaryKeep.flatMap(t => String(t).toLowerCase().split(/\s+/)));
+        const asVi = state.glossaryTranslateAs || new Map();
+        state._qualityKeep = new Set(state.glossaryKeep.filter(t => !asVi.has(String(t).toLowerCase()))
+            .flatMap(t => String(t).toLowerCase().split(/\s+/)));
         state._qualityKeepSrc = state.glossaryKeep;
     }
     return state._qualityKeep;

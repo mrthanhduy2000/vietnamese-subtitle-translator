@@ -16,7 +16,15 @@ runs in the same world, reading `content.js`'s `state` and `CST_UI` directly (no
 2. `protectGlossary` wraps terms that must survive translation; `rebuildGlossaryRegex` builds the
    matcher from `glossary.js` plus the user's own keep-list. A term with an entry in its group's
    `vi` map (from `GLOSSARY_VI`, 1.8.5) is restored as that Vietnamese, not the English
-   (`translateAsFor` folds plurals; user keep-list and `=>` rules override it).
+   (`translateAsFor` folds plurals; user keep-list and `=>` rules override it). 2.5.9: the groups
+   hold ~14,000 terms (`glossary-extra.js` merges `glossary-data.js` in), so `buildMasterRegex`
+   no longer builds one alternation (80 ms a window at 50,000 terms): it indexes terms by their
+   first three characters and tries only that bucket's small sticky regex at each word start,
+   returning an object `String.replace` accepts. Same matches as the old regex on 2,326 real
+   windows. Data rules (tests/glossary.test.js): a lowercase term needs a rendering or `=`; a
+   one-word name that is also an English word is `~` (mid-sentence only); no everyday word or
+   idiom ("long run", "to failure", "mean", "single") is a term, because a lifestyle video uses it
+   the other way. `qualityKeepSet` lets stand only words of terms kept in English.
 3. `groupCuesIntoSentences` merges cues into sentence units (or keeps them per-cue if `perCueMode`).
    A group closes at a sentence end, a pause over 1.5 s, or 24 s / 520 characters / 12 cues. A
    sentence's short last piece (up to 40 characters and 2 s) joins past those limits, by up to 3 s /

@@ -4,6 +4,16 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.5.9", luc: "17/10/2026", ten: "Từ điển thuật ngữ lớn hơn bảy lần, thêm 16 chủ đề đời sống",
+            y: [
+                "Từ điển thuật ngữ tăng từ khoảng 1.700 lên khoảng 14.000 mục. Các chủ đề cũ (công nghệ và AI, sức khỏe, y khoa, tâm lý, marketing, kinh doanh, kinh tế, dữ liệu, pháp lý...) đều được mở rộng.",
+                "Thêm 16 chủ đề cho video đời sống: đời sống và tối giản, làm đẹp, ẩm thực, mua sắm, tài chính cá nhân, du lịch, nhà cửa, phim ảnh và âm nhạc, thể thao, đồ công nghệ, thú cưng, gia đình, khoa học, lịch sử và xã hội, ô tô, thời trang. Bật tắt từng chủ đề ở Cài đặt > Dịch & AI.",
+                "Tên thương hiệu trùng với từ tiếng Anh thông thường (Headspace, Athletic Greens, Eight Sleep, Goodwill, Target, Walking Pad...) được giữ nguyên thay vì bị dịch theo nghĩa đen; tên chỉ được giữ khi đứng giữa câu để không bắt nhầm từ thường ở đầu câu.",
+                "Từ thông dụng nhiều nghĩa (single, mean, tip, judge, bill...) và thành ngữ (in the long run, doomed to failure...) cố ý không đưa vào, để video đời sống không bị dịch sai nghĩa.",
+                "Bộ so khớp thuật ngữ được viết lại: nhanh hơn khoảng 14 lần so với cách cũ khi từ điển lớn, kết quả giống hệt trên 2.326 đoạn phụ đề thật."
+            ]
+        },
+        {
             v: "2.5.8", luc: "17/10/2026", ten: "Đọc đúng tên thương hiệu viết hoa và tên AI",
             y: [
                 "Tên thương hiệu viết hoa toàn bộ được giọng đọc nói thành một từ thay vì đánh vần từng chữ: WHOOP đọc như tiếng Anh, \"wúp\" (trước đây là \"vê kép hát ô ô phê\"), NIKE, LEGO, SONY, ADIDAS, SAMSUNG, GARMIN cũng vậy. Mã viết tắt thật như HTML, CPAP, UCLA, HTTPS vẫn đọc từng chữ; viết tắt tiếng Việt như DN, THPTQG vẫn đọc kiểu Việt.",

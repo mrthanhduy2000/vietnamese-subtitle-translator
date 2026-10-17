@@ -317,6 +317,25 @@ mạng nơ-ron tích chập|mạng nơ ron tích chập|mạng nơron tích ch�
         }
     }
 
+    // The glossary's multi-word terms as a set, built once per list (2.5.9: the list reached tens of
+    // thousands and was rebuilt for every candidate line)
+    const termSetCache = new WeakMap();
+    function userTermSet(list) {
+        let hit = termSetCache.get(list);
+        if (hit) return hit;
+        const termSet = new Set();
+        let tMax = 1;
+        for (const term of list) {
+            const words = String(term).toLowerCase().trim().split(/\s+/);
+            if (words.length < 2 || words.length > 6) continue;
+            termSet.add(words.join(" "));
+            tMax = Math.max(tMax, words.length);
+        }
+        hit = { termSet, tMax };
+        termSetCache.set(list, hit);
+        return hit;
+    }
+
     function analyze(tokens, opts = {}) {
         const n = tokens.length;
         const inside = new Array(n + 1).fill(0);   // phạt vì nằm trong một khối liền
@@ -333,14 +352,7 @@ mạng nơ-ron tích chập|mạng nơ ron tích chập|mạng nơron tích ch�
 
         // Thuật ngữ do người dùng/từ điển cung cấp (dạng hiển thị cuối cùng)
         if (userTerms.length) {
-            const termSet = new Set();
-            let tMax = 1;
-            for (const term of userTerms) {
-                const words = String(term).toLowerCase().trim().split(/\s+/);
-                if (words.length < 2 || words.length > 6) continue;
-                termSet.add(words.join(" "));
-                tMax = Math.max(tMax, words.length);
-            }
+            const { termSet, tMax } = userTermSet(userTerms);
             if (termSet.size) markSpans(tokens, inside, termSet, tMax, 110);
         }
 

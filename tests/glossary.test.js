@@ -8,6 +8,10 @@ const vm = require("node:vm");
 
 const read = f => fs.readFileSync(path.join(__dirname, "..", f), "utf8");
 const G = require("../glossary.js");
+// the large part merges into the same groups (2.5.9), as in the extension
+require("../glossary-extra.js");
+require("../glossary-data.js");
+const EXTRA = globalThis.CST_GLOSSARY_EXTRA_REPORT;
 
 // A fake node: every property is another fake node, and calling one returns a fake node too.
 // Enough for the page setup content.js runs at load time.
@@ -36,7 +40,7 @@ function loadContent(stored = {}) {
     };
     sb.window = sb; sb.globalThis = sb;
     vm.createContext(sb);
-    for (const f of ["glossary.js", "cst-cache.js", "cost-policy.js", "lang-detect.js", "vi-segmenter.js", "subtitle-style.js", "context-engine.js", "vi-quality.js", "content.js"]) vm.runInContext(read(f), sb);
+    for (const f of ["glossary.js", "glossary-extra.js", "glossary-data.js", "cst-cache.js", "cost-policy.js", "lang-detect.js", "vi-segmenter.js", "subtitle-style.js", "context-engine.js", "vi-quality.js", "content.js"]) vm.runInContext(read(f), sb);
     return sb;
 }
 
@@ -73,7 +77,9 @@ test("no single ambiguous everyday word is protected, and no term is listed twic
     const banned = ["make", "lead", "run", "scale", "model", "share", "reach", "target", "value", "return", "form", "pivot", "public good"];
     for (const [key, group] of Object.entries(G.CST_GLOSSARY_GROUPS)) {
         const lower = group.terms.map(t => t.toLowerCase());
-        for (const b of banned) assert.ok(!lower.includes(b), `${key}: ${b}`);
+        // a store or product name kept only mid-sentence ("~Target") is no everyday word
+        const words = group.terms.filter(t => !G.CST_RISKY_PROPER.includes(t)).map(t => t.toLowerCase());
+        for (const b of banned) assert.ok(!words.includes(b), `${key}: ${b}`);
         assert.equal(new Set(lower).size, lower.length, `${key} has a duplicate`);
     }
 });
@@ -83,7 +89,9 @@ test("a group added after the user saved a list starts enabled; one they unticke
     assert.deepEqual(G.CST_resolveEnabledGroups({}), all);
     // saved before 1.8.5: no knownGroups, so math and productivity are new to this user
     const old = G.CST_resolveEnabledGroups({ enabledGroups: ["tech", "data"] });
-    assert.deepEqual(old, ["tech", "data", "math", "productivity"]);
+    // every group added after 1.8.4 (math, productivity, and the 2.5.9 everyday domains) starts on
+    assert.deepEqual(old.slice(0, 4), ["tech", "data", "math", "productivity"]);
+    assert.ok(old.includes("lifestyle") && old.includes("beauty") && !old.includes("marketing"));
     // saved from 1.8.5 on: the user has seen every group, an unticked one stays unticked
     assert.deepEqual(G.CST_resolveEnabledGroups({ enabledGroups: ["tech"], knownGroups: all }), ["tech"]);
     assert.match(read("options.js"), /knownGroups: allKeys/);
@@ -144,4 +152,74 @@ test("2.5.8: wearables and newer AI names are kept; a lowercase whoop only where
     assert.deepEqual([...sb.protectGlossary("A reasoning model needs test-time compute").terms], ["mô hình suy luận", "test-time compute"]);
     // a product name that is an everyday word only mid-sentence
     assert.deepEqual([...sb.protectGlossary("Lovable dogs are fun. I built it in Lovable").terms], ["Lovable"]);
+});
+
+// ---- the large glossary (2.5.9) ----
+test("2.5.9: every line of the large glossary follows the format, and no rendering contradicts another group's", () => {
+    assert.deepEqual(EXTRA.issues, []);
+    assert.ok(Object.values(EXTRA.added).reduce((a, b) => a + b, 0) > 1000);
+    for (const [key, group] of Object.entries(G.CST_GLOSSARY_GROUPS)) {
+        assert.ok(group.label && Array.isArray(group.terms) && group.vi, key);
+        for (const t of group.terms) assert.equal(t, t.trim(), `${key}: "${t}"`);
+    }
+});
+
+test("2.5.9: no everyday word with several meanings is a one-word term (a lifestyle video uses it the other way)", () => {
+    const everyday = ("string array terminal container pod cookie cookies cache kernel wafer foundry outage downtime bandwidth " +
+        "inheritance interface dropout compute logging repository adapter avatar warmup monolith backtracking chunking " +
+        "authorization localization accessibility breakpoint interpreter pip spam bug cloud stream feed post story " +
+        "network server client agent token prompt model chip memory battery screen window table chart margin balance " +
+        "interest return yield bond stock share capital asset equity credit debit charge fee rate rent lease deposit " +
+        "order trade market exchange bank fund trust estate will power energy current field mass weight volume " +
+        "pressure resistance cell culture tissue organ plant tree root branch leaf seed fruit dressing sauce stock " +
+        "draft press release launch pitch deal close lead hook brief case file note record track score goal point " +
+        "level stage step phase cycle loop shift swing set rep form figure frame shot cut scene act play match game " +
+        "round course class grade degree major minor key note scale chord bar beat pitch tone mood vibe glow base " +
+        "primer toner serum mask peel scrub shade palette blush bronzer highlighter concealer foundation powder " +
+        // removed while the large glossary was written: each one turned an everyday sentence wrong
+        "single tip honey woke mean mode average resume judge bill trial appeal depression guidance conviction " +
+        "settlement precedent appreciation variable derivative integral strike overtime commission " +
+        "qualification mint node whale whales pandas fit basics slides clutch heels vintage crossover highway " +
+        "tablet hotspot rabbit bunny treats harness milestones nursery crib meltdown pumping essence breakout " +
+        "purging highlights blowout stroke colon appendix plateau taper calves plank specialist residency fillers " +
+        "frequency wavelength atmosphere orbit catalyst evolution compound president progressive conservative " +
+        "liberal superpower pronouns impressions incubator dilution fundraising friction clutter minimalist " +
+        "frugal solitude closure moving inventory acquisition franchise unicorn reboot fencing cricket " +
+        "ace derby pitcher handicap athlete").split(" ");
+    const phrases = ["long run", "to failure", "extra time", "well done", "due date", "whole foods", "the pilot", "that girl",
+        "moving on", "little things", "follow up", "stack overflow"];
+    for (const [key, group] of Object.entries(G.CST_GLOSSARY_GROUPS)) {
+        const lower = new Set(group.terms);
+        for (const w of everyday.concat(phrases)) assert.ok(!lower.has(w), `${key}: "${w}"`);
+    }
+});
+
+test("2.5.9: a capitalised one-word name that is also an English word is kept only mid-sentence", () => {
+    let dict;
+    try { dict = new Set(fs.readFileSync("/usr/share/dict/words", "utf8").split("\n").filter(w => /^[a-z]+$/.test(w))); }
+    catch (e) { return; }   // no word list on this machine (Windows CI): nothing to check against
+    const risky = new Set(G.CST_RISKY_PROPER);
+    const before = require("node:child_process").execFileSync(process.execPath, ["-e",
+        "const G=require('./glossary.js');console.log(JSON.stringify([].concat(...Object.values(G.CST_GLOSSARY_GROUPS).map(g=>g.terms))))"],
+        { cwd: path.join(__dirname, "..") }).toString();
+    const old = new Set(JSON.parse(before));
+    const bad = [];
+    for (const group of Object.values(G.CST_GLOSSARY_GROUPS)) {
+        for (const t of group.terms) if (!old.has(t) && /^[A-Z][a-z]+$/.test(t) && dict.has(t.toLowerCase()) && !risky.has(t)) bad.push(t);
+    }
+    assert.deepEqual(bad, []);
+});
+
+test("2.5.9: protecting a long window stays fast with every term loaded, and matches what one big regex would", async () => {
+    const sb = loadContent();
+    await sb.loadGlossary();
+    assert.ok(vm.runInContext("state.glossaryKeep.length", sb) > 2000);
+    const text = ("We trained a large language model on GPUs, then used retrieval-augmented generation with a vector database. " +
+        "My morning routine with the WHOOP and a cup of coffee, then the interest rate went up again. ").repeat(15);
+    sb.protectGlossary(text);
+    const t0 = Date.now();
+    for (let i = 0; i < 10; i++) sb.protectGlossary(text);
+    assert.ok((Date.now() - t0) / 10 < 40, `${(Date.now() - t0) / 10} ms per window`);
+    const terms = [...sb.protectGlossary("Use retrieval-augmented generation and a vector database in Python").terms];
+    assert.deepEqual(terms, ["Python", "tạo sinh tăng cường truy xuất", "cơ sở dữ liệu vector"]);   // exact-case terms are protected first
 });
