@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.5.8", luc: "17/10/2026", ten: "Đọc đúng tên thương hiệu viết hoa và tên AI",
+            y: [
+                "Tên thương hiệu viết hoa toàn bộ được giọng đọc nói thành một từ thay vì đánh vần từng chữ: WHOOP đọc như tiếng Anh, \"wúp\" (trước đây là \"vê kép hát ô ô phê\"), NIKE, LEGO, SONY, ADIDAS, SAMSUNG, GARMIN cũng vậy. Mã viết tắt thật như HTML, CPAP, UCLA, HTTPS vẫn đọc từng chữ; viết tắt tiếng Việt như DN, THPTQG vẫn đọc kiểu Việt.",
+                "Sửa cách đọc một số tên AI và công nghệ: Qwen, Groq, xAI, NotebookLM, DALL-E, LangChain, CRISPR, NGINX, Oura, Huawei, Xiaomi, GoPro.",
+                "Từ điển thuật ngữ khi dịch thêm thiết bị đeo (WHOOP, Oura Ring, Garmin, Strava, Fitbit, Apple Watch, Peloton, các điểm giấc ngủ / phục hồi) và các tên, cụm từ AI mới (Veo, Imagen, Nano Banana, Kling, Runway, ElevenLabs, Suno, Codex, Gemini CLI, mô hình suy luận, vibe coding, deep research, test-time compute...), để bản dịch giữ nguyên tên và không dịch nhầm. Phụ đề tự động viết thường \"my whoop strap\" cũng được nhận ra là WHOOP."
+            ]
+        },
+        {
             v: "2.5.7", luc: "16/10/2026", ten: "Phím tắt tự đặt cho Windows và Mac",
             y: [
                 "Phím tắt không còn đặt sẵn (trước đây là Alt+S, Alt+D, Alt+Shift+V). Vào Cài đặt > Dịch & AI > Phím tắt, bấm \"Tùy chỉnh\" ở việc muốn dùng rồi nhấn tổ hợp phím: bật/tắt phụ đề tiếng Việt, bật/tắt lồng tiếng Việt, mở bảng điều khiển trên video. Bấm \"Xóa\" để bỏ một phím.",

@@ -176,7 +176,17 @@
         ["NVIDIA", "brand", "<en>nvidia</en>"],   // VieNeu drops both I's of the capitals: "n v d a"
         ["IKEA", "acronym"], ["NASA", "acronym"], ["NATO", "acronym"], ["FIFA", "acronym"], ["UEFA", "acronym"],
         ["UNESCO", "acronym"], ["UNICEF", "acronym"], ["ASEAN", "acronym"], ["OPEC", "acronym"], ["COVID", "acronym"],
-        ["JPEG", "acronym", "<en>jay peg</en>"]
+        ["JPEG", "acronym", "<en>jay peg</en>"],
+        // 2.5.8: brands and AI names VieNeu reads wrong as written, each checked on its phonemizer
+        ["CRISPR", "acronym", "<en>crisper</en>"], ["Nginx", "product", "<en>engine x</en>"], ["NGINX", "product", "<en>engine x</en>"],
+        ["Oura", "brand", "<en>ora</en>"], ["Oura Ring", "product", "<en>ora ring</en>"], ["Huawei", "brand", "<en>wahway</en>"],
+        ["Xiaomi", "brand", "<en>shaomee</en>"], ["GoPro", "brand", "<en>go pro</en>"],
+        ["Qwen", "product", "<en>chuen</en>"], ["Groq", "brand", "<en>grock</en>"], ["xAI", "brand", "<en>x a i</en>"],
+        ["NotebookLM", "product", "<en>notebook l m</en>"], ["DALL-E", "product", "<en>dolly</en>"],
+        ["LangChain", "product", "<en>langchain</en>"], ["OPENAI", "brand", "<en>open a i</en>"],
+        ["WHOOP", "brand"], ["Garmin", "brand"], ["Strava", "brand"], ["Fitbit", "brand"], ["Apple Watch", "product"],
+        ["DeepSeek", "brand"], ["Perplexity", "product"], ["Mistral", "brand"], ["Llama", "product"], ["Sora", "product"],
+        ["Veo", "product"], ["ElevenLabs", "brand"], ["Hugging Face", "brand"], ["Stable Diffusion", "product"]
     ];
     const LEX = new Map();
     let LEX_MAX = 1;
@@ -212,7 +222,34 @@
     const EN_SPELLED = new Set("QA PDF URL NFT TCP WAN SMB USB".split(" "));
     // English initialisms said letter by letter even where VieNeu reads a word, or where its table
     // stops (5 letters)
-    const INITIALISMS = new Set("HTTPS HR PR CPC CPM CPA ROI TPM SEM AWS GCP ETL CSV".split(" "));
+    const INITIALISMS = new Set("HTTPS HR PR CPC CPM CPA ROI TPM SEM AWS GCP ETL CSV UCLA USDA".split(" "));
+
+    // 2.5.8: an all-caps code shaped like an English word ("WHOOP", "NIKE", "LEGO", "SONY") is a name
+    // said as a word. VieNeu spells it with Vietnamese letter names ("vê kép hát ô ô phê"), and English
+    // letters ("n i k e") are no better. Word-shaped: 4+ letters, every vowel run 1-2 letters, every
+    // consonant run one English can start, end or join a word with. "UCLA", "USDA" pass the shape and
+    // are letters (INITIALISMS); "HTML", "CPAP", "IELTS" fail it.
+    const ONSETS = new Set("BL BR CH CL CR DR FL FR GL GR KL KN KR PH PL PR SC SH SK SL SM SN SP ST SW TH TR TW WH WR QU SCR SPR STR SPL THR SHR SCH".split(" "));
+    const CODAS = new Set("CH CK CT FT GH LD LF LK LL LM LP LT MB MP MS ND NG NK NS NT PH PS PT RB RC RD RF RG RK RL RM RN RP RS RT SH SK SP SS ST TH TS XT FF ZZ DS GS".split(" "));
+    function wordShaped(p) {
+        if (p.length < 4 || !/^[A-Z]+$/.test(p)) return false;
+        // Y is a vowel except before a vowel or at the start ("YOLO", "SONY")
+        const kinds = [...p].map((c, i) => /[AEIOU]/.test(c) || (c === "Y" && i > 0 && !/[AEIOU]/.test(p[i + 1] || "")) ? "V" : "C");
+        const runs = [];
+        for (let i = 0; i < p.length; i++) {
+            if (i && kinds[i] === kinds[i - 1]) runs[runs.length - 1].s += p[i];
+            else runs.push({ k: kinds[i], s: p[i] });
+        }
+        if (!runs.some(r => r.k === "V")) return false;
+        return runs.every((r, i) => {
+            if (r.k === "V") return r.s.length <= 2;
+            if (r.s.length === 1) return true;
+            if (i === 0) return ONSETS.has(r.s);
+            if (i === runs.length - 1) return CODAS.has(r.s);
+            if (r.s.length === 2) return /^[LMNRS]/.test(r.s) || r.s[0] === r.s[1] || ONSETS.has(r.s) || CODAS.has(r.s);
+            return r.s.length === 3 && (ONSETS.has(r.s.slice(1)) || CODAS.has(r.s.slice(0, 2)));
+        });
+    }
 
     // ---- How sure we are that a word is English (1.8.0) ----
     // A word VieNeu would read Vietnamese is rewritten only at HIGH_EN. Evidence adds up; a Vietnamese
@@ -245,7 +282,7 @@
         const p = possessive(s);
         if (!/\p{L}/u.test(p)) return /\d/.test(p) ? "num" : "other";
         if (/^\d+[a-z]{1,2}$/.test(p)) return "num";                             // 4o, 70b
-        if (/^[A-ZĐ]{2,6}$/.test(p)) return "caps";
+        if (/^[A-ZĐ]{2,12}$/.test(p)) return "caps";                          // "SAMSUNG" too (2.5.8)
         if (/^[A-Z]\d{1,4}[a-z]?$/.test(p)) return "code";                        // M3, S25, A100
         if (/^[A-Za-z]+$/.test(p) && /[a-z][A-Z]|[A-Z]{2}[a-z]/.test(p)) return "camel";
         if (/^[A-Za-z]+(?:-[A-Za-z]+)+$/.test(p)) return p.split("-").every(isViet) ? "vi" : "en";   // machine-learning
@@ -255,11 +292,13 @@
     }
 
     // How VieNeu reads an all-caps code: "en" English already, "vi" its Vietnamese expansion, "word"
-    // read as one word, "spelled" Vietnamese letter names (the one to fix). Its table covers 2-4 letters.
+    // read as one word, "spelled" Vietnamese letter names (the one to fix). Its table covers 2-4 letters;
+    // a longer code inside a Vietnamese sentence it spells too unless its own dictionary knows the word
+    // ("NASDAQ", "UNESCO"), which cannot be listed here (measured 2026-10-17: "WHOOP", "GARMIN").
     function capsClass(p) {
         if (/Đ/.test(p) || VI_CAPS.has(p)) return "vi";
         if (INITIALISMS.has(p)) return CAPS_EN.has(p) ? "en" : "spelled";
-        if (p.length > 4) return "word";
+        if (p.length > 4) return "spelled";
         if (CAPS_EN.has(p)) return "en";
         if (CAPS_VI.has(p)) return "vi";
         if (CAPS_WORD.has(p)) return "word";
@@ -286,6 +325,7 @@
         const source = String(ctx.source || "");
         const englishSource = !!source && ENGLISH_LINE.test(source);
         const inSource = w => new RegExp(`(^|[^\\p{L}])${esc(w)}(?![\\p{L}])`, "u").test(source);
+        const inSourceAnyCase = w => new RegExp(`(^|[^\\p{L}])${esc(w)}(?![\\p{L}])`, "iu").test(source);
         const tokens = toks.map((t, i) => {
             const lead = t.lead || "", trail = t.trail || "";
             const s = t.raw.slice(lead.length, t.raw.length - trail.length);
@@ -328,7 +368,8 @@
             if (c === "word") return !isViet(p);
             // an unknown code the English source line does not have was written by the translator,
             // so it is a Vietnamese abbreviation ("DN" for "businesses"), read with Vietnamese letters
-            if (c === "spelled" && englishSource && !INITIALISMS.has(p) && !EN_SPELLED.has(p) && !inSource(p)) return false;
+            // ("Whoop" in the source and "WHOOP" here is the same name)
+            if (c === "spelled" && englishSource && !INITIALISMS.has(p) && !EN_SPELLED.has(p) && !inSourceAnyCase(p)) return false;
             return true;
         };
         const english = t => t.unit >= 0 || t.shape === "en" || (t.shape === "camel" && !VI_CAPS.has(possessive(t.s))) || englishCaps(t);
@@ -430,6 +471,9 @@
         for (const t of tokens) {
             if (t.shape !== "caps" || t.span < 0) continue;
             const p = possessive(t.s);
+            // a code the source line writes as a word ("Whoop") or one shaped like a word is said as one
+            if (t.unit < 0 && capsClass(p) === "spelled" && !INITIALISMS.has(p) && !EN_SPELLED.has(p) && !isViet(p) &&
+                ((englishSource && inSourceAnyCase(p) && !inSource(p)) || wordShaped(p))) { t.asWord = true; continue; }
             if (p.length < 5 || INITIALISMS.has(p) || capsClass(p) === "vi" || VOWEL_CAPS.test(p)) continue;
             const sp = spans[t.span];
             let score = 0;
@@ -459,7 +503,9 @@
                 if (t.letters) return { say: `<en>${p.toLowerCase().split("").join(" ")}${ps}</en>`, pri: 2 };
                 if (t.span < 0 || capsClass(p) !== "spelled") return null;
                 const e = LEX.get(p.toLowerCase());
-                if (e && e.cat === "acronym") return { say: `<en>${p.toLowerCase()}${ps}</en>`, pri: 3 };
+                if ((e && e.cat !== "initialism") || t.asWord) return { say: `<en>${p.toLowerCase()}${ps}</en>`, pri: 3 };
+                // a longer code with a vowel that is no word shape: its reading is unknown, left to the voice
+                if (p.length > 4 && !INITIALISMS.has(p)) return null;
                 return { say: `<en>${p.toLowerCase().split("").join(" ")}${ps}</en>`, pri: 2 };
             }
             case "camel": {
@@ -559,7 +605,7 @@
     // Version of the pronunciation data and policy (lexicon, tables, CONF). Not part of any cache key:
     // the free voice's audio key holds the rendered text itself, so a policy change re-renders exactly
     // the lines whose rendered text changed, and nothing reaches the paid voice or the translation cache.
-    const PRONUNCIATION_VERSION = "1.8.0";
+    const PRONUNCIATION_VERSION = "1.9.0";
     const api = { analyze, render, vieneuText, spanGaps, shapeOf, capsClass, addEntry, RESPELL, LEX, TAG_MAX, CONF,
         HIGH_EN, AMBIGUOUS, HIGH_VI, PRONUNCIATION_VERSION };
     if (typeof module === "object" && module.exports) module.exports = api;

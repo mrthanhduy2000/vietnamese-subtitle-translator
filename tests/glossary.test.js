@@ -133,3 +133,15 @@ test("Vietnamese renderings join the unbreakable multi-word list for the segment
     await sb.loadGlossary();
     assert.ok(vm.runInContext("state", sb).glossaryMultiTerms.includes("độ lệch chuẩn"));
 });
+
+test("2.5.8: wearables and newer AI names are kept; a lowercase whoop only where the device is meant", async () => {
+    const sb = loadContent();
+    await sb.loadGlossary();
+    assert.deepEqual([...sb.protectGlossary("I track it on my whoop strap and my Oura Ring").terms], ["WHOOP", "Oura Ring"]);
+    assert.deepEqual([...sb.protectGlossary("She wears a whoop every night").terms], ["WHOOP"]);
+    assert.deepEqual([...sb.protectGlossary("The crowd let out a whoop of joy").terms], []);
+    assert.deepEqual([...sb.protectGlossary("Make the video with Veo and the voice with ElevenLabs").terms], ["Veo", "ElevenLabs"]);
+    assert.deepEqual([...sb.protectGlossary("A reasoning model needs test-time compute").terms], ["mô hình suy luận", "test-time compute"]);
+    // a product name that is an everyday word only mid-sentence
+    assert.deepEqual([...sb.protectGlossary("Lovable dogs are fun. I built it in Lovable").terms], ["Lovable"]);
+});

@@ -51,8 +51,9 @@ test("codes of 5+ letters: English letters only for a code with no vowel and Eng
     assert.equal(say("Máy chủ gửi thư qua SMTPS.", { source: "The server sends mail over SMTPS." }), "Máy chủ gửi thư qua <en>s m t p s</en>.");
     assert.equal(say("Máy chủ gửi thư qua SMTPS."), "Máy chủ gửi thư qua SMTPS.");
     for (const s of ["Học sinh đang ôn thi THPTQG.", "Hiến pháp nước CHXHCN Việt Nam.", "Mạng lưới UBMTTQ hoạt động ở mọi xã."]) assert.equal(say(s), s, s);
-    // a vowel: said as a word or as letters, unknown ("CRISPR" is "crisper")
-    assert.equal(say("Kỹ thuật CRISPR rất mới.", { source: "CRISPR is very new." }), "Kỹ thuật CRISPR rất mới.");
+    // a vowel but no word shape: said as a word or as letters, unknown; "CRISPR" is in the lexicon
+    assert.equal(say("Kỳ thi IELTS rất khó.", { source: "The IELTS exam is hard." }), "Kỳ thi IELTS rất khó.");
+    assert.equal(say("Kỹ thuật CRISPR rất mới.", { source: "CRISPR is very new." }), "Kỹ thuật <en>crisper</en> rất mới.");
     // VieNeu drops both I's of "NVIDIA": the lexicon says it
     assert.equal(say("Cổ phiếu NVIDIA tăng mạnh."), "Cổ phiếu <en>nvidia</en> tăng mạnh.");
     assert.ok(SPEECH.PRONUNCIATION_VERSION);
@@ -195,4 +196,25 @@ test("Ben, Kim and Leo inside an English name are said the English way; Vietname
     assert.equal(say("Kim nói rằng bài chưa xong.", { source: "Kim said the talk is not done." }), "Kim nói rằng bài chưa xong.");
     for (const s of ["Chị Kim là trưởng nhóm.", "Kim Anh dạy tiếng Anh.", "Kim loại này rất nặng.", "Kim Nguyễn là giám đốc.",
         "Leo núi rất mệt.", "Tôi thích leo núi với bạn.", "Kim Google nói."]) assert.equal(say(s), s, s);
+});
+
+test("2.5.8: an all-caps brand shaped like a word is said as a word, never spelled (WHOOP)", () => {
+    // VieNeu spelled these with Vietnamese letter names ("vê kép hát ô ô phê") or got English letters
+    assert.equal(say("Tôi đeo WHOOP mỗi ngày.", { source: "I wear my WHOOP every day." }), "Tôi đeo <en>whoop</en> mỗi ngày.");
+    assert.equal(say("Tôi đeo WHOOP mỗi ngày.", { source: "I wear my Whoop every day." }), "Tôi đeo <en>whoop</en> mỗi ngày.");
+    assert.equal(say("Giày NIKE và đồ LEGO."), "Giày <en>nike</en> và đồ <en>lego</en>.");
+    assert.equal(say("Tôi thích ADIDAS và SAMSUNG."), "Tôi thích <en>adidas</en> và <en>samsung</en>.");
+    assert.equal(say("Dữ liệu WHOOP's rất chi tiết."), "Dữ liệu <en>whoop's</en> rất chi tiết.");
+    // letter codes keep their letters; Vietnamese and translator-made codes stay Vietnamese
+    assert.equal(say("Máy CPAP giúp ngủ."), "Máy <en>c p a p</en> giúp ngủ.");
+    for (const s of ["Trang HTML này.", "Đại học UCLA.", "Thi THPTQG.", "ĐỪNG BAO GIỜ LÀM VẬY.", "Các DN nhỏ."]) assert.equal(say(s), s, s);
+    assert.equal(say("Tôi thích ADIDAS.", { source: "I like those sneakers." }), "Tôi thích ADIDAS.");
+});
+
+test("2.5.8: AI and brand names VieNeu misreads get the reading checked on its phonemizer", () => {
+    assert.equal(say("Dùng Qwen, Groq và xAI."), "Dùng <en>chuen</en>, <en>grock</en> và <en>x a i</en>.");
+    assert.equal(say("Mở NotebookLM rồi gọi DALL-E."), "Mở <en>notebook l m</en> rồi gọi <en>dolly</en>.");
+    assert.equal(say("Đeo Oura Ring hay đồng hồ Huawei."), "Đeo <en>ora ring</en> hay đồng hồ <en>wahway</en>.");
+    // the ones it already reads well are left as they are
+    for (const s of ["Dùng Garmin và Strava.", "Mô hình DeepSeek và Mistral."]) assert.equal(say(s), s, s);
 });

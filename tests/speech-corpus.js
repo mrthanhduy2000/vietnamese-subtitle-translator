@@ -125,7 +125,14 @@ module.exports = {
         // 1.9.5 (BACKLOG 21): names now respelled or tagged, and the same syllables in Vietnamese
         { id: "d101", text: "Diễn viên Ray Liotta nổi tiếng với vai diễn trong phim Goodfellas.", ents: [["Ray Liotta", "en"]] },
         { id: "d102", text: "Ca sĩ Theresa May từng là thủ tướng Anh.", src: "Theresa May was the UK prime minister.", ents: [["Theresa May", "en"]] },
-        { id: "d103", text: "Chị May và anh Sơn vừa đi Đà Lạt về.", ents: [["May", "vi"], ["Sơn", "vi"]] }
+        { id: "d103", text: "Chị May và anh Sơn vừa đi Đà Lạt về.", ents: [["May", "vi"], ["Sơn", "vi"]] },
+        // 2.5.8: all-caps brands said as a word, AI names VieNeu misread
+        { id: "d104", text: "Tôi đeo WHOOP / mỗi ngày để đo giấc ngủ.", src: "I wear my WHOOP every day to track sleep.", ents: [["WHOOP", "en"]] },
+        { id: "d105", text: "Giày NIKE và đồ chơi LEGO / bán rất chạy.", src: "NIKE shoes and LEGO toys sell well.", ents: [["NIKE", "en"], ["LEGO", "en"]] },
+        { id: "d106", text: "Điện thoại SAMSUNG / pin khá tốt.", src: "SAMSUNG phones have good batteries.", ents: [["SAMSUNG", "en"]] },
+        { id: "d107", text: "Tôi thử Qwen và Groq / cho bài này.", ents: [["Qwen", "en"], ["Groq", "en"]] },
+        { id: "d108", text: "Mở NotebookLM / rồi tạo ảnh bằng DALL-E.", ents: [["DALL-E", "en"]] },
+        { id: "d109", text: "Máy CPAP / giúp anh ấy ngủ ngon hơn.", src: "A CPAP machine helps him sleep better.", ents: [["CPAP", "letters"]] }
     ],
     validation: [
         { id: "v1", text: "Tôi dùng Microsoft Excel / để làm báo cáo tài chính.", ents: [["Microsoft Excel", "en"]] },

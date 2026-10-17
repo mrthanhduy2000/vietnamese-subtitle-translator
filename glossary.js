@@ -30,6 +30,11 @@ const DEFAULT_NORMALIZE = [
     ["a\\s*/\\s*b\\s+test(ing)?", "A/B testing"],
     ["six\\s*sigma", "Six Sigma"],
     ["e[-\\s]?commerce", "e-commerce"],
+    // A wearable written lowercase by auto-captions: only where the device is meant ("my whoop
+    // strap", "whoop recovery"), never the cry ("let out a whoop")
+    ["\\bwhoop(?=\\s+(?:band|strap|app|data|score|scores|recovery|membership|sleep|coach|journal|mg|body|[45]\\.0)\\b)", "WHOOP"],
+    ["(?<=\\b(?:my|your|his|her|their|our|wear|wears|wearing|wore)\\s+(?:a\\s+|the\\s+)?)whoop\\b(?!\\s+of\\b)", "WHOOP"],
+    ["oura\\s+ring", "Oura Ring"],
     // Possessive and digit spellings, so the glossary key below still matches
     ["prisoner[\u2019']?s\\s+dilemma", "prisoner's dilemma"],
     ["porter[\u2019']?s\\s+five\\s+forces", "Porter's five forces"],
@@ -66,7 +71,13 @@ const RISKY_PROPER = [
     "Windsurf",   // luot van buom
     "Grok",       // dong tu hieu thau
     "Anaconda",   // con tran
-    "Streamlit"   // dong tu tinh gon
+    "Streamlit",  // dong tu tinh gon
+    // 2.5.8
+    "Peloton",    // doan dua xe dap
+    "Runway",     // duong bang
+    "Codex",      // ban thao co
+    "Lovable",    // dang yeu
+    "Manus"       // ban tay (tieng Latinh)
 ];
 
 
@@ -132,6 +143,10 @@ const GLOSSARY_GROUPS = {
             "Claude Agent SDK", "LangGraph", "CrewAI", "AutoGen", "n8n",
             "Streamlit", "Gradio", "NumPy", "Matplotlib", "Anaconda",
             "Power Automate", "vLLM", "llama.cpp", "Hugging Face Hub",
+            // 2.5.8: newer AI products
+            "Veo", "Imagen", "Nano Banana", "Kling", "Runway", "ElevenLabs", "Suno",
+            "Codex", "Gemini CLI", "Meta AI", "Microsoft Copilot", "OpenRouter",
+            "LM Studio", "Lovable", "Manus", "Claude Skills", "AI Overviews", "AI Mode",
 
             // Viet tat
             "AI", "AGI", "API", "LLM", "MCP", "RAG", "NLP", "CNN", "RNN",
@@ -214,6 +229,12 @@ const GLOSSARY_GROUPS = {
             "replication lag", "eventual consistency", "acid transaction",
             "function calling",
             "retrieval augmented generation", "context engineering",
+            // 2.5.8: words of the current AI conversation
+            "reasoning model", "small language model", "open weights", "open-weight model",
+            "frontier model", "world model", "scaling laws", "test-time compute",
+            "AI safety", "superintelligence", "vibe coding", "deep research",
+            "few-shot prompting", "zero-shot prompting", "prompt chaining",
+            "speculative decoding", "agent skills", "context rot", "AI slop",
             "agent orchestration", "multi agent system", "chain of agents",
             "cloud computing", "edge computing", "tech stack",
             "front-end", "back-end", "full-stack",
@@ -499,7 +520,11 @@ const GLOSSARY_GROUPS = {
             "double progression", "accessory movement", "prime mover",
             "antagonist muscle", "posterior chain", "anterior chain",
             "energy system", "creatine monohydrate", "beta alanine",
-            "electrolyte balance", "hydration status", "sleep debt"
+            "electrolyte balance", "hydration status", "sleep debt",
+            // 2.5.8: wearables and their scores
+            "WHOOP", "Oura Ring", "Oura", "Garmin", "Strava", "Fitbit",
+            "Apple Watch", "Apple Health", "Peloton", "resting heart rate",
+            "sleep score", "recovery score", "readiness score", "Zone 2"
         ]
     },
 
@@ -727,6 +752,13 @@ const GLOSSARY_VI = {
         "synthetic data": "dữ liệu tổng hợp",
         "knowledge graph": "đồ thị tri thức",
         "cosine similarity": "độ tương đồng cosine",
+        "reasoning model": "mô hình suy luận",
+        "small language model": "mô hình ngôn ngữ nhỏ",
+        "frontier model": "mô hình tiên phong",
+        "world model": "mô hình thế giới",
+        "scaling laws": "quy luật mở rộng quy mô",
+        "superintelligence": "siêu trí tuệ",
+        "speculative decoding": "giải mã suy đoán",
         "latent space": "không gian tiềm ẩn",
         "speech to text": "chuyển giọng nói thành văn bản",
         "text to speech": "chuyển văn bản thành giọng nói",
@@ -1005,6 +1037,9 @@ const GLOSSARY_VI = {
         "energy system": "hệ năng lượng",
         "electrolyte balance": "cân bằng điện giải",
         "sleep debt": "nợ ngủ",
+        "sleep score": "điểm giấc ngủ",
+        "recovery score": "điểm phục hồi",
+        "readiness score": "điểm sẵn sàng",
         "range of motion": "biên độ chuyển động",
         "compound exercise": "bài tập đa khớp",
         "isolation exercise": "bài tập đơn khớp",

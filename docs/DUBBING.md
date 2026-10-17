@@ -321,7 +321,19 @@ in capitals (decisive). A lone "Tom" with no source line stays as is. Every toke
 `lang`, `entity`, `conf`, `score`.
 **Codes of 5+ letters**: English letters only for a code with **no vowel** and English evidence (the
 source line has it; or an English neighbour plus F/J/W/Z). VieNeu spells all of them Vietnamese
-("SMTPS", "THPTQG"); a code with a vowel ("CRISPR", "NGINX") may be a word, so it is left to the voice.
+("SMTPS", "THPTQG"); a code with a vowel and no word shape ("IELTS") is left to the voice.
+**Word-shaped caps (2.5.8)**: inside a Vietnamese sentence VieNeu spells *every* all-caps code of 5+
+letters it has no dictionary word for ("WHOOP" -> "vê kép hát ô ô phê", "GARMIN", "SAMSUNG"; measured
+2026-10-17; `normalize` on the bare word lowercases it and hides this, test codes in a carrier
+sentence). `capsClass` now says "spelled" past 4 letters, the caps shape reaches 12 letters, and a
+4+ letter code that `wordShaped` accepts (vowel runs <= 2, consonant runs an English onset / coda /
+joint: `ONSETS`, `CODAS`) is sent `<en>whoop</en>`; so are 4-letter ones the table spells ("NIKE",
+"LEGO" were English letters). A source line writing it "Whoop" counts too (`inSourceAnyCase`). Not
+for INITIALISMS ("UCLA", "USDA", "HTTPS"), Vietnamese syllables, or a code the English source lacks.
+Lexicon respellings checked on the phonemizer: Qwen "chuen", Groq "grock", xAI, NotebookLM, DALL-E
+"dolly", Oura "ora", Huawei "wahway", Xiaomi "shaomee", GoPro, CRISPR "crisper", NGINX "engine x".
+`pron-eval` dev 123 -> 128 of 131 (d104-d109 added), validation unchanged. Its judge flags letter
+"M" (ɛm) as Vietnamese, so "NotebookLM" is pinned by a unit test, not the corpus.
 **Version or quantity**: `dub-planner.js` `numberRole(before, after)`, used by `adaptForSpeech` and
 the model-number rule: a measure unit after the number wins ("CPU 3.5 GHz" -> "3 phẩy 5", "RAM 4096
 MB"), then a section word or product name before it ("Python 3.12 năm ngoái" -> "chấm").
