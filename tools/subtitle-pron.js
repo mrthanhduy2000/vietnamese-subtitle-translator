@@ -50,11 +50,21 @@ for (const [name, file] of files) {
     for (const [s, e, vi] of data.vi) {
         const text = String(vi || "").replace(/\s+/g, " ").trim();
         if (!text) continue;
-        const source = data.cues.filter(c => c[1] > s - 0.5 && c[0] < e + 0.5).map(c => c[2]).join(" ");
+        // the English cues within four seconds: a name is often written across two cues ("CS" ... "Lewis")
+        const source = data.cues.filter(c => c[1] > s - 4 && c[0] < e + 4).map(c => c[2]).join(" ");
         lines.push({ video: name, text, source });
     }
 }
 
+// ---- what is judged ----
+// Not judged, each counted in the report: a web address (said the Vietnamese way on purpose, "chấm ai"),
+// a single letter ("nhóm A": the Vietnamese letter name is right there), a span that starts with a
+// number ("4x4", "4 nhân 4": numbers are Vietnamese on purpose), and a unit after a number ("750 W").
+const WEB = /\.(ai|com|org|net|io|gg|js|txt|dev|app|co|me|tv|ly|xyz|fm|so|us|uk|vn|edu|gov)$/i;
+const skipped = { address: 0, letter: 0, number: 0, unit: 0, notEnglish: 0 };
+// English words: the system dictionary (and its proper names); a word of the source line itself counts too
+const ENGLISH = new Set(["/usr/share/dict/words", "/usr/share/dict/propernames"].filter(f => fs.existsSync(f))
+    .flatMap(f => fs.readFileSync(f, "utf8").split("\n").map(w => w.trim().toLowerCase())).filter(Boolean));
 // ---- the English spans of each line ----
 // Vietnamese written with Latin letters only: loanwords and units the translator chose, said the
 // Vietnamese way on purpose ("5 kg" is "năm ki lô gam")
@@ -82,7 +92,14 @@ for (const [li, ln] of lines.entries()) {
         const span = words.slice(i, j + 1).join(" ");
         const lead = words[i].match(/^[^\p{L}\p{N}]*/u)[0], trail = words[j].match(/[^\p{L}\p{N}+#]*$/u)[0];
         const variant = words.slice(0, i).concat([lead + "cái" + trail], words.slice(j + 1)).join(" ");
-        spans.push({ line: li, span: core(span) || span, variant });
+        const word = core(span) || span;
+        const prev = i > 0 ? words[i - 1] : "";
+        if (WEB.test(word)) skipped.address++;
+        else if (word.replace(/[^A-Za-z]/g, "").length <= 1 && !/\d/.test(word)) skipped.letter++;
+        else if (/^\d/.test(word)) skipped.number++;
+        else if (/^[A-Za-z]{1,2}$/.test(word) && /\d\s*$/.test(prev)) skipped.unit++;
+        else if (/^[a-z]/.test(word) && word.split(/\s+/).some(w => /^[a-z]+$/.test(w) && !ENGLISH.has(w.toLowerCase()))) skipped.notEnglish++;
+        else spans.push({ line: li, span: word, variant, source: ln.source });
         i = j;
     }
 }
@@ -101,19 +118,22 @@ function g2p(arr) {
     }
     return out.map(x => x.ph.join(" ").split(/\s+/).map(w => w.replace(/[.,;:!?"“”]+/g, "")).filter(Boolean));
 }
-const VI_MARK = /[0-9]|t̪|ɗ|ɣ|ɲ|aː|ɯ|ɤ/;
+// a tone digit sits on a phoneme ("fˈəɪ4"); a digit on its own is a number word ("3")
+const VI_MARK = /[^\s\d]\d|t̪|ɗ|ɣ|ɲ|aː|ɯ|ɤ/;
 const NUM_PH = new Set(g2p(["không một hai ba bốn năm sáu bảy tám chín mười mươi mốt lăm tư trăm nghìn triệu tỷ lẻ linh chấm phẩy"])[0]);
+// Each span is judged in its own line, the way the engine says it. Base: the same line with the span
+// replaced by "cái" (the rest of the line, including the English evidence around the span, is kept).
 function judge(root) {
     const used = [...new Set(spans.map(s => s.line))];
-    const full = renderWith(root, used.map(i => lines[i]));
-    const fullOf = new Map(used.map((i, k) => [i, full[k]]));
-    const vars = renderWith(root, spans.map(s => ({ text: s.variant, source: lines[s.line].source })));
-    const ph = g2p(used.map(i => fullOf.get(i)).concat(vars));
+    const items = used.map(i => lines[i]).concat(spans.map(s => ({ text: s.variant, source: s.source })));
+    const rendered = renderWith(root, items);
+    const ph = g2p(rendered);
+    const fullOf = new Map(used.map((i, k) => [i, rendered[k]]));
     const phOf = new Map(used.map((i, k) => [i, ph[k]]));
     return spans.map((s, k) => {
-        const w = phOf.get(s.line), base = ph[used.length + k];
-        let a = 0; while (a < w.length && a < base.length && w[a] === base[a]) a++;
-        let b = 0; while (b < w.length - a && b < base.length - a && w[w.length - 1 - b] === base[base.length - 1 - b]) b++;
+        const w = phOf.get(s.line), b0 = ph[used.length + k];
+        let a = 0; while (a < w.length && a < b0.length && w[a] === b0[a]) a++;
+        let b = 0; while (b < w.length - a && b < b0.length - a && w[w.length - 1 - b] === b0[b0.length - 1 - b]) b++;
         const mine = w.slice(a, w.length - b);
         const viw = mine.filter(x => VI_MARK.test(x) && !NUM_PH.has(x));
         return { span: s.span, sent: fullOf.get(s.line), ph: mine.join(" "), vi: viw.length > 0 && mine.length > 0 };
@@ -129,7 +149,8 @@ const now = judge(REPO);
 const before = oldRoot ? judge(oldRoot) : null;
 const count = r => r.filter(x => x.vi).length;
 const pct = r => (100 * count(r) / Math.max(1, r.length)).toFixed(1);
-console.log(`videos ${files.size} | lines ${lines.length} | English spans ${spans.length} (${new Set(spans.map(s => s.span)).size} distinct)`);
+console.log(`videos ${files.size} | lines ${lines.length} | English spans judged ${spans.length} (${new Set(spans.map(s => s.span)).size} distinct)`);
+console.log(`not judged: web addresses ${skipped.address} (Vietnamese "chấm" on purpose), single letters ${skipped.letter} (Vietnamese letter names), numbers ${skipped.number}, units after a number ${skipped.unit}, lower-case words that are no English word ${skipped.notEnglish}`);
 if (before) console.log(`read Vietnamese: ${arg("old")} ${count(before)} (${pct(before)}%) -> now ${count(now)} (${pct(now)}%)`);
 else console.log(`read Vietnamese: ${count(now)} (${pct(now)}%)`);
 const show = +arg("show", 30);

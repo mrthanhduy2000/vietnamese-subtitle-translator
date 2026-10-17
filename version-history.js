@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.6.2", luc: "18/10/2026", ten: "Chữ cái sau tên tiếng Anh được đọc kiểu quốc tế, phép đo phụ đề chặt hơn",
+            y: [
+                "Tên viết tắt như \"C.S. Lewis\" được đọc kiểu Anh khi câu gốc ghi các chữ cái trước tên, kể cả khi hai chữ nằm ở hai câu phụ đề liền nhau (\"CS Lewis\").",
+                "Phép đo phụ đề mở rộng cửa sổ tìm bằng chứng từ ±0,5 giây lên ±4 giây, nên những tên bị tách qua hai câu được tính đúng."
+            ]
+        },
+        {
             v: "2.6.1", luc: "18/10/2026", ten: "Giọng lồng tiếng đọc tiếng Anh trong phụ đề theo kiểu quốc tế, từ điển gần 29.500 thuật ngữ",
             y: [
                 "Đo trên phụ đề thật của 50 video đã xem (2.041 cụm chữ tiếng Anh được giữ nguyên trong bản dịch): số cụm bị đọc kiểu Việt hay đánh vần giảm từ 64 (3,1%) xuống 21 (1,0%). Phần còn lại chủ yếu là chỗ cố ý đọc tiếng Việt như \"nhóm A\", \"750 W\".",

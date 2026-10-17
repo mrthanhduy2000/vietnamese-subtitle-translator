@@ -135,8 +135,32 @@
 
     // ---------------- Chuyển văn bản sang dạng dễ đọc thành tiếng ----------------
     // Chỉ đổi CÁCH VIẾT, không đổi nghĩa: ký hiệu, số thập phân, ngoặc đơn.
+    // 2.6.2: a glossary name with a number, a symbol or a hyphen in it ("Veo 3.1", "K+", "2% BHA", "(G)I-DLE") is
+    // said by its own reading (GLOSSARY_SAY, dub-speech.js) before the number and symbol rules below
+    // turn "3.1" into "3 phẩy 1". Only those keys: the rest of the glossary goes through render().
+    let keepKeys = null;
+    const keepRe = () => {
+        if (keepKeys !== null) return keepKeys;
+        const SP = (root && root.CST_DUB_SPEECH) ||
+            (typeof require === "function" ? (() => { try { return require("./dub-speech.js"); } catch (e) { return null; } })() : null);
+        const say = SP && SP.GLOSSARY_SAY ? SP.GLOSSARY_SAY : {};
+        const keys = Object.keys(say).filter(k => /[^\p{L} ]/u.test(k)).sort((x, y) => y.length - x.length);
+        const esc = k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        // a key that starts with a symbol ("% Arabica") may follow a letter once cleanText has closed the space
+        const sym = keys.filter(k => !/^\p{L}/u.test(k)), words = keys.filter(k => /^\p{L}/u.test(k));
+        keepKeys = keys.length ? {
+            sym: sym.length ? new RegExp("(" + sym.map(esc).join("|") + ")(?![\\p{L}\\p{N}])", "giu") : null,
+            re: words.length ? new RegExp("(?<![\\p{L}\\p{N}])(" + words.map(esc).join("|") + ")(?![\\p{L}\\p{N}])", "giu") : null,
+            say } : false;
+        return keepKeys;
+    };
     function adaptForSpeech(text) {
         let t = SEG ? SEG.cleanText(text, { keepHints: true }) : String(text || "");
+        const keep = keepRe();
+        if (keep) for (const re of [keep.sym, keep.re]) if (re) t = t.replace(re, (m, g1, off, all) => {
+            const r = keep.say[m.toLowerCase()];
+            return r ? (off > 0 && /\p{L}$/u.test(all[off - 1]) ? " " : "") + r : m;
+        });
         // Every rule below was checked against the VieNeu server's own normalizer (sea_g2p), by
         // reading back what it actually says. See tests/dub.test.js "speech text".
         // Web addresses: without this the scheme is spelled out letter by letter ("hát tê tê phê")

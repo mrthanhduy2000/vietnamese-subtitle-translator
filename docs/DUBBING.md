@@ -211,6 +211,7 @@ to create a stop is the text sent: a comma (`breathText`). Paid voices are never
 and their segment cuts are billed audio.
 
 **1. `analyze(text)`**: per word its syllables; per gap between two words:
+- 2.6.2: a dotted initial ("C.S.") is English letters when the source writes the letters before the name, even split across two cues (`srcHas` in `renderUncached`). The measure (`tools/subtitle-pron.js`) uses ±4 s of source for evidence. Known measure false positive: replacing "John" with "cái" changes Dan's reading, so "và" shows up in the diff.
 - `cost` = the segmenter's gap cost; `value` = clamp((5 - cost) / 20, -4, 2). A gap with value < 0
   (`K.minValue`) is inside a phrase and never a pause, however long the run.
 - `unit`: inside a number, a number and its unit, a name, an acronym or English run, a term. Never a

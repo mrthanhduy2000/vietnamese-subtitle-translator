@@ -33,12 +33,15 @@ if (render) {
 
 require(path.join(REPO, "glossary.js")); require(path.join(REPO, "glossary-extra.js")); require(path.join(REPO, "glossary-data.js"));
 const SPEECH = require(path.join(REPO, "dub-speech.js"));
+// Web addresses ("Claude.ai", "t3.gg") are said the Vietnamese way on purpose ("chấm ai", 2.5.x
+// tests): the audit leaves them out, and the writer never fills them
+const WEB = /\.(ai|com|org|net|io|gg|js|txt|dev|app|co|me|tv|ly|xyz|fm|so|us|uk|vn|edu|gov)$/i;
 const terms = [];
 const seen = new Set();
 for (const g of Object.values(globalThis.CST_GLOSSARY_GROUPS)) {
     for (const t of g.terms) {
         const k = t.toLowerCase();
-        if (seen.has(k) || (g.vi || {})[k] || !SPEECH.glossaryName(t)) continue;
+        if (seen.has(k) || (g.vi || {})[k] || !SPEECH.glossaryName(t) || WEB.test(t)) continue;
         seen.add(k);
         terms.push(t);
     }
@@ -63,6 +66,65 @@ function g2p(arr) {
 const VI_MARK = /[0-9]|t̪|ɗ|ɣ|ɲ|aː|ɯ|ɤ/;
 // the phoneme words of Vietnamese numerals and "chấm" / "phẩy", which the voice is meant to say
 const NUM_PH = new Set(g2p(["không một hai ba bốn năm sáu bảy tám chín mười mươi mốt lăm tư trăm nghìn triệu tỷ lẻ linh chấm phẩy"])[0].ph.join(" ").split(/\s+/));
+// 2.6.2: readings written by hand for names that no spelling search finds: the English way the name is
+// said, respelled in English letters ("Labubu" lah-boo-boo). Each is still checked by the front end.
+const MANUAL_SAY = {
+    "kep1er": ["kepler"],
+    "hometown cha-cha-cha": ["hometown chah chah chah"],
+    "la vache qui rit": ["lah vash kee ree"],
+    "masala chai": ["masala chy", "masala shy"],
+    "tia-clair toomey": ["tia clair toomey", "tie a clair too me"],
+    "thai airasia": ["thai air asia", "tie air asia"],
+    "thai airways international": ["tie air ways international", "thai air ways international"],
+    "thai airways": ["tie air ways", "thai air ways"],
+    "lipoprotein(a)": ["lipo protein a"],
+    "terence tao": ["terrence tow", "terence tow"],
+    "mane 'n tail": ["mane n tale"],
+    "% arabica": ["arabica"],
+    "rinnai": ["rin eye", "rin ay"],
+    "coco gauff": ["koh koh gawf", "coco gaff"],
+    "vinfast lux a2.0": ["vin fast lux a two"],
+    "vinfast lux sa2.0": ["vin fast lux s a two", "vin fast lux es a two"],
+    "(g)i-dle": ["gee i dle", "g i dle"],
+    "aryna sabalenka": ["ar ina sabalenka", "a ryna sa ba lenka"],
+    "tinx": ["tinks"],
+    "prayut chan-o-cha": ["pray oot chahn o chah"],
+    "xabi alonso": ["shabi alonso", "zabi alonso"],
+    "koh tao": ["koe tow", "koh tow"],
+    "short n' sweet": ["short n sweet"],
+    "11:11": ["eleven eleven"],
+    "haechan": ["hay shahn", "hae shahn", "hie shahn", "hi shan"],
+    "changbin": ["chung bin", "chahng bihn", "chang bean"],
+    "langfuse": ["langue fyooz", "lang fyooz", "langue fuse"],
+    "k+": ["kay plus", "k plus", "kay"],
+    "labubu": ["lah boo boo", "lah bu bu", "luh boo boo"],
+    "dabigatran": ["dab ig a trahn", "dab eye gah trahn", "dab ig ah trahn"],
+    "laion-5b": ["lion five b", "lie on five b"],
+    "veo 3.1": ["veo three point one", "vee oh three point one"],
+    "$100m offers": ["one hundred million offers"],
+    "stronglifts 5x5": ["strong lifts five by five"],
+    "ph.d.": ["p h d", "pee aitch dee"],
+    "k-12": ["k twelve", "kay twelve"],
+    "comptia security+": ["comp tia security plus"],
+    "1.5\u00b0c": ["one point five degrees c", "one point five celsius"],
+    "2% bha liquid exfoliant": ["two percent bha liquid exfoliant"],
+    "joe & the juice": ["joe and the juice"],
+    "11.11": ["eleven eleven"],
+    "99% invisible": ["ninety nine percent invisible"],
+    "e.t. the extra-terrestrial": ["e t the extra terrestrial"],
+    "2001: a space odyssey": ["two thousand one a space odyssey"],
+    "the witcher 3: wild hunt": ["the witcher three wild hunt"],
+    "2 days & 1 night": ["two days and one night"],
+    "e=mc\u00b2": ["e equals m c squared"],
+    "e = mc2": ["e equals m c squared"],
+    "e=mc2": ["e equals m c squared"],
+    "h-1b": ["h one b", "aitch one b"],
+    "casio f-91w": ["casio f ninety one w"],
+    "f-91w": ["f ninety one w"],
+    "t3.gg": ["t three dot g g"],
+    "mark tuan": ["mark twan", "mark too an"],
+    "laifen": ["lie fen", "lie fehn"],
+};
 const viWords = span => span.filter(x => VI_MARK.test(x) && !NUM_PH.has(x));
 function judge(mode) {
     const rendered = run(mode);
@@ -123,7 +185,17 @@ if (process.argv.includes("--write")) {
         const words = x.term.replace(/([&])/g, " $1 ").split(/\s+/).filter(Boolean).map(w => w.replace(/-/g, " "));
         const cands = new Set();
         const tag = s => `<en>${s.replace(/\s+/g, " ").trim()}</en>`;
-        cands.add(tag(x.term.toLowerCase().replace(/&/g, " and ").replace(/-/g, " ")));
+        // 2.6.2: the hand readings first; a name with a symbol in it is never kept as its own spelling
+        if (!/[()%+=²°'’#.]/.test(x.term)) cands.add(tag(x.term.toLowerCase().replace(/&/g, " and ").replace(/-/g, " ")));
+        // 2.6.2: a name cut into two English-looking halves at every point ("Langfuse" -> "lang fuse",
+        // "Koh Tao" -> "koh tow"), and the hand-written reading for names no cut gives (MANUAL_SAY)
+        const flatLower = x.term.toLowerCase().replace(/[^a-z0-9]/g, "");
+        // every word of a plain-letter name cut in two at every point ("coco gauff" -> "coco ga uff")
+        if (/^[a-z ]+$/.test(x.term.toLowerCase().trim())) {
+            const ws = x.term.toLowerCase().trim().split(/\s+/);
+            ws.forEach((w, wi) => { for (let k = 2; k < w.length - 1; k++) cands.add(tag(ws.map((y, j) => j === wi ? y.slice(0, k) + " " + y.slice(k) : y).join(" "))); });
+        }
+        for (const m of MANUAL_SAY[x.term.toLowerCase()] || []) cands.add(tag(m));
         cands.add(tag(words.map(piece).join(" ")));
         cands.add(tag(words.map(w => /^[A-Z]{2,}$/.test(w) ? letters(w) : piece(w)).join(" ")));
         // letters in English, numbers left outside the tag for the Vietnamese numerals ("HTML5", "MP3")
