@@ -146,7 +146,7 @@
     // @generated speech-tables end
 
     // @generated glossary-say begin: tools/glossary-pron.js --write, do not edit by hand
-    // 499 glossary names VieNeu read with Vietnamese sounds as written, and the spelling it reads
+    // 500 glossary names VieNeu read with Vietnamese sounds as written, and the spelling it reads
     // the English way (checked on its front end, sea_g2p, in a Vietnamese carrier sentence)
     const GLOSSARY_SAY = {
         "$100m offers": "<en>one hundred million offers</en>",
@@ -393,6 +393,7 @@
         "la clippers": "<en>l a clippers</en>",
         "la fitness": "<en>l a fitness</en>",
         "la galaxy": "<en>l a galaxy</en>",
+        "la times": "<en>l a times</en>",
         "la vache qui rit": "<en>lah vash kee ree</en>",
         "labubu": "<en>lab ubu</en>",
         "laifen": "<en>lie fen</en>",

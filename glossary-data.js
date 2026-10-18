@@ -34909,3 +34909,6 @@ CST_GLOSSARY_EXTRA_ADD("automotive", null, `
 CST_GLOSSARY_EXTRA_ADD("psychology", null, `
 =burnout|kiệt sức
 `);
+CST_GLOSSARY_EXTRA_ADD("press", null, `
+LA Times
+`);

@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.6.3", luc: "18/10/2026", ten: "Phụ đề tiếng Anh giữ nguyên được đọc đúng kiểu quốc tế: LA Times và các cụm chữ thường không phải tiếng Anh",
+            y: [
+                "Thêm LA Times vào từ điển, nên tên tờ báo được đọc theo kiểu tiếng Anh thay vì âm \"la\" tiếng Việt.",
+                "Phép đo phụ đề căn chỉnh cách đọc bằng dãy con chung dài nhất, nên một tên đứng cạnh tên khác không còn làm lệch kết quả. Cụm có chữ thường không phải tiếng Anh (đoạn hát lặp) được loại khỏi phép đo và được đếm riêng."
+            ]
+        },
+        {
             v: "2.6.2", luc: "18/10/2026", ten: "Chữ cái sau tên tiếng Anh được đọc kiểu quốc tế, phép đo phụ đề chặt hơn",
             y: [
                 "Tên viết tắt như \"C.S. Lewis\" được đọc kiểu Anh khi câu gốc ghi các chữ cái trước tên, kể cả khi hai chữ nằm ở hai câu phụ đề liền nhau (\"CS Lewis\").",

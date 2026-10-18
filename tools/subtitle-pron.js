@@ -98,7 +98,7 @@ for (const [li, ln] of lines.entries()) {
         else if (word.replace(/[^A-Za-z]/g, "").length <= 1 && !/\d/.test(word)) skipped.letter++;
         else if (/^\d/.test(word)) skipped.number++;
         else if (/^[A-Za-z]{1,2}$/.test(word) && /\d\s*$/.test(prev)) skipped.unit++;
-        else if (/^[a-z]/.test(word) && word.split(/\s+/).some(w => /^[a-z]+$/.test(w) && !ENGLISH.has(w.toLowerCase()))) skipped.notEnglish++;
+        else if (word.split(/\s+/).some(w => /^[a-z]+$/.test(w) && !ENGLISH.has(w.toLowerCase()))) skipped.notEnglish++;
         else spans.push({ line: li, span: word, variant, source: ln.source });
         i = j;
     }
@@ -123,6 +123,23 @@ const VI_MARK = /[^\s\d]\d|t̪|ɗ|ɣ|ɲ|aː|ɯ|ɤ/;
 const NUM_PH = new Set(g2p(["không một hai ba bốn năm sáu bảy tám chín mười mươi mốt lăm tư trăm nghìn triệu tỷ lẻ linh chấm phẩy"])[0]);
 // Each span is judged in its own line, the way the engine says it. Base: the same line with the span
 // replaced by "cái" (the rest of the line, including the English evidence around the span, is kept).
+// phonemes of a that are not part of the longest common subsequence with b
+function unmatched(a, b) {
+    const n = a.length, m = b.length;
+    const L = Array.from({ length: n + 1 }, () => new Int32Array(m + 1));
+    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--)
+        L[i][j] = a[i] === b[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+    const out = [];
+    let i = 0, j = 0;
+    while (i < n && j < m) {
+        if (a[i] === b[j]) { i++; j++; }
+        else if (L[i + 1][j] >= L[i][j + 1]) out.push(a[i++]);
+        else j++;
+    }
+    while (i < n) out.push(a[i++]);
+    return out;
+}
+
 function judge(root) {
     const used = [...new Set(spans.map(s => s.line))];
     const items = used.map(i => lines[i]).concat(spans.map(s => ({ text: s.variant, source: s.source })));
@@ -132,9 +149,9 @@ function judge(root) {
     const phOf = new Map(used.map((i, k) => [i, ph[k]]));
     return spans.map((s, k) => {
         const w = phOf.get(s.line), b0 = ph[used.length + k];
-        let a = 0; while (a < w.length && a < b0.length && w[a] === b0[a]) a++;
-        let b = 0; while (b < w.length - a && b < b0.length - a && w[w.length - 1 - b] === b0[b0.length - 1 - b]) b++;
-        const mine = w.slice(a, w.length - b);
+        // the phonemes of this line that the variant (the span replaced) does not share, by an LCS
+        // alignment: a prefix/suffix cut lets a second name's reading ("và" after "Dan") leak in
+        const mine = unmatched(w, b0);
         const viw = mine.filter(x => VI_MARK.test(x) && !NUM_PH.has(x));
         return { span: s.span, sent: fullOf.get(s.line), ph: mine.join(" "), vi: viw.length > 0 && mine.length > 0 };
     });
