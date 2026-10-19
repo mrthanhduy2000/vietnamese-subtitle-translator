@@ -28,6 +28,12 @@ Never reuse a `pot` captured on one video for another one, to skip the toggle an
 sooner: it is YouTube's per-video attestation, and sending it elsewhere is working around its bot
 detection (declined 2026-09-29).
 
+**The player's own body is a fallback (2.6.7).** `layNoiDungPhuDe` fetches our json3 URL with the
+captured pot first; the body the player fetched for itself (`bodies`) only when that comes back
+empty. The player's body can be the display form: qSlxe4hA66g's Korean ASR came as 172 two-row
+blocks of 7-11 s with no word times (our json3 fetch: 596 events with word times), and every
+block's second row was shown and spoken 4-5 s early.
+
 ## 2. There is ONE bridge, injected two ways
 
 `manifest.json` injects `yt-bridge.js` into the MAIN world at `document_start`. When the page predates

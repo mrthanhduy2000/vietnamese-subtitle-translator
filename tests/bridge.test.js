@@ -23,7 +23,7 @@ function page(opts = {}) {
         fetch: async url => {
             fetched.push(url);
             const withPot = /[?&]pot=/.test(url) && /[?&]c=WEB/.test(url);
-            const text = opts.direct || withPot ? BODY : "";
+            const text = opts.direct || (withPot && !opts.potEmpty) ? BODY : "";
             return { ok: true, status: 200, url, text: async () => text, clone() { return this; } };
         }
     };
@@ -74,7 +74,8 @@ function page(opts = {}) {
 test("phụ đề rỗng (thiếu pot): cầu nối bật phụ đề trình phát trong giây lát, lấy nội dung, rồi TẮT lại như cũ", async () => {
     const P = page();
     const r = await P.ask(BASE);
-    assert.equal(r.via, "player");
+    // our own json3 request with the player's pot, not the player's display body (2.6.7)
+    assert.equal(r.via, "pot");
     assert.ok(r.text.includes("hello world"));
     assert.deepEqual({ ...P.track }, {}, "phụ đề của trình phát phải trở về trạng thái tắt");
     // Lần sau: lấy ngay từ bộ nhớ, không bật lại phụ đề
@@ -109,4 +110,12 @@ test("đã có pot của video (trình phát từng tải một track): tải tr
     assert.equal(r.via, "pot");
     assert.ok(r.text.includes("hello world"));
     assert.ok(P.fetched.some(u => /pot=TOKEN/.test(u) && /lang=en/.test(u)));
+});
+
+test("the player's own body (display blocks, no word times) is only the fallback when our request with its pot is empty (qSlxe4hA66g)", async () => {
+    const P = page({ potEmpty: true });
+    const r = await P.ask(BASE);
+    assert.equal(r.via, "player");
+    assert.ok(r.text.includes("hello world"));
+    assert.ok(P.fetched.some(u => /pot=TOKEN/.test(u)), "our own request with the pot came first");
 });

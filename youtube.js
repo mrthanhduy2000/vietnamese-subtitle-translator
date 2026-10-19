@@ -266,10 +266,12 @@ function ytHoiDanhSachPhuDe(timeoutMs = 4500) {
     });
 }
 
-// A track's identity in a saved copy: language, kind, and whether it transcribes a dub
+// A track's identity in a saved copy: language, kind, whether it transcribes a dub, and the
+// fetch generation. "|2" (2.6.7): copies saved by 2.6.5-2.6.6 may come from the player's display
+// body (two-row blocks, no word times, lines 4-5 s early) and are retranslated once
 function ytMaTrack(t) {
     if (!t) return "";
-    return `${t.languageCode}|${t.kind || ""}${/[?&]variant=/.test(t.baseUrl || "") ? "|dub" : ""}`;
+    return `${t.languageCode}|${t.kind || ""}${/[?&]variant=/.test(t.baseUrl || "") ? "|dub" : ""}|2`;
 }
 
 // ---------- Chon ban chep loi phu hop ----------

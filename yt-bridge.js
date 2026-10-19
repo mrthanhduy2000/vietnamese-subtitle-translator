@@ -224,20 +224,24 @@
         const kind = u.searchParams.get("kind") || "";
         const variant = u.searchParams.get("variant") || "";
         const k = khoa(v, lang, kind, variant);
-        if (bodies.has(k)) return { text: bodies.get(k), via: "player" };
 
         // 1. Link goc (video cu / link khong can pot van tra noi dung)
         let text = await taiVanBan(u.toString());
         if (text) return { text, via: "direct" };
 
-        // 2. Can ma pot cua trinh phat
+        // 2. Our own request with the player's pot. The body the player fetched for itself is only
+        // the fallback (2.6.7): it can be the display form, blocks of two rows with no word times
+        // (qSlxe4hA66g, Korean ASR: 172 blocks of 7-11 s, against 596 events with word times
+        // fetched as json3), and a block's second row was then shown and spoken 4-5 s early.
         if (!clients.has(v)) await nhoTrinhPhatTai(v, lang, kind, variant);
-        if (bodies.has(k)) return { text: bodies.get(k), via: "player" };
         const c = clients.get(v);
-        if (!c) return { text: "", via: "none", reason: "no-pot" };
-        for (const [key, val] of Object.entries(c)) u.searchParams.set(key, val);
-        text = await taiVanBan(u.toString());
-        return { text, via: "pot", reason: text ? "" : "empty-with-pot" };
+        if (c) {
+            for (const [key, val] of Object.entries(c)) u.searchParams.set(key, val);
+            text = await taiVanBan(u.toString());
+            if (text) return { text, via: "pot" };
+        }
+        if (bodies.has(k)) return { text: bodies.get(k), via: "player" };
+        return { text: "", via: c ? "pot" : "none", reason: c ? "empty-with-pot" : "no-pot" };
     }
 
     // Switch the player back to the original (not AI-dubbed) audio track. Measured on 3lY0eRQhYkY:

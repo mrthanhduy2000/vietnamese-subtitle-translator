@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.6.7", luc: "19/10/2026", ten: "Phụ đề và lồng tiếng không còn đi trước lời thoại",
+            y: [
+                "Có lúc tiện ích dùng bản phụ đề mà trình phát YouTube đã tải để hiển thị: các khối hai hàng dài 7 đến 11 giây, không có thời gian từng chữ. Hàng thứ hai của mỗi khối vì vậy hiện và được đọc sớm 4 đến 5 giây (video Modern Warfare 4).",
+                "Nay tiện ích tự tải bản đầy đủ có thời gian từng chữ, bản của trình phát chỉ dùng khi không tải được. Bản dịch đã lưu từ phiên bản 2.6.5 và 2.6.6 được dịch lại một lần."
+            ]
+        },
+        {
             v: "2.6.6", luc: "19/10/2026", ten: "Đổi giọng theo người nói đúng chỗ hơn trong phim và trò chơi nhiều nhân vật",
             y: [
                 "Khi một dòng phụ đề chứa hai, ba lượt nói (dấu >> ở giữa dòng, như phụ đề máy nghe tiếng Hàn của video Modern Warfare 4), mỗi lượt nay được gửi Gemini thành một dòng riêng, nên giọng đổi đúng lúc người khác nói thay vì đổi ở đầu dòng.",
