@@ -119,3 +119,29 @@ test("the player's own body (display blocks, no word times) is only the fallback
     assert.ok(r.text.includes("hello world"));
     assert.ok(P.fetched.some(u => /pot=TOKEN/.test(u)), "our own request with the pot came first");
 });
+
+test("a display-form body (overlapping two-row blocks, no word times) gets one cue per row, timed by characters; an uploaded two-row cue stays whole", () => {
+    const src = fs.readFileSync(path.join(__dirname, "..", "youtube.js"), "utf8");
+    const a = src.indexOf("function ytDocNoiDungPhuDe(");
+    const parse = new Function(src.slice(a, src.indexOf("\n}\n", a) + 2) + "; return ytDocNoiDungPhuDe;")();
+    // as YouTube's player held a Korean ASR track (2.6.7): blocks of 7-11 s, each until past the next one's start
+    const body = JSON.stringify({ events: [
+        { tStartMs: 98399, dDurationMs: 11441, wWinId: 1, segs: [{ utf8: "남편 어디 있어? 모릅니다.\n미나이가 배반자를 보게 되는 건가?" }] },
+        { tStartMs: 106719, dDurationMs: 7680, wWinId: 1, segs: [{ utf8: "그럼 넌 넌 누가 보호했을 건가?\n나루부터" }] },
+        { tStartMs: 112200, dDurationMs: 7320, wWinId: 1, segs: [{ utf8: ">> 미대장 통지\n마루판 아래에 숨어 있었습니다." }] }
+    ] });
+    const cues = parse(body);
+    assert.equal(cues.length, 5, JSON.stringify(cues));
+    assert.equal(cues[1].text, "미나이가 배반자를 보게 되는 건가?");
+    // said at 103.0 s (the word-timed track); shown whole it started at 98.4
+    assert.ok(cues[1].start > 101.5 && cues[1].start < 103.5, String(cues[1].start));
+    assert.ok(cues[1].end <= 106.72);
+    // the last block has no next one to measure against: whole
+    assert.equal(cues[4].text, ">> 미대장 통지 마루판 아래에 숨어 있었습니다.");
+    // an uploaded track: two rows shown together, the cue over before the next starts
+    const uploaded = parse(JSON.stringify({ events: [
+        { tStartMs: 0, dDurationMs: 3000, segs: [{ utf8: "I went to the store\nand bought some milk." }] },
+        { tStartMs: 3200, dDurationMs: 2000, segs: [{ utf8: "Then I came home." }] }
+    ] }));
+    assert.deepEqual(uploaded.map(c => c.text), ["I went to the store and bought some milk.", "Then I came home."]);
+});

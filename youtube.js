@@ -380,7 +380,10 @@ function ytDocNoiDungPhuDe(rawText) {
                 if (!w) continue;
                 words.push({ text: w, t: start + (sg.tOffsetMs || 0) / 1000 });
             }
-            cues.push({ start, end: start + dur, text, words: words.length > 1 ? words : undefined });
+            // A block of several rows with no word times (the display form of a track, 2.6.7):
+            // its rows are said one after another, so each gets its own cue below
+            const rows = words.length > 1 ? [] : ev.segs.map(sg => sg.utf8 || "").join("").split("\n").map(r => r.replace(/\s+/g, " ").trim()).filter(Boolean);
+            cues.push({ start, end: start + dur, text, words: words.length > 1 ? words : undefined, rows: rows.length > 1 ? rows : undefined });
         }
     } catch (parseErr) {
         // Cách 2: Parse XML dự phòng nếu YouTube trả về định dạng XML
@@ -399,6 +402,29 @@ function ytDocNoiDungPhuDe(rawText) {
         } catch (xmlErr) {
             console.warn("Không đọc được định dạng phụ đề XML:", xmlErr);
         }
+    }
+
+    // Rows of a block share its time by their characters, up to where the next block starts: a
+    // block shown whole from its start put its later rows on screen and in the voice 4-5 s early
+    // (2.6.7, a display-form Korean ASR track: second row at 98.4 s, said at 103.0 s; by share 102.2 s).
+    // Only the fallback meets this: the bridge fetches json3 with word times first
+    for (let i = cues.length - 1; i >= 0; i--) {
+        const c = cues[i];
+        if (!c.rows) continue;
+        // only the display form: a block still on screen when the next one starts. An uploaded
+        // track's two-row cue that ends before the next is left whole
+        const next = cues[i + 1];
+        if (!next || c.end <= next.start + 0.5) { delete c.rows; continue; }
+        const stop = Math.max(c.start, next.start);
+        const total = c.rows.reduce((n, r) => n + r.length, 0);
+        let at = c.start;
+        const parts = c.rows.map(r => {
+            const piece = { start: at, end: at + (stop - c.start) * r.length / total, text: r };
+            at = piece.end;
+            return piece;
+        });
+        parts[parts.length - 1].end = Math.max(parts[parts.length - 1].end, c.end);
+        cues.splice(i, 1, ...parts);
     }
 
     // Phu de tu dong hay bi chong thoi gian, cat lai cho gon

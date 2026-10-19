@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.6.8", luc: "19/10/2026", ten: "Lớp an toàn chung cho phụ đề dạng khối không có thời gian từng chữ",
+            y: [
+                "Khi tiện ích không tự tải được bản phụ đề có thời gian từng chữ và phải dùng bản hiển thị của trình phát (các khối hai hàng chồng giờ lên nhau), mỗi hàng nay thành một dòng riêng, chia thời gian theo số chữ. Hàng sau không còn hiện và được đọc ngay từ đầu khối.",
+                "Phụ đề do tác giả tải lên (khối hai hàng không chồng giờ) giữ nguyên như cũ."
+            ]
+        },
+        {
             v: "2.6.7", luc: "19/10/2026", ten: "Phụ đề và lồng tiếng không còn đi trước lời thoại",
             y: [
                 "Có lúc tiện ích dùng bản phụ đề mà trình phát YouTube đã tải để hiển thị: các khối hai hàng dài 7 đến 11 giây, không có thời gian từng chữ. Hàng thứ hai của mỗi khối vì vậy hiện và được đọc sớm 4 đến 5 giây (video Modern Warfare 4).",

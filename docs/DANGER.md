@@ -32,7 +32,11 @@ detection (declined 2026-09-29).
 captured pot first; the body the player fetched for itself (`bodies`) only when that comes back
 empty. The player's body can be the display form: qSlxe4hA66g's Korean ASR came as 172 two-row
 blocks of 7-11 s with no word times (our json3 fetch: 596 events with word times), and every
-block's second row was shown and spoken 4-5 s early.
+block's second row was shown and spoken 4-5 s early. If that fallback is still used,
+`ytDocNoiDungPhuDe` (2.6.8) splits a block with no word times that runs past the next block's start
+into one cue per row, timed by characters up to that start (an uploaded two-row cue that ends
+before the next stays whole). Measured over the 69 saved videos: none had this form, 7 hold inner
+">>" turns (117 lines, the 2.6.6 speaker split).
 
 ## 2. There is ONE bridge, injected two ways
 
