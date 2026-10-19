@@ -18,6 +18,13 @@ existing comments and test names are Vietnamese; what new ones use is in **Langu
 
 ## Non-negotiable rules
 
+**Rule zero, above all others: fix the class, never the video.** A defect the user hits on one
+video only shows where the defect was found. Every fix is a general rule for the whole system:
+name the defect class, write a rule that handles the whole class (never a condition on a video id,
+channel or title), measure it on every saved video (`review-archive/`, the Chrome store,
+`node tools/regress.js`) counting right catches and false catches, and report by defect class with
+counts across videos, never as "this video".
+
 1. **Never condense, shorten or summarize dubbing lines.** If the Vietnamese speech overruns its
    subtitle slot, fix it with speech rate, pause trimming and sentence chaining. Dropping words
    loses what the speaker actually said. There is no condense code any more (removed in 1.7.3,
