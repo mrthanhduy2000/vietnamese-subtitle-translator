@@ -31,12 +31,12 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `content.js` | 2576 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
 | `options.html` | 1457 | Settings page, 5 tabs (2.5.5): Phụ đề, Lồng tiếng, Dịch & AI (with the glossary), Chi phí & dữ liệu (cost with the top videos by period, cache, backup), Phiên bản (folded, 15 at first). Switches, one-line hints, seldom-changed fields under a `details.more` fold. ~900 lines are inline `<style>`; markup is only the rest | n/a |
 | `dub-engine.js` | 2624 | TTS providers + scheduler + video-clock sync + audio ducking | `CST_DUB_ENGINE` |
-| `background.js` | 2144 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access; reads who speaks (`analyzeSpeakers`, 2.5.2); opens Settings at `#welcome` after a first install | n/a (message router) |
+| `background.js` | 2146 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access; reads who speaks (`analyzeSpeakers`, 2.5.2); opens Settings at `#welcome` after a first install | n/a (message router) |
 | `popup.css` | 995 | Popup styling only | n/a |
 | `options.js` | 1447 | Settings logic. No Save button: debounced autosave every 350ms, flushed on `pagehide` | n/a |
 | `settings-backup.js` | 68 | Pure build/parse of the settings backup file (all of `storage.sync`, key optional) | `CST_BACKUP` (options page only) |
 | `vi-segmenter.js` | 902 | Vietnamese cue segmentation + line breaking, two-stage dynamic programming over syllable gaps | `CST_VI_SEG` |
-| `dub-planner.js` | 1420 | Pure function: text -> speech script -> prosody and timing. No I/O | `CST_DUB_PLAN` |
+| `dub-planner.js` | 1443 | Pure function: text -> speech script -> prosody and timing. No I/O | `CST_DUB_PLAN` |
 | `glossary.js` | 1373 | Pure data: 19 domain term groups, `GLOSSARY_VI` settled Vietnamese renderings, normalize rules, proper nouns never to translate, `resolveEnabledGroups` | `CST_GLOSSARY_GROUPS` and friends (globalThis + module.exports) |
 | `glossary-extra.js` | 67 | 2.5.9: the line format and `CST_GLOSSARY_EXTRA_ADD`, which merges a block of terms into a `glossary.js` group (or a new one); a term a group has is skipped, a rendering that contradicts another group's is dropped; `CST_GLOSSARY_EXTRA_REPORT` for the tests | `CST_GLOSSARY_EXTRA_ADD`, `CST_GLOSSARY_EXTRA_REPORT` |
 | `glossary-data.js` | 34914 | 2.5.9, 2.6.0: pure data, one `CST_GLOSSARY_EXTRA_ADD` block per domain: ~27,000 terms over 52 groups (2.6.1: 29,486 in all with `glossary.js`) (2.6.0 added people, brands, places, music, spirituality, outdoors, crafts, drinks, photography, engineering, agriculture, animals, philosophy, languages, military, weddings, accounting, plus product models, cars, schools, landmarks, creators and athletes). ~750 KB. Grep only, append with Bash | none (calls the merge) |
@@ -58,7 +58,7 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `vi-quality.js` | 671 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
 | `screen-text.js` | 224 | On-screen subtitles: watches the frame's caption band, sends one crop per new caption to `readScreenText` (2.6.4) | `CST_SCREEN` |
 | `lang-detect.js` | 154 | Source-language decision without an API call | `CST_LANG` |
-| `version-history.js` | 1778 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
+| `version-history.js` | 1785 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
 | `version-check.js` | 57 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
 | `theme.js` | 42 | Light/Dark theme for the popup and settings page. Applies instantly from `localStorage` to avoid a flash, then syncs from `storage.sync`. Loaded by `popup.html` and `options.html` only, not a content script | `window.CST_THEME` |
 | `build-info.js` | 6 | **Generated** by `tools/bump-version.js`. Never edit | `CST_BUILD` |

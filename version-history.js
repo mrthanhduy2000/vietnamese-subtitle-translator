@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.6.6", luc: "19/10/2026", ten: "Đổi giọng theo người nói đúng chỗ hơn trong phim và trò chơi nhiều nhân vật",
+            y: [
+                "Khi một dòng phụ đề chứa hai, ba lượt nói (dấu >> ở giữa dòng, như phụ đề máy nghe tiếng Hàn của video Modern Warfare 4), mỗi lượt nay được gửi Gemini thành một dòng riêng, nên giọng đổi đúng lúc người khác nói thay vì đổi ở đầu dòng.",
+                "Gemini được hướng dẫn thêm cho cảnh phim, trò chơi: ai tra hỏi, ai trả lời; đặt tên theo vai (sĩ quan, cô bé, người mẹ) và đoán giới tính theo vai hoặc cách xưng hô, nên giọng nam, nữ được chọn hợp hơn. Lượt đọc người nói của các video sẽ được làm lại một lần."
+            ]
+        },
+        {
             v: "2.6.5", luc: "19/10/2026", ten: "Dịch đúng lời gốc khi YouTube có cả bản lồng tiếng AI cùng ngôn ngữ",
             y: [
                 "Sửa chẩn đoán sai của 2.6.4: video Modern Warfare 4 nói tiếng Hàn tới phút 17:30, và YouTube có phụ đề tiếng Hàn chép đúng lời gốc. Tiện ích đã bỏ nhầm phụ đề này vì YouTube cũng có bản lồng tiếng AI tiếng Hàn, rồi dịch phụ đề của bản lồng tiếng Ả Rập.",

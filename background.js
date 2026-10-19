@@ -1659,7 +1659,7 @@ async function handleTestKey(req) {
 // part of short caption pieces still wrote 10,799 and 16,368 tokens; dub-planner joins such pieces
 // into sentences), a rule against a turn back to the same speaker (367 alternating turns instead)
 // ============================================================
-const SPEAKER_PROMPT_VERSION = 2;
+const SPEAKER_PROMPT_VERSION = 3;
 const SPEAKER_MAX_LINES = 900;
 const SPEAKER_TEMPERATURE = 0;
 const SPEAKER_SYSTEM_PROMPT = [
@@ -1668,10 +1668,12 @@ const SPEAKER_SYSTEM_PROMPT = [
     "How turns look:",
     "- Interview, panel, talk show, podcast: the host asks, the guests answer. A question or remark addressed to someone by name (\"So David, what does it signal...\", \"Kimberly, everything that...\", \"Thank you both.\") is said by someone else, usually the host, and the person addressed answers next. Short replies (\"Thank you.\", \"Good to be here.\", \"Right.\", \"Yes.\") are turns too.",
     "- News report or documentary: the reporter narrates; interviewees speak in short clips, often introduced (\"says Jane Doe, a nurse\"); each clip is a turn of that person, then back to the reporter.",
+    "- Film, drama, game cutscene: many characters. Follow the scene: who questions, orders or threatens and who answers, begs or reports (an officer and the people he interrogates, soldiers reporting back). A line answering the line before is usually another character; an order and its \"Yes, sir.\" are two.",
     "- One person talking (a vlog, a lecture, a monologue), however lively: one speaker, one turn at the first line. Quoted or reported speech (\"and she said, no way\"), rhetorical questions, reading a comment aloud, imitating someone, singing: NOT a turn.",
     "- \">>\" usually marks a new speaker but also stands around music and noises: a hint. \"Name:\" labels may mark only some of the turns.",
+    "- The lines may be in any language, machine-heard, with words misheard: read them for meaning in that language.",
     "- A turn that starts inside a line: \"at\" holds the new speaker's first words exactly as written in that line.",
-    "Speakers: number them 1, 2, 3 in order of first appearance and reuse the number every time the same person talks again (a host comes back many times). Label each with the name the transcript gives (introductions, people addressed by name), else a role (host, guest, reporter, interviewee). Gender only when the transcript makes it clear (a name, he/she, sir/ma'am), else \"unknown\".",
+    "Speakers: number them 1, 2, 3 in order of first appearance and reuse the number every time the same person talks again (a host comes back many times). Label each with the name the transcript gives (introductions, people addressed by name), else a role (host, guest, reporter, interviewee, officer, soldier, girl, mother, villager); never \"unknown\" as a label. Gender when the transcript makes it clear: a name, he/she, sir/ma'am, a role that has one (mother, father, daughter, son, girl, boy, wife, husband), how the others address them (a child calls a man \"father\" or \"sir\"); else \"unknown\".",
     "confidence: \"high\" when clearly a dialogue or clearly one person, \"medium\" when mostly clear, \"low\" when guessing."
 ].join("\n");
 const SPEAKER_SCHEMA = {

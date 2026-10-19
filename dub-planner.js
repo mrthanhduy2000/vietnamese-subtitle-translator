@@ -746,7 +746,30 @@
             }
         }
         const sizes = out.map(l => l.text.length).sort((a, b) => a - b);
-        return sizes.length && sizes[sizes.length >> 1] < JOIN_SHORT ? joinCaptionLines(out) : out;
+        const pieces = splitAtMarks(out);
+        return sizes.length && sizes[sizes.length >> 1] < JOIN_SHORT ? joinCaptionLines(pieces) : pieces;
+    }
+    // A ">>" inside a caption line opens a line of its own (2.6.6), as it already did when short
+    // pieces are joined: the reading names turns by line, so a turn inside a line was placed at the
+    // line's start or not at all. qSlxe4hA66g (Korean recognizer captions, two lines a caption, 92 of
+    // 167 captions carry a ">>", most of them inside): the reading gave one speaker to whole lines
+    // holding two or three turns. A piece's time is its share of the line's characters, as the
+    // marks' times are in speakerTurns. Which length decides joining is still the whole lines'.
+    function splitAtMarks(lines) {
+        const out = [];
+        for (const l of lines) {
+            const text = l.text;
+            const at = [...text.matchAll(/>>/g)].map(m => m.index).filter(i => i > 0);
+            if (!at.length) { out.push(l); continue; }
+            const span = l.end - l.start;
+            const cuts = [0, ...at, text.length];
+            for (let k = 0; k + 1 < cuts.length; k++) {
+                const piece = text.slice(cuts[k], cuts[k + 1]).trim();
+                if (!piece || piece === ">>" || TURN_NOTE.test(piece.replace(/^>>\s*/, ""))) continue;
+                out.push({ start: l.start + span * cuts[k] / text.length, end: l.start + span * cuts[k + 1] / text.length, text: piece });
+            }
+        }
+        return out;
     }
     // Short caption pieces joined into sentences: a piece goes on the line before unless that line
     // ends a sentence, would pass JOIN_MAX characters, or JOIN_GAP seconds of silence lie between;

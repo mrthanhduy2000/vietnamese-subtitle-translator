@@ -2077,3 +2077,35 @@ test("script: a caption's sound description is not read, however it is worded; a
     assert.ok(!script.some(s => /giai điệu/.test(s.speechSource)), JSON.stringify(script.map(s => s.speechSource)));
     assert.ok(script.some(s => /đồng hồ mới/.test(s.speechSource)));
 });
+
+test("who speaks: a turn mark inside a caption line opens a line of its own for the reading (qSlxe4hA66g)", () => {
+    // Korean recognizer captions, two caption rows each, turns inside them (2.6.6)
+    const caps = [
+        [164.8, 174.0, "가국과 안모는 애국심의 기반이다. >> 나도 그거 좋아하."],
+        [172.04, 179.6, ">> 나한테 가장 고운 건 뭔지 알고 싶니?"],
+        [357.634, 362.52, "[숨을 헐떡임] >> 날려주십시오."],
+        [372.44, 381.96, "있어. 뭘 받는지 말해 보라오. >> 아무것도 못 보았습니다. 맹세합니다."]
+    ].map(([start, end, text]) => ({ start, end, text }));
+    const lines = PLAN.speakerLines(caps.map(c => ({ start: c.start, end: c.end, srcCues: [c] })));
+    assert.deepEqual(lines.map(l => l.text), [
+        "가국과 안모는 애국심의 기반이다.", ">> 나도 그거 좋아하.", ">> 나한테 가장 고운 건 뭔지 알고 싶니?",
+        ">> 날려주십시오.", "있어. 뭘 받는지 말해 보라오.", ">> 아무것도 못 보았습니다. 맹세합니다."]);
+    // the mark's time is its share of the line, as speakerTurns places it
+    const t = caps[0].start + (caps[0].end - caps[0].start) * caps[0].text.indexOf(">>") / caps[0].text.length;
+    assert.ok(Math.abs(lines[1].start - t) < 0.01, `${lines[1].start} vs ${t}`);
+    // a reading naming that line puts the turn there, not at the caption's start
+    const hints = PLAN.speakerHints(lines, { turns: [{ line: 0, speaker: 1 }, { line: 1, speaker: 2 }], confidence: "high" });
+    assert.ok(Math.abs(hints.turns[1].t - t) < 0.01);
+    // long whole lines (not joined) are split too
+    const long = [{ start: 0, end: 6, text: "This is a fairly long whole caption line that is spoken by one. >> And this is the answer of another one here." }];
+    assert.equal(PLAN.speakerLines([{ start: 0, end: 6, srcCues: long }]).length, 2);
+});
+
+test("who speaks: the prompt covers film and game scenes, any language, roles and their genders", () => {
+    const bg = require("node:fs").readFileSync(require("node:path").join(__dirname, "..", "background.js"), "utf8");
+    assert.match(bg, /const SPEAKER_PROMPT_VERSION = 3;/);
+    assert.match(bg, /Film, drama, game cutscene/);
+    assert.match(bg, /The lines may be in any language/);
+    assert.match(bg, /never \\"unknown\\" as a label/);
+    assert.match(bg, /a role that has one \(mother, father/);
+});

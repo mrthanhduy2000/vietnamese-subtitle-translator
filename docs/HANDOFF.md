@@ -1,39 +1,34 @@
-# Handoff (2026-10-19, 2.6.5)
+# Handoff (2026-10-19, 2.6.6)
 
 ## State
-- 2.6.5 fixes a wrong diagnosis made in 2.6.4. qSlxe4hA66g (Modern Warfare 4) is labelled en-US
-  but spoken in Korean up to 17:30, then English. YouTube lists 21 ASR tracks: 20 transcribe its AI
-  dubs and carry `variant=timing-optimized` in the URL; one `ko` track without the mark is the
-  original speech (its text matches the game's burned-in captions, and it turns to English text
-  at 17:30). `ytChonTrack` dropped every `ko` ASR because a Korean dub exists, and translated the
-  Arabic dub's transcript.
-- Now `CST_LANG.dubTranscripts` (`lang-detect.js`) decides by the URL mark when any track has it,
-  else by dubbed language as before. `ytChonTrack`, `spokenLanguage` (unmarked ASR language beats
-  the audio label) and `CST_SCREEN.onlyDubTranscripts` use it.
-- Saved copies now carry `src` (`ytMaTrack` in `youtube.js`). A copy from another track, or one
-  without `src` on a video with dub transcripts, is dropped and retranslated (one paid run each).
-- 2.6.4's on-screen reader (`screen-text.js`, route `readScreenText`) stays as the fallback when
-  every track is a dub transcript. It never triggers on qSlxe4hA66g now, and has NEVER run live.
-- `npm test` 729 pass, 0 fail, 1 skip. No regress run: translation code did not change.
+- 2.6.6: voices per speaker on qSlxe4hA66g (Modern Warfare 4, Korean recognizer captions). The
+  user: the voice keeps switching to the wrong person. The cached reading (decoded from the
+  extension's IndexedDB log) had 3 speakers all labelled "unknown"/"unknown" and turns only at
+  line starts, while lines held 2-3 turns after inner ">>".
+- `dub-planner.js` `splitAtMarks` (in `speakerLines`): an inner ">>" opens its own line, time by
+  character share. `background.js` speaker prompt v3 (`SPEAKER_PROMPT_VERSION = 3`, every video's
+  reading is redone once, paid): film/game scenes, any language, role labels, gender from role or
+  address. DUBBING.md "Turns inside a line, prompt 3".
+- 2.6.5 (same day): original speech's ASR told from dub transcripts by `variant=timing-optimized`
+  (`CST_LANG.dubTranscripts`); saved copies carry `src`. 2.6.4: `screen-text.js` fallback.
+- `npm test` 731 pass, 0 fail, 1 skip. `regress.js` 0 numbers moved (rules path unchanged).
 
 ## Traps
-- Never trust the audio track's language label: read the transcript text first. The user caught
-  2.6.4's "original is English" from the label alone.
-- Before 2.6.5 the bridge cached bodies by `v|lang|kind` without `variant`, so both `ko` tracks
-  came back as one body. Fixed (`khoa` in `yt-bridge.js` takes the variant).
+- The speaker reading cache lives in IndexedDB, not storage.local: `ext-storage.js` cannot see
+  it. The recent writes sit uncompressed in `IndexedDB/chrome-extension_<id>_0.indexeddb.leveldb/
+  *.log`; values are V8-serialized (tags o " c I A $ {). A 60-line Python reader did it; not kept.
+- Never trust the audio track's language label; read the transcript text first.
 - `Control_Chrome execute_javascript` returning a frame as a data URL costs ~8k tokens; don't.
-- Caption track lists are visible offline: `curl` the watch page (allowed_domains
-  www.youtube.com) and parse `captionTracks` / `audioTracks`.
+- The user watches on the YouTube tab: read state with execute_javascript, never open tabs.
 
 ## Unfinished
-- Not checked live after reload: that qSlxe4hA66g now picks the unmarked `ko` track and the
-  Vietnamese matches the burned-in captions.
-- `nhoTrinhPhatTai` still picks the player's first track of that language and kind (maybe the
-  dub's) just to capture the pot; the body is then fetched by our own URL, so it is right.
-- `screen-text.js`: never run live; mask thresholds tuned on synthetic bands only.
+- Not measured: prompt 3 and the split on a real reading. Next: after Reload, dub qSlxe4hA66g,
+  decode the new reading from the IndexedDB log, and check labels, genders, turn times; then
+  score prompt 3 on the speaker lab (BACKLOG 44, ~0.05 USD) to be sure news did not get worse.
+- `screen-text.js` never run live. qSlxe4hA66g after 2.6.5 not checked live either.
 - Carried over: subtitle measure on more reviewed videos (`--dir`); "l a times" heard in a real
   take; glossary growth; 2.6.x readings not heard; glossary quality on Gemini; BACKLOG 43-47;
-  2.5.7 shortcuts on YouTube; share repo promotion of 2.5.7-2.6.5 after a green install test;
+  2.5.7 shortcuts on YouTube; share repo promotion of 2.5.7-2.6.6 after a green install test;
   joint-takes branches; 2.5.0 Coursera start hold; CI gaps; voice items "có nghĩa là", DN, NHNN;
   `ban-giao.md` lacks the share repo.
 - Never ask the user about Chrome's Apple Events setting.

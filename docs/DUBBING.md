@@ -637,6 +637,16 @@ The debug snapshot (`localStorage.cstDubDebug = "1"`, attribute `data-cst-dub`) 
 the reading did (skipped and why, asking, read with its time and whether it came from the cache,
 failed and why).
 
+**Turns inside a line, prompt 3 (2.6.6).** `speakerLines` splits every caption line at an inner
+">>" (`splitAtMarks`, the piece's time its share of the line's characters) before deciding to join;
+joining still opens a line at a mark. Before, a line holding two or three turns went whole and the
+reading gave it one speaker at its start: qSlxe4hA66g (Korean recognizer captions, 92 of 167
+captions with a ">>", most inside) came back as 3 speakers, all labelled "unknown" with gender
+"unknown", turns only at line starts. Prompt 3 adds film / drama / game scenes, lines in any
+language, a role label instead of "unknown", gender from a role or how others address someone.
+Not yet scored: the prepared lab lines (30 news videos, "plains") hold no inner ">>", so the split
+does not change them; prompt 3 has not been read on the lab (paid) nor on qSlxe4hA66g live.
+
 **Prompt 2 and the speaker lab (2.5.3).** Scored on 30 PBS NewsHour videos against their named
 transcripts (docs/TESTING.md "Speaker lab"): words in the right voice 81.5 -> 89.3% on
 recognizer-like captions ("plain"), 89.7 -> 93.5% on clean ones, people sharing a voice 20 -> 7.
