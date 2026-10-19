@@ -285,7 +285,14 @@ waits (up to 10 s) for a run left over from the previous video instead of skippi
    non-dub ASR track > title, "Vietsub"-style titles ignored). **Spoken Vietnamese is never
    subtitled** (auto: silent; by hand: a toast with "Vẫn dịch" = `ytBatDauDich({ force: true })`),
    and the check runs before the translation cache. `ytChonTrack(tracks, skip, { spoken, audio })`
-   drops ASR tracks in an AI-dubbed audio language and prefers the spoken language's tracks.
+   drops ASR tracks that transcribe an AI dub and prefers the spoken language's tracks. Which ones
+   transcribe a dub: `CST_LANG.dubTranscripts` (2.6.5). YouTube marks their URLs
+   `variant=timing-optimized`; the original speech's ASR has no mark, even when a dub in the same
+   language exists (qSlxe4hA66g: audio labelled en-US, spoken Korean, the unmarked `ko` ASR is the
+   real transcript and switches to English text where the speech does, 17:30). No mark on any track:
+   the old rule (ASR in a dubbed language). The unmarked ASR's language also beats the audio label
+   in `spokenLanguage` (`source: "asr-original"`). Saved copies carry `src` (`ytMaTrack`); a copy
+   from another track, or one without `src` on a video with dub transcripts, is retranslated.
    **YouTube's Vietnamese AI dub (1.7.0):** `CST_LANG.hearsVietnameseDub(audio)` (current track is an
    auto-dub in Vietnamese, original is not) stops `ytBatDauDich` too, with a toast whose action
    `ytChonAmThanhGoc` asks the bridge (`CHON_AM_THANH_GOC` -> `player.setAudioTrack`) for the original
@@ -323,7 +330,7 @@ waits (up to 10 s) for a run left over from the previous video instead of skippi
    ~600 fixed input tokens each 0.0005-0.0018 USD). A window longer than the horizon was sent only
    once the viewer was inside it. The prefetch
    takes a window only when all of it is inside the horizon; a failed window backs off as a whole.
-   **On-screen subtitles (2.6.4):** when every track is an ASR of an AI-dubbed audio language
+   **On-screen subtitles (2.6.4, never run live):** when every track is a dub transcript
    (`CST_SCREEN.onlyDubTranscripts`; measured on qSlxe4hA66g: original en-US, 21 dub ASR tracks, no
    English one), `ytBatDauDich` skips the saved copy and the tracks and calls
    `ytBatDauDocChuTrenHinh`: `screen-text.js` samples the frame's bottom band (x 8-92%, y 66-98.5%)

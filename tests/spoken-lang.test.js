@@ -41,7 +41,7 @@ function chonTrack() {
     const src = read("youtube.js");
     const a = src.indexOf("function ytChonTrack(");
     const b = src.indexOf("\n}\n", a) + 2;
-    const sb = {};
+    const sb = { window: { CST_LANG: require("../lang-detect.js") } };
     vm.runInNewContext(src.slice(a, b) + "\nthis.f = ytChonTrack;", sb);
     return sb.f;
 }
@@ -66,7 +66,7 @@ test("wiring: the bridge reports audio tracks, a spoken-Vietnamese video stops b
     assert.match(bridge, /"isAutoDubbed" in v/);
     const yt = read("youtube.js");
     const gate = yt.indexOf("if (!opts.force && sp.lang === \"vi\" && sp.confidence >= 0.7)");
-    assert.ok(gate > 0 && gate < yt.indexOf("const cache = await ytDocCache(yt.currentVideoId);"), "the gate must run before the cache");
+    assert.ok(gate > 0 && gate < yt.indexOf("let cache = await ytDocCache(yt.currentVideoId);"), "the gate must run before the cache");
     assert.match(yt, /actionLabel: "Vẫn dịch", onAction: \(\) => \{ ytBatDauDich\(\{ force: true \}\)/);
     assert.match(yt, /action: sp\.lang === "vi" \? "skip" : "translate"/);
 });
@@ -84,7 +84,7 @@ test("hearing YouTube's Vietnamese AI dub is recognised; the original Vietnamese
 test("wiring: gate, audio-switch messages and the switch back to the original audio", () => {
     const yt = read("youtube.js"), bridge = read("yt-bridge.js");
     const gate = yt.indexOf("window.CST_LANG.hearsVietnameseDub(info.audio)");
-    assert.ok(gate > 0 && gate < yt.indexOf("const cache = await ytDocCache(yt.currentVideoId);"), "dub gate must run before the cache");
+    assert.ok(gate > 0 && gate < yt.indexOf("let cache = await ytDocCache(yt.currentVideoId);"), "dub gate must run before the cache");
     assert.match(yt, /actionLabel: "Dùng tiếng gốc \+ giọng tiện ích"/);
     assert.match(yt, /cstType === "AM_THANH_DOI"\) ytKhiDoiAmThanh\(event\.data\)/);
     assert.match(yt, /if \(dubbing\) \{ api\.stop\(\); ytDatTrangThaiNutLongTieng\(false\); \}/);

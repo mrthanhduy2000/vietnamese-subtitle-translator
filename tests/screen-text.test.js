@@ -51,19 +51,54 @@ test("screen text: a caption is read once it settles, not again while it stays, 
     assert.equal(S.step(st, null, cw), "");
 });
 
-test("screen text: every track a transcript of an AI dub (qSlxe4hA66g) sends us to the picture", () => {
-    const langs = ["ar", "pl", "bn", "pt", "iw", "de", "nl", "ko", "ko", "hi", "id", "it", "ml", "ru", "ja", "fr", "pa", "ta", "es", "te", "uk"];
-    const tracks = langs.map(l => ({ languageCode: l, kind: "asr" }));
-    const audio = { original: "en-US", tracks: [{ lang: "en-US", isAutoDubbed: false }, ...["ar", "pl", "bn", "pt-BR", "iw", "de-DE", "nl-NL", "ko", "hi", "id", "it", "ml", "ru", "ja", "fr-FR", "pa", "ta", "es-US", "te", "uk"].map(l => ({ lang: l, isAutoDubbed: true }))] };
-    assert.equal(S.onlyDubTranscripts(tracks, audio, tracks[0]), true);
-    // an English transcript of the original speech exists: use it
-    const withEn = [...tracks, { languageCode: "en", kind: "asr" }];
-    assert.equal(S.onlyDubTranscripts(withEn, audio, withEn[withEn.length - 1]), false);
-    // a track the uploader wrote: use it
-    const withUploaded = [...tracks, { languageCode: "ar", kind: "" }];
-    assert.equal(S.onlyDubTranscripts(withUploaded, audio, withUploaded[withUploaded.length - 1]), false);
+// The caption list of qSlxe4hA66g as YouTube gave it on 2026-10-19: audio labelled en-US, spoken in
+// Korean up to 17:30; 20 ASR tracks of AI dubs (URL mark "variant=timing-optimized") and one Korean
+// ASR track without the mark, the transcript of the original speech, which a Korean dub sits next to
+const URL = (l, dub) => `https://www.youtube.com/api/timedtext?v=qSlxe4hA66g&caps=asr&kind=asr&lang=${l}${dub ? "&variant=timing-optimized" : ""}`;
+const DUB_LANGS = ["ar", "bn", "nl", "fr", "de", "iw", "hi", "id", "it", "ja", "ko", "ml", "pl", "pt", "pa", "ru", "es", "ta", "te", "uk"];
+const QS_TRACKS = DUB_LANGS.map(l => ({ languageCode: l, kind: "asr", baseUrl: URL(l, true) }));
+QS_TRACKS.splice(11, 0, { languageCode: "ko", kind: "asr", baseUrl: URL("ko", false) });
+const QS_AUDIO = { original: "en-US", tracks: [{ lang: "en-US", isAutoDubbed: false }, ...["ar", "pl", "bn", "pt-BR", "iw", "de-DE", "nl-NL", "ko", "hi", "id", "it", "ml", "ru", "ja", "fr-FR", "pa", "ta", "es-US", "te", "uk"].map(l => ({ lang: l, isAutoDubbed: true }))] };
+
+test("dub transcripts: YouTube's mark tells the original speech's transcript from the dubs' (qSlxe4hA66g)", () => {
+    const LANG = require("../lang-detect.js");
+    const dubs = LANG.dubTranscripts(QS_TRACKS, QS_AUDIO);
+    assert.equal(dubs.size, 20);
+    assert.ok(!dubs.has(QS_TRACKS[11]), "the unmarked Korean track is the original speech");
+    // the recogniser heard Korean: that beats the uploader's en-US label
+    assert.deepEqual(LANG.spokenLanguage({ audio: QS_AUDIO, tracks: QS_TRACKS }), { lang: "ko", confidence: 0.96, source: "asr-original" });
+    // so the picture is not needed here
+    assert.equal(S.onlyDubTranscripts(QS_TRACKS, QS_AUDIO, QS_TRACKS[11]), false);
+    // without the mark (older responses) a dubbed language's ASR still counts as a dub transcript
+    const plain = QS_TRACKS.map(t => ({ languageCode: t.languageCode, kind: "asr" }));
+    assert.equal(LANG.dubTranscripts(plain, QS_AUDIO).size, 21);
+    assert.equal(LANG.spokenLanguage({ audio: QS_AUDIO, tracks: plain }).lang, "en");
+});
+
+test("screen text: only when every track is a dub transcript does the picture take over", () => {
+    const allDub = QS_TRACKS.filter((t, i) => i !== 11);
+    assert.equal(S.onlyDubTranscripts(allDub, QS_AUDIO, allDub[0]), true);
+    const withUploaded = [...allDub, { languageCode: "ar", kind: "", baseUrl: URL("ar", false) }];
+    assert.equal(S.onlyDubTranscripts(withUploaded, QS_AUDIO, withUploaded[withUploaded.length - 1]), false);
     // no AI dubs: an ordinary video
     assert.equal(S.onlyDubTranscripts([{ languageCode: "ko", kind: "asr" }], { original: "ko", tracks: [] }, { languageCode: "ko", kind: "asr" }), false);
+});
+
+test("track choice: qSlxe4hA66g is translated from the original Korean transcript, and a copy saved from another track is dropped", () => {
+    const yt = R("youtube.js");
+    const fn = yt.slice(yt.indexOf("function ytChonTrack("), yt.indexOf("// ---------- Tai va doc ban chep loi"));
+    const LANG = require("../lang-detect.js");
+    const ytChonTrack = new Function("window", fn + "; return ytChonTrack;")({ CST_LANG: LANG });
+    const sp = LANG.spokenLanguage({ audio: QS_AUDIO, tracks: QS_TRACKS });
+    const chosen = ytChonTrack(QS_TRACKS, true, { spoken: sp.lang, audio: QS_AUDIO }).track;
+    assert.equal(chosen, QS_TRACKS[11]);
+    // before 2.6.4 this video was translated from the Arabic dub's transcript and saved without `src`
+    assert.match(yt, /cache && \(cache\.src \? cache\.src !== yt\.srcTrack : hasDubs\)/);
+    assert.match(yt, /src: yt\.srcTrack \|\| ""/);
+    // the bridge keeps the two "ko" bodies apart (a dub's and the original's)
+    const bridge = R("yt-bridge.js");
+    assert.match(bridge, /function khoa\(v, lang, kind, variant\)/);
+    assert.equal((bridge.match(/u\.searchParams\.get\("variant"\)/g) || []).length, 3);
 });
 
 test("screen text: wired into the page before the saved copy, loaded before youtube.js, stopped on teardown", () => {
@@ -71,7 +106,7 @@ test("screen text: wired into the page before the saved copy, loaded before yout
     assert.ok(js.indexOf("screen-text.js") > -1 && js.indexOf("screen-text.js") < js.indexOf("youtube.js"));
     const yt = R("youtube.js");
     const check = yt.indexOf("SCREEN.onlyDubTranscripts(");
-    assert.ok(check > -1 && check < yt.indexOf("const cache = await ytDocCache("), "a copy saved from a dub transcript must not come back");
+    assert.ok(check > -1 && check < yt.indexOf("let cache = await ytDocCache("), "a copy saved from a dub transcript must not come back");
     assert.match(yt.slice(yt.indexOf("function ytTatDich()"), yt.indexOf("function ytTatDich()") + 200), /ytDungDocChuTrenHinh\(\)/);
     assert.match(R("background.js"), /readScreenText: handleReadScreenText/);
 });

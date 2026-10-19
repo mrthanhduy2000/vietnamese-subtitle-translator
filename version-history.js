@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.6.5", luc: "19/10/2026", ten: "Dịch đúng lời gốc khi YouTube có cả bản lồng tiếng AI cùng ngôn ngữ",
+            y: [
+                "Sửa chẩn đoán sai của 2.6.4: video Modern Warfare 4 nói tiếng Hàn tới phút 17:30, và YouTube có phụ đề tiếng Hàn chép đúng lời gốc. Tiện ích đã bỏ nhầm phụ đề này vì YouTube cũng có bản lồng tiếng AI tiếng Hàn, rồi dịch phụ đề của bản lồng tiếng Ả Rập.",
+                "Nay tiện ích phân biệt phụ đề chép lời gốc với phụ đề chép bản lồng tiếng theo dấu YouTube gắn trên từng phụ đề, nên dịch từ lời gốc. Bản dịch đã lưu làm từ phụ đề khác sẽ được dịch lại."
+            ]
+        },
+        {
             v: "2.6.4", luc: "19/10/2026", ten: "Đọc phụ đề in trên hình khi YouTube chỉ có phụ đề của bản lồng tiếng AI",
             y: [
                 "Có video mà mọi phụ đề YouTube liệt kê đều chép lại giọng lồng tiếng AI (tiếng Ả Rập, Hàn...), không có phụ đề nào của lời gốc. Trước đây tiện ích dịch một bản như vậy nên câu dịch lệch hẳn với chữ trên hình.",

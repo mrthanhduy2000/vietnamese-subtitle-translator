@@ -27,7 +27,9 @@
     const clients = new Map();  // v -> { pot, c, cver, ... }
     const MAX_BODIES = 12;
 
-    function khoa(v, lang, kind) { return `${v}|${lang}|${kind === "asr" ? "asr" : ""}`; }
+    // variant (2.6.5): a dub's transcript ("timing-optimized") and the original speech's can share
+    // language and kind (qSlxe4hA66g: two "ko" ASR tracks); without it one body served for both
+    function khoa(v, lang, kind, variant) { return `${v}|${lang}|${kind === "asr" ? "asr" : ""}|${variant || ""}`; }
 
     function ghiNhan(url, text) {
         let u;
@@ -41,8 +43,8 @@
             clients.set(v, c);
         }
         if (text && !u.searchParams.get("tlang")) {
-            bodies.delete(khoa(v, u.searchParams.get("lang") || "", u.searchParams.get("kind")));
-            bodies.set(khoa(v, u.searchParams.get("lang") || "", u.searchParams.get("kind")), text);
+            bodies.delete(khoa(v, u.searchParams.get("lang") || "", u.searchParams.get("kind"), u.searchParams.get("variant")));
+            bodies.set(khoa(v, u.searchParams.get("lang") || "", u.searchParams.get("kind"), u.searchParams.get("variant")), text);
             while (bodies.size > MAX_BODIES) bodies.delete(bodies.keys().next().value);
         }
     }
@@ -176,7 +178,7 @@
 
     // Bat phu de cua trinh phat dung track can lay de trinh phat tu gui yeu cau (co pot),
     // cho toi da ~7 giay, roi tra phu de trinh phat ve nhu cu
-    async function nhoTrinhPhatTai(v, lang, kind) {
+    async function nhoTrinhPhatTai(v, lang, kind, variant) {
         const player = document.querySelector("#movie_player");
         if (!player || typeof player.setOption !== "function") return false;
         try {
@@ -194,7 +196,7 @@
                 track = list.find(t => t.languageCode === lang && ((t.kind === "asr") === (kind === "asr"))) || track;
             } catch (e) { /* dung track tu dung */ }
             player.setOption("captions", "track", track);
-            const k = khoa(v, lang, kind);
+            const k = khoa(v, lang, kind, variant);
             const xong = () => clients.has(v) || bodies.has(k);
             for (let i = 0; i < 25 && !xong(); i++) await sleep(100);
             // Trinh phat da giu san phu de trong bo nho (khong gui lai): nap lai module phu de
@@ -211,7 +213,7 @@
             if (hadTrack) player.setOption("captions", "track", prev);
             else player.setOption("captions", "track", {});
         } catch (e) { /* bo qua */ }
-        return clients.has(v) || bodies.has(khoa(v, lang, kind));
+        return clients.has(v) || bodies.has(khoa(v, lang, kind, variant));
     }
 
     async function layNoiDungPhuDe(baseUrl) {
@@ -220,7 +222,8 @@
         const v = u.searchParams.get("v") || "";
         const lang = u.searchParams.get("lang") || "";
         const kind = u.searchParams.get("kind") || "";
-        const k = khoa(v, lang, kind);
+        const variant = u.searchParams.get("variant") || "";
+        const k = khoa(v, lang, kind, variant);
         if (bodies.has(k)) return { text: bodies.get(k), via: "player" };
 
         // 1. Link goc (video cu / link khong can pot van tra noi dung)
@@ -228,7 +231,7 @@
         if (text) return { text, via: "direct" };
 
         // 2. Can ma pot cua trinh phat
-        if (!clients.has(v)) await nhoTrinhPhatTai(v, lang, kind);
+        if (!clients.has(v)) await nhoTrinhPhatTai(v, lang, kind, variant);
         if (bodies.has(k)) return { text: bodies.get(k), via: "player" };
         const c = clients.get(v);
         if (!c) return { text: "", via: "none", reason: "no-pot" };

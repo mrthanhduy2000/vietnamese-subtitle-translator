@@ -100,10 +100,32 @@
     // auto-dubbed, and the English ASR of the dub listed FIRST, which made the old "first ASR track"
     // rule call the video English and translate YouTube's English dub back into Vietnamese.
     const TRANSLATED_MARK = /vietsub|viet\s*sub|thuy[eế]t\s*minh|l[oồ]ng\s*ti[eế]ng|ph[uụ]\s*đ[eề]\s*vi[eệ]t|engsub|eng\s*sub/i;
+    // Which ASR tracks transcribe one of YouTube's AI dubs. YouTube marks those URLs with
+    // "variant=timing-optimized" (2026-10-19, qSlxe4hA66g: 20 of 21 ASR tracks carry it; the one
+    // without, Korean, is the original speech, while a Korean dub exists too). When any track has the
+    // mark, the mark decides; without one (older responses, test fixtures) an ASR track in a dubbed
+    // language counts as a dub transcript, as before.
+    const DUB_VARIANT = /[?&]variant=timing-optimized(?:&|$)/;
+    function dubTranscripts(tracks, audio) {
+        const list = tracks || [];
+        const dubbed = new Set(((audio && audio.tracks) || []).filter(t => t.isAutoDubbed).map(t => normCode(t.lang)));
+        const marked = list.some(t => t.kind === "asr" && DUB_VARIANT.test(t.baseUrl || ""));
+        return new Set(list.filter(t => t.kind === "asr" &&
+            (marked ? DUB_VARIANT.test(t.baseUrl || "") : dubbed.has(normCode(t.languageCode)))));
+    }
+
     function spokenLanguage({ audio, tracks, title, description } = {}) {
         const a = audio || {};
-        if (a.original) return { lang: normCode(a.original), confidence: 0.97, source: "audio" };
         const list = tracks || [];
+        // YouTube's own transcript of the original audio, told apart from the dubs' by their mark:
+        // what its recogniser heard beats the uploader's audio label (qSlxe4hA66g is labelled en-US
+        // and spoken in Korean up to 17:30)
+        if (list.some(t => DUB_VARIANT.test(t.baseUrl || ""))) {
+            const dubs = dubTranscripts(list, a);
+            const own = list.filter(t => t.kind === "asr" && !dubs.has(t));
+            if (own.length === 1) return { lang: normCode(own[0].languageCode), confidence: 0.96, source: "asr-original" };
+        }
+        if (a.original) return { lang: normCode(a.original), confidence: 0.97, source: "audio" };
         const dubbed = new Set((a.tracks || []).filter(t => t.isAutoDubbed).map(t => normCode(t.lang)));
         const asr = list.filter(t => t.kind === "asr");
         const meta = [title, description].filter(Boolean).join(" ");
@@ -126,7 +148,7 @@
         return !!(audio && audio.currentDubbed && normCode(audio.current) === "vi" && normCode(audio.original) !== "vi");
     }
 
-    const api = { normCode, detectText, decide, spokenLanguage, hearsVietnameseDub, TRANSLATED_MARK };
+    const api = { normCode, detectText, decide, spokenLanguage, hearsVietnameseDub, dubTranscripts, TRANSLATED_MARK };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_LANG = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

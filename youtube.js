@@ -161,6 +161,7 @@ async function ytGhiCache(videoId) {
         await chrome.storage.local.set({
             [key]: {
                 luc: Date.now(),
+                src: yt.srcTrack || "",     // the track translated (2.6.4): another choice later retranslates
                 cues: yt.cues.map(c => [r(c.start), r(c.end), c.text]),
                 vi: yt.viCues.map(c => [r(c.start), r(c.baseEnd != null ? c.baseEnd : c.end), c.lines.join("\n")]),
                 // Nhóm câu + bản dịch có ngữ cảnh: lồng tiếng xem lại không phải dịch lại
@@ -265,6 +266,12 @@ function ytHoiDanhSachPhuDe(timeoutMs = 4500) {
     });
 }
 
+// A track's identity in a saved copy: language, kind, and whether it transcribes a dub
+function ytMaTrack(t) {
+    if (!t) return "";
+    return `${t.languageCode}|${t.kind || ""}${/[?&]variant=/.test(t.baseUrl || "") ? "|dub" : ""}`;
+}
+
 // ---------- Chon ban chep loi phu hop ----------
 // ctx.spoken: the language spoken (ytNgonNguNoi); ctx.audio: the player's audio tracks. An ASR
 // track in the language of an AI-dubbed audio track transcribes the dub, never the speaker: it is
@@ -272,9 +279,9 @@ function ytHoiDanhSachPhuDe(timeoutMs = 4500) {
 function ytChonTrack(tracks, skipSameLang = true, ctx = {}) {
     if (!tracks || tracks.length === 0) return null;
     const norm = c => String(c || "").toLowerCase().split(/[-_]/)[0];
-    const dubbed = new Set(((ctx.audio && ctx.audio.tracks) || []).filter(t => t.isAutoDubbed).map(t => norm(t.lang)));
-    if (dubbed.size) {
-        const real = tracks.filter(t => !(t.kind === "asr" && dubbed.has(norm(t.languageCode))));
+    const dubs = window.CST_LANG && window.CST_LANG.dubTranscripts ? window.CST_LANG.dubTranscripts(tracks, ctx.audio) : new Set();
+    if (dubs.size) {
+        const real = tracks.filter(t => !dubs.has(t));
         if (real.length) tracks = real;
     }
 
@@ -1368,8 +1375,16 @@ async function ytBatDauDich(opts = {}) {
         }
 
         // Xem lai video da dich thi lay ngay tu bo nho dem
-        const cache = await ytDocCache(yt.currentVideoId);
+        let cache = await ytDocCache(yt.currentVideoId);
         if (stale()) return false;
+        // A copy made from another track than the one chosen now is dropped: before 2.6.4 a video
+        // whose tracks are mostly dub transcripts was translated from one of those (no `src` then)
+        yt.srcTrack = ytMaTrack(chon.track);
+        const hasDubs = !!(window.CST_LANG && window.CST_LANG.dubTranscripts && window.CST_LANG.dubTranscripts(info.tracks, info.audio).size);
+        if (cache && (cache.src ? cache.src !== yt.srcTrack : hasDubs)) {
+            console.log("[AI Subtitle] Bản dịch đã lưu làm từ phụ đề khác, dịch lại");
+            cache = null;
+        }
         if (cache) {
             yt.cues = cache.cues.map(c => ({ start: c[0], end: c[1], text: c[2] }));
             yt.groups = [];

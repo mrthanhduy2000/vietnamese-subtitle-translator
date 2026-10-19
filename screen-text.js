@@ -211,11 +211,10 @@
     // audio: { original, tracks: [{ lang, isAutoDubbed }] } from the bridge; chosen: the track
     // ytChonTrack picked.
     function onlyDubTranscripts(tracks, audio, chosen) {
-        const norm = c => String(c || "").toLowerCase().split(/[-_]/)[0];
-        const dubbed = new Set(((audio && audio.tracks) || []).filter(t => t.isAutoDubbed).map(t => norm(t.lang)));
-        if (!dubbed.size || !chosen || chosen.kind !== "asr") return false;
-        if (!(tracks || []).length) return false;
-        return tracks.every(t => t.kind === "asr" && dubbed.has(norm(t.languageCode)));
+        const LANG = root && root.CST_LANG;
+        if (!LANG || !LANG.dubTranscripts || !chosen || chosen.kind !== "asr" || !(tracks || []).length) return false;
+        const dubs = LANG.dubTranscripts(tracks, audio);
+        return tracks.every(t => dubs.has(t));
     }
 
     const api = { textMask, hasText, cells, difference, step, createReader, onlyDubTranscripts,
