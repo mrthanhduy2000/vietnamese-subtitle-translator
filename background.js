@@ -1863,6 +1863,81 @@ async function askSpeakers(model, apiKey, user, n, meta, promptChars, system = S
     return { ok: false, reason: "bad_output" };
 }
 
+// ============================================================
+// ON-SCREEN SUBTITLES (readScreenText, 2.6.4; screen-text.js)
+// One cropped strip of a video frame -> the caption burned into it, read and translated in one
+// call. Used when every caption track transcribes an AI dub (youtube.js ytBatDauDocChuTrenHinh).
+// ============================================================
+const SCREEN_SYSTEM_PROMPT = [
+    "The image is the bottom strip of one video frame. Read the subtitle burned into it and translate it into Vietnamese.",
+    "text: the subtitle exactly as written, with a speaker label before a colon if there is one. Only captions of what is said or heard count. Ignore game HUD, menus, button prompts, logos, watermarks, channel names, counters and signs in the scene. No caption: text is \"\".",
+    "speaker: the speaker label alone (\"Defector's Daughter\"), else \"\".",
+    "vi: natural spoken Vietnamese for the caption, without the speaker label and without surrounding brackets. Translate everything it says; never shorten or summarise. Keep personal names, call signs and brand names as written. Use the earlier captions for pronouns and terms."
+].join("\n");
+const SCREEN_SCHEMA = {
+    type: "OBJECT",
+    properties: { text: { type: "STRING" }, speaker: { type: "STRING" }, vi: { type: "STRING" } },
+    required: ["text", "speaker", "vi"]
+};
+const SCREEN_IMAGE_TOKENS = 520;   // a 960 px wide strip is two 768 px tiles at 258 tokens each
+
+function readScreenAnswer(data) {
+    const raw = responseText(data).trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
+    let a;
+    try { a = JSON.parse(raw); } catch (e) { throw new GeminiError("bad_output", "Gemini không trả JSON hợp lệ"); }
+    const clean = s => String(s || "").replace(/\s+/g, " ").trim().slice(0, 400);
+    const text = clean(a && a.text);
+    return { text, speaker: text ? clean(a.speaker).slice(0, 60) : "", vi: text ? clean(a.vi) : "" };
+}
+
+async function handleReadScreenText(req) {
+    const m = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(String(req.image || ""));
+    if (!m || m[2].length > 600000) return { ok: false, reason: "bad_image" };
+    const cfg = await modelsFromCfg();
+    if (!cfg.useAi || !cfg.geminiApiKey) return { ok: false, reason: "no_key" };
+    const before = (Array.isArray(req.before) ? req.before : []).slice(-4)
+        .map(b => `${String((b && b.text) || "").slice(0, 200)} => ${String((b && b.vi) || "").slice(0, 200)}`);
+    const user = [
+        req.videoTitle ? `Video title: ${String(req.videoTitle).slice(0, 120)}` : "",
+        before.length ? `Earlier captions and their Vietnamese:\n${before.join("\n")}` : "",
+        "Read and translate the caption in this image."
+    ].filter(Boolean).join("\n");
+    const meta = metaOf(req);
+    const promptChars = SCREEN_SYSTEM_PROMPT.length + user.length;
+    const tried = new Set();
+    let last = { ok: false, reason: "no_model" };
+    for (let guard = 0; guard < 4; guard++) {
+        const unavailable = await isUnavailableFn(cfg.geminiApiKey);
+        const model = COST.modelChain("cheap", cfg, cfg.costMode, unavailable).find(x => !tried.has(x));
+        if (!model) break;
+        tried.add(model);
+        const budget = await budgetState(meta, COST.estimateTextCost(model, Math.ceil(promptChars / 3.5) + SCREEN_IMAGE_TOKENS, 120));
+        if (!budget.allowed || budget.runaway) return { ok: false, reason: "budget" };
+        const onBilled = d => {
+            const u = usageOf(d, promptChars, 0);
+            if (!d) { u.in += SCREEN_IMAGE_TOKENS; u.out = Math.max(u.out, 120); }
+            trackText(meta, model, u);
+        };
+        const generationConfig = { temperature: 0, maxOutputTokens: 1024, responseMimeType: "application/json", responseSchema: SCREEN_SCHEMA };
+        const thinking = thinkingConfigFor(model);
+        if (thinking) generationConfig.thinkingConfig = thinking;
+        const body = {
+            system_instruction: { parts: [{ text: SCREEN_SYSTEM_PROMPT }] },
+            contents: [{ parts: [{ inline_data: { mime_type: "image/" + m[1], data: m[2] } }, { text: user }] }],
+            generationConfig
+        };
+        try {
+            const data = await geminiCall(model, cfg.geminiApiKey, body, { timeoutMs: 12000, retries: 1, onBilled });
+            return { ok: true, model, ...readScreenAnswer(data) };
+        } catch (e) {
+            if (e.type === "invalid" && /thinking/i.test(e.message) && thinking) { noThinkingCfg.add(model); tried.delete(model); continue; }
+            last = { ok: false, reason: e.type || "error", error: e.message };
+            if (last.reason !== "not_found" && last.reason !== "unavailable_for_key") break;
+        }
+    }
+    return last;
+}
+
 // ---- Mở trang Cài đặt từ content script (trang YouTube/Coursera không được tự mở
 // chrome-extension://.../options.html: Chrome chặn với ERR_BLOCKED_BY_CLIENT) ----
 async function handleOpenOptions() {
@@ -2049,6 +2124,7 @@ const ROUTES = {
     modelStatus: handleModelStatus,
     testKey: handleTestKey,
     analyzeSpeakers: handleAnalyzeSpeakers,
+    readScreenText: handleReadScreenText,
     openOptions: handleOpenOptions,
     costStats: handleCostStats,
     localTtsStatus: handleLocalTtsStatus,

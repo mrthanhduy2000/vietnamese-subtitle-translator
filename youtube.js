@@ -45,7 +45,8 @@ const yt = {
     tongSoNhom: 0,
     vfcId: null,
     daGanSuKien: false,
-    panelOpen: false      // bản chép lời đang mở: phụ đề nhường chỗ
+    panelOpen: false,     // bản chép lời đang mở: phụ đề nhường chỗ
+    screen: null          // on-screen subtitle reader (ytBatDauDocChuTrenHinh) while it runs
 };
 
 // ============================================================
@@ -1356,6 +1357,16 @@ async function ytBatDauDich(opts = {}) {
             }
         }
 
+        // Every track transcribes one of YouTube's AI dubs, none the original speech: what they say
+        // is what the dubbing made of the video. Read the captions burned into the picture instead
+        // (screen-text.js, 2.6.4). Checked before the saved copy: one saved from a dub transcript
+        // must not come back
+        const SCREEN = window.CST_SCREEN;
+        if (!opts.noScreen && !chon.daCoTiengViet && SCREEN && SCREEN.onlyDubTranscripts(info.tracks, info.audio, chon.track)) {
+            console.log("[AI Subtitle] Mọi phụ đề đều chép từ bản lồng tiếng AI: đọc chữ trên hình");
+            return ytBatDauDocChuTrenHinh(!opts.auto);
+        }
+
         // Xem lai video da dich thi lay ngay tu bo nho dem
         const cache = await ytDocCache(yt.currentVideoId);
         if (stale()) return false;
@@ -1449,6 +1460,7 @@ async function ytBatDauDich(opts = {}) {
 function ytTatDich() {
     yt.active = false;
     yt.huyDich = true;
+    ytDungDocChuTrenHinh();
     clearTimeout(yt.refineSaveTimer);
     yt.refineSaveTimer = null;
     ytDungDongBo();
@@ -1469,6 +1481,95 @@ function ytTatDich() {
     }
     yt.dubGroups = null;
     ytDatTrangThaiNut("idle");
+}
+
+// ---------- On-screen subtitles (2.6.4) ----------
+// The captions burned into the picture, read one at a time as they appear (screen-text.js samples
+// the frame, the service worker's readScreenText reads and translates). There is no transcript
+// ahead of time: a caption shows about a second after it appears, there is no voice and no saved
+// copy. Nothing found in YT_SCREEN_GIVE_UP_SEC of play: the picture has no captions, and the dub
+// transcript is translated as before (ytBatDauDich noScreen).
+const YT_SCREEN_GIVE_UP_SEC = 45;
+
+function ytBatDauDocChuTrenHinh(byHand) {
+    const SCREEN = window.CST_SCREEN;
+    const video = yt.videoEl;
+    if (!SCREEN || !video) return false;
+    ytDungDocChuTrenHinh();
+    yt.trackInfo = { languageCode: "", kind: "screen", viSan: false };
+    yt.cues = [];
+    yt.groups = [];
+    yt.viCues = [];
+    yt.dubGroups = null;
+    yt.overlay = ytTaoLopPhuDe();
+    ytAnPhuDeGoc(true);
+    yt.active = true;
+    ytCapNhatTrangThaiNutThanhDieuKhien();
+    ytDatTrangThaiNut("on");
+    ytBao("Video này không có phụ đề gốc (YouTube chỉ có phụ đề của bản lồng tiếng AI), nên tiện ích đọc chữ in trên hình để dịch. Phụ đề hiện chậm khoảng 1 giây và không có lồng tiếng.");
+
+    const ma = ytLayMaVideo();
+    const before = [];
+    const seen = { found: 0, played: 0, lastT: video.currentTime, warned: false };
+    const read = async image => {
+        const r = await chrome.runtime.sendMessage({
+            action: "readScreenText", image, before: before.slice(-4),
+            videoKey: ma, videoSec: Math.round(video.currentTime), videoTitle: yt.videoTitle
+        });
+        if (!r || !r.ok) {
+            if (r && (r.reason === "no_key" || r.reason === "budget") && !seen.warned) {
+                seen.warned = true;
+                ytBao(r.reason === "no_key"
+                    ? "Đọc chữ trên hình cần khóa Gemini API. Hãy nhập khóa trong Cài đặt."
+                    : "Đã chạm hạn mức chi phí Gemini, tạm dừng đọc chữ trên hình.", { warn: true });
+            }
+            return null;
+        }
+        if (r.text) {
+            seen.found++;
+            before.push({ text: r.text, vi: r.vi });
+            if (before.length > 8) before.shift();
+        }
+        return r;
+    };
+    const show = r => {
+        if (!yt.active || !yt.overlay) return;
+        if (!r || !r.vi) { ytVePhuDe(yt.overlay, null, ""); return; }
+        const seg = window.CST_VI_SEG;
+        const viCue = { text: r.vi, lines: seg ? seg.breakLines(r.vi) : [r.vi] };
+        const isDual = ytSubStyle.mode === "dual" || state.dualMode;
+        ytVePhuDe(yt.overlay, viCue, isDual ? r.text : "");
+    };
+    const fallBack = why => {
+        console.log(`[AI Subtitle] Thôi đọc chữ trên hình (${why}), dịch phụ đề của bản lồng tiếng`);
+        setTimeout(() => {
+            if (ytLayMaVideo() !== ma) return;
+            ytTatDich();
+            ytBatDauDich({ noScreen: true, auto: !byHand }).then(ok => ytDatTrangThaiNut(ok ? "on" : "idle"));
+        }, 0);
+    };
+    const skip = () => {
+        if (ytAdShowing()) return true;
+        const t = video.currentTime;
+        const dt = t - seen.lastT;
+        seen.lastT = t;
+        if (!video.paused && dt > 0 && dt < 2) seen.played += dt;
+        if (!seen.found && seen.played >= YT_SCREEN_GIVE_UP_SEC) { ytDungDocChuTrenHinh(); fallBack("không thấy chữ"); return true; }
+        return false;
+    };
+    const reader = SCREEN.createReader({ video, read, show, skip, onFrameError: () => fallBack("không đọc được khung hình") });
+    const onSeeked = () => reader.reset();
+    video.addEventListener("seeked", onSeeked);
+    yt.screen = { reader, video, onSeeked };
+    return true;
+}
+
+function ytDungDocChuTrenHinh() {
+    const s = yt.screen;
+    if (!s) return;
+    yt.screen = null;
+    s.reader.stop();
+    s.video.removeEventListener("seeked", s.onSeeked);
 }
 
 // ---------- Nút bấm & Menu điều khiển YouTube ----------
@@ -1853,6 +1954,7 @@ function ytTranscriptAdapter() {
 function ytNguonPhuDe() {
     const info = yt.trackInfo;
     if (!info) return null;
+    if (info.kind === "screen") return { nhan: "Chữ in trên hình (Gemini đọc)", canhBao: false };
     if (info.kind === "asr") return { nhan: "Phụ đề máy nghe tự động", canhBao: true };
     return { nhan: info.viSan ? "Phụ đề tiếng Việt có sẵn" : "Phụ đề tác giả tải lên", canhBao: false };
 }

@@ -323,6 +323,13 @@ waits (up to 10 s) for a run left over from the previous video instead of skippi
    ~600 fixed input tokens each 0.0005-0.0018 USD). A window longer than the horizon was sent only
    once the viewer was inside it. The prefetch
    takes a window only when all of it is inside the horizon; a failed window backs off as a whole.
+   **On-screen subtitles (2.6.4):** when every track is an ASR of an AI-dubbed audio language
+   (`CST_SCREEN.onlyDubTranscripts`; measured on qSlxe4hA66g: original en-US, 21 dub ASR tracks, no
+   English one), `ytBatDauDich` skips the saved copy and the tracks and calls
+   `ytBatDauDocChuTrenHinh`: `screen-text.js` samples the frame's bottom band (x 8-92%, y 66-98.5%)
+   every 250 ms on a canvas, calls a caption "settled" after two alike samples, and sends one JPEG
+   crop to `readScreenText` (Gemini reads + translates). No prefetch, no voice, no cache; ~1 s late.
+   Nothing found in 45 s of play -> `ytBatDauDich({ noScreen: true })` translates the dub track.
 5. `ytVePhuDe` draws the subtitle itself into an overlay (YouTube's own caption layer is not used).
    `ytBatDauDongBo` drives it off `requestVideoFrameCallback`.
    While the player shows an ad (`ytAdShowing`, 1.9.3) nothing is drawn and nothing is sent for
@@ -335,11 +342,11 @@ waits (up to 10 s) for a run left over from the previous video instead of skippi
 
 ### Anything -> service worker: `chrome.runtime.sendMessage({ action })`
 
-16 actions in the `ROUTES` table at the end of `background.js`, plus `ttsAbort`, which is handled
+17 actions in the `ROUTES` table at the end of `background.js`, plus `ttsAbort`, which is handled
 synchronously *before* routing (it must not wait on the queue):
 
 `ensureYtBridge` · `translateUnit` · `translateUnitStore` · `synthesizeSpeech` · `audioCacheGet` ·
-`audioCacheDelete` · `cacheStats` · `cacheClear` · `modelStatus` · `testKey` · `analyzeSpeakers` · `openOptions` ·
+`audioCacheDelete` · `cacheStats` · `cacheClear` · `modelStatus` · `testKey` · `analyzeSpeakers` · `readScreenText` (2.6.4: `{ image: jpeg data URL, before: [{ text, vi }] }` -> `{ ok, text, speaker, vi }`) · `openOptions` ·
 `costStats` · `costReset` · `localTtsStatus` · `localWarm` (`dubbing.js` asks it when dubbing starts:
 a tiny take pages a cold VieNeu model in, only when cold and the queue is empty) · `ttsAbort`
 (`condenseSpeech` had no caller and was removed in 1.7.3). `translateUnit` answers `engine`: `gemini`, `google` (Gemini off

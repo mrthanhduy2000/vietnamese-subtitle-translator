@@ -1,42 +1,36 @@
-# Handoff (2026-10-18, 2.6.3)
+# Handoff (2026-10-19, 2.6.4)
 
 ## State
-- 2.6.3: `tools/subtitle-pron.js` (50 videos, 1,668 English spans judged) reads 0 Vietnamese
-  (0.0%). Three fixes made this version:
-  - LA Times added to the glossary (`glossary-data.js`, block "press"); it is said "l a times".
-  - `judge()` aligns the readings by LCS (`unmatched()`), not by prefix/suffix. "John" next to
-    "Dan" was a false positive from that cut.
-  - Lowercase non-English words anywhere in a span (chant "SEG mahaa") are excluded and counted:
-    318 spans now, shown in the measure's "not judged" line.
-- Honest note on the numbers: 2.6.2 said 7 -> 4 under the older measure. The measure changed, so
-  HEAD now reads 1 and this version 0. Compare only within one measure version.
-- `npm test` 722 pass, 0 fail, 1 skip. `regress.js` 0 numbers moved vs the 2.6.2 baseline.
-- Glossary 13,925 kept English names; `glossary-pron.js --show=0` = 0 read Vietnamese.
-- Not heard: all readings are checked on phonemes only, not in a real take.
+- 2.6.4: on-screen subtitles. Some YouTube videos list caption tracks that ALL transcribe one of
+  YouTube's AI dubs (qSlxe4hA66g, a Call of Duty walkthrough: original audio en-US, 21 ASR tracks in
+  dubbed languages, no English one). `ytChonTrack` fell to `tracks[0]` (the Arabic dub's ASR) and
+  the translation had nothing to do with the game's burned-in captions the user reads.
+- Now `CST_SCREEN.onlyDubTranscripts` (new `screen-text.js`) sends `ytBatDauDich` to
+  `ytBatDauDocChuTrenHinh` (`youtube.js`), before the saved copy. It samples the frame's caption
+  band on a canvas every 250 ms, reads a caption once it settles, and the new service-worker route
+  `readScreenText` (`background.js`) reads + translates one JPEG crop with Gemini (cheap tier,
+  budget checked, spend tracked). 45 s of play with no caption -> falls back to the dub track.
+- Canvas read of the YouTube `<video>` works (checked in the MAIN world on the user's tab:
+  `getImageData` not tainted). The isolated world was not checked live.
+- `npm test` 727 pass, 0 fail, 1 skip (5 new in `tests/screen-text.test.js`). No regress run:
+  the translation and voice paths did not change.
 
 ## Traps
-- `$TMPDIR/fix.py` removes by core term in every block of `glossary-data.js`: removing a word
-  for one block also removed "Geneva" and "burnout|kiệt sức"; check the removed count.
-- Every new glossary block lets everyday words in; they are in `tests/glossary.test.js`.
-- Lowercase renderings hit capitalised names of other groups (Fossil, App Store, Calico);
-  scan for case collisions after each block.
-- After appending names run `node tools/glossary-pron.js --write` twice, then the audit.
-- Write `glossary-data.js` with Bash `cat >>`, never Read/Write.
-- `subtitle-pron.js` judges with base "cái": a name's replacement can change a neighbour's
-  reading. Fixed in 2.6.3 with LCS alignment; a new measure must not go back to prefix/suffix.
+- `Control_Chrome execute_javascript` returning a frame as a data URL costs ~8k tokens; don't.
+- `player.getPlayerResponse()` from `execute_javascript` returned nothing; ask the bridge instead
+  (`postMessage({cstType:"YEU_CAU_PHU_DE"})`, read the answer from a window variable next call).
+- Caption tracks of a video are visible offline: `curl` the watch page (allowed_domains
+  www.youtube.com) and parse `captionTracks` / `audioTracks`.
 
 ## Unfinished
-- The subtitle measure is 0 on this sample, not on every video. Next: run it on more reviewed
-  videos (`--dir`) before calling the sample closed.
-- "l a times" is the speech for LA Times; check it sounds right in a real take.
-- The user wants the glossary to keep growing ("không dừng"): next candidates are Vietnamese
-  brands and places in English spelling, more product lines, songs, sports players, legal and
-  government jargon.
-- 2.6.x readings are checked on phonemes only, not heard in a real take.
-- Translation quality with the big glossary not measured on Gemini (needs a paid run).
-- BACKLOG 44 (next: read the 30 videos with `--sentences`, about 0.05 USD), 45, 46, 47.
-- Carried over: 2.5.7 shortcuts not tried on YouTube itself; share repo promotion of
-  2.5.7-2.6.3 after a green install test; joint-takes branches; the 2.5.0 Coursera start hold not
-  seen live; CI gaps (VC++ runtime, browser steps, a Vietnamese Windows profile); voice items
-  "có nghĩa là", DN, NHNN; BACKLOG 43; `ban-giao.md` does not mention the share repo.
+- Not run live end to end: no reload of the extension, no real Gemini read of a frame. Next: on
+  qSlxe4hA66g check that captions appear, how late, that HUD does not trigger reads, and the spend.
+- Screen mode has no voice, no transcript panel, no cache; a revisit reads again.
+- The mask thresholds (BRIGHT 175 / DARK 100, 0.3% share) are guesses, tuned on synthetic bands.
+- Carried over: subtitle measure on more reviewed videos (`--dir`); "l a times" heard in a real
+  take; glossary keeps growing (Vietnamese brands, products, songs, players, legal jargon); 2.6.x
+  readings not heard; glossary translation quality on Gemini; BACKLOG 43-47; 2.5.7 shortcuts on
+  YouTube; share repo promotion of 2.5.7-2.6.4 after a green install test; joint-takes branches;
+  2.5.0 Coursera start hold; CI gaps; voice items "có nghĩa là", DN, NHNN; `ban-giao.md` lacks the
+  share repo.
 - Never ask the user about Chrome's Apple Events setting.

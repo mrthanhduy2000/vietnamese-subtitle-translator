@@ -12,7 +12,7 @@ Everything else is one content-script bundle at `document_idle`, in this order:
 ```
 glossary.js -> glossary-extra.js -> glossary-data.js -> cst-cache.js -> cost-policy.js -> lang-detect.js -> vi-segmenter.js ->
 subtitle-style.js -> player-ui.js -> shortcuts.js -> transcript.js -> context-engine.js -> vi-quality.js ->
-dub-planner.js -> dub-prosody.js -> dub-speech.js -> dub-audio.js -> dub-engine.js -> dubbing.js -> content.js -> youtube.js
+dub-planner.js -> dub-prosody.js -> dub-speech.js -> dub-audio.js -> dub-engine.js -> dubbing.js -> content.js -> screen-text.js -> youtube.js
 ```
 
 `background.js` is the MV3 service worker; it pulls in `cst-cache.js`, `cost-policy.js`,
@@ -23,15 +23,15 @@ syllable count and, 1.7.8, the English spans).
 it to `manifest.json` in dependency order (and to `importScripts`, `options.html`, the harness pages
 under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tests if it is a dubbing file).
 
-## Source (34 files, ~61,400 lines)
+## Source (35 files, ~61,900 lines)
 
 | File | Lines | Role | Global export |
 |---|---|---|---|
-| `youtube.js` | 2061 | YouTube engine: bridge handshake, track pick, timedtext parse, self-drawn overlay, prefetch pool, controls + quick menu | none (same-world sibling of `content.js`, reads its `state`) |
+| `youtube.js` | 2163 | YouTube engine: bridge handshake, track pick, timedtext parse, self-drawn overlay, prefetch pool, controls + quick menu | none (same-world sibling of `content.js`, reads its `state`) |
 | `content.js` | 2576 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
 | `options.html` | 1457 | Settings page, 5 tabs (2.5.5): Phụ đề, Lồng tiếng, Dịch & AI (with the glossary), Chi phí & dữ liệu (cost with the top videos by period, cache, backup), Phiên bản (folded, 15 at first). Switches, one-line hints, seldom-changed fields under a `details.more` fold. ~900 lines are inline `<style>`; markup is only the rest | n/a |
 | `dub-engine.js` | 2624 | TTS providers + scheduler + video-clock sync + audio ducking | `CST_DUB_ENGINE` |
-| `background.js` | 2068 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access; reads who speaks (`analyzeSpeakers`, 2.5.2); opens Settings at `#welcome` after a first install | n/a (message router) |
+| `background.js` | 2144 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access; reads who speaks (`analyzeSpeakers`, 2.5.2); opens Settings at `#welcome` after a first install | n/a (message router) |
 | `popup.css` | 995 | Popup styling only | n/a |
 | `options.js` | 1447 | Settings logic. No Save button: debounced autosave every 350ms, flushed on `pagehide` | n/a |
 | `settings-backup.js` | 68 | Pure build/parse of the settings backup file (all of `storage.sync`, key optional) | `CST_BACKUP` (options page only) |
@@ -56,8 +56,9 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `chrome-shim.js` | 173 | Fakes `chrome.*` so `popup.html` / `options.html` open outside the extension. Self-disables inside it | `window.chrome` |
 | `popup.html` | 166 | Popup markup | n/a |
 | `vi-quality.js` | 671 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
+| `screen-text.js` | 225 | On-screen subtitles: watches the frame's caption band, sends one crop per new caption to `readScreenText` (2.6.4) | `CST_SCREEN` |
 | `lang-detect.js` | 132 | Source-language decision without an API call | `CST_LANG` |
-| `version-history.js` | 1764 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
+| `version-history.js` | 1771 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
 | `version-check.js` | 57 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
 | `theme.js` | 42 | Light/Dark theme for the popup and settings page. Applies instantly from `localStorage` to avoid a flash, then syncs from `storage.sync`. Loaded by `popup.html` and `options.html` only, not a content script | `window.CST_THEME` |
 | `build-info.js` | 6 | **Generated** by `tools/bump-version.js`. Never edit | `CST_BUILD` |
@@ -93,9 +94,9 @@ Shared and settings pages:
 - `CST_CACHE` -> `background.js`, `dub-engine.js`
 - `CST_THEME`, `CST_HISTORY`, `CST_BACKUP` -> `options.js`; `CST_VERSION_CHECK` -> `options.js`, `popup.js`
 
-## Tests and tooling (`tests/*.js`: 39 files, ~13,900 lines)
+## Tests and tooling (`tests/*.js`: 40 files, ~14,000 lines)
 
-See `TESTING.md`. Short version: 26 files in `npm test` (listed in `package.json`: a new test file must be added there), all offline; 4 manual scripts;
+See `TESTING.md`. Short version: 27 files in `npm test` (listed in `package.json`: a new test file must be added there), all offline; 4 manual scripts;
 12 browser harness pages under `tests/harness/` (`live.html` has its own server, `live-server.js`; `headless.js` runs any of them in a headless Chrome); `tests/pin-cases.py` holds the Python scenarios `share.test.js` runs (`vieneu-pin.py` and the updater in-process, the network scripted, sleeps recorded); `tools/bump-version.js` owns the version number;
 `tools/doc-sizes.js` (1.9.4) rewrites the Lines column and the counts above, the "~Tests" column of
 `TESTING.md`, and reports what it cannot write: a test file with no row in `TESTING.md`, stale sizes

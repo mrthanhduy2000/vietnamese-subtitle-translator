@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.6.4", luc: "19/10/2026", ten: "Đọc phụ đề in trên hình khi YouTube chỉ có phụ đề của bản lồng tiếng AI",
+            y: [
+                "Có video mà mọi phụ đề YouTube liệt kê đều chép lại giọng lồng tiếng AI (tiếng Ả Rập, Hàn...), không có phụ đề nào của lời gốc. Trước đây tiện ích dịch một bản như vậy nên câu dịch lệch hẳn với chữ trên hình.",
+                "Nay tiện ích nhận ra trường hợp này và đọc chữ in trên hình (phụ đề của trò chơi, phụ đề cứng) bằng Gemini, rồi dịch sang tiếng Việt. Phụ đề hiện chậm khoảng 1 giây và chưa có lồng tiếng. Nếu 45 giây không thấy chữ nào, tiện ích quay về cách cũ."
+            ]
+        },
+        {
             v: "2.6.3", luc: "18/10/2026", ten: "Phụ đề tiếng Anh giữ nguyên được đọc đúng kiểu quốc tế: LA Times và các cụm chữ thường không phải tiếng Anh",
             y: [
                 "Thêm LA Times vào từ điển, nên tên tờ báo được đọc theo kiểu tiếng Anh thay vì âm \"la\" tiếng Việt.",
