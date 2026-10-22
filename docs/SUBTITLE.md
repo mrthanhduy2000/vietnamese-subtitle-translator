@@ -294,6 +294,8 @@ turned the run off first, so a fully translated video was never saved. A line th
 only (`CST_QUALITY.soundNoteLine`) is filled from the list inside a window of speech too, never sent
 (`requestUnit`, 2.7.3): YouTube's newer captions write ">> [music]", both models left it empty, and
 the empty item ("Có mục dịch rỗng") failed the whole window to Google, which keeps a video unsaved.
+So does a line of a bare "foreign" (automatic captions' mark for speech in another language) and notes
+(2.7.5, `BARE_FOREIGN` in `soundNoteLine`: "[Tiếng nước ngoài]"); its window failed on every heal.
 Such a Google-fallback group is healed (2.7.4, `ytFallbackToHeal`, `YT_HEAL`): once nothing new is
 left to send, the prefetch loop asks Gemini for its window again (`ytDichNhom(i, true)`, which sends
 the window's fallback groups too), up to 3 times, 20/40/60 s apart, never a group playing or due in

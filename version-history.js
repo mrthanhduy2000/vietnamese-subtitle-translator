@@ -4,6 +4,16 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.7.5", luc: "22/10/2026", ten: "Dòng \"foreign\" của phụ đề tự động không còn làm hỏng cả đoạn",
+            y: [
+                "Phụ đề tự động của YouTube viết \"foreign\" ở chỗ người nói dùng tiếng nước khác (ví dụ \"foreign [Music]\"). Gemini để trống dòng đó, và một dòng trống làm cả đoạn bị dịch tạm bằng Google, dịch lại bao nhiêu lần cũng vậy, nên video không bao giờ được lưu. Nay dòng chỉ có \"foreign\" và ghi chú âm thanh được hiển thị là [Tiếng nước ngoài] ngay trên máy, không gửi Gemini, giọng đọc bỏ qua.",
+                "Câu thật có chữ \"foreign\" (\"foreign investment\") vẫn được dịch như thường."
+            ],
+            bang: { cot: ["Đợt chạy 13 video mới", "2.7.4", "Nay"], hang: [
+                ["Video có dòng \"foreign\" không lưu được", "1 trên 1", "0 trong kiểm thử"]
+            ] }
+        },
+        {
             v: "2.7.4", luc: "22/10/2026", ten: "Gemini trả chậm không còn làm mất bản dịch của video",
             y: [
                 "Khi một model Gemini trả lời chậm, tiện ích cho model đó nghỉ 15 giây. Trước đây trong 15 giây ấy mọi đoạn khác đều bị dịch tạm bằng Google (không theo ngữ cảnh). Nay model kế tiếp trong chuỗi (ví dụ 3.5 Flash-Lite) dịch thay ngay, vẫn bằng Gemini.",

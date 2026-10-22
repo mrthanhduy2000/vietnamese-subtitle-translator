@@ -569,7 +569,8 @@
         "Tiếng cười": ["laughter", "laughs", "laughing", "laugh", "gelächter", "lachen", "rires", "risas", "risos", "risate", "śmiech", "смех", "ضحك", "笑い", "笑", "笑声", "笑聲", "웃음", "हंसी", "เสียงหัวเราะ", "tertawa", "tiếng cười", "cười"],
         "Reo hò": ["cheering", "cheers", "reo hò", "hò reo"],
         "Âm thanh": ["sound"],
-        "Im lặng": ["silence", "blank audio", "im lặng"]
+        "Im lặng": ["silence", "blank audio", "im lặng"],
+        "Tiếng nước ngoài": ["foreign", "foreign language", "speaking foreign language", "tiếng nước ngoài"]
     };
     // How the model writes each of them inside a Vietnamese line
     const SOUND_VI = {
@@ -578,7 +579,8 @@
         "Tiếng cười": "(?:tiếng\\s+)?cười(?:\\s+lớn)?",
         "Reo hò": "(?:tiếng\\s+)?(?:reo\\s+hò|hò\\s+reo)",
         "Âm thanh": "(?:tiếng\\s+)?âm\\s+thanh",
-        "Im lặng": "(?:sự\\s+)?im\\s+lặng"
+        "Im lặng": "(?:sự\\s+)?im\\s+lặng",
+        "Tiếng nước ngoài": "tiếng\\s+nước\\s+ngoài"
     };
     const soundKey = s => String(s || "").normalize("NFC").toLowerCase().replace(/[\s_]+/g, " ").replace(/^[\s.…,;:!?-]+|[\s.…,;:!?-]+$/g, "");
     const SOUND_OF = new Map(Object.entries(SOUND_WORDS).flatMap(([vi, list]) => list.map(w => [soundKey(w), vi])));
@@ -588,8 +590,16 @@
 
     // A line that holds sound notes only: { vi } with the list's words, or vi "" when a note is not in
     // the list (the model translates it, fixSoundNotes brackets its answer). null for a line of speech.
+    // (2.7.4) YouTube's automatic captions write a bare "foreign" where the speech is in another
+    // language ("foreign [Music]", "[Music] foreign"). On a line of nothing else it is a note: the
+    // model left it empty, like ">> [music]", and the empty item sent the window to Google every time
+    // (cstFallbackLog: one video of a 13-video run, its fallback never healed, never saved)
+    const BARE_FOREIGN = /(?<![\p{L}\p{M}\p{N}\[(])foreign(?![\p{L}\p{M}\p{N}\])])/giu;
     function soundNoteLine(src) {
-        const s = String(src || "").replace(/¦/g, " ").trim();
+        let s = String(src || "").replace(/¦/g, " ").trim();
+        const speech = s.replace(NOTE_RE, " ");
+        const rest = speech.replace(BARE_FOREIGN, " ");
+        if (rest !== speech && !/[\p{L}\p{N}]/u.test(rest)) s = s.replace(BARE_FOREIGN, "[foreign]");
         const notes = s.match(NOTE_RE);
         if (!notes || /[\p{L}\p{N}]/u.test(s.replace(NOTE_RE, " "))) return null;
         let known = true;

@@ -553,6 +553,15 @@ test("a substance keeps its name: chemical endings and \"X acid\" are no English
     assert.ok(!issues.some(i => i.type === "untranslated"), JSON.stringify(issues));
 });
 
+test("a bare \"foreign\" of automatic captions is a note on a line of nothing else, speech elsewhere", () => {
+    const Q = require("../vi-quality.js");
+    assert.equal(Q.soundNoteLine("foreign [Music]").vi, "[Tiếng nước ngoài] [Âm nhạc]");
+    assert.equal(Q.soundNoteLine("[Music] foreign").vi, "[Âm nhạc] [Tiếng nước ngoài]");
+    assert.equal(Q.soundNoteLine("foreign").vi, "[Tiếng nước ngoài]");
+    for (const speech of ["bye guys foreign [Music]", "foreign investment grew", "the foreign", "[Music] thank you [Music] foreign"])
+        assert.equal(Q.soundNoteLine(speech), null, speech);
+});
+
 // 2.3.1, from the user's cache: sound captions came back as "Âm nhạc", "(Âm nhạc)" or "[Âm nhạc]"
 // within one video, and the voice read the bare ones aloud (45 of 531 groups; 4 left after)
 test("sound captions: notes only are translated from a list, every note ends up bracketed and silent", () => {

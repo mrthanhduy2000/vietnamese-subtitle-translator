@@ -1,4 +1,4 @@
-# Handoff (2026-10-22, 2.7.4)
+# Handoff (2026-10-22, 2.7.5)
 
 ## State
 - Rule zero (CLAUDE.md): every fix is for the whole system; report by defect class with counts
@@ -14,18 +14,22 @@
     mixing 28 -> 6 (all 6 legit). `reg1` blind: 30 vs 2 for talk. SUBTITLE.md, TESTING.md.
   - `vi-quality.js` `SUBSTANCE` + "X acid": substance names are no English left in (refine flags
     29 -> 22, untranslated 16 -> 9 over 100 videos, 0 false catches seen).
+- 2.7.5: a line of a bare "foreign" + notes is a note ("[Tiếng nước ngoài]", `BARE_FOREIGN`):
+  nzAmF9brAW0 failed its window on all 3 heals with "Có mục dịch rỗng". Second run (13 videos,
+  10 saved, 3 have uploaded Vietnamese): casual particles 101 -> 146 per 100k chars, tôi/mình
+  minority 4.0% -> 2.4%; what is left sits before 4 uses settle it (video start).
 - Measured, no change: dub lateness is all carry-over at the rate cap (829 of 983 late lines after
   a line at >= 1.38); English pronunciation 1 of 1695 spans; the 10 omissions are pre-2.4.2 saves;
   a 1-word glossary echo rule would break "trở thành thành viên", "kỹ năng năng suất" (declined).
-- Spend today ~0.62 USD of the user's 100.000 đ allowance. `npm test` 746 pass; regress 0 moved.
+- Spend today ~0.76 USD of the user's 100.000 đ allowance. `npm test` 747 pass; regress 0 moved.
 
 ## Unfinished
-- Not heard: 2.6.9-2.7.4 by ear. Register "talk" not yet seen on a fresh real run (lab only).
-- jFZksJqL1Vc, XnQ7Py8D6v0, MebK9iEUzQA have uploaded Vietnamese tracks: shown as is, never
+- Not heard: 2.6.9-2.7.5 by ear. nzAmF9brAW0 not rerun since 2.7.5.
+- jFZksJqL1Vc, XnQ7Py8D6v0, MebK9iEUzQA, JwBuHx_3GOU, rm_9cPXrv4A have uploaded Vietnamese tracks: shown as is, never
   saved by design; the driver logs them "NOT SAVED".
 - Coursera has no fallback heal (its unit cache keeps no fallback, a revisit asks again).
 - Carried over: prompt 3 and the >> split on a real reading (BACKLOG 44); 2.6.5-2.6.8 not checked
-  live; `screen-text.js` never ran; share repo promotion of 2.5.7-2.7.4 after a green install
+  live; `screen-text.js` never ran; share repo promotion of 2.5.7-2.7.5 after a green install
   test; BACKLOG 43-47; 2.5.7 shortcuts on YouTube; joint-takes branches; 2.5.0 Coursera start hold;
   CI gaps; voice items "có nghĩa là", DN, NHNN; `ban-giao.md` lacks the share repo.
 - Never ask the user about Chrome's Apple Events setting.
