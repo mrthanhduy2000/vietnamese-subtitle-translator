@@ -404,3 +404,23 @@ test("a sentence's short last piece joins its group past the length limits, not 
     const long = [...run(10, 2.34), { start: 23.4, end: 25.9, text: "and every other thing that you keep around." }];
     assert.equal([...env.groupCuesIntoSentences(long, false)].length, 2);
 });
+
+test("YouTube: a video is saved the moment its last group is translated, not when the prefetch loop next wakes", async () => {
+    const env = contentEnv(() => ({ ok: true }));
+    vm.runInContext(`
+        globalThis.__saved = [];
+        ytGhiCache = id => { __saved.push(id); };
+        yt.currentVideoId = "v1";
+        yt.groups = [
+            { start: 0, end: 3, text: "First sentence here.", srcCues: [{ start: 0, end: 3, text: "First sentence here." }], cueIndexes: [0], translated: true, viText: "Câu đầu.", viCues: [{ start: 0, end: 3, text: "Câu đầu." }] },
+            { start: 3, end: 6, text: "Second sentence here.", srcCues: [{ start: 3, end: 6, text: "Second sentence here." }], cueIndexes: [1], translated: false }
+        ];
+        yt.daDichXong = false; yt.huyDich = false;
+        ytGanBanDich(yt.groups, [1], ["Câu thứ hai."], "gemini");
+    `, env);
+    assert.deepEqual([...env.__saved], ["v1"], "saved at once");
+    vm.runInContext(`ytGanBanDich(yt.groups, [1], ["Câu thứ hai, dịch lại."], "gemini");`, env);
+    assert.equal(env.__saved.length, 1, "a later refine does not save again here (ytSaveAfterRefine does)");
+    vm.runInContext(`yt.daDichXong = false; yt.huyDich = true; ytGanBanDich(yt.groups, [1], ["x"], "gemini");`, env);
+    assert.equal(env.__saved.length, 1, "a run turned off saves nothing");
+});

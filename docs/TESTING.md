@@ -269,7 +269,15 @@ as it does for a viewer. Check first that the user is not watching a video in th
   translated twice through the real `translateUnit`, variant "a" as before and "b" with
   `context.unpunctuated`; results in `trLab_<tag>` (`{ id: [{ i, src, a, b }] }`). Reload the
   extension first when `background.js` changed (the page talks to the loaded service worker). Paid:
-  two calls a window; a rerun of a tag is free (cache).
+  two calls a window; a rerun of a tag is free (cache). Run `asr1` (2026-10-22, 6 machine-caption
+  videos, 36 windows, 0.05 USD): a prompt line for unpunctuated sources (find sentence ends by
+  meaning, spoken headings as headings) was not kept: 127 of 143 items differ either way (sampling),
+  the run-on case that prompted it came back right without the line, and with it one heading gained
+  an invented "thứ hai". A prompt change needs a difference larger than two samples of one prompt.
+- **`reload.html`**: reloads the extension (as the Reload button) after putting back dubbing left
+  off by an interrupted driver run. A page file added after the last load is blocked
+  (ERR_BLOCKED_BY_CLIENT) until a reload, so a new harness page needs one Reload first; Settings
+  shows "Nạp lại tiện ích ngay" when the disk version is newer (`version-check.js`).
 - **Speaker lab** (`speaker-lab.html?tag=<run>`, `tools/speaker-lab.js`): the AI reading of who
   speaks scored against transcripts that name every speaker. PBS NewsHour videos carry two English
   tracks: ".en" (what the extension reads) and ".en-US" with "NAME:" before every turn.

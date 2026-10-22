@@ -290,6 +290,36 @@ async function autoCase(tracks, sync, sample) {
     return { q, calls: S.__calls };
 }
 
+test("an auto start whose captions came back empty tries again (on a timer, at once when the tab is shown) and stops when turned off", async () => {
+    const run = async ({ showTab, turnOff }) => {
+        const P = pageEnv({ sync: { autoTranslate: true } });
+        const S = P.sandbox;
+        await new Promise(r => setTimeout(r, 20));
+        S.__calls = 0; S.__vis = null;
+        S.document.addEventListener = (n, f) => { if (n === "visibilitychange") S.__vis = f; };
+        S.document.removeEventListener = () => {};
+        S.document.hidden = true;
+        vm.runInContext(`
+            YT_EMPTY_RETRY_MS[0] = ${showTab ? 60000 : 30}; YT_EMPTY_RETRY_MS[1] = 30; YT_EMPTY_RETRY_MS[2] = 30;
+            ytLayMaVideo = () => "abc123";
+            ytHoiDanhSachPhuDe = async () => ({ tracks: [{ baseUrl: "u", languageCode: "en", kind: "asr" }], videoId: "abc123" });
+            ytBatDauDich = async () => { __calls++; if (__calls < 3) { yt.emptyCaptionsFor = "abc123"; return false; } yt.active = true; return true; };
+            ytTuBatLongTieng = async () => false;
+            ytDatTrangThaiNut = () => {};
+            yt.autoTried = ""; yt.active = false; yt.busy = false;
+        `, S);
+        await vm.runInContext("ytNapCaiDatKieu()", S);
+        await vm.runInContext("ytTuDongDich()", S);
+        if (turnOff) vm.runInContext("ytTatDich()", S);
+        if (showTab) { S.document.hidden = false; await new Promise(r => setTimeout(r, 5)); S.__vis(); }
+        await new Promise(r => setTimeout(r, 200));
+        return S.__calls;
+    };
+    assert.equal(await run({}), 3, "two empty answers, the third start succeeds");
+    assert.equal(await run({ showTab: true }), 3, "showing the tab asks at once, not after the long wait");
+    assert.equal(await run({ turnOff: true }), 1, "turned off by hand: no retry");
+});
+
 test("YouTube tự động dịch (BẬT): tiếng Anh / Hàn / Nhật / Trung tự dịch; tiếng Việt không; không rõ không tự dịch", async () => {
     const T = (lang, kind = "asr") => ({ baseUrl: "u", languageCode: lang, kind });
     for (const lang of ["en", "ko", "ja", "zh-Hans"]) {

@@ -4,6 +4,29 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.7.3", luc: "22/10/2026", ten: "Bản dịch được lưu ngay khi dịch xong đoạn cuối",
+            y: [
+                "Trước đây bản dịch của cả video chỉ được lưu khi vòng dịch tỉnh dậy lần kế (khoảng 1 giây, lâu hơn ở thẻ nền). Nếu người xem chuyển sang video kế ngay lúc hết video (YouTube tự phát), việc lưu bị hủy, và lần sau mở lại video phải dịch lại. Nay bản dịch được lưu ngay khi đoạn cuối cùng dịch xong.",
+                "Dòng chỉ có ghi chú âm thanh (\"[music]\", \">> [music]\") nằm giữa lời nói nay được dịch ngay trên máy, không gửi Gemini. Phụ đề tự động kiểu mới của YouTube viết \">> [music]\", Gemini để trống dòng đó, và một dòng trống từng làm cả đoạn bị dịch tạm bằng Google, video không được lưu.",
+                "Tiện ích ghi lại trên máy lý do mỗi lần phải dịch tạm bằng Google hoặc không lưu được bản dịch, để lần sau tìm lỗi nhanh hơn.",
+                "Thuật ngữ đã thống nhất không còn bị lặp đôi (\"sự bùng nổ kinh tế bùng nổ kinh tế\", \"nhịp tim lúc nghỉ nhịp tim lúc nghỉ\"): khi mô hình tự viết lại thuật ngữ ngay cạnh chỗ thuật ngữ được chèn vào, phần viết lại được bỏ. Gặp ở 5 trên 10.057 đoạn đã lưu."
+            ],
+            bang: { cot: ["Đo trên các video đã lưu", "2.7.2", "Nay"], hang: [
+                ["Video dịch xong mà không lưu vì một dòng \">> [music]\"", "1", "0"],
+                ["Thuật ngữ bị lặp đôi (bản dịch mới)", "5 trên 10.057 đoạn", "0 trong kiểm thử"]
+            ] }
+        },
+        {
+            v: "2.7.2", luc: "22/10/2026", ten: "Video mở ở thẻ nền vẫn được tự dịch",
+            y: [
+                "Khi video được mở ở thẻ nền hoặc cửa sổ bị che, YouTube đôi khi chưa trả nội dung phụ đề ở lần hỏi đầu. Trước đây tiện ích im lặng bỏ qua video đó, không dịch và không báo gì. Nay tiện ích tự hỏi lại khi thẻ được mở ra xem, hoặc sau 4, 12 và 30 giây. Lần hỏi lại không tốn tiền Gemini.",
+                "Tắt dịch bằng tay hoặc chuyển sang video khác thì tiện ích thôi hỏi lại."
+            ],
+            bang: { cot: ["Chạy thử video mới trong cửa sổ bị che", "2.7.1", "Nay"], hang: [
+                ["Video hỏng vì phụ đề về rỗng ở lần hỏi đầu (chạy lại đúng các video đó)", "2", "0"]
+            ] }
+        },
+        {
             v: "2.7.1", luc: "22/10/2026", ten: "Phụ đề không còn nháy giữa hai dòng; không lặp chữ tiếng Anh sau thứ trong tuần",
             y: [
                 "Khi hai dòng phụ đề cách nhau dưới 0,15 giây, dòng trước nay ở lại tới khi dòng sau hiện, thay vì tắt khoảng 60 mili giây rồi mới hiện dòng mới (một cái nháy). Áp dụng cho YouTube và Coursera.",

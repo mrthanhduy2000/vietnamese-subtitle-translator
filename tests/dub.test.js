@@ -1129,7 +1129,13 @@ test("audio Gemini: dài hơn khung thì phát nhanh hơn vừa đủ, giữ cao
     assert.ok(rates.some(r => r > 1.01), JSON.stringify(rates));
     // co giãn theo khung của câu, không bao giờ ra ngoài dải an toàn
     assert.ok(rates.every(r => r >= 0.95 - 1e-9 && r <= 1.3 + 1e-9), JSON.stringify(rates));
-    for (let i = 1; i < rates.length; i++) assert.ok(rates[i] - rates[i - 1] <= 0.1 + 1e-9, `nhịp tăng vọt ${rates[i - 1]} -> ${rates[i]}`);
+    // 2.7.0: a line that would overrun its slot by more than overrunStepAt may climb
+    // rateStepUpOverrun (0.2); every other step stays within rateStepUp. Which lines overrun depends
+    // on timing, so under load a 0.14 step showed up here: allowed, but most steps stay gentle
+    const { SYNC } = require("../dub-engine.js");
+    const steps = rates.slice(1).map((r, i) => r - rates[i]);
+    for (let i = 0; i < steps.length; i++) assert.ok(steps[i] <= SYNC.rateStepUpOverrun + 1e-9, `nhịp tăng vọt ${rates[i]} -> ${rates[i + 1]}`);
+    assert.ok(steps.filter(d => d > SYNC.rateStepUp + 1e-9).length <= Math.ceil(steps.length / 4), JSON.stringify(rates));
 });
 
 test("audio Gemini: tạm dừng video thì audio dừng, phát lại thì tiếp đúng vị trí", async () => {

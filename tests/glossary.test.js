@@ -242,3 +242,19 @@ test("an everyday word English capitalizes (a weekday, a month, a language) is n
     EXTRA.issues.length = before;
     delete G.CST_GLOSSARY_GROUPS.lab_always;
 });
+
+test("a term the model also wrote out beside its code is restored once, not twice", async () => {
+    const sb = loadContent();
+    await sb.loadGlossary();
+    const r = (t, terms) => sb.restoreGlossary(t, terms);
+    // the five doubled renderings found in 10,057 saved groups (2.7.3)
+    assert.equal(r("Để hiểu sự bùng nổ kinh tế [[__T0__]] đáng kinh ngạc", ["bùng nổ kinh tế"]), "Để hiểu sự bùng nổ kinh tế đáng kinh ngạc");
+    assert.equal(r("Bao gồm [[__T0__]] nhịp tim lúc nghỉ thấp hơn", ["nhịp tim lúc nghỉ"]), "Bao gồm nhịp tim lúc nghỉ thấp hơn");
+    assert.equal(r("là [[__T0__]] dân tộc Baloch.", ["chủ nghĩa dân tộc"]), "là chủ nghĩa dân tộc Baloch.");
+    assert.equal(r("là chủ nghĩa [[__T0__]] Baloch.", ["chủ nghĩa dân tộc"]), "là chủ nghĩa dân tộc Baloch.");
+    // kept: a comma between, a single shared word, the term said twice on purpose elsewhere
+    assert.equal(r("tăng [[__T0__]], nhịp tim lúc nghỉ giảm", ["nhịp tim lúc nghỉ"]), "tăng nhịp tim lúc nghỉ, nhịp tim lúc nghỉ giảm");
+    assert.equal(r("về [[__T0__]] suất cao", ["lãi suất"]), "về lãi suất suất cao");
+    assert.equal(r("kinh tế [[__T0__]] mạnh", ["bùng nổ kinh tế"]), "Kinh tế bùng nổ kinh tế mạnh".replace(/^K/, "k"));
+    assert.equal(r("[[__T0__]] tăng. [[__T1__]] giảm", ["lãi suất", "iOS"]), "Lãi suất tăng. iOS giảm");
+});

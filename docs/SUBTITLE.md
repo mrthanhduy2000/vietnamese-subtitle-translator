@@ -274,7 +274,18 @@ a Reload the viewer clicks Translate again).
 `ytKhoiDong` -> `ytTheoDoi` (watches SPA navigation) -> `ytTuDongDich` -> `ytBatDauDich`.
 `ytBatDauDich` checks `stale()` (`yt.huyDich`, `yt.dead`, or the URL's video id changed) after
 **every** await and returns false (1.7.4); a new await there needs the same check. `ytTuDongDich`
-waits (up to 10 s) for a run left over from the previous video instead of skipping on `yt.busy`:
+waits (up to 10 s) for a run left over from the previous video instead of skipping on `yt.busy`.
+An auto start whose caption body came back empty (`yt.emptyCaptionsFor`; the player's pot not seen
+yet, typical of a background or covered tab) is tried again by `ytRetryEmptyCaptions` (2.7.2): when
+the tab is shown, else after 4, 12 and 30 s; turning translation off (`ytTatDich` bumps `yt.offSeq`)
+or another video cancels it. Before, `autoTried` left such a video untranslated with no message
+(4 of 13 new videos in one covered-window run, 2026-10-22). The per-video copy (`ytGhiCache`) is
+written the moment the last group lands (`ytGanBanDich`, 2.7.3), not when the prefetch loop next wakes:
+the loop sleeps 1 s between looks (longer hidden), and a viewer moving on right at the end (autoplay)
+turned the run off first, so a fully translated video was never saved. A line that is sound notes
+only (`CST_QUALITY.soundNoteLine`) is filled from the list inside a window of speech too, never sent
+(`requestUnit`, 2.7.3): YouTube's newer captions write ">> [music]", both models left it empty, and
+the empty item ("Có mục dịch rỗng") failed the whole window to Google, which keeps a video unsaved:
 
 1. `ytDamBaoBridge` makes sure the MAIN-world bridge is alive (one file, `yt-bridge.js`, injected by
    the manifest or on request by the service worker; see `DANGER.md` item 2).
@@ -462,7 +473,10 @@ Google. Settings shows the count and how many were saved since the last review: 
 sweep drops one left from before, 2.3.3; a `ctxterms_yt_` list without `v: 2` is neither read nor
 kept, 2.3.8: all 6 of the user's were learned before 2.3.0 fixed domain detection, held "Whole Foods
 = thực phẩm hữu cơ", "pricey = giá thành cao", and every later video of the channel re-saved them; a
-term whose Vietnamese is a glossary placeholder is never stored) · plus the `cst-cache` IndexedDB
+term whose Vietnamese is a glossary placeholder is never stored) · `cstFallbackLog` (2.7.3, `content.js`
+`noteFallback`) the last 40 windows that fell back to Google `{ at, video, reason, n }` · `ytSaveSkip`
+(2.7.3, `youtube.js` `ytNoteSaveSkip`) the last 20 videos not saved and why (`fallback`, `error: ...`):
+the console was the only trace before, which no session can read · plus the `cst-cache` IndexedDB
 database, which is separate (see `DUBBING.md`).
 
 ### `chrome.storage.session`

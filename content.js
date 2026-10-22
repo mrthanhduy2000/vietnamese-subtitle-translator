@@ -407,12 +407,14 @@ function restoreGlossary(text, terms) {
     if (terms.length === 0) return finalizeTranslation(text);
 
     // Regex da dang: bat ca format moi [[__T0__]] va format cu ZQ0QZ / Z Q 0 Q Z
+    // Each restored term is kept apart (\u0001...\u0002) until dropTermEchoes has looked around it
     let restored = text.replace(/(?:\[\[\s*__\s*T\s*(\d+)\s*__\s*\]\]|__T\s*(\d+)\s*__|Z\s*Q\s*(\d+)\s*Q\s*Z)/gi, (match, p1, p2, p3, offset, whole) => {
         const num = p1 !== undefined ? p1 : (p2 !== undefined ? p2 : p3);
         const idx = parseInt(num, 10);
         if (terms[idx] === undefined) return match;
-        return sentenceStartAt(whole, offset) ? capitalizeLowerTerm(terms[idx]) : terms[idx];
+        return "\u0001" + (sentenceStartAt(whole, offset) ? capitalizeLowerTerm(terms[idx]) : terms[idx]) + "\u0002";
     });
+    restored = dropTermEchoes(restored);
 
     // Don dep khoang trang thua sinh ra boi token
     restored = restored.replace(/[ \t]{2,}/g, " ").trim();
@@ -424,6 +426,40 @@ function restoreGlossary(text, terms) {
 
     // Ma nao con sot (vi du mo hinh doi so thu tu) thi xoa, khong de lot ra man hinh
     return finalizeTranslation(restored);
+}
+
+// (2.7.3) The model sometimes writes a term's meaning itself AND keeps its code, so the restored
+// rendering doubled: "sự bùng nổ kinh tế bùng nổ kinh tế", "nhịp tim lúc nghỉ nhịp tim lúc nghỉ",
+// "mệt mỏi khi ra quyết định mệt mỏi khi ra quyết định" (5 of 10,057 saved groups, every one a
+// glossary rendering). Words right before a restored term that are its own first words, or right
+// after it that are its last words (2 or more, only spaces between), are the echo and go.
+function dropTermEchoes(s) {
+    const parts = s.split(/(\u0001[^\u0001\u0002]*\u0002)/);
+    const norm = x => x.normalize("NFC").toLowerCase();
+    for (let i = 1; i < parts.length; i += 2) {
+        const term = parts[i].slice(1, -1);
+        const words = term.split(/\s+/).filter(Boolean);
+        if (words.length < 2) continue;
+        for (let k = words.length; k >= 2; k--) {
+            const head = words.slice(0, k).join(" ");
+            const before = parts[i - 1];
+            const at = before.length - head.length - 1;
+            if (at >= -1 && /\s$/.test(before) && norm(before.slice(Math.max(0, at), before.length - 1)) === norm(head) &&
+                (at <= 0 || /[\s"“'(]$/.test(before.slice(0, at)) || at === 0)) {
+                parts[i - 1] = before.slice(0, Math.max(0, at));
+                break;
+            }
+        }
+        for (let k = words.length; k >= 2; k--) {
+            const tail = words.slice(-k).join(" ");
+            const after = parts[i + 1] || "";
+            if (/^\s/.test(after) && norm(after.slice(1, 1 + tail.length)) === norm(tail) && !/^[\p{L}\p{M}\p{N}]/u.test(after.slice(1 + tail.length))) {
+                parts[i + 1] = after.slice(1 + tail.length);
+                break;
+            }
+        }
+    }
+    return parts.join("").replace(/[\u0001\u0002]/g, "");
 }
 
 // A term restored where a sentence starts: "độ lệch chuẩn cho biết..." must read "Độ lệch chuẩn...".
@@ -487,7 +523,20 @@ function logEngine(response, n, ctx) {
             "background:#D97757;color:#fff;padding:2px 6px;border-radius:4px;font-weight:bold;", "color:#D97757;font-weight:bold;");
     } else if (response.engine === "google_fallback") {
         console.warn(`[AI Subtitle] ⚠️ Gemini lỗi ("${response.fallbackReason || "Không xác định"}"), dùng Google Translate (không có ngữ cảnh)`);
+        noteFallback(response.fallbackReason, n);
     }
+}
+
+// (2.7.3) Why a window fell back to Google, kept on the device (last 40): a fallback keeps a YouTube
+// video from being saved, and the console was the only trace, which no session can read
+function noteFallback(reason, n) {
+    try {
+        chrome.storage.local.get("cstFallbackLog").then(r => {
+            const log = Array.isArray(r.cstFallbackLog) ? r.cstFallbackLog : [];
+            log.push({ at: Date.now(), video: currentVideoMeta().videoKey, reason: String(reason || ""), n });
+            return chrome.storage.local.set({ cstFallbackLog: log.slice(-40) });
+        }).catch(() => {});
+    } catch (e) { /* storage gone after a reload */ }
 }
 
 // Gui mot cua so gom cac doan phu de lien tiep + goi ngu canh.
@@ -529,6 +578,16 @@ async function requestUnit(req, opts = {}) {
     if (Q && Q.soundNoteLine && !opts.refine) {
         const notes = req.sentences.map(Q.soundNoteLine);
         if (notes.every(n => n && n.vi)) return { ok: true, engine: "sound-notes", translations: notes.map(n => n.vi), terms: [] };
+        // (2.7.3) ... and so is such a line inside a window of speech. Sent along, the model may leave
+        // it empty, rightly (">> [music]" in YouTube's newer captions), and one empty item failed the
+        // whole window on every model: Google's version was shown and the video was never saved
+        const keep = notes.map((n, i) => (n && n.vi ? -1 : i)).filter(i => i >= 0);
+        if (keep.length < notes.length) {
+            const sub = await requestUnit({ ...req, sentences: keep.map(i => req.sentences[i]) }, opts);
+            const out = notes.map(n => (n && n.vi ? n.vi : ""));
+            keep.forEach((i, k) => { out[i] = (sub.translations || [])[k] || ""; });
+            return { ...sub, translations: out };
+        }
     }
     const prot = protectMany(req.sentences);
     const placeholders = prot.terms.map((term, id) => ({ id, term }));

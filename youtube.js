@@ -153,6 +153,7 @@ async function ytGhiCache(videoId) {
     if (!videoId || yt.viCues.length === 0) return;
     if (yt.groups.some(g => g.fallback)) {
         console.log("[AI Subtitle] Có đoạn dịch tạm bằng Google: không lưu bản dịch video này, lần sau dịch lại bằng Gemini");
+        ytNoteSaveSkip(videoId, "fallback", yt.groups.filter(g => g.fallback).length);
         return;
     }
     try {
@@ -180,7 +181,17 @@ async function ytGhiCache(videoId) {
         }
     } catch (e) {
         console.warn("Khong ghi duoc bo nho dem:", e.message);
+        ytNoteSaveSkip(videoId, "error: " + e.message, 0);
     }
+}
+
+// (2.7.3) A video not saved says why, on the device (last 20): read with tools/ext-storage.js
+function ytNoteSaveSkip(videoId, why, n) {
+    chrome.storage.local.get("ytSaveSkip").then(r => {
+        const log = Array.isArray(r.ytSaveSkip) ? r.ytSaveSkip : [];
+        log.push({ at: Date.now(), videoId, why, n, groups: yt.groups.length });
+        return chrome.storage.local.set({ ytSaveSkip: log.slice(-20) });
+    }).catch(() => {});
 }
 
 // Giu lai cac video gan day nhat, xoa bot cai cu va toan bo cache phien ban cu
@@ -883,6 +894,13 @@ function ytGanBanDich(groups, idxs, translations, engine) {
     ytTrimLeaks(groups, idxs);
     ytGhepViCues();
     yt.renderKey = "";
+    // (2.7.2) Saved the moment the last group lands, not when the prefetch loop next wakes (it
+    // sleeps 1 s between looks, longer in a hidden tab): a viewer who moves on to the next video
+    // right at the end (autoplay) turned the run off first, and the whole video was never saved
+    if (groups === yt.groups && !yt.daDichXong && !yt.huyDich && groups.every(g => g.translated)) {
+        yt.daDichXong = true;
+        ytGhiCache(yt.currentVideoId);
+    }
 }
 
 // A refine landing after the video was translated and saved (ytGhiCache) used to stay out of the
@@ -1155,8 +1173,10 @@ async function ytChayTienTrinhPrefetch(groups) {
     await Promise.all(workers);
 
     if (yt.groups !== groups || yt.huyDich) return;
-    yt.daDichXong = groups.every(g => g.translated);
-    if (yt.daDichXong) ytGhiCache(yt.currentVideoId);
+    if (!yt.daDichXong && groups.every(g => g.translated)) {     // else saved when the last group landed
+        yt.daDichXong = true;
+        ytGhiCache(yt.currentVideoId);
+    }
 }
 
 function ytKichHoatHienThi() {
@@ -1313,10 +1333,40 @@ async function ytTuDongDichSau(ma) {
     yt.langDecision = q;
     console.log(`[AI Subtitle] Ngôn ngữ video: ${q.lang} (${Math.round(q.confidence * 100)}%, theo ${q.source}) -> ${q.action === "translate" ? "tự động dịch" : q.action === "skip" ? "đã là tiếng Việt, không dịch" : "chưa chắc chắn, không tự dịch"}`);
     if (q.action !== "translate") return q;
+    yt.emptyCaptionsFor = null;
     const ok = await ytBatDauDich({ auto: true });
     ytDatTrangThaiNut(ok ? "on" : "idle");
     if (ok && ytLayMaVideo() === ma) await ytTuBatLongTieng();
+    else if (!ok && yt.emptyCaptionsFor === ma) ytRetryEmptyCaptions(ma, 0);
     return q;
+}
+
+// (2.7.2) An auto start whose caption body came back empty (the player's pot not seen yet: a video
+// opened in a background or covered tab) used to stay untranslated with no word to the viewer, since
+// autoTried keeps it from starting again. 3 of 23 new videos run in a covered window on 2026-10-22;
+// asked again a few seconds later the same track came back whole. Tried again when the tab is shown
+// and after 4, 12 and 30 s; an empty answer costs no Gemini call.
+const YT_EMPTY_RETRY_MS = [4000, 12000, 30000];
+function ytRetryEmptyCaptions(ma, attempt) {
+    if (attempt >= YT_EMPTY_RETRY_MS.length) return;
+    const seq = yt.offSeq || 0;             // turned off by hand or another video since: no retry
+    let done = false;
+    const go = async () => {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        document.removeEventListener("visibilitychange", onShow);
+        if (yt.dead || yt.active || ytLayMaVideo() !== ma || (yt.offSeq || 0) !== seq) return;
+        if (yt.busy) { ytRetryEmptyCaptions(ma, attempt); return; }
+        yt.emptyCaptionsFor = null;
+        const ok = await ytBatDauDich({ auto: true });
+        ytDatTrangThaiNut(ok ? "on" : "idle");
+        if (ok && ytLayMaVideo() === ma) await ytTuBatLongTieng();
+        else if (!ok && yt.emptyCaptionsFor === ma) ytRetryEmptyCaptions(ma, attempt + 1);
+    };
+    const onShow = () => { if (!document.hidden) go(); };
+    const timer = setTimeout(go, YT_EMPTY_RETRY_MS[attempt]);
+    document.addEventListener("visibilitychange", onShow);
 }
 
 // Lồng tiếng đang được bật (nút trên trình phát hoặc ô trong popup): tự bật lại sau khi dịch,
@@ -1443,6 +1493,7 @@ async function ytBatDauDich(opts = {}) {
         const cues = await ytTaiBanChepLoi(track.baseUrl);
         if (stale()) return false;
         if (cues.length === 0) {
+            yt.emptyCaptionsFor = ma0;      // an auto start tries again (ytRetryEmptyCaptions)
             baoLoi("YouTube chưa trả nội dung phụ đề. Hãy phát video vài giây rồi bấm dịch lại; nếu vẫn lỗi, tải lại trang (F5).");
             return false;
         }
@@ -1503,6 +1554,7 @@ async function ytBatDauDich(opts = {}) {
 function ytTatDich() {
     yt.active = false;
     yt.huyDich = true;
+    yt.offSeq = (yt.offSeq || 0) + 1;      // a pending ytRetryEmptyCaptions gives up
     ytDungDocChuTrenHinh();
     clearTimeout(yt.refineSaveTimer);
     yt.refineSaveTimer = null;

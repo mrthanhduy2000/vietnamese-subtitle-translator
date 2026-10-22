@@ -535,3 +535,15 @@ test("sound captions: a window of notes only sends no request", async () => {
     await E.run("requestUnit({ sentences: ['[Music]', 'Hello there'], context: {} })");
     assert.equal(sent.length, 1, "speech in the window: asked as before");
 });
+
+// 2.7.3: a sound-note line inside a window of speech came back empty from both models (">> [music]"
+// in YouTube's newer captions), which failed the whole window to Google and kept the video unsaved
+test("sound captions: a note line inside a window of speech is filled from the list and never sent", async () => {
+    const sent = [];
+    const E = pageEnv({ files: ["vi-quality.js"], sendMessage: (m, cb) => { sent.push(m); cb && cb({ ok: true, engine: "gemini", translations: m.sentences.map((s, i) => "Câu " + (i + 1)) }); } });
+    const r = await E.run("requestUnit({ sentences: ['in recent years.', '>> [music]', '>> Never miss an episode'], context: {} })");
+    assert.equal(sent.length, 1);
+    assert.deepEqual([...sent[0].sentences], ["in recent years.", ">> Never miss an episode"], "the note line is not sent");
+    assert.deepEqual([...r.translations], ["Câu 1", "[Âm nhạc]", "Câu 2"]);
+    assert.equal(r.engine, "gemini");
+});

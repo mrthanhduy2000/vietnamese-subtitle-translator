@@ -45,7 +45,9 @@ function drive(rate, from) {
         if (!v || !Number.isFinite(v.duration) || !v.duration) return;
         if (v.muted) v.muted = false;
         if (!started) { started = true; if (from != null) v.currentTime = from; }
-        if (v.currentTime > v.duration - 1.5) { if (!v.paused) v.pause(); return; }
+        // a hidden tab runs this tick about once a second, 4 s of video at 4x: stop early enough
+        // that YouTube's autoplay never takes the tab to another video (2026-10-22)
+        if (v.currentTime > v.duration - Math.max(1.5, rate * 2.5)) { if (!v.paused) v.pause(); return; }
         if (v.playbackRate !== rate) v.playbackRate = rate;
         if (v.paused) v.play().catch(() => {});
     };
