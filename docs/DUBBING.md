@@ -810,7 +810,14 @@ Knobs you will actually reach for:
   numbers above. A test pins the heard reference ("the second part of a sentence keeps the pace").
   Not verified by ear yet.
 - **Chaining**: `chainLead` was cut from 2.0s to 0.8s because starting early accumulated error
-  across chained segments. `continuesNext` treats gaps up to 1.5s as one continuous span.
+  across chained segments, and to 0.3 s in 2.6.9: the voice reads a part faster than its slot, so
+  nearly every chained part waited only for the lead and started the full 0.8 s before the speaker
+  (user: "lồng tiếng trước khi người thật nói liên tục"). Simulator on the 70 saved videos (8,989
+  lines, Mỹ Duyên 3.8 syl/s): starts > 0.3 s early 1371 -> 0 (> 0.6 s 1182 -> 0), mid-sentence
+  silences > 0.4 s 114 -> 177 (183 -> 276 s), late > 0.5 s 1649 -> 1657, words lost 0 -> 0. 0.5 left
+  1330 early, 0.15 gave 187 silences and 1675 late. The same holds for a video's own uploaded
+  Vietnamese track (`ytHienThiNguyenTiengViet`, one group per cue, most cues end mid-sentence): 55
+  of 374 starts over 0.6 s early -> 0. `continuesNext` treats gaps up to 1.5s as one continuous span.
 - **Skipping**: whole sentences only, never mid-sentence. 2.4.2: a line past `maxQueueLag` was read
   only when it gave time back (`absorbsLag`): 17 -> 9 drops on 39 videos. 2.4.5 (`readsLate`): a line
   whose audio is ready is always read up to `maxQueueLagHard` 8 s late, because dropping bought no

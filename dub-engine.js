@@ -103,10 +103,14 @@
         // 0.28 s. This keeps the join as long as a comma after a long clause.
         joinGapClause: 0.15,
         joinGapValue: 0.3,        // ... also after a cut at a clause boundary this strong (dub-prosody value)
-        chainLead: 0.8,           // câu CHƯA HẾT (đoạn trước không kết thúc bằng dấu chấm): đoạn sau được
-                                  // nói sớm tối đa bấy nhiêu giây ngay sau đoạn trước, không đứng im chờ phụ đề.
-                                  // Trước 1.3.2 là 2,0 giây: phụ đề người dịch (TED) ngắn hơn lời gốc, độ sớm
-                                  // CỘNG DỒN qua chuỗi đoạn -> đo thật giọng đi trước phụ đề tới 2,0 giây
+        chainLead: 0.3,           // a sentence still running (the last part did not end on a full stop): the
+                                  // next part may start up to this many seconds before its subtitle, right after
+                                  // the last one, instead of standing silent mid-sentence. 2.0 until 1.3.2 (the
+                                  // lead added up along a chain of parts), 0.8 until 2.6.9: nearly every chained
+                                  // part then sat at the full 0.8 s ahead of the speaker, 1371 of 8989 lines on
+                                  // 70 saved videos started > 0.3 s early ("lồng tiếng trước khi người thật
+                                  // nói"). At 0.3: 0 such lines, mid-sentence silences > 0.4 s 114 -> 177
+                                  // (183 -> 276 s), late starts 1649 -> 1657, no word lost
         rateMemory: 4,            // câu trước kết thúc cách đây quá bấy nhiêu giây thì không cần nối nhịp
         maxQueueLag: 4.5,
         // ... but a line whose audio is ready is read anyway, up to maxQueueLagHard late (readsLate,

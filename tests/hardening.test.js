@@ -1561,10 +1561,14 @@ test("phụ đề tự động (dòng nối liền, không dấu câu): đoạn 
     assert.ok(head.end - head.start <= 3.6, `đoạn đầu dài ${(head.end - head.start).toFixed(1)} giây`);
     assert.ok(st[0].t - 300 < 1.3, `tiếng đầu tiên sau ${(st[0].t - 300).toFixed(2)} giây`);
     if (process.env.SHOW) console.log("tiếng đầu tiên sau", (st[0].t - 300).toFixed(2), "giây; đoạn đầu", (head.end - head.start).toFixed(1), "giây");
-    // Không im giữa câu: giữa hai đoạn liền nhau của cùng một câu, khoảng im <= 0,3 giây
-    const gaps = st.slice(1).map((x, i) => ({ gap: x.t - st[i].speechEnd, cont: S.eng.planById.get(st[i].id).continuesNext })).filter(x => x.cont);
+    // Between two parts of one sentence: the voice never runs more than 0.35 s ahead of the
+    // speaker (2.6.9: 0.8 s ahead on every chain was "lồng tiếng trước khi người thật nói"), and the
+    // silence that lead used to hide stays short (this Vietnamese is shorter than its slot)
+    const gaps = st.slice(1).map((x, i) => ({ gap: x.t - st[i].speechEnd, lead: x.due - x.t, cont: S.eng.planById.get(st[i].id).continuesNext })).filter(x => x.cont);
     assert.ok(gaps.length >= 2);
-    const bad = gaps.filter(x => x.gap > 0.3);
+    const early = gaps.filter(x => x.lead > 0.35);
+    assert.equal(early.length, 0, `ahead of the speaker: ${JSON.stringify(early.map(x => x.lead.toFixed(2)))}`);
+    const bad = gaps.filter(x => x.gap > 0.9);
     assert.equal(bad.length, 0, `im giữa câu: ${JSON.stringify(bad.map(x => x.gap.toFixed(2)))}`);
 });
 
@@ -2037,8 +2041,12 @@ test("cửa sổ Chrome bị che (bộ đếm giờ của trang chỉ chạy ~1 
     assert.ok(st.length >= 4, `chỉ đọc ${st.length} đoạn`);
     const gaps = st.slice(1).map((x, i) => ({ gap: x.t - st[i].speechEnd, cont: S.eng.planById.get(st[i].id).continuesNext })).filter(x => x.cont);
     assert.ok(gaps.length >= 2);
+    // 2.6.9: the next part waits until chainLead before its subtitle, so a shorter take leaves a
+    // silence; the timer must still start it on time, not a whole slowed tick (1 s) late
     const worst = Math.max(...gaps.map(x => x.gap));
-    assert.ok(worst <= 0.3, `hụt ${worst.toFixed(2)} giây giữa hai đoạn của cùng câu`);
+    assert.ok(worst <= 0.9, `hụt ${worst.toFixed(2)} giây giữa hai đoạn của cùng câu`);
+    const late = st.slice(1).filter(x => x.lag > 0.15);
+    assert.equal(late.length, 0, `started late: ${JSON.stringify(late.map(x => x.lag.toFixed(2)))}`);
 });
 
 // ================= CHỜ CHUẨN BỊ (tối đa 3,5 giây) khi mở video mới / tua tới đoạn mới =================

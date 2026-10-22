@@ -4,6 +4,19 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.6.9", luc: "22/10/2026", ten: "Giọng lồng tiếng không còn đọc trước người nói",
+            y: [
+                "Khi một câu kéo dài qua nhiều dòng phụ đề, giọng đọc đoạn tiếp theo sớm tối đa 0,3 giây thay vì 0,8 giây như trước. Trước đây gần như mọi đoạn nối đều bắt đầu sớm trọn 0,8 giây, nên nghe như giọng nói trước người thật.",
+                "Áp dụng cho mọi video, kể cả video có sẵn phụ đề tiếng Việt do người đăng tải lên."
+            ],
+            bang: { cot: ["Mô phỏng 70 video đã lưu (8.989 câu)", "2.6.8", "Nay"], hang: [
+                ["Câu bắt đầu sớm hơn người nói quá 0,3 giây", "1.371", "0"],
+                ["Khoảng lặng giữa câu dài hơn 0,4 giây", "114", "177"],
+                ["Câu bắt đầu trễ quá 0,5 giây", "1.649", "1.657"],
+                ["Chữ bị bỏ", "0", "0"]
+            ] }
+        },
+        {
             v: "2.6.8", luc: "19/10/2026", ten: "Lớp an toàn chung cho phụ đề dạng khối không có thời gian từng chữ",
             y: [
                 "Khi tiện ích không tự tải được bản phụ đề có thời gian từng chữ và phải dùng bản hiển thị của trình phát (các khối hai hàng chồng giờ lên nhau), mỗi hàng nay thành một dòng riêng, chia thời gian theo số chữ. Hàng sau không còn hiện và được đọc ngay từ đầu khối.",
