@@ -89,6 +89,11 @@ left alone. A changed line can also move `breathText`'s breathing commas (the ne
 stretch it measures). Simulator: late 1653 -> 1648 (the fake server's take length is seeded by the
 spoken text). Test: `tests/speech.test.js` "an interruption".
 
+**A bracketed sentence is speech (2.8.1, `notesOnly`).** A source line all in brackets used to be a
+note line, its translation stripped; subtitled Japanese and Korean vlogs bracket a cat's or a thought's
+words ("(Cat: Are you listening?)"). A parenthesis is a note only when `isSoundNote` or under 3 words.
+Multilingual batch: 5 of 89 note-only lines became speech, all speech; words lost on JKW9_bw0oTY 35 -> 6.
+
 **Numbers and units (2.8.0).** The VieNeu normalizer already says most units glued to a number
 ("400g" gam, "500ml" mi li lít, "225°C" độ xê, "45W" oát, "120Hz" héc, "12GB" gigabyte, "4K"
 bốn ca): check with `tools/vieneu-g2p.py` `{"normalize": [...]}` before adding a rule. It misreads

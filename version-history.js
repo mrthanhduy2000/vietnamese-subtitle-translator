@@ -4,6 +4,18 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.8.1", luc: "23/10/2026", ten: "Lời thoại trong ngoặc đơn được lồng tiếng",
+            y: [
+                "Phụ đề của nhiều vlog Nhật, Hàn đặt lời của con mèo hay suy nghĩ trong ngoặc đơn, ví dụ \"(Mèo: Này, có nghe tôi nói không đấy?)\". Trước đây cả dòng như vậy bị coi là ghi chú âm thanh và không được đọc.",
+                "Nay ngoặc đơn chứa một câu thật được lồng tiếng; ngoặc chỉ là tiếng động (\"nhạc sôi động\", \"tiếng cửa đóng\") hoặc một hai chữ vẫn im lặng như cũ."
+            ],
+            bang: { cot: ["Đo trên video đã lưu", "2.8.0", "Nay"], hang: [
+                ["Dòng lời thoại trong ngoặc bị bỏ không đọc", "5", "0"],
+                ["Ghi chú âm thanh bị đọc nhầm", "0", "0 (84 ghi chú vẫn im lặng)"],
+                ["Chữ không được đọc, vlog Nhật có phụ đề", "35", "6"]
+            ] }
+        },
+        {
             v: "2.8.0", luc: "23/10/2026", ten: "Giọng đọc nói đúng phân số, dặm/giờ, \"15$\" và 4K",
             y: [
                 "Phân số trong công thức nấu ăn nay được đọc như người Việt nói: \"1/2 cốc\" là \"nửa cốc\", \"1/4 thìa\" là \"một phần tư thìa\" (trước đây máy đọc \"một trên bốn\"). Ngày tháng (\"ngày 1/4\") và \"24/7\" giữ nguyên.",

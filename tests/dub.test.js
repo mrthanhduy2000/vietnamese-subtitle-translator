@@ -2183,3 +2183,16 @@ test("speech text: a cook's fraction, mph, a dollar after its number, 4K on a sc
     assert.equal(say("quay video 4K"), "quay video bốn ca");
     assert.equal(say("Khoảng 6K đến 8K một tháng."), "Khoảng 6 nghìn đến 8 nghìn một tháng.", "money names no screen");
 });
+
+// 2.8.1: subtitled Japanese and Korean vlogs put a cat's or a thought's words in brackets
+test("a line all in brackets that holds a sentence is read; a sound or a word or two is a note", () => {
+    const P = require("../dub-planner.js");
+    const said = (src, vi) => {
+        const g = { start: 0, end: 3, viText: vi, srcCues: [{ start: 0, end: 3, text: src }], viCues: [{ start: 0, end: 3, text: vi }] };
+        return P.buildDubScript([g]).map(s => s.speechSource || "").join(" ").trim();
+    };
+    assert.match(said("(Cat: Are you listening?)", "(Mèo: Này, có nghe tôi nói không đấy?)"), /có nghe tôi nói/);
+    assert.match(said("(I'm having trouble finding the right baking temperature.)", "(Mình đang khó tìm nhiệt độ nướng phù hợp.)"), /nhiệt độ nướng/);
+    for (const [src, vi] of [["(upbeat music)", "(nhạc sôi động)"], ["(door closes)", "(tiếng cửa đóng)"], ["(Speaking Japanese)", "(Nói tiếng Nhật)"], ["[Music]", "[Âm nhạc]"]])
+        assert.equal(said(src, vi), "", src);
+});

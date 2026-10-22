@@ -473,7 +473,12 @@
             .replace(/\(([^()]{1,60})\)/g, (m, inner) => (srcNotesOnly || isSoundNote(inner) ? " " : m))
             .replace(/\s{2,}/g, " ").trim();
     }
-    const notesOnly = text => /[\[(♪♫]/.test(text) && !hasWords(String(text || "").replace(/\[[^\]]*\]|\([^()]*\)|[♪♫]+/g, " "));
+    // (2.8.1) A parenthesis that holds a sentence is speech, not a note: subtitled Japanese and Korean
+    // vlogs put a cat's or a thought's words in brackets ("(Cat: Are you listening?)"), and a line of
+    // nothing else was taken for a sound note and never read. A note is a sound (isSoundNote) or a
+    // word or two ("(door closes)", "(Speaking Japanese)")
+    const notesOnly = text => /[\[(♪♫]/.test(text) && !hasWords(String(text || "").replace(/\[[^\]]*\]|[♪♫]+/g, " ")
+        .replace(/\(([^()]*)\)/g, (m, inner) => (isSoundNote(inner) || inner.trim().split(/\s+/).length < 3 ? " " : m)));
     const hasWords = t => /[\p{L}\p{N}]/u.test(String(t || "").replace(/¦/g, ""));
 
     // A speaker label of edited captions ("ANDREW HUBERMAN: Welcome to...") stays in the translation,
