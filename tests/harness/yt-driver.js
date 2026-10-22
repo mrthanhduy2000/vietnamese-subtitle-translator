@@ -94,11 +94,14 @@ async function durationOf(tabId) {
             const tabId = win.tabs[0].id;
             await chrome.tabs.update(tabId, { muted: true });
             await waitComplete(tabId, 30000);
-            const dur = await durationOf(tabId);
+            let dur = await durationOf(tabId);
             if (back && back.id !== win.id && back.type === "normal") await chrome.windows.update(back.id, { focused: true }).catch(() => {});
             let ok = false;
             for (let pass = 0; pass < 2 && !ok; pass++) {
                 await chrome.scripting.executeScript({ target: { tabId }, world: "MAIN", func: drive, args: [rate, pass ? 0 : null] });
+                // a player slow to load (the first window after a reload, 2026-10-23) had no duration
+                // yet: the pass waited the 60 s floor and the video was logged "0 s, NOT SAVED"
+                if (!dur) dur = await durationOf(tabId);
                 ok = await waitKey(key, Math.max(60000, (dur / rate + 90) * 1000));
                 if (!ok) say(`   ${id} pass ${pass + 1} ended without a save`);
             }
