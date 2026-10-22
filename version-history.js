@@ -4,6 +4,19 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.8.5", luc: "23/10/2026", ten: "Nghỉ xong thì nói nhịp mới, không đọc vội rồi im",
+            y: [
+                "Trước đây sau một câu đọc nhanh, câu kế tiếp vẫn bị giữ nhịp nhanh dù giữa hai câu có khoảng nghỉ tới 4 giây, nên một câu ngắn bị đọc vội rồi giọng im trong khi người nói vẫn đang nói. Nay sau khoảng nghỉ từ 1 giây, câu mới được nói theo nhịp của chính nó, như người thật. Các câu nói liền nhau vẫn giữ nhịp đều như cũ."
+            ],
+            bang: { cot: ["100 video đã lưu, 8.977 câu (mô phỏng)", "2.8.4", "Nay"], hang: [
+                ["Câu đọc vội rồi im", "916", "687"],
+                ["Khoảng im từ 1,5 giây khi người nói vẫn nói", "1.193", "1.068"],
+                ["Câu bắt đầu trễ hơn 0,5 giây", "751", "716"],
+                ["Tổng thời gian trễ", "1.159 giây", "1.105 giây"],
+                ["Hai câu liền nhau đổi nhịp đột ngột", "55", "46"]
+            ] }
+        },
+        {
             v: "2.8.4", luc: "23/10/2026", ten: "\"30k\" đọc là \"30 nghìn\"",
             y: [
                 "Số có chữ \"k\" viết thường phía sau (\"triệu phú 30k\") từng được đọc là \"ba mươi ca\"; nay là \"30 nghìn\", như \"30K\" viết hoa. Tên quỹ hưu trí \"401k\" vẫn giữ nguyên."

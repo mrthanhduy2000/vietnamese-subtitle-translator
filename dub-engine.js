@@ -116,7 +116,14 @@
                                   // 70 saved videos started > 0.3 s early ("lồng tiếng trước khi người thật
                                   // nói"). At 0.3: 0 such lines, mid-sentence silences > 0.4 s 114 -> 177
                                   // (183 -> 276 s), late starts 1649 -> 1657, no word lost
-        rateMemory: 4,            // câu trước kết thúc cách đây quá bấy nhiêu giây thì không cần nối nhịp
+        // The last line ended more than this many seconds ago: a fresh pace, no smoothing from it.
+        // 4 until 2.8.5: a fast line held the next one fast across a 1-4 s pause, so a short line
+        // was rushed and then fell silent while the speaker still talked (BACKLOG 48). After a pause
+        // a person starts a new sentence at a new pace. 100 saved videos (simulator, 8977 lines):
+        // starts > 0.5 s late 751 -> 716, lag 1159 -> 1105 s, pace jumps > 15% between lines under
+        // 1 s apart 55 -> 46, rushed (>= 1.15x) lines followed by a silence >= 1 s 916 -> 687,
+        // silences >= 1.5 s while the source talks 1193 -> 1068. 0.8: jumps 99; 0.6: 169; 2: rushed 797
+        rateMemory: 1,
         maxQueueLag: 4.5,
         // ... but a line whose audio is ready is read anyway, up to maxQueueLagHard late (readsLate,
         // 2.4.5). Dropping it did not buy the sync back: on the user's 40 saved videos (745 min,

@@ -853,6 +853,25 @@ Knobs you will actually reach for:
   ways, 939 -> 118 with A) mostly measures that a 0.04 step falls under its threshold: use the heard
   numbers above. A test pins the heard reference ("the second part of a sentence keeps the pace").
   Not verified by ear yet.
+- **A pause frees the pace (2.8.5, `rateMemory` 4 -> 1, BACKLOG 48)**: every silence of 1.5 s or more
+  while the source still talks (1,193 on 100 saved videos) sat inside the line's own slot: the line
+  ended early. A fast line held the next one fast across a pause of up to 4 s (`rateStepDown` 0.04 a
+  line, the fast-stretch floor, look-ahead), so a short line was rushed, then the voice fell silent.
+  Simulator, 100 saved videos, 8,977 lines, Mỹ Duyên 3.8 syl/s, translations ready
+  (`$TMPDIR/pacesweep.js`, scratch; "jumps" = rate change > 15% between lines under 1 s apart):
+
+  | rateMemory | late > 0.5 s | lag s | jumps | rushed (>= 1.15x) then silent >= 1 s | silences >= 1.5 s (s) |
+  |---|---|---|---|---|---|
+  | 4 (old) | 751 | 1159 | 55 | 916 | 1193 (2868) |
+  | 2 | 741 | 1143 | 49 | 797 | 1128 (2712) |
+  | **1 (kept)** | 716 | 1105 | 46 | 687 | 1068 (2574) |
+  | 0.8 | 678 | 1059 | 99 | 670 | 1058 (2558) |
+  | 0.6 | 663 | 1049 | 169 | 625 | 1043 (2529) |
+
+  Below 1 s, lines a breath apart jump pace. Words lost 22 -> 54 at 1 and 2: one video only
+  (6QULfp2wdZI, a Russian machine transcript broken into word salad needing 5.5-6.4 syl/s), where a
+  line is dropped 11 s behind at every setting and which line it is changes. Tried and dropped:
+  `holdEarlyMax` (a held pace may end a line at most N s early): jumps 55 -> 418, late 751 -> 930.
 - **Chaining**: `chainLead` was cut from 2.0s to 0.8s because starting early accumulated error
   across chained segments, and to 0.3 s in 2.6.9: the voice reads a part faster than its slot, so
   nearly every chained part waited only for the lead and started the full 0.8 s before the speaker

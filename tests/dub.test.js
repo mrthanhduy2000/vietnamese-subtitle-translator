@@ -569,6 +569,37 @@ test("a new sentence that would overrun its slot at the gentle step climbs up to
     assert.ok(b2 - a2 <= SYNC.rateStepUp + comp(a2), `a small overrun keeps the gentle step: ${a2.toFixed(3)} -> ${b2.toFixed(3)}`);
 });
 
+// (2.8.5, BACKLOG 48) a fast line no longer holds the next one fast across a pause
+test("after a 1.5 s pause a new sentence takes its own pace; right after a fast line it eases down gently", () => {
+    const { SYNC } = require("../dub-engine.js");
+    const clock = new Clock(), video = new FakeVideo();
+    const groups = lectureGroups();
+    const prov = { id: "gemini", caps: { prerender: true }, voiceModel: PLAN.DEFAULT_VOICE_MODEL, render: async () => [] };
+    const make = () => {
+        const eng = new DubEngine({ video, getGroups: () => groups, providers: { primary: prov },
+            now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id) }, {});
+        eng.refresh(true);
+        return eng;
+    };
+    const probe = pause => {
+        const eng = make();
+        const j = eng.plans.findIndex((p, k) => k > 0 && !p.continuesNext && !eng.plans[k - 1].continuesNext &&
+            eng.plans[k + 1] && p.end - p.start > 3);
+        const A = eng.plans[j - 1], B = eng.plans[j];
+        const a = eng.chooseRate(A, { duration: (B.start - A.start) * 1.6 }, A.start, 0, 0);
+        eng.lastSpokenId = A.id;
+        const t = Math.max(B.start, eng.lastRateEnd + pause);
+        const win = Math.min(B.start + (B.targetDuration || 0) + SYNC.fitSlack, eng.plans[j + 1].start - 0.12) - t;
+        // B's take fits its slot at about 1.0
+        return [a, eng.chooseRate(B, { duration: win * 0.98 }, t, 0, 0), eng.floorRate(B)];
+    };
+    const [a1, b1] = probe(0.1);
+    assert.ok(a1 > 1.2, `A is fast (${a1.toFixed(3)})`);
+    assert.ok(a1 - b1 <= SYNC.rateStepDown + a1 * SYNC.paceComp + 1e-6, `right after A it eases down gently: ${a1.toFixed(3)} -> ${b1.toFixed(3)}`);
+    const [a2, b2, floor] = probe(1.5);           // a 1.5 s pause held the fast pace until 2.8.5
+    assert.ok(b2 <= Math.max(1.05, floor) + 1e-6, `after a pause it reads at its own pace: ${a2.toFixed(3)} -> ${b2.toFixed(3)}`);
+});
+
 // (2.5.1) Chrome starts a fresh element, or one it suspended after ~15 s idle, cold (0.25-0.75 s while
 // the server works): between lines the next take's element is made shortly before its line
 test("between lines the next take's element is made shortly before its line; a stale unplayed one is made again, a playing one never touched", () => {

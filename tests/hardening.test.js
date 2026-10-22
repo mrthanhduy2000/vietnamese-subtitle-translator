@@ -1438,6 +1438,8 @@ test("nhịp nói BÁM PHỤ ĐỀ mà vẫn ĐỀU: nói xong gần mốc cuố
         const lagCap = Math.max(1.4, Math.min(1.65, 5.8 / sps));
         assert.ok(rates.every((r, i) => r >= floor - 1e-9 && r <= (st[i].lag > 1 || (i > 0 && rates[i - 1] > cap) ? lagCap : cap) + 1e-9), `ngoài dải [${floor.toFixed(2)} ; ${cap.toFixed(2)}/${lagCap.toFixed(2)}]: ${JSON.stringify(rates)}`);
         for (let i = 1; i < rates.length; i++) {
+            // (2.8.5) after a pause of rateMemory or more a new sentence starts at a fresh pace
+            if (st[i].t - st[i - 1].speechEnd >= E_ENGINE.SYNC.rateMemory) continue;
             const d = rates[i] - rates[i - 1];
             assert.ok(d <= 0.1 + 1e-9 && d >= -0.06 - 1e-9, `nhịp nhảy ${rates[i - 1]} -> ${rates[i]}`);
         }
