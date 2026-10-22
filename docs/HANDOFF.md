@@ -24,7 +24,7 @@
 - Spend today ~0.76 USD of the user's 100.000 đ allowance. `npm test` 747 pass; regress 0 moved.
 
 ## Unfinished
-- Not heard: 2.6.9-2.7.5 by ear. nzAmF9brAW0 not rerun since 2.7.5.
+- Not heard: 2.6.9-2.7.5 by ear. (nzAmF9brAW0 rerun on 2.7.5: saved, "[Tiếng nước ngoài]" lines, no fallback.)
 - jFZksJqL1Vc, XnQ7Py8D6v0, MebK9iEUzQA, JwBuHx_3GOU, rm_9cPXrv4A have uploaded Vietnamese tracks: shown as is, never
   saved by design; the driver logs them "NOT SAVED".
 - Coursera has no fallback heal (its unit cache keeps no fallback, a revisit asks again).
