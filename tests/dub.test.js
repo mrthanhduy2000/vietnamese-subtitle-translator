@@ -2167,3 +2167,19 @@ test("a plan rebuild that only cuts a line with a made take elsewhere keeps that
     // being made counts as made
     assert.equal(keep.call({ rendered: new Map(), pending: new Map([[old[0].id, 1]]) }, old, resplit, 2)[0], old[0]);
 });
+
+// 2.8.0: what the VieNeu normalizer misreads (tools/vieneu-g2p.py), and two of our own slips
+test("speech text: a cook's fraction, mph, a dollar after its number, 4K on a screen; 65g is no 5G", () => {
+    const P = require("../dub-planner.js");
+    const say = t => P.adaptForSpeech(t);
+    assert.equal(say("1/4 thìa cà phê muối"), "một phần tư thìa cà phê muối");
+    assert.equal(say("1/2 cốc nước"), "nửa cốc nước");
+    assert.equal(say("khoảng 3/4 chén"), "khoảng ba phần tư chén");
+    for (const keep of ["ngày 1/4", "mở cửa 24/7", "tỷ số 5/3"]) assert.equal(say(keep), keep, keep);
+    assert.equal(say("Chạy 4 mph"), "Chạy 4 dặm một giờ");
+    assert.equal(say("Chỉ 15$ thôi."), "Chỉ 15 đô la thôi.");
+    assert.equal(say("65g rau chân vịt"), "65g rau chân vịt", "the kept term 5G may not start inside 65");
+    assert.match(say("mạng 5G rất nhanh"), /<en>g<\/en>/, "5G itself is still the kept term");
+    assert.equal(say("quay video 4K"), "quay video bốn ca");
+    assert.equal(say("Khoảng 6K đến 8K một tháng."), "Khoảng 6 nghìn đến 8 nghìn một tháng.", "money names no screen");
+});

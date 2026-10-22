@@ -89,6 +89,14 @@ left alone. A changed line can also move `breathText`'s breathing commas (the ne
 stretch it measures). Simulator: late 1653 -> 1648 (the fake server's take length is seeded by the
 spoken text). Test: `tests/speech.test.js` "an interruption".
 
+**Numbers and units (2.8.0).** The VieNeu normalizer already says most units glued to a number
+("400g" gam, "500ml" mi li lít, "225°C" độ xê, "45W" oát, "120Hz" héc, "12GB" gigabyte, "4K"
+bốn ca): check with `tools/vieneu-g2p.py` `{"normalize": [...]}` before adding a rule. It misreads
+"4 mph", "15$" ("u s d") and fractions ("một trên bốn"): `adaptForSpeech` says "dặm một giờ",
+"đô la", "nửa" / "một phần tư" (not after ngày/tháng, not 24/7). Two slips of ours: a kept term led
+by a digit ("5G") matched inside "65g" (now `(?<!\p{N})`), and "video 4K" became "4 nghìn" (a
+resolution only in a line with a screen word, `SCREEN`). 23,274 saved lines: 10 changed, all right.
+
 ## English inside Vietnamese speech (1.7.8, `dub-speech.js`)
 
 VieNeu's front end (`sea_g2p` 0.9.1, Rust, inside `~/VieNeu-TTS`) already reads English: a word that
@@ -1084,6 +1092,13 @@ turn: its first part had no audio and was dropped as `entry-no-audio`. A line wi
 being made) whose new plans only cut it elsewhere, same words and speaker over the same span, now
 stays as it was. Playback-sim on 100 saved videos: dropped 2 -> 0, words lost 23 -> 0, takes 12,398
 -> 12,388, late 1,854 -> 1,853. A line with other words (a refine) is made again as before.
+
+**The speed ceiling, measured again (2026-10-23, not changed).** All late starts on 100 saved
+videos are carry-over after a line read at the ceiling (`maxSpokenSps` 5.8, `paceCeilingMax` 1.55).
+Playback-sim, late > 0.5 s / lines over 6.2 syl/s: 5.8 & 1.55 -> 1,626 (13.8%) / 4; 6.2 & 1.65 ->
+1,358 / 471; 6.5 & 1.75 -> 1,274 / 701; a higher ceiling only while lagging (6.2) -> 1,566 / 174.
+Each line of lag bought back costs about two rushed lines; an interpreter's 1-2 s of lag sounds
+human, 1.65x does not. The talk register (2.7.4) reads 3.6% fewer syllables (tr-lab `reg1`).
 
 ### Stalls, races and errors (1.8.8 to 1.9.1)
 

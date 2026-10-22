@@ -149,7 +149,8 @@
         // a key that starts with a symbol ("% Arabica") may follow a letter once cleanText has closed the space
         const sym = keys.filter(k => !/^\p{L}/u.test(k)), words = keys.filter(k => /^\p{L}/u.test(k));
         keepKeys = keys.length ? {
-            sym: sym.length ? new RegExp("(" + sym.map(esc).join("|") + ")(?![\\p{L}\\p{N}])", "giu") : null,
+            // (2.8.0) one led by a digit ("5G") never starts inside a longer number: "65g" was "6" + "5G"
+            sym: sym.length ? new RegExp("(" + sym.map(k => (/^\p{N}/u.test(k) ? "(?<!\\p{N})" : "") + esc(k)).join("|") + ")(?![\\p{L}\\p{N}])", "giu") : null,
             re: words.length ? new RegExp("(?<![\\p{L}\\p{N}])(" + words.map(esc).join("|") + ")(?![\\p{L}\\p{N}])", "giu") : null,
             say } : false;
         return keepKeys;
@@ -173,6 +174,11 @@
         t = t.replace(/(\d)\s?USD\b/g, "$1 đô la");
         t = t.replace(/(\d)\s*%/g, "$1 phần trăm");
         // 7B / 200K / 1.5M after a number: "7 tỷ", "200 nghìn", "1.5 triệu" (not "bảy bê", "hai trăm ca")
+        // (2.8.0) ... except a screen or a video: "4K", "8K" in a line about one is a resolution ("video 4
+        // nghìn" before), said "bốn ca" (as a digit before "ca", VieNeu read "four"). Money stays
+        // nghìn: "6K đến 8K một tháng" names no screen
+        const SCREEN = /video|màn hình|độ phân giải|quay|camera|máy ảnh|tivi|\bTV\b|HDR|phim|youtube|stream|chuẩn/i;
+        if (SCREEN.test(t)) t = t.replace(/\b([48])K\b/g, (m0, n) => `${n === "4" ? "bốn" : "tám"} ca`);
         t = t.replace(/\b(\d+(?:[.,]\d+)?)\s?([KMB])\b/g, (m0, n, u) => `${n} ${{ K: "nghìn", M: "triệu", B: "tỷ" }[u]}`);
         // Grouped thousands, Vietnamese 1.500.000 or English 1,500,000: say it in words. The old code
         // stripped the dots to 1500000, and the server reads 7+ digit runs one digit at a time
@@ -227,6 +233,18 @@
         const UNIT_SAY = { km: "ki-lô-mét", m: "mét", cm: "xen-ti-mét", mm: "mi-li-mét", kg: "ki-lô-gam", g: "gam", h: "giờ", s: "giây", ms: "mi-li-giây", min: "phút" };
         t = t.replace(/(\d)\s*(km|m|cm|kg|g)\/(h|s|min)\b/gi, (m0, d, u1, u2) => `${d} ${UNIT_SAY[u1.toLowerCase()]} trên ${UNIT_SAY[u2.toLowerCase()]}`);
         t = t.replace(/(\d)\s*(km|cm|mm|kg|ms)\b/g, (m0, d, u) => `${d} ${UNIT_SAY[u]}`);
+        // (2.8.0) The VieNeu normalizer reads most units glued to a number itself ("400g" bốn trăm gam,
+        // "500ml", "225°C" độ xê, "45W" oát, "12GB"), checked with tools/vieneu-g2p.py. Not these:
+        // "4 mph" (said "mph"), "15$" ("u s d")
+        t = t.replace(/(\d)\s?mph(?![\p{L}\p{N}])/gu, "$1 dặm một giờ");
+        t = t.replace(/(\d[\d.,]*)\s?\$(?![\p{L}\p{N}])/g, "$1 đô la");
+        // a cook's fraction: "1/2 cốc" is "nửa cốc", "3/4 chén" "ba phần tư chén" (VieNeu: "ba trên bốn"); not a date ("ngày 1/4")
+        // nor "24/7" (numerator not below its denominator)
+        t = t.replace(/(?<![\p{L}\p{N}/.,])([1-7])\/([2-8])(?![\p{N}/])/gu, (m0, a, b, at, all) => {
+            if (+a >= +b || /(?:ngày|hôm|tháng|mùng|mồng)\s*$/i.test(all.slice(0, at))) return m0;
+            if (a === "1" && b === "2") return "nửa";
+            return `${numberToVietnamese(+a)} phần ${b === "4" ? "tư" : numberToVietnamese(+b)}`;
+        });
         t = t.replace(/\be\.g\.,?/gi, "ví dụ,").replace(/\bi\.e\.,?/gi, "tức là,");
         t = t.replace(/(ví dụ|tức là),\s+\1(?![\p{L}])/giu, "$1");   // "e.g. ví dụ" said the same words twice
         // Ngoặc đơn: đọc như chú thích, ngắt nghỉ nhẹ hai bên

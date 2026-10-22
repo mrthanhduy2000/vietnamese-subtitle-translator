@@ -4,6 +4,20 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.8.0", luc: "23/10/2026", ten: "Giọng đọc nói đúng phân số, dặm/giờ, \"15$\" và 4K",
+            y: [
+                "Phân số trong công thức nấu ăn nay được đọc như người Việt nói: \"1/2 cốc\" là \"nửa cốc\", \"1/4 thìa\" là \"một phần tư thìa\" (trước đây máy đọc \"một trên bốn\"). Ngày tháng (\"ngày 1/4\") và \"24/7\" giữ nguyên.",
+                "\"4 mph\" đọc là \"4 dặm một giờ\", \"15$\" đọc là \"15 đô la\" (trước đây \"u s d\").",
+                "\"65g\", \"125g\" từng bị đánh vần như tiếng Anh vì nhầm với \"5G\" (mạng di động); nay đọc là gam.",
+                "\"Video 4K\", \"màn hình 8K\" đọc là \"bốn ca\", \"tám ca\" (trước đây \"4 nghìn\"). Tiền lương \"8K một tháng\" vẫn là \"8 nghìn\".",
+                "Đã đối chiếu từng cách đọc với chính bộ chuẩn hóa của giọng VieNeu: gam, mi-li-lít, độ C, oát, héc, gigabyte vốn đã được đọc đúng nên không đổi."
+            ],
+            bang: { cot: ["23.274 dòng lồng tiếng đã lưu", "2.7.9", "Nay"], hang: [
+                ["Dòng đọc sai số hoặc đơn vị (phân số, gam bị đánh vần)", "10", "0"],
+                ["Dòng bị đổi nhầm", "", "0"]
+            ] }
+        },
+        {
             v: "2.7.9", luc: "23/10/2026", ten: "Phụ đề tự động bị nhận dạng hỏng thì dùng bản phụ đề khác",
             y: [
                 "Đôi khi YouTube nhận nhầm ngôn ngữ của video, ví dụ một video phỏng vấn tiếng Tamil pha tiếng Anh bị gắn \"tiếng Hàn (tự động)\", và bản phụ đề tự động đó toàn dấu chấm, số và mảnh chữ (\". 5 - 6\", \"HFC B\"). Tiện ích từng chọn bản hỏng này vì nó là \"ngôn ngữ đang nói\", bỏ qua bản tiếng Anh do người đăng tải lên, và không đoạn nào dịch được.",
