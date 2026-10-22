@@ -4,6 +4,17 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.8.3", luc: "23/10/2026", ten: "Giọng đọc hiểu đúng dấu gạch chéo, dấu >, @ và 7/11",
+            y: [
+                "Mọi dòng lồng tiếng đã lưu được cho qua bộ đọc của VieNeu để tìm ký hiệu bị đọc sai. Sửa được: \"paprika / ớt chuông\" (từng đọc \"trên\") nay là \"hoặc\"; \"3,5 dặm/giờ\" là \"một giờ\"; \"Tôi > Khuyến mãi\" (đường dẫn trong ứng dụng, từng đọc \"lớn hơn\") nay ngắt nghỉ; \"@tên_tài_khoản\" chỉ đọc tên, không đọc \"a còng\"; \"cửa hàng 7/11\" là \"seven eleven\".",
+                "Giữ nguyên: ngày tháng (\"ngày 7/11\"), chỉ số viết tắt (\"P/E\"), đơn vị (\"60 km/h\" vẫn là \"ki-lô-mét trên giờ\"), địa chỉ web."
+            ],
+            bang: { cot: ["18.129 dòng lồng tiếng đã lưu", "2.8.2", "Nay"], hang: [
+                ["Dòng đọc sai ký hiệu (/, >, @, 7/11)", "11", "0"],
+                ["Dòng bị đổi nhầm", "", "0"]
+            ] }
+        },
+        {
             v: "2.8.2", luc: "23/10/2026", ten: "Giọng đọc bỏ qua mặt cười trong phụ đề",
             y: [
                 "Mặt cười kiểu chữ trong phụ đề không còn bị đọc thành lời: \":D\" từng được đọc là \"đê\", \"<3\" là \"nhỏ hơn ba\", \"=)\" là \"bằng\", \"^^\" là \"mũ mũ\". Phụ đề vẫn hiện mặt cười như cũ.",

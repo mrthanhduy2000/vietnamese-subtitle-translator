@@ -170,6 +170,13 @@
         // a bracket after "(04:58")
         // never right after a digit: "8:3", "2:1", "3:00" are times and ratios
         t = t.replace(/(^|[\s\p{L}.,!?…])(?:[:;=][-'^]?[)(DPpOo3\]\[|]+|\^[_.\-]?\^|T[_.]T|-_-|>_<|<3+|xD+|XD+)(?=$|[\s.,!?…])/gu, (m0, lead) => (/\s/.test(lead) ? "" : lead));
+        // (2.8.3) Symbols between words, as VieNeu read them (a corpus pass over every saved line):
+        // "paprika / ớt chuông" said "trên" (it means or), "Tôi > Khuyến mãi" (a menu path) "lớn hơn",
+        // "@thebudgetdermatologist" "a còng ...", "cửa hàng 7/11" (the shop, not the 7th of November)
+        t = t.replace(/((?:cửa hàng|tiệm|ở|tại|siêu thị)\s+)7\s?\/\s?11(?![\p{N}])/giu, "$1<en>seven eleven</en>").replace(/7-Eleven/gi, "<en>seven eleven</en>");
+        t = t.replace(/(\p{L})\s+>\s+(?=\p{L})/gu, "$1, ");
+        t = t.replace(/(^|\s)@(?=[A-Za-z0-9_.]{2,})/g, "$1");
+        // Web addresses: without this the scheme is spelled out letter by letter ("hát tê tê phê")
         t = t.replace(/\bhttps?:\/\/(?:www\.)?/gi, "").replace(/\bwww\./gi, "");
         // Only real domain endings, lower case: "TP.HCM" or "v.v." must stay as they are
         t = t.replace(/\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|org|net|ai|io|dev|edu|gov|vn|co|app|me|info|so|gg|tv|ly|us|uk)\b(?:\/[\w\-./]*[\w\-/])?/g,
@@ -251,6 +258,11 @@
             if (a === "1" && b === "2") return "nửa";
             return `${numberToVietnamese(+a)} phần ${b === "4" ? "tư" : numberToVietnamese(+b)}`;
         });
+        // (2.8.3) a slash between words (after the web addresses and the units: "km/h"): "per" before a unit of time or count
+        // ("dặm/giờ" một giờ, "50 nghìn/người"), kept between single letters ("P/E", "A/B"), "or" else
+        t = t.replace(/(\p{L}+)\s*\/\s*(\p{L}+)/gu, (m0, a, b) =>
+            (a.length < 2 && b.length < 2 || /^(?:km|m|cm|mm|kg|g)$/i.test(a) && /^(?:h|s|min)$/i.test(b) ? m0
+                : /^(?:giờ|phút|giây|ngày|tuần|tháng|năm|người|lần|suất|cái|chiếc|gói|hộp|kg|ký|cân|lít|m2|tiếng|h|s|min)$/i.test(b) ? `${a} một ${b}` : `${a} hoặc ${b}`));
         t = t.replace(/\be\.g\.,?/gi, "ví dụ,").replace(/\bi\.e\.,?/gi, "tức là,");
         t = t.replace(/(ví dụ|tức là),\s+\1(?![\p{L}])/giu, "$1");   // "e.g. ví dụ" said the same words twice
         // Ngoặc đơn: đọc như chú thích, ngắt nghỉ nhẹ hai bên

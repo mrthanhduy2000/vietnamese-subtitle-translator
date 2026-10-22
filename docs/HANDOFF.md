@@ -1,4 +1,4 @@
-# Handoff (2026-10-23, 2.8.2)
+# Handoff (2026-10-23, 2.8.3)
 
 ## State
 - Rule zero (CLAUDE.md): every fix is for the whole system; report by defect class with counts
@@ -13,18 +13,19 @@
   with English subs. Multilingual review: translations good in ko ja zh es fr de pt hi ru.
 - 2.8.2: text faces are not read (":D" was "đê"); K/M/B needs the letter alone ("2020 Mình").
   Third batch (th ar tr uk nl pl, a song, a Vietnamese vlog skipped right): 8/8 that need it saved.
+- 2.8.3: "/", " > ", "@", "cửa hàng 7/11" said right (a symbol pass over every saved line).
 - BACKLOG 48 (new): the voice falls silent while the speaker talks, 3,738 times on 100 videos.
 - Speed ceiling swept, not changed (DUBBING.md): each line of lag bought back costs ~2 rushed lines.
-- `npm test` 754 pass, 0 fail; regress 0 moved.
+- `npm test` 755 pass, 0 fail; regress 0 moved.
 
 ## Unfinished
-- Not heard: 2.6.9-2.8.2 by ear. tôi/mình mixing left only before 4 uses settle it (video start).
+- Not heard: 2.6.9-2.8.3 by ear. tôi/mình mixing left only before 4 uses settle it (video start).
 - Uploaded Vietnamese tracks (shown as is, never saved by design, driver logs "NOT SAVED"):
   jFZksJqL1Vc XnQ7Py8D6v0 MebK9iEUzQA JwBuHx_3GOU rm_9cPXrv4A gN07gbipMoY nBN9zG1JNPg O_MQr4lHm0c
   c347oYQO57A.
 - Coursera has no fallback heal (its unit cache keeps no fallback, a revisit asks again).
 - Carried over: prompt 3 and the >> split on a real reading (BACKLOG 44); 2.6.5-2.6.8 not checked
-  live; `screen-text.js` never ran; share repo promotion of 2.5.7-2.8.2 after a green install
+  live; `screen-text.js` never ran; share repo promotion of 2.5.7-2.8.3 after a green install
   test; BACKLOG 43-47; 2.5.7 shortcuts on YouTube; joint-takes branches; 2.5.0 Coursera start hold;
   CI gaps; voice items "có nghĩa là", DN, NHNN; `ban-giao.md` lacks the share repo.
 - Never ask the user about Chrome's Apple Events setting.

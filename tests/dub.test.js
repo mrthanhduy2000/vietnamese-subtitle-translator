@@ -2211,3 +2211,19 @@ test("speech text: text faces are not read, times and ratios stay, a magnitude l
     assert.equal(say("Năm 2020 Mình đã đi"), "Năm 2020 Mình đã đi");
     assert.equal(say("Lương 30K mỗi tháng"), "Lương 30 nghìn mỗi tháng");
 });
+
+// 2.8.3: symbols between words, found by passing every saved line through VieNeu's normalizer
+test("speech text: a slash between words, a menu path, a handle, the shop 7/11; dates, units, addresses stay", () => {
+    const P = require("../dub-planner.js");
+    const say = t => P.adaptForSpeech(t);
+    assert.equal(say("ớt bột paprika / ớt chuông"), "ớt bột paprika hoặc ớt chuông");
+    assert.equal(say("khoảng 3 phẩy 5 dặm/giờ"), "khoảng 3 phẩy 5 dặm một giờ");
+    assert.equal(say("50 nghìn/người"), "50 nghìn một người");
+    assert.equal(say("vào mục Tôi > Khuyến mãi"), "vào mục Tôi, Khuyến mãi");
+    assert.equal(say("theo dõi tôi trên Instagram @thebudgetdermatologist"), "theo dõi tôi trên Instagram thebudgetdermatologist");
+    assert.equal(say("tất cả cửa hàng 7/11"), "tất cả cửa hàng <en>seven eleven</en>");
+    for (const keep of ["ngày 7/11", "chỉ số P/E", "km/h"]) assert.equal(say(keep), keep, keep);
+    assert.equal(say("60 km/h"), "60 ki-lô-mét trên giờ");
+    assert.match(say("truy cập proton.me/tlddr"), /gạch chéo/, "a web address still says its slash");
+    assert.match(say("5 > 3"), />/, "between numbers it is a comparison");
+});

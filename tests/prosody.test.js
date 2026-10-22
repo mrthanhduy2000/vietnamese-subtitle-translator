@@ -122,8 +122,9 @@ test("clause openings, adjuncts and a long subject are boundaries, weighted by t
 const PLAN_ = require("../dub-planner.js");
 function marked(m) {
     const words = [], gold = [];
-    for (const t of PLAN_.adaptForSpeech(m).split(/\s+/).filter(Boolean)) {
-        if (t === "|" || t === "/") { if (words.length) gold[words.length - 1] = t === "|" ? 2 : 1; continue; }
+    // the "/" mark is held as "⫽" through adaptForSpeech: since 2.8.3 a slash between words is said "hoặc"
+    for (const t of PLAN_.adaptForSpeech(m.replace(/ \/ /g, " ⫽ ")).split(/\s+/).filter(Boolean)) {
+        if (t === "|" || t === "⫽") { if (words.length) gold[words.length - 1] = t === "|" ? 2 : 1; continue; }
         words.push(t); gold.push(0);
     }
     return { text: words.join(" "), words, gold };

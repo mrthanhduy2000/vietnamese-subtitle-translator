@@ -89,6 +89,13 @@ left alone. A changed line can also move `breathText`'s breathing commas (the ne
 stretch it measures). Simulator: late 1653 -> 1648 (the fake server's take length is seeded by the
 spoken text). Test: `tests/speech.test.js` "an interruption".
 
+**Symbols between words (2.8.3).** A corpus pass (every saved line through `adaptForSpeech`, its
+non-word symbols collected, then `tools/vieneu-g2p.py`) found "/" between words said "trên" (now
+"hoặc", or "một" before a unit of time or count, kept between single letters "P/E" and for "km/h"),
+" > " between words said "lớn hơn" (now a comma), "@handle" "a còng" (dropped), "cửa hàng 7/11"
+"bảy trên mười một" (seven eleven; a date "ngày 7/11" stays). The slash rule runs after the web
+addresses and the units. `tests/prosody.test.js` holds its "/" mark as "⫽" through adaptForSpeech.
+
 **Text faces (2.8.2).** VieNeu reads ":D" "đê", "^^" "mũ mũ", "<3" "nhỏ hơn ba", "=)))" "bằng":
 `adaptForSpeech` drops a face (eyes `:;=` only, never after a digit, so "8:3", "3:00", "583" stay).
 The K/M/B magnitude rule now needs the letter alone (`(?![\p{L}\p{N}])`, u flag): "2020 Mình" was
