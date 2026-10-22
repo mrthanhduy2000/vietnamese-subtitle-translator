@@ -89,6 +89,12 @@ left alone. A changed line can also move `breathText`'s breathing commas (the ne
 stretch it measures). Simulator: late 1653 -> 1648 (the fake server's take length is seeded by the
 spoken text). Test: `tests/speech.test.js` "an interruption".
 
+**Text faces (2.8.2).** VieNeu reads ":D" "đê", "^^" "mũ mũ", "<3" "nhỏ hơn ba", "=)))" "bằng":
+`adaptForSpeech` drops a face (eyes `:;=` only, never after a digit, so "8:3", "3:00", "583" stay).
+The K/M/B magnitude rule now needs the letter alone (`(?![\p{L}\p{N}])`, u flag): "2020 Mình" was
+"2020 triệuình". 18,129 saved lines: 12 change, all faces. A first try with "8" as eyes ate "83" of
+"583" and "):" closed brackets: always diff the whole corpus before and after a speech rule.
+
 **A bracketed sentence is speech (2.8.1, `notesOnly`).** A source line all in brackets used to be a
 note line, its translation stripped; subtitled Japanese and Korean vlogs bracket a cat's or a thought's
 words ("(Cat: Are you listening?)"). A parenthesis is a note only when `isSoundNote` or under 3 words.

@@ -2196,3 +2196,18 @@ test("a line all in brackets that holds a sentence is read; a sound or a word or
     for (const [src, vi] of [["(upbeat music)", "(nhạc sôi động)"], ["(door closes)", "(tiếng cửa đóng)"], ["(Speaking Japanese)", "(Nói tiếng Nhật)"], ["[Music]", "[Âm nhạc]"]])
         assert.equal(said(src, vi), "", src);
 });
+
+// 2.8.2: VieNeu reads text faces as words (":D" "đê", "<3" "nhỏ hơn ba"); a number before a
+// capitalised Vietnamese word took K/M/B for a magnitude ("2020 Mình" -> "triệuình")
+test("speech text: text faces are not read, times and ratios stay, a magnitude letter stands alone", () => {
+    const P = require("../dub-planner.js");
+    const say = t => P.adaptForSpeech(t);
+    assert.equal(say("Nhìn gọn gàng hơn hẳn rồi nè:D"), "Nhìn gọn gàng hơn hẳn rồi nè");
+    assert.equal(say("miễn là nó khiến bạn hạnh phúc <3"), "miễn là nó khiến bạn hạnh phúc");
+    assert.equal(say("tâm hồn mình cũng là một đứa trẻ mà =)."), "tâm hồn mình cũng là một đứa trẻ mà.");
+    assert.equal(say("Tuyệt vời ^^"), "Tuyệt vời");
+    for (const keep of ["tỷ lệ 8:3", "tỷ lệ 2:1", "3:00 chiều", "Ali Abdaal (04:58): Chẳng hạn"]) assert.ok(say(keep).includes(keep.match(/\d+:\d+/)[0]), keep);
+    assert.match(say("bạn cần tiết kiệm 583 đô la"), /583 đô la/, "an 8 is a digit, not eyes");
+    assert.equal(say("Năm 2020 Mình đã đi"), "Năm 2020 Mình đã đi");
+    assert.equal(say("Lương 30K mỗi tháng"), "Lương 30 nghìn mỗi tháng");
+});

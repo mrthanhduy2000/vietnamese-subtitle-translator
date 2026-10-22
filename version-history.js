@@ -4,6 +4,18 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.8.2", luc: "23/10/2026", ten: "Giọng đọc bỏ qua mặt cười trong phụ đề",
+            y: [
+                "Mặt cười kiểu chữ trong phụ đề không còn bị đọc thành lời: \":D\" từng được đọc là \"đê\", \"<3\" là \"nhỏ hơn ba\", \"=)\" là \"bằng\", \"^^\" là \"mũ mũ\". Phụ đề vẫn hiện mặt cười như cũ.",
+                "Giờ và tỉ lệ (\"3:00\", \"8:3\") vẫn được đọc đúng.",
+                "Sửa một lỗi tiềm ẩn: số đứng trước một chữ viết hoa bắt đầu bằng M, K, B (\"Năm 2020 Mình...\") có thể bị đọc thành \"2020 triệuình\"."
+            ],
+            bang: { cot: ["18.129 dòng lồng tiếng đã lưu", "2.8.1", "Nay"], hang: [
+                ["Dòng đọc mặt cười thành chữ", "12", "0"],
+                ["Dòng bị đổi nhầm", "", "0"]
+            ] }
+        },
+        {
             v: "2.8.1", luc: "23/10/2026", ten: "Lời thoại trong ngoặc đơn được lồng tiếng",
             y: [
                 "Phụ đề của nhiều vlog Nhật, Hàn đặt lời của con mèo hay suy nghĩ trong ngoặc đơn, ví dụ \"(Mèo: Này, có nghe tôi nói không đấy?)\". Trước đây cả dòng như vậy bị coi là ghi chú âm thanh và không được đọc.",

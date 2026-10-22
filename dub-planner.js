@@ -164,7 +164,12 @@
         });
         // Every rule below was checked against the VieNeu server's own normalizer (sea_g2p), by
         // reading back what it actually says. See tests/dub.test.js "speech text".
-        // Web addresses: without this the scheme is spelled out letter by letter ("hát tê tê phê")
+        // (2.8.2) Text faces are read as words by VieNeu: ":D" "đê", "^^" "mũ mũ", "<3" "nhỏ hơn ba",
+        // "=)))" "bằng", "xD" "xd" (tools/vieneu-g2p.py). The subtitle keeps them; the voice says nothing
+        // Eyes are only : ; = (an 8 is a digit: "583" lost its "83"), and a face looks right ("):" closed
+        // a bracket after "(04:58")
+        // never right after a digit: "8:3", "2:1", "3:00" are times and ratios
+        t = t.replace(/(^|[\s\p{L}.,!?…])(?:[:;=][-'^]?[)(DPpOo3\]\[|]+|\^[_.\-]?\^|T[_.]T|-_-|>_<|<3+|xD+|XD+)(?=$|[\s.,!?…])/gu, (m0, lead) => (/\s/.test(lead) ? "" : lead));
         t = t.replace(/\bhttps?:\/\/(?:www\.)?/gi, "").replace(/\bwww\./gi, "");
         // Only real domain endings, lower case: "TP.HCM" or "v.v." must stay as they are
         t = t.replace(/\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|org|net|ai|io|dev|edu|gov|vn|co|app|me|info|so|gg|tv|ly|us|uk)\b(?:\/[\w\-./]*[\w\-/])?/g,
@@ -179,7 +184,8 @@
         // nghìn: "6K đến 8K một tháng" names no screen
         const SCREEN = /video|màn hình|độ phân giải|quay|camera|máy ảnh|tivi|\bTV\b|HDR|phim|youtube|stream|chuẩn/i;
         if (SCREEN.test(t)) t = t.replace(/\b([48])K\b/g, (m0, n) => `${n === "4" ? "bốn" : "tám"} ca`);
-        t = t.replace(/\b(\d+(?:[.,]\d+)?)\s?([KMB])\b/g, (m0, n, u) => `${n} ${{ K: "nghìn", M: "triệu", B: "tỷ" }[u]}`);
+        // (2.8.2) ... only a letter standing alone: "2020 Mình" was "2020 triệuình" (\b ends at "ì")
+        t = t.replace(/\b(\d+(?:[.,]\d+)?)\s?([KMB])(?![\p{L}\p{N}])/gu, (m0, n, u) => `${n} ${{ K: "nghìn", M: "triệu", B: "tỷ" }[u]}`);
         // Grouped thousands, Vietnamese 1.500.000 or English 1,500,000: say it in words. The old code
         // stripped the dots to 1500000, and the server reads 7+ digit runs one digit at a time
         // ("một năm không không không không không"); an English 1,000 came out as "một".
