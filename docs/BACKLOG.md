@@ -79,6 +79,13 @@ none
   (3 hours, 2 people, read in parts of ~800 lines): 90.8% of the words in the right voice; most errors
   are a "Right." or "Yeah." by the host read as a turn with no turn back, so the guest's next answer
   stays in the host's voice until the next turn.
+- **48. The voice falls silent while the speaker still talks** *(found 2026-10-23)*. Playback-sim on
+  100 saved videos: 3,738 silences over 0.6 s (1,012 over 2 s, about 6,100 s in all) while the
+  source speaks at 3 or more syllables a second, out of 12,500 lines. Cause: a Vietnamese line shorter
+  than its slot is read at the floor (`minSps` 4.0 syl/s, the user found slower "quá chậm") and the
+  next line may not start before its speaker. Idea not built, needs listening: hand the slack to the
+  take's own pauses (`maxPause` 0.4 is trimmed for every line, also for one with time to spare)
+  instead of one silence at its end.
 - **47. Cuts inside a phrase left after SEG_STRETCH** *(found 2.5.3)*. 17 of 7779 segment cuts over
   the user's 44 saved videos still fall inside a phrase, where a 2 s stretch reaches no better place. A 3 s
   stretch reached 11 but let segments grow past 13 s; cutting inside a line at its best phrase
