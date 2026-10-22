@@ -4,6 +4,16 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.7.7", luc: "23/10/2026", ten: "Một dòng ngắn bị bỏ trống không còn làm hỏng cả đoạn dịch",
+            y: [
+                "Thỉnh thoảng Gemini trả về rỗng cho một dòng rất ngắn mà nó cho là không phải lời nói: một cái tên (\"vanmathi\"), \"that's all\", \"B.com\". Trước đây chỉ một dòng như vậy cũng làm cả đoạn 4 đến 12 câu bị dịch tạm bằng Google, dịch lại bao nhiêu lần cũng vậy, và video không được lưu.",
+                "Nay dòng rỗng có tối đa 3 chữ (và không quá một phần tư đoạn) được giữ nguyên chữ gốc, phần còn lại vẫn là bản dịch Gemini. Dòng dài hơn mà rỗng vẫn bị coi là lỗi như trước, vì có thể mất ý."
+            ],
+            bang: { cot: ["Video mới chạy thử", "2.7.6", "Nay"], hang: [
+                ["Video không lưu được vì một dòng ngắn rỗng", "1 (phỏng vấn đường phố)", "0 trong kiểm thử"]
+            ] }
+        },
+        {
             v: "2.7.6", luc: "23/10/2026", ten: "Câu lồng tiếng đầu tiên của video không còn bị bỏ",
             y: [
                 "Khi bắt đầu lồng tiếng, tiện ích đo lại tốc độ giọng đọc sau vài câu đầu và lập lại kế hoạch đọc. Trước đây việc lập lại có thể chia một câu dài thành các mảnh khác ngay trước khi tới lượt, bỏ bản giọng đã tạo sẵn; mảnh đầu không kịp có tiếng nên bị bỏ qua. Câu bị mất thường là câu chào đầu video.",

@@ -537,6 +537,7 @@ function usageOf(data, promptChars, srcChars) {
 // tried after another one failed gets none, so falling through the chain adds one quick call each.
 // The checked translation of one answer; throws a GeminiError when it is unusable (cutOff: the
 // answer hit the output cap, worth one more pass with a larger cap)
+const EMPTY_KEEP_WORDS = 3;
 function readUnitAnswer(data, req, allowed) {
     const cand = data.candidates?.[0] || {};
     let obj;
@@ -553,7 +554,17 @@ function readUnitAnswer(data, req, allowed) {
         if (req.sentences.length === 1 && translations.length > 1) translations = [translations.join(" ")];
         else throw new GeminiError("bad_output", `Số mục không khớp (gửi ${req.sentences.length}, nhận ${translations.length})`);
     }
-    if (translations.some(t => !t)) throw new GeminiError("bad_output", "Có mục dịch rỗng");
+    // (2.7.7) An item left empty that is a name or a word or three ("vanmathi", "that's all", "B.com")
+    // keeps its source words, and the window stays Gemini's: one such item sent the whole window to
+    // Google on every model and every heal, so the video was never saved (cstFallbackLog: 3 videos
+    // in 51 new ones, every one an item the model took for no speech). A longer item left empty may
+    // be lost meaning: the window still fails, as before, and so does one with many empty items.
+    const empty = translations.map((t, i) => (t ? -1 : i)).filter(i => i >= 0);
+    if (empty.length) {
+        const short = i => (String(req.sentences[i] || "").match(/[\p{L}\p{N}]+/gu) || []).length <= EMPTY_KEEP_WORDS;
+        if (empty.length * 4 > translations.length || !empty.every(short)) throw new GeminiError("bad_output", "Có mục dịch rỗng");
+        for (const i of empty) translations[i] = String(req.sentences[i] || "").trim();
+    }
     return { translations, terms: Array.isArray(obj.terms) ? obj.terms.filter(t => t && t.en && t.vi).slice(0, 5) : [] };
 }
 

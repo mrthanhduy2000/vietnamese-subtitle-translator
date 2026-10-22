@@ -851,6 +851,21 @@ test("a model resting after a slow answer hands the next windows to the next mod
     assert.equal(seen.filter(m => m === "gemini-2.5-flash-lite").length, 1, "the resting model is not called");
 });
 
+test("an item left empty that is a name or a few words keeps its source; a longer one still fails the window", async () => {
+    const answer = t => ({ ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify({ t }) }] }, finishReason: "STOP" }], usageMetadata: { promptTokenCount: 700, candidatesTokenCount: 40 } }) });
+    const sentences = ["What's your name?", "vanmathi", "What are you doing these days?", "I am working in a bank."];
+    const E = bgEnv(async u => (u.includes("generativelanguage") ? answer(["Bạn tên gì?", "", "Dạo này bạn làm gì?", "Tôi làm ở ngân hàng."]) : GOOGLE_OK), cfg({ geminiApiKey: "KEY-OLD-USER" }));
+    const r = await E.send({ ...REQ, sentences });
+    assert.equal(r.engine, "gemini", "the window stays Gemini's");
+    assert.deepEqual(r.translations, ["Bạn tên gì?", "vanmathi", "Dạo này bạn làm gì?", "Tôi làm ở ngân hàng."]);
+    const long = ["What's your name?", "I have been working in the insurance team of the bank for three years.", "Okay.", "Fine."];
+    const L = bgEnv(async u => (u.includes("generativelanguage") ? answer(["Bạn tên gì?", "", "Được.", "Ổn."]) : GOOGLE_OK), cfg({ geminiApiKey: "KEY-OLD-USER" }));
+    assert.equal((await L.send({ ...REQ, sentences: long })).engine, "google_fallback", "a sentence of meaning left empty is no translation");
+    const many = ["a b", "c d", "e f", "g h"];
+    const M = bgEnv(async u => (u.includes("generativelanguage") ? answer(["", "", "x", "y"]) : GOOGLE_OK), cfg({ geminiApiKey: "KEY-OLD-USER" }));
+    assert.equal((await M.send({ ...REQ, sentences: many })).engine, "google_fallback", "more than a quarter empty");
+});
+
 test("price of a typed model id: release suffixes, family by generation, unknown kind flagged", () => {
     const how = id => { const p = COST.priceOf(id); return [p.how, p.base]; };
     assert.deepEqual(how("gemini-3.1-flash-lite"), ["exact", "gemini-3.1-flash-lite"]);
