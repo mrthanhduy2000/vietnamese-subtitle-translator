@@ -4,6 +4,18 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.7.6", luc: "23/10/2026", ten: "Câu lồng tiếng đầu tiên của video không còn bị bỏ",
+            y: [
+                "Khi bắt đầu lồng tiếng, tiện ích đo lại tốc độ giọng đọc sau vài câu đầu và lập lại kế hoạch đọc. Trước đây việc lập lại có thể chia một câu dài thành các mảnh khác ngay trước khi tới lượt, bỏ bản giọng đã tạo sẵn; mảnh đầu không kịp có tiếng nên bị bỏ qua. Câu bị mất thường là câu chào đầu video.",
+                "Nay câu đã có giọng sẵn (hoặc đang tạo) mà chữ không đổi thì giữ nguyên cách chia và bản giọng đó. Câu có chữ thay đổi thật (bản dịch được sửa) vẫn được tạo giọng lại như trước."
+            ],
+            bang: { cot: ["Mô phỏng trên 100 video đã lưu", "2.7.5", "Nay"], hang: [
+                ["Câu bị bỏ", "2", "0"],
+                ["Chữ bị mất", "23", "0"],
+                ["Lượt tạo giọng", "12.398", "12.388"]
+            ] }
+        },
+        {
             v: "2.7.5", luc: "22/10/2026", ten: "Dòng \"foreign\" của phụ đề tự động không còn làm hỏng cả đoạn",
             y: [
                 "Phụ đề tự động của YouTube viết \"foreign\" ở chỗ người nói dùng tiếng nước khác (ví dụ \"foreign [Music]\"). Gemini để trống dòng đó, và một dòng trống làm cả đoạn bị dịch tạm bằng Google, dịch lại bao nhiêu lần cũng vậy, nên video không bao giờ được lưu. Nay dòng chỉ có \"foreign\" và ghi chú âm thanh được hiển thị là [Tiếng nước ngoài] ngay trên máy, không gửi Gemini, giọng đọc bỏ qua.",

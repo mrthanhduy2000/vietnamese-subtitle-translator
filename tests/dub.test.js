@@ -2145,3 +2145,25 @@ test("who speaks: the prompt covers film and game scenes, any language, roles an
     assert.match(bg, /never \\"unknown\\" as a label/);
     assert.match(bg, /a role that has one \(mother, father/);
 });
+
+// 2.7.6: the first takes move the voice calibration and a plan rebuild cut the video's first line
+// anew just before its turn; its take was thrown away and its first part dropped
+test("a plan rebuild that only cuts a line with a made take elsewhere keeps that line and its take", () => {
+    const { DubEngine } = require("../dub-engine.js");
+    const keep = DubEngine.prototype.keepMadeTakes;
+    const P = (start, end, text, speaker = "S1") => ({ id: "t" + Math.round(start * 1000), start, end, text, speaker });
+    const old = [P(10.32, 17.575, "Chào mọi người, chào mừng các bạn. Mình là Keisha, hôm nay mình làm video."), P(17.575, 24, "Câu sau.")];
+    const made = { rendered: new Map([[old[0].id, {}]]), pending: new Map() };
+    const resplit = [P(10.32, 13.146, "Chào mọi người, chào mừng các bạn."), P(13.146, 17.575, "Mình là Keisha, hôm nay mình làm video."), P(17.575, 24, "Câu sau.")];
+    const got = keep.call(made, old, resplit, 2);
+    assert.deepEqual(got.map(p => p.id), ["t10320", "t17575"]);
+    assert.equal(got[0], old[0], "the made line itself, so its take stays");
+    // other words over the span (a refine): the new plan wins and the line is made again
+    const refined = [P(10.32, 13.146, "Xin chào cả nhà."), P(13.146, 17.575, "Mình là Keisha, hôm nay mình làm video."), P(17.575, 24, "Câu sau.")];
+    assert.deepEqual(keep.call(made, old, refined, 2).map(p => p.text), refined.map(p => p.text));
+    // no take: the new cut as before; a line already passed: left alone
+    assert.equal(keep.call({ rendered: new Map(), pending: new Map() }, old, resplit, 2), resplit);
+    assert.equal(keep.call(made, old, resplit, 30), resplit);
+    // being made counts as made
+    assert.equal(keep.call({ rendered: new Map(), pending: new Map([[old[0].id, 1]]) }, old, resplit, 2)[0], old[0]);
+});

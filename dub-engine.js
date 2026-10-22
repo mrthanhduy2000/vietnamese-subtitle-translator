@@ -792,7 +792,8 @@
             const spoken = s0 == null ? null : { start: s0, end: passed ? passed.end : s0 };
             const script = this.oneVoice(PLAN.buildDubScript(groups, { headAt: free ? this.headAt : null, speakerTurns, spoken, ...(free ? FREE_SEGMENTS : {}) }));
             const opts = { voiceModel: this.provider.voiceModel };
-            this.plans = PLAN.planAll(script, opts);
+            const before = this.plans || [];
+            this.plans = this.keepMadeTakes(before, PLAN.planAll(script, opts), t);
             this.planById = new Map(this.plans.map(p => [p.id, p]));
             // who reads each line: a take made in another voice (a speaker found later, a new cast)
             // is made again, as one made for other words is. By the voice, not the speaker: two
@@ -811,6 +812,28 @@
                 }
             }
             return true;
+        }
+
+        // (2.7.6) A line whose voice is made (or being made) and that a new plan only cuts in other
+        // places, same words over the same span, keeps its plan and its take. The planner's cut follows
+        // the voice calibration, which the first takes move: a rebuild then split the video's first
+        // line (10 s of speech) right before its turn, the take was thrown away, the first part came
+        // due with no audio and was dropped (playback-sim on 100 saved videos: 2 first lines, 23
+        // words). Other words (a refine, a new translation) are made again, as before.
+        keepMadeTakes(before, plans, t) {
+            const norm = x => String(x || "").replace(/\s+/g, " ").trim();
+            let out = plans;
+            for (const o of before) {
+                if (o.end <= t || !(this.rendered.has(o.id) || this.pending.has(o.id))) continue;
+                const inside = out.filter(p => p.start >= o.start - 1e-6 && p.start < o.end - 1e-6);
+                if (!inside.length || Math.abs(inside[0].start - o.start) > 1e-6 || Math.abs(inside[inside.length - 1].end - o.end) > 1e-6) continue;
+                if (inside.length === 1 && inside[0].text === o.text) continue;
+                if (norm(inside.map(p => p.text).join(" ")) !== norm(o.text)) continue;
+                if (inside.some(p => p.speaker !== o.speaker)) continue;
+                out = out.filter(p => !inside.includes(p));
+                out.push(o);
+            }
+            return out === plans ? plans : out.sort((a, b) => a.start - b.start);
         }
 
         // The voice a speaker is read in, by name (a system voice is an object)

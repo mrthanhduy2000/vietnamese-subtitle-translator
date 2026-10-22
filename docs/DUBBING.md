@@ -1076,6 +1076,15 @@ releases it when no voice came up. Generic pages and the manual dub button still
 - **Optimistic reach before a measurement** (`SYNC.reachOverheadMin` 0.2 + `reachRtfMin` 0.2 x
   length): first voice at 2x 2.75 -> 1.75 s, at 1.5x 2.3 -> 1.75 s (one late start -> 0); 1x unchanged.
 
+**A rebuild keeps a made take (2.7.6, `keepMadeTakes` in `refresh`).** The planner's cut follows
+`voiceModel.calibration`, which the first takes move, and every rebuild (a `planStep` crossing,
+`replanFuture`) cut the lines ahead anew; `refresh` then threw away a take whose plan now read other
+words. On the first line of a video (10 s of speech, made at 2 s) the new cut came just before its
+turn: its first part had no audio and was dropped as `entry-no-audio`. A line with a take (or one
+being made) whose new plans only cut it elsewhere, same words and speaker over the same span, now
+stays as it was. Playback-sim on 100 saved videos: dropped 2 -> 0, words lost 23 -> 0, takes 12,398
+-> 12,388, late 1,854 -> 1,853. A line with other words (a refine) is made again as before.
+
 ### Stalls, races and errors (1.8.8 to 1.9.1)
 
 **1.8.8 resilience.** Each case reproduced first (`tests/dub.test.js` "resilience", all fail on 1.8.7):
