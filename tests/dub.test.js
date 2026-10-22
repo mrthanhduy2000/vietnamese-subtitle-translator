@@ -2210,6 +2210,8 @@ test("speech text: text faces are not read, times and ratios stay, a magnitude l
     assert.match(say("bạn cần tiết kiệm 583 đô la"), /583 đô la/, "an 8 is a digit, not eyes");
     assert.equal(say("Năm 2020 Mình đã đi"), "Năm 2020 Mình đã đi");
     assert.equal(say("Lương 30K mỗi tháng"), "Lương 30 nghìn mỗi tháng");
+    assert.equal(say("Đừng thành triệu phú 30k"), "Đừng thành triệu phú 30 nghìn", "2.8.4: lower case k");
+    assert.match(say("quỹ hưu trí 401k"), /401 <en>k<\/en>/, "a retirement plan keeps its name");
 });
 
 // 2.8.3: symbols between words, found by passing every saved line through VieNeu's normalizer

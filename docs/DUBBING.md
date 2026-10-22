@@ -95,6 +95,8 @@ non-word symbols collected, then `tools/vieneu-g2p.py`) found "/" between words 
 " > " between words said "lớn hơn" (now a comma), "@handle" "a còng" (dropped), "cửa hàng 7/11"
 "bảy trên mười một" (seven eleven; a date "ngày 7/11" stays). The slash rule runs after the web
 addresses and the units. `tests/prosody.test.js` holds its "/" mark as "⫽" through adaptForSpeech.
+A number pass the same way (2.8.4): "30k" was "ba mươi ca", now "nghìn" (not 401k, 403b, 457b); "3dl",
+"1m50", "3D", "S25", "8GB" were already right.
 
 **Text faces (2.8.2).** VieNeu reads ":D" "đê", "^^" "mũ mũ", "<3" "nhỏ hơn ba", "=)))" "bằng":
 `adaptForSpeech` drops a face (eyes `:;=` only, never after a digit, so "8:3", "3:00", "583" stay).

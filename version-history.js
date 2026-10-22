@@ -4,6 +4,16 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.8.4", luc: "23/10/2026", ten: "\"30k\" đọc là \"30 nghìn\"",
+            y: [
+                "Số có chữ \"k\" viết thường phía sau (\"triệu phú 30k\") từng được đọc là \"ba mươi ca\"; nay là \"30 nghìn\", như \"30K\" viết hoa. Tên quỹ hưu trí \"401k\" vẫn giữ nguyên."
+            ],
+            bang: { cot: ["18.129 dòng lồng tiếng đã lưu", "2.8.3", "Nay"], hang: [
+                ["Dòng đọc \"k\" thành \"ca\"", "5", "0"],
+                ["401k bị đổi nhầm", "", "0 trên 3"]
+            ] }
+        },
+        {
             v: "2.8.3", luc: "23/10/2026", ten: "Giọng đọc hiểu đúng dấu gạch chéo, dấu >, @ và 7/11",
             y: [
                 "Mọi dòng lồng tiếng đã lưu được cho qua bộ đọc của VieNeu để tìm ký hiệu bị đọc sai. Sửa được: \"paprika / ớt chuông\" (từng đọc \"trên\") nay là \"hoặc\"; \"3,5 dặm/giờ\" là \"một giờ\"; \"Tôi > Khuyến mãi\" (đường dẫn trong ứng dụng, từng đọc \"lớn hơn\") nay ngắt nghỉ; \"@tên_tài_khoản\" chỉ đọc tên, không đọc \"a còng\"; \"cửa hàng 7/11\" là \"seven eleven\".",

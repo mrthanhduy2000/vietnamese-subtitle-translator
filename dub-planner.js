@@ -193,6 +193,8 @@
         if (SCREEN.test(t)) t = t.replace(/\b([48])K\b/g, (m0, n) => `${n === "4" ? "bốn" : "tám"} ca`);
         // (2.8.2) ... only a letter standing alone: "2020 Mình" was "2020 triệuình" (\b ends at "ì")
         t = t.replace(/\b(\d+(?:[.,]\d+)?)\s?([KMB])(?![\p{L}\p{N}])/gu, (m0, n, u) => `${n} ${{ K: "nghìn", M: "triệu", B: "tỷ" }[u]}`);
+        // (2.8.4) ... and "30k" in lower case (VieNeu: "ba mươi ca"), but not a retirement plan (401k, 403b)
+        t = t.replace(/\b(\d+(?:[.,]\d+)?)\s?k(?![\p{L}\p{N}])/gu, (m0, n) => (/^(?:401|403|457)$/.test(n) ? m0 : `${n} nghìn`));
         // Grouped thousands, Vietnamese 1.500.000 or English 1,500,000: say it in words. The old code
         // stripped the dots to 1500000, and the server reads 7+ digit runs one digit at a time
         // ("một năm không không không không không"); an English 1,000 came out as "một".
