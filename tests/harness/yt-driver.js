@@ -66,6 +66,17 @@ async function durationOf(tabId) {
     return 0;
 }
 
+async function hasUploadedVi(tabId) {
+    const [r] = await chrome.scripting.executeScript({ target: { tabId }, world: "MAIN", func: () => {
+        try {
+            const pr = document.querySelector("#movie_player").getPlayerResponse();
+            const c = pr.captions && pr.captions.playerCaptionsTracklistRenderer;
+            return ((c && c.captionTracks) || []).some(t => /^vi/.test(t.languageCode) && t.kind !== "asr");
+        } catch (e) { return false; }
+    } }).catch(() => [null]);
+    return !!(r && r.result);
+}
+
 (async () => {
     const q = new URLSearchParams(location.search);
     const ids = (q.get("ids") || "").split(",").map(s => s.trim()).filter(Boolean);
@@ -95,6 +106,14 @@ async function durationOf(tabId) {
             await chrome.tabs.update(tabId, { muted: true });
             await waitComplete(tabId, 30000);
             let dur = await durationOf(tabId);
+            // An uploaded Vietnamese track is shown as is and never saved (by design): playing it
+            // twice to the save timeout cost 700-1100 s per video on a long-vlog batch (2026-10-23)
+            if (await hasUploadedVi(tabId)) {
+                await chrome.windows.remove(win.id).catch(() => {});
+                if (back && back.id !== win.id && back.type === "normal") await chrome.windows.update(back.id, { focused: true }).catch(() => {});
+                say(`${k + 1}/${ids.length} ${id} skipped: uploaded Vietnamese track`);
+                continue;
+            }
             if (back && back.id !== win.id && back.type === "normal") await chrome.windows.update(back.id, { focused: true }).catch(() => {});
             let ok = false;
             for (let pass = 0; pass < 2 && !ok; pass++) {

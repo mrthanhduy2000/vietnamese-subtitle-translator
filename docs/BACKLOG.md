@@ -7,7 +7,7 @@ user hands these decisions to Claude: decide, record the outcome here, never han
 How this file works:
 - Grouped by **area**, not by when it was found; *(found 1.x.y)* after a title says when.
 - Numbers are permanent: code comments and `version-history.js` cite them. Never renumber. The next
-  free number is **48**.
+  free number is **49**.
 - Add an entry whenever you find something out of scope for your task. Once decided, delete it and
   add its number to "Closed" or "Declined" below. An entry that is only partly fixed keeps what is
   left, not the story of the fix (that is in git and `DUBBING.md`).
