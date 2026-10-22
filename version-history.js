@@ -4,6 +4,17 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.7.9", luc: "23/10/2026", ten: "Phụ đề tự động bị nhận dạng hỏng thì dùng bản phụ đề khác",
+            y: [
+                "Đôi khi YouTube nhận nhầm ngôn ngữ của video, ví dụ một video phỏng vấn tiếng Tamil pha tiếng Anh bị gắn \"tiếng Hàn (tự động)\", và bản phụ đề tự động đó toàn dấu chấm, số và mảnh chữ (\". 5 - 6\", \"HFC B\"). Tiện ích từng chọn bản hỏng này vì nó là \"ngôn ngữ đang nói\", bỏ qua bản tiếng Anh do người đăng tải lên, và không đoạn nào dịch được.",
+                "Nay bản phụ đề tự động gần như không có chữ, hoặc không viết bằng chữ của ngôn ngữ nó ghi (tiếng Hàn mà không có chữ Hàn), được thay bằng bản tốt nhất còn lại. Đo trên 100 video đã lưu: không bản tốt nào bị nhận nhầm là hỏng."
+            ],
+            bang: { cot: ["Đo thật", "2.7.8", "Nay"], hang: [
+                ["Bản phụ đề tự động hỏng được nhận ra (video phỏng vấn đường phố)", "0", "1"],
+                ["Bản phụ đề tốt bị nhận nhầm là hỏng (100 video đã lưu)", "", "0"]
+            ] }
+        },
+        {
             v: "2.7.8", luc: "23/10/2026", ten: "Nhật ký lỗi dịch ghi rõ dòng nào bị bỏ trống",
             y: [
                 "Khi Gemini trả về rỗng cho một số dòng và cả đoạn phải dịch tạm bằng Google, nhật ký trên máy nay ghi lại chính những dòng gốc bị bỏ trống (tối đa 4 dòng), để tìm ra nguyên nhân chung mà không phải đoán. Không đổi gì trong cách dịch."

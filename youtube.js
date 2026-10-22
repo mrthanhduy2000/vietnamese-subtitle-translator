@@ -1520,14 +1520,31 @@ async function ytBatDauDich(opts = {}) {
             return true;
         }
 
-        const track = chon.track;
+        let track = chon.track;
         // Which track we ended up on decides how good the translation can be: machine-heard captions
         // are the usual reason a line comes out wrong, so the menu says which one is in use
         yt.trackInfo = { languageCode: track.languageCode, kind: track.kind || "", viSan: !!chon.daCoTiengViet };
         console.log(`Dung ban chep loi: ${track.languageCode}${track.kind === "asr" ? " (tu dong)" : ""}`);
 
-        const cues = await ytTaiBanChepLoi(track.baseUrl);
+        let cues = await ytTaiBanChepLoi(track.baseUrl);
         if (stale()) return false;
+        // (2.7.9) A machine transcript that heard nothing usable (CST_LANG.brokenTranscript: mostly dots,
+        // or not in its own language's script) gives way to the best other track. yt.srcTrack stays the
+        // first choice's, so the saved copy is found again on the next visit, which chooses the same way
+        const LD = window.CST_LANG;
+        const others = info.tracks.filter(t => t !== track);
+        if (track.kind === "asr" && cues.length && others.length && LD && LD.brokenTranscript &&
+            LD.brokenTranscript(track.languageCode, cues.slice(0, 120).map(c => c.text).join(" ")).broken) {
+            const alt = ytChonTrack(others, false, { audio: info.audio }).track;
+            const altCues = alt ? await ytTaiBanChepLoi(alt.baseUrl).catch(() => []) : [];
+            if (stale()) return false;
+            if (altCues.length) {
+                console.log(`Ban chep loi tu dong ${track.languageCode} khong doc duoc, dung ${alt.languageCode}${alt.kind === "asr" ? " (tu dong)" : ""}`);
+                track = alt;
+                cues = altCues;
+                yt.trackInfo = { languageCode: track.languageCode, kind: track.kind || "", viSan: false };
+            }
+        }
         if (cues.length === 0) {
             yt.emptyCaptionsFor = ma0;      // an auto start tries again (ytRetryEmptyCaptions)
             baoLoi("YouTube chưa trả nội dung phụ đề. Hãy phát video vài giây rồi bấm dịch lại; nếu vẫn lỗi, tải lại trang (F5).");

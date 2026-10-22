@@ -283,6 +283,11 @@ a Reload the viewer clicks Translate again).
 `ytBatDauDich` checks `stale()` (`yt.huyDich`, `yt.dead`, or the URL's video id changed) after
 **every** await and returns false (1.7.4); a new await there needs the same check. `ytTuDongDich`
 waits (up to 10 s) for a run left over from the previous video instead of skipping on `yt.busy`.
+A machine transcript that heard nothing usable (2.7.9, `CST_LANG.brokenTranscript` on its first 120
+lines: letters under half of the characters, or a language with its own script, ko ja zh ru th ar he hi
+and kin, written in under 20% of it) gives way to `ytChonTrack(others, false)`; `yt.srcTrack` keeps the
+first choice's id so the saved copy is found again. Found on a Tamil-English interview tagged "ko (auto)";
+0 of 100 saved videos' tracks flagged.
 An auto start whose caption body came back empty (`yt.emptyCaptionsFor`; the player's pot not seen
 yet, typical of a background or covered tab) is tried again by `ytRetryEmptyCaptions` (2.7.2): when
 the tab is shown, else after 4, 12 and 30 s; turning translation off (`ytTatDich` bumps `yt.offSeq`)

@@ -102,3 +102,26 @@ test("Portuguese and Romanian text is not taken for Vietnamese (ã, ă are not V
         assert.equal(L.detectText(vi).lang, "vi", vi);
     }
 });
+
+// 2.7.9: a Tamil-English street interview tagged "ko (auto)" by YouTube; its 413 lines were dots,
+// digits and stray Latin. The uploaded English track was left unused and no window could be translated
+test("a machine transcript that heard nothing usable is told apart, a real one is not", () => {
+    const junk = ". 5 - 6 HFC B . ENT ? . 10 lp ? . V lad entman Welcome back to SUM today we are going tow asking CH How much They make let get sted . . ort . . . ? . 0 . . as the comp . ? 2022 . 22 . 5 - 6 end comp end use ook";
+    assert.deepEqual(L.brokenTranscript("ko", junk), { broken: true, why: "wrong-script" });
+    assert.equal(L.brokenTranscript("en", ". . . ? . 0 . . . 22 . 5 - 6 . . ? . . - . . 10 . ? . . . . 2022 . . ? . . . . . 5 . . . . ? . . ".repeat(2)).why, "no-words");
+    assert.equal(L.brokenTranscript("en", junk).broken, false, "English words in an English track");
+    assert.equal(L.brokenTranscript("ko", "안녕하세요 여러분 오늘은 서울에서 가장 맛있는 떡볶이 가게를 찾아가 보겠습니다 정말 기대되네요 [음악] 같이 가 봐요").broken, false);
+    assert.equal(L.brokenTranscript("ja", "今日は東京の小さなアパートを紹介します。とても狭いですが、収納がたくさんあります。一緒に見てみましょう").broken, false, "kanji count for Japanese");
+    assert.equal(L.brokenTranscript("hi", "नमस्ते दोस्तों आज हम बात करेंगे कि पैसे कैसे बचाएं और अपने बजट को कैसे संभालें यह बहुत जरूरी है").broken, false);
+    assert.equal(L.brokenTranscript("ko", "[음악] [음악] [박수]").broken, false, "too little to judge");
+});
+
+test("YouTube: a broken machine transcript gives way to the best other track, the saved copy keeps the first choice's id", () => {
+    const yt = read("youtube.js");
+    const at = yt.indexOf("LD.brokenTranscript(track.languageCode");
+    assert.ok(at > 0);
+    const block = yt.slice(at - 600, at + 900);
+    assert.match(block, /track\.kind === "asr"/, "only a machine transcript is judged");
+    assert.match(block, /ytChonTrack\(others, false/);
+    assert.doesNotMatch(block, /yt\.srcTrack\s*=/, "yt.srcTrack stays the first choice's");
+});

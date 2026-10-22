@@ -148,7 +148,28 @@
         return !!(audio && audio.currentDubbed && normCode(audio.current) === "vi" && normCode(audio.original) !== "vi");
     }
 
-    const api = { normCode, detectText, decide, spokenLanguage, hearsVietnameseDub, dubTranscripts, TRANSLATED_MARK };
+    // (2.7.9) A machine transcript that heard nothing usable: mostly dots and digits, or tagged with a
+    // language of its own script and written in none of it. YouTube tagged a Tamil-English street
+    // interview "ko (auto)": its 413 lines were ". 5 - 6", "HFC B", "ook", and the uploaded English
+    // track went unused, every window came back with empty items and the video was never saved.
+    // Judged on the first lines, notes and numbers out. { broken, why }
+    const SCRIPT_OF = { ko: "ko", ja: "ja", zh: "zh", ru: "ru", uk: "ru", bg: "ru", sr: "ru", mk: "ru", be: "ru", kk: "ru", th: "th", ar: "ar", fa: "ar", ur: "ar", he: "he", hi: "hi", mr: "hi", ne: "hi" };
+    function brokenTranscript(code, text) {
+        const t = String(text || "").replace(/\[[^\]]*\]|\([^)]*\)|https?:\S+/g, " ");
+        const chars = (t.match(/\S/gu) || []).length;
+        const letters = (t.match(/\p{L}/gu) || []).length;
+        if (chars < 60) return { broken: false, why: "" };
+        if (letters / chars < 0.5) return { broken: true, why: "no-words" };
+        const want = SCRIPT_OF[normCode(code)];
+        if (want && letters >= 40) {
+            const re = SCRIPTS.find(([l]) => l === want)[1];
+            const own = (t.match(re) || []).length + (want === "ja" ? (t.match(/[一-鿿]/g) || []).length : 0);
+            if (own / letters < 0.2) return { broken: true, why: "wrong-script" };
+        }
+        return { broken: false, why: "" };
+    }
+
+    const api = { normCode, detectText, decide, spokenLanguage, hearsVietnameseDub, dubTranscripts, brokenTranscript, TRANSLATED_MARK };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_LANG = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);
