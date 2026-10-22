@@ -523,17 +523,17 @@ function logEngine(response, n, ctx) {
             "background:#D97757;color:#fff;padding:2px 6px;border-radius:4px;font-weight:bold;", "color:#D97757;font-weight:bold;");
     } else if (response.engine === "google_fallback") {
         console.warn(`[AI Subtitle] ⚠️ Gemini lỗi ("${response.fallbackReason || "Không xác định"}"), dùng Google Translate (không có ngữ cảnh)`);
-        noteFallback(response.fallbackReason, n);
+        noteFallback(response.fallbackReason, n, response.fallbackDetail);
     }
 }
 
 // (2.7.3) Why a window fell back to Google, kept on the device (last 40): a fallback keeps a YouTube
 // video from being saved, and the console was the only trace, which no session can read
-function noteFallback(reason, n) {
+function noteFallback(reason, n, detail) {
     try {
         chrome.storage.local.get("cstFallbackLog").then(r => {
             const log = Array.isArray(r.cstFallbackLog) ? r.cstFallbackLog : [];
-            log.push({ at: Date.now(), video: currentVideoMeta().videoKey, reason: String(reason || ""), n });
+            log.push({ at: Date.now(), video: currentVideoMeta().videoKey, reason: String(reason || ""), n, ...(detail ? { detail: String(detail).slice(0, 300) } : {}) });
             return chrome.storage.local.set({ cstFallbackLog: log.slice(-40) });
         }).catch(() => {});
     } catch (e) { /* storage gone after a reload */ }

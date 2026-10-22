@@ -298,7 +298,8 @@ So does a line of a bare "foreign" (automatic captions' mark for speech in anoth
 (2.7.5, `BARE_FOREIGN` in `soundNoteLine`: "[Tiếng nước ngoài]"); its window failed on every heal.
 In general (2.7.7, `readUnitAnswer`, `EMPTY_KEEP_WORDS` 3): an item the model left empty that has at most
 3 words, in a window with at most a quarter of its items empty, keeps its source words (a name, "that's
-all"); a longer empty item still fails the window ("Có mục dịch rỗng").
+all"); a longer empty item still fails the window ("Có mục dịch rỗng"), and from 2.7.8 its
+`cstFallbackLog` entry carries `detail`: how many items came back empty and the first 4 source lines.
 Such a Google-fallback group is healed (2.7.4, `ytFallbackToHeal`, `YT_HEAL`): once nothing new is
 left to send, the prefetch loop asks Gemini for its window again (`ytDichNhom(i, true)`, which sends
 the window's fallback groups too), up to 3 times, 20/40/60 s apart, never a group playing or due in

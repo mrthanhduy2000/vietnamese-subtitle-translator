@@ -562,7 +562,11 @@ function readUnitAnswer(data, req, allowed) {
     const empty = translations.map((t, i) => (t ? -1 : i)).filter(i => i >= 0);
     if (empty.length) {
         const short = i => (String(req.sentences[i] || "").match(/[\p{L}\p{N}]+/gu) || []).length <= EMPTY_KEEP_WORDS;
-        if (empty.length * 4 > translations.length || !empty.every(short)) throw new GeminiError("bad_output", "Có mục dịch rỗng");
+        if (empty.length * 4 > translations.length || !empty.every(short)) {
+            // which lines came back empty, for cstFallbackLog (content.js noteFallback): the class is
+            // told by them, and the window's source is gone once the video is closed
+            throw new GeminiError("bad_output", "Có mục dịch rỗng", { detail: `${empty.length}/${translations.length} rỗng: ` + empty.slice(0, 4).map(i => JSON.stringify(String(req.sentences[i] || "").slice(0, 60))).join(" | ") });
+        }
         for (const i of empty) translations[i] = String(req.sentences[i] || "").trim();
     }
     return { translations, terms: Array.isArray(obj.terms) ? obj.terms.filter(t => t && t.en && t.vi).slice(0, 5) : [] };
@@ -939,7 +943,7 @@ async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
     // Model không gọi được (404 model không tồn tại / không cấp cho key này) -> ghi nhớ,
     // TÍNH LẠI chuỗi và dùng ngay model Gemini kế tiếp; chỉ khi không còn model Gemini
     // nào gọi được (hoặc lỗi khác) mới dùng Google dự phòng.
-    let aiFailedReason = null;
+    let aiFailedReason = null, aiFailedDetail = "";
     let firstTried = null;
     // Google by choice (Gemini off, no key) is the translation the viewer asked for: "google", kept
     // by the per-video cache. Google because Gemini failed or the budget ran out: "google_fallback",
@@ -970,6 +974,7 @@ async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
                 return { ok: true, ...r, cacheKey: key, budget: budget.level };
             } catch (e) {
                 aiFailedReason = e.message;
+                aiFailedDetail = e.detail || "";
                 if (e.type === "timeout" && late) late.expect();
                 // The next model of the chain is tried when this failure belongs to this model and
                 // passes: gone for this key (404), its own rate limit or daily quota, overloaded
@@ -1003,6 +1008,7 @@ async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
         ok: true, translations, terms: [],
         engine: byChoice ? "google" : "google_fallback",
         fallbackReason: aiFailedReason,
+        ...(aiFailedDetail ? { fallbackDetail: aiFailedDetail } : {}),
         latency: Date.now() - tStart
     };
 }

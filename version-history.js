@@ -4,6 +4,12 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.7.8", luc: "23/10/2026", ten: "Nhật ký lỗi dịch ghi rõ dòng nào bị bỏ trống",
+            y: [
+                "Khi Gemini trả về rỗng cho một số dòng và cả đoạn phải dịch tạm bằng Google, nhật ký trên máy nay ghi lại chính những dòng gốc bị bỏ trống (tối đa 4 dòng), để tìm ra nguyên nhân chung mà không phải đoán. Không đổi gì trong cách dịch."
+            ]
+        },
+        {
             v: "2.7.7", luc: "23/10/2026", ten: "Một dòng ngắn bị bỏ trống không còn làm hỏng cả đoạn dịch",
             y: [
                 "Thỉnh thoảng Gemini trả về rỗng cho một dòng rất ngắn mà nó cho là không phải lời nói: một cái tên (\"vanmathi\"), \"that's all\", \"B.com\". Trước đây chỉ một dòng như vậy cũng làm cả đoạn 4 đến 12 câu bị dịch tạm bằng Google, dịch lại bao nhiêu lần cũng vậy, và video không được lưu.",
