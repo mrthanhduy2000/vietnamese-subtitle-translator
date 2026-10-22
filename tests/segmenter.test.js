@@ -543,6 +543,16 @@ test("a Vietnamese word written without marks is no English leftover", () => {
     assert.deepEqual(Q.englishLeftovers("bạn có thể save the draft"), ["save", "the", "draft"]);
 });
 
+test("a substance keeps its name: chemical endings and \"X acid\" are no English left in, other words still are", () => {
+    const Q = require("../vi-quality.js");
+    assert.deepEqual(Q.englishLeftovers("dùng retinol hoặc tretinoin, retinoid nhẹ như adapalene, thêm niacinamide và peptide"), []);
+    assert.deepEqual(Q.englishLeftovers("bôi axit hyaluronic, salicylic acid hoặc lactic acid, glycolic"), []);
+    assert.deepEqual(Q.englishLeftovers("hãy examine và release the cream"), ["examine", "release", "the", "cream"], "-ine, -ase are not substance endings here");
+    const issues = Q.assess("Start with retinol, then move to tretinoin or adapalene with niacinamide.",
+        "Hãy bắt đầu với retinol, sau đó chuyển sang tretinoin hoặc adapalene cùng niacinamide.").issues;
+    assert.ok(!issues.some(i => i.type === "untranslated"), JSON.stringify(issues));
+});
+
 // 2.3.1, from the user's cache: sound captions came back as "Âm nhạc", "(Âm nhạc)" or "[Âm nhạc]"
 // within one video, and the voice read the bare ones aloud (45 of 531 groups; 4 left after)
 test("sound captions: notes only are translated from a list, every note ends up bracketed and silent", () => {

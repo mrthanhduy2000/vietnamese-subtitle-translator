@@ -112,21 +112,29 @@
     // motors ... longer than" read as "than" left in English twice (2.4.5). Not one of them in the
     // translation is evidence of English left in; an untranslated English phrase has other words.
     const VI_PLAIN = new Set(["than", "can", "tin", "ban", "bang", "hang", "long", "sang", "song", "hay", "may", "con",
-        "tan", "son", "man", "cam", "pin", "ham", "lam", "rang", "tim", "chi", "lan", "nam", "bao", "sau", "mai", "nay", "tao"]);
+        "tan", "son", "man", "cam", "pin", "ham", "lam", "rang", "tim", "chi", "lan", "nam", "bao", "sau", "mai", "nay", "tao", "axit"]);
     // A web address, an e-mail or a handle is copied, never translated ("betterhelp.com/malamalife"
     // made "betterhelp" and "com" two leftovers of a sponsor line and paid for a refine, 2.3.2)
     const ADDRESS_RE = /(?:https?:\/\/)?(?:[\w-]+\.)+[a-z]{2,}(?:\/\S*)?|[\w.-]+@[\w-]+(?:\.[\w-]+)+|@[\w.]+/gi;
 
+    // (2.7.4) A substance is named, not translated: "retinol", "tretinoin", "niacinamide", "axit
+    // hyaluronic", "lactic acid". Listing them one batch at a time (LOANWORDS) never ends, so they are
+    // told by their chemical endings, and "X acid" goes as a pair. In 100 saved videos these were 71
+    // of 320 leftover words (a skincare batch of 4 videos alone: 60), each line a refine request in
+    // Balanced mode that asked the model to translate a drug name; none of the endings below matched
+    // an English word left in by mistake ("examine", "release" end in -ine, -ase: not listed).
+    const SUBSTANCE = /(?:inol|inoids?|inoin|amide|alene|peptides?|uronic|olic|ylic|oic|statin|mycin|cillin|azole|olol|sartan)$/i;
+    const ACID_NAME = /(?<![\p{L}])[a-z]+ acids?(?![\p{L}])/giu;
     function englishLeftovers(vi, allow) {
         // Unicode word edges: with ASCII \b, "thuật" gave "thu" and "thảo" gave "tha"
-        const words = String(vi).replace(ADDRESS_RE, " ").match(/(?<![\p{L}\p{N}])[A-Za-z][A-Za-z'-]{2,}(?![\p{L}\p{N}])/gu) || [];
+        const words = String(vi).replace(ADDRESS_RE, " ").replace(ACID_NAME, " ").match(/(?<![\p{L}\p{N}])[A-Za-z][A-Za-z'-]{2,}(?![\p{L}\p{N}])/gu) || [];
         const allowSet = allow || new Set();
         return words.filter(w => {
             if (/^[A-Z0-9]{2,}$/.test(w)) return false;          // viết tắt: GPU, API
             if (/[A-Z].*[A-Z]/.test(w.slice(1))) return false;   // camelCase, PyTorch
             if (/^[A-Z]/.test(w)) return false;                  // tên riêng
             if (/^[a-z]+[A-Z]/.test(w)) return false;            // a brand with an inner capital: iPad, eBay, eGFR
-            if (LOANWORDS.has(w.toLowerCase()) || VI_PLAIN.has(w)) return false;
+            if (LOANWORDS.has(w.toLowerCase()) || VI_PLAIN.has(w) || SUBSTANCE.test(w)) return false;
             if (allowSet.has(w.toLowerCase())) return false;
             return true;
         });

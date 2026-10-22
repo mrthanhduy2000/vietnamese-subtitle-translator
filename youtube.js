@@ -772,11 +772,13 @@ function ytWaitForWindowBefore(groups, gIdx, curTime) {
 }
 
 // The untranslated groups of gIdx's window, or [] while any of them is being translated
-function ytChonCuaSo(gIdx) {
+// heal: the window's Google-fallback groups are sent again too (ytFallbackToHeal)
+function ytChonCuaSo(gIdx, heal = false) {
     const groups = yt.groups;
-    if (!groups[gIdx] || groups[gIdx].translated || yt.inFlightGroups.has(gIdx)) return [];
+    const open = i => !groups[i].translated || (heal && groups[i].fallback);
+    if (!groups[gIdx] || !open(gIdx) || yt.inFlightGroups.has(gIdx)) return [];
     const w = ytWindows(groups);
-    const idxs = w.wins[w.of[gIdx]].filter(i => !groups[i].translated);
+    const idxs = w.wins[w.of[gIdx]].filter(open);
     return idxs.some(i => yt.inFlightGroups.has(i)) ? [] : idxs;
 }
 
@@ -916,11 +918,11 @@ function ytSaveAfterRefine(groups) {
     }, 500);
 }
 
-async function ytDichNhom(gIdx) {
+async function ytDichNhom(gIdx, heal = false) {
     const groups = yt.groups;
     const session = yt.session;
     if (!session) return false;
-    const idxs = ytChonCuaSo(gIdx);
+    const idxs = ytChonCuaSo(gIdx, heal);
     if (!idxs.length) return false;
 
     idxs.forEach(i => yt.inFlightGroups.add(i));
@@ -1083,6 +1085,25 @@ function ytDungDongBo() {
 // 2 luồng là đủ theo kịp tốc độ xem; luồng thứ 3 chủ yếu dịch xa phía trước (lãng phí nếu người dùng tua)
 const NUM_CONCURRENT_WORKERS = 2;
 
+// A fallback group is asked of Gemini again up to YT_HEAL.max times, YT_HEAL.gapMs apart and more
+// each time (a model rests 15 s after a slow answer). Only one that has played or is not about to:
+// the line on screen, and the voice already made for it, are not swapped under the viewer.
+const YT_HEAL = { max: 3, gapMs: 20000, leadS: 15 };
+const ytHealPending = g => g.fallback && (g.heals || 0) < YT_HEAL.max;
+function ytFallbackToHeal(groups, curTime, horizon) {
+    const now = Date.now();
+    for (let i = 0; i < groups.length; i++) {
+        const g = groups[i];
+        if (!ytHealPending(g) || yt.inFlightGroups.has(i)) continue;
+        if (!g.healAt) { g.healAt = now + YT_HEAL.gapMs; continue; }
+        if (g.healAt > now) continue;
+        if (g.start > horizon) continue;
+        if (g.end >= curTime && g.start - curTime < YT_HEAL.leadS) continue;
+        return i;
+    }
+    return -1;
+}
+
 async function ytChayTienTrinhPrefetch(groups) {
     yt.tongSoNhom = groups.length;
     yt.soNhomDaDich = groups.filter(g => g.translated).length;
@@ -1131,7 +1152,22 @@ async function ytChayTienTrinhPrefetch(groups) {
             }
 
             if (bestGroupIdx === -1) {
-                if (groups.every(g => g.translated)) break;
+                // (2.7.4) Nothing new to send: a window Google translated while Gemini failed is asked
+                // of Gemini again, so the video can still be saved (ytGhiCache keeps no fallback)
+                const heal = ytFallbackToHeal(groups, curTime, horizon);
+                if (heal !== -1) {
+                    const win = ytWindows(groups).wins[ytWindows(groups).of[heal]];
+                    for (const k of win) {
+                        const g = groups[k];
+                        if (!g.fallback) continue;
+                        g.heals = (g.heals || 0) + 1;
+                        g.healAt = Date.now() + YT_HEAL.gapMs * g.heals;
+                    }
+                    await ytDichNhom(heal, true);
+                    if (groups.every(x => x.translated && !x.fallback)) ytSaveAfterRefine(groups);
+                    continue;
+                }
+                if (groups.every(g => g.translated) && !groups.some(ytHealPending)) break;
                 // Chưa tới vùng cần dịch (hoặc worker khác đang dịch): chờ người xem tiến lên
                 await new Promise(r => setTimeout(r, yt.inFlightGroups.size > 0 ? 150 : 1000));
                 continue;

@@ -265,15 +265,21 @@ as it does for a viewer. Check first that the user is not watching a video in th
   window ran ~1x instead of 4x and every long video logged "NOT SAVED"; audible media plays on at its
   rate. The window is shown once (Chrome defers media in a tab never shown), then the focus goes back
   to the window the user had.
-- **`tr-lab.html?ids=a,b&win=4&max=12&tag=<run>`** (2.7.1): the same windows of saved videos
-  translated twice through the real `translateUnit`, variant "a" as before and "b" with
-  `context.unpunctuated`; results in `trLab_<tag>` (`{ id: [{ i, src, a, b }] }`). Reload the
+- **`tr-lab.html?ids=a,b&win=4&max=12&tag=<run>&rule=selfRef`** (2.7.1): the same windows of saved videos
+  translated twice through the real `translateUnit`, variant "a" without the rule's field and "b" with
+  it (2.7.1 tried `context.unpunctuated`); results in `trLab_<tag>` (`{ id: [{ i, src, a, b }] }`). Reload the
   extension first when `background.js` changed (the page talks to the loaded service worker). Paid:
   two calls a window; a rerun of a tag is free (cache). Run `asr1` (2026-10-22, 6 machine-caption
   videos, 36 windows, 0.05 USD): a prompt line for unpunctuated sources (find sentence ends by
   meaning, spoken headings as headings) was not kept: 127 of 143 items differ either way (sampling),
   the run-on case that prompted it came back right without the line, and with it one heading gained
   an invented "thứ hai". A prompt change needs a difference larger than two samples of one prompt.
+  Since 2.7.4 each variant walks the video in order with its own `ContextSession` (its own previous
+  translation, as a real run), the tag goes into the topic (fresh answers for both), `&rule=<field>`
+  is dropped from "a", `&add=field:value` is put into "b" only. Run `self1` (6 videos, 288 items):
+  `selfRef` cut the speaker's tôi/mình mixing 28 -> 6 (the 6 are quoted thoughts and "mình" = self),
+  no change in bạn/các bạn/chúng ta or length. Run `reg1` (6 vlogs, 36 windows, judged blind):
+  `register: "talk"` more natural in 30, the plain prompt in 2, 4 even. Both kept.
 - **`reload.html`**: reloads the extension (as the Reload button) after putting back dubbing left
   off by an interrupted driver run. A page file added after the last load is blocked
   (ERR_BLOCKED_BY_CLIENT) until a reload, so a new harness page needs one Reload first; Settings

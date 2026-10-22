@@ -348,6 +348,16 @@
         terms: 18
     };
 
+    // (2.7.4) How the speaker calls themself in the translations so far. "tôi" not inside "chúng tôi";
+    // "mình" only at the head of a clause ("của mình", "chính mình" are "own", "self", not a choice of
+    // pronoun). Saved videos: 2 of 84 mixed the two for one speaker ("tôi thường..." then "mình
+    // thường..."), each window choosing again when its own words gave no lead.
+    const SELF_TOI = /(?<![\p{L}])(?<!chúng )tôi(?![\p{L}])/giu;
+    const SELF_MINH = /(?:^|[.!?,;:…]\s+|(?:và|nhưng|nên|thì|rồi|khi|vì|nếu|mà|là|giờ|nay)\s+)mình\s+(?!ơi)(?=[\p{L}])/giu;
+    const FIRST_PERSON_EN = /\bI\b|\b(?:me|my|myself|mine)\b/i;
+    const SELF_MIN = 4;         // uses before a form counts as chosen
+    const SELF_LEAD = 3;        // ... and it leads the other form this many times over
+
     class ContextSession {
         constructor(meta = {}) {
             this.meta = {
@@ -361,6 +371,15 @@
             this.results = new Map();        // idx -> { vi, note }
             this.terms = new Map();          // en (chữ thường) -> { en, vi, count, locked }
             this.domain = { primary: "general", secondary: null, scores: {} };
+            this.self = { "tôi": 0, "mình": 0 };
+        }
+
+        // The speaker's chosen first person, once the translations so far have settled on one
+        selfRef() {
+            const t = this.self["tôi"], m = this.self["mình"];
+            if (t >= SELF_MIN && t >= m * SELF_LEAD) return "tôi";
+            if (m >= SELF_MIN && m >= t * SELF_LEAD) return "mình";
+            return "";
         }
 
         setUnits(texts) {
@@ -469,6 +488,10 @@
             const nextSource = clip(nextIdx.map(i => this.units[i]).join(" "), BUDGET.nextSource);
 
             const hintText = sentences.join(" ");
+            const selfRef = FIRST_PERSON_EN.test(hintText) ? this.selfRef() : "";
+            // (2.7.4) Everyday talk (no technical domain, not a course): written as Vietnamese people
+            // talk, not as a lecturer speaks (the system prompt's default, right for Coursera)
+            const talk = this.domain.primary === "general" && !this.meta.course;
             return {
                 sentences,
                 context: {
@@ -481,7 +504,9 @@
                     // Chỉ thuật ngữ có trong phần CẦN DỊCH (không tốn token cho ngữ cảnh)
                     terms: this.relevantTerms(hintText),
                     senseHints: senseHintsFor(hintText, this.domain),
-                    phraseHints: phraseHintsFor(hintText)
+                    phraseHints: phraseHintsFor(hintText),
+                    ...(selfRef ? { selfRef } : {}),
+                    ...(talk ? { register: "talk" } : {})
                 }
             };
         }
@@ -492,7 +517,11 @@
         record(idxs, result) {
             idxs.forEach((i, k) => {
                 const vi = result.translations ? result.translations[k] : "";
-                if (vi) this.results.set(i, { vi });
+                if (vi) {
+                    this.results.set(i, { vi });
+                    this.self["tôi"] += (String(vi).match(SELF_TOI) || []).length;
+                    this.self["mình"] += (String(vi).match(SELF_MINH) || []).length;
+                }
             });
             for (const t of result.terms || []) {
                 if (!t || !t.en || !t.vi) continue;

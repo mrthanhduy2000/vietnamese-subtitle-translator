@@ -216,6 +216,14 @@ sentences at most; a noun in 3+ earlier units is the topic and skipped; "it"/"th
 cache key only when non-empty. `ytWaitForWindowBefore` is the one 20 s rule for prefetch and the
 realtime +1/+2 groups. `cleanDescription` strips links, handles, sponsor lines, timestamps from the topic.
 The console "🤖 GEMINI" line ends with `contextSummary`: what context each request carried.
+2.7.4: `selfRef` (prompt `[XƯNG HÔ]`): `ContextSession.record` counts the speaker's "tôi" (not "chúng
+tôi") and clause-initial "mình" in the translations so far; once one has 4 uses and 3 times the other,
+a window whose source has I/me/my asks for it. `register: "talk"` (prompt `[VĂN PHONG]`) for a session
+whose domain is `general` and that has no course (everyday YouTube and generic pages; Coursera keeps the
+lecturer's voice of the system prompt). Both join the cache key only when present (tr-lab runs `self1`,
+`reg1`, TESTING.md). `CST_QUALITY.englishLeftovers` skips substance names by their endings
+(`SUBSTANCE`: retinol, tretinoin, niacinamide...) and "X acid" pairs: 71 of 320 leftover words in 100
+saved videos, each a needless refine in Balanced mode.
 
 **Sentence straddling (1.5.8).** `segmentTokens` charges `straddleCost` (45) for a cue that starts a
 sentence and ends before it does. On 347 real cues: 38 -> 7. It exposes missing compounds in
@@ -285,7 +293,13 @@ the loop sleeps 1 s between looks (longer hidden), and a viewer moving on right 
 turned the run off first, so a fully translated video was never saved. A line that is sound notes
 only (`CST_QUALITY.soundNoteLine`) is filled from the list inside a window of speech too, never sent
 (`requestUnit`, 2.7.3): YouTube's newer captions write ">> [music]", both models left it empty, and
-the empty item ("Có mục dịch rỗng") failed the whole window to Google, which keeps a video unsaved:
+the empty item ("Có mục dịch rỗng") failed the whole window to Google, which keeps a video unsaved.
+Such a Google-fallback group is healed (2.7.4, `ytFallbackToHeal`, `YT_HEAL`): once nothing new is
+left to send, the prefetch loop asks Gemini for its window again (`ytDichNhom(i, true)`, which sends
+the window's fallback groups too), up to 3 times, 20/40/60 s apart, never a group playing or due in
+the next 15 s; when no fallback is left the video is saved (`ytSaveAfterRefine`). In the service
+worker a model resting after its own timeout (`modelCooldown`, error `resting`) passes the window to
+the next model of the chain instead of to Google (4 of 5 fallbacks of a 25-video run were that rest):
 
 1. `ytDamBaoBridge` makes sure the MAIN-world bridge is alive (one file, `yt-bridge.js`, injected by
    the manifest or on request by the service worker; see `DANGER.md` item 2).

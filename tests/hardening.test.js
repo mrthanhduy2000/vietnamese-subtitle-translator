@@ -820,7 +820,8 @@ test("late answer that is unusable is billed, not cached, and a twin request is 
         calls++;
         await new Promise(r => setTimeout(r, 5600 * LATE_SCALE));
         return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: "không phải JSON" }] }, finishReason: "STOP" }], usageMetadata: { promptTokenCount: 700, candidatesTokenCount: 40 } }) };
-    }, cfg({ geminiApiKey: "KEY-OLD-USER" }), { timeScale: LATE_SCALE });
+    // one model only (economy): with a next model, the twin goes there while the first one rests (2.7.4)
+    }, cfg({ geminiApiKey: "KEY-OLD-USER", costMode: "economy" }), { timeScale: LATE_SCALE });
     await E.send(REQ);
     await new Promise(r => setTimeout(r, 1200 * LATE_SCALE));                // the unusable answer has come
     const t0 = Date.now();
@@ -830,6 +831,24 @@ test("late answer that is unusable is billed, not cached, and a twin request is 
     const st = await E.send({ action: "costStats" });
     assert.equal(st.day.trCalls, calls, "every call Google answered is billed");
     assert.equal(st.day.estCalls, 0);
+});
+
+test("a model resting after a slow answer hands the next windows to the next model, not to Google", async () => {
+    const seen = [];
+    const E = bgEnv(async (u, o) => {
+        if (!u.includes("generativelanguage")) return GOOGLE_OK;
+        if (u.includes(":countTokens")) return { ok: true, status: 200, json: async () => ({ totalTokens: 650 }) };
+        const model = u.match(/models\/([^:]+)/)[1];
+        seen.push(model);
+        if (model === "gemini-2.5-flash-lite") return new Promise((_, rej) => o.signal.addEventListener("abort", () => rej(Object.assign(new Error("aborted"), { name: "AbortError" }))));
+        return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify({ t: ["bản kế"] }) }] }, finishReason: "STOP" }], usageMetadata: { promptTokenCount: 700, candidatesTokenCount: 40 } }) };
+    }, cfg({ geminiApiKey: "KEY-OLD-USER" }), { timeScale: LATE_SCALE });
+    const first = await E.send(REQ);
+    assert.equal(first.engine, "google_fallback", "the slow window itself is not kept waiting for a second model");
+    const next = await E.send({ ...REQ, sentences: ["Another window."] });
+    assert.equal(next.engine, "gemini", "the resting model is skipped, the next model translates");
+    assert.equal(next.model, "gemini-3.1-flash-lite");
+    assert.equal(seen.filter(m => m === "gemini-2.5-flash-lite").length, 1, "the resting model is not called");
 });
 
 test("price of a typed model id: release suffixes, family by generation, unknown kind flagged", () => {

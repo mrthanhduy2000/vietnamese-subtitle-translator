@@ -307,6 +307,7 @@ function run(engineMod, sc) {
             for (const [k, n] of got) wordsTwice += Math.max(0, n - (want.get(k) || 0));
         }
         return {
+            ...(sc.keepStarted ? { started: st } : {}),           // every line's start, for a caller's own breakdown
             spoken: st.length, dropped: eng.stats.dropped, late, wordsLost, wordsTwice,
             gapN, gapSum: +gapSum.toFixed(2), gapMax: +gapMax.toFixed(2),
             firstAudio: first == null ? null : +first.toFixed(2),

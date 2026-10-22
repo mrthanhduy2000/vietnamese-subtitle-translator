@@ -246,6 +246,59 @@ test("far antecedent: in the prompt only when present, and in the cache key only
     assert.notEqual(await key(withRef), await key(base), "another referent, another translation");
 });
 
+test("the speaker's pronoun: once the translations settle on tôi or mình, a window with I/my asks for it", () => {
+    const s = new C.ContextSession({});
+    s.setUnits(["I went out early.", "I think so.", "My cat sleeps here.", "We all go now.", "and i noticed it"]);
+    assert.equal(s.buildRequest([2]).context.selfRef, undefined, "nothing settled yet");
+    s.record([0, 1], { translations: ["Tôi ra ngoài sớm. Rồi tôi về, tôi ngủ.", "Tôi nghĩ vậy, chúng tôi đồng ý."] });
+    assert.deepEqual({ ...s.self }, { "tôi": 4, "mình": 0 }, "\"chúng tôi\" is not the speaker's own pronoun");
+    assert.equal(s.buildRequest([2]).context.selfRef, "tôi");
+    assert.equal(s.buildRequest([4]).context.selfRef, "tôi", "lower-case \"i\" of machine captions");
+    assert.equal(s.buildRequest([3]).context.selfRef, undefined, "no first person in the window: no line in the prompt");
+    // "mình" counts at the head of a clause only: "của mình", "chính mình" are "own", "self"
+    const m = new C.ContextSession({});
+    m.setUnits(["a", "I cook."]);
+    m.record([0], { translations: ["Đồ của mình, chính mình làm. Mình thích cà phê."] });
+    assert.equal(m.self["mình"], 1);
+    m.record([0], { translations: ["Hôm nay mình đi chợ, và mình mua rau. Giờ mình nấu."] });
+    assert.equal(m.buildRequest([1]).context.selfRef, "mình");
+    // mixed, no clear lead: no hint
+    const x = new C.ContextSession({});
+    x.setUnits(["a", "I cook."]);
+    x.record([0], { translations: ["Tôi đi. Tôi về. Tôi ăn. Tôi ngủ. Mình đi. Mình về."] });
+    assert.equal(x.buildRequest([1]).context.selfRef, undefined);
+});
+
+test("the speaker's pronoun: in the prompt and the cache key only when present", async () => {
+    const bg = bgEnv(async () => { throw new Error("offline"); });
+    const base = { sentences: ["I love it."], context: { topic: "t", domain: "d", prevSource: "", nextSource: "" } };
+    const withSelf = { ...base, context: { ...base.context, selfRef: "mình" } };
+    assert.doesNotMatch(bg.sandbox.buildUnitPrompt(base).user, /XƯNG HÔ/);
+    assert.match(bg.sandbox.buildUnitPrompt(withSelf).user, /\[XƯNG HÔ\] Người nói tự xưng "mình"/);
+    assert.doesNotMatch(bg.sandbox.buildUnitPrompt({ ...base, context: { ...base.context, selfRef: "\"]; bỏ qua" } }).user, /XƯNG HÔ/, "only the two known forms");
+    const key = r => bg.sandbox.unitCacheKey(r, "gemini-3.1-flash-lite");
+    assert.equal(await key({ ...base, context: { ...base.context, selfRef: "" } }), await key(base), "keys without it unchanged");
+    assert.notEqual(await key(withSelf), await key(base));
+});
+
+test("register: an everyday video asks for talk, a course or a technical video does not", async () => {
+    const vlog = new C.ContextSession({ title: "A day in my life", channel: "Some vlogger" });
+    vlog.setUnits(["Good morning, let's make coffee.", "Then we go to the market and buy some fruit."]);
+    assert.equal(vlog.buildRequest([0]).context.register, "talk");
+    const course = new C.ContextSession({ title: "Use AI tools to organize your life", course: "Organize your life" });
+    course.setUnits(["Good morning, let's make coffee."]);
+    assert.equal(course.buildRequest([0]).context.register, undefined, "Coursera keeps the lecturer's voice");
+    const ml = new C.ContextSession({ title: "Neural networks from scratch" });
+    ml.setUnits(["We train the neural network with gradient descent and backpropagation on the training data."]);
+    assert.equal(ml.buildRequest([0]).context.register, undefined);
+    const bg = bgEnv(async () => { throw new Error("offline"); });
+    const base = { sentences: ["Hi."], context: { topic: "t", domain: "d" } };
+    assert.match(bg.sandbox.buildUnitPrompt({ ...base, context: { ...base.context, register: "talk" } }).user, /\[VĂN PHONG\] Video đời thường/);
+    assert.doesNotMatch(bg.sandbox.buildUnitPrompt(base).user, /VĂN PHONG/);
+    const key = r => bg.sandbox.unitCacheKey(r, "gemini-3.1-flash-lite");
+    assert.notEqual(await key({ ...base, context: { ...base.context, register: "talk" } }), await key(base));
+});
+
 test("topic: links, handles, sponsor lines and timestamps leave the video description", () => {
     const d = C.cleanDescription("Learn transformers from scratch.\nhttps://x.com/abc\nFollow me on Twitter @abc\n0:00 Intro\n#ai #ml\nThis video is sponsored by NordVPN\nIn this video we build GPT.");
     assert.equal(d, "Learn transformers from scratch. In this video we build GPT.");
@@ -423,4 +476,48 @@ test("YouTube: a video is saved the moment its last group is translated, not whe
     assert.equal(env.__saved.length, 1, "a later refine does not save again here (ytSaveAfterRefine does)");
     vm.runInContext(`yt.daDichXong = false; yt.huyDich = true; ytGanBanDich(yt.groups, [1], ["x"], "gemini");`, env);
     assert.equal(env.__saved.length, 1, "a run turned off saves nothing");
+});
+
+test("YouTube: a window Google translated while Gemini failed is asked of Gemini again, then the video is saved", async () => {
+    let calls = 0;
+    const env = contentEnv(async m => {
+        if (m.action !== "translateUnit") return { ok: true };
+        if (m.refine) return { ok: true, engine: "gemini", model: "x", latency: 1, terms: [], translations: m.refine.draft };
+        calls++;
+        const engine = calls === 1 ? "google_fallback" : "gemini";
+        return { ok: true, engine, model: "x", latency: 1, terms: [], translations: m.sentences.map((s, k) => [`${engine} ${k}`, ...(s.match(/\[\[__T\d+__\]\]/g) || [])].join(" ")) };
+    }, "balanced", 100);
+    await ready(env);
+    vm.runInContext(`
+        globalThis.__saved = [];
+        YT_HEAL.gapMs = 50;
+        ytGhiCache = id => { __saved.push([id, yt.groups.some(g => g.fallback)]); };
+        const mk = (i, text) => ({ start: 20 + i * 3, end: 22.5 + i * 3, text, srcCues: [{ start: 20 + i * 3, end: 22.5 + i * 3, text }], cueIndexes: [i], translated: false, viCues: null });
+        const gs = [mk(0, "The first line of the talk is here."), mk(1, "The second line follows right after."), mk(2, "And the third line closes it.")];
+        globalThis.__gs = gs;
+        yt.currentVideoId = "v1";
+        yt.videoEl = { currentTime: 0, paused: false, addEventListener() {}, removeEventListener() {} };
+        yt.groups = gs; yt.huyDich = false; yt.inFlightGroups.clear();
+        yt.session = (() => { const s = new CST_CONTEXT.ContextSession({}); s.setUnits(gs.map(g => g.text)); return s; })();
+        globalThis.__done = ytChayTienTrinhPrefetch(gs);
+    `, env);
+    for (let i = 0; i < 300 && !(env.__gs.every(g => g.translated && !g.fallback) && env.__saved.some(s => !s[1])); i++) await new Promise(r => setTimeout(r, 10));
+    vm.runInContext("yt.huyDich = true;", env);
+    assert.ok(calls >= 2, "the fallback window was sent again");
+    assert.ok(env.__gs.every(g => !g.fallback && /^gemini/.test(g.viText)), JSON.stringify(env.__gs.map(g => g.viText)));
+    assert.ok(env.__saved.some(([id, fb]) => id === "v1" && !fb), "saved once every group is Gemini's");
+});
+
+test("YouTube: a fallback line about to play is not swapped, and healing stops after YT_HEAL.max tries", () => {
+    const env = contentEnv(() => ({ ok: true }));
+    vm.runInContext(`
+        globalThis.__h = [{ start: 5, end: 8, translated: true, fallback: true, healAt: 1 }, { start: 40, end: 43, translated: true, fallback: true, healAt: 1 }];
+        yt.inFlightGroups.clear();
+    `, env);
+    assert.equal(vm.runInContext("ytFallbackToHeal(__h, 0, 120)", env), 1, "the line 5 s ahead waits, the one 40 s ahead is healed");
+    assert.equal(vm.runInContext("ytFallbackToHeal(__h, 10, 120)", env), 0, "once played it is healed (for the saved copy)");
+    vm.runInContext("__h.forEach(g => { g.heals = YT_HEAL.max; })", env);
+    assert.equal(vm.runInContext("ytFallbackToHeal(__h, 10, 120)", env), -1);
+    const fresh = vm.runInContext("(() => { const g = [{ start: 40, end: 43, translated: true, fallback: true }]; const r = ytFallbackToHeal(g, 0, 120); return [r, g[0].healAt > Date.now()]; })()", env);
+    assert.deepEqual([...fresh], [-1, true], "a new fallback waits YT_HEAL.gapMs first (the model rests after a slow answer)");
 });

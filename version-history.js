@@ -4,6 +4,22 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.7.4", luc: "22/10/2026", ten: "Gemini trả chậm không còn làm mất bản dịch của video",
+            y: [
+                "Khi một model Gemini trả lời chậm, tiện ích cho model đó nghỉ 15 giây. Trước đây trong 15 giây ấy mọi đoạn khác đều bị dịch tạm bằng Google (không theo ngữ cảnh). Nay model kế tiếp trong chuỗi (ví dụ 3.5 Flash-Lite) dịch thay ngay, vẫn bằng Gemini.",
+                "Đoạn đã phải dịch tạm bằng Google nay được tự động hỏi lại Gemini sau 20 giây (tối đa 3 lần, lần sau cách lâu hơn). Dịch lại được thì cả video được lưu, lần sau mở lại không phải dịch nữa. Đoạn sắp phát trong 15 giây tới thì không bị thay giữa chừng.",
+                "Xưng hô nhất quán: khi bản dịch đã chọn \"tôi\" hoặc \"mình\" cho người nói, các đoạn sau được dặn giữ đúng cách xưng đó. Trước đây một video có thể nửa đầu \"tôi\", nửa sau \"mình\".",
+                "Video đời thường (không phải bài giảng, không phải chủ đề kỹ thuật) nay được dịch theo giọng nói chuyện tự nhiên, gần gũi, thay cho giọng giảng viên. Bài giảng Coursera giữ nguyên như cũ.",
+                "Tên hoạt chất (retinol, tretinoin, niacinamide, axit hyaluronic...) không còn bị coi là \"sót tiếng Anh\", nên không còn tốn lượt gọi Gemini dịch lại vô ích."
+            ],
+            bang: { cot: ["Đo thật", "2.7.3", "Nay"], hang: [
+                ["Video có đoạn Gemini trả chậm nhưng vẫn được lưu (đợt 22 video mới)", "0 trên 2", "2 trên 2"],
+                ["Chỗ trộn \"tôi\" với \"mình\" (A/B 288 câu, 6 video)", "28", "6, cả 6 đều là cách dùng đúng"],
+                ["Đoạn dịch tự nhiên hơn (chấm mù 36 đoạn vlog)", "2", "30 (4 ngang nhau)"],
+                ["Lượt gọi Gemini dịch lại vô ích (100 video đã lưu)", "29", "22"]
+            ] }
+        },
+        {
             v: "2.7.3", luc: "22/10/2026", ten: "Bản dịch được lưu ngay khi dịch xong đoạn cuối",
             y: [
                 "Trước đây bản dịch của cả video chỉ được lưu khi vòng dịch tỉnh dậy lần kế (khoảng 1 giây, lâu hơn ở thẻ nền). Nếu người xem chuyển sang video kế ngay lúc hết video (YouTube tự phát), việc lưu bị hủy, và lần sau mở lại video phải dịch lại. Nay bản dịch được lưu ngay khi đoạn cuối cùng dịch xong.",
