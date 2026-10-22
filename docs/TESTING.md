@@ -261,6 +261,15 @@ as it does for a viewer. Check first that the user is not watching a video in th
   (the sync setting `dubEnabled`, put back at the end, or when the page is opened again after an
   interruption). Paid: the translation of every video not saved yet. First run (2.5.3):
   Aj_UWp8Y5D4, 236 s of video saved in 36 s, 0.0033 USD with its speaker reading, dubbing put back.
+  2026-10-22: the played element is no longer muted (only its tab is): a muted video in a covered
+  window ran ~1x instead of 4x and every long video logged "NOT SAVED"; audible media plays on at its
+  rate. The window is shown once (Chrome defers media in a tab never shown), then the focus goes back
+  to the window the user had.
+- **`tr-lab.html?ids=a,b&win=4&max=12&tag=<run>`** (2.7.1): the same windows of saved videos
+  translated twice through the real `translateUnit`, variant "a" as before and "b" with
+  `context.unpunctuated`; results in `trLab_<tag>` (`{ id: [{ i, src, a, b }] }`). Reload the
+  extension first when `background.js` changed (the page talks to the loaded service worker). Paid:
+  two calls a window; a rerun of a tag is free (cache).
 - **Speaker lab** (`speaker-lab.html?tag=<run>`, `tools/speaker-lab.js`): the AI reading of who
   speaks scored against transcripts that name every speaker. PBS NewsHour videos carry two English
   tracks: ".en" (what the extension reads) and ".en-US" with "NAME:" before every turn.

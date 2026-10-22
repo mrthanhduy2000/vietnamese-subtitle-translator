@@ -1,7 +1,7 @@
 // YouTube driver (docs/TESTING.md "Fresh translations"): has the extension translate whole videos the
 // way a viewer's playback would, so a session can measure real translations of new videos
 // (ytcache4_<id>, read back with tools/ext-storage.js). Each video of ?ids=a,b,c plays in a window
-// of its own (focused: a hidden tab is throttled), its tab muted, at ?rate= (4), paused just
+// of its own (shown once, then the focus goes back; the video stays audible to Chrome), its tab muted, at ?rate= (4), paused just
 // before its end (no autoplay into the next video). youtube.js translates only around the playhead
 // and saves a video once every group is translated; a group passed untranslated is picked up by a
 // second pass from the start. Dubbing is off while it runs (the sync setting dubEnabled, put back
@@ -32,15 +32,18 @@ function waitComplete(tabId, ms) {
     });
 }
 
-// In the page's own world: keep the video muted, fast and playing, from `from` seconds, and stop it
-// 1.5 s before its end. Returns the duration once known
+// In the page's own world: keep the video fast and playing, from `from` seconds, and stop it 1.5 s
+// before its end. Returns the duration once known. The element is NOT muted (its volume is left to
+// YouTube, which saves it; the tab is muted, so nothing is heard): Chrome slows a muted video in a hidden tab (~70 s of video in
+// 3 min, 2026-10-22, the user working in another window) and the pass ran out; audible media
+// plays on at its rate when the window is covered
 function drive(rate, from) {
     if (window.__cstDrive) clearInterval(window.__cstDrive);
     let started = false;
     const tick = () => {
         const v = document.querySelector("video");
         if (!v || !Number.isFinite(v.duration) || !v.duration) return;
-        v.muted = true;
+        if (v.muted) v.muted = false;
         if (!started) { started = true; if (from != null) v.currentTime = from; }
         if (v.currentTime > v.duration - 1.5) { if (!v.paused) v.pause(); return; }
         if (v.playbackRate !== rate) v.playbackRate = rate;
@@ -82,11 +85,15 @@ async function durationOf(tabId) {
             const key = "ytcache4_" + id;
             if ((await chrome.storage.local.get(key))[key]) { say(`${k + 1}/${ids.length} ${id} already saved`); continue; }
             const t0 = Date.now();
+            // Shown once (Chrome defers media in a tab never shown), then the viewer's window gets
+            // the focus back as soon as the video plays: the run no longer needs to stay in front
+            const back = await chrome.windows.getLastFocused().catch(() => null);
             const win = await chrome.windows.create({ url: `https://www.youtube.com/watch?v=${id}`, focused: true, left: 40, top: 40, width: 960, height: 640 });
             const tabId = win.tabs[0].id;
             await chrome.tabs.update(tabId, { muted: true });
             await waitComplete(tabId, 30000);
             const dur = await durationOf(tabId);
+            if (back && back.id !== win.id && back.type === "normal") await chrome.windows.update(back.id, { focused: true }).catch(() => {});
             let ok = false;
             for (let pass = 0; pass < 2 && !ok; pass++) {
                 await chrome.scripting.executeScript({ target: { tabId }, world: "MAIN", func: drive, args: [rate, pass ? 0 : null] });

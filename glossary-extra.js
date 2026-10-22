@@ -21,6 +21,7 @@
     // What the merge saw, for tests/glossary.test.js: per group how many were added, and every line
     // that broke a rule above (must stay empty)
     const report = { added: {}, issues: [], dropped: [] };
+    const ALWAYS_CAPITALIZED = /^(monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|may|june|july|august|september|october|november|december|english|french|german|spanish|italian|chinese|japanese|korean|vietnamese|thai|russian|arabic|portuguese|dutch|greek|turkish|american|british|european|asian|african|canadian|australian|mexican|indian|christmas|easter|halloween|thanksgiving)s?$/i;
     let viSeen = null;
     function viIndex() {
         if (viSeen) return viSeen;
@@ -46,6 +47,10 @@
             if (!en || parts.length > 2 || (parts.length === 2 && !vi)) { report.issues.push(`${key}: "${raw.trim()}" malformed`); continue; }
             if (/[–—]/.test(vi)) { report.issues.push(`${key}: "${en}" long dash`); continue; }
             if (!vi && !keep && !/[\p{Lu}0-9]/u.test(en)) { report.issues.push(`${key}: "${en}" lowercase with no rendering and no =`); continue; }
+            // (2.7.1) English writes these ordinary words capitalized, so the capital tells nothing:
+            // the series "Wednesday" kept every weekday as written ("vào thứ Tư Wednesday", 8 times
+            // in 2 of 75 saved videos). They need a rendering, never "kept as written"
+            if (!vi && ALWAYS_CAPITALIZED.test(en)) { report.issues.push(`${key}: "${en}" an everyday word English capitalizes, needs a rendering`); continue; }
             const k = en.toLowerCase();
             if (vi) {
                 const prior = vis.get(k);

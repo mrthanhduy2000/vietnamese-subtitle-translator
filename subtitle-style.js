@@ -259,12 +259,16 @@
     }
 
     // Reading time (1.7.0): a line stays on screen into the silence after it, up to maxLinger
-    // seconds, never closer than `gap` to the next line. Measured on the 22 fixture sentences: 5 of
+    // seconds, never closer than `gap` to the next line, unless that leaves a blink (`bridge`). Measured on the 22 fixture sentences: 5 of
     // 32 lines ran faster than 20 characters per second and one showed for under a second. Display
     // only; the voice keeps the subtitle's own timing (it plans from the dub groups, not from these).
     function lingerCues(cues, opts = {}) {
         const maxLinger = opts.maxLinger != null ? opts.maxLinger : 0.7;
         const gap = opts.gap != null ? opts.gap : 0.06;
+        // (2.7.1) A blank shorter than this before the next line is closed: the line stays until the
+        // next one replaces it. 664 of 17,803 line changes on 73 saved videos blanked for <= 60 ms
+        // (a blink of ~4 frames) while 16,817 changed with no blank at all
+        const bridge = opts.bridge != null ? opts.bridge : 0.15;
         // idempotent: the subtitle's own end is kept in baseEnd, so running it twice (a cache load of
         // an already lingered list) never stretches a line further
         for (let i = 0; i < cues.length; i++) {
@@ -272,6 +276,7 @@
             if (c.baseEnd == null) c.baseEnd = c.end;
             const limit = next ? next.start - gap : c.baseEnd + maxLinger;
             c.end = Math.max(c.baseEnd, Math.min(c.baseEnd + maxLinger, limit));
+            if (next && next.start > c.end && next.start - c.end < bridge) c.end = next.start;
         }
         return cues;
     }

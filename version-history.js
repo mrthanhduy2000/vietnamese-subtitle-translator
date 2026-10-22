@@ -4,6 +4,17 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.7.1", luc: "22/10/2026", ten: "Phụ đề không còn nháy giữa hai dòng; không lặp chữ tiếng Anh sau thứ trong tuần",
+            y: [
+                "Khi hai dòng phụ đề cách nhau dưới 0,15 giây, dòng trước nay ở lại tới khi dòng sau hiện, thay vì tắt khoảng 60 mili giây rồi mới hiện dòng mới (một cái nháy). Áp dụng cho YouTube và Coursera.",
+                "Tên phim \"Wednesday\" trong bảng thuật ngữ làm mọi chữ \"Wednesday\" bị giữ nguyên, thành \"vào thứ Tư Wednesday\". Đã bỏ mục đó, và bảng thuật ngữ nay từ chối giữ nguyên các từ thường mà tiếng Anh luôn viết hoa (thứ, tháng, ngôn ngữ, quốc tịch, ngày lễ)."
+            ],
+            bang: { cot: ["Đo trên 73 video đã lưu", "2.7.0", "Nay"], hang: [
+                ["Lần chuyển dòng có khoảng trống dưới 0,15 giây (nháy)", "678", "0"],
+                ["Chữ \"Wednesday\" bị giữ nguyên", "8", "0"]
+            ] }
+        },
+        {
             v: "2.7.0", luc: "22/10/2026", ten: "Giọng bắt kịp người nói nhanh hơn ở đầu câu mới",
             y: [
                 "Khi một câu dày chữ đến ngay sau một câu đọc chậm, giọng được tăng tốc nhanh hơn (tối đa 0,2 thay vì 0,1 mỗi câu) nếu không thì câu sẽ tràn khung quá 0,4 giây. Trễ của câu đó không còn dồn sang các câu sau.",

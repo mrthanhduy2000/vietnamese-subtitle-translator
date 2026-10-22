@@ -23,7 +23,12 @@ test("size scale: the new 100% draws what the old 70% drew, the pickers use the 
 test("lines linger into the gap after them, never over the next line, and only once", () => {
     const cues = [{ start: 0, end: 1 }, { start: 1.3, end: 2 }, { start: 5, end: 6 }];
     S.lingerCues(cues);
-    assert.equal(+cues[0].end.toFixed(2), 1.24, "stops 0.06 before the next line");
+    // (2.7.1) 0.06 before the next line would blank the screen for 60 ms: the line stays until it
+    assert.equal(+cues[0].end.toFixed(2), 1.3, "no blink before the next line");
+    const far = S.lingerCues([{ start: 0, end: 1 }, { start: 2, end: 3 }]);
+    assert.equal(+far[0].end.toFixed(2), 1.7, "a long silence still blanks after 0.7 s");
+    const near = S.lingerCues([{ start: 0, end: 1 }, { start: 1.03, end: 2 }]);
+    assert.equal(+near[0].end.toFixed(2), 1.03, "a 30 ms gap in the subtitle closes too");
     assert.equal(+cues[1].end.toFixed(2), 2.7, "up to 0.7 s into a long gap");
     assert.equal(+cues[2].end.toFixed(2), 6.7);
     S.lingerCues(cues);

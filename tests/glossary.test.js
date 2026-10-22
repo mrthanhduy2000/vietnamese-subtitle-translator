@@ -227,3 +227,18 @@ test("2.5.9: protecting a long window stays fast with every term loaded, and mat
     const terms = [...sb.protectGlossary("Use retrieval-augmented generation and a vector database in Python").terms];
     assert.deepEqual(terms, ["Python", "tạo sinh tăng cường truy xuất", "cơ sở dữ liệu vector"]);   // exact-case terms are protected first
 });
+
+test("an everyday word English capitalizes (a weekday, a month, a language) is never kept as written", () => {
+    const always = /^(monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|may|june|july|august|september|october|november|december|english|french|german|spanish|chinese|japanese|korean|vietnamese|christmas|easter)s?$/i;
+    for (const [k, g] of Object.entries(G.CST_GLOSSARY_GROUPS)) {
+        for (const t of g.terms) if (always.test(t)) assert.ok((g.vi || {})[t.toLowerCase()], `${k}: "${t}" kept as written`);
+    }
+    // the merge refuses one (the series "Wednesday" kept every weekday: "vào thứ Tư Wednesday")
+    const before = EXTRA.issues.length;
+    globalThis.CST_GLOSSARY_EXTRA_ADD("lab_always", "lab", "Wednesday\nMonday|thứ Hai");
+    assert.equal(EXTRA.issues.length, before + 1);
+    assert.match(EXTRA.issues[EXTRA.issues.length - 1], /Wednesday.*needs a rendering/);
+    assert.ok(G.CST_GLOSSARY_GROUPS.lab_always.terms.includes("Monday"));
+    EXTRA.issues.length = before;
+    delete G.CST_GLOSSARY_GROUPS.lab_always;
+});
