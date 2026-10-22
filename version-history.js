@@ -4,6 +4,20 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.7.0", luc: "22/10/2026", ten: "Giọng bắt kịp người nói nhanh hơn ở đầu câu mới",
+            y: [
+                "Khi một câu dày chữ đến ngay sau một câu đọc chậm, giọng được tăng tốc nhanh hơn (tối đa 0,2 thay vì 0,1 mỗi câu) nếu không thì câu sẽ tràn khung quá 0,4 giây. Trễ của câu đó không còn dồn sang các câu sau.",
+                "Trong cùng một câu, nhịp vẫn giữ đều như trước."
+            ],
+            bang: { cot: ["Mô phỏng 70 video đã lưu (8.989 câu)", "2.6.9", "Nay"], hang: [
+                ["Câu bắt đầu trễ quá 0,5 giây", "1.657", "1.419"],
+                ["Câu bắt đầu trễ quá 1 giây", "900", "766"],
+                ["Tổng số giây trễ", "2.506", "2.197"],
+                ["Cặp câu liền nhau đổi tốc độ quá 15%", "5", "77"],
+                ["Chữ bị bỏ", "0", "0"]
+            ] }
+        },
+        {
             v: "2.6.9", luc: "22/10/2026", ten: "Giọng lồng tiếng không còn đọc trước người nói",
             y: [
                 "Khi một câu kéo dài qua nhiều dòng phụ đề, giọng đọc đoạn tiếp theo sớm tối đa 0,3 giây thay vì 0,8 giây như trước. Trước đây gần như mọi đoạn nối đều bắt đầu sớm trọn 0,8 giây, nên nghe như giọng nói trước người thật.",

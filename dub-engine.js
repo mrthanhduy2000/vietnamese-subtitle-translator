@@ -77,6 +77,11 @@
         fitSlack: 0.25,           // được nói quá mốc cuối phụ đề của câu tối đa bấy nhiêu giây
         catchUpMax: 0.08,         // đang trễ so với phụ đề: nhanh thêm tối đa 8% để bắt kịp dần
         rateStepUp: 0.1,          // câu sau được nhanh hơn câu trước tối đa 0,1 (câu tràn khung: đuổi kịp, không dồn trễ)
+        rateStepUpOverrun: 0.2,   // (2.7.0) ... 0.2 for a line that, read at +0.1, would overrun its slot by more
+        overrunStepAt: 0.4,       // than this many seconds (that lag passes to every line after it). 70 saved videos:
+                                  // starts > 0.5 s late 1657 -> 1419, > 1 s 900 -> 766, lag 2506 -> 2197 s; line pairs
+                                  // changing rate > 15% 5 -> 77 of ~5900, all at a new sentence (rateStepInSentence holds
+                                  // inside one). 0.15: 1502 late, 50 jumps; 0.3: 1380, 102; threshold 0.8: 1557, 56
         // ... and slows down gently, at most this much per line. 0.06 until 2.5.1: a fast talk climbed
         // 0.1, fell 0.06 and climbed again. With lookAhead 5 on the user's 45 saved videos (simulator):
         // late starts 1802 -> 1658, heard-pace jumps over 15% 585 -> 486 (DUBBING.md "Smoother pace")
@@ -1379,7 +1384,12 @@
                 const earliest = (r.duration - offset) / Math.max(0.5, win - SYNC.lookAheadEarly);
                 want = Math.max(want, Math.min(ahead, earliest));
             }
-            if (recent) want = Math.max(last - stepDown, Math.min(last + SYNC.rateStepUp, want));
+            // A line that, read at the gentle step up, would overrun its slot by more than
+            // overrunStepAt pushes that lag onto every line after it: it may climb faster
+            const fit = (r.duration - offset) / win;
+            const stepUp = recent && fit > last + SYNC.rateStepUp && (r.duration - offset) / (last + SYNC.rateStepUp) - win > SYNC.overrunStepAt
+                ? SYNC.rateStepUpOverrun : SYNC.rateStepUp;
+            if (recent) want = Math.max(last - stepDown, Math.min(last + stepUp, want));
             let ceiling = lag > SYNC.lagBoostAt ? lim.lagCeiling : lim.ceiling;
             // Vừa bắt kịp (trần trở về 1,3x): hạ tốc độ từ từ, không tụt 0,1 trong một câu
             // (from the rate really played, not the heard-pace reference)
@@ -1387,7 +1397,7 @@
             if (lag > SYNC.lagBoostAt) want = Math.max(want, (r.duration - offset) / win * (1 + Math.min(0.12, lag * 0.06)));
             let rate = Math.max(floor, Math.min(ceiling, want));
             // Tốc độ sàn vừa được hiệu chỉnh lại (đo giọng thật) không được làm nhịp nhảy quá bước cho phép
-            if (recent) rate = Math.min(rate, last + SYNC.rateStepUp);
+            if (recent) rate = Math.min(rate, last + stepUp);
             // Close to natural speed and not behind: play at exactly 1.0. Any other rate goes through
             // Chrome's time-stretch, which roughens the voice (1.6.7 measurements); finishing up to 5%
             // early leaves a natural gap, and 5% late stays inside fitSlack.

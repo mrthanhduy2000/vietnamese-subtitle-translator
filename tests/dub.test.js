@@ -539,6 +539,36 @@ test("the second part of a sentence keeps the pace of the first; a new sentence 
     assert.ok(b3 - a3 > SYNC.rateStepInSentence, `behind ${a3.toFixed(3)} -> ${b3.toFixed(3)}`);
 });
 
+test("a new sentence that would overrun its slot at the gentle step climbs up to rateStepUpOverrun; a small overrun keeps the gentle step", () => {
+    const { SYNC } = require("../dub-engine.js");
+    const clock = new Clock(), video = new FakeVideo();
+    const groups = lectureGroups();
+    const prov = { id: "gemini", caps: { prerender: true }, voiceModel: PLAN.DEFAULT_VOICE_MODEL, render: async () => [] };
+    const make = () => {
+        const eng = new DubEngine({ video, getGroups: () => groups, providers: { primary: prov },
+            now: () => clock.now(), setInterval: (f, ms) => clock.setInterval(f, ms), clearInterval: id => clock.clear(id) }, {});
+        eng.refresh(true);
+        return eng;
+    };
+    const probe = need => {
+        const eng = make();
+        const j = eng.plans.findIndex((p, k) => k > 0 && !p.continuesNext && !eng.plans[k - 1].continuesNext &&
+            eng.plans[k + 1] && eng.plans[k + 1].start - p.end < 1 && p.end - p.start > 2.5);
+        const A = eng.plans[j - 1], B = eng.plans[j];
+        const a = eng.chooseRate(A, { duration: (B.start - A.start) * 0.98 }, A.start, 0, 0);
+        eng.lastSpokenId = A.id;
+        const win = Math.min(B.start + (B.targetDuration || 0) + SYNC.fitSlack, eng.plans[j + 1].start - 0.12) - B.start;
+        return [a, eng.chooseRate(B, { duration: win * need }, B.start, 0, 0)];
+    };
+    // the step is taken from the heard-pace reference, which may sit paceComp above the last rate
+    const [a, b] = probe(1.6);
+    const comp = x => x * SYNC.paceComp + 1e-9;
+    assert.ok(b - a > SYNC.rateStepUp + comp(a) + 0.01, `a dense new sentence ${a.toFixed(3)} -> ${b.toFixed(3)}`);
+    assert.ok(b - a <= SYNC.rateStepUpOverrun + comp(a), `at most rateStepUpOverrun: ${a.toFixed(3)} -> ${b.toFixed(3)}`);
+    const [a2, b2] = probe(a + 0.12);
+    assert.ok(b2 - a2 <= SYNC.rateStepUp + comp(a2), `a small overrun keeps the gentle step: ${a2.toFixed(3)} -> ${b2.toFixed(3)}`);
+});
+
 // (2.5.1) Chrome starts a fresh element, or one it suspended after ~15 s idle, cold (0.25-0.75 s while
 // the server works): between lines the next take's element is made shortly before its line
 test("between lines the next take's element is made shortly before its line; a stale unplayed one is made again, a playing one never touched", () => {

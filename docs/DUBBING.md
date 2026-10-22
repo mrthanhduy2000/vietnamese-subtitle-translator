@@ -769,6 +769,22 @@ Knobs you will actually reach for:
   876, late 280 -> 276; a small gain for steps that fall at a sentence end, where a reader's pace
   moves as much. `baseTempo` comes from the voice's **measured** syllables per second (`measureVoice`,
   EMA 0.25), not a constant. `floorRate` divides by `video.playbackRate`.
+- **Faster climb for an overrunning line (2.7.0)**: of the 1657 starts over 0.5 s late on the 70
+  saved videos, 1344 follow a line read at the ceiling (the voice cannot go faster: kept) and 313 a
+  line held below it by `rateStepUp` 0.1, mostly at a new sentence (a slow line, then a dense one).
+  A line that would overrun its slot by more than `overrunStepAt` 0.4 s at the gentle step may climb
+  `rateStepUpOverrun` 0.2 (inside a sentence `rateStepInSentence` still holds). Simulator, 8,989
+  lines (rate pairs = consecutive lines under 1 s apart, ~5900):
+
+  | step / threshold | late > 0.5 s | > 1 s | lag s | pairs changing > 15% |
+  |---|---|---|---|---|
+  | 0.1 (2.6.9) | 1657 | 900 | 2506 | 5 |
+  | 0.15 / 0.4 | 1502 | 805 | 2304 | 50 |
+  | **0.2 / 0.4 (kept)** | 1419 | 766 | 2197 | 77 |
+  | 0.3 / 0.4 | 1380 | 731 | 2120 | 102 |
+  | 0.2 / 0.8 | 1557 | 786 | 2299 | 56 |
+
+  `regress.js`: reviewed videos late 1629 -> 1431, scenarios 78 -> 74, gaps +2 (+0.25 s).
 - **Smoother pace (2.5.1, "Mỹ Duyên nghe không đều")**: two measurements found where the uneven pace
   comes from: line-to-line rate choices (a fast talk climbed 0.1, fell 0.06, climbed again) and each
   take's own pace (VieNeu reads one line slower than the next, so the same rate is not the same pace
