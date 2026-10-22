@@ -23,7 +23,7 @@
 
 ## Unfinished
 - Batch of 16 done: 11 saved; O_MQr4lHm0c, c347oYQO57A also have uploaded Vietnamese. Next:
-  rerun vvFnjnVwhAE on 2.7.9 (should save from the English track); review new ids
+  (vvFnjnVwhAE rerun on 2.7.9: saved in 181 s from the English track, no fallback.) Review new ids
   (`batch-review.js --since`), read `cstFallbackLog` / `ytSaveSkip`.
 - Not heard: 2.6.9-2.7.9 by ear. tôi/mình mixing left only before 4 uses settle it (video start).
 - Uploaded Vietnamese tracks (shown as is, never saved by design, driver logs "NOT SAVED"):
