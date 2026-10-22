@@ -24,12 +24,12 @@
 - Batch of 16 done: 11 saved; O_MQr4lHm0c, c347oYQO57A also have uploaded Vietnamese. Next:
   reload, rerun vvFnjnVwhAE, read `cstFallbackLog` detail, fix that class; review new ids
   (`batch-review.js --since`), read `cstFallbackLog` / `ytSaveSkip`.
-- Not heard: 2.6.9-2.7.7 by ear. tôi/mình mixing left only before 4 uses settle it (video start).
+- Not heard: 2.6.9-2.7.8 by ear. tôi/mình mixing left only before 4 uses settle it (video start).
 - Uploaded Vietnamese tracks (shown as is, never saved by design, driver logs "NOT SAVED"):
   jFZksJqL1Vc, XnQ7Py8D6v0, MebK9iEUzQA, JwBuHx_3GOU, rm_9cPXrv4A, gN07gbipMoY, nBN9zG1JNPg.
 - Coursera has no fallback heal (its unit cache keeps no fallback, a revisit asks again).
 - Carried over: prompt 3 and the >> split on a real reading (BACKLOG 44); 2.6.5-2.6.8 not checked
-  live; `screen-text.js` never ran; share repo promotion of 2.5.7-2.7.7 after a green install
+  live; `screen-text.js` never ran; share repo promotion of 2.5.7-2.7.8 after a green install
   test; BACKLOG 43-47; 2.5.7 shortcuts on YouTube; joint-takes branches; 2.5.0 Coursera start hold;
   CI gaps; voice items "có nghĩa là", DN, NHNN; `ban-giao.md` lacks the share repo.
 - Never ask the user about Chrome's Apple Events setting.
@@ -38,6 +38,7 @@
 - Reloading the extension closes every extension page: a driver run in progress dies with it.
 - `playback-sim.js` `run(..., { keepStarted: true })` returns every start; hook
   `DubEngine.prototype.note` for drop reasons. An old engine must sit in the repo dir to load.
-- Scenario `seekWhileSlow` gives 15/7 or 16/6 run to run: not a regression signal.
+- Scenario `seekWhileSlow` gives 15/7 or 16/6 run to run; the two analysis timing tests fail while
+  Chrome runs a driver batch: rerun before blaming a change.
 - The words "speak"/"signature" may not appear in `unitCacheKey` (speech-context test).
 - New YouTube ids: `curl` the results page (node fetch ignores the proxy), parse `ytInitialData`.
