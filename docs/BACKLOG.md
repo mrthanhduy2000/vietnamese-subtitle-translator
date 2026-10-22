@@ -85,7 +85,8 @@ none
   than its slot is read at the floor (`minSps` 4.0 syl/s, the user found slower "quá chậm") and the
   next line may not start before its speaker. Idea not built, needs listening: hand the slack to the
   take's own pauses (`maxPause` 0.4 is trimmed for every line, also for one with time to spare)
-  instead of one silence at its end.
+  instead of one silence at its end. Expected gain is small: a take has a few pauses, a looser cap (0.7)
+  gives back 0.2-0.6 s while the silences run 1-4 s; it would need its own audio key ("loose").
 - **47. Cuts inside a phrase left after SEG_STRETCH** *(found 2.5.3)*. 17 of 7779 segment cuts over
   the user's 44 saved videos still fall inside a phrase, where a 2 s stretch reaches no better place. A 3 s
   stretch reached 11 but let segments grow past 13 s; cutting inside a line at its best phrase
