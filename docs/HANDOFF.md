@@ -1,5 +1,10 @@
 # Handoff (2026-10-23, 3.0.2)
 
+## Perf thread (2.9.9)
+- `glossary-extra.js` merge no longer quadratic; `loadGlossary` drops a 90k-entry Set. Bench:
+  `node --expose-gc tools/bench-startup.js 7` (merge 159 -> 86 ms, loadGlossary 115 -> 95 ms, offline,
+  Linux). Output digest identical. Left alone: first `protectGlossary` ~70 ms (lazy bucket compile,
+  term-matching thread). Not measured: storage size, duplicate network calls, CPU during playback (Mac).
 - Test-only change after 2.9.4 (no bump): GitHub Actions `test.yml`, `tests/units.test.js`, `npm run coverage`.
 
 ## State
