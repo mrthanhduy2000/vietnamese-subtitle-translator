@@ -22,8 +22,8 @@ này, có bộ cài cho Mac và Windows, tự cập nhật).
   hết ngân sách thì dự phòng bằng Google Dịch.
 - Dịch theo ngữ cảnh: gửi kèm câu trước, bản dịch trước, tiêu đề và mô tả video, nhắc lại chủ thể
   được nêu từ xa, để đại từ và thuật ngữ nhất quán trong cả bài.
-- Từ điển thuật ngữ 19 nhóm ngành (hơn 1.600 thuật ngữ): tên sản phẩm, viết tắt được giữ nguyên,
-  526 thuật ngữ có tên tiếng Việt chuẩn luôn được dịch thống nhất. Tự thêm từ giữ nguyên hoặc quy tắc
+- Từ điển thuật ngữ và tên riêng hàng chục nghìn mục (số mục từng bản: xem `docs/CHANGELOG.md`): tên sản phẩm,
+  viết tắt được giữ nguyên, 526 thuật ngữ có tên tiếng Việt chuẩn luôn được dịch thống nhất. Tự thêm từ giữ nguyên hoặc quy tắc
   `từ => bản dịch` riêng trong Cài đặt.
 - Ngắt dòng và phân đoạn theo tiếng Việt, không vắt câu ngang dòng.
 - Hiển thị song ngữ hoặc chỉ tiếng Việt; chỉnh vị trí, kiểu chữ, nền trong Cài đặt, cỡ chữ ngay trên video.
@@ -35,7 +35,7 @@ này, có bộ cài cho Mac và Windows, tự cập nhật).
   vùng miền, mặc định Mỹ Duyên.
 - Khớp nhịp theo mốc thời gian phụ đề bằng tốc độ đọc và khoảng nghỉ. **Không bao giờ lược bớt lời**:
   người nói nhanh thì giọng đọc nhanh hơn (có giới hạn tốc độ tối đa), chứ không cắt nội dung.
-- **Mỗi người nói một giọng (tự bật từ 2.5.2).** Video có 2 đến 5 người nói thì mỗi người một giọng;
+- **Mỗi người nói một giọng (tự bật từ 2.5.2).** Video có nhiều người nói (tối đa 8 giọng) thì mỗi người một giọng;
   người nói nhiều nhất dùng giọng chính. Video chỉ một người nói giữ một giọng, kể cả khi phụ đề tự
   động đánh dấu nhầm quanh đoạn nhạc hay câu trích lời. Tiện ích dựa vào:
   - tên người nói trong phụ đề (`TÊN:`), nếu có;
@@ -58,6 +58,11 @@ này, có bộ cài cho Mac và Windows, tự cập nhật).
 - Giao diện Sáng / Tối, sao lưu và khôi phục cài đặt, mục Lịch sử phiên bản trong Cài đặt.
 - Lần cài đầu tiên, trang Cài đặt tự mở với phần chào mừng: chỗ dán khóa Gemini, trạng thái giọng
   VieNeu, cách ghim tiện ích và phím tắt.
+
+## Tài liệu
+
+- [Hướng dẫn sử dụng](docs/HUONG-DAN.md): cài đặt, lấy khóa Gemini, dịch phụ đề, lồng tiếng, Coursera, chi phí, xử lý sự cố, câu hỏi thường gặp.
+- [Lịch sử thay đổi](docs/CHANGELOG.md): các bản đã làm gì, gom theo giai đoạn.
 
 ## Cài đặt
 
@@ -142,6 +147,8 @@ Máy chủ chưa chạy thì tiện ích báo một lần rồi tự chờ, máy
 4. Trên nhãn lồng tiếng, "Lồng tiếng: 3 giọng theo người nói" nghĩa là tiện ích đã nhận ra 3 người nói.
 
 ## Khi gặp lỗi
+
+Bảng đầy đủ hơn: [Hướng dẫn sử dụng, mục Xử lý sự cố](docs/HUONG-DAN.md#8-xử-lý-sự-cố).
 
 | Hiện tượng | Cách xử lý |
 |---|---|

@@ -4,9 +4,24 @@
 (function (root) {
     const HISTORY = [
         {
-            v: "2.9.7", luc: "23/10/2026", ten: "Thêm 140 thuật ngữ chuyên ngành",
+            v: "2.9.9", luc: "23/10/2026", ten: "Thêm 140 thuật ngữ chuyên ngành",
             y: [
                 "Bổ sung thuật ngữ AI, phần mềm, tài chính, y khoa, khoa học và thống kê mà phụ đề hay gặp. Thuật ngữ có từ Việt chuẩn được dịch thống nhất (ví dụ bán khống, quyền chọn mua, kháng thể đơn dòng), thuật ngữ người Việt vẫn nói tiếng Anh được giữ nguyên."
+            ]
+        },
+        {
+            v: "2.9.8", luc: "23/10/2026", ten: "Chữ phụ và nút chính dễ đọc hơn trong cửa sổ nhỏ và trang Cài đặt",
+            y: [
+                "Chữ mô tả, nhãn phiên bản và dòng phím tắt trong cửa sổ nhỏ trước đây chỉ đạt khoảng 3:1 độ tương phản (chuẩn dễ đọc là 4,5:1), nhất là ở nền sáng. Nay tất cả đạt từ 4,5:1 trở lên ở cả giao diện sáng lẫn tối.",
+                "Nút Bắt đầu dịch dùng cam đậm hơn một chút để chữ trắng rõ hơn (3,1:1 lên 4,8:1). Nút báo thành công ở giao diện tối không còn là chữ trắng trên nền xanh nhạt.",
+                "Trang Cài đặt: chữ phụ, nút Song ngữ và nhãn phần trăm cũng đạt 4,5:1. Không đổi cách dịch hay lồng tiếng."
+            ]
+        },
+        {
+            v: "2.9.7", luc: "23/10/2026", ten: "Bản dịch sạch hơn khi mô hình thêm định dạng",
+            y: [
+                "Bỏ số thứ tự mô hình chép thừa ở đầu câu, dấu sao in nghiêng, thẻ <i>/<b> và mã HTML (&amp;), chỉ khi câu gốc không có sẵn những dấu đó.",
+                "Bỏ ký tự vô hình (zero-width) và đổi khoảng trắng không ngắt dòng thành khoảng trắng thường, để giọng đọc không bị lệch."
             ]
         },
         {
