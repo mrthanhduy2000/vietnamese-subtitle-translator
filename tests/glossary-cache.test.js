@@ -1,4 +1,4 @@
-// A glossary update must not re-bill windows that are already translated (2.9.7). The window cache
+// A glossary update must not re-bill windows that are already translated (next release). The window cache
 // key reads the original source text, not the text with [[__T0__]] codes, and the entry carries the
 // terms it was translated with. Offline: the service worker is the real background.js, Gemini is faked.
 const test = require("node:test");
@@ -65,7 +65,7 @@ test("noCache: a broken entry is asked again and replaced", async () => {
     assert.deepEqual(next.translations, ["Chúng tôi triển khai nó trên Kubernetes."], "the new answer replaced the broken one");
 });
 
-test("a window saved under the pre-2.9.7 key is found there and copied to the new key", async () => {
+test("a window saved under the pre-change key is found there and copied to the new key", async () => {
     const page = asPage(["Kubernetes"]);
     // which model the chain starts with: learn it from a throwaway run
     const model = (await bgEnv(async () => reply({ t: ["x [[__T0__]]"] }), cfg, { backend: CACHE.memoryBackend() }).send(page)).model;

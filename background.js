@@ -870,7 +870,7 @@ const metaOf = req => ({ videoKey: req.videoKey || "", videoSec: Number(req.vide
 // Khóa bản dịch: mọi thứ quyết định kết quả, gồm ĐÚNG model tạo ra bản dịch
 // (bản của 2.5 và 3.1 không bao giờ dùng lẫn). Không gồm bản dịch câu trước hay
 // danh sách thuật ngữ đang học (thay đổi theo phiên) để mở lại video vẫn trúng.
-// (2.9.7) Nor the protected glossary terms: the key reads the ORIGINAL source text (req.source),
+// (next release) Nor the protected glossary terms: the key reads the ORIGINAL source text (req.source),
 // not the text with [[__T0__]] codes in it. The old key held the codes and the term list, so every
 // release that added names (+34,700 in 2.9.5) re-billed each window that matched a new name. The
 // entry keeps the terms it was translated with (entry.placeholders) and the page restores with those,
@@ -928,7 +928,7 @@ async function handleTranslateUnit(request) {
             const rest = first ? [] : await Promise.all(keys.slice(1).map(k => (k ? caches.tr.get(k) : null)));
             let at = first ? 0 : rest.findIndex(Boolean) + 1;
             let hit = first || rest[at - 1];
-            // a window saved before 2.9.7 sits under the key that held the codes: found there, it is
+            // a window saved before this change sits under the key that held the codes: found there, it is
             // copied to the new key with the terms it was translated with, so the next glossary update
             // leaves it alone
             if (!hit && source) {

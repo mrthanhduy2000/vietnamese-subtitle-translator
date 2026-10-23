@@ -221,7 +221,7 @@ each worker a contiguous half. The YouTube prefetch skips a window whose previou
 still to do unless it starts within 20 s. A short last window (< 240 chars Coursera, < 160 YouTube)
 joins the one before. Sense hints carry no `general` fallback. Measure with `node tools/context-eval.js`
 (offline, `--root <dir>` for an old checkout). `prevTranslation`, terms and hints are not in the cache key.
-**Protected glossary terms and the window cache (2.9.9).** The key reads `req.source` (the original text), not the text with
+**Protected glossary terms and the window cache (next release).** The key reads `req.source` (the original text), not the text with
 `[[__T0__]]` codes, so a glossary release no longer re-bills windows. The entry stores `placeholders` (the terms it was
 translated with) and `requestUnit` restores a cached window with those, not with this run's. `protectFp` (hash of the user's
 own choices: on/off, own terms and renderings, groups on; built-in names are not in it) joins the key. Windows saved under

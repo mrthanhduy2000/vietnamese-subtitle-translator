@@ -14,8 +14,10 @@ test("size scale: the new 100% draws what the old 70% drew, the pickers use the 
     assert.match(html, /<option value="100" selected>100% \(Khuyên dùng\)<\/option>/);
     for (const f of ["youtube.js", "content.js"]) assert.match(read(f), /label: "Cỡ chữ", min: 50, max: 300, step: 10/, f);
     // every place that turns the size into pixels goes through sizeFactor
-    assert.match(read("youtube.js"), /window\.CST_STYLE\.sizeFactor\(ytSubStyle\.fontSize\)/);
-    assert.match(read("content.js"), /base \* S\.sizeFactor\(s\.fontSize\)/);
+    // (overlayFontPx applies sizeFactor itself, 2.9.7)
+    assert.match(read("youtube.js"), /window\.CST_STYLE\.overlayFontPx\(rong, ytSubStyle\.fontSize\)/);
+    assert.match(read("content.js"), /S\.overlayFontPx\(width, s\.fontSize\)/);
+    assert.match(read("subtitle-style.js"), /base \* sizeFactor\(fontSize\)/);
     assert.match(read("options.js"), /15\.5 \* S\.sizeFactor\(s\.fontSize\)/);
     assert.doesNotMatch(read("options.js"), /15\.5 \* \(s\.fontSize \/ 100\)/);
 });

@@ -1,15 +1,16 @@
-# Handoff (2026-10-23, 2.9.9)
+# Handoff (2026-10-23)
 
 ## State
-- 2.9.9 (lane A/D, glossary protection): the window cache key no longer holds protected terms or codes
+- unreleased (lane A/D, glossary protection): the window cache key no longer holds protected terms or codes
   (`SUBTITLE.md` "Protected glossary terms and the window cache"); matcher buckets warm up in idle slices
   (first `protectGlossary` 50-80 ms -> ~2 ms). `tests/glossary-cache.test.js`. `regress.js` not run.
   Lowercase-brand gap, not loosened: `BACKLOG.md`.
-- 2.9.8 (lane C, UI): popup and Settings text reach WCAG AA 4.5:1 (new `--claude-accent-fill`,
-  `--claude-success-fill`, `--primary-text`); "popup contrast" test in `tests/ui.test.js`. Only checked
-  in headless Chromium, not on the Mac.
-- 2.9.7 (lane D): `stripAddedFormatting` removes echoed list numbers, italics, <i>/<b>, entities only
-  when the source lacks them; `sanitizeModelOutput` drops zero-width chars. `TR_PROMPT_VERSION` unchanged.
+- 3.0.0 (lane A/C): `CST_STYLE.legibilityIssue` + `#legibilityHint` in Settings preview warns on same-colour
+  box or no box and no outline. Warning only. Not seen live.
+- 2.9.9 (lane A, overlay UX): `CST_STYLE.overlayFontPx` (12 px floor, one size formula for YouTube and
+  Coursera), `overlayTransition` (honours prefers-reduced-motion; Coursera now animates `top` too).
+  Not seen on a live page; click Reload and check a narrow/mini player.
+- 2.9.8 (UI contrast) and 2.9.7 (`stripAddedFormatting`, `sanitizeModelOutput`): see git log.
 - 2.9.5 (lane B/D, glossary): +34,700 names from 50 topic drafts (`scratchpad/cands3`), 73,270
   candidates in total, mostly unverified. About 181 still read Vietnamese by VieNeu. Spot-check short
   source files: esports 86 lines, fitness 125, board games 352, supplements 515.

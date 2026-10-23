@@ -4,11 +4,18 @@
 (function (root) {
     const HISTORY = [
         {
-            v: "2.9.9", luc: "23/10/2026", ten: "Cập nhật từ điển không làm dịch lại những đoạn đã dịch",
+            v: "3.0.0", luc: "23/10/2026", ten: "Trang Cài đặt cảnh báo khi màu phụ đề khó đọc",
             y: [
-                "Trước đây mỗi bản cập nhật thêm tên vào từ điển lại khiến các đoạn có chứa tên mới bị dịch lại và tốn tiền Gemini. Nay bản dịch đã lưu được dùng lại nguyên vẹn, kể cả khi từ điển lớn thêm.",
-                "Đổi thuật ngữ riêng, cách hiển thị riêng hoặc bật tắt nhóm từ điển trong Cài đặt vẫn dịch lại như trước.",
-                "Đoạn đầu tiên của video không còn khựng khoảng 50 đến 80 mili giây khi bộ lọc thuật ngữ khởi động: phần việc này được làm sẵn lúc rảnh."
+                "Phần xem trước nay báo ngay khi chữ và nền gần cùng màu, hoặc khi vừa không có nền vừa không có viền (chữ sẽ chìm trên cảnh sáng). Chỉ cảnh báo, không tự đổi lựa chọn của bạn.",
+                "Cài đặt mặc định và các kiểu viền thông thường không bị cảnh báo."
+            ]
+        },
+        {
+            v: "2.9.9", luc: "23/10/2026", ten: "Phụ đề không bị nhỏ quá ở trình phát nhỏ, tôn trọng chế độ giảm chuyển động",
+            y: [
+                "Ở trình phát hẹp (trình phát thu nhỏ, video nhúng, cửa sổ hẹp), chữ phụ đề trước đây có thể chỉ còn 9,8 px. Nay cỡ chữ không bao giờ dưới 12 px; dòng dài được ngắt lại cho vừa khung.",
+                "Nếu hệ điều hành bật giảm chuyển động, phụ đề không còn trượt lên xuống hay dịch ngang khi thanh điều khiển hiện ra, chỉ mờ dần.",
+                "Coursera nay trượt mượt khi phụ đề ở vị trí trên cùng, giống YouTube. Hai trang dùng chung một công thức cỡ chữ và một bộ hiệu ứng."
             ]
         },
         {
