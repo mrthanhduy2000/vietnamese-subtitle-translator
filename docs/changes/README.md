@@ -38,3 +38,8 @@ npm test
 
 Run it on its own branch (`release/<version>`) from the latest `main`, merge when CI is green. If
 there are no notes it does nothing. `README.md` is never collected.
+
+## Tests
+
+`npm test` runs `tests/*.test.js` by glob, so a new test file needs no edit to `package.json`
+(that line used to conflict on every merge).

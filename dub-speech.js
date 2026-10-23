@@ -3521,16 +3521,22 @@
         for (let i = 1; i < cores.length; i++) if (viet[i] && viet[i - 1] && capitalised(cores[i]) && capitalised(cores[i - 1])) return false;
         return true;
     }
+    const WIDE_SPACE = /\s\s|[^\S ]/;
     function loadGlossaryNames() {
         const groups = root && root.CST_GLOSSARY_GROUPS;
         if (!groups) return;
         for (const g of Object.values(groups)) {
             const vi = g.vi || {};
             for (const t of g.terms || []) {
-                const key = String(t).trim().toLowerCase().replace(/\s+/g, " ");
+                const surface = String(t).trim();
+                // (only collapse whitespace when there is something to collapse: ~all terms are single-spaced)
+                let key = surface.toLowerCase();
+                if (WIDE_SPACE.test(key)) key = key.replace(/\s+/g, " ");
                 if (!key || vi[key] || LEX.has(key) || !glossaryName(t)) continue;
-                LEX.set(key, { surface: String(t).trim(), cat: "glossary", say: GLOSSARY_SAY[key] || null });
-                LEX_MAX = Math.max(LEX_MAX, key.split(" ").length);
+                LEX.set(key, { surface, cat: "glossary", say: GLOSSARY_SAY[key] || null });
+                let n = 1;
+                for (let i = key.indexOf(" "); i !== -1; i = key.indexOf(" ", i + 1)) n++;
+                if (n > LEX_MAX) LEX_MAX = n;
             }
         }
         memo.clear(); renderMemo.clear();
@@ -3943,7 +3949,25 @@
         return hit;
     }
 
+    // Text that already carries <en> spans (adaptForSpeech runs first): the words inside a span are
+    // final. Analysing them again let a glossary entry such as "R" wrap a letter of "<en>c r h</en>"
+    // in a second span ("<en>c <en>r</en> h</en>"), which the front end read as Vietnamese.
     function renderUncached(text, ctx) {
+        if (text.includes("<en>")) {
+            let changed = false;
+            const parts = text.split(/(<en>[\s\S]*?<\/en>)/).map((p, i) => {
+                if (i % 2 || !/\p{L}/u.test(p)) return p;
+                const lead = /^\s*/.exec(p)[0], tail = /\s*$/.exec(p)[0];
+                const r = renderPlain(p, ctx);
+                if (r.changed) changed = true;
+                return r.changed ? lead + r.text + tail : p;
+            });
+            return { text: parts.join(""), changed };
+        }
+        return renderPlain(text, ctx);
+    }
+
+    function renderPlain(text, ctx) {
         const a = analyze(text, ctx);
         const out = a.tokens.map(t => ({ t, say: null, pri: 0 }));
         // a lexicon unit with its own reading replaces its words ("La La Land" -> <en>lah lah land</en>)

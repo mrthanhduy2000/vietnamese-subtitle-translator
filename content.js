@@ -22,6 +22,7 @@ const state = {
     glossaryEnabled: true,
     glossaryMisses: 0,
     glossaryTranslateAs: new Map(),
+    glossaryCanon: new Map(),    // lower-case form -> canonical spelling of the brands matched case-insensitively
     glossaryFp: "",             // the user's own glossary choices, part of the translation cache key
     reExact: null,
     reLoose: null,
@@ -212,6 +213,17 @@ function needsExactCase(term) {
     return /[A-Z]/.test(term);
 }
 
+// A brand with a capital inside ("ChatGPT", "PyTorch", "iPhone") is also found in a lower-case caption:
+// automatic captions are written in lower case ("chatgpt", "github"). Only when its lower-case form is
+// not an English word ("palm" for PaLM, "rope" for RoPE, "got" for GoT): CST_LOOSE_BRAND_SKIP lists the
+// ones that are, made from a word list by tools/brand-loose-skip.js. Four letters at least.
+function isLooseBrand(term, skip) {
+    if (!/[a-z][A-Z]/.test(term)) return false;
+    const low = term.toLowerCase();
+    if (/\s/.test(low)) return true;
+    return low.length >= 4 && !skip.has(low);
+}
+
 // Bien mot thuat ngu thanh mau nhan dien, co chap nhan dang so nhieu.
 // Day la phan sua loi quan trong: truoc day "landing page" khong bat duoc
 // "landing pages", "AI agent" khong bat duoc "AI agents".
@@ -368,11 +380,17 @@ function rebuildGlossaryRegex() {
     const loose = [];
     const riskyList = [];
 
+    state.glossaryCanon = new Map();
+    const skipBrand = new Set(typeof CST_LOOSE_BRAND_SKIP !== "undefined" ? CST_LOOSE_BRAND_SKIP : []);
     for (const term of state.glossaryKeep) {
         if (!term || term.length < 2) continue;
         if (risky.has(term)) riskyList.push(term);
-        else if (needsExactCase(term)) exact.push(term);
-        else loose.push(term);
+        else if (needsExactCase(term)) {
+            if (isLooseBrand(term, skipBrand)) {
+                loose.push(term);
+                if (!state.glossaryCanon.has(term.toLowerCase())) state.glossaryCanon.set(term.toLowerCase(), term);
+            } else exact.push(term);
+        } else loose.push(term);
     }
 
     try {
@@ -406,7 +424,15 @@ function rebuildGlossaryRegex() {
 // The rendering declared for a matched term. The match patterns accept plurals, the map holds the
 // singular: "interest rates" and "case studies" must find "interest rate" and "case study".
 function translateAsFor(match) {
-    const map = state.glossaryTranslateAs;
+    return inflectedLookup(state.glossaryTranslateAs, match);
+}
+
+// The canonical spelling of a brand that matched loosely: "chatgpt" in a lowercase caption is kept as "ChatGPT".
+function canonicalFor(match) {
+    return inflectedLookup(state.glossaryCanon, match);
+}
+
+function inflectedLookup(map, match) {
     const k = String(match).toLowerCase();
     if (map.has(k)) return map.get(k);
     if (k.endsWith("ies") && map.has(k.slice(0, -3) + "y")) return map.get(k.slice(0, -3) + "y");
@@ -443,7 +469,7 @@ function protectGlossary(text) {
         // thi dien dang muon hien, nguoc lai giu nguyen ban goc
         const custom = translateAsFor(match);
         const id = terms.length;
-        terms.push(custom !== undefined ? custom : match);
+        terms.push(custom !== undefined ? custom : (canonicalFor(match) || match));
         // Dung token an toan co khoang trang bao boc de may dich khong dinh tu lien vao token
         return ` [[__T${id}__]] `;
     };
@@ -1451,7 +1477,20 @@ async function csReadSaved(key, groups) {
     }
 }
 
-async function csWriteSaved(key, groups, translations) {
+// The index is read, changed and written back: two saves at once (two windows of one lecture, or two
+// tabs) each read the old index and the later write dropped the other's entry. One at a time per tab,
+// and across tabs of the same site under a Web Lock when the page has one.
+let csSaveQueue = Promise.resolve();
+function csWriteSaved(key, groups, translations) {
+    const run = () => csWriteSavedNow(key, groups, translations);
+    const locked = () => (typeof navigator !== "undefined" && navigator.locks && navigator.locks.request
+        ? navigator.locks.request("cst-cscache-index", run) : run());
+    const next = csSaveQueue.then(locked, locked);
+    csSaveQueue = next.catch(() => {});
+    return next;
+}
+
+async function csWriteSavedNow(key, groups, translations) {
     if (groups.some((g, gi) => String(g.text || "").trim() && !String(translations[gi] || "").trim())) return false;
     try {
         const luc = Date.now();
