@@ -1,5 +1,9 @@
 # Handoff (2026-10-24, 3.0.7)
 
+## Security pass (2026-10-24, lane D, tools only)
+- Audited install scripts, manifest, messaging, localhost VieNeu, key storage, innerHTML: only two real gaps. Fixed: voice server refuses non-loopback Host and non-extension Origin (`_LoopbackOnly` in the patched `openai_speech.py`, patch regenerated against the pinned commit); Windows installer checks the Microsoft signature of vc_redist before the elevated run.
+- Accepted, not changed: uv installed via vendor `curl | sh` (unpinned), key lives in storage.sync (syncs to the Google account, by design), share zip comes from public `main`. Reaches users only after `publish-share.js --stage/--promote` on the Mac.
+
 Audit 2026-10-24: `npm test` 934 pass, 0 fail; BACKLOG holds only items that need the Mac, an ear or paid calls. LaunchAgent install below is still not done (auto mode blocked it from the remote session).
 
 ## Auto-update of the author's git checkout (2026-10-23, lane D, tools only)

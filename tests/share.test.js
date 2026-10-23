@@ -826,3 +826,18 @@ test("release-model checks every asset's GitHub sha256 digest and cleans its sta
     assert.doesNotMatch(notes, /undefined/);
     fs.rmSync(dir, { recursive: true, force: true });
 });
+
+test("the local voice server refuses web pages and rebound host names", () => {
+    const py = R("tools/share/vieneu/openai_speech.py");
+    assert.match(py, /app\.add_middleware\(_LoopbackOnly\)/);
+    assert.match(py, /startswith\("chrome-extension:\/\/"\)/);
+    assert.match(R("tools/share/vieneu/openai_speech.patch"), /\+class _LoopbackOnly/);
+});
+
+test("the Windows installer checks the Microsoft signature before running the elevated download", () => {
+    const ps = R("tools/share/install-windows.ps1");
+    const sig = ps.indexOf("Get-AuthenticodeSignature");
+    assert.ok(sig > 0 && sig < ps.indexOf("-Verb RunAs"));
+    assert.match(ps, /O=Microsoft Corporation/);
+    assert.ok(!/[^\x00-\x7f]/.test(ps), "the script must stay ASCII");
+});
