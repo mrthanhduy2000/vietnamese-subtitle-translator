@@ -2194,11 +2194,13 @@ const ROUTES = {
 };
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (!request || typeof request !== "object") return false;
     if (request.action === "ttsAbort") {
         sendResponse(handleTtsAbort(request));
         return false;
     }
-    const route = ROUTES[request.action];
+    // Own keys only: "constructor" or "__proto__" must not resolve to an Object.prototype member.
+    const route = Object.prototype.hasOwnProperty.call(ROUTES, request.action) ? ROUTES[request.action] : null;
     if (!route) return false;
     route(request, sender).then(sendResponse).catch(err => sendResponse({ ok: false, errorType: err.type || "unknown", error: err.message }));
     return true;
