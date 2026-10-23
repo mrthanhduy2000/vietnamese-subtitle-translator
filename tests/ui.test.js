@@ -994,3 +994,16 @@ test("overlay: font never drops under 12 px, motion follows the system setting, 
     assert.doesNotMatch(R("youtube.js"), /rong \* 0\.026, 40\)\);\n\s*const scale/);
     assert.equal(S.prefersReducedMotion(), false, "no matchMedia in node means no preference");
 });
+
+test("legibility: same-colour box, or no box and no outline, is flagged; the defaults and sane choices are not", () => {
+    const S = require("../subtitle-style.js");
+    assert.equal(S.legibilityIssue({}), null, "defaults");
+    assert.equal(S.legibilityIssue({ bgOpacity: 0, strokeStyle: "thick", strokeColor: "#000000", fontColor: "#ffffff" }), null, "outline only");
+    assert.equal(S.legibilityIssue({ bgColor: "#ffffff", bgOpacity: 90, fontColor: "#f5f5f5" }).level, "bad");
+    assert.equal(S.legibilityIssue({ bgOpacity: 0, strokeStyle: "none" }).level, "bad");
+    assert.equal(S.legibilityIssue({ bgOpacity: 10, strokeStyle: "shadow", strokeColor: "#ffffff", fontColor: "#ffffff" }).level, "warn");
+    assert.equal(S.legibilityIssue({ bgOpacity: 50, bgColor: "#ffffff", fontColor: "#ffffff" }), null, "a half-clear box is judged by the outline rule only when absent");
+    assert.ok(Math.abs(S.contrastRatio("#000000", "#ffffff") - 21) < 1e-9);
+    assert.match(R("options.js"), /legibilityIssue\(s\)/);
+    assert.match(R("options.html"), /id="legibilityHint"/);
+});
