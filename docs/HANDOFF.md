@@ -1,6 +1,10 @@
-# Handoff (2026-10-23, 2.9.5)
+# Handoff (2026-10-23, 2.9.8)
 
 ## State
+- 2.9.8 (lane C, UI): popup and Settings text now reach WCAG AA 4.5:1 in light and dark (muted/secondary
+  tokens, new `--claude-accent-fill` / `--claude-success-fill` behind white button text, `--primary-text`
+  for the options value pill). Guarded by the "popup contrast" test in `tests/ui.test.js`. Not run on
+  the Mac: popup rendered only in headless Chromium with the web shim.
 - 2.9.7 (lane D, background.js): `stripAddedFormatting` removes echoed list numbers, *italics*, <i>/<b>,
   HTML entities only when the source line lacks them; `sanitizeModelOutput` drops zero-width chars and NBSP.
   `TR_PROMPT_VERSION` unchanged (no prompt edit). Prompt text itself judged mature; nothing measurable offline.
