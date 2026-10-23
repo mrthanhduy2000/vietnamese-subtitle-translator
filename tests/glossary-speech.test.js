@@ -39,3 +39,10 @@ test("2.6.0: every generated respelling belongs to a name the glossary still kee
     const stale = Object.keys(SPEECH.GLOSSARY_SAY).filter(k => !kept.has(k));
     assert.deepEqual(stale, []);
 });
+
+test("2.9.9: a letter of an already tagged English span is not tagged a second time", () => {
+    // the glossary has an entry "R" (the language): it must not wrap the r of "<en>c r h</en>"
+    assert.equal(voice("Tôi đi tàu CRH3 sáng nay."), "Tôi đi tàu <en>c r h</en> 3 sáng nay.");
+    assert.equal(voice("Gen BRCA1 liên quan ung thư."), "Gen <en>b r c a</en> 1 liên quan ung thư.");
+    assert.equal(SPEECH.vieneuText("Tôi dùng <en>c r h</en> 3 và Python."), "Tôi dùng <en>c r h</en> 3 và Python.");
+});
