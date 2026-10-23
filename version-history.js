@@ -4,16 +4,16 @@
 (function (root) {
     const HISTORY = [
         {
-            v: "2.9.6", luc: "23/10/2026", ten: "Không hiện thông báo hết hạn mức của MyMemory làm phụ đề",
-            y: [
-                "Khi Google Translate lỗi và dịch vụ dự phòng MyMemory hết hạn mức trong ngày, nó trả về một câu cảnh báo bằng tiếng Anh với mã HTTP 200. Trước đây câu cảnh báo đó bị hiện lên màn hình như một dòng phụ đề. Nay nó bị loại và dòng đó để trống để dịch lại sau."
-            ]
-        },
-        {
             v: "2.9.7", luc: "23/10/2026", ten: "Bản dịch sạch hơn khi mô hình thêm định dạng",
             y: [
                 "Bỏ số thứ tự mô hình chép thừa ở đầu câu, dấu sao in nghiêng, thẻ <i>/<b> và mã HTML (&amp;), chỉ khi câu gốc không có sẵn những dấu đó.",
                 "Bỏ ký tự vô hình (zero-width) và đổi khoảng trắng không ngắt dòng thành khoảng trắng thường, để giọng đọc không bị lệch."
+            ]
+        },
+        {
+            v: "2.9.6", luc: "23/10/2026", ten: "Không hiện thông báo hết hạn mức của MyMemory làm phụ đề",
+            y: [
+                "Khi Google Translate lỗi và dịch vụ dự phòng MyMemory hết hạn mức trong ngày, nó trả về một câu cảnh báo bằng tiếng Anh với mã HTTP 200. Trước đây câu cảnh báo đó bị hiện lên màn hình như một dòng phụ đề. Nay nó bị loại và dòng đó để trống để dịch lại sau."
             ]
         },
         {
