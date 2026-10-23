@@ -976,3 +976,21 @@ test("popup contrast: muted and secondary text, white-on-accent button and dark 
         assert.ok(ratio("#FFFFFF", t["success-fill"]) >= 4.5, `${name}: white on the success button`);
     }
 });
+
+test("overlay: font never drops under 12 px, motion follows the system setting, both sites share one transition", () => {
+    const S = require("../subtitle-style.js");
+    assert.equal(S.overlayFontPx(400, 100), 12, "a 400 px mini player used to get 9.8 px text");
+    assert.ok(Math.abs(S.overlayFontPx(1920, 100) - 28) < 1e-9, "base is capped at 40 px, scaled by 0.7");
+    assert.ok(S.overlayFontPx(1920, 200) > S.overlayFontPx(1920, 100), "the viewer's size still scales it");
+    assert.equal(S.overlayFontPx(undefined, 100), S.overlayFontPx(640, 100));
+    assert.match(S.overlayTransition(false), /top 0\.18s/, "top animates too");
+    assert.doesNotMatch(S.overlayTransition(true), /transform|bottom|top|max-width/);
+    assert.match(S.overlayTransition(true), /opacity/);
+    for (const f of ["youtube.js", "content.js"]) {
+        assert.match(R(f), /overlayTransition\(/, f);
+        assert.doesNotMatch(R(f), /cubic-bezier\(\.16,1,\.3,1\)/, f + " kept its own copy of the transition");
+    }
+    assert.doesNotMatch(R("content.js"), /width \* 0\.026/);
+    assert.doesNotMatch(R("youtube.js"), /rong \* 0\.026, 40\)\);\n\s*const scale/);
+    assert.equal(S.prefersReducedMotion(), false, "no matchMedia in node means no preference");
+});
