@@ -100,7 +100,7 @@ Shared and settings pages:
 ## Tests and tooling (`tests/*.js`: 42 files, ~14,900 lines)
 
 See `TESTING.md`. Short version: 28 files in `npm test` (listed in `package.json`: a new test file must be added there), all offline; 4 manual scripts;
-12 browser harness pages under `tests/harness/` (`live.html` has its own server, `live-server.js`; `headless.js` runs any of them in a headless Chrome); `tests/pin-cases.py` holds the Python scenarios `share.test.js` runs (`vieneu-pin.py` and the updater in-process, the network scripted, sleeps recorded); `tools/bump-version.js` owns the version number;
+12 browser harness pages under `tests/harness/` (`live.html` has its own server, `live-server.js`; `headless.js` runs any of them in a headless Chrome); `tests/pin-cases.py` holds the Python scenarios `share.test.js` runs (`vieneu-pin.py` and the updater in-process, the network scripted, sleeps recorded); `tools/bump-version.js` owns the version number; `tools/git-autoupdate.js` keeps the author's git checkout on origin/main (LaunchAgent, `tests/git-autoupdate.test.js`);
 `tools/doc-sizes.js` (1.9.4) rewrites the Lines column and the counts above, the "~Tests" column of
 `TESTING.md`, and reports what it cannot write: a test file with no row in `TESTING.md`, stale sizes
 in `CLAUDE.md` (`--check` changes nothing, exits 1 when off). `/ban-giao` runs it.
