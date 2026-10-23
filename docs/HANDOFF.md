@@ -15,6 +15,8 @@
 - Udemy, edX, Vimeo embeds still open (BACKLOG 9).
 
 ## State
+- unreleased (lane A, loose brand match): inner-capital brands match in lower case, minus 49 English-word
+  collisions (`docs/changes/loose-brand-match.md`). Regenerate the skip list after big glossary releases.
 - unreleased (lane A/D, glossary protection): the window cache key no longer holds protected terms or codes
   (`SUBTITLE.md` "Protected glossary terms and the window cache"); matcher buckets warm up in idle slices
   (first `protectGlossary` 50-80 ms -> ~2 ms). `tests/glossary-cache.test.js`. `regress.js` not run.

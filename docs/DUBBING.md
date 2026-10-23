@@ -1374,8 +1374,11 @@ Selected by the `dubProvider` setting. `createVieneuProvider` / `createGeminiPro
 `createWebSpeechProvider` in `dub-engine.js`.
 
 **1.8.1: the paid voice is switched off** (`cost-policy.js` `PAID_TTS = false`, the user's choice on
-2026-09-27). VieNeu is the only voice: `dubbing.js` never builds Gemini or system providers and has no
-fallback (VieNeu down: a toast, then it waits for the server and starts by itself); the service
+2026-09-27). VieNeu is the only *paid-free AI* voice: `dubbing.js` never builds Gemini providers. 2.9.8: with
+`dubSystemFallback` (default on, Settings > Lồng tiếng) the browser's Vietnamese Web Speech voice speaks when
+VieNeu is not running (toast, then `doiVieNeuSanSang` hands back to VieNeu) and is the engine's `fallback`
+when VieNeu reports `local_unavailable` mid-video; off = the old behaviour (a toast, then it waits for the
+server and starts by itself); the service
 worker answers a non-local `synthesizeSpeech` with `errorType: "disabled"` before any request;
 Settings has no voice source picker (2.5.5: the picker, the Gemini and system voice selects and the
 TTS model box are gone; `collectSettings` writes `dubProvider` "vieneu" and the old defaults); a stored

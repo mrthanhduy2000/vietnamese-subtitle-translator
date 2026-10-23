@@ -129769,3 +129769,38 @@ Spearman correlation|tương quan hạng Spearman
 multicollinearity|đa cộng tuyến
 heteroscedasticity|phương sai thay đổi
 `);
+
+// ============================================================ specialist terms, batch 2 (legal, engineering, operations, marketing)
+CST_GLOSSARY_EXTRA_ADD("legal", null, `
+=habeas corpus
+=probable cause
+=tort
+=fiduciary duty
+=eminent domain
+=easement
+=lien
+injunction|lệnh cấm tạm thời
+`);
+CST_GLOSSARY_EXTRA_ADD("engineering", null, `
+yield strength|giới hạn chảy
+Young's modulus|mô-đun Young
+PID controller|bộ điều khiển PID
+embedded system|hệ thống nhúng
+=op-amp
+three-phase power|điện ba pha
+power factor|hệ số công suất
+BIM
+LEED
+bullwhip effect|hiệu ứng roi da
+bill of materials|bảng kê vật tư
+EDI
+TQM
+OEE
+critical path method|phương pháp đường găng
+PERT
+work breakdown structure|cấu trúc phân rã công việc
+stakeholder analysis|phân tích các bên liên quan
+BCG matrix|ma trận BCG
+email deliverability|khả năng gửi email vào hộp thư đến
+IEP
+`);
