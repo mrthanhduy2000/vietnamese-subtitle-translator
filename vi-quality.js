@@ -183,7 +183,8 @@
         "tan", "son", "man", "cam", "pin", "ham", "lam", "rang", "tim", "chi", "lan", "nam", "bao", "sau", "mai", "nay", "tao", "axit"]);
     // A web address, an e-mail or a handle is copied, never translated ("betterhelp.com/malamalife"
     // made "betterhelp" and "com" two leftovers of a sponsor line and paid for a refine, 2.3.2)
-    const ADDRESS_RE = /(?:https?:\/\/)?(?:[\w-]+\.)+[a-z]{2,}(?:\/\S*)?|[\w.-]+@[\w-]+(?:\.[\w-]+)+|@[\w.]+/gi;
+    // labels and their count capped (DNS limits): unbounded runs made one 30,000-letter word cost 1.2 s (quadratic backtracking)
+    const ADDRESS_RE = /(?:https?:\/\/)?(?:[\w-]{1,63}\.){1,12}[a-z]{2,63}(?:\/\S*)?|[\w.-]{1,64}@[\w-]{1,63}(?:\.[\w-]{1,63}){1,12}|@[\w.]+/gi;
 
     // (2.7.4) A substance is named, not translated: "retinol", "tretinoin", "niacinamide", "axit
     // hyaluronic", "lactic acid". Listing them one batch at a time (LOANWORDS) never ends, so they are
@@ -269,7 +270,7 @@
         // Sót tiếng Anh (không tính tên riêng, viết tắt, thuật ngữ được giữ)
         const keep = new Set([...(opts.keep || [])].map(x => String(x).toLowerCase()));
         (opts.terms || []).forEach(t => String(t.vi || "").split(/\s+/).forEach(w => keep.add(w.toLowerCase())));
-        const leftovers = englishLeftovers(v, keep).filter(w => new RegExp(`\\b${w}\\b`, "i").test(s));
+        const leftovers = englishLeftovers(v, keep).filter(w => (w.length > 60 ? s.toLowerCase().includes(w.toLowerCase()) : new RegExp(`\\b${w}\\b`, "i").test(s)));
         const srcWords = (s.match(/[A-Za-z]+/g) || []).length || 1;
         if (leftovers.length >= 3 || (leftovers.length >= 2 && leftovers.length / srcWords > 0.2)) {
             add("untranslated", leftovers.length >= 3 ? 3 : 2, `còn từ tiếng Anh chưa dịch: ${leftovers.slice(0, 5).join(", ")}`, "dịch hoặc giữ có chủ ý");

@@ -47,8 +47,12 @@
 
     // 175 -> "một trăm bảy mươi lăm"; 2024 -> "hai nghìn không trăm hai mươi tư"
     function numberToVietnamese(num) {
+        // Past 15 digits a double has lost the low digits and "units" below runs out (1e18 read "một"):
+        // such a run is an id or a serial, said digit by digit like a long fraction
+        if (typeof num === "string" && /^\d{16,}$/.test(num)) return num.split("").join(" ");
         let n = Math.floor(Math.abs(Number(num)));
         if (!Number.isFinite(n)) return String(num);
+        if (n >= 1e18) return BigInt(n).toString().split("").join(" ");
         if (n === 0) return "không";
         const units = ["", "nghìn", "triệu", "tỷ", "nghìn tỷ", "triệu tỷ"];
         const groups = [];
@@ -237,9 +241,9 @@
         // never a thousand). 1.234 and 12.500 stay Vietnamese thousands
         t = t.replace(/(?<![\p{N}.,])(\d+)[.,](\d+)(?![.,]?\d)/gu, (m0, a, b) =>
             b.length >= 4 || (b.length === 3 && /^0+$/.test(a)) ? `${a} phẩy ${b.split("").join(" ")}` : m0);
-        t = t.replace(/\b\d{1,3}(?:\.\d{3})+(?![.,]?\d)|\b\d{1,3}(?:,\d{3})+(?![.,]?\d)/g, m => numberToVietnamese(Number(m.replace(/[.,]/g, ""))));
+        t = t.replace(/\b\d{1,3}(?:\.\d{3})+(?![.,]?\d)|\b\d{1,3}(?:,\d{3})+(?![.,]?\d)/g, m => numberToVietnamese(m.replace(/[.,]/g, "")));
         // a run starting with 0 is an identifier (tax code, phone): the server says it digit by digit
-        t = t.replace(/\b(?!0)\d{7,}\b/g, m => numberToVietnamese(Number(m)));
+        t = t.replace(/\b(?!0)\d{7,}\b/g, m => numberToVietnamese(m.length > 15 ? m : Number(m)));
         // A hyphenated identifier with a number in it is one name, not a range: "GPT-5.6",
         // "Llama-3.3-70B", "COVID-19", a model id with a version inside. The server says the hyphen
         // ("gạch ngang", "dash") and reads the dot as a decimal ("phẩy"): split into words, dots "chấm".
@@ -281,7 +285,8 @@
         // 2.6.1: "+" inside an English name is "and" ("Travel + Leisure", "Florence + The Machine"),
         // glued to its end "plus" ("Disney+", "Apple TV+", "C++"); between numbers still "cộng"
         const enName = w => /^[A-Z][A-Za-z'’.]*$/.test(w) && !(SEG && SEG.isVietWord && SEG.isVietWord(w.replace(/['’]s$|\.$/i, "").toLowerCase()));
-        t = t.replace(/([A-Za-z][A-Za-z'’.]*)\s\+\s([A-Z][A-Za-z'’.]*)/g, (m0, a, b) => (enName(a) || enName(b) ? `${a} and ${b}` : m0));
+        // word lengths are bounded below: an unbounded run made one 100,000-letter word cost 22 s (quadratic scan)
+        t = t.replace(/([A-Za-z][A-Za-z'’.]{0,40})\s\+\s([A-Z][A-Za-z'’.]{0,40})/g, (m0, a, b) => (enName(a) || enName(b) ? `${a} and ${b}` : m0));
         t = t.replace(/(?<![\p{L}\p{N}])([A-Za-z][A-Za-z0-9]*)(\+{1,2})(?![\p{L}\p{N}+])/gu, (m0, w, plus) =>
             /^[A-Z]/.test(w) || w.length === 1 ? `${w} ${plus.length === 2 ? "plus plus" : "plus"}` : m0);
         t = t.replace(/\s\+\s/g, " cộng ");
@@ -289,7 +294,7 @@
         // 2.6.0: "&" inside an English name ("Johnson & Johnson", "Ben & Jerry's") is "and", said the
         // English way; between Vietnamese words, or Vietnamese-syllable ones ("Nam & Lan"), "và"
         const enWord = w => /^[A-Za-z][A-Za-z'’.]*$/.test(w) && !(SEG && SEG.isVietWord && SEG.isVietWord(w.replace(/['’]s$|\.$/i, "").toLowerCase()));
-        t = t.replace(/([A-Za-z][A-Za-z'’.]*)\s&\s([A-Z][A-Za-z'’.]*)/g, (m0, a, b) => (enWord(a) || enWord(b) ? `${a} and ${b}` : m0));
+        t = t.replace(/([A-Za-z][A-Za-z'’.]{0,40})\s&\s([A-Z][A-Za-z'’.]{0,40})/g, (m0, a, b) => (enWord(a) || enWord(b) ? `${a} and ${b}` : m0));
         t = t.replace(/\s&\s/g, " và ");
         // Đơn vị đo đọc như người Việt nói: "60 km/h" -> "60 ki-lô-mét trên giờ"
         const UNIT_SAY = { km: "ki-lô-mét", m: "mét", cm: "xen-ti-mét", mm: "mi-li-mét", kg: "ki-lô-gam", g: "gam", h: "giờ", s: "giây", ms: "mi-li-giây", min: "phút" };
@@ -309,7 +314,7 @@
         });
         // (2.8.3) a slash between words (after the web addresses and the units: "km/h"): "per" before a unit of time or count
         // ("dặm/giờ" một giờ, "50 nghìn/người"), kept between single letters ("P/E", "A/B"), "or" else
-        t = t.replace(/(\p{L}+)\s*\/\s*(\p{L}+)/gu, (m0, a, b) =>
+        t = t.replace(/(\p{L}{1,40})\s*\/\s*(\p{L}{1,40})/gu, (m0, a, b) =>
             (a.length < 2 && b.length < 2 || /^(?:km|m|cm|mm|kg|g)$/i.test(a) && /^(?:h|s|min)$/i.test(b) ? m0
                 : /^(?:giờ|phút|giây|ngày|tuần|tháng|năm|người|lần|suất|cái|chiếc|gói|hộp|kg|ký|cân|lít|m2|tiếng|h|s|min)$/i.test(b) ? `${a} một ${b}` : `${a} hoặc ${b}`));
         t = t.replace(/\be\.g\.,?/gi, "ví dụ,").replace(/\bi\.e\.,?/gi, "tức là,");

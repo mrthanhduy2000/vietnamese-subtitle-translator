@@ -397,26 +397,29 @@ function ytDocNoiDungPhuDe(rawText) {
     // Cách 1: Thử parse dạng JSON3
     try {
         const data = JSON.parse(rawText);
-        const events = data.events || [];
+        const events = Array.isArray(data && data.events) ? data.events : [];
         parsedEvents = events.length;
         for (const ev of events) {
-            if (!ev.segs) continue;
+            if (!ev || !Array.isArray(ev.segs)) continue;
+            ev.segs = ev.segs.filter(sg => sg && typeof sg === "object").map(sg => ({ utf8: sg.utf8 == null ? "" : String(sg.utf8), tOffsetMs: sg.tOffsetMs }));
             const text = ev.segs
-                .map(s => s.utf8 || "")
+                .map(s => s.utf8)
                 .join("")
                 .replace(/\s+/g, " ")
                 .trim();
             if (!text || text === "\n") continue;
 
-            const start = (ev.tStartMs || 0) / 1000;
-            const dur = (ev.dDurationMs || 0) / 1000;
+            // a time that is not a finite number (hostile or truncated JSON) counts as 0
+            const ms = v => (Number.isFinite(Number(v)) ? Number(v) : 0);
+            const start = ms(ev.tStartMs) / 1000;
+            const dur = ms(ev.dDurationMs) / 1000;
             // Phu de tu dong co thoi gian TUNG TU (tOffsetMs): bo phan doan dung
             // de dat diem cat tieng Viet dung nhip noi thay vi noi suy tuyen tinh
             const words = [];
             for (const sg of ev.segs) {
                 const w = (sg.utf8 || "").trim();
                 if (!w) continue;
-                words.push({ text: w, t: start + (sg.tOffsetMs || 0) / 1000 });
+                words.push({ text: w, t: start + ms(sg.tOffsetMs) / 1000 });
             }
             // A block of several rows with no word times (the display form of a track, 2.6.7):
             // its rows are said one after another, so each gets its own cue below
