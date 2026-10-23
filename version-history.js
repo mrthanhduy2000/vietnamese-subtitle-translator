@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.9.7", luc: "23/10/2026", ten: "Chữ phụ và nút chính dễ đọc hơn trong cửa sổ nhỏ và trang Cài đặt",
+            y: [
+                "Chữ mô tả, nhãn phiên bản và dòng phím tắt trong cửa sổ nhỏ trước đây chỉ đạt khoảng 3:1 độ tương phản (chuẩn dễ đọc là 4,5:1), nhất là ở nền sáng. Nay tất cả đạt từ 4,5:1 trở lên ở cả giao diện sáng lẫn tối.",
+                "Nút Bắt đầu dịch dùng cam đậm hơn một chút để chữ trắng rõ hơn (3,1:1 lên 4,8:1). Nút báo thành công ở giao diện tối không còn là chữ trắng trên nền xanh nhạt.",
+                "Trang Cài đặt: chữ phụ, nút Song ngữ và nhãn phần trăm cũng đạt 4,5:1. Không đổi cách dịch hay lồng tiếng."
+            ]
+        },
+        {
             v: "2.9.6", luc: "23/10/2026", ten: "Không hiện thông báo hết hạn mức của MyMemory làm phụ đề",
             y: [
                 "Khi Google Translate lỗi và dịch vụ dự phòng MyMemory hết hạn mức trong ngày, nó trả về một câu cảnh báo bằng tiếng Anh với mã HTTP 200. Trước đây câu cảnh báo đó bị hiện lên màn hình như một dòng phụ đề. Nay nó bị loại và dòng đó để trống để dịch lại sau."
