@@ -4,12 +4,20 @@
 (function (root) {
     const HISTORY = [
         {
-            v: "2.9.8", luc: "23/10/2026", ten: "Nạp từ điển nhanh hơn khi mở trang",
+            v: "2.9.9", luc: "23/10/2026", ten: "Nạp từ điển nhanh hơn khi mở trang",
             y: [
                 "Gộp danh sách tên riêng vào từ điển nhanh hơn rõ rệt (đo ngoại tuyến trên 87.000 mục), không đổi kết quả dịch.",
                 "Bớt một bước tạo tập hợp 90.000 mục khi trang Coursera/YouTube nạp từ điển."
             ],
             bang: { cot: ["Đo ngoại tuyến", "Trước", "Nay"], hang: [["Gộp dữ liệu từ điển (ms)", "159", "86"], ["Nạp từ điển trong trang (ms)", "115", "95"]] }
+        },
+        {
+            v: "2.9.8", luc: "23/10/2026", ten: "Chữ phụ và nút chính dễ đọc hơn trong cửa sổ nhỏ và trang Cài đặt",
+            y: [
+                "Chữ mô tả, nhãn phiên bản và dòng phím tắt trong cửa sổ nhỏ trước đây chỉ đạt khoảng 3:1 độ tương phản (chuẩn dễ đọc là 4,5:1), nhất là ở nền sáng. Nay tất cả đạt từ 4,5:1 trở lên ở cả giao diện sáng lẫn tối.",
+                "Nút Bắt đầu dịch dùng cam đậm hơn một chút để chữ trắng rõ hơn (3,1:1 lên 4,8:1). Nút báo thành công ở giao diện tối không còn là chữ trắng trên nền xanh nhạt.",
+                "Trang Cài đặt: chữ phụ, nút Song ngữ và nhãn phần trăm cũng đạt 4,5:1. Không đổi cách dịch hay lồng tiếng."
+            ]
         },
         {
             v: "2.9.7", luc: "23/10/2026", ten: "Bản dịch sạch hơn khi mô hình thêm định dạng",
