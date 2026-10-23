@@ -3949,7 +3949,25 @@
         return hit;
     }
 
+    // Text that already carries <en> spans (adaptForSpeech runs first): the words inside a span are
+    // final. Analysing them again let a glossary entry such as "R" wrap a letter of "<en>c r h</en>"
+    // in a second span ("<en>c <en>r</en> h</en>"), which the front end read as Vietnamese.
     function renderUncached(text, ctx) {
+        if (text.includes("<en>")) {
+            let changed = false;
+            const parts = text.split(/(<en>[\s\S]*?<\/en>)/).map((p, i) => {
+                if (i % 2 || !/\p{L}/u.test(p)) return p;
+                const lead = /^\s*/.exec(p)[0], tail = /\s*$/.exec(p)[0];
+                const r = renderPlain(p, ctx);
+                if (r.changed) changed = true;
+                return r.changed ? lead + r.text + tail : p;
+            });
+            return { text: parts.join(""), changed };
+        }
+        return renderPlain(text, ctx);
+    }
+
+    function renderPlain(text, ctx) {
         const a = analyze(text, ctx);
         const out = a.tokens.map(t => ({ t, say: null, pri: 0 }));
         // a lexicon unit with its own reading replaces its words ("La La Land" -> <en>lah lah land</en>)
