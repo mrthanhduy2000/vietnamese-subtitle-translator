@@ -37,11 +37,15 @@ const SPEECH = require(path.join(REPO, "dub-speech.js"));
 // tests): the audit leaves them out, and the writer never fills them
 const WEB = /\.(ai|com|org|net|io|gg|js|txt|dev|app|co|me|tv|ly|xyz|fm|so|us|uk|vn|edu|gov)$/i;
 const terms = [];
+const moneyShorthand = [];
 const seen = new Set();
 for (const g of Object.values(globalThis.CST_GLOSSARY_GROUPS)) {
     for (const t of g.terms) {
         const k = t.toLowerCase();
         if (seen.has(k) || (g.vi || {})[k] || !SPEECH.glossaryName(t) || WEB.test(t)) continue;
+        // 2.6.4: "4K", "8K" are Vietnamese money too ("8K" = 8 nghìn): not an English reading, counted here.
+        // Three digits and more ("401k", a retirement plan) stay English
+        if (/^\d{1,2}[km]$/i.test(t)) { moneyShorthand.push(t); continue; }
         seen.add(k);
         terms.push(t);
     }
@@ -69,6 +73,20 @@ const NUM_PH = new Set(g2p(["không một hai ba bốn năm sáu bảy tám chí
 // 2.6.2: readings written by hand for names that no spelling search finds: the English way the name is
 // said, respelled in English letters ("Labubu" lah-boo-boo). Each is still checked by the front end.
 const MANUAL_SAY = {
+    // 2.6.4: codes with a slash ("CI/CD") are said as English letters, the slash is not read.
+    // Bare "4K" and "8K" are left out on purpose: in Vietnamese they also mean money (8K = 8 nghìn)
+    "ci/cd": ["see eye see dee"],
+    "ui/ux": ["you eye you ex"],
+    "ac/dc": ["ay see dee see"],
+    "re/max": ["re max"],
+    "re/done": ["re done"],
+    "care/of": ["care of"],
+    "r/askreddit": ["are ask reddit"],
+    "async/await": ["ay sink ah wait"],
+    "shadcn/ui": ["shad see en you eye"],
+    "fate/grand order": ["fate grand order"],
+    "apple tv 4k": ["apple tee vee for kay"],
+    "caught in 4k": ["caught in for kay"],
     "kep1er": ["kepler"],
     "hometown cha-cha-cha": ["hometown chah chah chah"],
     "la vache qui rit": ["lah vash kee ree"],
@@ -144,6 +162,7 @@ function judge(mode) {
 const before = judge("without"), after = judge("with");
 const show = +arg("show", 30);
 const count = r => r.filter(x => x.vi).length;
+if (moneyShorthand.length) console.log(`money shorthand left as Vietnamese (4K, 8K ...): ${moneyShorthand.length}`);
 console.log(`terms ${list.length} | read Vietnamese: without the glossary bridge ${count(before)}, with it ${count(after)}`);
 const fixed = after.filter((x, i) => before[i].vi && !x.vi), broke = after.filter((x, i) => !before[i].vi && x.vi);
 console.log(`fixed ${fixed.length}, newly Vietnamese ${broke.length}, not read by the front end ${after.filter(x => x.failed).length}`);
@@ -195,7 +214,8 @@ if (process.argv.includes("--write")) {
             const ws = x.term.toLowerCase().trim().split(/\s+/);
             ws.forEach((w, wi) => { for (let k = 2; k < w.length - 1; k++) cands.add(tag(ws.map((y, j) => j === wi ? y.slice(0, k) + " " + y.slice(k) : y).join(" "))); });
         }
-        for (const m of MANUAL_SAY[x.term.toLowerCase()] || []) cands.add(tag(m));
+        // 2.6.4: a hand reading goes first, so a spelling the search finds later cannot take its place
+        for (const m of MANUAL_SAY[x.term.toLowerCase()] || []) jobs.push([x.term, tag(m)]);
         cands.add(tag(words.map(piece).join(" ")));
         cands.add(tag(words.map(w => /^[A-Z]{2,}$/.test(w) ? letters(w) : piece(w)).join(" ")));
         // letters in English, numbers left outside the tag for the Vietnamese numerals ("HTML5", "MP3")

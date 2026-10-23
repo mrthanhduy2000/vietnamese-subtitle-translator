@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.8.9", luc: "23/10/2026", ten: "Giọng đọc tên tiếng Anh có ký hiệu (CI/CD, async/await) theo kiểu quốc tế, từ điển thêm 55 tên",
+            y: [
+                "Các mã có dấu gạch chéo như CI/CD, UI/UX, AC/DC, async/await, RE/MAX được đọc từng chữ cái tiếng Anh, không còn bị đọc thành \"hoặc\".",
+                "Số 4K và 8K không đổi: trong tiếng Việt, chúng còn là số tiền (8K là 8 nghìn), nên giọng vẫn đọc theo tiếng Việt. Mục này được đếm riêng trong phép đo, không tính là lỗi.",
+                "Từ điển thêm 44 tên truyền thông (Wired, Newsweek, Los Angeles Times, Yahoo Finance, Kickstarter...) và 11 tên công nghệ, trò chơi, học trực tuyến."
+            ]
+        },
+        {
             v: "2.8.8", luc: "23/10/2026", ten: "Chú thích \"[nhạc]\" mọi ngôn ngữ, phụ đề trống báo đúng",
             y: [
                 "Chú thích âm thanh như \"[موسیقی]\" (nhạc, tiếng Ba Tư), \"[Muzică]\" (Rumani), \"[μουσική]\" (Hy Lạp) từng bị gửi cho Gemini, Gemini để trống và cả đoạn rơi về Google Dịch. Nay chúng hiện là [Âm nhạc], [Vỗ tay], [Tiếng cười] ngay, và một chú thích lạ bị để trống không còn làm hỏng cả đoạn.",

@@ -156,9 +156,15 @@
         return keepKeys;
     };
     function adaptForSpeech(text) {
-        let t = SEG ? SEG.cleanText(text, { keepHints: true }) : String(text || "");
+        // (2.6.4) letter-led names are kept before cleanText, which turns a slash into "hoặc" ("CI/CD")
         const keep = keepRe();
-        if (keep) for (const re of [keep.sym, keep.re]) if (re) t = t.replace(re, (m, g1, off, all) => {
+        let t = String(text || "");
+        if (keep && keep.re) t = t.replace(keep.re, (m, g1, off, all) => {
+            const r = keep.say[m.toLowerCase()];
+            return r ? (off > 0 && /\p{L}$/u.test(all[off - 1]) ? " " : "") + r : m;
+        });
+        t = SEG ? SEG.cleanText(t, { keepHints: true }) : t;
+        if (keep) for (const re of [keep.sym]) if (re) t = t.replace(re, (m, g1, off, all) => {
             const r = keep.say[m.toLowerCase()];
             return r ? (off > 0 && /\p{L}$/u.test(all[off - 1]) ? " " : "") + r : m;
         });

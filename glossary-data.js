@@ -34911,3 +34911,64 @@ CST_GLOSSARY_EXTRA_ADD("psychology", null, `
 CST_GLOSSARY_EXTRA_ADD("press", null, `
 LA Times
 `);
+
+CST_GLOSSARY_EXTRA_ADD("press", null, `
+~Wired
+Newsweek
+Scientific American
+USA Today
+Los Angeles Times
+Chicago Tribune
+Daily Mail
+New York Post
+Yahoo Finance
+MarketWatch
+Investopedia
+Kotaku
+IGN
+Hollywood Reporter
+TMZ
+Entertainment Weekly
+Hacker News
+Product Hunt
+Kickstarter
+Indiegogo
+Men's Health
+Women's Health
+The Daily Beast
+HuffPost
+Vice News
+Morning Brew
+Semafor
+Sports Illustrated
+Inc. Magazine
+Fast Company
+Harvard Business Review
+Kiplinger
+NerdWallet
+Bankrate
+CoinDesk
+CoinTelegraph
+Decrypt
+Seeking Alpha
+Motley Fool
+Barron's
+Morningstar
+Zacks
+Benzinga
+Stocktwits
+`);
+
+CST_GLOSSARY_EXTRA_ADD("tech", null, `
+Notion AI
+Honkai Star Rail
+Pokemon Go
+Baldur's Gate
+Pluralsight
+Hostinger
+Bluehost
+GoDaddy
+Namecheap
+BigCommerce
+Carousell
+`);
