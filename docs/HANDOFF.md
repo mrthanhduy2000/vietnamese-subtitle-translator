@@ -1,13 +1,18 @@
-# Handoff (2026-10-23, 2.9.9)
+# Handoff (2026-10-23, 2.9.8)
 
 - Test-only change after 2.9.4 (no bump): GitHub Actions `test.yml`, `tests/units.test.js`, `npm run coverage`.
 
 ## State
-- 2.9.9 (lane D, glossary): +140 specialist terms (AI/ML, software, finance, medicine, science, statistics)
-  in the last block of `glossary-data.js`. Probe of ~520 terms: ~80% of mainstream jargon was already
-  there, so only missing ones were added. Renderings from model knowledge (vi.wikipedia, textbooks),
-  not verified by a native reviewer. VieNeu readings of the new `=` and acronym terms not measured
-  (Mac only: `node tools/glossary-pron.js --write`). PSA, EMA, ACH, PPO left out as ambiguous.
+- 3.0.1 (lane A/C, notices): `CST_UI.explainError` (content.js) maps a raw failure to one Vietnamese
+  sentence plus an optional action button (reload / open Settings); Coursera "Dịch thất bại" and
+  YouTube "Không dịch được" use it (YouTube auto mode still only logs). Progress "Đang dịch x/y đoạn"
+  now shows in the popup and both on-player menus. Toasts replace each other, so no stacking.
+  Not done: dubbing.js toasts and VieNeu messages were not reworded; "Thread Rà lỗi tiềm ẩn" owns error handling.
+- 3.0.0 (lane A/C): `CST_STYLE.legibilityIssue` + `#legibilityHint` in Settings preview warns on same-colour
+  box or no box and no outline. Warning only. Not seen live.
+- 2.9.9 (lane A, overlay UX): `CST_STYLE.overlayFontPx` (12 px floor, one size formula for YouTube and
+  Coursera), `overlayTransition` (honours prefers-reduced-motion; Coursera now animates `top` too).
+  Not seen on a live page; click Reload and check a narrow/mini player.
 - 2.9.8 (lane C, UI): popup and Settings text now reach WCAG AA 4.5:1 in light and dark (muted/secondary
   tokens, new `--claude-accent-fill` / `--claude-success-fill` behind white button text, `--primary-text`
   for the options value pill). Guarded by the "popup contrast" test in `tests/ui.test.js`. Not run on
