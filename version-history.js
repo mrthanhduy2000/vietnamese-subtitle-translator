@@ -4,6 +4,43 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.0.2", luc: "23/10/2026", ten: "Từ điển bỏ từ thông dụng lọt vào",
+            y: [
+                "Bỏ khoảng 660 mục vừa thêm ở 2.9.2 và 2.9.5: từ tiếng Anh thông dụng bị coi là tên riêng (President, Earth, Major, Honor, Death...) và tên lịch sử che mất bản dịch tiếng Việt đã có (Nội chiến, Chiến tranh vùng Vịnh...).",
+                "Đo trên 3,2 triệu từ phụ đề phim: bỏ được khoảng 2.300 lượt bắt nhầm, tên thật còn nguyên."
+            ]
+        },
+        {
+            v: "3.0.1", luc: "23/10/2026", ten: "Thông báo lỗi dễ hiểu hơn và hiện tiến độ dịch",
+            y: [
+                "Khi dịch lỗi, thông báo giờ nói rõ nguyên nhân bằng tiếng Việt (hết hạn mức, quá giới hạn tốc độ, sai API Key, mất mạng, máy chủ quá tải, tiện ích vừa cập nhật) và chỉ việc nên làm tiếp, kèm nút Tải lại trang hoặc Mở Cài đặt khi cần. Trước đây Coursera luôn bảo kiểm tra mạng dù lỗi do nguyên nhân khác.",
+                "Cửa sổ tiện ích và menu trên trình phát hiện \"Đang dịch x/y đoạn\" thay vì chỉ \"Đang dịch…\"."
+            ]
+        },
+        {
+            v: "3.0.0", luc: "23/10/2026", ten: "Trang Cài đặt cảnh báo khi màu phụ đề khó đọc",
+            y: [
+                "Phần xem trước nay báo ngay khi chữ và nền gần cùng màu, hoặc khi vừa không có nền vừa không có viền (chữ sẽ chìm trên cảnh sáng). Chỉ cảnh báo, không tự đổi lựa chọn của bạn.",
+                "Cài đặt mặc định và các kiểu viền thông thường không bị cảnh báo."
+            ]
+        },
+        {
+            v: "2.9.9", luc: "23/10/2026", ten: "Phụ đề không bị nhỏ quá ở trình phát nhỏ, tôn trọng chế độ giảm chuyển động",
+            y: [
+                "Ở trình phát hẹp (trình phát thu nhỏ, video nhúng, cửa sổ hẹp), chữ phụ đề trước đây có thể chỉ còn 9,8 px. Nay cỡ chữ không bao giờ dưới 12 px; dòng dài được ngắt lại cho vừa khung.",
+                "Nếu hệ điều hành bật giảm chuyển động, phụ đề không còn trượt lên xuống hay dịch ngang khi thanh điều khiển hiện ra, chỉ mờ dần.",
+                "Coursera nay trượt mượt khi phụ đề ở vị trí trên cùng, giống YouTube. Hai trang dùng chung một công thức cỡ chữ và một bộ hiệu ứng."
+            ]
+        },
+        {
+            v: "2.9.8", luc: "23/10/2026", ten: "Chữ phụ và nút chính dễ đọc hơn trong cửa sổ nhỏ và trang Cài đặt",
+            y: [
+                "Chữ mô tả, nhãn phiên bản và dòng phím tắt trong cửa sổ nhỏ trước đây chỉ đạt khoảng 3:1 độ tương phản (chuẩn dễ đọc là 4,5:1), nhất là ở nền sáng. Nay tất cả đạt từ 4,5:1 trở lên ở cả giao diện sáng lẫn tối.",
+                "Nút Bắt đầu dịch dùng cam đậm hơn một chút để chữ trắng rõ hơn (3,1:1 lên 4,8:1). Nút báo thành công ở giao diện tối không còn là chữ trắng trên nền xanh nhạt.",
+                "Trang Cài đặt: chữ phụ, nút Song ngữ và nhãn phần trăm cũng đạt 4,5:1. Không đổi cách dịch hay lồng tiếng."
+            ]
+        },
+        {
             v: "2.9.7", luc: "23/10/2026", ten: "Bản dịch sạch hơn khi mô hình thêm định dạng",
             y: [
                 "Bỏ số thứ tự mô hình chép thừa ở đầu câu, dấu sao in nghiêng, thẻ <i>/<b> và mã HTML (&amp;), chỉ khi câu gốc không có sẵn những dấu đó.",

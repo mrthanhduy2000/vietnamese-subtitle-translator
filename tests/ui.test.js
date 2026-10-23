@@ -950,3 +950,96 @@ test("quick menu: Tab goes round inside it on both players, sliders included", (
     const src = read("content.js") + read("youtube.js");
     assert.equal((src.match(/trapTab\(menu, e\)/g) || []).length, 2, "both quick menus use it");
 });
+
+// Every raw failure maps to one plain Vietnamese sentence that says what to do next
+test("explainError: each failure class gets its own advice, never the raw English", () => {
+    const sb = loadContent(miniDom());
+    const say = m => sb.CST_UI.explainError(new Error(m));
+    const cases = [
+        ["Extension context invalidated.", /tải lại trang/i, true],
+        ["Could not establish connection. Receiving end does not exist.", /chưa phản hồi/i, true],
+        ["Không có phản hồi từ tiện ích", /chưa phản hồi/i, true],
+        ["Gemini x HTTP 429: hết hạn mức trong ngày (429)", /hết hạn mức/i, false],
+        ["Gemini x HTTP 429: vượt giới hạn tốc độ (429)", /1 phút/i, false],
+        ["API Key sai, hết hạn hoặc không đủ quyền", /API Key/i, true],
+        ["Failed to fetch", /kiểm tra mạng/i, false],
+        ["Gemini x HTTP 503: máy chủ Gemini quá tải", /quá tải/i, false],
+        ["something odd", /Chưa dịch được \(something odd\)/, false]
+    ];
+    for (const [raw, re, hasAction] of cases) {
+        const r = say(raw);
+        assert.match(r.text, re, raw);
+        assert.equal(!!r.actionLabel, hasAction, raw + ": action button");
+    }
+});
+
+// 2.9.8: popup text tokens must stay readable (WCAG AA, 4.5:1) in both themes.
+test("popup contrast: muted and secondary text, white-on-accent button and dark success button reach 4.5:1", () => {
+    const css = R("popup.css");
+    const lum = hex => {
+        const c = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255)
+            .map(v => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
+        return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+    };
+    const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+    const tokens = block => Object.fromEntries([...block.matchAll(/--claude-([\w-]+):\s*(#[0-9A-Fa-f]{6})/g)].map(m => [m[1], m[2]]));
+    const light = tokens(css.slice(0, css.indexOf("@media (prefers-color-scheme: dark)")));
+    const darkStart = css.indexOf(':root[data-theme="dark"]');
+    const dark = Object.assign({}, light, tokens(css.slice(darkStart, css.indexOf("* {", darkStart))));
+    for (const [name, t] of [["light", light], ["dark", dark]]) {
+        for (const fg of ["text-secondary", "text-muted"]) {
+            for (const bg of ["bg", "card", "card-subtle", "card-hover"]) {
+                const r = ratio(t[fg], t[bg]);
+                assert.ok(r >= 4.5, `${name}: ${fg} on ${bg} is ${r.toFixed(2)}:1`);
+            }
+        }
+        assert.ok(ratio("#FFFFFF", t["accent-fill"]) >= 4.5, `${name}: white on the primary button`);
+        assert.ok(ratio("#FFFFFF", t["accent-fill-hover"]) >= 4.5, `${name}: white on the hovered button`);
+        assert.ok(ratio("#FFFFFF", t["success-fill"]) >= 4.5, `${name}: white on the success button`);
+    }
+});
+
+test("overlay: font never drops under 12 px, motion follows the system setting, both sites share one transition", () => {
+    const S = require("../subtitle-style.js");
+    assert.equal(S.overlayFontPx(400, 100), 12, "a 400 px mini player used to get 9.8 px text");
+    assert.ok(Math.abs(S.overlayFontPx(1920, 100) - 28) < 1e-9, "base is capped at 40 px, scaled by 0.7");
+    assert.ok(S.overlayFontPx(1920, 200) > S.overlayFontPx(1920, 100), "the viewer's size still scales it");
+    assert.equal(S.overlayFontPx(undefined, 100), S.overlayFontPx(640, 100));
+    assert.match(S.overlayTransition(false), /top 0\.18s/, "top animates too");
+    assert.doesNotMatch(S.overlayTransition(true), /transform|bottom|top|max-width/);
+    assert.match(S.overlayTransition(true), /opacity/);
+    for (const f of ["youtube.js", "content.js"]) {
+        assert.match(R(f), /overlayTransition\(/, f);
+        assert.doesNotMatch(R(f), /cubic-bezier\(\.16,1,\.3,1\)/, f + " kept its own copy of the transition");
+    }
+    assert.doesNotMatch(R("content.js"), /width \* 0\.026/);
+    assert.doesNotMatch(R("youtube.js"), /rong \* 0\.026, 40\)\);\n\s*const scale/);
+    assert.equal(S.prefersReducedMotion(), false, "no matchMedia in node means no preference");
+});
+
+test("legibility: same-colour box, or no box and no outline, is flagged; the defaults and sane choices are not", () => {
+    const S = require("../subtitle-style.js");
+    assert.equal(S.legibilityIssue({}), null, "defaults");
+    assert.equal(S.legibilityIssue({ bgOpacity: 0, strokeStyle: "thick", strokeColor: "#000000", fontColor: "#ffffff" }), null, "outline only");
+    assert.equal(S.legibilityIssue({ bgColor: "#ffffff", bgOpacity: 90, fontColor: "#f5f5f5" }).level, "bad");
+    assert.equal(S.legibilityIssue({ bgOpacity: 0, strokeStyle: "none" }).level, "bad");
+    assert.equal(S.legibilityIssue({ bgOpacity: 10, strokeStyle: "shadow", strokeColor: "#ffffff", fontColor: "#ffffff" }).level, "warn");
+    assert.equal(S.legibilityIssue({ bgOpacity: 50, bgColor: "#ffffff", fontColor: "#ffffff" }), null, "a half-clear box is judged by the outline rule only when absent");
+    assert.ok(Math.abs(S.contrastRatio("#000000", "#ffffff") - 21) < 1e-9);
+    assert.match(R("options.js"), /legibilityIssue\(s\)/);
+    assert.match(R("options.html"), /id="legibilityHint"/);
+});
+
+// Settings tabs follow the WAI-ARIA tab pattern, so a screen reader and the arrow keys work.
+test("options tabs: tablist, tab and tabpanel roles linked by id, arrow keys wired", () => {
+    const html = R("options.html"), js = R("options.js");
+    const tabs = [...html.matchAll(/<button class="nav-tab[^"]*" id="navtab-(tab-\w+)" role="tab" aria-selected="(true|false)" aria-controls="(tab-\w+)"/g)];
+    assert.equal(tabs.length, 5, "every nav tab carries role=tab");
+    assert.equal(tabs.filter(t => t[2] === "true").length, 1, "exactly one selected tab");
+    for (const t of tabs) {
+        assert.equal(t[1], t[3]);
+        assert.ok(html.includes(`id="${t[1]}" class="tab-panel`) && html.includes(`aria-labelledby="navtab-${t[1]}"`), `${t[1]} panel is labelled by its tab`);
+    }
+    assert.ok(html.includes('role="tablist"'));
+    for (const key of ["ArrowRight", "ArrowLeft", "Home", "End"]) assert.ok(js.includes(key), key);
+});

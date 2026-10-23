@@ -8,7 +8,7 @@ on:
 jobs:
   npm-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -16,6 +16,14 @@ jobs:
           node-version: 22
       # The extension has no dependencies and no build step: the suite is fully offline.
       - run: npm test
+      # Informational: line/branch coverage per file in the job summary, never a gate.
+      - name: Coverage summary
+        if: always()
+        run: |
+          echo '### Coverage' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          npm run coverage 2>&1 | sed -n '/start of coverage/,/end of coverage/p' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
 
   # Friends on Windows run the same suite; macOS-only cases skip themselves (docs/WINDOWS.md).
   npm-test-windows:

@@ -85,7 +85,10 @@ async function callMyMemoryTranslate(text, sourceLang = "en", targetLang = "vi")
         // ("MYMEMORY WARNING: YOU USED ALL AVAILABLE FREE TRANSLATIONS..."); that must never be shown
         const mmText = data && data.responseData && data.responseData.translatedText;
         const mmStatus = Number(data && data.responseStatus);
-        if (mmText && (!mmStatus || mmStatus === 200) && !/^\s*(MYMEMORY WARNING|PLEASE SELECT TWO DISTINCT LANGUAGES|INVALID LANGUAGE PAIR)/i.test(mmText)) {
+        // "auto" is read as English here, so a Chinese/Thai/Arabic line comes back unchanged: that echo
+        // is not a translation (a source with no Latin letter at all cannot be its own Vietnamese)
+        const echoed = mmText && mmText.trim() === String(text).trim() && /\p{L}/u.test(text) && !/[A-Za-z\u00C0-\u024F]/.test(text);
+        if (mmText && !echoed && (!mmStatus || mmStatus === 200) && !/^\s*(MYMEMORY WARNING|PLEASE SELECT TWO DISTINCT LANGUAGES|INVALID LANGUAGE PAIR)/i.test(mmText)) {
             return { text: mmText, detectedLang: sl, engine: "mymemory" };
         }
         throw new Error("Invalid MyMemory data");
@@ -2194,11 +2197,13 @@ const ROUTES = {
 };
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (!request || typeof request !== "object") return false;
     if (request.action === "ttsAbort") {
         sendResponse(handleTtsAbort(request));
         return false;
     }
-    const route = ROUTES[request.action];
+    // Own keys only: "constructor" or "__proto__" must not resolve to an Object.prototype member.
+    const route = Object.prototype.hasOwnProperty.call(ROUTES, request.action) ? ROUTES[request.action] : null;
     if (!route) return false;
     route(request, sender).then(sendResponse).catch(err => sendResponse({ ok: false, errorType: err.type || "unknown", error: err.message }));
     return true;

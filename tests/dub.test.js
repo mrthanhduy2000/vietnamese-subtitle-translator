@@ -2260,3 +2260,46 @@ test("speech text: a slash between words, a menu path, a handle, the shop 7/11; 
     assert.match(say("truy cập proton.me/tlddr"), /gạch chéo/, "a web address still says its slash");
     assert.match(say("5 > 3"), />/, "between numbers it is a comparison");
 });
+
+test("speech text: other currencies, dong, long decimals, codes digit by digit, am/pm, math signs", () => {
+    const say = t => PLAN.adaptForSpeech(t);
+    // currencies and the dong ("một trăm nghìnđ" was glued, VND was spelled)
+    assert.equal(say("Giá €50, 50€ hay 20 EUR."), "Giá 50 ơ-rô, 50 ơ-rô hay 20 ơ-rô.");
+    assert.equal(say("Phí £30 và ¥1000."), "Phí 30 bảng Anh và 1000 yên.");
+    assert.equal(say("Giá 100.000đ hoặc 100.000 VNĐ, 1 USD = 25.000 VND."), "Giá một trăm nghìn đồng hoặc một trăm nghìn đồng, 1 đô la bằng hai mươi lăm nghìn đồng.");
+    assert.equal(say("Có 2đ lẻ, đi."), "Có 2 đồng lẻ, đi.");
+    assert.equal(say("Tăng 5đến 6"), "Tăng 5đến 6", "a letter right after d stays a word");
+    // grouped number with cents, both conventions
+    assert.equal(say("Giá 1.234,56 đồng"), "Giá một nghìn hai trăm ba mươi tư phẩy 56 đồng");
+    assert.equal(say("Giá 1,234.56 USD"), "Giá một nghìn hai trăm ba mươi tư phẩy 56 đô la");
+    // a long fraction is a decimal; a leading 0 group is never a thousand; real thousands stay
+    assert.equal(say("pi là 3.14159"), "pi là 3 phẩy 1 4 1 5 9");
+    assert.equal(say("e là 2.718281828"), "e là 2 phẩy 7 1 8 2 8 1 8 2 8", "9 digits after the dot are no 7+ digit amount");
+    assert.equal(say("sai số 0.001"), "sai số 0 phẩy 0 0 1");
+    assert.equal(say("Có 1.234 người và 12.500 đồng"), "Có một nghìn hai trăm ba mươi tư người và mười hai nghìn năm trăm đồng");
+    assert.equal(say("IP 1.2.3.4"), "IP 1 chấm 2 chấm 3 chấm 4");
+    // an identifier starting with 0 is left for the server's digit-by-digit reading
+    assert.equal(say("Số 0123456789"), "Số 0123456789");
+    // a code, a PIN, a phone number: digit by digit
+    assert.equal(say("Nhập mã OTP 482913 để xác nhận"), "Nhập mã OTP 4 8 2 9 1 3 để xác nhận");
+    assert.equal(say("Mã số thuế 0123456789"), "Mã số thuế 0 1 2 3 4 5 6 7 8 9");
+    assert.equal(say("Gọi hotline 1900 1234 nhé"), "Gọi hotline 1 9 0 0 1 2 3 4 nhé");
+    assert.equal(say("mã 12345678 ở đây."), "mã mười hai triệu ba trăm bốn mươi lăm nghìn sáu trăm bảy mươi tám ở đây.", "a bare 'mã' is no code word");
+    // am / pm
+    assert.equal(say("Lúc 9am, 9:30 PM, 12 PM và 7 p.m. nữa."), "Lúc 9 giờ sáng, 9 giờ 30 tối, 12 giờ chiều và 7 giờ tối nữa.");
+    assert.equal(say("Tôi có 5 AMD"), "Tôi có 5 AMD", "no letter may follow the m");
+    // powers, area, comparison, minus
+    assert.equal(say("Diện tích 10 m² và 3 km², 100m3."), "Diện tích 10 mét vuông và 3 ki-lô-mét vuông, 100 mét khối.");
+    assert.equal(say("x² + y² = z²"), "x bình phương cộng y bình phương bằng z bình phương");
+    assert.equal(say("2^10 và a ≥ b, c ≠ 0, π ≈ 3,14"), "2 mũ 10 và a lớn hơn hoặc bằng b, c khác 0, pi xấp xỉ 3 phẩy 14");
+    assert.equal(say("Nhiệt độ −5 độ và -3°C"), "Nhiệt độ âm 5 độ và âm 3°C");
+    assert.equal(say("1945-1975 và 10 - 5"), "1945-1975 và 10 - 5", "ranges and spaced hyphens are not minus signs");
+    // 4K next to a frame rate is a resolution
+    assert.equal(say("quay 4K 60fps"), "quay bốn ca 60fps");
+});
+
+test("speech text: a comma or full stop after an amount stays after the currency word", () => {
+    const say = t => PLAN.adaptForSpeech(t);
+    assert.equal(say("Giá $20, rồi $1.500. Hết."), "Giá 20 đô la, rồi một nghìn năm trăm đô la. Hết.");
+    assert.equal(say("Giá €50, hết."), "Giá 50 ơ-rô, hết.");
+});
