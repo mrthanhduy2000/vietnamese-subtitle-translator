@@ -1029,3 +1029,17 @@ test("legibility: same-colour box, or no box and no outline, is flagged; the def
     assert.match(R("options.js"), /legibilityIssue\(s\)/);
     assert.match(R("options.html"), /id="legibilityHint"/);
 });
+
+// Settings tabs follow the WAI-ARIA tab pattern, so a screen reader and the arrow keys work.
+test("options tabs: tablist, tab and tabpanel roles linked by id, arrow keys wired", () => {
+    const html = R("options.html"), js = R("options.js");
+    const tabs = [...html.matchAll(/<button class="nav-tab[^"]*" id="navtab-(tab-\w+)" role="tab" aria-selected="(true|false)" aria-controls="(tab-\w+)"/g)];
+    assert.equal(tabs.length, 5, "every nav tab carries role=tab");
+    assert.equal(tabs.filter(t => t[2] === "true").length, 1, "exactly one selected tab");
+    for (const t of tabs) {
+        assert.equal(t[1], t[3]);
+        assert.ok(html.includes(`id="${t[1]}" class="tab-panel`) && html.includes(`aria-labelledby="navtab-${t[1]}"`), `${t[1]} panel is labelled by its tab`);
+    }
+    assert.ok(html.includes('role="tablist"'));
+    for (const key of ["ArrowRight", "ArrowLeft", "Home", "End"]) assert.ok(js.includes(key), key);
+});
