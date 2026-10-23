@@ -1057,6 +1057,57 @@ function pickBestTrack() {
     return { track: chosen, alreadyVietnamese: false };
 }
 
+// The site's own Vietnamese track, when the voice may read it: the page also has captions in another
+// language, so the speech is not Vietnamese (CST_LANG.viVoiceSource). null otherwise.
+function csViVoiceSource() {
+    const LANG = window.CST_LANG;
+    if (!LANG || !LANG.viVoiceSource) return null;
+    const usable = pageTracks().filter(t => {
+        const kind = (t.kind || "").toLowerCase();
+        return kind === "" || kind === "subtitles" || kind === "captions";
+    });
+    const plan = LANG.viVoiceSource(usable.map(t => t.srclang));
+    const track = plan.offer ? usable.find(t => LANG.normCode(t.srclang) === "vi") : null;
+    return track ? { track, spoken: plan.spoken } : null;
+}
+
+// Voice from the Vietnamese captions the site already has: no Gemini call, no translation. The cues
+// become dub groups (CST_DUB_PLAN.groupsFromViCues) and go through the same engine as a translation.
+async function csStartViVoice(opts = {}) {
+    const api = window.CST_DUB, PLAN = window.CST_DUB_PLAN;
+    const videoEl = csVideo();
+    const src = csViVoiceSource();
+    if (!api || !PLAN || !videoEl || !src || api.dub.enabled || api.dub.starting || state.dubStarting) return false;
+    const gen = state.navGen;
+    const tr = src.track.track;
+    const was = tr.mode;
+    if (was === "disabled") tr.mode = "hidden";               // load the cues without showing them
+    const cues = await waitForCues(tr, 6000);
+    if (was === "disabled" && !state.active) tr.mode = was;
+    if (state.dead || state.navGen !== gen) return false;
+    const groups = cues ? PLAN.groupsFromViCues(Array.from(cues)) : [];
+    if (!groups.length) {
+        if (!opts.quiet) cstToast("Phụ đề tiếng Việt của trang này chưa nạp xong. Hãy phát video vài giây rồi thử lại.", { warn: true });
+        return false;
+    }
+    state.dubGroups = groups;
+    state.dubStarting = true;
+    try {
+        const ok = await api.start({ video: videoEl, container: csPlayerBox() || videoEl.parentElement, getGroups: () => state.dubGroups || [], quiet: !!opts.quiet });
+        csUpdateButton();
+        if (ok && !opts.quiet) rememberDub(true);
+        return ok;
+    } finally {
+        state.dubStarting = false;
+    }
+}
+
+// Toast options that offer the voice from the page's Vietnamese captions ({} when it cannot)
+function csViVoiceOffer() {
+    if (!csViVoiceSource()) return {};
+    return { actionLabel: "Lồng tiếng từ phụ đề Việt", onAction: () => { csStartViVoice(); } };
+}
+
 async function waitForCues(track, maxWaitMs = 8000) {
     const start = Date.now();
     while (Date.now() - start < maxWaitMs) {
@@ -1605,7 +1656,7 @@ async function translateTrackSite(opts = {}) {
     if (picked.alreadyVietnamese) {
         cstToast(generic
             ? "Video này đã có phụ đề tiếng Việt. Hãy chọn tiếng Việt trong menu phụ đề của trình phát."
-            : "Khóa học này đã có phụ đề tiếng Việt chính thức, chất lượng tốt hơn dịch máy. Hãy chọn Vietnamese trong menu phụ đề của trình phát.");
+            : "Khóa học này đã có phụ đề tiếng Việt chính thức, chất lượng tốt hơn dịch máy. Hãy chọn Vietnamese trong menu phụ đề của trình phát.", csViVoiceOffer());
         return false;
     }
 
@@ -2443,8 +2494,15 @@ async function toggleDubbing(container) {
         if (ok) rememberDub(true);
     };
 
-    // Long tieng doc tu ban dich co ngu canh, nen phai dich truoc
+    // Long tieng doc tu ban dich co ngu canh, nen phai dich truoc. The page's own Vietnamese captions
+    // (video not spoken in Vietnamese) need no translation: the voice reads them.
     if (!state.active) {
+        const own = pickBestTrack();
+        if (own && own.alreadyVietnamese && csViVoiceSource()) {
+            cstToast("Đang chuẩn bị giọng đọc từ phụ đề tiếng Việt có sẵn…");
+            await csStartViVoice();
+            return;
+        }
         // Không hỏi bằng hộp thoại chặn trang: người dùng vừa bấm lồng tiếng nghĩa là đồng ý dịch
         cstToast("Đang dịch phụ đề để lồng tiếng…");
         // the voice starts with the first translated lines (the engine takes the rest as it comes)
@@ -2778,8 +2836,11 @@ async function courseraAutoTranslateNow() {
     state.langDecision = decision;
     console.log(`[AI Subtitle] Ngôn ngữ phụ đề: ${decision.lang} (${Math.round(decision.confidence * 100)}%, theo ${decision.source}) -> ${decision.action === "translate" ? "tự động dịch" : decision.action === "skip" ? "đã là tiếng Việt, không dịch" : "chưa chắc chắn, không tự dịch"}`);
     // Adapter sites add their own tracks, so the viewer has no other sign that Vietnamese exists
-    if (decision.action === "skip" && picked.alreadyVietnamese && csAdapterSite()) {
-        cstToast("Video này đã có phụ đề tiếng Việt. Hãy chọn tiếng Việt trong menu phụ đề của trình phát.");
+    if (decision.action === "skip" && picked.alreadyVietnamese && state.dubEnabled && csViVoiceSource()) {
+        // the viewer keeps the voice on: read the site's Vietnamese captions, as a translation would be
+        await csStartViVoice({ quiet: true });
+    } else if (decision.action === "skip" && picked.alreadyVietnamese && csAdapterSite()) {
+        cstToast("Video này đã có phụ đề tiếng Việt. Hãy chọn tiếng Việt trong menu phụ đề của trình phát.", csViVoiceOffer());
     }
     if (decision.action === "translate") {
         // the voice starts with the first translated lines, not after the whole lecture

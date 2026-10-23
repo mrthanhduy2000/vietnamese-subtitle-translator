@@ -1528,8 +1528,23 @@
         return smoothRates(plans);
     }
 
+    // Captions that are already Vietnamese (a site's official track): one dub group per cue, in the
+    // shape the translator makes, so the planner, the pacing and the pauses see no difference.
+    // Cues are { start, end, text } or TextTrack cues { startTime, endTime, text }.
+    function groupsFromViCues(cues) {
+        const out = [];
+        for (const c of cues || []) {
+            const start = c.start !== undefined ? c.start : c.startTime;
+            const end = c.end !== undefined ? c.end : c.endTime;
+            const text = String((c && c.text) || "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+            if (!text || !isFinite(start) || !isFinite(end) || end <= start) continue;
+            out.push({ start, end, viText: text, srcCues: [{ start, end, text }], viCues: [{ start, end, text }] });
+        }
+        return out;
+    }
+
     const api = {
-        numberToVietnamese, countSyllables, adaptForSpeech, numberRole, classifyIntent, buildPhrases, speakerTurns, speakerAt, NO_TURNS, MAX_VOICES, speakerLines, speakerHints, mergeSpeakerHints,
+        groupsFromViCues, numberToVietnamese, countSyllables, adaptForSpeech, numberRole, classifyIntent, buildPhrases, speakerTurns, speakerAt, NO_TURNS, MAX_VOICES, speakerLines, speakerHints, mergeSpeakerHints,
         buildDubScript, stripSoundNotes, notesOnly, speakerLabels, stripSpeakerLabels, stripLabelsAt, planSegment, planAll, smoothRates, speechSeconds, pauseSeconds, rateForSps, rateForSpeedup, speedMultiplier,
         DEFAULT_VOICE_MODEL, LIMITS, INTENT_PROSODY, PAUSE
     };
