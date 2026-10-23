@@ -129621,3 +129621,151 @@ Travis Scott Fragment
 Nike Dunk Low Travis Scott
 Fragment Design
 `);
+
+// ============================================================ 2.9.7 specialist terms (AI, software, finance, medicine, science, statistics)
+CST_GLOSSARY_EXTRA_ADD("tech", null, `
+=embedding
+=zero-shot
+=few-shot
+dropout layer|lớp dropout
+true negative|âm tính thật
+data leakage|rò rỉ dữ liệu
+single point of failure|điểm lỗi duy nhất
+CAP theorem|định lý CAP
+denial-of-service attack|tấn công từ chối dịch vụ
+distributed denial-of-service|từ chối dịch vụ phân tán
+`);
+CST_GLOSSARY_EXTRA_ADD("economics", null, `
+short selling|bán khống
+=short squeeze
+margin call|lệnh gọi ký quỹ
+strike price|giá thực hiện
+call option|quyền chọn mua
+put option|quyền chọn bán
+options contract|hợp đồng quyền chọn
+futures contract|hợp đồng tương lai
+forward contract|hợp đồng kỳ hạn
+interest rate swap|hoán đổi lãi suất
+credit default swap|hoán đổi rủi ro tín dụng
+mortgage-backed securities|chứng khoán được bảo đảm bằng thế chấp
+price-to-book ratio|tỷ lệ giá trên giá trị sổ sách
+blue chip stock|cổ phiếu blue chip
+penny stock|cổ phiếu penny
+share buyback|mua lại cổ phiếu
+dividend payout ratio|tỷ lệ chi trả cổ tức
+ex-dividend date|ngày giao dịch không hưởng cổ tức
+bid-ask spread|chênh lệch giá mua bán
+limit order|lệnh giới hạn
+market order|lệnh thị trường
+stop-loss order|lệnh dừng lỗ
+=swing trading
+technical analysis|phân tích kỹ thuật
+fundamental analysis|phân tích cơ bản
+relative strength index|chỉ số sức mạnh tương đối
+Bollinger Bands
+candlestick chart|biểu đồ nến
+Phillips curve|đường cong Phillips
+Laffer curve|đường cong Laffer
+current account deficit|thâm hụt tài khoản vãng lai
+labor force participation rate|tỷ lệ tham gia lực lượng lao động
+liquidity trap|bẫy thanh khoản
+monetary base|cơ sở tiền tệ
+velocity of money|vận tốc lưu thông tiền tệ
+reserve requirement|dự trữ bắt buộc
+discount rate|lãi suất chiết khấu
+open market operations|nghiệp vụ thị trường mở
+=forward guidance
+negative interest rates|lãi suất âm
+ARIMA
+Black-Scholes|mô hình Black-Scholes
+Sharpe ratio|hệ số Sharpe
+Sortino ratio|hệ số Sortino
+CAPM
+efficient frontier|biên hiệu quả
+modern portfolio theory|lý thuyết danh mục đầu tư hiện đại
+Value at Risk|giá trị chịu rủi ro
+Basel III|Basel III
+Dodd-Frank
+Sarbanes-Oxley
+ESOP
+SAFE note
+=acqui-hire
+DAU
+MAU
+`);
+CST_GLOSSARY_EXTRA_ADD("medicine", null, `
+monoclonal antibody|kháng thể đơn dòng
+bioavailability|sinh khả dụng
+case fatality rate|tỷ lệ tử vong theo ca bệnh
+epinephrine|adrenaline
+peripheral nervous system|hệ thần kinh ngoại biên
+basal ganglia|hạch nền
+blood-brain barrier|hàng rào máu não
+adrenal gland|tuyến thượng thận
+meniscus|sụn chêm
+carcinoma|ung thư biểu mô
+cardiology|tim mạch học
+neurology|thần kinh học
+endocrinology|nội tiết học
+gastroenterology|tiêu hóa học
+dermatology|da liễu học
+nephrology|thận học
+hematology|huyết học
+PCR test|xét nghiệm PCR
+ELISA
+angioplasty|nong mạch
+intubation|đặt nội khí quản
+ventilator|máy thở
+ICD-10
+mTOR
+AMPK
+sirtuins|sirtuin
+BDNF
+SGLT2
+ACE inhibitor|thuốc ức chế men chuyển
+beta blocker|thuốc chẹn beta
+benzodiazepine|benzodiazepin
+histamine|histamin
+`);
+CST_GLOSSARY_EXTRA_ADD("science", null, `
+gravitational lensing|thấu kính hấp dẫn
+activation energy|năng lượng hoạt hóa
+ideal gas law|định luật khí lý tưởng
+redox reaction|phản ứng oxy hóa khử
+photolithography|quang khắc
+genetic drift|trôi dạt di truyền
+horizontal gene transfer|chuyển gen ngang
+endoplasmic reticulum|lưới nội chất
+Golgi apparatus|bộ máy Golgi
+=ribosome
+Krebs cycle|chu trình Krebs
+citric acid cycle|chu trình axit citric
+=albedo
+tectonic plate|mảng kiến tạo
+subduction zone|đới hút chìm
+singular value decomposition|phân rã giá trị suy biến
+Fourier transform|biến đổi Fourier
+Taylor series|chuỗi Taylor
+Pascal's triangle|tam giác Pascal
+irrational number|số vô tỉ
+Monte Carlo method|phương pháp Monte Carlo
+=full stack
+=microfrontend
+=tree shaking
+vision-language model|mô hình thị giác-ngôn ngữ
+byte pair encoding|mã hóa cặp byte
+BLEU
+ROUGE
+=curse of dimensionality
+t-SNE
+UMAP
+ensemble learning|học tập hợp
+Markov chain|chuỗi Markov
+hidden Markov model|mô hình Markov ẩn
+Kalman filter|bộ lọc Kalman
+Gaussian process|quá trình Gauss
+Pearson correlation|tương quan Pearson
+Spearman correlation|tương quan hạng Spearman
+multicollinearity|đa cộng tuyến
+heteroscedasticity|phương sai thay đổi
+`);
