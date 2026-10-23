@@ -4114,7 +4114,8 @@
     function vieneuText(text, ctx = {}) {
         const P = prosody();
         const s = P ? P.breathText(text) : String(text || "");
-        return render(s, ctx).text;
+        // control characters (NUL, ESC, ...) mean nothing to the voice and some servers reject the request
+        return render(s, ctx).text.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, " ");
     }
 
     // For the prosody model: for each gap between two words of `text` (tokenised as vi-segmenter

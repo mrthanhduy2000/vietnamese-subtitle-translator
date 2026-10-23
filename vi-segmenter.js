@@ -182,7 +182,7 @@ mạng nơ-ron tích chập|mạng nơ ron tích chập|mạng nơron tích ch�
         t = t.replace(/\r/g, "");
         if (!opts.keepHints) t = t.split(HINT).join(" ");
         t = t.replace(TOKEN_RE, " ");
-        t = t.replace(/\*\*(.+?)\*\*/g, "$1").replace(/(^|\s)[*_](\S.*?\S|\S)[*_](?=\s|$)/g, "$1$2");
+        t = t.replace(/\*\*(.+?)\*\*/g, "$1").replace(/(^|\s)([*_])(?![*_])(\S.*?\S|\S)(?<![*_]{2})\2(?=\s|$)/g, "$1$3");
         t = t.replace(/^\s*(?:bản dịch(?: tiếng việt)?|dịch|translation)\s*:\s*/i, "");
         t = t.replace(/[ \t ]+/g, " ");
         if (!opts.keepNewlines) t = t.replace(/\s*\n\s*/g, " ");
@@ -190,6 +190,9 @@ mạng nơ-ron tích chập|mạng nơ ron tích chập|mạng nơron tích ch�
         // Ngoặc kép bao toàn bộ do mô hình tự thêm (prompt đặt câu trong ngoặc kép)
         const m = t.match(/^["“”„«](.*)["“”»]$/s);
         if (m && !/["“”«»]/.test(m[1])) t = m[1].trim();
+        // A cut hint right before closing punctuation ("word ¦,") can only leave the mark orphaned on its own
+        // token, and the line joined back as "word ," (the same after an opening bracket or quote)
+        if (opts.keepHints) t = t.replace(/\s*¦\s*(?=[,.;:!?…%)\]}»”])/g, "").replace(/([(\[{«“])\s*¦\s*/g, "$1");
         t = t.replace(/\s+([,.;:!?…%)\]}»”])/g, "$1").replace(/([(\[{«“])\s+/g, "$1");
         if (opts.keepHints) t = t.replace(/\s*¦\s*/g, ` ${HINT} `).replace(/(?:\s*¦\s*){2,}/g, ` ${HINT} `).replace(/^\s*¦\s*|\s*¦\s*$/g, "");
         return t.replace(/ {2,}/g, " ").trim();
@@ -573,7 +576,7 @@ mạng nơ-ron tích chập|mạng nơ ron tích chập|mạng nơron tích ch�
         const pts = [];      // [charPos, time] tăng dần
         const bounds = [];   // ranh giới giữa hai cue nguồn
         let pos = 0;
-        const cues = (srcCues || []).filter(c => c && typeof c.start === "number" && typeof c.end === "number");
+        const cues = (srcCues || []).filter(c => c && Number.isFinite(c.start) && Number.isFinite(c.end));
         cues.forEach((cue, i) => {
             const text = String(cue.text || "").replace(/\s+/g, " ").trim();
             const len = Math.max(1, text.length);
@@ -867,9 +870,10 @@ mạng nơ-ron tích chập|mạng nơ ron tích chập|mạng nơron tích ch�
             console.warn("[CST] Lỗi phân đoạn, dùng phương án dự phòng:", e && e.message);
         }
         const clean = cleanText(viText);
-        const cues = (srcCues || []).filter(c => typeof c.start === "number");
+        const cues = (srcCues || []).filter(c => c && Number.isFinite(c.start));
         const start = cues.length ? cues[0].start : 0;
-        const end = cues.length ? Math.max(...cues.map(c => c.end)) : start + 2;
+        // an end that is missing or not finite counts as the cue's start, never NaN on screen
+        const end = cues.length ? Math.max(...cues.map(c => (Number.isFinite(c.end) ? c.end : c.start))) : start + 2;
         return [{ start, end: Math.max(end, start + 0.05), text: clean, lines: breakLines(clean, { ...options, maxLines: 4 }) }];
     }
 
