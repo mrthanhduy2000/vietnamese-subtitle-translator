@@ -613,14 +613,33 @@ function protectMany(sentences) {
     return { texts, terms: res.terms };
 }
 
-function sendMessageAsync(msg) {
+// The service worker is stopped by Chrome after ~30 s idle and can die mid-request. Sending wakes it,
+// but the first call can still fail with one of these. A retry succeeds because the worker is then up.
+// "Extension context invalidated" is NOT here: the page holds a dead connection until it is reloaded.
+const CST_TRANSIENT_SW_ERROR = /receiving end does not exist|could not establish connection|message port closed|no response|không có phản hồi/i;
+const CST_SW_RETRY_DELAYS_MS = [250, 1000];
+
+function sendMessageOnce(msg) {
     return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage(msg, response => {
-            if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
-            else if (!response || !response.ok) reject(new Error(response ? response.error : "Không có phản hồi từ tiện ích"));
-            else resolve(response);
-        });
+        try {
+            chrome.runtime.sendMessage(msg, response => {
+                if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
+                else if (!response || !response.ok) reject(new Error(response ? response.error : "Không có phản hồi từ tiện ích"));
+                else resolve(response);
+            });
+        } catch (e) { reject(e); }
     });
+}
+
+async function sendMessageAsync(msg) {
+    for (let attempt = 0; ; attempt++) {
+        try { return await sendMessageOnce(msg); }
+        catch (e) {
+            const delay = CST_SW_RETRY_DELAYS_MS[attempt];
+            if (delay === undefined || !CST_TRANSIENT_SW_ERROR.test(String(e && e.message))) throw e;
+            await new Promise(r => setTimeout(r, delay));
+        }
+    }
 }
 
 // What context went with the request, so it can be checked in the console while watching, with no

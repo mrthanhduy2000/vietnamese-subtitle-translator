@@ -108,12 +108,24 @@
         };
     }
 
-    function sendMessage(msg) {
+    function sendMessageOnce(msg) {
         return new Promise(resolve => {
             try {
                 chrome.runtime.sendMessage(msg, r => resolve(chrome.runtime.lastError ? { ok: false, error: chrome.runtime.lastError.message } : r));
             } catch (e) { resolve({ ok: false, error: e.message }); }
         });
+    }
+
+    // Retry only when the service worker never received the message (it was asleep). A closed port
+    // after delivery is not retried here: synthesis may already have been paid for.
+    async function sendMessage(msg) {
+        let r = await sendMessageOnce(msg);
+        for (const delay of [250, 1000]) {
+            if (!r || r.ok !== false || !/receiving end does not exist|could not establish connection/i.test(String(r.error))) break;
+            await new Promise(res => setTimeout(res, delay));
+            r = await sendMessageOnce(msg);
+        }
+        return r;
     }
 
     async function readSettings() {
