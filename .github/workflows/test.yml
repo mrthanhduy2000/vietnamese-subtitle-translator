@@ -16,3 +16,14 @@ jobs:
           node-version: 22
       # The extension has no dependencies and no build step: the suite is fully offline.
       - run: npm test
+
+  # Friends on Windows run the same suite; macOS-only cases skip themselves (docs/WINDOWS.md).
+  npm-test-windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test

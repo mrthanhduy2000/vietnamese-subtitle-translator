@@ -24,7 +24,7 @@ const arg = n => { const a = process.argv.find(x => x.startsWith(`--${n}=`)); re
 const has = n => process.argv.includes(`--${n}`);
 const CLASSES = ["refine", "omission", "untranslated", "empty", "leftover", "noteInside", "turns", "labels", "dup", "mended", "voiceSwitch", "calque", "repeat", "addition"];
 const MARK_RE = /const REVIEW_MARK = \{ until: (\d+), videos: (\d+) \};[^\n]*/;
-const DEFAULT_STORE = path.join(os.homedir(), "Library/Application Support/Google/Chrome/Profile 42/Local Extension Settings/lpknjhmnlocilmkmooomffknibghibao");
+const DEFAULT_STORE = require("./platform-paths.js").extensionStore();
 
 function readMark() {
     const m = fs.readFileSync(path.join(REPO, "background.js"), "utf8").match(MARK_RE);
@@ -35,7 +35,7 @@ function readMark() {
 function dumpStore() {
     const given = arg("dump");
     if (given) return given;
-    const out = fs.mkdtempSync(path.join(process.env.TMPDIR || os.tmpdir(), "cst-review-"));
+    const out = fs.mkdtempSync(path.join(require("./platform-paths.js").tmpRoot(), "cst-review-"));
     const store = STORE.readStore(arg("dir") || DEFAULT_STORE);
     let n = 0;
     for (const [k, r] of store) if (k.startsWith("ytcache4_")) { fs.writeFileSync(path.join(out, k.replace(/[^\w.-]/g, "_") + ".json"), r.value); n++; }
