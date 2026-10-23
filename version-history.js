@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.9.9", luc: "23/10/2026", ten: "Phụ đề không bị nhỏ quá ở trình phát nhỏ, tôn trọng chế độ giảm chuyển động",
+            y: [
+                "Ở trình phát hẹp (trình phát thu nhỏ, video nhúng, cửa sổ hẹp), chữ phụ đề trước đây có thể chỉ còn 9,8 px. Nay cỡ chữ không bao giờ dưới 12 px; dòng dài được ngắt lại cho vừa khung.",
+                "Nếu hệ điều hành bật giảm chuyển động, phụ đề không còn trượt lên xuống hay dịch ngang khi thanh điều khiển hiện ra, chỉ mờ dần.",
+                "Coursera nay trượt mượt khi phụ đề ở vị trí trên cùng, giống YouTube. Hai trang dùng chung một công thức cỡ chữ và một bộ hiệu ứng."
+            ]
+        },
+        {
             v: "2.9.8", luc: "23/10/2026", ten: "Chữ phụ và nút chính dễ đọc hơn trong cửa sổ nhỏ và trang Cài đặt",
             y: [
                 "Chữ mô tả, nhãn phiên bản và dòng phím tắt trong cửa sổ nhỏ trước đây chỉ đạt khoảng 3:1 độ tương phản (chuẩn dễ đọc là 4,5:1), nhất là ở nền sáng. Nay tất cả đạt từ 4,5:1 trở lên ở cả giao diện sáng lẫn tối.",

@@ -287,8 +287,35 @@
     const SIZE_UNIT = 0.7;
     const sizeFactor = fontSize => (Number(fontSize) || DEFAULT_STYLE.fontSize) / 100 * SIZE_UNIT;
 
+    // Overlay font size in px for a player `playerWidth` wide. The base grows with the player (2.6% of
+    // its width, 14 to 40 px) and is then scaled by the viewer's size; the floor keeps a small
+    // player (mini player, embed, narrow window) from drawing 9.8 px text, which is unreadable.
+    const MIN_FONT_PX = 12;
+    function overlayFontPx(playerWidth, fontSize) {
+        const base = Math.max(14, Math.min((Number(playerWidth) || 640) * 0.026, 40));
+        return Math.max(MIN_FONT_PX, base * sizeFactor(fontSize));
+    }
+
+    // One transition list for both overlays (YouTube and Coursera had drifted apart: Coursera never
+    // animated `top`). Motion is dropped for viewers who ask the system for less of it; the cue
+    // still fades in 0.12 s so a change of line is not a hard flash.
+    function overlayTransition(reduceMotion) {
+        if (reduceMotion) return "opacity 0.12s linear";
+        const ease = "0.24s cubic-bezier(.16,1,.3,1)";
+        return `opacity 0.12s ease-out, bottom 0.18s ease-out, top 0.18s ease-out, transform ${ease}, max-width ${ease}`;
+    }
+
+    function prefersReducedMotion() {
+        try {
+            return typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+        } catch (e) {
+            return false;
+        }
+    }
+
     const api = {
         FONTS, STROKES, DEFAULT_STYLE, resolveDual, SIZE_UNIT, sizeFactor, lingerCues,
+        MIN_FONT_PX, overlayFontPx, overlayTransition, prefersReducedMotion,
         getFont, normalizeStyle, fontStack, ensureFont, isLocalFontAvailable,
         textShadow, backgroundColor, hexToRgba, googleFontsUrl,
         fitLines, textWidth

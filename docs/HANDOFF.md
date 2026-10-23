@@ -3,6 +3,9 @@
 - Test-only change after 2.9.4 (no bump): GitHub Actions `test.yml`, `tests/units.test.js`, `npm run coverage`.
 
 ## State
+- 2.9.9 (lane A, overlay UX): `CST_STYLE.overlayFontPx` (12 px floor, one size formula for YouTube and
+  Coursera), `overlayTransition` (honours prefers-reduced-motion; Coursera now animates `top` too).
+  Not seen on a live page; click Reload and check a narrow/mini player.
 - 2.9.8 (lane C, UI): popup and Settings text now reach WCAG AA 4.5:1 in light and dark (muted/secondary
   tokens, new `--claude-accent-fill` / `--claude-success-fill` behind white button text, `--primary-text`
   for the options value pill). Guarded by the "popup contrast" test in `tests/ui.test.js`. Not run on
