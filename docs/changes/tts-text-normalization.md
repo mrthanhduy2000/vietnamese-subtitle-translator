@@ -12,3 +12,8 @@ Defect classes fixed, all in the text sent to the voice:
 - `4K 60fps` is a resolution.
 
 Not verified against the real VieNeu front end (no sea_g2p in the cloud session). Ranges (`10-20`), ratios (`3:1`) and dates were left alone on purpose: earlier sessions measured them. Run `tools/vieneu-g2p.py` on the Mac for the new rules. No version bump (release thread does it).
+
+## Follow-up (Mac check of PR 26: 27/29)
+
+- `60fps` / `120 FPS` is said "khung hình trên giây" (the server left "fps" bare).
+- A spaced hyphen between a larger and a smaller number ("10 - 5") is "trừ"; the server read it as the range "mười đến năm". A rising pair ("10 - 15 phút") is left to the server.

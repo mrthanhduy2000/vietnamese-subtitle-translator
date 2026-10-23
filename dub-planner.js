@@ -200,6 +200,10 @@
             const part = ap.toLowerCase() === "a" ? "sáng" : (hour === 12 || hour < 6 ? "chiều" : "tối");
             return `${hour} giờ${mi && mi !== "00" ? " " + Number(mi) : ""} ${part}`;
         });
+        // (2.9.9) 60fps: the server leaves "fps" bare. A spaced hyphen between a larger and a smaller number
+        // is a subtraction ("10 - 5"), which the server read as the range "mười đến năm"; a rising pair stays
+        t = t.replace(/(\d)\s?fps(?![\p{L}\p{N}])/giu, "$1 khung hình trên giây");
+        t = t.replace(/(?<![\p{L}\p{N}.,-])(\d+)\s[-–]\s(\d+)(?![\p{L}\p{N}.,-])/gu, (m0, x, y) => (Number(x) > Number(y) ? `${x} trừ ${y}` : m0));
         // A minus sign before a number: -5, −5°C ("gạch ngang năm" otherwise)
         t = t.replace(/(?<![\p{L}\p{N}])(?<!\d\s)[-−](?=\d)/gu, "âm ");
         // $20 -> "20 đô la" (read as "hai mươi u s d" otherwise); 5 USD -> "5 đô la"

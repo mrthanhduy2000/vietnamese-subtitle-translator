@@ -2293,13 +2293,22 @@ test("speech text: other currencies, dong, long decimals, codes digit by digit, 
     assert.equal(say("x² + y² = z²"), "x bình phương cộng y bình phương bằng z bình phương");
     assert.equal(say("2^10 và a ≥ b, c ≠ 0, π ≈ 3,14"), "2 mũ 10 và a lớn hơn hoặc bằng b, c khác 0, pi xấp xỉ 3 phẩy 14");
     assert.equal(say("Nhiệt độ −5 độ và -3°C"), "Nhiệt độ âm 5 độ và âm 3°C");
-    assert.equal(say("1945-1975 và 10 - 5"), "1945-1975 và 10 - 5", "ranges and spaced hyphens are not minus signs");
+    assert.equal(say("1945-1975 và 10 - 5"), "1945-1975 và 10 trừ 5", "a year range stays; a spaced falling pair is a subtraction");
     // 4K next to a frame rate is a resolution
-    assert.equal(say("quay 4K 60fps"), "quay bốn ca 60fps");
+    assert.equal(say("quay 4K 60fps"), "quay bốn ca 60 khung hình trên giây");
 });
 
 test("speech text: a comma or full stop after an amount stays after the currency word", () => {
     const say = t => PLAN.adaptForSpeech(t);
     assert.equal(say("Giá $20, rồi $1.500. Hết."), "Giá 20 đô la, rồi một nghìn năm trăm đô la. Hết.");
     assert.equal(say("Giá €50, hết."), "Giá 50 ơ-rô, hết.");
+});
+
+test("speech text: fps is said in words; a spaced hyphen between a larger and a smaller number is a subtraction", () => {
+    const say = t => PLAN.adaptForSpeech(t);
+    assert.equal(say("quay 4K 60fps"), "quay bốn ca 60 khung hình trên giây");
+    assert.equal(say("chạy 120 FPS"), "chạy 120 khung hình trên giây");
+    assert.equal(say("Lấy 10 - 5 còn bao nhiêu"), "Lấy 10 trừ 5 còn bao nhiêu");
+    assert.equal(say("bước 3 - 4 và 10 - 15 phút"), "bước 3 - 4 và 10 - 15 phút", "a rising pair is a range, left to the server");
+    assert.equal(say("Dự án A - 5 người"), "Dự án A - 5 người");
 });
