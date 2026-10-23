@@ -13,7 +13,7 @@ npm test          # ~25 s (hardening.test.js sets the pace). The bar is 0 fail; 
 Coverage: `npm run coverage` prints the table (also in the CI job summary, informational, not a gate).
 `tests/vm-coverage-preload.js` names the repo's files when tests run them through `vm`, so
 `content.js`, `youtube.js`, `background.js` are counted too. Lowest at the time of writing (lines):
-`content.js` 69%, `dubbing.js` 82%, `youtube.js` 77% (the caption parser, bridge handshakes and
+`content.js` 76%, `dubbing.js` 82%, `youtube.js` 77% (the caption parser, bridge handshakes and
 drawing are covered by `youtube-captions`; the playback loop and menus are not). `yt-bridge.js` 98%
 and `popup.js` 95% after `bridge-audio` and `popup-actions`). Raise the low ones first when adding tests.
 
