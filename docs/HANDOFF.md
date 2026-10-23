@@ -1,30 +1,34 @@
-# Handoff (2026-10-23, 2.9.4)
+# Handoff (2026-10-23, 2.9.5)
 
 ## State
-- 2.9.4 (lane A, content.js): Coursera and generic pages keep each translated lecture whole:
-  `cscache1_<host><path>` `{ luc, fp, vi }`, index `cscacheIdx` (newest 200). A revisit with the same
-  fingerprint (group text + start times) goes to `applyTranslation`, no request. `SUBTITLE.md` item 11.
-  Google-fallback windows are healed like YouTube (`csHealFallbacks`, 3 rounds, 20/40/60 s, skips a
-  window playing or due in 15 s); a lecture is saved only when none is left. `background.js`
-  `localCacheBytes` counts `cscache` keys so the Settings cache clear removes them.
+- 2.9.5 (lane B/D, glossary): +34,700 names from 50 topic drafts (`scratchpad/cands3`), 73,270
+  candidates in total. Drafted from memory, mostly unverified. About 181 still read Vietnamese by
+  VieNeu (writer LEFT list). Short source files need a spot-check: esports 86 lines, fitness 125,
+  board games 352, supplements 515.
+- 2.9.4 (other session, lane A, content.js): Coursera and generic pages keep each translated lecture
+  whole (`cscache1_<host><path>`, index `cscacheIdx`, newest 200). Google-fallback windows are healed
+  like YouTube (`csHealFallbacks`). `SUBTITLE.md` item 11.
 - 2.9.3 (other session, youtube.js): `ytFindUsableTrack` walks up to 4 other tracks when the first is
-  blank or a broken ASR; a blank XML body is blank too. The 2 bn vlogs stay untranslatable.
-- 2.9.2: glossary 55,276 terms from model memory (expect some errors); 14 names still read
-  Vietnamese by VieNeu (Temodar, Nissan Teana, Ram 1500 ...). Bare "4K"/"8K" stay Vietnamese on purpose.
-- Both 2.9.3 and 2.9.4 were done in cloud sessions with no `review-archive`: `regress.js` NOT run.
+  blank or a broken ASR. The 2 bn vlogs stay untranslatable.
+- Bare "4K"/"8K" stay Vietnamese on purpose (in Vietnamese they are money). "401k" stays English.
+- 2.9.4 (glossary) and 2.9.5 were done in a cloud session: `regress.js` NOT run here.
 
 ## Traps
+- A name the writer cannot respell gets no reading: check `GLOSSARY_SAY` after `--write`. Merge keeps
+  an old entry for any term still in the list, so remove a bad line from the generated block first.
+- `$TMPDIR/fix.py` removes by core term in every block of `glossary-data.js`: check the removed count.
+- New glossary blocks let everyday words in (list in `tests/glossary.test.js`). A capitalised English
+  word ("Wired") needs the `~` prefix.
+- Write `glossary-data.js` with Bash `cat >>`, never Read/Write.
 - `pageEnv` (audit.test.js) objects come from another vm realm: spread into a local array before
-  `deepEqual`. The fake answer "Dịch: <English>" is cut as a leak: compare screen text between runs.
-- A name the writer cannot respell gets no reading: check `GLOSSARY_SAY` after `--write`. Write
-  `glossary-data.js` with Bash `cat >>`, never Read/Write.
+  `deepEqual`.
 - Driver pages: open `yt-driver.html` in its own window; reloading the extension kills a run.
 - `seekWhileSlow` gives 15/7 or 16/6; timing tests fail during a driver batch: rerun first.
-- New YouTube ids: `curl` the results page (node fetch ignores the proxy), parse `ytInitialData`.
 
 ## Unfinished
-- On the Mac: `node tools/regress.js` (then `--save`) for 2.9.3 and 2.9.4; try a Coursera lecture
-  twice (hit path, voice starting from a saved lecture, how often fallbacks heal).
+- On the Mac: `node tools/regress.js` (then `--save`) for 2.9.3 to 2.9.5; try a Coursera lecture twice.
+- Spot-check the drafted names (esports, fitness, board games, supplements) and fix the ~181 residual
+  Vietnamese readings via `MANUAL_SAY`. Not yet 100,000 terms.
 - Saved Coursera lectures are not in `tools/review.js` (reads `ytcache4_` only).
 - Not heard: 2.6.9-2.8.9 by ear (tôi/mình mixing at video start).
 - Uploaded Vietnamese tracks never saved by design (driver logs "NOT SAVED"): jFZksJqL1Vc XnQ7Py8D6v0

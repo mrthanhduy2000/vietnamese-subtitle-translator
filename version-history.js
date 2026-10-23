@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.9.5", luc: "23/10/2026", ten: "Từ điển thêm gần 35.000 tên riêng",
+            y: [
+                "Thêm khoảng 35.000 tên riêng về thể thao, giải trí, âm nhạc, khoa học, công nghệ, sức khỏe, địa danh, kinh tế, thú cưng, du lịch và thời trang. Từ điển có khoảng 73.000 mục.",
+                "Phần lớn tên này được soạn từ kiến thức có sẵn, chưa đối chiếu với nguồn, nên có thể sai. Khoảng 180 tên vẫn được đọc như tiếng Việt khi lồng tiếng.",
+                "Các từ thông dụng viết hoa, từ tiếng Anh viết thường và các ngày trong tuần bị bỏ khỏi từ điển, để không đọc sai câu tiếng Việt."
+            ]
+        },
+        {
             v: "2.9.4", luc: "23/10/2026", ten: "Coursera lưu nguyên bài đã dịch, mở lại không gọi Gemini nữa",
             y: [
                 "Mỗi bài Coursera (và trang video khác) dịch xong được lưu nguyên bài trên máy. Mở lại bài đó, phụ đề tiếng Việt hiện ngay, không tốn lượt gọi Gemini, kể cả sau khi từ điển được cập nhật.",
