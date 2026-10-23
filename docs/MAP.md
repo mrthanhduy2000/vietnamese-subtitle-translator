@@ -12,7 +12,7 @@ Everything else is one content-script bundle at `document_idle`, in this order:
 ```
 glossary.js -> glossary-extra.js -> glossary-data.js -> cst-cache.js -> cost-policy.js -> lang-detect.js -> vi-segmenter.js ->
 subtitle-style.js -> player-ui.js -> shortcuts.js -> transcript.js -> context-engine.js -> vi-quality.js ->
-dub-planner.js -> dub-prosody.js -> dub-speech.js -> dub-audio.js -> dub-engine.js -> dubbing.js -> content.js -> screen-text.js -> youtube.js
+dub-planner.js -> dub-prosody.js -> dub-speech.js -> dub-audio.js -> dub-engine.js -> dubbing.js -> content.js -> screen-text.js -> site-adapters.js -> site-ted.js -> youtube.js
 ```
 
 `background.js` is the MV3 service worker; it pulls in `cst-cache.js`, `cost-policy.js`,
@@ -56,6 +56,8 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `chrome-shim.js` | 173 | Fakes `chrome.*` so `popup.html` / `options.html` open outside the extension. Self-disables inside it | `window.chrome` |
 | `popup.html` | 166 | Popup markup | n/a |
 | `vi-quality.js` | 689 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
+| `site-adapters.js` | 125 | Caption sources for sites with no `<track>`: WebVTT and HLS subtitle parsing, adds TextTracks to the `<video>` | `CST_SITES` |
+| `site-ted.js` | 30 | TED adapter (HLS subtitles from `__NEXT_DATA__` playerData) | registers on `CST_SITES` |
 | `screen-text.js` | 224 | On-screen subtitles: watches the frame's caption band, sends one crop per new caption to `readScreenText` (2.6.4) | `CST_SCREEN` |
 | `lang-detect.js` | 175 | Source-language decision without an API call | `CST_LANG` |
 | `version-history.js` | 2069 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |

@@ -37,7 +37,7 @@ Declined, never re-add or re-propose:
 - 39, VieNeu reading faster at the source (2026-09-29): needs a server change in `~/VieNeu-TTS` and a
   model switch to v3nano (another timbre, unmeasured speed on the 16 GB Mac); the free voice works.
 - 9, Udemy and edX caption sources (2026-09-29): both need a logged-in sample page to build against
-  and none is available; any player with standard text tracks already works (`SUBTITLE.md` generic).
+  and none is available; any player with standard text tracks already works (`SUBTITLE.md` generic). TED has an adapter since 3.0.2+ (`site-ted.js`); Udemy, edX and cross-origin embeds (Vimeo) still open.
 - 41, slowing the video a little while the voice cannot keep up with a fast talker (2026-10-06): the
   user decided against it; the lines that start late stay as they are (`DUBBING.md` known limits).
 - 40, removing the sync key `dubCondense` left by the condensing taken out in 1.7.3 (2026-09-30): no

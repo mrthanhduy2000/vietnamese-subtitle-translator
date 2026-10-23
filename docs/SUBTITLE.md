@@ -294,6 +294,14 @@ a Reload the viewer clicks Translate again).
   holds the Vietnamese cues) to `showing` there and hides the overlay.
 - `genericMeta()` gives the translation context (og:title / h1, host as channel). Cost and edit keys
   are `host + path` (`currentVideoMeta`, `dubbing.js` `videoMeta`).
+- Site adapters (`site-adapters.js` core + one file per site, e.g. `site-ted.js`): for pages whose
+  captions are not a `<track>`. `translateTrackSite` calls `CST_SITES.prepare(video)` before
+  `pickBestTrack()`; an adapter (`match(loc)`, `sources(doc, env)`) finds caption files, the core parses
+  WebVTT / HLS subtitle playlists and adds English (and Vietnamese if any) to the video as TextTracks
+  labelled `Site: ...` (not `cst...`, which `pageTracks` skips). To add a site: new `site-<name>.js`
+  calling `CST_SITES.register`, list it in the manifest after `site-adapters.js`, copy the test in
+  `tests/site-adapters.test.js`. TED is the first (HLS subtitle renditions from the Next.js
+  `playerData`); not yet seen on a live page.
 - Not supported, by design of this path: players inside a cross-origin `<iframe>` (Vimeo embeds,
   edX units) and sites that draw captions in their own DOM with no text track (Udemy). Each needs a
   site-specific source; see `BACKLOG.md`.
