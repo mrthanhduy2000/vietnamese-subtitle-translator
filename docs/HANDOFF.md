@@ -1,4 +1,6 @@
-# Handoff (2026-10-23, 3.0.2 + unreleased)
+# Handoff (2026-10-24, 3.0.7)
+
+Audit 2026-10-24: `npm test` 934 pass, 0 fail; BACKLOG holds only items that need the Mac, an ear or paid calls. LaunchAgent install below is still not done (auto mode blocked it from the remote session).
 
 ## Auto-update of the author's git checkout (2026-10-23, lane D, tools only)
 - `tools/git-autoupdate.js`: ff-only to origin/main when on main, tree clean, no browser running (Chrome reads the folder at start, so no Reload). `--install` adds LaunchAgent `com.damduy.dichphude.gitupdate` (login + 30 min, log `~/Library/Logs/dichphude-gitupdate.log`). Tests: `tests/git-autoupdate.test.js`.
@@ -79,14 +81,12 @@
 ## Unfinished
 - Intel voice works in CI with `onnxruntime<1.24` (rtf 1.5-1.8, 4-core runner). Hear it on a real Intel Mac
   before making it the default.
-- On the Mac: `node tools/regress.js` (then `--save`) for 2.9.3 to 2.9.5; try a Coursera lecture twice.
+- On the Mac: `node tools/regress.js` (then `--save`) for 2.9.3 to 3.0.7; try a Coursera lecture twice; 14 VieNeu names
+  (Temodar, Nissan Teana, Ram 1500...) need `MANUAL_SAY` + `glossary-pron.js --write`.
 - Spot-check the drafted names (esports, fitness, board games, supplements) and fix the ~181 residual
   Vietnamese readings via `MANUAL_SAY`. Not yet 100,000 terms.
 - BACKLOG 48: render the A/B takes (`node /private/tmp/claude-501/b48ab/render.js` on the Mac), shape
   them (`$TMPDIR/b48shape.js`), listen. After merge, `node tools/regress.js --save` on main.
-- On the Mac: `regress.js` for 2.9.3 to 3.0.2; try a Coursera lecture twice; 14 VieNeu names
-  (Temodar, Nissan Teana, Ram 1500...) need `MANUAL_SAY` + `glossary-pron.js --write`.
-- Spot-check drafted names (esports, fitness, board games, supplements), ~181 residual Vietnamese readings.
 - Saved Coursera lectures are not in `tools/review.js` (reads `ytcache4_` only).
 - Not heard: 2.6.9-2.8.9 by ear (tôi/mình mixing at video start).
 - Uploaded Vietnamese tracks never saved by design: jFZksJqL1Vc XnQ7Py8D6v0 MebK9iEUzQA JwBuHx_3GOU
