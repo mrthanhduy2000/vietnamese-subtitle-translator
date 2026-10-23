@@ -1,0 +1,37 @@
+name: release
+
+# Every push to main whose manifest.json holds a version with no tag yet gets a tag vX.Y.Z and a
+# GitHub Release carrying a ready-to-load extension zip. The release step (tools/release-changes.js)
+# is what moves the version, so this fires once per release.
+on:
+  push:
+    branches: [main]
+    paths: [manifest.json]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Tag and publish the release when the version is new
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(node -p "require('./manifest.json').version")
+          tag="v$version"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists: nothing to do."
+            exit 0
+          fi
+          node tools/publish-share.js --out "$RUNNER_TEMP/share"
+          (cd "$RUNNER_TEMP/share/extension" && zip -qr "$GITHUB_WORKSPACE/vietnamese-subtitle-translator-$tag.zip" .)
+          gh release create "$tag" "vietnamese-subtitle-translator-$tag.zip" \
+            --target "$GITHUB_SHA" --title "$tag" \
+            --notes "Unzip, then at chrome://extensions press Reload (or Load unpacked the first time). Update steps: docs/HUONG-DAN.md section Cập nhật."
