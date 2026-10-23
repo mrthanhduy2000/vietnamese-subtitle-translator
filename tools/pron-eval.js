@@ -45,7 +45,7 @@ const arg = name => (process.argv.find(a => a.startsWith(`--${name}=`)) || "").s
 const SETS = arg("corpus") ? { blind: require(path.resolve(REPO, arg("corpus"))).speech } : require(path.join(REPO, "tests", "speech-corpus.js"));
 const splits = (arg("split") || (arg("corpus") ? "blind" : "dev,validation")).split(",");
 const detail = process.argv.includes("--detail");
-const PY = process.env.VIENEU_PY || path.join(os.homedir(), "VieNeu-TTS", ".venv", "bin", "python");
+const PY = require("./platform-paths.js").vieneuPython();
 
 function moduleDir(rev) {
     if (!rev) return REPO;

@@ -126,7 +126,7 @@ test("the pin names a release whose flat asset names are unique and derived from
     // The release plan uploads exactly these, at the pinned sizes, with the attribution
     const plan = releaseAssets(pin, "/hf");
     assert.deepEqual(plan.map(a => a.name), names);
-    assert.ok(plan.every(a => a.from.startsWith("/hf/hub/models--") && a.from.includes("/snapshots/")));
+    assert.ok(plan.every(a => a.from.replace(/\\/g, "/").startsWith("/hf/hub/models--") && a.from.replace(/\\/g, "/").includes("/snapshots/")));
     const notes = releaseNotes(pin);
     for (const r of pin.repos) assert.ok(notes.includes(r.revision), r.repo);
     assert.match(notes, /Apache License, Version 2\.0/);
@@ -566,7 +566,9 @@ test("the updater drops the old ~/.cache model only on our installs, once the se
     }
 });
 
-test("the updater waits only for a browser that has this extension loaded, any Chromium one when it cannot tell", skipPy, () => {
+// The case lays macOS profile folders (~/Library/Application Support); the Windows layout is not measured
+test("the updater waits only for a browser that has this extension loaded, any Chromium one when it cannot tell",
+    { skip: (process.platform !== "darwin" && "macOS profile layout") || (!PY && "no python3") }, () => {
     const r = pinCase("browsers");
     assert.deepEqual(r.none, []);
     assert.equal(r.fresh_chrome_running, false, "loaded in no profile: no browser reads the folder, the update goes in");
@@ -596,7 +598,7 @@ test("Stop-VieNeu also stops the updater and the model download of that VieNeu f
     assert.ok(win.indexOf("Invoke-Autostart '-Uninstall'") < win.indexOf("Remove-Item $VnDir -Recurse -Force"));
 });
 
-test("the Mac installer opens the guide in the default browser when it is Chromium-based, else in the first one installed", () => {
+test("the Mac installer opens the guide in the default browser when it is Chromium-based, else in the first one installed",{ skip: !fs.existsSync("/bin/bash") && "needs /bin/bash" }, () => {
     const mac = R("tools/share/install-mac.sh");
     const pick = (re) => { const m = mac.match(re); assert.ok(m, String(re)); return m[0]; };
     const fns = [pick(/^CHROMIUM_IDS=.*$/m), pick(/^default_browser\(\) \{[\s\S]*?^\}$/m), pick(/^open_in_chromium\(\) \{[\s\S]*?^\}$/m)].join("\n");
@@ -647,7 +649,7 @@ test("--promote moves main only to the staged commit whose install test passed",
     assert.match(R("tools/dichphude-update.py"), /REF or "main"/);
 });
 
-test("the updater LaunchAgent carries DPD_REF only under the install test", () => {
+test("the updater LaunchAgent carries DPD_REF only under the install test",{ skip: !fs.existsSync("/bin/bash") && "needs /bin/bash" }, () => {
     const mac = R("tools/share/install-mac.sh");
     const start = mac.indexOf("updater_plist() {");
     const fn = mac.slice(start, mac.indexOf("\n}\n", start) + 2);
@@ -692,6 +694,7 @@ test("the install test fails without the model release and wants every model fil
     const m = fakeModel();
     const r = m.run();
     assert.equal(r.status, 0, r.stdout);
+    r.stdout = r.stdout.replace(/\r\n/g, "\n");   // Windows Python writes CRLF
     const summary = r.stdout.split("\n").find(l => l.startsWith("Mo hinh giong da khoa:"));
     for (const re of [winRe, macRe]) {
         const real = new RegExp(re.replace("$n", "3"));
@@ -708,7 +711,7 @@ test("publish-share refuses --push while shipped files changed but the version d
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pubcheck-"));
     const pub = path.join(dir, "share");
     const git = (...a) => spawnSync("git", ["-C", pub, "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false",
-        "-c", "core.hooksPath=/dev/null", ...a], { encoding: "utf8" });
+        "-c", "core.hooksPath=/dev/null", "-c", "core.autocrlf=false", ...a], { encoding: "utf8" });
     build(pub);
     assert.equal(git("init", "-q").status, 0);
     git("add", "-A");
@@ -728,7 +731,8 @@ test("publish-share refuses --push while shipped files changed but the version d
     assert.match(c.message, /bump the version first/);
     // 3. A plain build into the checkout changes only its working tree: the last commit still counts
     build(pub);
-    assert.equal(publishCheck(fresh, pub).ok, false);
+    c = publishCheck(fresh, pub);
+    assert.equal(c.ok, false, JSON.stringify({ changed: c.changed, version: c.version, git: git("log", "--oneline").stdout, st: git("status", "--short").stdout }));
     git("checkout", "-q", "--", ".");
     // 4. The share repo holds a lower version: allowed
     const mf = path.join(pub, "extension", "manifest.json");

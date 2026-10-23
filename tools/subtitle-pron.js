@@ -15,7 +15,7 @@
 const path = require("path"), fs = require("fs"), os = require("os");
 const { execFileSync } = require("child_process");
 const REPO = path.join(__dirname, "..");
-const PY = process.env.VIENEU_PY || path.join(os.homedir(), "VieNeu-TTS", ".venv", "bin", "python");
+const PY = require("./platform-paths.js").vieneuPython();
 const arg = (k, d) => { const a = process.argv.find(x => x.startsWith(`--${k}=`)); return a ? a.slice(k.length + 3) : d; };
 
 // ---- render mode (child): [{ text, source }] on stdin, rendered with the code under --root ----

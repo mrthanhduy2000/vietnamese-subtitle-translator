@@ -149,7 +149,8 @@ function publishedState(out) {
     if (!fs.existsSync(out)) return null;
     const git = (...a) => execFileSync("git", ["-C", out, ...a], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
     try {
-        if (fs.realpathSync(git("rev-parse", "--show-toplevel").trim()) !== fs.realpathSync(out)) throw new Error("nested");
+        // .native expands Windows 8.3 short names (RUNNER~1) that git's toplevel spells out in full
+        if (fs.realpathSync.native(git("rev-parse", "--show-toplevel").trim()) !== fs.realpathSync.native(out)) throw new Error("nested");
         const files = new Map();
         // -z: paths raw, never quoted (a non-ASCII file name would otherwise never match)
         for (const line of git("ls-tree", "-r", "-z", "HEAD").split("\0").filter(Boolean)) {

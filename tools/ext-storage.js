@@ -20,7 +20,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 
-const DEFAULT_DIR = path.join(os.homedir(), "Library/Application Support/Google/Chrome/Profile 42/Local Extension Settings/lpknjhmnlocilmkmooomffknibghibao");
+const DEFAULT_DIR = require("./platform-paths.js").extensionStore();
 
 function varint(buf, pos) {
     let r = 0, s = 0, b;

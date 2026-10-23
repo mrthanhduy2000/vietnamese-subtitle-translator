@@ -355,7 +355,7 @@ def updater_world(ours=True):
     if ours:
         with open(os.path.join(vn, ".dichphude-vieneu"), "w") as f:
             f.write("d350c63")
-    os.environ["DPD_MODEL_URL"] = "file://" + mirror
+    os.environ["DPD_MODEL_URL"] = __import__("pathlib").Path(mirror).as_uri()
     os.environ["DPD_MODEL_NO_HF"] = "1"
     hf = os.path.join(vn, "models", "hf")
     r = subprocess.run([sys.executable, os.path.join(ext, "tools", "vieneu-pin.py"), "--install", "--vieneu", vn],

@@ -39,3 +39,14 @@ jobs:
           if [ -n "$files" ]; then
             echo "::warning title=Version files changed::Feature PRs should not bump the version or edit version-history.js. Add docs/changes/<slug>.md instead (see docs/changes/README.md). Changed: $(echo $files | tr '\n' ' ')"
           fi
+
+  # Friends on Windows run the same suite; macOS-only cases skip themselves (docs/WINDOWS.md).
+  npm-test-windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
