@@ -951,7 +951,7 @@ test("quick menu: Tab goes round inside it on both players, sliders included", (
     assert.equal((src.match(/trapTab\(menu, e\)/g) || []).length, 2, "both quick menus use it");
 });
 
-// 2.9.7: popup text tokens must stay readable (WCAG AA, 4.5:1) in both themes.
+// 2.9.8: popup text tokens must stay readable (WCAG AA, 4.5:1) in both themes.
 test("popup contrast: muted and secondary text, white-on-accent button and dark success button reach 4.5:1", () => {
     const css = R("popup.css");
     const lum = hex => {
