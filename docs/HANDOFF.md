@@ -1,5 +1,7 @@
 # Handoff (2026-10-23, 2.9.5)
 
+- Test-only change after 2.9.4 (no bump): GitHub Actions `test.yml`, `tests/units.test.js`, `npm run coverage`.
+
 ## State
 - 2.9.5 (lane B/D, glossary): +34,700 names from 50 topic drafts (`scratchpad/cands3`), 73,270
   candidates in total. Drafted from memory, mostly unverified. About 181 still read Vietnamese by
@@ -36,5 +38,5 @@
   Bwe7zLSPtXA h0I4083Bm9s dGCdYtk9fHQ nDg7NumntYc E8UKIJ2rLjg RCPS2VC3lk4 MmQp4PkvXV4 w7kz2lI1IMw.
 - Carried over: prompt 3 and the >> split (BACKLOG 44); 2.6.5-2.6.8 not checked live; `screen-text.js`
   never ran; share repo promotion of 2.5.7-2.8.8 after a green install test; BACKLOG 43-47; 2.5.7
-  shortcuts on YouTube; joint-takes branches; 2.5.0 Coursera start hold; CI gaps; voice items "có
+  shortcuts on YouTube; joint-takes branches; 2.5.0 Coursera start hold; CI exists now (test.yml), coverage gaps in TESTING.md; voice items "có
   nghĩa là", DN, NHNN; `ban-giao.md` lacks the share repo. Never ask about Chrome's Apple Events setting.

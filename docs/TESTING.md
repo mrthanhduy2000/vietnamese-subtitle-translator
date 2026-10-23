@@ -8,6 +8,12 @@ npm test          # ~25 s (hardening.test.js sets the pace). The bar is 0 fail; 
                   # 442 tests / 441 pass as of 2026-09-27, and the count keeps growing
 ```
 
+CI: `.github/workflows/test.yml` runs `npm test` on every PR and push to main (Node 22, no install
+step) and prints `npm run coverage` in the job summary (informational, not a gate). Weakest files at
+the time of writing: `player-ui.js` (DOM), `screen-text.js` 116-207, `cst-cache.js` 59-139;
+`content.js`, `youtube.js`, `background.js` run inside `vm` and are not counted. `units.test.js`
+covers the pure helpers of `transcript.js` and `subtitle-style.js`.
+
 The one skip is intentional (see `reload-fight.test.js` below). **A fail is a regression, not noise.**
 The per-file counts below were taken on 2026-09-23 and drift as tests are added; treat them as a
 sense of weight, not an assertion.
