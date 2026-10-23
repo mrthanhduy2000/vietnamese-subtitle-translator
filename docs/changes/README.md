@@ -22,6 +22,9 @@ are **Vietnamese**, plain, no long dashes. The file name and everything else sta
 - Another change.
 ```
 
+A note with a title but no bullets is still accepted: each body paragraph becomes one item. The
+release step may tidy English-only notes into Vietnamese before `--apply`.
+
 Bullets may wrap onto indented continuation lines. A comparison table (`bang`) is not supported in
 notes; the release step can add one by hand when real measurements exist.
 

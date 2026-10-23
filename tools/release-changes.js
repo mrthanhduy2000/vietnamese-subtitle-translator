@@ -21,7 +21,12 @@ function parseNote(text, name = "note") {
         if (/^\s*-\s+\S/.test(l)) y.push(l.replace(/^\s*-\s+/, "").trim());
         else if (/^\s+\S/.test(l) && y.length) y[y.length - 1] += " " + l.trim();
     }
-    if (!y.length) throw new Error(`${name}: no "- " bullets`);
+    // Free-form notes (no "- " bullets): each non-empty body paragraph becomes one item.
+    if (!y.length) {
+        const body = lines.slice(lines.indexOf(head) + 1).join("\n").split(/\n\s*\n/).map(p => p.replace(/\s+/g, " ").trim()).filter(Boolean);
+        y.push(...body);
+    }
+    if (!y.length) throw new Error(`${name}: no bullets or body text`);
     return { ten, y };
 }
 

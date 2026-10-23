@@ -11,9 +11,14 @@ test("change note: parses title and wrapped bullets", () => {
     assert.deepEqual(n.y, ["Một việc tiếp dòng", "Việc hai"]);
 });
 
+test("change note: free-form body without bullets becomes one item per paragraph", () => {
+    const n = parseNote("# Ghi chú tự do\n\nĐoạn một\ntiếp dòng.\n\nĐoạn hai.\n", "f.md");
+    assert.deepEqual(n.y, ["Đoạn một tiếp dòng.", "Đoạn hai."]);
+});
+
 test("change note: rejects a note without title or bullets", () => {
     assert.throws(() => parseNote("- only bullet", "a.md"), /title/);
-    assert.throws(() => parseNote("# Title only", "b.md"), /bullets/);
+    assert.throws(() => parseNote("# Title only", "b.md"), /body/);
 });
 
 test("change notes: README is skipped and entry merges all bullets", () => {
