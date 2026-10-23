@@ -10,6 +10,13 @@
             ]
         },
         {
+            v: "2.9.7", luc: "23/10/2026", ten: "Bản dịch sạch hơn khi mô hình thêm định dạng",
+            y: [
+                "Bỏ số thứ tự mô hình chép thừa ở đầu câu, dấu sao in nghiêng, thẻ <i>/<b> và mã HTML (&amp;), chỉ khi câu gốc không có sẵn những dấu đó.",
+                "Bỏ ký tự vô hình (zero-width) và đổi khoảng trắng không ngắt dòng thành khoảng trắng thường, để giọng đọc không bị lệch."
+            ]
+        },
+        {
             v: "2.9.5", luc: "23/10/2026", ten: "Từ điển thêm gần 35.000 tên riêng",
             y: [
                 "Thêm khoảng 35.000 tên riêng về thể thao, giải trí, âm nhạc, khoa học, công nghệ, sức khỏe, địa danh, kinh tế, thú cưng, du lịch và thời trang. Từ điển có khoảng 73.000 mục.",
