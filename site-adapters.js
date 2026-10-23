@@ -62,10 +62,32 @@
             .map(l => new URL(l, baseUrl).href);
     }
 
+    // Segments with the playlist time at which each one starts a timeline period. After an
+    // #EXT-X-DISCONTINUITY the segment's own cue times restart from 0, so the time of everything
+    // before it (e.g. a 3.5 s ident ahead of the talk) must be added back to land on the video clock.
+    function parseHlsTimeline(playlist, baseUrl) {
+        const out = [];
+        let elapsed = 0, dur = 0, periodStart = 0;
+        for (const raw of String(playlist || "").split(/\r?\n/)) {
+            const l = raw.trim();
+            if (!l) continue;
+            if (l.startsWith("#EXTINF:")) { dur = parseFloat(l.slice(8)) || 0; continue; }
+            if (l.startsWith("#EXT-X-DISCONTINUITY") && !l.startsWith("#EXT-X-DISCONTINUITY-SEQUENCE")) { periodStart = elapsed; continue; }
+            if (l.startsWith("#")) continue;
+            out.push({ url: new URL(l, baseUrl).href, offset: periodStart });
+            elapsed += dur;
+            dur = 0;
+        }
+        return out;
+    }
+
     async function loadHlsVtt(uri, fetchText) {
-        const segs = parseHlsSegments(await fetchText(uri), uri);
         const cues = [];
-        for (const s of segs) cues.push(...parseVtt(await fetchText(s)));
+        for (const seg of parseHlsTimeline(await fetchText(uri), uri)) {
+            for (const c of parseVtt(await fetchText(seg.url))) {
+                cues.push(seg.offset ? { start: c.start + seg.offset, end: c.end + seg.offset, text: c.text } : c);
+            }
+        }
         return cues;
     }
 
@@ -117,5 +139,5 @@
         }
     }
 
-    root.CST_SITES = { register, find, prepare, choose, parseVtt, parseHlsSubtitles, parseHlsSegments, loadHlsVtt, TRACK_MARK };
+    root.CST_SITES = { register, find, prepare, choose, parseVtt, parseHlsSubtitles, parseHlsSegments, parseHlsTimeline, loadHlsVtt, TRACK_MARK };
 })();

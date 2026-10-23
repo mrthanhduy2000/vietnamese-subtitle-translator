@@ -26,14 +26,16 @@ const MASTER = [
 const VTT = "WEBVTT\n\nNOTE x\n\n00:00:01.000 --> 00:00:03.500 align:start\nHello <i>there</i>.\n\n1\n00:03.600 --> 00:05.000\nSecond line\nwraps.\n\n00:06.000 --> 00:05.000\nbackwards\n";
 const FILES = {
     [STREAM]: MASTER,
-    "https://hls.ted.com/talks/123/subtitles/en/index.m3u8": "#EXTM3U\n#EXTINF:60,\nseg0.vtt\n#EXT-X-ENDLIST",
+    "https://hls.ted.com/talks/123/subtitles/en/index.m3u8":
+        "#EXTM3U\n#EXTINF:3.504,\nintro.vtt\n#EXT-X-DISCONTINUITY\n#EXTINF:60,\nseg0.vtt\n#EXT-X-ENDLIST",
+    "https://hls.ted.com/talks/123/subtitles/en/intro.vtt": "WEBVTT\n",
     "https://hls.ted.com/talks/123/subtitles/en/seg0.vtt": VTT,
 };
 const fetchText = async u => { if (!(u in FILES)) throw new Error("404 " + u); return FILES[u]; };
 
-const pageDoc = (stream = STREAM) => ({
+const pageDoc = (stream = STREAM, key = "videoPlayerData") => ({
     getElementById: id => id === "__NEXT_DATA__" ? { textContent: JSON.stringify({ props: { pageProps: { videoData: {
-        playerData: JSON.stringify({ resources: { hls: { stream } } }) } } } }) } : null,
+        [key]: JSON.stringify({ resources: { hls: { stream } } }) } } } }) } : null,
 });
 
 function fakeVideo() {
@@ -50,6 +52,21 @@ test("parseVtt keeps timing and text, drops notes, tags and backwards cues", () 
         { start: 1, end: 3.5, text: "Hello there." },
         { start: 3.6, end: 5, text: "Second line\nwraps." },
     ]);
+});
+
+test("cue times after an HLS discontinuity are shifted by the time before it", async () => {
+    const S = load();
+    const tl = S.parseHlsTimeline(FILES["https://hls.ted.com/talks/123/subtitles/en/index.m3u8"], "https://hls.ted.com/talks/123/subtitles/en/index.m3u8");
+    assert.deepEqual(Array.from(tl.map(t => t.offset)), [0, 3.504]);
+    const cues = await S.loadHlsVtt("https://hls.ted.com/talks/123/subtitles/en/index.m3u8", fetchText);
+    assert.equal(Math.round(cues[0].start * 1000), 4504);   // 1.0 s in the file, 3.504 s intro
+});
+
+test("TED stream is found in videoPlayerData, playerData or hlsUrl", async () => {
+    const S = load(), loc = { hostname: "www.ted.com", pathname: "/talks/a" };
+    for (const doc of [pageDoc(STREAM, "playerData"), { getElementById: () => ({ textContent: JSON.stringify({ props: { pageProps: { videoData: { hlsUrl: STREAM } } } }) }) }]) {
+        assert.equal(await S.prepare(fakeVideo(), { loc, doc, fetchText, makeCue: () => ({}) }), 1);
+    }
 });
 
 test("HLS master gives subtitle renditions with absolute URIs, audio is ignored", () => {
@@ -74,6 +91,7 @@ test("prepare adds only the English track to the video as a TextTrack", async ()
     assert.equal(v.tracks[0].language, "en");
     assert.equal(v.tracks[0].mode, "hidden");
     assert.ok(!/^cst/i.test(v.tracks[0].label), "pageTracks() skips labels starting with cst");
+    assert.equal(v.tracks[0].cues[0].s, 4.504);
     assert.deepEqual(Array.from(v.tracks[0].cues.map(c => c.t)), ["Hello there.", "Second line\nwraps."]);
     // a second call does not add a duplicate track
     assert.equal(await S.prepare(v, { loc: { hostname: "www.ted.com", pathname: "/talks/a" }, doc: pageDoc(), fetchText, makeCue: () => ({}) }), 1);
