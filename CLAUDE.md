@@ -30,9 +30,12 @@ counts across videos, never as "this video".
    loses what the speaker actually said. There is no condense code any more (removed in 1.7.3,
    `tests/backlog.test.js` guards it); do not add one back, and do not propose "translate it
    shorter" either.
-2. **Bump the version at the end of every code change**: `node tools/bump-version.js`. Scheme is
-   +0.0.1 with carry at 9 (`1.2.9` -> `1.3.0`, `1.9.9` -> `2.0.0`). The script owns all five places
-   the version appears; never hand-edit `build-info.js` or a version badge.
+2. **Feature PRs never bump the version or edit `version-history.js`.** Parallel PRs would conflict
+   on every merge. Add one note `docs/changes/<slug>.md` instead (format: `docs/changes/README.md`).
+   A periodic release step runs `node tools/release-changes.js --apply`, which bumps once
+   (`tools/bump-version.js`: +0.0.1, carry at 9, `1.2.9` -> `1.3.0`, `1.9.9` -> `2.0.0`), writes the
+   history entry and deletes the notes. The scripts own all five places the version appears; never
+   hand-edit `build-info.js` or a version badge.
 3. **Tell the user to click Reload** at `chrome://extensions` after any change. Never tell them to
    remove it and Load unpacked again: Chrome then recreates the settings store and the Gemini API
    key plus dubbing settings are lost.
@@ -130,7 +133,7 @@ outside your lane, say so in the commit message. `build-info.js` is generated; n
 npm test                       # fully offline, ~25 s. The bar is 0 fail. 1 skip is normal
                                # (the count grows as tests are added: never compare it to a number in a doc)
 npm run compare                # old vs new segmenter over the fixtures
-node tools/bump-version.js     # run at the end of every code change
+node tools/release-changes.js  # release step only: collect docs/changes/*.md into one version bump (--apply to write)
 git push                       # after every commit: private repo on GitHub (see Definition of done)
 node tools/publish-share.js --push  # update the PUBLIC repo friends install from (only when asked; docs/MAP.md)
 node tools/review.js           # a batch review in one command ("Đã có dữ liệu rà soát mới"); --close when done
@@ -155,15 +158,16 @@ By hand, `/ban-giao` is:
    pass counts against a number in a doc, they go stale: use `git stash` if you need to know
    whether a failure predates you. If translation or dubbing runtime code changed, also
    `node tools/regress.js`: nothing worse, or every worse number explained, then `--save`.
-2. `node tools/bump-version.js`, but **only if a runtime file changed**: `manifest.json`, or a
-   `.js` / `.html` / `.css` in the repo root. Docs, `tools/` and `tests/` do not earn a bump.
+2. If a runtime file changed (`manifest.json`, or a `.js` / `.html` / `.css` in the repo root), add a
+   note in `docs/changes/` (rule 2). Do **not** run `bump-version.js` yourself unless you are the
+   release step. Docs, `tools/` and `tests/` need no note.
 3. Rewrite `docs/HANDOFF.md`: current state, what is unfinished, traps that cost you time. Replace
    it, do not append. Roughly 40 lines, 45 hard cap. **One exception:** if the note you are
    replacing came from a different session and its "Unfinished" items are still open, carry those
    items over. Replacing is for stale content, not for someone else's unfinished work.
 4. Anything structural the next session would waste tokens rediscovering goes in the matching
    `docs/` file, or in `docs/BACKLOG.md` if it is a defect you are not fixing.
-5. `git add -A && git commit`, version number in the subject if step 2 bumped it. **If another
+5. `git add -A && git commit`, version number in the subject only on the release commit. **If another
    session is working in this folder at the same time, commit your own paths, not `-A`** - it has
    happened here, and you would be committing someone's half-finished feature.
 6. `git push` to `origin`. The repo lives at `github.com/mrthanhduy2000/vietnamese-subtitle-translator`
