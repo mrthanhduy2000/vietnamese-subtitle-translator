@@ -155,6 +155,9 @@
             say } : false;
         return keepKeys;
     };
+    const UNIT_SQ = { km: "ki-lô-mét", m: "mét", cm: "xen-ti-mét", mm: "mi-li-mét" };
+    // (2.9.9) digit-by-digit words: a PIN, a one-time code, a phone number, a tax or ID number
+    const ID_WORDS = /((?<![\p{L}])(?:OTP|PIN|CCCD|CMND|CMT|MST|SĐT|STK|mã số thuế|số điện thoại|điện thoại|hotline|số tài khoản|mã xác (?:nhận|minh|thực)|mã bảo mật|mã pin|mã otp)(?![\p{L}])[^\d\n]{0,10}?)(\+?\d[\d ]{2,}\d)(?![\d.,]\d)/giu;
     function adaptForSpeech(text) {
         // (2.6.4) letter-led names are kept before cleanText, which turns a slash into "hoặc" ("CI/CD")
         const keep = keepRe();
@@ -187,15 +190,34 @@
         // Only real domain endings, lower case: "TP.HCM" or "v.v." must stay as they are
         t = t.replace(/\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|org|net|ai|io|dev|edu|gov|vn|co|app|me|info|so|gg|tv|ly|us|uk)\b(?:\/[\w\-./]*[\w\-/])?/g,
             m => m.replace(/\//g, " gạch chéo ").replace(/\./g, " chấm ").replace(/\s+/g, " ").trim());
+        // (2.9.9) A code, a PIN or a phone number is said digit by digit, never as one amount
+        // ("mã OTP 482913" was "bốn trăm tám mươi hai nghìn chín trăm mười ba")
+        t = t.replace(ID_WORDS, (m0, lead, num) => lead + num.replace(/\d/g, d => " " + d).replace(/\s+/g, " ").trim().replace(/^/, ""));
+        // 9am, 9:30 PM, 7 p.m.: the hour and the part of the day ("a m" was spelled out)
+        t = t.replace(/(?<![\p{L}\p{N}:])(\d{1,2})(?::(\d{2}))?\s?([ap])\.?m(?:\.(?=\s+\p{Ll}))?(?![\p{L}\p{N}])/giu, (m0, h, mi, ap) => {
+            const hour = Number(h);
+            if (hour < 1 || hour > 12 || (mi && Number(mi) > 59)) return m0;
+            const part = ap.toLowerCase() === "a" ? "sáng" : (hour === 12 || hour < 6 ? "chiều" : "tối");
+            return `${hour} giờ${mi && mi !== "00" ? " " + Number(mi) : ""} ${part}`;
+        });
+        // A minus sign before a number: -5, −5°C ("gạch ngang năm" otherwise)
+        t = t.replace(/(?<![\p{L}\p{N}])(?<!\d\s)[-−](?=\d)/gu, "âm ");
         // $20 -> "20 đô la" (read as "hai mươi u s d" otherwise); 5 USD -> "5 đô la"
-        t = t.replace(/(?:US)?\$\s?(\d[\d.,]*)(\s?(?:[KMB]|nghìn|ngàn|triệu|tỷ)\b)?/g, (m0, n, mag) => `${n}${mag || ""} đô la`);
+        t = t.replace(/(?:US)?\$\s?(\d+(?:[.,]\d+)*)(\s?(?:[KMB]|nghìn|ngàn|triệu|tỷ)\b)?/g, (m0, n, mag) => `${n}${mag || ""} đô la`);
         t = t.replace(/(\d)\s?USD\b/g, "$1 đô la");
+        // (2.9.9) the other currencies: €50, 50€, 20 EUR, £30, ¥1000; and the dong: 100.000đ, 5 VND
+        // ("một trăm nghìnđ" glued, "vê en đê" spelled)
+        const CURRENCY = { "€": "ơ-rô", "£": "bảng Anh", "¥": "yên", EUR: "ơ-rô", GBP: "bảng Anh", JPY: "yên", CNY: "nhân dân tệ", RMB: "nhân dân tệ" };
+        t = t.replace(/([€£¥])\s?(\d+(?:[.,]\d+)*)(\s?(?:[KMB]|nghìn|ngàn|triệu|tỷ)(?![\p{L}\p{N}]))?/gu, (m0, c, n, mag) => `${n}${mag || ""} ${CURRENCY[c]}`);
+        t = t.replace(/(\d)\s?([€£¥])/gu, (m0, d, c) => `${d} ${CURRENCY[c]}`);
+        t = t.replace(/(\d)\s?(EUR|GBP|JPY|CNY|RMB)(?![\p{L}\p{N}])/gu, (m0, d, c) => `${d} ${CURRENCY[c]}`);
+        t = t.replace(/(\d)\s?(?:₫|đ|VNĐ|VND)(?![\p{L}\p{N}])/gu, "$1 đồng");
         t = t.replace(/(\d)\s*%/g, "$1 phần trăm");
         // 7B / 200K / 1.5M after a number: "7 tỷ", "200 nghìn", "1.5 triệu" (not "bảy bê", "hai trăm ca")
         // (2.8.0) ... except a screen or a video: "4K", "8K" in a line about one is a resolution ("video 4
         // nghìn" before), said "bốn ca" (as a digit before "ca", VieNeu read "four"). Money stays
         // nghìn: "6K đến 8K một tháng" names no screen
-        const SCREEN = /video|màn hình|độ phân giải|quay|camera|máy ảnh|tivi|\bTV\b|HDR|phim|youtube|stream|chuẩn/i;
+        const SCREEN = /video|màn hình|độ phân giải|quay|camera|máy ảnh|tivi|\bTV\b|HDR|phim|youtube|stream|chuẩn|\bfps\b|\d\s?fps|\bOLED\b|\bUHD\b|\bHz\b/i;
         if (SCREEN.test(t)) t = t.replace(/\b([48])K\b/g, (m0, n) => `${n === "4" ? "bốn" : "tám"} ca`);
         // (2.8.2) ... only a letter standing alone: "2020 Mình" was "2020 triệuình" (\b ends at "ì")
         t = t.replace(/\b(\d+(?:[.,]\d+)?)\s?([KMB])(?![\p{L}\p{N}])/gu, (m0, n, u) => `${n} ${{ K: "nghìn", M: "triệu", B: "tỷ" }[u]}`);
@@ -204,8 +226,16 @@
         // Grouped thousands, Vietnamese 1.500.000 or English 1,500,000: say it in words. The old code
         // stripped the dots to 1500000, and the server reads 7+ digit runs one digit at a time
         // ("một năm không không không không không"); an English 1,000 came out as "một".
+        // (2.9.9) 1.234,56 and 1,234.56: the grouped part in words, the cents after "phẩy"
+        t = t.replace(/\b(\d{1,3}(?:\.\d{3})+),(\d{1,2})(?!\d)|\b(\d{1,3}(?:,\d{3})+)\.(\d{1,2})(?!\d)/g, (m0, a, b, c, d) =>
+            `${numberToVietnamese(Number((a || c).replace(/[.,]/g, "")))} phẩy ${b || d}`);
+        // (2.9.9) a long fraction is a decimal, digit by digit: 3.14159, 0.001 (a leading 0 group is
+        // never a thousand). 1.234 and 12.500 stay Vietnamese thousands
+        t = t.replace(/(?<![\p{N}.,])(\d+)[.,](\d+)(?![.,]?\d)/gu, (m0, a, b) =>
+            b.length >= 4 || (b.length === 3 && /^0+$/.test(a)) ? `${a} phẩy ${b.split("").join(" ")}` : m0);
         t = t.replace(/\b\d{1,3}(?:\.\d{3})+(?![.,]?\d)|\b\d{1,3}(?:,\d{3})+(?![.,]?\d)/g, m => numberToVietnamese(Number(m.replace(/[.,]/g, ""))));
-        t = t.replace(/\b\d{7,}\b/g, m => numberToVietnamese(Number(m)));
+        // a run starting with 0 is an identifier (tax code, phone): the server says it digit by digit
+        t = t.replace(/\b(?!0)\d{7,}\b/g, m => numberToVietnamese(Number(m)));
         // A hyphenated identifier with a number in it is one name, not a range: "GPT-5.6",
         // "Llama-3.3-70B", "COVID-19", a model id with a version inside. The server says the hyphen
         // ("gạch ngang", "dash") and reads the dot as a decimal ("phẩy"): split into words, dots "chấm".
@@ -236,6 +266,13 @@
         t = t.replace(/(?<![\p{L}\p{N}])([A-G])#(?![\p{L}\p{N}#])/gu, "$1 sharp");
 
         t = t.replace(/(\d)\s*[x×]\s*(\d)/g, "$1 nhân $2");
+        // (2.9.9) Area and volume units, powers, comparison signs
+        t = t.replace(/(\d)\s?(km|cm|mm|m)[²2](?![\p{L}\p{N}])/gu, (m0, d, u) => `${d} ${UNIT_SQ[u]} vuông`);
+        t = t.replace(/(\d)\s?(km|cm|mm|m)[³3](?![\p{L}\p{N}])/gu, (m0, d, u) => `${d} ${UNIT_SQ[u]} khối`);
+        t = t.replace(/(?<=[\p{L}\p{N}])²/gu, " bình phương").replace(/(?<=[\p{L}\p{N}])³/gu, " lập phương");
+        t = t.replace(/(?<=[\p{L}\p{N}])\s?\^\s?(\d+)(?![\p{L}\p{N}])/gu, (m0, e) => ` mũ ${e}`);
+        t = t.replace(/\s?≥\s?/g, " lớn hơn hoặc bằng ").replace(/\s?≤\s?/g, " nhỏ hơn hoặc bằng ").replace(/\s?≠\s?/g, " khác ")
+            .replace(/\s?[≈≃]\s?/g, " xấp xỉ ").replace(/\s?±\s?/g, " cộng trừ ").replace(/√\s?(?=\p{N})/gu, "căn bậc hai của ").replace(/π/g, "pi");
         t = t.replace(/\s=\s|(?<=\w)=(?=\w)/g, " bằng ");
         // 2.6.1: "+" inside an English name is "and" ("Travel + Leisure", "Florence + The Machine"),
         // glued to its end "plus" ("Disney+", "Apple TV+", "C++"); between numbers still "cộng"
