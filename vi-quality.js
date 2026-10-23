@@ -17,9 +17,74 @@
     // JavaScript: \b chỉ hiểu chữ ASCII, nên "\bthứ" không bao giờ khớp.
     // Đổi mọi \b thành ranh giới hiểu chữ tiếng Việt có dấu (Unicode).
     const B = "(?:(?<=[\\p{L}\\p{N}])(?![\\p{L}\\p{N}])|(?<![\\p{L}\\p{N}])(?=[\\p{L}\\p{N}]))";
+    // A boundary next to a letter needs only one side checked: "\bfoo" is "not after a letter",
+    // "foo\b" is "not before a letter". The full B above has a lookbehind and a lookahead in an
+    // alternation that V8 tries at every start position, which made assess() (44 calque patterns per
+    // sentence) the slowest per-sentence step. Only the simple shapes below are rewritten; anything
+    // else keeps B. Same matches as B (checked against random positive/negative texts).
+    const NOT_AFTER = "(?<![\\p{L}\\p{N}])", NOT_BEFORE = "(?![\\p{L}\\p{N}])";
+    const isLN = c => /^[\p{L}\p{N}]$/u.test(c);
+    function groupEnd(s, i) {
+        let d = 0;
+        for (let j = i; j < s.length; j++) {
+            const c = s[j];
+            if (c === "\\" || c === "[") return -1;
+            if (c === "(") d++;
+            else if (c === ")" && --d === 0) return j;
+        }
+        return -1;
+    }
+    function splitAlts(s) {
+        const out = [];
+        let d = 0, st = 0;
+        for (let j = 0; j < s.length; j++) {
+            const c = s[j];
+            if (c === "\\" || c === "[") return null;
+            if (c === "(") d++;
+            else if (c === ")") d--;
+            else if (c === "|" && d === 0) { out.push(s.slice(st, j)); st = j + 1; }
+        }
+        out.push(s.slice(st));
+        return out;
+    }
+    // every match of the source `s` starts with a letter or digit
+    function startsWithLetter(s) {
+        if (!s) return false;
+        if (isLN(s[0])) return !/[?*{]/.test(s[1] || "");
+        if (!s.startsWith("(?:")) return false;
+        const e = groupEnd(s, 0);
+        if (e < 0 || /[?*+{]/.test(s[e + 1] || "")) return false;
+        const alts = splitAlts(s.slice(3, e));
+        return !!alts && alts.every(startsWithLetter);
+    }
+    // every match of the source `s` ends with a letter or digit
+    function endsWithLetter(s) {
+        if (!s) return false;
+        const c = s[s.length - 1];
+        if (isLN(c)) return s[s.length - 2] !== "\\";
+        if (c !== ")") return false;
+        let d = 0, o = -1;
+        for (let j = s.length - 1; j >= 0; j--) {
+            if (s[j] === ")") d++;
+            else if (s[j] === "(" && --d === 0) { o = j; break; }
+        }
+        if (o < 0 || !s.startsWith("(?:", o)) return false;
+        const alts = splitAlts(s.slice(o + 3, -1));
+        return !!alts && alts.every(endsWithLetter);
+    }
     function vre(re) {
         const flags = re.flags.includes("u") ? re.flags : re.flags + "u";
-        return new RegExp(re.source.split("\\b").join(B), flags);
+        const parts = re.source.split("\\b");
+        let out = parts[0], before = parts[0];
+        for (let k = 1; k < parts.length; k++) {
+            const rest = parts.slice(k).join("\\b");
+            let rep = B;
+            if ((before === "" || /(?:\(\?:|\(|\|)$/.test(before)) && startsWithLetter(rest)) rep = NOT_AFTER;
+            else if ((rest === "" || /^[|)]/.test(rest)) && endsWithLetter(before)) rep = NOT_BEFORE;
+            out += rep + parts[k];
+            before += "\\b" + parts[k];
+        }
+        return new RegExp(out, flags);
     }
 
     // [mẫu, mức độ, mô tả, gợi ý]
@@ -70,6 +135,9 @@
         [/\bnó (?:là )?đáng (?:để )?(?:lưu ý|chú ý|nói|nhắc)\b/i, 3, "'it's worth noting' thêm 'nó' thừa", "dùng 'Cần lưu ý'"],
         [/\bmô hình (?:của|trong) kinh doanh\b/i, 1, "'business model' đảo trật tự", "dùng 'mô hình kinh doanh'"]
     ];
+    // Built once: assess() runs per sentence and used to recompile these four every call
+    const RE_CUA_NO = vre(/\bcủa nó\b/gi), RE_MOT_CACH = vre(/\bmột cách\b/gi);
+    const RE_PASSIVE = vre(/\b(?:được|bị)\b/gi), RE_SENTENCE_NO = vre(/(?:^|[.!?]\s+)Nó\b/);
     const CALQUES = CALQUES_RAW.map(([re, sev, d, f]) => [vre(re), sev, d, f]);
 
     // A word said twice in a row is a slip only for grammar words, which Vietnamese never doubles, and
@@ -172,10 +240,10 @@
         }
 
         const words = v.split(" ");
-        if (countMatches(v, vre(/\bcủa nó\b/gi)) >= 2) add("calque", 2, "lạm dụng 'của nó' (sao chép 'its')", "bỏ bớt, dùng 'này' hoặc lược");
-        if (countMatches(v, vre(/\bmột cách\b/gi)) >= 2) add("calque", 2, "lạm dụng 'một cách' (sao chép trạng từ -ly)", "dùng tính từ/trạng từ trực tiếp");
-        if (countMatches(v, vre(/\b(?:được|bị)\b/gi)) >= 3 && words.length < 30) add("passive", 2, "câu bị động dày đặc", "chuyển sang chủ động");
-        if (vre(/(?:^|[.!?]\s+)Nó\b/).test(v) && /(?:^|[.!?]\s+)(?:It|This)\b/.test(s)) {
+        if (countMatches(v, RE_CUA_NO) >= 2) add("calque", 2, "lạm dụng 'của nó' (sao chép 'its')", "bỏ bớt, dùng 'này' hoặc lược");
+        if (countMatches(v, RE_MOT_CACH) >= 2) add("calque", 2, "lạm dụng 'một cách' (sao chép trạng từ -ly)", "dùng tính từ/trạng từ trực tiếp");
+        if (countMatches(v, RE_PASSIVE) >= 3 && words.length < 30) add("passive", 2, "câu bị động dày đặc", "chuyển sang chủ động");
+        if (RE_SENTENCE_NO.test(v) && /(?:^|[.!?]\s+)(?:It|This)\b/.test(s)) {
             add("pronoun", 1, "'It/This' dịch máy móc thành 'Nó'", "nêu rõ đối tượng (mô hình, hàm...) nếu ngữ cảnh cho phép");
         }
         for (let i = 1; i < words.length; i++) {
