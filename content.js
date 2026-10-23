@@ -152,6 +152,11 @@ function getCurrentSite() {
     return "generic";
 }
 
+// A site with its own caption source (site-adapters.js); null when the page has none
+function csAdapterSite() {
+    return window.CST_SITES && getCurrentSite() === "generic" ? window.CST_SITES.find(location) : null;
+}
+
 // Coursera and every other page share one pipeline: a <video> with standard text tracks
 function isTrackSite(site) {
     return site === "coursera" || site === "generic";
@@ -2671,8 +2676,9 @@ async function init() {
 // Chỉ khi phụ đề KHÔNG phải tiếng Việt và nhận diện đủ chắc (nhận diện trên máy,
 // không gọi Gemini). Tắt "Tự động dịch" thì vẫn bấm nút dịch tay được.
 async function courseraAutoTranslate() {
-    // generic pages: the viewer just asked for a translation, nothing to decide automatically
-    if (getCurrentSite() !== "coursera") return null;
+    // generic pages: the viewer just asked for a translation, nothing to decide automatically,
+    // except on sites with an adapter (site-*.js), which are translated on arrival like Coursera
+    if (getCurrentSite() !== "coursera" && !csAdapterSite()) return null;
     if (!state.autoTranslate || state.active || state.autoTriedUrl === location.href) return null;
     const release = courseraHoldFirstPlay(location.href);
     try {
@@ -2720,7 +2726,11 @@ async function courseraAutoTranslateNow() {
     for (let i = 0; i < 80 && state.busy && location.href === url; i++) await sleep(250);
     if (state.busy) return null;
     let picked = null;
-    for (let i = 0; i < 30 && !(picked = pickBestTrack()); i++) await sleep(500);   // chờ trình phát nạp track
+    for (let i = 0; i < 30 && !(picked = pickBestTrack()); i++) {                   // chờ trình phát nạp track
+        // adapter sites: the captions come from the site, not the player; retry every 3 s while the video appears
+        if (i % 6 === 0 && csAdapterSite() && csVideo()) await window.CST_SITES.prepare(csVideo());
+        await sleep(500);
+    }
     if (location.href !== url || state.active || state.busy) return null;
     state.autoTriedUrl = url;
     if (!picked) return null;

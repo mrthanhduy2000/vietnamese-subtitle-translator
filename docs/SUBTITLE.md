@@ -300,8 +300,12 @@ a Reload the viewer clicks Translate again).
   WebVTT / HLS subtitle playlists and adds English (and Vietnamese if any) to the video as TextTracks
   labelled `Site: ...` (not `cst...`, which `pageTracks` skips). To add a site: new `site-<name>.js`
   calling `CST_SITES.register`, list it in the manifest after `site-adapters.js`, copy the test in
-  `tests/site-adapters.test.js`. TED is the first (HLS subtitle renditions from the Next.js
-  `playerData`); not yet seen on a live page.
+  `tests/site-adapters.test.js`. TED is the first (HLS subtitle renditions from `videoData.videoPlayerData`; cue times are
+  shifted by the time before each `#EXT-X-DISCONTINUITY`, 3.5 s on a real talk). ted.com is in the
+  manifest matches, so scripts go in on arrival and `courseraAutoTranslate` runs for any page where
+  `csAdapterSite()` is set (auto translate and voice, same as Coursera). A Vietnamese track from the site
+  is not shown by us: the "already Vietnamese" notice tells the viewer to pick it in TED's own menu.
+  `reinjectOpenTabs` (background.js) still covers YouTube and Coursera only: F5 a TED tab after Reload.
 - Not supported, by design of this path: players inside a cross-origin `<iframe>` (Vimeo embeds,
   edX units) and sites that draw captions in their own DOM with no text track (Udemy). Each needs a
   site-specific source; see `BACKLOG.md`.

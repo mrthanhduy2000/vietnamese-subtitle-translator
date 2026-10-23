@@ -29,7 +29,7 @@ test("content.js serves generic pages through the Coursera track path", () => {
     // native fullscreen: the browser draws the Vietnamese cues, the overlay steps aside
     assert.match(cs, /document\.fullscreenElement === v/);
     // Coursera never auto-translates a generic page; generic never guesses on its own
-    assert.match(cs, /if \(getCurrentSite\(\) !== "coursera"\) return null;/);
+    assert.match(cs, /if \(getCurrentSite\(\) !== "coursera" && !csAdapterSite\(\)\) return null;/);
 });
 
 test("cost and edits keys carry the host on generic pages", () => {
