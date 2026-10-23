@@ -1,6 +1,7 @@
-# Handoff (2026-10-23, 2.8.9)
+# Handoff (2026-10-23, 2.9.0)
 
 ## State
+- 2.9.0: +16 names from saved videos (2026 devices, two players). Sports and tech are near-saturated.
 - 2.8.9: glossary grows by 55 (44 media outlets and apps in "press", 11 tech and games in "tech");
   glossary-data.js ~35,100 lines; kept-English names 13,974 (`glossary-pron.js` read Vietnamese 0).
 - Audit regression fixed: 14 names had no reading ("CI/CD", "async/await", "AC/DC"...). Hand
@@ -8,7 +9,6 @@
 - Bare "4K"/"8K" are NOT read in English on purpose: in Vietnamese they are money (8K = 8 nghìn). The
   audit counts them as "money shorthand left as Vietnamese" (7 terms). "401k" stays English.
 - `npm test` 761 pass, 0 fail. `regress.js`: 0 numbers moved vs 2.8.8. `pron-eval` unchanged.
-- Expansion saturates (117 candidates, 11 new): try a new domain.
 
 ## Traps
 - A name the writer cannot respell gets no reading: check `GLOSSARY_SAY` after `--write`. Merge keeps

@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.9.0", luc: "23/10/2026", ten: "Từ điển thêm tên thiết bị và cầu thủ mới: Galaxy S26, Pixel Watch 5, Nikola Jokic, Kylian Mbappe",
+            y: [
+                "Thêm các đời máy mới giữ nguyên tiếng Anh: Galaxy S26 (Ultra, Plus), Galaxy Watch 8, Pixel 10 Pro XL, Pixel Watch 4 và 5, MacBook Pro.",
+                "Thêm cầu thủ Nikola Jokic và Kylian Mbappe, các hãng Xiaomi và Huawei, Tesla Cybertruck, tuyến Tokaido Shinkansen, sân bay Narita, Trường Y Stanford.",
+                "Các tên này được rút từ phụ đề thật của những video đã lưu (thiết bị, thể thao, du lịch), và đối chiếu với danh sách ứng viên để không trùng từ điển có sẵn."
+            ]
+        },
+        {
             v: "2.8.9", luc: "23/10/2026", ten: "Giọng đọc tên tiếng Anh có ký hiệu (CI/CD, async/await) theo kiểu quốc tế, từ điển thêm 55 tên",
             y: [
                 "Các mã có dấu gạch chéo như CI/CD, UI/UX, AC/DC, async/await, RE/MAX được đọc từng chữ cái tiếng Anh, không còn bị đọc thành \"hoặc\".",

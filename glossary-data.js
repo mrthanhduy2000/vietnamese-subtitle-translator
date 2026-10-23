@@ -34972,3 +34972,31 @@ Namecheap
 BigCommerce
 Carousell
 `);
+CST_GLOSSARY_EXTRA_ADD("gadgets", null, `
+Galaxy S26
+Galaxy S26 Ultra
+Galaxy S26 Plus
+Galaxy Watch 8
+Pixel 10 Pro XL
+Pixel Watch 4
+Pixel Watch 5
+MacBook Pro
+`);
+CST_GLOSSARY_EXTRA_ADD("tech", null, `
+Xiaomi
+Huawei
+`);
+CST_GLOSSARY_EXTRA_ADD("sports", null, `
+Nikola Jokic
+Kylian Mbappe
+`);
+CST_GLOSSARY_EXTRA_ADD("automotive", null, `
+Tesla Cybertruck
+`);
+CST_GLOSSARY_EXTRA_ADD("travel", null, `
+Tokaido Shinkansen
+Narita Airport
+`);
+CST_GLOSSARY_EXTRA_ADD("academic", null, `
+Stanford School of Medicine
+`);
