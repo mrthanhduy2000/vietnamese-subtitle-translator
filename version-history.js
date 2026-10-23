@@ -4,6 +4,16 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.0.4", luc: "23/10/2026", ten: "Windows support (no runtime change, no version bump)",
+            y: [
+                "`tools/platform-paths.js`: Chrome store, VieNeu interpreter and temp folder per OS, used by the maintainer tools.",
+                "`tools/vieneu-runner.pyw`: CPU stays the default; `VIENEU_BACKEND` / `VIENEU_DEVICE` set in the user environment win (NVIDIA opt-in, `docs/WINDOWS.md`).",
+                "CI: `npm-test-windows` job on `windows-latest`; `.gitattributes` forces LF.",
+                "`tests/share.test.js`: Windows-safe (file URIs, CRLF, separators); macOS-only cases skip.",
+                "Needs a real Windows machine: GPU path untested; updater browser detection (`holders`) on the Windows profile layout is not covered by a test (BACKLOG 43 still open)."
+            ]
+        },
+        {
             v: "3.0.3", luc: "23/10/2026", ten: "Hỗ trợ ted.com, lồng tiếng đọc tên chuẩn hơn, từ điển và bảo mật được củng cố",
             y: [
                 "Thêm ted.com: phụ đề các bài TED được lấy từ trang, dịch tự động khi mở bài và khi chuyển sang bài khác trong trang, kèm thông báo nếu bài đã có tiếng Việt. Trang khác không dùng thẻ phụ đề chuẩn có thể thêm bộ đọc riêng.",
