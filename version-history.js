@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.9.7", luc: "23/10/2026", ten: "Thông báo lỗi dễ hiểu hơn và hiện tiến độ dịch",
+            y: [
+                "Khi dịch lỗi, thông báo giờ nói rõ nguyên nhân bằng tiếng Việt (hết hạn mức, quá giới hạn tốc độ, sai API Key, mất mạng, máy chủ quá tải, tiện ích vừa cập nhật) và chỉ việc nên làm tiếp, kèm nút Tải lại trang hoặc Mở Cài đặt khi cần. Trước đây Coursera luôn bảo kiểm tra mạng dù lỗi do nguyên nhân khác.",
+                "Cửa sổ tiện ích và menu trên trình phát hiện \"Đang dịch x/y đoạn\" thay vì chỉ \"Đang dịch…\"."
+            ]
+        },
+        {
             v: "2.9.6", luc: "23/10/2026", ten: "Không hiện thông báo hết hạn mức của MyMemory làm phụ đề",
             y: [
                 "Khi Google Translate lỗi và dịch vụ dự phòng MyMemory hết hạn mức trong ngày, nó trả về một câu cảnh báo bằng tiếng Anh với mã HTTP 200. Trước đây câu cảnh báo đó bị hiện lên màn hình như một dòng phụ đề. Nay nó bị loại và dòng đó để trống để dịch lại sau."
