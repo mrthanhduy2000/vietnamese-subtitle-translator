@@ -1575,7 +1575,7 @@ async function localCacheBytes() {
     let bytes = 0, count = 0;
     const videos = { count: 0, bytes: 0, fresh: 0, max: YT_SAVED_MAX, reviewed: REVIEW_MARK.videos, until: REVIEW_MARK.until };
     for (const [k, v] of Object.entries(all)) {
-        if (!/^ytcache|^ctxterms_/.test(k)) continue;
+        if (!/^ytcache|^cscache|^ctxterms_/.test(k)) continue;
         const chars = JSON.stringify(v).length;
         bytes += chars * 2;
         count++;
@@ -1584,7 +1584,7 @@ async function localCacheBytes() {
         videos.bytes += Math.round(chars * 1.15);              // UTF-8, as youtube.js ytCacheBytes
         if (((v && v.luc) || 0) > REVIEW_MARK.until) videos.fresh++;
     }
-    return { bytes, count, videos, keys: Object.keys(all).filter(k => /^ytcache|^ctxterms_/.test(k)) };
+    return { bytes, count, videos, keys: Object.keys(all).filter(k => /^ytcache|^cscache|^ctxterms_/.test(k)) };
 }
 
 async function handleCacheStats() {

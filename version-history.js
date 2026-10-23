@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.9.4", luc: "23/10/2026", ten: "Coursera lưu nguyên bài đã dịch, mở lại không gọi Gemini nữa",
+            y: [
+                "Mỗi bài Coursera (và trang video khác) dịch xong được lưu nguyên bài trên máy. Mở lại bài đó, phụ đề tiếng Việt hiện ngay, không tốn lượt gọi Gemini, kể cả sau khi từ điển được cập nhật.",
+                "Nếu phụ đề gốc của bài thay đổi, bản đã lưu không được dùng và bài được dịch lại. Giữ 200 bài gần nhất; nút xóa bộ nhớ dịch trong Cài đặt xóa luôn các bài đã lưu.",
+                "Đoạn nào Gemini lỗi và phải dịch tạm bằng Google sẽ được hỏi lại Gemini tối đa 3 lần (sau 20, 40, 60 giây), không đổi đoạn đang phát. Bài chỉ được lưu khi không còn đoạn nào dịch tạm."
+            ]
+        },
+        {
             v: "2.9.3", luc: "23/10/2026", ten: "Phụ đề trống hoặc hỏng: thử hết các phụ đề còn lại",
             y: [
                 "Khi phụ đề được chọn trống hoặc phụ đề tự động không đọc được, tiện ích từng chỉ thử thêm một phụ đề khác. Nếu phụ đề đó cũng trống thì dừng, dù video còn phụ đề dùng được. Nay tiện ích thử lần lượt tối đa 4 phụ đề khác.",

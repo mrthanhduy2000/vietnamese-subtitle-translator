@@ -60,6 +60,18 @@ runs in the same world, reading `content.js`'s `state` and `CST_UI` directly (no
    current `navGen`); `disableTranslation` bumps `navGen` too. The popup's total is
    `state.groupTotal`. Measured on a simulated 10-minute lecture (25 windows): Gemini replies waited
    for before the first Vietnamese line 25 -> 1.
+11. Saved lectures (2.9.3): a lecture is also kept whole in `storage.local` as `cscache1_<host><path>`
+   `{ luc, fp, vi }` (`csSaveKey`, `csWriteSaved`): `vi` is the final Vietnamese per group, `fp`
+   (`csFingerprint`) hashes the groups' source text and start times, so a changed track or grouping
+   (`perCueMode`) is translated afresh. A hit skips `translateAllGroups` and goes straight to
+   `applyTranslation`: no request at all. Why on top of the service worker's per-window cache: that key
+   holds the protected glossary terms and `TR_PROMPT_VERSION`, so every glossary release re-billed the
+   windows holding a new name, and its 30 MB is shared with YouTube. `cscacheIdx` `[[key, luc]]` keeps
+   the newest 200 (`CS_SAVE_MAX`) without reading all of storage. Saved only when no window came from
+   Google or failed: `translateAllGroups(opts.fallbacks)` collects those (`csWeakAnswer`), and
+   `csHealFallbacks` (`CS_HEAL`, as YouTube's `YT_HEAL`) asks Gemini for them again after the lecture
+   is shown, up to 3 rounds 20/40/60 s apart, never a window playing or due in 15 s, re-applying after
+   each round that mended something and saving once none is left. A page change or switch-off stops it.
 
 **On-player layout (1.5.9).** Both quick menus are two sections built with `kit.buildSection`
 ("Phụ đề": switch, display mode, size, skip; "Giọng đọc": switch with `describeHealth`, voice,
@@ -497,7 +509,7 @@ not stack two dubbing voices. Keep it.
 
 
 `modelAccess` per-API-key model availability, keyed by a SHA-256 hash of the key, 3-day TTL; a refusal repeated right after a lapse doubles it (`ttl`, cap 30 days, 2.2.2); a lapsed refusal is kept 60 days so `likelyModel` names the next model and the Settings cards say it will be retried once ·
-`costLedger` daily cost ledger (2.1.0: every billed request is charged through `geminiCall`'s `policy.onBilled`, also thrown-away answers and our own timeouts, which Google still bills; `inTok`/`outTok`/`estCalls` added; 2.1.1: `thoughtTok`, `cachedTok`, `byModel`) · `costHistory` the same text-call totals keyed by the local day like the ledger (2.5.6; until 2.5.5 by Google's Pacific billing day, moved once by `historyToLocal`, `costHistoryTz: "local"` marks it done), last 31 days, kept by `costReset` · `costVideos` spend per video per local day for the Settings "Video tốn nhiều nhất" (today, week from Monday, month, quarter, year; 400 videos, 400 days; seeded from that day's ledger on first load) · `costTokenRatio` measured characters per token for estimates · `ytcache4_<videoId>` cached YouTube translations (an older
+`costLedger` daily cost ledger (2.1.0: every billed request is charged through `geminiCall`'s `policy.onBilled`, also thrown-away answers and our own timeouts, which Google still bills; `inTok`/`outTok`/`estCalls` added; 2.1.1: `thoughtTok`, `cachedTok`, `byModel`) · `costHistory` the same text-call totals keyed by the local day like the ledger (2.5.6; until 2.5.5 by Google's Pacific billing day, moved once by `historyToLocal`, `costHistoryTz: "local"` marks it done), last 31 days, kept by `costReset` · `costVideos` spend per video per local day for the Settings "Video tốn nhiều nhất" (today, week from Monday, month, quarter, year; 400 videos, 400 days; seeded from that day's ledger on first load) · `costTokenRatio` measured characters per token for estimates · `cscache1_<host><path>` + `cscacheIdx` saved Coursera / generic lectures (2.9.3, Coursera flow item 11; cleared with the translation cache) · `ytcache4_<videoId>` cached YouTube translations (an older
 `ytcache` prefix exists; swept once a day, `ytSweptAt`, since the sweep reads all of storage.local;
 only a save that adds a video sweeps too, never a refine re-save, `ytStoredVideos`;
 the newest 100 are kept, 2.4.0 (50 in 2.3.9): measured 152 KB a video on 2026-10-11, so ~15 MB;
