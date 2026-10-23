@@ -3,6 +3,8 @@
 - Test-only change after 2.9.4 (no bump): GitHub Actions `test.yml`, `tests/units.test.js`, `npm run coverage`.
 
 ## State
+- 3.0.0 (lane A/C): `CST_STYLE.legibilityIssue` + `#legibilityHint` in Settings preview warns on same-colour
+  box or no box and no outline. Warning only. Not seen live.
 - 2.9.9 (lane A, overlay UX): `CST_STYLE.overlayFontPx` (12 px floor, one size formula for YouTube and
   Coursera), `overlayTransition` (honours prefers-reduced-motion; Coursera now animates `top` too).
   Not seen on a live page; click Reload and check a narrow/mini player.
