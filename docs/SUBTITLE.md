@@ -567,3 +567,12 @@ A new sync key is backed up automatically.
 
 Miss step 2 and the setting silently never saves. Miss step 1 and you get a dead key, which is
 exactly how the retired `dubCondense` key ended up with four contradictory sources.
+
+## Voice from a site's own Vietnamese captions
+
+When Coursera, TED or a generic page already has a Vietnamese track (`alreadyVietnamese` in
+`pickBestTrack`), the voice still works: `toggleDubbing` calls `csStartViVoice` (content.js), which turns that
+track's cues into dub groups with `CST_DUB_PLAN.groupsFromViCues` (same function YouTube's
+`ytHienThiNguyenTiengViet` uses) and starts the shared engine. No Gemini call. It is allowed only when
+`CST_LANG.viVoiceSource` sees a track in another language too (speech not Vietnamese); a Vietnamese-only page
+gets no voice. The notice offers a "Lồng tiếng từ phụ đề Việt" button; with the voice setting on it starts by itself.

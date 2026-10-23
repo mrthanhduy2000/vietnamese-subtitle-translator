@@ -169,7 +169,16 @@
         return { broken: false, why: "" };
     }
 
-    const api = { normCode, detectText, decide, spokenLanguage, hearsVietnameseDub, dubTranscripts, brokenTranscript, TRANSLATED_MARK };
+    // Can the voice read a site's own Vietnamese captions? Only when the page also offers captions in
+    // another language: that is the sign the speech is not Vietnamese. A Vietnamese-only page is
+    // taken as a Vietnamese video, which gets no voice. langs: the language codes of the page's tracks.
+    function viVoiceSource(langs) {
+        const codes = (langs || []).map(normCode).filter(Boolean);
+        const foreign = codes.filter(c => c !== "vi");
+        return { offer: codes.includes("vi") && foreign.length > 0, spoken: foreign[0] || "" };
+    }
+
+    const api = { viVoiceSource, normCode, detectText, decide, spokenLanguage, hearsVietnameseDub, dubTranscripts, brokenTranscript, TRANSLATED_MARK };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_LANG = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

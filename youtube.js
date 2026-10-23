@@ -1275,7 +1275,7 @@ function ytHienThiNguyenTiengViet(viCues) {
         lines: seg ? seg.breakLines(c.text) : [c.text]
     }));
     if (window.CST_STYLE && window.CST_STYLE.lingerCues) window.CST_STYLE.lingerCues(yt.viCues);
-    yt.dubGroups = viCues.map(c => ({ start: c.start, end: c.end, viText: c.text, srcCues: [{ start: c.start, end: c.end, text: c.text }], viCues: [{ start: c.start, end: c.end, text: c.text }] }));
+    yt.dubGroups = window.CST_DUB_PLAN.groupsFromViCues(viCues);
     yt.daDichXong = true;
     ytKichHoatHienThi();
 }
