@@ -312,7 +312,7 @@
         // Bật theo dõi SAU khi bộ đọc đã chạy: stop() bên trên (dọn bộ đọc cũ) cũng tắt bộ theo dõi,
         // nên đặt ở giữa hàm thì nó bị xóa ngay và giọng không bao giờ tự chuyển về VieNeu
         if (localMissing) doiVieNeuSanSang(opts);
-        else if (primary && primary.id === "vieneu") canhBaoMayChuCham(opts);
+        else if (primary && primary.id === "vieneu") canhBaoMayChuCham();
         startDebug(engine);
         dub.container = opts.container || null;
         engine.start();
@@ -406,6 +406,7 @@
 
     function stop() {
         if (watchTimer) { clearInterval(watchTimer); watchTimer = null; }
+        clearInterval(slowTimer);
         startSeq++;                               // lượt bật đang chờ (nếu có) tự hủy, không tạo bộ đọc nữa
         dub.starting = false;
         if (dub.engine) { try { dub.engine.stop(); } catch (e) { /* bỏ qua */ } }
@@ -432,18 +433,31 @@
 
     // ---------- Máy chủ giọng chạy chậm: nói cho người xem biết, một lần mỗi trang ----------
     // Máy chủ chậm thì giọng Việt trễ dần mà không có lỗi nào; người xem chỉ thấy "giọng bị trễ".
-    async function canhBaoMayChuCham(opts) {
-        if (dub.slowWarned) return;
-        const r = await sendMessage({ action: "localTtsStatus" });
-        const rtf = r && Number(r.rtf);
-        if (!rtf || rtf < 0.8) return;                      // 0 = chưa đo được lượt nào
-        dub.slowWarned = true;
-        if (window.CST_UI && window.CST_UI.toast) {
-            window.CST_UI.toast(
-                `Máy chủ giọng đang chậm: tạo 1 giây lời nói mất ${rtf.toFixed(2).replace(".", ",")} giây (bình thường khoảng 0,25), nên giọng Việt có thể trễ dần. Hãy đóng bớt ứng dụng nặng trên máy hoặc chọn giọng nhẹ hơn trong Cài đặt.`,
-                { warn: true, actionLabel: "Mở Cài đặt", onAction: () => sendMessage({ action: "openOptions" }) }
-            );
-        }
+    // Tốc độ đo từ chính các lượt engine đã tạo (không phải lần bật trước), kiểm tra định kỳ, và lời
+    // khuyên là tốc độ phát video mà giọng theo kịp (dub-hardware.js: giữ nguyên tốc độ thì tạo trước
+    // xa hơn cũng không cứu được khi rtf > 1, phải phát chậm lại).
+    let slowTimer = null, slowHits = 0;
+    function canhBaoMayChuCham() {
+        clearInterval(slowTimer);
+        slowHits = 0;
+        const HW = window.CST_HW;
+        if (!HW || dub.slowWarned) return;
+        const engine = dub.engine;
+        slowTimer = setInterval(() => {
+            const v = engine && engine.d && engine.d.video;
+            if (dub.engine !== engine || dub.slowWarned || !v) { clearInterval(slowTimer); return; }
+            let h = null;
+            try { h = engine.health(v.currentTime); } catch (e) { return; }
+            const advice = h && !h.live ? HW.slowAdvice({ rtf: h.rtf, playbackRate: v.playbackRate }) : null;
+            slowHits = advice ? slowHits + 1 : 0;
+            if (slowHits < 2) return;                           // two checks in a row: one slow take is noise
+            dub.slowWarned = true;
+            clearInterval(slowTimer);
+            if (!(window.CST_UI && window.CST_UI.toast)) return;
+            window.CST_UI.toast(advice.text, advice.rate
+                ? { warn: true, actionLabel: `Phát ${String(advice.rate).replace(".", ",")}×`, onAction: () => { try { v.playbackRate = advice.rate; } catch (e) { /* trình phát từ chối */ } } }
+                : { warn: true, actionLabel: "Mở Cài đặt", onAction: () => sendMessage({ action: "openOptions" }) });
+        }, 8000);
     }
 
     // ---------- Tự chuyển về giọng VieNeu ngay khi máy chủ sẵn sàng ----------

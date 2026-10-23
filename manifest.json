@@ -57,6 +57,7 @@
                 "dub-prosody.js",
                 "dub-speech.js",
                 "dub-audio.js",
+                "dub-hardware.js",
                 "dub-engine.js",
                 "dubbing.js",
                 "content.js",
