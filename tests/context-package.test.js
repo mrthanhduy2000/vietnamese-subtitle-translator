@@ -554,3 +554,18 @@ test("a trailing double period from the source becomes an ellipsis; a range, a p
     assert.equal(clean("Ừm... để xem"), "Ừm... để xem");
     assert.equal(clean("Chờ chút...."), "Chờ chút....", "four dots are not touched");
 });
+
+test("formatting the model added is stripped only when the source line lacks it; zero-width characters always", () => {
+    const bg = bgEnv(async () => { throw new Error("offline"); });
+    const fix = (t, src) => bg.sandbox.stripAddedFormatting(bg.sandbox.sanitizeModelOutput(t, []), src);
+    assert.equal(fix("1. Xin chào các bạn", "Hello everyone"), "Xin chào các bạn");
+    assert.equal(fix("1. Giới thiệu", "1. Introduction"), "1. Giới thiệu", "the source has its own number");
+    assert.equal(fix("Điều *quan trọng* là vậy", "This is important"), "Điều quan trọng là vậy");
+    assert.equal(fix("Tính 2*3*4", "Compute 2*3*4"), "Tính 2*3*4");
+    assert.equal(fix("<i>Xin chào</i> bạn", "Hello you"), "Xin chào bạn");
+    assert.equal(fix("nếu a < b", "if a < b"), "nếu a < b");
+    assert.equal(fix("Tom &amp; Jerry", "Tom and Jerry"), "Tom & Jerry");
+    assert.equal(fix("Tom &amp; Jerry", "Tom &amp; Jerry"), "Tom &amp; Jerry");
+    assert.equal(fix("Xin\u200B chào\u00A0bạn", "Hi"), "Xin chào bạn");
+    assert.equal(fix("Năm 2024. Rồi", "In 2024. Then"), "Năm 2024. Rồi", "a number inside the line is not a list marker");
+});
