@@ -3,6 +3,11 @@
 - Test-only change after 2.9.4 (no bump): GitHub Actions `test.yml`, `tests/units.test.js`, `npm run coverage`.
 
 ## State
+- 3.0.1 (lane A/C, notices): `CST_UI.explainError` (content.js) maps a raw failure to one Vietnamese
+  sentence plus an optional action button (reload / open Settings); Coursera "Dịch thất bại" and
+  YouTube "Không dịch được" use it (YouTube auto mode still only logs). Progress "Đang dịch x/y đoạn"
+  now shows in the popup and both on-player menus. Toasts replace each other, so no stacking.
+  Not done: dubbing.js toasts and VieNeu messages were not reworded; "Thread Rà lỗi tiềm ẩn" owns error handling.
 - 3.0.0 (lane A/C): `CST_STYLE.legibilityIssue` + `#legibilityHint` in Settings preview warns on same-colour
   box or no box and no outline. Warning only. Not seen live.
 - 2.9.9 (lane A, overlay UX): `CST_STYLE.overlayFontPx` (12 px floor, one size formula for YouTube and

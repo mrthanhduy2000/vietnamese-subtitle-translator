@@ -1637,7 +1637,8 @@ async function ytBatDauDich(opts = {}) {
         return true;
     } catch (err) {
         console.error("Dich YouTube that bai:", err);
-        baoLoi(`Không dịch được: ${err.message}`);
+        if (opts.auto || !window.CST_UI || !window.CST_UI.explainError) baoLoi(`Không dịch được: ${err.message}`);
+        else { const why = window.CST_UI.explainError(err); ytBao(why.text, { warn: true, actionLabel: why.actionLabel, onAction: why.onAction }); }
         return false;
     } finally {
         yt.busy = false;
@@ -2020,7 +2021,7 @@ function ytMoMenuNhanh(player, btn) {
         rowSub.setAttribute("aria-checked", String(!!yt.active));
         const nguon = ytNguonPhuDe();
         const hauTo = yt.active && nguon ? ` · ${nguon.nhan.toLowerCase()}` : "";
-        rowSub.cstSub.textContent = (yt.busy ? "Đang dịch…"
+        rowSub.cstSub.textContent = (yt.busy ? (tienDo ? `Đang dịch ${tienDo.xong}/${tienDo.tong} đoạn` : "Đang dịch…")
             : yt.active && tienDo ? `Đã dịch ${tienDo.xong}/${tienDo.tong} đoạn`
                 : yt.active ? "Đang bật" : "Đang tắt") + hauTo;
         rowSub.cstSub.style.color = yt.active && nguon && nguon.canhBao ? "var(--cst-warn)" : "";

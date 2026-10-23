@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.0.1", luc: "23/10/2026", ten: "Thông báo lỗi dễ hiểu hơn và hiện tiến độ dịch",
+            y: [
+                "Khi dịch lỗi, thông báo giờ nói rõ nguyên nhân bằng tiếng Việt (hết hạn mức, quá giới hạn tốc độ, sai API Key, mất mạng, máy chủ quá tải, tiện ích vừa cập nhật) và chỉ việc nên làm tiếp, kèm nút Tải lại trang hoặc Mở Cài đặt khi cần. Trước đây Coursera luôn bảo kiểm tra mạng dù lỗi do nguyên nhân khác.",
+                "Cửa sổ tiện ích và menu trên trình phát hiện \"Đang dịch x/y đoạn\" thay vì chỉ \"Đang dịch…\"."
+            ]
+        },
+        {
             v: "3.0.0", luc: "23/10/2026", ten: "Trang Cài đặt cảnh báo khi màu phụ đề khó đọc",
             y: [
                 "Phần xem trước nay báo ngay khi chữ và nền gần cùng màu, hoặc khi vừa không có nền vừa không có viền (chữ sẽ chìm trên cảnh sáng). Chỉ cảnh báo, không tự đổi lựa chọn của bạn.",
