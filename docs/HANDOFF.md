@@ -15,8 +15,8 @@
   is 6QULfp2wdZI (broken ru track).
 - 2.8.8: note words in 11 more languages + an empty bracketed-note item keeps its source (Persian
   "[موسیقی]" failed windows); a blank track (`cues.blank`) tries another, else is told, no retry.
-- Multilingual batch 4 (20 ids, cs el fa he hu ro sv ta bn id it ms ur): 13 saved and reviewed, 2 bn
-  blank-track videos found the class above; last 5 (id it ms ur) still running in the driver tab.
+- Multilingual batch 4 (20 ids, cs el fa he hu ro sv ta bn id it ms ur): 17 saved and reviewed by
+  class, 2 bn blank tracks (the class above), 1 it with an uploaded vi track. Chrome runs 2.8.8.
 - Track choice checked, kept: 7 of 23 non-English saved videos use the spoken language's ASR over a
   human English track; those ASR read well, the one word-salad source (6QULfp2wdZI ru) is a manual track.
 - `npm test` 761 pass, 0 fail; regress saved at 2.8.5, 2.8.6 moved 0.
@@ -26,7 +26,7 @@
 - Uploaded Vietnamese tracks (shown as is, never saved by design, driver logs "NOT SAVED"):
   jFZksJqL1Vc XnQ7Py8D6v0 MebK9iEUzQA JwBuHx_3GOU rm_9cPXrv4A gN07gbipMoY nBN9zG1JNPg O_MQr4lHm0c
   c347oYQO57A PweksFQGzmI Bwe7zLSPtXA h0I4083Bm9s dGCdYtk9fHQ nDg7NumntYc E8UKIJ2rLjg RCPS2VC3lk4
-  MmQp4PkvXV4.
+  MmQp4PkvXV4 w7kz2lI1IMw.
 - Coursera has no fallback heal (its unit cache keeps no fallback, a revisit asks again).
 - Carried over: prompt 3 and the >> split on a real reading (BACKLOG 44); 2.6.5-2.6.8 not checked
   live; `screen-text.js` never ran; share repo promotion of 2.5.7-2.8.8 after a green install
