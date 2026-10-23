@@ -445,12 +445,30 @@ function sanitizeModelOutput(out, inputTokens) {
     t = t.replace(PLACEHOLDER_RE, (m, id) => (allowed.has(id) ? `[[__T${id}__]]` : " "));
     t = t.replace(/^\s*(?:bản dịch(?: tiếng việt)?|translation)\s*:\s*/i, "");
     t = t.replace(/\*\*(.+?)\*\*/g, "$1");
+    // Zero-width characters are invisible on screen but break the voice's text and width math;
+    // a no-break space is an ordinary space
+    t = t.replace(/[\u200B-\u200D\u2060\uFEFF]/g, "").replace(/\u00A0/g, " ");
     t = t.replace(/\s*\n\s*/g, " ").replace(/[ \t]{2,}/g, " ").trim();
     // (2.8.6) A trailing ".." copied from the source ("Že vás baví..") is an ellipsis; a range
     // ("1..10") or a path ("../") is left alone
     t = t.replace(/(?<![.\p{N}])\.\.(?![.\p{L}\p{N}\/])/gu, "...");
     const m = t.match(/^["“](.*)["”]$/s);
     if (m && !/["“”]/.test(m[1])) t = m[1].trim();
+    return t;
+}
+
+// Formatting the model adds that the source did not have: an echoed list number ("1. Xin chào"),
+// *italics*, <i>/<b> tags, HTML entities. Each rule applies only when the source line has no
+// such mark, so a lecture that really says "1. Introduction", "a < b" or "a & b" is left alone.
+function stripAddedFormatting(text, source) {
+    let t = String(text || "");
+    const src = String(source || "");
+    if (!/^\s*\d+\s*[.)]/.test(src)) t = t.replace(/^\s*\d{1,3}\s*[.)]\s+(?=\S)/, "");
+    if (!/[*_]/.test(src)) t = t.replace(/(?<![*\w])\*([^*\s](?:[^*]*[^*\s])?)\*(?![*\w])/g, "$1");
+    if (!/</.test(src)) t = t.replace(/<\/?(?:i|b|u|em|strong|br)\s*\/?>/gi, " ").replace(/ {2,}/g, " ").trim();
+    if (!/&/.test(src)) {
+        t = t.replace(/&(amp|lt|gt|quot|#39|apos);/g, (m, e) => ({ amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'", apos: "'" })[e]);
+    }
     return t;
 }
 
@@ -557,6 +575,7 @@ function readUnitAnswer(data, req, allowed) {
     }
     const arr = Array.isArray(obj.t) ? obj.t : (Array.isArray(obj.translations) ? obj.translations : []);
     let translations = arr.map(x => sanitizeModelOutput(x, allowed));
+    if (translations.length === req.sentences.length) translations = translations.map((t, i) => stripAddedFormatting(t, req.sentences[i]));
     if (translations.length !== req.sentences.length) {
         if (req.sentences.length === 1 && translations.length > 1) translations = [translations.join(" ")];
         else throw new GeminiError("bad_output", `Số mục không khớp (gửi ${req.sentences.length}, nhận ${translations.length})`);
