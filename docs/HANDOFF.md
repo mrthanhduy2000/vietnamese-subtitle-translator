@@ -11,6 +11,8 @@
 - ted.com auto-translates on arrival; verify on the Mac: button/menu on TED's player, voice, SPA move to the next talk. Vietnamese track from TED is not shown by us (notice only).
 
 ## State
+- unreleased (lane A/D): bent glossary codes (`[[T0]]`, `[__T0__]`...) are restored and a window whose model wrote
+  the terms itself is kept (`docs/changes/bent-glossary-codes.md`). Check the Mac console warning count.
 - Voice from existing Vietnamese captions (docs/changes/dub-from-vietnamese-captions.md, SUBTITLE.md last section): Coursera/TED/generic only; YouTube already did it. TRY ON CHROME: a TED talk with en+vi tracks, click the toast button or Giọng đọc. Offline tests only (`tests/vi-voice.test.js`).
 - Weak machines (lane B/D, no bump, `docs/changes/weak-machines.md`): `dub-hardware.js` toast offers the video
   speed a slow voice keeps up with (0.8/rtf); `SYNC` untouched (look-ahead made no difference in the sim);
