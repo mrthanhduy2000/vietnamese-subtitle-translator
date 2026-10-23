@@ -950,3 +950,25 @@ test("quick menu: Tab goes round inside it on both players, sliders included", (
     const src = read("content.js") + read("youtube.js");
     assert.equal((src.match(/trapTab\(menu, e\)/g) || []).length, 2, "both quick menus use it");
 });
+
+// Every raw failure maps to one plain Vietnamese sentence that says what to do next
+test("explainError: each failure class gets its own advice, never the raw English", () => {
+    const sb = loadContent(miniDom());
+    const say = m => sb.CST_UI.explainError(new Error(m));
+    const cases = [
+        ["Extension context invalidated.", /tải lại trang/i, true],
+        ["Could not establish connection. Receiving end does not exist.", /chưa phản hồi/i, true],
+        ["Không có phản hồi từ tiện ích", /chưa phản hồi/i, true],
+        ["Gemini x HTTP 429: hết hạn mức trong ngày (429)", /hết hạn mức/i, false],
+        ["Gemini x HTTP 429: vượt giới hạn tốc độ (429)", /1 phút/i, false],
+        ["API Key sai, hết hạn hoặc không đủ quyền", /API Key/i, true],
+        ["Failed to fetch", /kiểm tra mạng/i, false],
+        ["Gemini x HTTP 503: máy chủ Gemini quá tải", /quá tải/i, false],
+        ["something odd", /Chưa dịch được \(something odd\)/, false]
+    ];
+    for (const [raw, re, hasAction] of cases) {
+        const r = say(raw);
+        assert.match(r.text, re, raw);
+        assert.equal(!!r.actionLabel, hasAction, raw + ": action button");
+    }
+});
