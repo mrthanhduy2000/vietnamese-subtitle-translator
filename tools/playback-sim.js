@@ -21,6 +21,7 @@ const path = require("path");
 const REPO = path.join(__dirname, "..");
 const PLAN = require(path.join(REPO, "dub-planner.js"));
 const AUDIO = require(path.join(REPO, "dub-audio.js"));
+const PROSODY = require(path.join(REPO, "dub-prosody.js"));
 const { Clock, FakeVideo, FakeAudio } = require(path.join(REPO, "tests", "dub-sim.js"));
 const { longLecture } = (() => {
     const { lectureGroups } = require(path.join(REPO, "tests", "dub-sim.js"));
@@ -105,8 +106,9 @@ function run(engineMod, sc) {
             if (wait > 0) { m.blockedMs += Math.ceil(wait / (POLL * 1000)) * POLL * 1000; clock.setTimeout(begin, Math.ceil(wait / (POLL * 1000)) * POLL * 1000); return; }
             m.serverRuns++;
             f.sent = clock.now();
-            const dur = audioSecs(f.speak);
-            const gen = f.gen = (OVERHEAD + dur * rtf()) * 1000;
+            // the grown pauses are added after generation: they cost the server nothing
+            const dur = audioSecs(f.speak) + (f.grown || 0);
+            const gen = f.gen = (OVERHEAD + (dur - (f.grown || 0)) * rtf()) * 1000;
             f.finish = () => {
                 if (running !== f) return;
                 running = null;
@@ -152,7 +154,9 @@ function run(engineMod, sc) {
             let f = flights.get(key);
             if (f) m.joined++;
             else {
-                f = { key, speak: msg.speak || msg.text, jobs: new Set() };
+                // a loose line's take is longer by the pauses its shaping grows (BACKLOG 48)
+                const grown = msg.slack > 0 ? PROSODY.pauseSlack(msg.text, msg.slack).total : 0;
+                f = { key, speak: msg.speak || msg.text, grown, jobs: new Set() };
                 f.promise = new Promise(res => { f.resolve = r => { flights.delete(key); res(r); }; });
                 flights.set(key, f);
                 queue.push(f);
@@ -244,7 +248,9 @@ function run(engineMod, sc) {
             if (said != null) spokenTexts.push(said);
             const made = pl && madeUnder.get(pl.id + "\n" + pl.text);
             if (made) m.playedKeys.add(made);
-            else if (pl) pendingKeys.push(provider.audioKey(pl).then(k => m.playedKeys.add(k)));
+            // a re-made plan object has no slack decision yet: the engine's memo gives the one its take
+            // was made under (BACKLOG 48), else a played take counted as never played
+            else if (pl) pendingKeys.push(provider.audioKey(pl.slackPauses == null && !pl.tightPauses && eng.looseSlack ? { ...pl, slackPauses: eng.looseSlack(pl) } : pl).then(k => m.playedKeys.add(k)));
             for (const s of seeks) if (s.recovered == null && !s.paused) s.recovered = clock.now() - s.wall;
         }
         lastPlayingSet = new Set(playing);
