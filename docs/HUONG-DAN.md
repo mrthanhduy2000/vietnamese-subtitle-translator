@@ -56,6 +56,22 @@ Không chạy trên Firefox và Safari.
 > ở trang tiện ích. **Đừng gỡ rồi cài lại**: trình duyệt sẽ xóa kho cài đặt và bạn mất khóa API cùng
 > mọi cài đặt lồng tiếng.
 
+### Cập nhật lên bản mới nhất
+
+Số phiên bản hiện tại nằm ở trang **Cài đặt** của tiện ích (hoặc `manifest.json`). Nếu thấy cũ hơn bản
+mới nhất, cập nhật theo cách bạn đã cài:
+
+- **Cách 1 (một lệnh), Mac và Windows:** chạy lại đúng lệnh cài ở trên. Việc đó chính là cập nhật, giữ
+  nguyên khóa API và cài đặt. Sau đó **đóng hẳn trình duyệt rồi mở lại** (hoặc bấm **Tải lại** ở trang
+  tiện ích).
+- **Cách 2, Mac hoặc Windows có git:** trong thư mục tiện ích chạy `git pull`, rồi bấm **Tải lại**.
+- **Cách 2 không dùng git:** vào trang **Releases** của kho mã, tải file `vietnamese-subtitle-translator-vX.Y.Z.zip`
+  của bản mới nhất, giải nén **đè lên đúng thư mục đã Tải tiện ích đã giải nén** (đừng chọn thư mục khác,
+  trình duyệt gắn cài đặt với đường dẫn), rồi bấm **Tải lại**.
+
+Nhờ AI cài hộ trên Windows? Bảo nó dùng lệnh `irm ... | iex` ở Cách 1, không tự tải zip, và sau khi xong
+đọc lại `version` trong `manifest.json` để đối chiếu với bản mới nhất.
+
 ## 2. Lấy khóa Gemini API
 
 Khóa là "chìa" để tiện ích nhờ Gemini (AI của Google) dịch giúp bạn. Dùng thử miễn phí được; chi tiêu

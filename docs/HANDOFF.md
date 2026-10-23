@@ -1,5 +1,9 @@
 # Handoff (2026-10-23, 3.0.2 + unreleased)
 
+## Why Windows installs got 2.5.7 (2026-10-23)
+- This repo is private. Friends and AIs install from the PUBLIC share repo `dich-phu-de-long-tieng`, whose main still holds 2.5.7 (never promoted since). Fix = `node tools/publish-share.js --stage`, install test green, `--promote` (needs gh + both clones, run on the Mac). Not done: outward-facing, waiting for the user's go.
+- Added `.github/workflows/release.yml` (tag vX.Y.Z + zip release when manifest version is new on main) and an update section in `docs/HUONG-DAN.md`. The private repo's releases are only visible when signed in.
+
 ## Site adapters thread (TED)
 - `site-adapters.js` + `site-ted.js` (docs/changes/site-adapters-ted.md). Offline tests pass. TRY ON CHROME:
   open a ted.com/talks page, click Translate in the popup. Unknown until then: whether the

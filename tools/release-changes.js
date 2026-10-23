@@ -67,6 +67,7 @@ function main() {
     execFileSync(process.execPath, [path.join(__dirname, "bump-version.js"), version], { stdio: "inherit" });
     for (const n of notes) fs.unlinkSync(path.join(DIR, n.file));
     console.log(`Done: v${version}. Run npm test, then commit on release/${version}.`);
+    console.log("After the merge, CI tags v" + version + " and attaches the zip (.github/workflows/release.yml). Friends install from the public share repo: tell the user it is stale until `node tools/publish-share.js --stage` then `--promote` is run (docs/MAP.md, Share build).");
 }
 
 if (require.main === module) main();
