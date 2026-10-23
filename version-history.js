@@ -4,6 +4,12 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.9.6", luc: "23/10/2026", ten: "Không hiện thông báo hết hạn mức của MyMemory làm phụ đề",
+            y: [
+                "Khi Google Translate lỗi và dịch vụ dự phòng MyMemory hết hạn mức trong ngày, nó trả về một câu cảnh báo bằng tiếng Anh với mã HTTP 200. Trước đây câu cảnh báo đó bị hiện lên màn hình như một dòng phụ đề. Nay nó bị loại và dòng đó để trống để dịch lại sau."
+            ]
+        },
+        {
             v: "2.9.5", luc: "23/10/2026", ten: "Từ điển thêm gần 35.000 tên riêng",
             y: [
                 "Thêm khoảng 35.000 tên riêng về thể thao, giải trí, âm nhạc, khoa học, công nghệ, sức khỏe, địa danh, kinh tế, thú cưng, du lịch và thời trang. Từ điển có khoảng 73.000 mục.",

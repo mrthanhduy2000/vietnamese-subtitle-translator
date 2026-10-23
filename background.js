@@ -81,8 +81,12 @@ async function callMyMemoryTranslate(text, sourceLang = "en", targetLang = "vi")
         const res = await fetch(url, { signal: controller.signal });
         if (!res.ok) throw new Error(`MyMemory HTTP ${res.status}`);
         const data = await res.json();
-        if (data && data.responseData && data.responseData.translatedText) {
-            return { text: data.responseData.translatedText, detectedLang: sl, engine: "mymemory" };
+        // MyMemory reports quota and language errors as HTTP 200 with the notice in translatedText
+        // ("MYMEMORY WARNING: YOU USED ALL AVAILABLE FREE TRANSLATIONS..."); that must never be shown
+        const mmText = data && data.responseData && data.responseData.translatedText;
+        const mmStatus = Number(data && data.responseStatus);
+        if (mmText && (!mmStatus || mmStatus === 200) && !/^\s*(MYMEMORY WARNING|PLEASE SELECT TWO DISTINCT LANGUAGES|INVALID LANGUAGE PAIR)/i.test(mmText)) {
+            return { text: mmText, detectedLang: sl, engine: "mymemory" };
         }
         throw new Error("Invalid MyMemory data");
     } finally {
