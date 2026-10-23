@@ -8,8 +8,6 @@
 - Test-only change after 2.9.4 (no bump): GitHub Actions `test.yml`, `tests/units.test.js`, `npm run coverage`.
 
 ## State
-- Unreleased (lane B, dubbing.js buildProviders): dubSystemFallback (default true) lets the browser Vietnamese voice
-  speak when VieNeu is down and sits behind VieNeu as engine fallback. Not heard on a real machine.
 - unreleased (lane A/D, glossary protection): the window cache key no longer holds protected terms or codes
   (`SUBTITLE.md` "Protected glossary terms and the window cache"); matcher buckets warm up in idle slices
   (first `protectGlossary` 50-80 ms -> ~2 ms). `tests/glossary-cache.test.js`. `regress.js` not run.
