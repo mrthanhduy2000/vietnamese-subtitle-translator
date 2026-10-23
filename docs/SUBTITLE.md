@@ -221,6 +221,13 @@ each worker a contiguous half. The YouTube prefetch skips a window whose previou
 still to do unless it starts within 20 s. A short last window (< 240 chars Coursera, < 160 YouTube)
 joins the one before. Sense hints carry no `general` fallback. Measure with `node tools/context-eval.js`
 (offline, `--root <dir>` for an old checkout). `prevTranslation`, terms and hints are not in the cache key.
+**Protected glossary terms and the window cache (next release).** The key reads `req.source` (the original text), not the text with
+`[[__T0__]]` codes, so a glossary release no longer re-bills windows. The entry stores `placeholders` (the terms it was
+translated with) and `requestUnit` restores a cached window with those, not with this run's. `protectFp` (hash of the user's
+own choices: on/off, own terms and renderings, groups on; built-in names are not in it) joins the key. Windows saved under
+the old key are found there once and copied (`unitCacheKey(req, model, true)`). `noCache` skips the lookup (codes lost, resend
+unprotected) and the new answer replaces the broken entry. `buildMasterRegex().warm()` builds the matcher's buckets in idle
+slices after the glossary loads: the first window used to pay 50 to 80 ms.
 1.8.4: `ContextSession.refSourceFor` adds `refSource` (prompt `[NHẮC LẠI TỪ TRƯỚC ...]`) when the window
 has he/she or "the <noun>" (list `REF_NOUNS`) whose referent is not in the previous two units: the nearest
 sentence naming a person (a capitalised word not in `OPENERS`) or the noun, 15 units back at most, 2

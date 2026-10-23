@@ -15,6 +15,10 @@
 - Udemy, edX, Vimeo embeds still open (BACKLOG 9).
 
 ## State
+- unreleased (lane A/D, glossary protection): the window cache key no longer holds protected terms or codes
+  (`SUBTITLE.md` "Protected glossary terms and the window cache"); matcher buckets warm up in idle slices
+  (first `protectGlossary` 50-80 ms -> ~2 ms). `tests/glossary-cache.test.js`. `regress.js` not run.
+  Lowercase-brand gap, not loosened: `BACKLOG.md`.
 - 3.0.2 (glossary, cloud): `tools/glossary-filter.py <first-line> --names=<nltk names> --write` dropped ~660
   everyday words and history names that hid Vietnamese renderings from the 2.9.2 and 2.9.5 batches
   (~2,300 false hits gone on 3.2M words). Run it on every new batch before merging. 14 VieNeu names
@@ -29,17 +33,10 @@
 - 2.9.9 (lane A, overlay UX): `CST_STYLE.overlayFontPx` (12 px floor, one size formula for YouTube and
   Coursera), `overlayTransition` (honours prefers-reduced-motion; Coursera now animates `top` too).
   Not seen on a live page; click Reload and check a narrow/mini player.
-- 2.9.8 (lane C, UI): popup and Settings text now reach WCAG AA 4.5:1 in light and dark (muted/secondary
-  tokens, new `--claude-accent-fill` / `--claude-success-fill` behind white button text, `--primary-text`
-  for the options value pill). Guarded by the "popup contrast" test in `tests/ui.test.js`. Not run on
-  the Mac: popup rendered only in headless Chromium with the web shim.
-- 2.9.7 (lane D, background.js): `stripAddedFormatting` removes echoed list numbers, *italics*, <i>/<b>,
-  HTML entities only when the source line lacks them; `sanitizeModelOutput` drops zero-width chars and NBSP.
-  `TR_PROMPT_VERSION` unchanged (no prompt edit). Prompt text itself judged mature; nothing measurable offline.
+- 2.9.8 (UI contrast) and 2.9.7 (`stripAddedFormatting`, `sanitizeModelOutput`): see git log.
 - 2.9.5 (lane B/D, glossary): +34,700 names from 50 topic drafts (`scratchpad/cands3`), 73,270
-  candidates in total. Drafted from memory, mostly unverified. About 181 still read Vietnamese by
-  VieNeu (writer LEFT list). Short source files need a spot-check: esports 86 lines, fitness 125,
-  board games 352, supplements 515.
+  candidates in total, mostly unverified. About 181 still read Vietnamese by VieNeu. Spot-check short
+  source files: esports 86 lines, fitness 125, board games 352, supplements 515.
 - 2.9.4 (other session, lane A, content.js): Coursera and generic pages keep each translated lecture
   whole (`cscache1_<host><path>`, index `cscacheIdx`, newest 200). Google-fallback windows are healed
   like YouTube (`csHealFallbacks`). `SUBTITLE.md` item 11.
@@ -71,5 +68,5 @@
   Bwe7zLSPtXA h0I4083Bm9s dGCdYtk9fHQ nDg7NumntYc E8UKIJ2rLjg RCPS2VC3lk4 MmQp4PkvXV4 w7kz2lI1IMw.
 - Carried over: prompt 3 and the >> split (BACKLOG 44); 2.6.5-2.6.8 not checked live; `screen-text.js`
   never ran; share repo promotion of 2.5.7-2.8.8 after a green install test; BACKLOG 43-47; 2.5.7
-  shortcuts on YouTube; joint-takes branches; 2.5.0 Coursera start hold; coverage gaps in TESTING.md (yt-bridge, youtube, content, popup, player-ui are lowest); voice items "có
+  shortcuts on YouTube; joint-takes branches; 2.5.0 Coursera start hold; coverage gaps in TESTING.md (youtube.js, content.js, dubbing.js are lowest); voice items "có
   nghĩa là", DN, NHNN; `ban-giao.md` lacks the share repo. Never ask about Chrome's Apple Events setting.

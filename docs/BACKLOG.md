@@ -99,6 +99,15 @@ none
   holding it is closed, so a friend on Edge may wait until a restart or a sign-out. Not measured on a
   real Windows machine. A fix would need an Edge-specific signal that no window is open.
 
+## Glossary: brands written in lowercase by auto-captions are not protected
+
+Terms with a capital are matched case-sensitively (`needsExactCase`), so "chatgpt", "kubernetes" or
+"github" in a lowercase ASR track are not protected. 3,288 terms have an inner capital (`ChatGPT`,
+`PyTorch`) and look safe to match loosely, but some collide with everyday words once lowercased (palm,
+rope, nerf, ideal, putty, endnote, diehard, lol, got, wow, mom, insight, beef, lisa). Needs a word list
+or a measurement on saved videos (Mac, `review-archive/`) before any rule; do not loosen by shape alone.
+Restoring a loose match must also use the canonical casing, not the matched text.
+
 ## No version control history before 2026-09-23
 
 `git init` was run on 2026-09-23 with the whole 1.4.0 tree as the first commit. Everything from
