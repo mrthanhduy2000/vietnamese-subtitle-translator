@@ -2122,10 +2122,10 @@ async function reinjectOpenTabs() {
 try {
     chrome.runtime.onInstalled.addListener(details => {
         if (details && (details.reason === "update" || details.reason === "install")) reinjectOpenTabs().catch(() => {});
-        // A first install (Load unpacked, in any Chromium browser) opens the settings on a welcome
-        // card, as a store extension would: the Gemini key, the voice server, the first video
+        // A first install (Load unpacked, in any Chromium browser) opens the onboarding page:
+        // the Gemini key, the voice server, the first video
         if (details && details.reason === "install" && chrome.tabs && chrome.tabs.create) {
-            Promise.resolve(chrome.tabs.create({ url: chrome.runtime.getURL("options.html#welcome") })).catch(() => {});
+            Promise.resolve(chrome.tabs.create({ url: chrome.runtime.getURL("onboarding.html") })).catch(() => {});
         }
     });
 } catch (e) { /* chạy ngoài extension */ }
