@@ -17,7 +17,7 @@
 - New glossary blocks let everyday words in (list in `tests/glossary.test.js`). A capitalised English
   word ("Wired") needs the `~` prefix.
 - Write `glossary-data.js` with Bash `cat >>`, never Read/Write.
-- Driver pages: open `yt-driver.html` in its own window, not `open_url`; reloading kills a driver run.
+- Driver pages: open `yt-driver.html` in its own window, not `open_url`; reload kills a run.
 - `playback-sim.js` `run(..., { keepStarted: true })` returns every start; hook `DubEngine.prototype.note`.
 - `seekWhileSlow` varies 15/7 or 16/6; the timing tests fail during a driver batch. New YouTube ids:
   `curl` the results page (node fetch ignores the proxy), parse `ytInitialData`.
@@ -32,7 +32,7 @@
 - Carried over: prompt 3 and the >> split on a real reading (BACKLOG 44); 2.6.5-2.6.8 not checked
   live; `screen-text.js` never ran; share repo promotion of 2.5.7-2.8.8 after a green install
   test; BACKLOG 43-47; 2.5.7 shortcuts on YouTube; joint-takes branches; 2.5.0 Coursera start hold;
-  CI gaps; voice items "có nghĩa là", DN, NHNN; `ban-giao.md` lacks the share repo.
+  CI gaps; voice items "có nghĩa là", DN, NHNN; `ban-giao.md` lacks the share repo. Never ask about Chrome's Apple Events setting.
 
 ## Traps
 - Open a driver page in a window of its own: one opened with `open_url` lands in the user's window
@@ -43,4 +43,3 @@
 - Scenario `seekWhileSlow` gives 15/7 or 16/6 run to run; the two analysis timing tests fail while
   Chrome runs a driver batch: rerun before blaming a change.
 - New YouTube ids: `curl` the results page (node fetch ignores the proxy), parse `ytInitialData`.
-- Never ask the user about Chrome's Apple Events setting.
