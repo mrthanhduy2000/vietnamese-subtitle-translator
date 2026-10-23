@@ -1704,10 +1704,13 @@ function ytBatDauDocChuTrenHinh(byHand) {
     const before = [];
     const seen = { found: 0, played: 0, lastT: video.currentTime, warned: false };
     const read = async image => {
-        const r = await chrome.runtime.sendMessage({
-            action: "readScreenText", image, before: before.slice(-4),
-            videoKey: ma, videoSec: Math.round(video.currentTime), videoTitle: yt.videoTitle
-        });
+        let r;
+        try {
+            r = await chrome.runtime.sendMessage({
+                action: "readScreenText", image, before: before.slice(-4),
+                videoKey: ma, videoSec: Math.round(video.currentTime), videoTitle: yt.videoTitle
+            });
+        } catch (e) { return null; } // dead context or asleep worker: skip this frame, the next one retries
         if (!r || !r.ok) {
             if (r && (r.reason === "no_key" || r.reason === "budget") && !seen.warned) {
                 seen.warned = true;
