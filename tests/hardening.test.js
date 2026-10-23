@@ -1227,7 +1227,7 @@ test("VieNeu start hint: Windows is sent to the autostart installer, never to th
     // the page's toast when dubbing starts with the server down
     for (const [platform, want, not] of [["Win32", /vieneu-autostart\.cmd/, /cst-start\.command/], ["MacIntel", /cst-start\.command/, /vieneu-autostart/]]) {
         const msgs = [], toasts = [];
-        const env = dubbingEnvFor("premium", "vieneu", msgs, m => (m.action === "localTtsStatus" ? { ok: true, running: false } : { ok: true }), false);
+        const env = dubbingEnvFor("premium", "vieneu", msgs, m => (m.action === "localTtsStatus" ? { ok: true, running: false } : { ok: true }), false, { dubSystemFallback: false });
         env.navigator = { platform };
         env.CST_UI = { toast: (text, o) => toasts.push({ text, o }) };
         assert.equal(await env.CST_DUB.start({ video: new FakeVideo(), getGroups: () => [] }), false);
@@ -1304,7 +1304,7 @@ for (const [mode, provider, running, expect] of [
 }
 
 // Môi trường trang cho dubbing.js (chọn nguồn giọng), phản hồi tin nhắn tùy biến
-function dubbingEnvFor(mode, dubProvider, msgs, onMsg, paid = true) {
+function dubbingEnvFor(mode, dubProvider, msgs, onMsg, paid = true, extra = {}) {
     const noop = () => {};
     const voices = [{ name: "Linh", lang: "vi-VN", localService: true }];
     const sandbox = {
@@ -1315,7 +1315,7 @@ function dubbingEnvFor(mode, dubProvider, msgs, onMsg, paid = true) {
         speechSynthesis: { getVoices: () => voices, speak: noop, cancel: noop, addEventListener: noop },
         SpeechSynthesisUtterance: class { constructor(t) { this.text = t; } },
         chrome: {
-            storage: { sync: { get: async d => ({ ...d, geminiApiKey: "k", useAi: true, costMode: mode, dubProvider }) }, onChanged: { addListener: noop } },
+            storage: { sync: { get: async d => ({ ...d, geminiApiKey: "k", useAi: true, costMode: mode, dubProvider, ...extra }) }, onChanged: { addListener: noop } },
             runtime: { lastError: null, sendMessage: (m, cb) => { msgs.push(m); cb(onMsg(m)); } }
         }
     };
@@ -1327,24 +1327,46 @@ function dubbingEnvFor(mode, dubProvider, msgs, onMsg, paid = true) {
 }
 
 // ---- 1.8.1: the paid voice is switched off; VieNeu is the only voice ----
-test("paid voice off as shipped: every mode and every stored source dubs with VieNeu only, no Gemini, no system fallback", async () => {
+test("paid voice off as shipped: every mode and every stored source dubs with VieNeu first, no Gemini, the browser voice only as a fallback", async () => {
     assert.equal(COST.PAID_TTS, false);
     for (const mode of ["premium", "balanced", "economy"]) for (const provider of ["gemini", "auto", "system", "vieneu"]) {
         const msgs = [];
         const env = dubbingEnvFor(mode, provider, msgs, m => (m.action === "localTtsStatus" ? { ok: true, running: true } : { ok: false }), false);
         assert.equal(await env.CST_DUB.start({ video: new FakeVideo(), getGroups: () => [] }), true, `${mode}/${provider}`);
         assert.equal(env.CST_DUB.dub.engine.provider.id, "vieneu", `${mode}/${provider}`);
-        assert.equal(env.CST_DUB.dub.engine.fallback, null, "no system voice behind it");
+        assert.equal(env.CST_DUB.dub.engine.fallback && env.CST_DUB.dub.engine.fallback.id, "system", "browser voice behind VieNeu");
         assert.ok(!msgs.some(m => m.action === "modelStatus"), "Gemini TTS model is never asked for");
         env.CST_DUB.stop();
     }
-    // VieNeu server not running: no voice at all (the page says so), never Gemini
+    // VieNeu server not running: the browser voice speaks, never Gemini
     const msgs = [];
     const env = dubbingEnvFor("premium", "gemini", msgs, m => (m.action === "localTtsStatus" ? { ok: true, running: false } : { ok: false }), false);
     await env.CST_DUB.start({ video: new FakeVideo(), getGroups: () => [] });
     assert.ok(!env.CST_DUB.dub.engine || env.CST_DUB.dub.engine.provider.id !== "gemini");
     assert.ok(!msgs.some(m => m.action === "synthesizeSpeech" && m.engine !== COST.LOCAL_TTS.id));
     env.CST_DUB.stop();
+});
+
+test("no VieNeu: the browser Vietnamese voice speaks and the option can turn it off", async () => {
+    const down = m => (m.action === "localTtsStatus" ? { ok: true, running: false } : { ok: false });
+    const on = dubbingEnvFor("balanced", "vieneu", [], down, false);
+    assert.equal(await on.CST_DUB.start({ video: new FakeVideo(), getGroups: () => [] }), true);
+    assert.equal(on.CST_DUB.dub.engine.provider.id, "system");
+    assert.equal(on.CST_DUB.dub.engine.fallback, null, "no second voice behind the browser voice");
+    on.CST_DUB.stop();
+    const off = dubbingEnvFor("balanced", "vieneu", [], down, false, { dubSystemFallback: false });
+    assert.equal(await off.CST_DUB.start({ video: new FakeVideo(), getGroups: () => [] }), false);
+    assert.ok(!off.CST_DUB.dub.engine, "VieNeu-only: waits for the server, no browser voice");
+    off.CST_DUB.stop();
+    // VieNeu running but the option off: no fallback voice behind it
+    const up = dubbingEnvFor("balanced", "vieneu", [], m => (m.action === "localTtsStatus" ? { ok: true, running: true } : { ok: false }), false, { dubSystemFallback: false });
+    await up.CST_DUB.start({ video: new FakeVideo(), getGroups: () => [] });
+    assert.equal(up.CST_DUB.dub.engine.provider.id, "vieneu");
+    assert.equal(up.CST_DUB.dub.engine.fallback, null);
+    up.CST_DUB.stop();
+    const R = n => require("fs").readFileSync(require("path").join(__dirname, "..", n), "utf8");
+    assert.match(R("options.html"), /id="dubSystemFallback" checked/);
+    assert.match(R("options.js"), /dubSystemFallback: document\.getElementById\("dubSystemFallback"\)/);
 });
 
 test("paid voice off as shipped: the service worker refuses Gemini TTS without a network call, and a stored Gemini source becomes VieNeu once", async () => {

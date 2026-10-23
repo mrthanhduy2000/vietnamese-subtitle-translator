@@ -740,7 +740,7 @@
             background: rgba(0,0,0,.65); color: #fff; font-family: var(--font-sans); font-size: 12px; letter-spacing: .2px; }
         .preview-dub-badge[hidden] { display: none; }
         .theme-pick { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg-soft); }
-        .theme-btn { padding: 4px 11px; border: none; border-radius: 999px; background: none; color: var(--text-sub);
+        .theme-btn { padding: 6px 12px; min-height: 28px; border: none; border-radius: 999px; background: none; color: var(--text-sub);
             font-family: var(--font-sans); font-size: 11.5px; cursor: pointer; }
         .theme-btn[aria-pressed="true"] { background: var(--bg-card); color: var(--text-main); font-weight: 600; box-shadow: var(--shadow-md); }
         .btn:focus-visible, .nav-tab:focus-visible, .mode-btn:focus-visible,
@@ -1219,6 +1219,10 @@
                     <label class="toggle">
                         <span class="toggle-text"><span class="toggle-title">Chờ giọng sẵn sàng rồi mới phát</span><span class="toggle-hint">Khi mở video hoặc tua, dừng tối đa 5 giây để câu đầu có tiếng.</span></span>
                         <input type="checkbox" id="dubPrepareWait" checked>
+                    </label>
+                    <label class="toggle">
+                        <span class="toggle-text"><span class="toggle-title">Dùng giọng tiếng Việt của trình duyệt khi không có VieNeu</span><span class="toggle-hint">Máy không chạy được VieNeu vẫn có tiếng. Khi VieNeu chạy, tự chuyển lại.</span></span>
+                        <input type="checkbox" id="dubSystemFallback" checked>
                     </label>
                 </div>
             </div>
