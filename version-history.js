@@ -4,6 +4,12 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.0.6", luc: "23/10/2026", ten: "Thông báo có nút giữ lâu hơn",
+            y: [
+                "Thông báo có nút bấm (ví dụ \"Lồng tiếng từ phụ đề Việt\", \"Tải lại trang\") giờ ở lại 30 giây thay vì 12 giây, đủ thời gian để bấm."
+            ]
+        },
+        {
             v: "3.0.5", luc: "23/10/2026", ten: "Lồng tiếng từ phụ đề tiếng Việt có sẵn",
             y: [
                 "Coursera, TED và các trang khác đã có phụ đề tiếng Việt: giờ vẫn bật được lồng tiếng. Bấm \"Lồng tiếng từ phụ đề Việt\" trên thông báo hoặc bật Giọng đọc trong menu, giọng sẽ đọc thẳng phụ đề Việt của trang, không gọi Gemini dịch.",
