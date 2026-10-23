@@ -299,3 +299,12 @@ test("every single-word brand with an inner capital is either matched loosely or
     }
     assert.ok(loose > 300, `${loose} loose`);
 });
+
+test("a brand matched in any case takes a plain s, never es: UniFi does not catch the verb unifies", async () => {
+    const sb = loadContent();
+    await sb.loadGlossary();
+    const t = s => [...sb.protectGlossary(s).terms];
+    assert.deepEqual(t("it unifies and unified the parts"), []);
+    assert.deepEqual(t("two iphones and unifi"), ["iPhone", "UniFi"]);
+    assert.deepEqual(t("we use UniFi here"), ["UniFi"]);
+});
