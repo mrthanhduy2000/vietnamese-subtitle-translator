@@ -5,6 +5,7 @@
   `node --expose-gc tools/bench-startup.js 7` (merge 159 -> 86 ms, loadGlossary 115 -> 95 ms, offline,
   Linux). Output digest identical. Left alone: first `protectGlossary` ~70 ms (lazy bucket compile,
   term-matching thread). Not measured: storage size, duplicate network calls, CPU during playback (Mac).
+- Test-only change after 2.9.4 (no bump): GitHub Actions `test.yml`, `tests/units.test.js`, `npm run coverage`.
 
 ## State
 - 2.9.8 (lane C, UI): popup and Settings text now reach WCAG AA 4.5:1 in light and dark (muted/secondary
@@ -49,5 +50,5 @@
   Bwe7zLSPtXA h0I4083Bm9s dGCdYtk9fHQ nDg7NumntYc E8UKIJ2rLjg RCPS2VC3lk4 MmQp4PkvXV4 w7kz2lI1IMw.
 - Carried over: prompt 3 and the >> split (BACKLOG 44); 2.6.5-2.6.8 not checked live; `screen-text.js`
   never ran; share repo promotion of 2.5.7-2.8.8 after a green install test; BACKLOG 43-47; 2.5.7
-  shortcuts on YouTube; joint-takes branches; 2.5.0 Coursera start hold; voice items "có
+  shortcuts on YouTube; joint-takes branches; 2.5.0 Coursera start hold; coverage gaps in TESTING.md; voice items "có
   nghĩa là", DN, NHNN; `ban-giao.md` lacks the share repo. Never ask about Chrome's Apple Events setting.
