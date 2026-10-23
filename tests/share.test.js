@@ -50,6 +50,15 @@ test("share build leaves the private parts out", () => {
     fs.rmSync(out, { recursive: true, force: true });
 });
 
+test("share build holds no test harness page and no git-update tool", () => {
+    const out = built();
+    const all = [];
+    const walk = d => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); e.isDirectory() ? walk(p) : all.push(path.relative(out, p).replace(/\\/g, "/")); } };
+    walk(path.join(out, "extension"));
+    assert.deepEqual(all.filter(f => /(^|\/)(tests?|harness)\/|-lab\.|git-autoupdate/.test(f)), []);
+    fs.rmSync(out, { recursive: true, force: true });
+});
+
 test("Windows scripts are ASCII only, so Windows PowerShell 5.1 reads them unchanged", () => {
     for (const f of ["tools/share/install-windows.ps1", "tools/vieneu-autostart.ps1", "tools/vieneu-autostart.cmd", "tools/vieneu-runner.pyw", "tools/dichphude-update.py", "tools/vieneu-pin.py"]) {
         const bad = R(f).split("\n").findIndex(l => /[^\x00-\x7f]/.test(l));

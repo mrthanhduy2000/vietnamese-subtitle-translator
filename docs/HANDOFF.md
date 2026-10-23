@@ -1,5 +1,9 @@
 # Handoff (2026-10-23, 3.0.2 + unreleased)
 
+## Auto-update of the author's git checkout (2026-10-23, lane D, tools only)
+- `tools/git-autoupdate.js`: ff-only to origin/main when on main, tree clean, no browser running (Chrome reads the folder at start, so no Reload). `--install` adds LaunchAgent `com.damduy.dichphude.gitupdate` (login + 30 min, log `~/Library/Logs/dichphude-gitupdate.log`). Tests: `tests/git-autoupdate.test.js`.
+- TO DO ON THE MAC (cloud cannot): `node tools/git-autoupdate.js --install`, check the log once git auth works from launchd. The share package never carried `tests/harness` (`share.test.js` now pins it); the Mac checkout does load it, since Chrome takes the whole folder.
+
 ## Why Windows installs got 2.5.7 (2026-10-23)
 - This repo is private. Friends and AIs install from the PUBLIC share repo `dich-phu-de-long-tieng`, whose main still holds 2.5.7 (never promoted since). Fix = `node tools/publish-share.js --stage`, install test green, `--promote` (needs gh + both clones, run on the Mac). Not done: outward-facing, waiting for the user's go.
 - Added `.github/workflows/release.yml` (tag vX.Y.Z + zip release when manifest version is new on main) and an update section in `docs/HUONG-DAN.md`. The private repo's releases are only visible when signed in.
