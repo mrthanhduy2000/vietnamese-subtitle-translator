@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.9.8", luc: "23/10/2026", ten: "Nạp từ điển nhanh hơn khi mở trang",
+            y: [
+                "Gộp danh sách tên riêng vào từ điển nhanh hơn rõ rệt (đo ngoại tuyến trên 87.000 mục), không đổi kết quả dịch.",
+                "Bớt một bước tạo tập hợp 90.000 mục khi trang Coursera/YouTube nạp từ điển."
+            ],
+            bang: { cot: ["Đo ngoại tuyến", "Trước", "Nay"], hang: [["Gộp dữ liệu từ điển (ms)", "159", "86"], ["Nạp từ điển trong trang (ms)", "115", "95"]] }
+        },
+        {
             v: "2.9.7", luc: "23/10/2026", ten: "Bản dịch sạch hơn khi mô hình thêm định dạng",
             y: [
                 "Bỏ số thứ tự mô hình chép thừa ở đầu câu, dấu sao in nghiêng, thẻ <i>/<b> và mã HTML (&amp;), chỉ khi câu gốc không có sẵn những dấu đó.",

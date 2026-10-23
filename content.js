@@ -2356,7 +2356,7 @@ async function loadGlossary() {
         state.glossaryTranslateAs = new Map();
         for (const key of enabledGroups) {
             if (groups[key] && Array.isArray(groups[key].terms)) {
-                fromGroups.push(...groups[key].terms);
+                for (const t of groups[key].terms) fromGroups.push(t);
             }
             for (const [en, vi] of Object.entries((groups[key] && groups[key].vi) || {})) {
                 state.glossaryTranslateAs.set(en, vi);
@@ -2387,10 +2387,12 @@ async function loadGlossary() {
 
         state.glossaryKeep = [...new Set([...userKeep, ...userTerms, ...fromGroups])];
         // Thuat ngu nhieu tu (dang hien thi cuoi cung) de bo phan doan khong cat doi
-        state.glossaryMultiTerms = [...new Set([
-            ...state.glossaryKeep,
-            ...state.glossaryTranslateAs.values()
-        ])].filter(t => /\s/.test(String(t).trim()));
+        // (filter first, then dedupe: the same list without a second 90,000-entry Set)
+        const multiSeen = new Set();
+        for (const src of [state.glossaryKeep, state.glossaryTranslateAs.values()]) {
+            for (const t of src) if (/\s/.test(String(t).trim())) multiSeen.add(t);
+        }
+        state.glossaryMultiTerms = [...multiSeen];
         state.glossaryNormalize = defaultNorm;
 
         rebuildGlossaryRegex();

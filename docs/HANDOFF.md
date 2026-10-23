@@ -1,34 +1,22 @@
-# Handoff (2026-10-23, 2.9.5)
+# Handoff (2026-10-23, performance thread)
 
 ## State
-- 2.9.7 (lane D, background.js): `stripAddedFormatting` removes echoed list numbers, *italics*, <i>/<b>,
-  HTML entities only when the source line lacks them; `sanitizeModelOutput` drops zero-width chars and NBSP.
-  `TR_PROMPT_VERSION` unchanged (no prompt edit). Prompt text itself judged mature; nothing measurable offline.
-- 2.9.5 (lane B/D, glossary): +34,700 names from 50 topic drafts (`scratchpad/cands3`), 73,270
-  candidates in total. Drafted from memory, mostly unverified. About 181 still read Vietnamese by
-  VieNeu (writer LEFT list). Short source files need a spot-check: esports 86 lines, fitness 125,
-  board games 352, supplements 515.
-- 2.9.4 (other session, lane A, content.js): Coursera and generic pages keep each translated lecture
-  whole (`cscache1_<host><path>`, index `cscacheIdx`, newest 200). Google-fallback windows are healed
-  like YouTube (`csHealFallbacks`). `SUBTITLE.md` item 11.
-- 2.9.3 (other session, youtube.js): `ytFindUsableTrack` walks up to 4 other tracks when the first is
-  blank or a broken ASR. The 2 bn vlogs stay untranslatable.
-- Bare "4K"/"8K" stay Vietnamese on purpose (in Vietnamese they are money). "401k" stays English.
-- 2.9.4 (glossary) and 2.9.5 were done in a cloud session: `regress.js` NOT run here.
+- Startup perf (lane D/A): `glossary-extra.js` merge was quadratic (`RISKY.includes` per line, the
+  per-group `have` Set rebuilt for every block). Now sets are kept across blocks. `loadGlossary`
+  in `content.js` no longer builds a second 90,000-entry Set for `glossaryMultiTerms`.
+- Measured with `node --expose-gc tools/bench-startup.js` (medians of 7, offline, 87,000 terms):
+  glossary-data.js run 159 ms -> 86 ms, loadGlossary 115 ms -> 95 ms, heap after load 12 MB.
+  Output is byte-identical: sha256 over `CST_GLOSSARY_GROUPS`, `CST_RISKY_PROPER` and the merge report.
+- Still on the table: first `protectGlossary` call ~70 ms (lazy bucket regex compile in
+  `buildMasterRegex`; term matching belongs to the term-protection thread, not touched);
+  `buildMasterRegex` bucketing at load ~40 ms.
 
 ## Traps
-- A name the writer cannot respell gets no reading: check `GLOSSARY_SAY` after `--write`. Merge keeps
-  an old entry for any term still in the list, so remove a bad line from the generated block first.
-- `$TMPDIR/fix.py` removes by core term in every block of `glossary-data.js`: check the removed count.
-- New glossary blocks let everyday words in (list in `tests/glossary.test.js`). A capitalised English
-  word ("Wired") needs the `~` prefix.
-- Write `glossary-data.js` with Bash `cat >>`, never Read/Write.
-- `pageEnv` (audit.test.js) objects come from another vm realm: spread into a local array before
-  `deepEqual`.
-- Driver pages: open `yt-driver.html` in its own window; reloading the extension kills a run.
-- `seekWhileSlow` gives 15/7 or 16/6; timing tests fail during a driver batch: rerun first.
+- Numbers are from a Linux cloud container, not Chrome on the Mac: compare before/after only.
+- `bench-startup.js` shares a stubbed sandbox with `tests/audit.test.js` `pageEnv`; keep them alike.
 
 ## Unfinished
+- Not measured: storage size, duplicate network calls, CPU while a video plays (needs the Mac).
 - On the Mac: `node tools/regress.js` (then `--save`) for 2.9.3 to 2.9.5; try a Coursera lecture twice.
 - Spot-check the drafted names (esports, fitness, board games, supplements) and fix the ~181 residual
   Vietnamese readings via `MANUAL_SAY`. Not yet 100,000 terms.
