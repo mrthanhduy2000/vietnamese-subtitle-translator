@@ -174,3 +174,37 @@ test("matcher warm-up: building every bucket ahead of time changes no match and 
     assert.equal(vm.runInContext(`JSON.stringify(protectGlossary(${JSON.stringify(text)}))`, sb), before);
     assert.ok(JSON.parse(before).terms.length >= 3);
 });
+
+// ---- a code the model bent is still a code (the "Ma danh dau bi hong" resend) ----
+test("bent codes are restored like the real one", async () => {
+    const sb = pageEnv(() => ({ ok: true, translations: [""] }));
+    await settle(sb);
+    const terms = ["Kubernetes", "Terraform"];
+    const run = t => vm.runInContext(`restoreGlossary(${JSON.stringify(t)}, ${JSON.stringify(terms)})`, sb);
+    const want = "Triển khai trên Kubernetes bằng Terraform.";
+    for (const [a, b] of [
+        ["[[__T0__]]", "[[__T1__]]"], ["[__T0__]", "[__T1__]"], ["[[T0]]", "[[T1]]"], ["[[_T0_]]", "[[_T1_]]"],
+        ["[[**T0**]]", "[[**T1**]]"], ["[[ __ T 0 __ ]]", "[[ __ T 1 __ ]]"], ["[[\\_\\_T0\\_\\_]]", "[[\\_\\_T1\\_\\_]]"],
+        ["【__T0__】", "【__T1__】"], ["[[__T0__]", "[__T1__]]"], ["__T0__", "__T1__"], ["ZQ0QZ", "ZQ1QZ"], ["[[__t0__]]", "[[__t1__]]"]
+    ]) assert.equal(run(`Triển khai trên ${a} bằng ${b}.`), want, `${a} ${b}`);
+    assert.equal(run("Mô hình T5 và [T9] không phải mã."), "Mô hình T5 và không phải mã.", "an unknown number is no term, and no code is left on screen");
+});
+
+test("a window is usable when the model wrote the term itself in place of its code; not when terms vanished", async () => {
+    const sb = pageEnv(() => ({ ok: true, translations: [""] }));
+    await settle(sb);
+    const ok = (t, terms) => vm.runInContext(`glossaryIntact(${JSON.stringify(t)}, ${JSON.stringify(terms)})`, sb);
+    const terms = ["Kubernetes", "Terraform", "Docker"];
+    assert.equal(ok("Dùng [[__T0__]] và [[__T1__]] và [[__T2__]].", terms), true);
+    assert.equal(ok("Dùng Kubernetes và Terraform và Docker.", terms), true, "all written out: nothing lost");
+    assert.equal(ok("Dùng [[T0]] và Terraform, không có gì khác.", terms), true, "one code (bent) and one term");
+    assert.equal(ok("Dùng công cụ này và công cụ kia.", terms), false, "terms gone");
+    assert.equal(ok("anything", []), true);
+});
+
+test("background keeps bent codes of its own placeholders and drops invented ones", async () => {
+    const bg = bgEnv(async () => { throw new Error("offline"); });
+    const s = (t, allowed) => bg.sandbox.sanitizeModelOutput(t, allowed);
+    assert.equal(s("Dùng [[T0]] và [__T1__]", ["[[__T0__]]", "[[__T1__]]"]), "Dùng [[__T0__]] và [[__T1__]]");
+    assert.equal(s("Dùng [[T7]] đây", ["[[__T0__]]"]), "Dùng đây");
+});
