@@ -170,3 +170,8 @@ test("content.js prefers adapter tracks, drops stale ones and prepares before pi
     const now = cs.indexOf("async function courseraAutoTranslateNow");
     assert.ok(cs.indexOf("CST_SITES.prepare", now) > -1 && cs.indexOf("CST_SITES.prepare", now) < cs.indexOf("pickBestTrack()", now));
 });
+
+test("auto translate tells the viewer when an adapter site already has Vietnamese", () => {
+    const cs = fs.readFileSync(path.join(__dirname, "..", "content.js"), "utf8");
+    assert.match(cs, /decision\.action === "skip" && picked\.alreadyVietnamese && csAdapterSite\(\)\) \{\s*cstToast\("Video này đã có phụ đề tiếng Việt/);
+});

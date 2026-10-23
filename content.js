@@ -2777,6 +2777,10 @@ async function courseraAutoTranslateNow() {
     }
     state.langDecision = decision;
     console.log(`[AI Subtitle] Ngôn ngữ phụ đề: ${decision.lang} (${Math.round(decision.confidence * 100)}%, theo ${decision.source}) -> ${decision.action === "translate" ? "tự động dịch" : decision.action === "skip" ? "đã là tiếng Việt, không dịch" : "chưa chắc chắn, không tự dịch"}`);
+    // Adapter sites add their own tracks, so the viewer has no other sign that Vietnamese exists
+    if (decision.action === "skip" && picked.alreadyVietnamese && csAdapterSite()) {
+        cstToast("Video này đã có phụ đề tiếng Việt. Hãy chọn tiếng Việt trong menu phụ đề của trình phát.");
+    }
     if (decision.action === "translate") {
         // the voice starts with the first translated lines, not after the whole lecture
         await enableTranslation({ onShown: () => { if (location.href === url) courseraAutoDub(); } });
