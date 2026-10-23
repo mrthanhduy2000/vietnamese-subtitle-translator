@@ -100,7 +100,8 @@ function cstToast(message, opts = {}) {
         box.appendChild(close);
         host.appendChild(box);
         requestAnimationFrame(() => { box.style.opacity = "1"; });
-        const ms = opts.ms || (opts.actionLabel ? 12000 : 6000);
+        // a toast with a button stays long enough to be read and clicked (12 s was gone before the viewer reached it)
+        const ms = opts.ms || (opts.actionLabel ? 30000 : 6000);
         setTimeout(() => { box.style.opacity = "0"; setTimeout(() => box.remove(), 300); }, ms);
         return box;
     } catch (e) {

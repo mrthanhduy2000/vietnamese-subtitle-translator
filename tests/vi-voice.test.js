@@ -40,3 +40,7 @@ test("track sites start the voice from the Vietnamese track without translating,
     assert.match(cs, /actionLabel: "Lồng tiếng từ phụ đề Việt"/);
     assert.match(R("youtube.js"), /yt\.dubGroups = window\.CST_DUB_PLAN\.groupsFromViCues\(viCues\)/);
 });
+
+test("a toast with an action button stays at least 30 s", () => {
+    assert.match(R("content.js"), /const ms = opts\.ms \|\| \(opts\.actionLabel \? 30000 : 6000\);/);
+});
