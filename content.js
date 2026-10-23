@@ -1451,7 +1451,20 @@ async function csReadSaved(key, groups) {
     }
 }
 
-async function csWriteSaved(key, groups, translations) {
+// The index is read, changed and written back: two saves at once (two windows of one lecture, or two
+// tabs) each read the old index and the later write dropped the other's entry. One at a time per tab,
+// and across tabs of the same site under a Web Lock when the page has one.
+let csSaveQueue = Promise.resolve();
+function csWriteSaved(key, groups, translations) {
+    const run = () => csWriteSavedNow(key, groups, translations);
+    const locked = () => (typeof navigator !== "undefined" && navigator.locks && navigator.locks.request
+        ? navigator.locks.request("cst-cscache-index", run) : run());
+    const next = csSaveQueue.then(locked, locked);
+    csSaveQueue = next.catch(() => {});
+    return next;
+}
+
+async function csWriteSavedNow(key, groups, translations) {
     if (groups.some((g, gi) => String(g.text || "").trim() && !String(translations[gi] || "").trim())) return false;
     try {
         const luc = Date.now();
