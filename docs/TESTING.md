@@ -11,9 +11,10 @@ npm test          # ~25 s (hardening.test.js sets the pace). The bar is 0 fail; 
 `.github/workflows/test.yml` runs `npm test` on Node 22 for every push to main and every pull request
 (added 2026-10-23), so a PR shows red before it is merged.
 Coverage: `npm run coverage` prints the table (also in the CI job summary, informational, not a gate).
-Weakest files: `player-ui.js` (DOM), `screen-text.js` 116-207, `cst-cache.js` 59-139; `content.js`,
-`youtube.js`, `background.js` run inside `vm` and are not counted. `units.test.js` covers the pure
-helpers of `transcript.js` and `subtitle-style.js`.
+`tests/vm-coverage-preload.js` names the repo's files when tests run them through `vm`, so
+`content.js`, `youtube.js`, `background.js` are counted too. Lowest at the time of writing (lines):
+`yt-bridge.js` 62%, `youtube.js` 67%, `content.js` 69%, `popup.js` 72%, `dubbing.js` 82%; `player-ui.js`
+(DOM) is still near 56%. Raise the low ones first when adding tests.
 
 The one skip is intentional (see `reload-fight.test.js` below). **A fail is a regression, not noise.**
 The per-file counts below were taken on 2026-09-23 and drift as tests are added; treat them as a
