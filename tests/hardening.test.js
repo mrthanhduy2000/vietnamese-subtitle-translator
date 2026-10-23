@@ -2032,7 +2032,7 @@ test("who speaks: a reading the timer gave up on is charged as a reading writes,
     assert.equal(calls, 1);
 });
 
-test("a first install opens the settings on the welcome card; an update or a reload opens nothing", async () => {
+test("a first install opens the onboarding page; an update or a reload opens nothing", async () => {
     const E = bgEnv(async () => reply({}), cfg(), { tabs: [] });
     E.installedListeners[0]({ reason: "update" });
     E.installedListeners[0]({ reason: "chrome_update" });
@@ -2040,7 +2040,7 @@ test("a first install opens the settings on the welcome card; an update or a rel
     assert.deepEqual(E.opened, []);
     E.installedListeners[0]({ reason: "install" });
     await new Promise(r => setTimeout(r, 20));
-    assert.deepEqual(E.opened, ["chrome-extension://test-id/options.html#welcome"]);
+    assert.deepEqual(E.opened, ["chrome-extension://test-id/onboarding.html"]);
     const R = f => require("node:fs").readFileSync(require("node:path").join(__dirname, "..", f), "utf8");
     const html = R("options.html");
     assert.match(html, /id="welcomeCard"[^>]*hidden/, "hidden until the page is opened with #welcome");
