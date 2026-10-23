@@ -7,6 +7,13 @@
   term-matching thread). Not measured: storage size, duplicate network calls, CPU during playback (Mac).
 - Test-only change after 2.9.4 (no bump): GitHub Actions `test.yml`, `tests/units.test.js`, `npm run coverage`.
 
+## Site adapters thread (TED)
+- `site-adapters.js` + `site-ted.js` (docs/changes/site-adapters-ted.md). Offline tests pass. TRY ON CHROME:
+  open a ted.com/talks page, click Translate in the popup. Unknown until then: whether the
+  `fetch` to hls.ted.com from the content script passes CORS (if not, route through background.js and add
+  the host permission) and whether `__NEXT_DATA__` still carries `playerData.resources.hls.stream`.
+- Udemy, edX, Vimeo embeds still open (BACKLOG 9).
+
 ## State
 - unreleased (lane A, loose brand match): inner-capital brands match in lower case, minus 49 English-word
   collisions (`docs/changes/loose-brand-match.md`). Regenerate the skip list after big glossary releases.
