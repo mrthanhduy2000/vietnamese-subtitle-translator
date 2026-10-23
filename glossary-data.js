@@ -35000,3 +35000,4767 @@ Narita Airport
 CST_GLOSSARY_EXTRA_ADD("academic", null, `
 Stanford School of Medicine
 `);
+CST_GLOSSARY_EXTRA_ADD("entertainment", null, `
+Chance the Rapper
+Christina Aguilera
+Nina Simone
+Hank Williams
+Backstreet Boys
+NSYNC
+Big Bang
+~Sia
+Florence and the Machine
+Fiona Apple
+Carole King
+Mac DeMarco
+Destiny's Child
+TLC
+En Vogue
+Erykah Badu
+Mary J. Blige
+Akon
+Ne-Yo
+Trey Songz
+Ludacris
+50 Cent
+Notorious B.I.G.
+2Pac
+Wu-Tang Clan
+Outkast
+Lil Kim
+Busta Rhymes
+Ja Rule
+Flo Rida
+Usher Raymond
+Robin Thicke
+Gwen Stefani
+No Doubt
+The Pussycat Dolls
+Fergie
+Kelly Clarkson
+Taylor Dayne
+Alanis Morissette
+Sheryl Crow
+~Jewel
+Natalie Imbruglia
+Avril Lavigne
+Hilary Duff
+~Ashanti
+Aaliyah
+~Monica
+Toni Braxton
+Anita Baker
+Luther Vandross
+Lionel Richie
+Commodores
+Kool & the Gang
+~Chic
+Donna Summer
+Gloria Gaynor
+The Supremes
+The Temptations
+The Four Tops
+Smokey Robinson
+Al Green
+Otis Redding
+Sam Cooke
+Etta James
+Joan Baez
+Dusty Springfield
+~Lulu
+Cilla Black
+Shirley Bassey
+Petula Clark
+Kate Bush
+Annie Lennox
+~Sade
+Sinead O'Connor
+Enya
+Loreena McKennitt
+Bjork
+Lykke Li
+Robyn
+Tove Lo
+Rina Sawayama
+Olivia Dean
+Renee Rapp
+~Dave
+Wiley
+Dizzee Rascal
+Lily Allen
+Duffy
+Corinne Bailey Rae
+~Muse
+Kings of Leon
+The National
+Arcade Fire
+~Justice
+Tiesto
+Armin van Buuren
+~Disclosure
+~Queen
+~Pulp
+The Verve
+~Elbow
+Keane
+~Travis
+Stereophonics
+Snow Patrol
+Kodaline
+~Bastille
+The Lumineers
+Of Monsters and Men
+Mumford & Sons
+Weezer
+~Pixies
+Sonic Youth
+The Velvet Underground
+The Ramones
+Sex Pistols
+The Clash
+The Smashing Pumpkins
+Stone Temple Pilots
+Alice in Chains
+Rage Against the Machine
+Nine Inch Nails
+~Hole
+~Garbage
+Morcheeba
+~Tricky
+Sigur Ros
+Explosions in the Sky
+Mogwai
+Slowdive
+My Bloody Valentine
+Cocteau Twins
+Belle and Sebastian
+Franz Ferdinand
+Kaiser Chiefs
+The Libertines
+The Kooks
+Razorlight
+Bloc Party
+~Editors
+The Horrors
+Two Door Cinema Club
+Wolf Alice
+Royal Blood
+Catfish and the Bottlemen
+Circa Waves
+~Foals
+Bombay Bicycle Club
+Hot Chip
+LCD Soundsystem
+The Presets
+M83
+~Air
+Royksopp
+Chemical Brothers
+The Prodigy
+~Underworld
+~Orbital
+Basement Jaxx
+Groove Armada
+Moby
+Aphex Twin
+Boards of Canada
+~Burial
+Flying Lotus
+Dillon Francis
+~Flume
+Louis the Child
+~Excision
+Eric Prydz
+Fedde Le Grand
+Hardwell
+Afrojack
+Steve Aoki
+Above and Beyond
+Knife Party
+~Pendulum
+Bassnectar
+Gesaffelstein
+Boys Noize
+Kavinsky
+Charlotte Gainsbourg
+Josephine Baker
+Jacques Brel
+Johnny Hallyday
+Francoise Hardy
+Brigitte Bardot
+Yves Montand
+Maurice Chevalier
+Bing Crosby
+Perry Como
+Bobby Darin
+Paul Anka
+Neil Sedaka
+Roy Orbison
+Fats Domino
+Jerry Lee Lewis
+Carl Perkins
+Eddie Cochran
+Gene Vincent
+The Everly Brothers
+The Monkees
+The Byrds
+The Turtles
+The Mamas and the Papas
+The Association
+The Lovin' Spoonful
+Creedence Clearwater Revival
+The Animals
+The Yardbirds
+The Hollies
+The Zombies
+The Small Faces
+The Moody Blues
+Procol Harum
+King Crimson
+~Yes
+~Genesis
+Jethro Tull
+Deep Purple
+~Rainbow
+Judas Priest
+~Motorhead
+Def Leppard
+~Scorpions
+Whitesnake
+~Journey
+~Foreigner
+~Styx
+REO Speedwagon
+~Toto
+Steely Dan
+Doobie Brothers
+Eagles of Death Metal
+Lynyrd Skynyrd
+Allman Brothers Band
+Grateful Dead
+Jefferson Airplane
+Santana
+The Band
+Crazy Horse
+Tom Petty and the Heartbreakers
+The E Street Band
+John Mellencamp
+Bob Seger
+Rod Stewart
+Cat Stevens
+James Taylor
+Carly Simon
+Harry Nilsson
+Harry Chapin
+Jim Croce
+Don McLean
+Gordon Lightfoot
+Lindsey Buckingham
+Christine McVie
+~Thriller
+~Bad
+~Dangerous
+Off the Wall
+Purple Rain
+Born in the U.S.A.
+Thunder Road
+Abbey Road
+Sgt. Pepper's Lonely Hearts Club Band
+~Revolver
+Rubber Soul
+The White Album
+Let It Be
+Please Please Me
+With the Beatles
+A Hard Day's Night
+Magical Mystery Tour
+Yellow Submarine
+Hey Jude
+Rumours
+~Tusk
+Bella Donna
+Nevermind
+In Utero
+~Bleach
+~Ten
+Vitalogy
+~Dirt
+Jar of Flies
+OK Computer
+Kid A
+~Amnesiac
+The Bends
+Pablo Honey
+Hail to the Thief
+In Rainbows
+A Moon Shaped Pool
+~Parachutes
+A Rush of Blood to the Head
+X&Y
+Viva la Vida or Death and All His Friends
+Mylo Xyloto
+Ghost Stories
+Everyday Life
+Hybrid Theory
+Meteora
+Minutes to Midnight
+A Thousand Suns
+Living Things
+One More Light
+The Hunting Party
+Dark Side of the Moon
+The Dark Side of the Moon
+Wish You Were Here
+~Animals
+The Wall
+~Meddle
+Atom Heart Mother
+Physical Graffiti
+Led Zeppelin IV
+Houses of the Holy
+~Presence
+In Through the Out Door
+Back in Black
+Highway to Hell
+Let There Be Rock
+The Razors Edge
+Powerage
+Appetite for Destruction
+Use Your Illusion I
+Use Your Illusion II
+Chinese Democracy
+The Joshua Tree
+The Unforgettable Fire
+Achtung Baby
+Songs of Innocence
+Songs of Experience
+~Boy
+~War
+~Pop
+How to Dismantle an Atomic Bomb
+No Line on the Horizon
+Random Access Memories
+~Discovery
+~Homework
+Human After All
+Alive 2007
+~Currents
+Lonerism
+Innerspeaker
+~Lemonade
+~Folklore
+~Evermore
+~Red
+~Fearless
+Speak Now
+1989
+~Reputation
+~Lover
+Showgirl
+Dangerous Woman
+~Sweetener
+~Positions
+Yours Truly
+~Sour
+Mr. Morale & the Big Steppers
+Section.80
+Channel Orange
+~Blonde
+~Endless
+Ego Death
+Igor
+Watch the Throne
+Yeezus
+The College Dropout
+Late Registration
+~Graduation
+808s & Heartbreak
+My Beautiful Dark Twisted Fantasy
+The Life of Pablo
+~Ye
+Jesus Is King
+Donda
+~Vultures
+The Marshall Mathers LP
+The Slim Shady LP
+The Eminem Show
+~Encore
+~Recovery
+~Relapse
+~Kamikaze
+Music to Be Murdered By
+Illmatic
+Ready to Die
+Life After Death
+The Chronic
+Doggystyle
+Straight Outta Compton
+Only Built 4 Cuban Linx
+Liquid Swords
+The Low End Theory
+Midnight Marauders
+Paul's Boutique
+Licensed to Ill
+Raising Hell
+Aquemini
+Stankonia
+Miseducation of Lauryn Hill
+~Voodoo
+Baduizm
+Like Water for Chocolate
+Mama Said Knock You Out
+Get Rich or Die Tryin'
+Hot Space
+The Game
+~Blueprint
+The Blueprint
+Reasonable Doubt
+Man on the Moon
+Dreamville
+~Revival
+~Culture
+Culture II
+~Views
+More Life
+Beerbongs & Bentleys
+Hollywood's Bleeding
+~Stoney
+Twelve Carat Toothache
+Sour Soul
+Wu-Tang Forever
+We Will Rock You
+We Are the Champions
+Another One Bites the Dust
+Under Pressure
+Don't Stop Me Now
+Bicycle Race
+Somebody to Love
+~Yesterday
+~Help
+Come Together
+~Something
+Here Comes the Sun
+Eleanor Rigby
+Penny Lane
+Strawberry Fields Forever
+~Imagine
+Stairway to Heaven
+Whole Lotta Love
+Kashmir
+Black Dog
+Immigrant Song
+Comfortably Numb
+Another Brick in the Wall
+~Money
+~Time
+Hotel California
+Take It Easy
+Life in the Fast Lane
+~Desperado
+Smoke on the Water
+~Paranoid
+War Pigs
+Enter Sandman
+Nothing Else Matters
+Sad but True
+~One
+Master of Puppets
+Seek and Destroy
+Sweet Child O' Mine
+Paradise City
+November Rain
+Welcome to the Jungle
+Livin' on a Prayer
+It's My Life
+Wonderwall
+Don't Look Back in Anger
+Champagne Supernova
+Live Forever
+Song 2
+Parklife
+Girls and Boys
+Country House
+Common People
+Disco 2000
+Mr. Brightside
+Somebody Told Me
+Seven Nation Army
+Fluorescent Adolescent
+505
+Crying Lightning
+~Creep
+No Surprises
+Karma Police
+Paranoid Android
+Fake Plastic Trees
+Everything in Its Right Place
+~Yellow
+The Scientist
+Clocks
+Fix You
+Viva la Vida
+~Paradise
+Hymn for the Weekend
+Shape of You
+~Perfect
+Thinking Out Loud
+~Photograph
+Bad Habits
+Save Your Tears
+Can't Feel My Face
+The Hills
+Starboy
+Earned It
+Die for You
+Levitating
+Don't Start Now
+~Physical
+New Rules
+Houdini
+Watermelon Sugar
+As It Was
+Sign of the Times
+Adore You
+Cherry Wine
+Anti-Hero
+Shake It Off
+Blank Space
+Bad Blood
+~Style
+Love Story
+You Belong with Me
+We Are Never Ever Getting Back Together
+Look What You Made Me Do
+~Delicate
+Cruel Summer
+All Too Well
+~Willow
+~Exile
+Champagne Problems
+Mirrorball
+Getaway Car
+Bejeweled
+~Irreplaceable
+Crazy in Love
+Single Ladies
+~Halo
+Run the World
+~Formation
+Drunk in Love
+~Partition
+Hold Up
+~Sorry
+Love on Top
+Rolling in the Deep
+Someone Like You
+~Hello
+Set Fire to the Rain
+Skyfall
+Easy on Me
+Chasing Pavements
+Hometown Glory
+~Happy
+Get Lucky
+Blurred Lines
+Uptown Funk
+Locked Out of Heaven
+Just the Way You Are
+~Grenade
+When I Was Your Man
+Talking to the Moon
+24K Magic
+That's What I Like
+~Smooth
+Poker Face
+Bad Romance
+~Alejandro
+~Telephone
+Born This Way
+Rain on Me
+~Shallow
+Million Reasons
+Always Remember Us This Way
+Die With a Smile
+Sweater Weather
+Dear Future Husband
+Sorry Not Sorry
+Empire State of Mind
+~Jaded
+Sex on Fire
+Use Somebody
+~Closer
+Bleeding Love
+Dancing on My Own
+~Valerie
+Back to Black
+Tears Dry on Their Own
+~Stronger
+~Heartbreaker
+~Toxic
+Gimme More
+~Lucky
+Genie in a Bottle
+What a Girl Wants
+~Beautiful
+~Candyman
+~Fighter
+Dirrty
+Work It
+Wrecking Ball
+~Flowers
+Party in the U.S.A.
+Ridin' Solo
+Hot Girl Summer
+~Savage
+~WAP
+Bodak Yellow
+Hot Girl Bummer
+Old Town Road
+Girls Want Girls
+Need to Know
+Blue Ain't Your Color
+Chicken Fried
+Something in the Orange
+Tennessee Whiskey
+Jolene
+I Will Always Love You
+Islands in the Stream
+~Hallelujah
+~Respect
+~Think
+Natural Woman
+I Say a Little Prayer
+My Girl
+Ain't No Mountain High Enough
+What's Going On
+~Superstition
+Sir Duke
+Lose Yourself
+~Stan
+Without Me
+My Name Is
+The Real Slim Shady
+Love the Way You Lie
+Rap God
+Hotline Bling
+One Dance
+God's Plan
+Started from the Bottom
+~Work
+~Umbrella
+~Diamonds
+Only Girl
+Rude Boy
+Pon de Replay
+Naughty Girl
+Shut Up and Dance
+Bad Guy
+Ocean Eyes
+~Lovely
+Happier Than Ever
+Therefore I Am
+Idontwannabeyouanymore
+Bury a Friend
+Everything I Wanted
+Good as Hell
+7 Rings
+~Mood
+Cheap Thrills
+~Congratulations
+~Circles
+~Sunflower
+Better Now
+~Psycho
+Fine Line
+~Golden
+Lights Up
+~Falling
+Late Night Talking
+Ring Ring
+~Waterloo
+Dancing Queen
+Mamma Mia
+Super Trouper
+Take a Chance on Me
+~Fernando
+Stayin' Alive
+Night Fever
+How Deep Is Your Love
+~Tragedy
+Jive Talkin'
+I Want It That Way
+~Everybody
+Quit Playing Games
+As Long as You Love Me
+Larger than Life
+I Want You Back
+~Butter
+Permission to Dance
+Fake Love
+Spring Day
+Boy with Luv
+~Idol
+Dionysus
+Ddu-Du Ddu-Du
+Kill This Love
+Lovesick Girls
+~Ditto
+Hype Boy
+~Attention
+Super Shy
+Ice Cream Cake
+Next Level
+~Maniac
+Love Dive
+After Like
+Cheer Up
+TT
+Likey
+~Fancy
+Yes or Yes
+Feel Special
+Ooh-Ahh
+Wannabe
+Viva Forever
+Say You'll Be There
+2 Become 1
+Barbie Girl
+~Sandstorm
+Doctor Jones
+Smooth Criminal
+Billie Jean
+Beat It
+Man in the Mirror
+Black or White
+Heal the World
+Earth Song
+Dirty Diana
+Human Nature
+Rock with You
+~Casino
+Mean Streets
+~Heat
+Jackie Brown
+Indiana Jones and the Last Crusade
+Gremlins
+The Goonies
+Lethal Weapon
+~Predator
+Terminator 2: Judgment Day
+~Alien
+Rise of Skywalker
+Solo: A Star Wars Story
+The Phantom Menace
+Revenge of the Sith
+Attack of the Clones
+The Matrix Resurrections
+Captain America: The Winter Soldier
+Logan
+X2
+Days of Future Past
+Ant-Man
+Shang-Chi and the Legend of the Ten Rings
+Eternals
+Mission: Impossible - Fallout
+Casino Royale
+Quantum of Solace
+~GoldenEye
+Goldfinger
+Dr. No
+Cast Away
+Saving Mr. Banks
+Captain Phillips
+Catch Me If You Can
+The Terminal
+Bridge of Spies
+~Gravity
+~Whiplash
+~Moonlight
+~Us
+~Parasite
+Once Upon a Time in America
+Les Miserables
+Amelie
+The Intouchables
+~Hero
+House of Flying Daggers
+Hard Boiled
+Infernal Affairs
+~Burning
+The Wind Rises
+Toy Story 2
+Toy Story 3
+Toy Story 4
+A Bug's Life
+Finding Dory
+~Cars
+~Up
+The Good Dinosaur
+~Coco
+~Onward
+~Soul
+Luca
+~Frozen
+Big Hero 6
+Wreck-It Ralph
+Ralph Breaks the Internet
+The Little Mermaid
+Pocahontas
+~Hercules
+~Tarzan
+The Jungle Book
+~Pinocchio
+Dumbo
+Bambi
+~Cinderella
+Sleeping Beauty
+Snow White and the Seven Dwarfs
+~Fantasia
+Shrek 2
+Hotel Transylvania
+Megamind
+Wallace & Gromit: The Curse of the Were-Rabbit
+Chicken Run
+Coraline
+ParaNorman
+Kubo and the Two Strings
+Spider-Man: Across the Spider-Verse
+The Mitchells vs. the Machines
+Despicable Me 4
+The Banshees of Inisherin
+~Arrival
+~Her
+Under the Skin
+~Sunshine
+Children of Men
+Being John Malkovich
+~Adaptation
+~Birdman
+~Boyhood
+Nightcrawler
+~Prisoners
+Hell or High Water
+Wind River
+Mad Max: Fury Road
+Mad Max
+The Road Warrior
+~Troy
+~Alexander
+300
+The Last Samurai
+Seven Samurai
+Rashomon
+~Ran
+Yojimbo
+Lawrence of Arabia
+Doctor Zhivago
+The Bridge on the River Kwai
+Ben-Hur
+The Ten Commandments
+The Birds
+North by Northwest
+~Notorious
+~Rebecca
+The Apartment
+Sunset Boulevard
+An American in Paris
+West Side Story
+Mary Poppins
+Meet Me in St. Louis
+Easter Parade
+~Grease
+Saturday Night Fever
+~Footloose
+Flashdance
+Top Hat
+~Cabaret
+Rocketman
+Walk the Line
+~Ray
+8 Mile
+A Star Is Born
+Almost Famous
+Dreamgirls
+~Elvis
+~Bird
+Amadeus
+~Milk
+The King's Speech
+The Iron Lady
+Darkest Hour
+Hacksaw Ridge
+~Unbroken
+~Sully
+~Flight
+~Argo
+The Hurt Locker
+Zero Dark Thirty
+~Spotlight
+The Pianist
+Requiem for a Dream
+The Wrestler
+Million Dollar Baby
+Gran Torino
+~Unforgiven
+Mystic River
+Letters from Iwo Jima
+~Changeling
+~Hereafter
+~Invictus
+J. Edgar
+~Hugo
+The Artist
+The Aviator
+Gangs of New York
+Shutter Island
+The Shield
+~Dexter
+Six Feet Under
+~Deadwood
+Boardwalk Empire
+Fear the Walking Dead
+~Dark
+~Torchwood
+Sherlock Holmes
+~Lost
+~Heroes
+24
+~Homeland
+The Americans
+Mr. Robot
+Buffy the Vampire Slayer
+~Angel
+~Supernatural
+Smallville
+~Charmed
+~Friends
+~Frasier
+~Cheers
+Happy Days
+Everybody Loves Raymond
+~Community
+Scrubs
+It's Always Sunny in Philadelphia
+~Veep
+~Succession
+~Euphoria
+Schitt's Creek
+~Barry
+~Insecure
+The Last Kingdom
+~Vikings
+The Tudors
+The Borgias
+Chernobyl
+True Detective
+Loki
+WandaVision
+Cobra Kai
+Mare of Easttown
+The Night Agent
+Bad Sisters
+~Industry
+The Diplomat
+The Pitt
+Blue Eye Samurai
+~Fallout
+~Silo
+Dead to Me
+~You
+Sex Education
+Derry Girls
+~Shameless
+~Skins
+Misfits
+~Downton
+~Hannibal
+~Bones
+~Castle
+Criminal Minds
+CSI: Crime Scene Investigation
+NCIS
+Law & Order
+~House
+~Scandal
+~Suits
+How to Get Away with Murder
+~Empire
+~Glee
+Riverdale
+One Tree Hill
+The O.C.
+Dawson's Creek
+The Fresh Prince of Bel-Air
+Full House
+Family Matters
+Boy Meets World
+Saved by the Bell
+Hannah Montana
+Wizards of Waverly Place
+iCarly
+~Victorious
+Sabrina the Teenage Witch
+Malcolm in the Middle
+That '70s Show
+Roseanne
+Futurama
+Bob's Burgers
+King of the Hill
+Steven Universe
+Gravity Falls
+Phineas and Ferb
+~Berserk
+~Goblin
+My Love from the Star
+Winter Sonata
+~Elite
+Cable Girls
+Vis a Vis
+The Young Pope
+Gomorrah
+Suburra
+Narcos: Mexico
+The Night Manager
+Line of Duty
+~Bodyguard
+The Thick of It
+Peep Show
+Fawlty Towers
+Blackadder
+Monty Python's Flying Circus
+Only Fools and Horses
+Red Dwarf
+Inspector Morse
+Midsomer Murders
+~Luther
+Happy Valley
+Broadchurch
+Doctor Foster
+~Ghosts
+Top Boy
+Gavin & Stacey
+~Motherland
+~Catastrophe
+This Is Us
+~Lucifer
+Mad About You
+Friday Night Lights
+~Chuck
+~Alias
+Lost in Space
+Battlestar Galactica
+Babylon 5
+Star Trek: The Next Generation
+Star Trek: Deep Space Nine
+Star Trek: Voyager
+Star Trek: Discovery
+Star Trek: Picard
+The Expanse
+~Foundation
+For All Mankind
+The Orville
+~Fringe
+Person of Interest
+~Continuum
+Orphan Black
+Dexter: New Blood
+~Survivor
+The Voice
+Jersey Shore
+Keeping Up with the Kardashians
+The Real Housewives
+`);
+CST_GLOSSARY_EXTRA_ADD("sports", null, `
+Vinicius Junior
+Luka Modric
+Gerard Pique
+Sergio Busquets
+Andres Iniesta
+Xavi Hernandez
+Franco Baresi
+Alessandro Del Piero
+Roberto Baggio
+Gennaro Gattuso
+Zlatan Ibrahimovic
+John Terry
+Ryan Giggs
+Paul Scholes
+Gary Neville
+Rio Ferdinand
+Nemanja Vidic
+Peter Schmeichel
+Edwin van der Sar
+Dennis Bergkamp
+Patrick Vieira
+Robert Pires
+Ashley Cole
+Michael Owen
+Alan Shearer
+Eden Hazard
+Kevin Keegan
+Bobby Charlton
+Geoff Hurst
+Gordon Banks
+~Kaka
+Romario
+Ronaldo Nazario
+Garrincha
+Gerd Muller
+Michel Platini
+Marco van Basten
+Ruud Gullit
+Frank Rijkaard
+Lothar Matthaus
+Jurgen Klinsmann
+Oliver Kahn
+Thomas Muller
+Philipp Lahm
+Bastian Schweinsteiger
+Mesut Ozil
+Miroslav Klose
+Michael Ballack
+Ruben Dias
+Bernardo Silva
+Joao Felix
+Pepe
+Diogo Jota
+Gabriel Martinelli
+Raheem Sterling
+Jack Grealish
+Harry Maguire
+Kyle Walker
+John Stones
+Andrew Robertson
+Alisson Becker
+Ederson
+Thibaut Courtois
+Jan Oblak
+Gianluigi Donnarumma
+Marc-Andre ter Stegen
+Ousmane Dembele
+Paul Pogba
+N'Golo Kante
+Hugo Lloris
+Raphael Varane
+Olivier Giroud
+Didier Drogba
+Samuel Eto'o
+Yaya Toure
+Kolo Toure
+Michael Essien
+Sadio Mane
+Riyad Mahrez
+Pierre-Emerick Aubameyang
+Mario Gotze
+Mario Balotelli
+Marco Reus
+Julian Draxler
+Serge Gnabry
+Leroy Sane
+Kai Havertz
+Timo Werner
+Jamal Musiala
+Florian Wirtz
+Victor Osimhen
+Achraf Hakimi
+Hakan Calhanoglu
+Park Ji-sung
+Hidetoshi Nakata
+Keisuke Honda
+Shinji Kagawa
+Alvaro Morata
+Fernando Torres
+David Villa
+David Silva
+Cesc Fabregas
+Carles Puyol
+Raul Gonzalez
+Jose Mourinho
+Dani Alves
+Thiago Silva
+David Luiz
+Casemiro
+Rodrygo
+Gabriel Jesus
+Philippe Coutinho
+Roberto Firmino
+Richarlison
+Raphinha
+Edinson Cavani
+Luis Suarez
+Diego Forlan
+Diego Godin
+Ronald Araujo
+Federico Valverde
+Darwin Nunez
+Luis Diaz
+James Rodriguez
+Radamel Falcao
+Javier Hernandez
+Rafael Marquez
+Carlos Vela
+Hugo Sanchez
+Thiago Alcantara
+Eric Cantona
+Kenny Dalglish
+Arsene Wenger
+Jurgen Klopp
+Brian Clough
+Bill Shankly
+Bobby Robson
+Gareth Southgate
+Roy Hodgson
+Fabio Capello
+Vicente del Bosque
+Didier Deschamps
+Joachim Low
+Julian Nagelsmann
+Ange Postecoglou
+Mauricio Pochettino
+Unai Emery
+Antonio Conte
+Massimiliano Allegri
+Marcelo Bielsa
+Thomas Tuchel
+Erik ten Hag
+Sven-Goran Eriksson
+Marta
+Aitana Bonmati
+Ada Hegerberg
+Lucy Bronze
+Hope Solo
+Mia Hamm
+Abby Wambach
+Carli Lloyd
+Christine Sinclair
+Beth Mead
+Mary Earps
+Vivianne Miedema
+Sarina Wiegman
+Wilt Chamberlain
+Bill Russell
+Hakeem Olajuwon
+Anthony Davis
+Chris Bosh
+Carmelo Anthony
+Tracy McGrady
+Vince Carter
+Paul Pierce
+Ray Allen
+Steve Nash
+Pau Gasol
+Manu Ginobili
+Tony Parker
+Dwight Howard
+Blake Griffin
+Derrick Rose
+John Wall
+Andre Iguodala
+Donovan Mitchell
+Tyrese Haliburton
+Jalen Brunson
+Trae Young
+Paolo Banchero
+Scottie Barnes
+Cade Cunningham
+LaMelo Ball
+Lonzo Ball
+Ben Simmons
+Jason Kidd
+Gary Payton
+Karl Malone
+John Stockton
+Scottie Pippen
+Dennis Rodman
+Charles Barkley
+David Robinson
+Patrick Ewing
+Reggie Miller
+Julius Erving
+Oscar Robertson
+Jerry West
+Elgin Baylor
+Bob Cousy
+Pete Maravich
+Isiah Thomas
+Clyde Drexler
+Napheesa Collier
+Kevin Love
+Pascal Siakam
+Fred VanVleet
+Bam Adebayo
+Jrue Holiday
+Khris Middleton
+Brook Lopez
+Gregg Popovich
+Phil Jackson
+Steve Kerr
+Erik Spoelstra
+Doc Rivers
+Rudy Gobert
+Ricky Rubio
+Nikola Vucevic
+Domantas Sabonis
+Evan Mobley
+Jarrett Allen
+Mikal Bridges
+Julius Randle
+RJ Barrett
+Jaren Jackson Jr.
+Brandon Ingram
+Zach LaVine
+DeMar DeRozan
+Kyle Lowry
+Tyler Herro
+Dejounte Murray
+De'Aaron Fox
+Franz Wagner
+Jonas Valanciunas
+Bogdan Bogdanovic
+Dikembe Mutombo
+Muggsy Bogues
+Manute Bol
+Shawn Kemp
+Nate Robinson
+Stephon Marbury
+Dan Marino
+John Elway
+Eli Manning
+Russell Wilson
+Dak Prescott
+Justin Herbert
+Joe Flacco
+Ben Roethlisberger
+Philip Rivers
+Matt Ryan
+Kurt Warner
+Troy Aikman
+Steve Young
+Jim Kelly
+Terry Bradshaw
+Roger Staubach
+Johnny Unitas
+Joe Namath
+Walter Payton
+Emmitt Smith
+Barry Sanders
+Jim Brown
+Eric Dickerson
+Adrian Peterson
+Marshall Faulk
+LaDainian Tomlinson
+Derrick Henry
+Jonathan Taylor
+Nick Chubb
+Todd Gurley
+Ezekiel Elliott
+Randy Moss
+Larry Fitzgerald
+Calvin Johnson
+Terrell Owens
+Cris Carter
+Marvin Harrison
+Tony Gonzalez
+Rob Gronkowski
+George Kittle
+Antonio Brown
+DeAndre Hopkins
+Davante Adams
+Tyreek Hill
+Ja'Marr Chase
+Cooper Kupp
+Stefon Diggs
+Julio Jones
+Deion Sanders
+Ed Reed
+Ray Lewis
+Lawrence Taylor
+Reggie White
+Bruce Smith
+Derrick Thomas
+Joe Greene
+Ronnie Lott
+Darrelle Revis
+Champ Bailey
+Richard Sherman
+J.J. Watt
+Aaron Donald
+Khalil Mack
+Myles Garrett
+Micah Parsons
+T.J. Watt
+Nick Bosa
+Maxx Crosby
+Trent Williams
+Larry Allen
+Bill Belichick
+Vince Lombardi
+Bill Walsh
+Tony Dungy
+Andy Reid
+Sean McVay
+Kyle Shanahan
+Mike Tomlin
+Bill Parcells
+Don Shula
+Jared Goff
+Kirk Cousins
+Matthew Stafford
+Carson Wentz
+Cam Newton
+Michael Vick
+Donovan McNabb
+Steve McNair
+Warren Moon
+Dan Fouts
+Ken Stabler
+Bo Jackson
+Herschel Walker
+Earl Campbell
+O.J. Simpson
+Gale Sayers
+Marcus Allen
+Thurman Thomas
+Shannon Sharpe
+Jason Witten
+Ty Cobb
+Honus Wagner
+Willie Mays
+Hank Aaron
+Ted Williams
+Joe DiMaggio
+Lou Gehrig
+Stan Musial
+Mickey Mantle
+Roberto Clemente
+Sandy Koufax
+Nolan Ryan
+Randy Johnson
+Greg Maddux
+Roger Clemens
+Pedro Martinez
+Tom Seaver
+Bob Gibson
+Cy Young
+Walter Johnson
+Pete Rose
+Rickey Henderson
+Cal Ripken Jr.
+Mariano Rivera
+Mark McGwire
+Sammy Sosa
+Alex Rodriguez
+Albert Pujols
+Hideki Matsui
+Yu Darvish
+Masahiro Tanaka
+Hideo Nomo
+Bryce Harper
+Ronald Acuna Jr.
+Fernando Tatis Jr.
+Vladimir Guerrero Jr.
+Bo Bichette
+Freddie Freeman
+Paul Goldschmidt
+Jose Altuve
+Yordan Alvarez
+Corey Seager
+Trea Turner
+Francisco Lindor
+Manny Machado
+Nolan Arenado
+Clayton Kershaw
+Gerrit Cole
+Max Scherzer
+Justin Verlander
+Jacob deGrom
+Stephen Strasburg
+Corbin Burnes
+Spencer Strider
+Paul Skenes
+Jose Ramirez
+Kris Bryant
+Anthony Rizzo
+Ryne Sandberg
+Ernie Banks
+Dwight Gooden
+Don Mattingly
+Wade Boggs
+George Brett
+Frank Thomas
+Ozzie Smith
+Tony Gwynn
+Chipper Jones
+Larry Walker
+Vladimir Guerrero Sr.
+Ivan Rodriguez
+Yadier Molina
+Buster Posey
+Joe Mauer
+Johnny Bench
+Carlton Fisk
+Mike Piazza
+Thurman Munson
+Yogi Berra
+Roy Campanella
+Bob Feller
+Satchel Paige
+Josh Gibson
+Sadaharu Oh
+Lefty Grove
+Christy Mathewson
+Hank Greenberg
+Jimmie Foxx
+Mel Ott
+Rogers Hornsby
+Mario Lemieux
+Gordie Howe
+Bobby Orr
+Maurice Richard
+Jaromir Jagr
+Nathan MacKinnon
+Leon Draisaitl
+Auston Matthews
+Mitch Marner
+Nikita Kucherov
+Steven Stamkos
+Victor Hedman
+Andrei Vasilevskiy
+Carey Price
+Patrick Roy
+Martin Brodeur
+Dominik Hasek
+Ken Dryden
+Jacques Plante
+Terry Sawchuk
+Brad Marchand
+David Pastrnak
+Brayden Point
+Igor Shesterkin
+Cale Makar
+Quinn Hughes
+Jack Eichel
+Matthew Tkachuk
+Brady Tkachuk
+Mark Messier
+Steve Yzerman
+Patrick Kane
+Jonathan Toews
+Marian Hossa
+Pavel Datsyuk
+Nicklas Lidstrom
+Chris Pronger
+Scott Niedermayer
+Ray Bourque
+Paul Coffey
+Denis Potvin
+Phil Esposito
+Bobby Hull
+Stan Mikita
+Guy Lafleur
+Larry Robinson
+Mike Bossy
+Brett Hull
+Joe Sakic
+Peter Forsberg
+Teemu Selanne
+Mats Sundin
+Daniel Sedin
+Henrik Sedin
+Evgeni Malkin
+Ilya Kovalchuk
+Pekka Rinne
+Tuukka Rask
+Henrik Lundqvist
+Roberto Luongo
+Ryan Getzlaf
+Corey Perry
+Shea Weber
+P.K. Subban
+Erik Karlsson
+Drew Doughty
+Jonathan Quick
+Zdeno Chara
+Vladislav Tretiak
+Valeri Kharlamov
+Sergei Fedorov
+Pavel Bure
+Alexander Mogilny
+Sergei Makarov
+Eric Lindros
+John Tavares
+Brent Burns
+Kirill Kaprizov
+Jack Hughes
+Boris Becker
+Stefan Edberg
+Ivan Lendl
+John McEnroe
+Bjorn Borg
+Jimmy Connors
+Rod Laver
+Ken Rosewall
+Arthur Ashe
+Stan Wawrinka
+Juan Martin del Potro
+Marin Cilic
+Dominic Thiem
+Kei Nishikori
+Lleyton Hewitt
+Pat Rafter
+Goran Ivanisevic
+Michael Chang
+Jim Courier
+Gustavo Kuerten
+Juan Carlos Ferrero
+David Ferrer
+Tomas Berdych
+Richard Gasquet
+Gael Monfils
+Nick Kyrgios
+Alex de Minaur
+Taylor Fritz
+Ben Shelton
+Frances Tiafoe
+Tommy Paul
+Felix Auger-Aliassime
+Denis Shapovalov
+Milos Raonic
+John Isner
+Andy Roddick
+James Blake
+Guillermo Vilas
+Mats Wilander
+Yannick Noah
+Thomas Muster
+Marcelo Rios
+Tommy Haas
+Tim Henman
+Greg Rusedski
+Hubert Hurkacz
+Karen Khachanov
+Andrey Rublev
+Casper Ruud
+Holger Rune
+Chung Hyeon
+Martina Navratilova
+Chris Evert
+Monica Seles
+Martina Hingis
+Lindsay Davenport
+Justine Henin
+Kim Clijsters
+Jennifer Capriati
+Amelie Mauresmo
+Victoria Azarenka
+Caroline Wozniacki
+Ana Ivanovic
+Jelena Jankovic
+Ashleigh Barty
+Simona Halep
+Angelique Kerber
+Garbine Muguruza
+Petra Kvitova
+Elena Rybakina
+Madison Keys
+Jessica Pegula
+Qinwen Zheng
+Marketa Vondrousova
+Belinda Bencic
+Maria Sakkari
+Margaret Court
+Evonne Goolagong
+Helen Wills
+Suzanne Lenglen
+Wang Qiang
+Peng Shuai
+Zhang Shuai
+Li Na
+Sloane Stephens
+Jelena Ostapenko
+Gary Player
+Ben Hogan
+Sam Snead
+Bobby Jones
+Walter Hagen
+Gene Sarazen
+Byron Nelson
+Tom Watson
+Lee Trevino
+Nick Faldo
+Seve Ballesteros
+Greg Norman
+Ernie Els
+Vijay Singh
+Retief Goosen
+Padraig Harrington
+Jordan Spieth
+Justin Thomas
+Dustin Johnson
+Xander Schauffele
+Collin Morikawa
+Hideki Matsuyama
+Viktor Hovland
+Wyndham Clark
+Matt Fitzpatrick
+Brian Harman
+Patrick Cantlay
+Tony Finau
+Sergio Garcia
+Henrik Stenson
+Adam Scott
+Jason Day
+Justin Rose
+Lee Westwood
+Martin Kaymer
+Yani Tseng
+Inbee Park
+Annika Sorenstam
+Karrie Webb
+Se Ri Pak
+Lexi Thompson
+Michelle Wie
+Rickie Fowler
+Webb Simpson
+Keegan Bradley
+Zach Johnson
+Stewart Cink
+Jim Furyk
+Davis Love III
+Fred Couples
+Ben Crenshaw
+Paul Azinger
+Tommy Fleetwood
+Shane Lowry
+Min Woo Lee
+Cameron Smith
+Joaquin Niemann
+Tom Kim
+Kim Si-woo
+K.J. Choi
+Y.E. Yang
+Jason Kokrak
+Alain Prost
+Juan Manuel Fangio
+Jackie Stewart
+Jim Clark
+Nelson Piquet
+Emerson Fittipaldi
+Ronnie Peterson
+Mika Hakkinen
+Damon Hill
+Jacques Villeneuve
+Kimi Raikkonen
+Jenson Button
+Mark Webber
+Nico Rosberg
+Jos Verstappen
+Daniel Ricciardo
+Sergio Perez
+Valtteri Bottas
+Pierre Gasly
+Esteban Ocon
+Alexander Albon
+Nico Hulkenberg
+Kevin Magnussen
+Romain Grosjean
+Kamui Kobayashi
+Felipe Massa
+Rubens Barrichello
+Gerhard Berger
+Nigel Mansell
+Graham Hill
+James Hunt
+Jochen Rindt
+Stirling Moss
+Mario Andretti
+Gilles Villeneuve
+Jacky Ickx
+Jody Scheckter
+Keke Rosberg
+Alan Jones
+Ralf Schumacher
+Jarno Trulli
+Giancarlo Fisichella
+David Coulthard
+Eddie Irvine
+Jean Alesi
+Riccardo Patrese
+Michael Andretti
+Dale Earnhardt
+Richard Petty
+Jimmie Johnson
+Kyle Busch
+Joey Logano
+Denny Hamlin
+Chase Elliott
+Kyle Larson
+Tony Stewart
+Dale Earnhardt Jr.
+Jeff Gordon
+Mark Martin
+Ryan Blaney
+Martin Truex Jr.
+Casey Stoner
+Wayne Rainey
+Mick Doohan
+Jorge Lorenzo
+Dani Pedrosa
+Fabio Quartararo
+Joan Mir
+Andrea Dovizioso
+Eddie Lawson
+Kenny Roberts
+Max Biaggi
+Johann Zarco
+Alex Rins
+Enea Bastianini
+Jack Miller
+Maverick Vinales
+Andrea Iannone
+Aleix Espargaro
+Pol Espargaro
+Brad Binder
+Sete Gibernau
+Jonathan Rea
+Toprak Razgatlioglu
+Nicky Hayden
+Troy Bayliss
+Sugar Ray Robinson
+Joe Louis
+Rocky Marciano
+Jack Dempsey
+Sugar Ray Leonard
+Marvin Hagler
+Thomas Hearns
+Roberto Duran
+Julio Cesar Chavez
+Oscar De La Hoya
+Felix Trinidad
+Bernard Hopkins
+Roy Jones Jr.
+Evander Holyfield
+George Foreman
+Larry Holmes
+Joe Frazier
+Ken Norton
+Sonny Liston
+Canelo Alvarez
+Gennady Golovkin
+Vasiliy Lomachenko
+Errol Spence Jr.
+Shakur Stevenson
+Josh Taylor
+Jermall Charlo
+Devin Haney
+Ryan Garcia
+Teofimo Lopez
+Deontay Wilder
+Wladimir Klitschko
+Vitali Klitschko
+Lennox Lewis
+Riddick Bowe
+Michael Moorer
+Andy Ruiz Jr.
+Dillian Whyte
+Joe Calzaghe
+Ricky Hatton
+Amir Khan
+Carl Froch
+Chris Eubank
+Nigel Benn
+Naseem Hamed
+Hector Camacho
+Pernell Whitaker
+Kostya Tszyu
+Miguel Cotto
+Juan Manuel Marquez
+Erik Morales
+Marco Antonio Barrera
+Danny Garcia
+Keith Thurman
+Adrien Broner
+Sergey Kovalev
+Andre Ward
+Kell Brook
+Jaime Munguia
+David Benavidez
+Jai Opetaia
+Dmitry Bivol
+Artur Beterbiev
+Zhilei Zhang
+Joseph Parker
+Alexis Arguello
+Jeff Fenech
+Nonito Donaire
+Michael Spinks
+Leon Spinks
+Ken Buchanan
+Archie Moore
+Anderson Silva
+Stipe Miocic
+Daniel Cormier
+Fedor Emelianenko
+Demetrious Johnson
+Henry Cejudo
+Amanda Nunes
+Valentina Shevchenko
+Joanna Jedrzejczyk
+Rose Namajunas
+Zhang Weili
+Dustin Poirier
+Charles Oliveira
+Max Holloway
+Justin Gaethje
+Michael Chandler
+Tony Ferguson
+Nate Diaz
+Nick Diaz
+Brock Lesnar
+Cain Velasquez
+Junior dos Santos
+Alistair Overeem
+Ciryl Gane
+Tom Aspinall
+Sean O'Malley
+Merab Dvalishvili
+Alexander Volkanovski
+Kamaru Usman
+Leon Edwards
+Belal Muhammad
+Ilia Topuria
+Jiri Prochazka
+Glover Teixeira
+Jan Blachowicz
+Robert Whittaker
+Chris Weidman
+Vitor Belfort
+Wanderlei Silva
+Quinton Jackson
+Kazushi Sakuraba
+Dan Henderson
+Frank Mir
+Randy Couture
+Chuck Liddell
+Tito Ortiz
+Forrest Griffin
+Stephan Bonnar
+Rashad Evans
+Paulo Costa
+Yair Rodriguez
+Brandon Moreno
+Jessica Andrade
+Michael Grzesiek
+Turner Tenney
+Michael Johnson
+Maurice Greene
+Tyson Gay
+Justin Gatlin
+Asafa Powell
+Yohan Blake
+Florence Griffith-Joyner
+Marion Jones
+Sanya Richards-Ross
+Carmelita Jeter
+Elaine Thompson-Herah
+Christian Coleman
+Fred Kerley
+Marcell Jacobs
+Andre De Grasse
+Paul Tergat
+Sifan Hassan
+Joshua Cheptegei
+Emmanuel Wanyonyi
+Wayde van Niekerk
+Kirani James
+Jonathan Edwards
+Christian Taylor
+Mike Powell
+Bob Beamon
+Sergey Bubka
+Yelena Isinbayeva
+Jan Zelezny
+Ryan Crouser
+Joe Kovacs
+Jessica Ennis-Hill
+Katarina Johnson-Thompson
+Sebastian Coe
+Steve Ovett
+Steve Cram
+Daley Thompson
+Linford Christie
+Colin Jackson
+Jackie Joyner-Kersee
+Wilma Rudolph
+Edwin Moses
+Dalilah Muhammad
+Karsten Warholm
+Rai Benjamin
+Yulimar Rojas
+Caster Semenya
+Wang Junxia
+Liu Xiang
+Su Bingtian
+Abdi Nageeye
+Tirunesh Dibaba
+Derartu Tulu
+Catherine Ndereba
+Jim Ryun
+Peter Snell
+Steve Prefontaine
+Bob Hayes
+Mark Spitz
+Ian Thorpe
+Pieter van den Hoogenband
+Alexander Popov
+Kosuke Kitajima
+Ryan Murphy
+Missy Franklin
+Natalie Coughlin
+Dara Torres
+Janet Evans
+Summer Sanders
+Krisztina Egerszegi
+Jenny Thompson
+Amy Van Dyken
+Tom Daley
+Sun Yang
+Zhang Yufei
+Ye Shiwen
+Cate Campbell
+Emma McKeon
+Ariarne Titmus
+Mollie O'Callaghan
+Kaylee McKeown
+Sarah Sjostrom
+Federica Pellegrini
+Yulia Efimova
+Ryosuke Irie
+Daiya Seto
+Chad le Clos
+Cameron McEvoy
+James Magnussen
+Kyle Chalmers
+David Popovici
+Lilly King
+Rebecca Soni
+Matt Biondi
+Gary Hall Jr.
+Anthony Ervin
+Cesar Cielo
+Nathan Adrian
+Brendan Hansen
+Aaron Peirsol
+Libby Trickett
+Dawn Fraser
+Shane Gould
+Kornelia Ender
+Debbie Meyer
+Yannick Agnel
+Florent Manaudou
+Camille Muffat
+Kristof Milak
+Chase Kalisz
+Simone Manuel
+Regan Smith
+Summer McIntosh
+Penny Oleksiak
+Maggie MacNeil
+Nadia Comaneci
+Kohei Uchimura
+Aly Raisman
+McKayla Maroney
+Jordan Chiles
+Oksana Chusovitina
+Larisa Latynina
+Vera Caslavska
+Nastia Liukin
+Shawn Johnson
+Alexei Nemov
+Marian Dragulescu
+Epke Zonderland
+Max Whitlock
+Louis Smith
+Kenzo Shirai
+Brody Malone
+Stephen Nedoroscik
+Jade Carey
+Carlos Yulo
+Dominique Dawes
+Kim Zmeskal
+Dominique Moceanu
+Shannon Miller
+Bart Conner
+Mary Lou Retton
+Peter Vidmar
+Ellie Black
+Ma Yanhong
+Eddy Merckx
+Bernard Hinault
+Miguel Indurain
+Greg LeMond
+Bradley Wiggins
+Tadej Pogacar
+Primoz Roglic
+Egan Bernal
+Peter Sagan
+Marianne Vos
+Remco Evenepoel
+Wout van Aert
+Mathieu van der Poel
+Tom Pidcock
+Julian Alaphilippe
+Fabian Cancellara
+Tony Martin
+Alberto Contador
+Vincenzo Nibali
+Marco Pantani
+Fausto Coppi
+Gino Bartali
+Jacques Anquetil
+Felice Gimondi
+Stephen Roche
+Sean Kelly
+Laurent Fignon
+Richard Virenque
+Jan Ullrich
+Ivan Basso
+Andy Schleck
+Cadel Evans
+Thibaut Pinot
+Romain Bardet
+Geraint Thomas
+Annemiek van Vleuten
+Anna van der Breggen
+Lizzie Deignan
+Chloe Dygert
+Elisa Balsamo
+Laura Kenny
+Jason Kenny
+Victoria Pendleton
+Nairo Quintana
+Rigoberto Uran
+Fabio Aru
+Caleb Ewan
+Arnaud Demare
+Fernando Gaviria
+Dylan Groenewegen
+Alexander Kristoff
+Tom Boonen
+Johan Museeuw
+Oscar Freire
+Paolo Bettini
+Erik Zabel
+Mario Cipollini
+Jens Voigt
+Thor Hushovd
+Alejandro Valverde
+Joaquim Rodriguez
+Bjarne Riis
+Jian Zihao
+Artour Babaev
+Danil Ishutin
+Amer Al-Barkawi
+Oleksandr Kostyliev
+Nikola Kovac
+Nicolai Reedtz
+Peter Rasmussen
+Emil Reif
+Mathieu Herbaut
+Robin Kool
+Gabriel Toledo
+Kenny Schrub
+Las Vegas Aces
+New York Liberty
+Seattle Storm
+Connecticut Sun
+Chicago Sky
+Indiana Fever
+Minnesota Lynx
+Dallas Wings
+Los Angeles Sparks
+Phoenix Mercury
+Washington Mystics
+Atlanta Dream
+Golden State Valkyries
+American League
+Buffalo Sabres
+Ottawa Senators
+St. Louis Blues
+Nashville Predators
+Calgary Flames
+Dallas Stars
+Minnesota Wild
+Winnipeg Jets
+Anaheim Ducks
+San Jose Sharks
+Washington Capitals
+Carolina Hurricanes
+Philadelphia Flyers
+New Jersey Devils
+New York Islanders
+Los Angeles Kings
+Columbus Blue Jackets
+Los Angeles Galaxy
+Portland Timbers
+Austin FC
+Nashville SC
+New York City FC
+New York Red Bulls
+Philadelphia Union
+Toronto FC
+Vancouver Whitecaps
+Columbus Crew
+FC Cincinnati
+Charlotte FC
+Chicago Fire
+D.C. United
+Houston Dynamo
+Minnesota United
+Real Salt Lake
+San Diego FC
+San Jose Earthquakes
+Sporting Kansas City
+St. Louis City SC
+Community Shield
+Brighton and Hove Albion
+Burnley
+Sheffield United
+Ipswich Town
+Watford
+Norwich City
+Stoke City
+West Bromwich Albion
+Blackburn Rovers
+Middlesbrough
+Hull City
+Swansea City
+Cardiff City
+Queens Park Rangers
+Millwall
+Coventry City
+Derby County
+Preston North End
+Plymouth Argyle
+Portsmouth
+Bristol City
+Sheffield Wednesday
+Luton Town
+~Reading
+Oxford United
+Wigan Athletic
+Blackpool
+Wycombe Wanderers
+Stockport County
+Huddersfield Town
+Rotherham United
+Barnsley
+Peterborough United
+Birmingham City
+Bolton Wanderers
+Charlton Athletic
+Lincoln City
+Exeter City
+Mansfield Town
+Northampton Town
+Bradford City
+Stevenage
+Harrogate Town
+Cambridge United
+Port Vale
+Gillingham
+Doncaster Rovers
+Crewe Alexandra
+Accrington Stanley
+Notts County
+Walsall
+Salford City
+Milton Keynes Dons
+Shrewsbury Town
+Tranmere Rovers
+~Barrow
+Bromley
+Grimsby Town
+Fleetwood Town
+Cheltenham Town
+Colchester United
+Carlisle United
+Morecambe
+Swindon Town
+~Chesterfield
+Forest Green Rovers
+Sutton United
+Newport County
+Crawley Town
+Hartlepool United
+Oldham Athletic
+Scunthorpe United
+Bristol Rovers
+Southend United
+Burton Albion
+York City
+Maidstone United
+Chelmsford City
+Boreham Wood
+Dagenham and Redbridge
+Aldershot Town
+Eastleigh
+~Tamworth
+Halifax Town
+Solihull Moors
+Woking
+Yeovil Town
+Dorking Wanderers
+~Hereford
+Real Betis
+Girona
+Celta Vigo
+Osasuna
+Getafe
+Rayo Vallecano
+Deportivo Alaves
+Las Palmas
+Espanyol
+Real Valladolid
+Leganes
+Real Oviedo
+Elche
+Levante
+Real Zaragoza
+Torino
+Sampdoria
+Udinese
+Sassuolo
+Hellas Verona
+Cagliari
+Lecce
+~Parma
+Como
+Cremonese
+Empoli
+Salernitana
+Frosinone
+Venezia
+~Bari
+Eintracht Frankfurt
+VfB Stuttgart
+Borussia Monchengladbach
+VfL Wolfsburg
+SC Freiburg
+TSG Hoffenheim
+Werder Bremen
+Union Berlin
+FC Augsburg
+FSV Mainz 05
+Hertha Berlin
+Schalke 04
+Hamburger SV
+FC Koln
+Hannover 96
+Olympique Marseille
+RC Lens
+Stade Rennais
+OGC Nice
+Stade Brestois
+Nantes
+Reims
+Le Havre
+AZ Alkmaar
+FC Twente
+FC Utrecht
+Sporting Lisbon
+Braga
+~Celtic
+~Rangers
+~Hearts
+~Hibernian
+~Aberdeen
+Dundee United
+Fenerbahce
+Besiktas
+Trabzonspor
+Olympiacos
+Panathinaikos
+AEK Athens
+PAOK
+Red Star Belgrade
+Partizan
+Dynamo Kyiv
+Shakhtar Donetsk
+Zenit St. Petersburg
+Spartak Moscow
+CSKA Moscow
+Lokomotiv Moscow
+Anderlecht
+Club Brugge
+Standard Liege
+Brondby
+Malmo FF
+AIK
+Rosenborg
+Red Bull Salzburg
+Rapid Vienna
+Sturm Graz
+Young Boys
+FC Zurich
+~Grasshopper
+Ferencvaros
+Slavia Prague
+Sparta Prague
+Legia Warsaw
+Wisla Krakow
+Celtic Glasgow
+Independiente
+Racing Club
+San Lorenzo
+Estudiantes
+Velez Sarsfield
+~Santos
+Sao Paulo
+Fluminense
+Botafogo
+Gremio
+Internacional
+~Cruzeiro
+Atletico Mineiro
+Penarol
+Nacional
+Colo-Colo
+Universidad de Chile
+Olimpia
+Club America
+Chivas
+Tigres UANL
+Cruz Azul
+Pumas UNAM
+Toluca
+Santos Laguna
+Club Leon
+Pachuca
+Necaxa
+Puebla
+Queretaro
+~Atlas
+Dorados
+Mazatlan
+Juarez
+Harvard Crimson
+Yale Bulldogs
+Princeton Tigers
+Columbia Lions
+Dartmouth Big Green
+Cornell Big Red
+Brown Bears
+Penn Quakers
+Stanford Cardinal
+California Golden Bears
+UCLA Bruins
+USC Trojans
+Oregon Ducks
+Oregon State Beavers
+Washington Huskies
+Washington State Cougars
+Arizona Wildcats
+Arizona State Sun Devils
+Utah Utes
+Colorado Buffaloes
+Oklahoma Sooners
+Texas Longhorns
+Texas A&M Aggies
+Baylor Bears
+TCU Horned Frogs
+Kansas Jayhawks
+Kansas State Wildcats
+Iowa State Cyclones
+Oklahoma State Cowboys
+West Virginia Mountaineers
+Cincinnati Bearcats
+Houston Cougars
+UCF Knights
+BYU Cougars
+Alabama Crimson Tide
+Auburn Tigers
+Georgia Bulldogs
+Florida Gators
+LSU Tigers
+Tennessee Volunteers
+Kentucky Wildcats
+Ole Miss Rebels
+Mississippi State Bulldogs
+South Carolina Gamecocks
+Missouri Tigers
+Vanderbilt Commodores
+Arkansas Razorbacks
+Texas Tech Red Raiders
+Clemson Tigers
+Florida State Seminoles
+Miami Hurricanes
+North Carolina Tar Heels
+NC State Wolfpack
+Virginia Cavaliers
+Virginia Tech Hokies
+Duke Blue Devils
+Wake Forest Demon Deacons
+Louisville Cardinals
+Syracuse Orange
+Pittsburgh Panthers
+Boston College Eagles
+Georgia Tech Yellow Jackets
+Notre Dame Fighting Irish
+Ohio State Buckeyes
+Michigan Wolverines
+Penn State Nittany Lions
+Michigan State Spartans
+Wisconsin Badgers
+Iowa Hawkeyes
+Nebraska Cornhuskers
+Minnesota Golden Gophers
+Northwestern Wildcats
+Illinois Fighting Illini
+Indiana Hoosiers
+Purdue Boilermakers
+Maryland Terrapins
+Rutgers Scarlet Knights
+UCLA Bruins Football
+Kentucky Wildcats Basketball
+Duke Blue Devils Basketball
+North Carolina Tar Heels Basketball
+Kansas Jayhawks Basketball
+Gonzaga Bulldogs
+Villanova Wildcats
+Uconn Huskies
+Connecticut Huskies
+Michigan Wolverines Basketball
+Marquette Golden Eagles
+Creighton Bluejays
+Xavier Musketeers
+Butler Bulldogs
+Memphis Tigers
+San Diego State Aztecs
+Saint Mary's Gaels
+Arizona Wildcats Basketball
+Florida Atlantic Owls
+Army Black Knights
+Navy Midshipmen
+Air Force Falcons
+Boise State Broncos
+Fresno State Bulldogs
+Hawaii Rainbow Warriors
+Central Florida Knights
+SMU Mustangs
+Tulane Green Wave
+Rice Owls
+Tulsa Golden Hurricane
+Utah State Aggies
+Wyoming Cowboys
+Colorado State Rams
+New Mexico Lobos
+Nevada Wolf Pack
+UNLV Rebels
+Louisiana Ragin' Cajuns
+James Madison Dukes
+Appalachian State Mountaineers
+Coastal Carolina Chanticleers
+Troy Trojans
+Georgia Southern Eagles
+Marshall Thundering Herd
+Old Dominion Monarchs
+Liberty Flames
+Jacksonville State Gamecocks
+Sun Belt Conference
+Big Ten Conference
+Big 12 Conference
+Southeastern Conference
+Atlantic Coast Conference
+Pac-12 Conference
+Big East Conference
+American Athletic Conference
+Mountain West Conference
+Conference USA
+Missouri Valley Conference
+West Coast Conference
+Atlantic 10 Conference
+Patriot League
+Horizon League
+Ohio Valley Conference
+Southern Conference
+Big Sky Conference
+Pac-10 Conference
+Big Eight Conference
+Southwest Conference
+Western Athletic Conference
+Pacific Coast Conference
+National Collegiate Athletic Association
+National Hockey League
+Women's National Basketball Association
+National Women's Soccer League
+Premier Lacrosse League
+Major League Lacrosse
+National Lacrosse League
+Athletes Unlimited
+Professional Bull Riders
+PBR
+LPGA Tour
+LPGA
+European Tour
+Korn Ferry Tour
+Champions Tour
+U.S. Open
+The Open
+Open Championship
+Presidents Cup
+Walker Cup
+Curtis Cup
+Players Championship
+The Players Championship
+FedEx Cup
+Tour Championship
+Augusta National Golf Club
+Pebble Beach
+Pebble Beach Golf Links
+St Andrews Links
+Royal Birkdale
+Royal Liverpool
+Royal Portrush
+Royal Lytham and St Annes
+Royal St George's
+Royal Troon
+Carnoustie
+Muirfield
+Turnberry
+Torrey Pines
+Bethpage Black
+Oakmont Country Club
+Winged Foot
+Shinnecock Hills
+Pinehurst No. 2
+Valhalla Golf Club
+Quail Hollow
+Sawgrass
+TPC Sawgrass
+TPC Scottsdale
+Riviera Country Club
+Medinah Country Club
+Whistling Straits
+Kiawah Island
+Southern Hills
+Olympic Club
+Congressional Country Club
+Erin Hills
+Chambers Bay
+Merion Golf Club
+Hazeltine National
+Baltusrol
+Oak Hill Country Club
+Firestone Country Club
+Bay Hill
+Harbour Town
+Colonial Country Club
+Muirfield Village
+Sentry Tournament of Champions
+United States Open
+Fed Cup
+ATP Tour
+WTA Tour
+Madrid Open
+Italian Open
+Rome Masters
+Cincinnati Open
+Western and Southern Open
+Canadian Open
+National Bank Open
+Shanghai Masters
+Paris Masters
+Rolex Paris Masters
+Monte-Carlo Masters
+Rolex Monte-Carlo Masters
+Queen's Club
+Halle Open
+Eastbourne International
+Wimbledon Championships
+Hopman Cup
+United Cup
+Brisbane International
+Adelaide International
+Sydney International
+Dubai Duty Free Tennis Championships
+Qatar Open
+Abu Dhabi Championships
+Japan Open
+Beijing Open
+China Open
+Wuhan Open
+Rolex Shanghai Masters
+Stuttgart Open
+Hamburg European Open
+Barcelona Open
+Banc of California Stadium
+Centre Court
+Court Philippe-Chatrier
+Louis Armstrong Stadium
+Melbourne Park
+Flushing Meadows
+Court Suzanne-Lenglen
+Ligue 2
+Serie B
+Serie C
+La Liga 2
+Segunda Division
+~Championship
+League One
+League Two
+Scottish Premiership
+Scottish Championship
+Eerste Divisie
+Primeira Liga
+Liga Portugal
+Super Lig
+Pro League
+Jupiler Pro League
+Bundesliga 2
+2. Bundesliga
+Saudi Professional League
+Qatar Stars League
+UAE Pro League
+A-League
+A-League Men
+A-League Women
+J1 League
+J League
+K League 1
+Chinese Super League
+Indian Super League
+I-League
+Brazilian Serie A
+Campeonato Brasileiro
+Copa Libertadores
+Copa Sudamericana
+Liga MX
+Liga BBVA MX
+Argentine Primera Division
+Primera Division
+Supercopa de Espana
+Supercoppa Italiana
+Coupe de France
+Trophee des Champions
+Taca de Portugal
+KNVB Cup
+Scottish Cup
+Scottish League Cup
+Copa Argentina
+Copa America
+UEFA European Championship
+European Championship
+UEFA Nations League
+UEFA Super Cup
+UEFA Women's Champions League
+FIFA Intercontinental Cup
+Gold Cup
+CONCACAF Gold Cup
+CONCACAF Champions Cup
+Africa Cup of Nations
+AFCON
+CAF Champions League
+Arab Cup
+Gulf Cup
+Confederations Cup
+FIFA Confederations Cup
+Youth Olympic Games
+Commonwealth Games
+Pan American Games
+Universiade
+Special Olympics
+World Athletics Championships
+Diamond League
+World Aquatics Championships
+FINA World Championships
+World Figure Skating Championships
+Republic of Ireland
+Team GB
+Brazil national football team
+Argentina national football team
+Canada national soccer team
+Mexico national football team
+Japan national football team
+Korea Republic
+South Korea national football team
+Australia national football team
+Socceroos
+Matildas
+~Lionesses
+La Roja
+Die Mannschaft
+Oranje
+Selecao
+La Celeste
+El Tri
+Canarinha
+Super Eagles
+Black Stars
+Bafana Bafana
+Indomitable Lions
+Pharaohs
+Desert Foxes
+Atlas Lions
+Lions of Teranga
+~Leopards
+Chipolopolo
+Harambee Stars
+~Crocodiles
+Eagles of Carthage
+Sea Lions
+Samurai Blue
+Taeguk Warriors
+Red Devils
+Vatreni
+~Dragons
+Irish Rugby
+~Kiwis
+New Zealand Rugby
+Pumas
+Los Pumas
+~Lions
+British and Irish Lions
+Brave Blossoms
+Flying Fijians
+Manu Samoa
+Ikale Tahi
+Azzurri Rugby
+Les Bleus Rugby
+Six Nations
+Six Nations Championship
+Rugby Championship
+The Rugby Championship
+Autumn Nations Series
+Rugby World Cup
+Women's Rugby World Cup
+Super Rugby
+Super Rugby Pacific
+Super Rugby Aotearoa
+Super Rugby Americas
+United Rugby Championship
+Premiership Rugby
+Gallagher Premiership
+English Premiership
+Top 14
+Pro D2
+European Rugby Champions Cup
+Challenge Cup
+Currie Cup
+Mitre 10 Cup
+Ranfurly Shield
+Heineken Cup
+NRL
+National Rugby League
+Super League
+Women's Super League
+AFL
+Australian Football League
+Australian Rules Football
+AFLW
+NRLW
+Sheffield Shield
+Big Bash League
+The Hundred
+Indian Premier League
+IPL
+Women's Premier League
+Pakistan Super League
+Bangladesh Premier League
+Caribbean Premier League
+Sri Lanka Premier League
+SA20
+Major League Cricket
+MLC
+Champions Trophy
+ICC Champions Trophy
+ICC Cricket World Cup
+Cricket World Cup
+T20 World Cup
+ICC T20 World Cup
+ICC Men's T20 World Cup
+Women's T20 World Cup
+World Test Championship
+The Ashes
+~Ashes
+County Championship
+Vitality Blast
+Royal London One-Day Cup
+Ranji Trophy
+Duleep Trophy
+Irani Cup
+Syed Mushtaq Ali Trophy
+Vijay Hazare Trophy
+Mumbai Indians
+Chennai Super Kings
+Royal Challengers Bangalore
+Royal Challengers Bengaluru
+Kolkata Knight Riders
+Delhi Capitals
+Punjab Kings
+Rajasthan Royals
+Sunrisers Hyderabad
+Lucknow Super Giants
+Gujarat Titans
+Mumbai Indians Women
+Delhi Capitals Women
+Royal Challengers Bengaluru Women
+UP Warriorz
+Gujarat Giants
+Sydney Sixers
+Sydney Thunder
+Melbourne Stars
+Melbourne Renegades
+Brisbane Heat
+Perth Scorchers
+Adelaide Strikers
+Hobart Hurricanes
+Birmingham Phoenix
+Trent Rockets
+Oval Invincibles
+London Spirit
+Manchester Originals
+Northern Superchargers
+Southern Brave
+Welsh Fire
+Marylebone Cricket Club
+MCC
+Lord's
+Melbourne Cricket Ground
+Sydney Cricket Ground
+Eden Gardens
+Wankhede Stadium
+Narendra Modi Stadium
+Chepauk
+Adelaide Oval
+Gabba
+The Oval
+Kensington Oval
+Sabina Park
+Queen's Park Oval
+~Bullring
+Newlands
+Wanderers Stadium
+Kingsmead
+FIA Formula One World Championship
+Formula E
+Formula 2
+Formula 3
+IndyCar Series
+NASCAR Cup Series
+NASCAR Xfinity Series
+NASCAR Craftsman Truck Series
+Italian Grand Prix
+Japanese Grand Prix
+Australian Grand Prix
+Brazilian Grand Prix
+Canadian Grand Prix
+Hungarian Grand Prix
+Belgian Grand Prix
+Dutch Grand Prix
+Spanish Grand Prix
+Austrian Grand Prix
+Azerbaijan Grand Prix
+Mexican Grand Prix
+Qatar Grand Prix
+Chinese Grand Prix
+Saudi Arabian Grand Prix
+Bahrain Grand Prix
+Emilia Romagna Grand Prix
+Imola
+Interlagos
+Yas Marina
+Marina Bay
+Albert Park
+Zandvoort
+Hungaroring
+Red Bull Ring
+Autodromo Nazionale Monza
+Mercedes-AMG Petronas F1 Team
+McLaren Racing
+Williams
+~Alpine
+BWT Alpine
+Haas
+Haas F1 Team
+Sauber
+Stake F1
+Visa Cash App RB
+Toro Rosso
+AlphaTauri
+Racing Point
+Force India
+Brawn GP
+Minardi
+Moto2
+Moto3
+World Superbikes
+WorldSBK
+Isle of Man TT
+World Rally Championship
+Rally de Portugal
+Rallye Monte-Carlo
+Rally Australia
+Goodwood Festival of Speed
+Pikes Peak
+Bonneville Salt Flats
+Talladega Superspeedway
+Daytona International Speedway
+Bristol Motor Speedway
+Charlotte Motor Speedway
+Darlington Raceway
+Watkins Glen
+Sonoma Raceway
+Road America
+Laguna Seca
+Road Atlanta
+Michigan International Speedway
+Pocono Raceway
+Dover Motor Speedway
+Phoenix Raceway
+Homestead-Miami Speedway
+Richmond Raceway
+Las Vegas Motor Speedway
+Kansas Speedway
+Texas Motor Speedway
+Atlanta Motor Speedway
+Nashville Superspeedway
+Martinsville Speedway
+New Hampshire Motor Speedway
+Watkins Glen International
+Indianapolis Motor Speedway
+~Brickyard
+Gateway Motorsports Park
+Sebring International Raceway
+Circuit de Monaco
+Hockenheimring
+Shanghai International Circuit
+Lusail International Circuit
+Bahrain International Circuit
+Sakhir
+Mugello
+Misano
+~Jerez
+Catalunya
+Circuit de Barcelona-Catalunya
+Paul Ricard
+Circuit Paul Ricard
+Le Castellet
+Estoril
+Portimao
+Algarve International Circuit
+Brands Hatch
+Donington Park
+Bathurst
+Mount Panorama
+Phillip Island
+Red Bull Ring Spielberg
+Zolder
+Assen
+Sachsenring
+Brno
+Motorland Aragon
+Autodromo Internazionale Enzo e Dino Ferrari
+Ultimate Fighting Championship
+Cage Warriors
+Bare Knuckle FC
+Top Rank
+Golden Boy Promotions
+Matchroom Boxing
+Premier Boxing Champions
+PBC
+Zuffa Boxing
+Barclays Center
+Fiserv Forum
+Gainbridge Fieldhouse
+Madison Square Garden Arena
+Ball Arena
+Target Center
+Moda Center
+Footprint Center
+Kaseya Center
+Amway Center
+Capital One Arena
+Toyota Center
+FedExForum
+Smoothie King Center
+Frost Bank Center
+Delta Center
+Spectrum Center
+State Farm Arena
+Rocket Mortgage FieldHouse
+Little Caesars Arena
+Climate Pledge Arena
+Scotiabank Arena
+Rogers Place
+Rogers Arena
+Canada Life Centre
+Bell Centre
+Ottawa Canadian Tire Centre
+KeyBank Center
+Xcel Energy Center
+Enterprise Center
+PNC Arena
+Prudential Center
+UBS Arena
+Honda Center
+SAP Center
+PPG Paints Arena
+Wells Fargo Center
+Lenovo Center
+Scotiabank Saddledome
+Amalie Arena
+Benchmark International Arena
+Tampa Bay Times Forum
+Golden 1 Center
+Pechanga Arena
+Oracle Arena
+Oakland Coliseum
+Oracle Park
+Petco Park
+Citi Field
+Citizens Bank Park
+Truist Park
+Minute Maid Park
+Globe Life Field
+Angel Stadium
+T-Mobile Park
+Oriole Park at Camden Yards
+Camden Yards
+Progressive Field
+Comerica Park
+Target Field
+Kauffman Stadium
+Guaranteed Rate Field
+Rate Field
+Busch Stadium
+American Family Field
+Great American Ball Park
+PNC Park
+Nationals Park
+loanDepot park
+Chase Field
+Coors Field
+Sutter Health Park
+Gillette Stadium
+MetLife Stadium
+Arrowhead Stadium
+Allegiant Stadium
+Empower Field at Mile High
+Lumen Field
+Levi's Stadium
+Hard Rock Stadium
+Highmark Stadium
+Ford Field
+Soldier Field
+Lincoln Financial Field
+Acrisure Stadium
+Heinz Field
+Huntington Bank Field
+Cleveland Browns Stadium
+Paycor Stadium
+Paul Brown Stadium
+NRG Stadium
+Lucas Oil Stadium
+TIAA Bank Field
+EverBank Stadium
+Nissan Stadium
+Bank of America Stadium
+Caesars Superdome
+Raymond James Stadium
+FedExField
+Northwest Stadium
+U.S. Bank Stadium
+Mall of America Field
+Sun Life Stadium
+Ralph Wilson Stadium
+Candlestick Park
+Stade de France
+Santiago Bernabeu
+Estadio Santiago Bernabeu
+Wembley
+Highbury
+St James' Park
+Villa Park
+Goodison Park
+Molineux
+Selhurst Park
+Turf Moor
+Elland Road
+Hillsborough
+Bramall Lane
+Craven Cottage
+Vitality Stadium
+Gtech Community Stadium
+Amex Stadium
+Falmer Stadium
+London Stadium
+Upton Park
+Boleyn Ground
+Ewood Park
+Deepdale
+Loftus Road
+Carrow Road
+Portman Road
+St Mary's Stadium
+King Power Stadium
+Filbert Street
+Stadium of Light
+Vicarage Road
+Kenilworth Road
+Madejski Stadium
+Ashton Gate
+Stadio Giuseppe Meazza
+Stadio Olimpico
+Stadio Diego Armando Maradona
+Signal Iduna Park
+Westfalenstadion
+Olympiastadion
+Parc des Princes
+Stade Velodrome
+Parc Olympique Lyonnais
+Groupama Stadium
+Johan Cruyff Arena
+De Kuip
+Estadio da Luz
+Estadio do Dragao
+Ataturk Olympic Stadium
+Hampden Park
+Ibrox
+Celtic Park
+Parkhead
+Tynecastle Park
+Easter Road
+Pittodrie
+Estadio Azteca
+Azteca Stadium
+Maracana
+Estadio Monumental
+La Bombonera
+Mineirao
+Morumbi
+Allianz Parque
+Arena da Baixada
+Ohio Stadium
+Michigan Stadium
+Beaver Stadium
+Kyle Field
+Neyland Stadium
+Tiger Stadium
+Sanford Stadium
+Bryant-Denny Stadium
+Jordan-Hare Stadium
+Doak Campbell Stadium
+Autzen Stadium
+Husky Stadium
+Notre Dame Stadium
+Boston Garden
+Chicago Stadium
+Rupp Arena
+Allen Fieldhouse
+Cameron Indoor Stadium
+Pauley Pavilion
+Hinkle Fieldhouse
+Carrier Dome
+JMA Wireless Dome
+Kroger Field
+Crypto Arena
+Bridgestone Arena
+Wintrust Arena
+Radio City Music Hall
+Hollywood Park
+Churchill Downs
+Belmont Park
+Saratoga Race Course
+Santa Anita Park
+Keeneland
+Pimlico Race Course
+Ascot Racecourse
+Cheltenham Racecourse
+Aintree
+Epsom Downs
+~Newmarket
+Goodwood Racecourse
+Flemington
+Preakness Stakes
+Belmont Stakes
+Breeders' Cup
+Melbourne Cup
+Cheltenham Festival
+Epsom Derby
+Prix de l'Arc de Triomphe
+King George VI and Queen Elizabeth Stakes
+`);
+CST_GLOSSARY_EXTRA_ADD("gadgets", null, `
+iPhone 12 Pro Max
+iPhone 13 Pro Max
+iPad Pro M5
+iPad mini 6
+iPad mini 7
+MacBook Air M1
+MacBook Air 13-inch M3
+MacBook Air 15-inch M4
+MacBook Pro M1 Pro
+MacBook Pro M1 Max
+MacBook Pro M2 Pro
+MacBook Pro M2 Max
+MacBook Pro M3 Pro
+MacBook Pro M3 Max
+MacBook Pro M4 Pro
+MacBook Pro M4 Max
+Mac mini M2
+Mac mini M2 Pro
+Mac mini M4 Pro
+Mac Studio M2 Max
+Mac Studio M2 Ultra
+iMac 24-inch M1
+iMac 24-inch M3
+iMac 24-inch M4
+Apple Watch Series 7
+Apple Watch Series 8
+AirPods Max USB-C
+Samsung Galaxy S21
+Samsung Galaxy S21 FE
+Samsung Galaxy S21 Ultra
+Samsung Galaxy S22
+Samsung Galaxy S22 Ultra
+Samsung Galaxy S23
+Samsung Galaxy S23 FE
+Samsung Galaxy S23 Ultra
+Samsung Galaxy S24
+Samsung Galaxy S24 FE
+Samsung Galaxy S24 Ultra
+Samsung Galaxy S25
+Samsung Galaxy S25 Edge
+Samsung Galaxy S25 FE
+Samsung Galaxy S25 Ultra
+Samsung Galaxy Z Flip3
+Samsung Galaxy Z Flip4
+Samsung Galaxy Z Flip5
+Samsung Galaxy Z Flip6
+Samsung Galaxy Z Flip7
+Samsung Galaxy Z Fold3
+Samsung Galaxy Z Fold4
+Samsung Galaxy Z Fold5
+Samsung Galaxy Z Fold6
+Samsung Galaxy Z Fold7
+Samsung Galaxy A14
+Samsung Galaxy A15
+Samsung Galaxy A16
+Samsung Galaxy A25
+Samsung Galaxy A26
+Samsung Galaxy A34
+Samsung Galaxy A35
+Samsung Galaxy A36
+Samsung Galaxy A52
+Samsung Galaxy A53
+Samsung Galaxy A54
+Samsung Galaxy A55
+Samsung Galaxy A56
+Samsung Galaxy A71
+Samsung Galaxy A72
+Samsung Galaxy A73
+Samsung Galaxy Tab S7
+Samsung Galaxy Tab S7 FE
+Samsung Galaxy Tab S8
+Samsung Galaxy Tab S8 Ultra
+Samsung Galaxy Tab S9
+Samsung Galaxy Tab S9 FE
+Samsung Galaxy Tab S9 Ultra
+Samsung Galaxy Tab S10 Ultra
+Samsung Galaxy Watch 4
+Samsung Galaxy Watch 5
+Samsung Galaxy Watch 5 Pro
+Samsung Galaxy Watch 6
+Samsung Galaxy Watch 6 Classic
+Samsung Galaxy Watch 7
+Samsung Galaxy Watch Ultra
+Samsung Galaxy Buds2
+Samsung Galaxy Buds2 Pro
+Samsung Galaxy Buds3
+Samsung Galaxy Buds3 Pro
+Samsung Galaxy Buds FE
+Samsung Galaxy Buds Live
+Samsung Galaxy Book3 Pro
+Samsung Galaxy Book3 Ultra
+Samsung Galaxy Book4
+Samsung Galaxy Book4 Pro
+Samsung Galaxy Book4 Ultra
+Samsung Galaxy Book5 Pro
+Samsung Odyssey G7
+Samsung Odyssey G9
+Samsung Odyssey OLED G9
+Samsung Odyssey Neo G8
+Samsung Odyssey Neo G9
+Samsung Galaxy XCover7
+Samsung Galaxy M35
+Samsung Galaxy M55
+Samsung Galaxy F55
+Google Pixel 5
+Google Pixel 5a
+Google Pixel 6
+Google Pixel 6 Pro
+Google Pixel 6a
+Google Pixel 7
+Google Pixel 7 Pro
+Google Pixel 7a
+Google Pixel 8
+Google Pixel 8 Pro
+Google Pixel 8a
+Google Pixel 9
+Google Pixel 9 Pro
+Google Pixel 9 Pro XL
+Google Pixel 9 Pro Fold
+Google Pixel 9a
+Google Pixel 10
+Google Pixel 10 Pro
+Google Pixel 10 Pro XL
+Google Pixel 10 Pro Fold
+Google Pixel Fold
+Google Pixel Tablet
+Google Pixel Watch
+Google Pixel Watch 2
+Google Pixel Watch 3
+Google Pixel Buds Pro
+Google Pixel Buds Pro 2
+Sony Xperia 1 IV
+Sony Xperia 1 V
+Sony Xperia 5 IV
+Sony Xperia 5 V
+Sony Xperia 10 IV
+Sony Xperia 10 V
+Sony WF-1000XM4
+Sony WF-1000XM6
+Sony LinkBuds S
+Sony LinkBuds Fit
+Sony SRS-XB100
+Sony SRS-XG500
+Sony Walkman NW-A306
+Xiaomi 12
+Xiaomi 12 Pro
+Xiaomi 13
+Xiaomi 13 Pro
+Xiaomi 13 Ultra
+Xiaomi 13T Pro
+Xiaomi 14 Pro
+Xiaomi 14T Pro
+Xiaomi Mix Fold 4
+Xiaomi Mix Flip
+Xiaomi Pad 6
+Xiaomi Pad 6 Pro
+Xiaomi Pad 7 Pro
+Xiaomi Watch 2 Pro
+Xiaomi Watch S1
+Xiaomi Smart Band 8
+Xiaomi Smart Band 9
+Xiaomi Buds 5 Pro
+Xiaomi Electric Scooter 4 Pro
+Xiaomi Electric Scooter 4 Ultra
+Xiaomi Electric Scooter 4 Lite
+Redmi 12C
+Redmi 13C
+Redmi Buds 5 Pro
+Poco F5
+Poco F5 Pro
+Poco F6 Pro
+Poco F7
+Poco X5 Pro
+Poco X6 Pro
+Poco X7 Pro
+Poco M6 Pro
+Poco C65
+Oppo Find X5
+Oppo Find X5 Pro
+Oppo Find X6
+Oppo Find X6 Pro
+Oppo Find X7 Ultra
+Oppo Find X8 Pro
+Oppo Find N2 Flip
+Oppo Find N3 Flip
+Oppo Find N5
+Oppo Reno 8 Pro
+Oppo Reno 10 Pro
+Oppo Reno 11 Pro
+Oppo Reno 13
+Oppo A78
+Oppo A98
+Oppo A3 Pro
+Oppo Pad 2
+Oppo Enco X2
+Oppo Enco Air3 Pro
+Vivo X80 Pro
+Vivo X90 Pro
+Vivo X100 Pro
+Vivo X200 Pro
+Vivo X Fold 3
+Vivo V29
+Vivo V30 Pro
+Vivo V40
+Vivo V50
+Vivo Y100
+Vivo Y300
+Vivo T3 Pro
+OnePlus 9
+OnePlus 9 Pro
+OnePlus 10 Pro
+OnePlus 11
+OnePlus 12R
+OnePlus 13R
+OnePlus Nord 2
+OnePlus Nord 3
+OnePlus Nord 4
+OnePlus Nord CE 3
+OnePlus Nord CE 4
+OnePlus Nord CE 4 Lite
+OnePlus Pad
+OnePlus Pad 2
+OnePlus Pad Go
+OnePlus Buds Pro 2
+OnePlus Buds 3
+OnePlus Watch 2
+OnePlus Watch 3
+Huawei P50 Pro
+Huawei P60 Pro
+Huawei P70
+Huawei P70 Pro
+Huawei Mate 50 Pro
+Huawei Mate 60 Pro
+Huawei Mate 60 RS
+Huawei Mate X3
+Huawei Mate X5
+Huawei Mate X6
+Huawei Nova 11
+Huawei Nova 12
+Huawei Nova 13
+Huawei Nova 14
+Huawei Pura 70 Ultra
+Huawei MatePad Pro 13.2
+Huawei MatePad 11.5
+Huawei MatePad Pro 12.6
+Huawei Watch GT 4
+Huawei Watch GT 5
+Huawei Watch 4 Pro
+Huawei Watch Fit 3
+Huawei Watch D2
+Huawei FreeBuds Pro 3
+Huawei FreeBuds 5i
+Huawei FreeBuds 6i
+Honor Magic 5 Pro
+Honor Magic 6 Pro
+Honor Magic 7 Pro
+Honor Magic V2
+Honor 90
+Honor 200 Pro
+Honor 400
+Honor X9b
+Honor X7b
+Honor Watch GS 3
+Honor Pad 9
+Realme GT 3
+Realme GT 5 Pro
+Realme GT 6
+Realme GT 7 Pro
+Realme 12 Pro
+Realme 13 Pro
+Realme 14 Pro
+Realme C65
+Realme Buds Air 5 Pro
+Realme Pad 2
+Nothing Phone 1
+Nothing Phone 2a
+Nothing Ear 1
+Nothing Ear 2
+Nothing CMF Phone 1
+Nothing CMF Phone 2 Pro
+Nothing CMF Buds Pro 2
+Nothing CMF Watch Pro 2
+Motorola Edge 30 Ultra
+Motorola Edge 40 Pro
+Motorola Edge 50 Pro
+Motorola Edge 50 Ultra
+Motorola Edge 60 Pro
+Motorola Edge 60 Fusion
+Motorola Edge 2024
+Motorola Moto G84
+Motorola Moto G100
+Motorola Moto G Power 2024
+Motorola Moto G Stylus 2024
+Motorola Moto G85
+Motorola Razr 40 Ultra
+Motorola Razr 50 Ultra
+Motorola Razr 2025
+Fairphone 4
+Asus ROG Phone 6
+Asus ROG Phone 6D
+Asus ROG Phone 7
+Asus ROG Phone 8
+Asus ROG Phone 8 Pro
+Asus ROG Phone 9 Pro
+Asus Zenfone 9
+Asus Zenfone 10
+Asus Zenfone 11 Ultra
+Lenovo Legion Y700
+Lenovo Legion Tab
+Lenovo Yoga Tab Plus
+Lenovo Tab P12 Pro
+Lenovo Tab P11 Pro Gen 2
+Lenovo Tab M10 Plus Gen 3
+Lenovo Moto Tab G70
+Nokia G50
+Nokia G22
+Nokia X30
+Nokia C32
+Nokia G42
+GeForce RTX 3050
+GeForce RTX 3060
+GeForce RTX 3060 Ti
+GeForce RTX 3070
+GeForce RTX 3070 Ti
+GeForce RTX 3080
+GeForce RTX 3080 Ti
+GeForce RTX 3090
+GeForce RTX 3090 Ti
+GeForce RTX 4050
+GeForce RTX 4060
+GeForce RTX 4060 Ti
+GeForce RTX 4070
+GeForce RTX 4070 Super
+GeForce RTX 4070 Ti
+GeForce RTX 4070 Ti Super
+GeForce RTX 4080
+GeForce RTX 4080 Super
+GeForce RTX 4090
+GeForce RTX 5050
+GeForce RTX 5060
+GeForce RTX 5060 Ti
+GeForce RTX 5070
+GeForce RTX 5070 Ti
+GeForce RTX 5080
+GeForce RTX 5090
+GeForce GTX 1650
+GeForce GTX 1660 Super
+GeForce GTX 1080 Ti
+GeForce RTX 2060
+GeForce RTX 2070 Super
+GeForce RTX 2080 Ti
+Radeon RX 6600
+Radeon RX 6600 XT
+Radeon RX 6650 XT
+Radeon RX 6700 XT
+Radeon RX 6750 XT
+Radeon RX 6800
+Radeon RX 6800 XT
+Radeon RX 6900 XT
+Radeon RX 6950 XT
+Radeon RX 7600
+Radeon RX 7600 XT
+Radeon RX 7700 XT
+Radeon RX 7800 XT
+Radeon RX 7900 GRE
+Radeon RX 7900 XT
+Radeon RX 7900 XTX
+Radeon RX 9060 XT
+Radeon RX 9070
+Radeon RX 9070 XT
+Intel Arc A380
+Intel Arc A580
+Intel Arc A750
+Intel Arc A770
+Intel Arc B570
+Intel Arc B580
+Intel Arc Pro B60
+Ryzen 3 3100
+Ryzen 5 3600
+Ryzen 5 3600X
+Ryzen 7 3700X
+Ryzen 9 3900X
+Ryzen 5 5500
+Ryzen 5 5600
+Ryzen 5 5600X
+Ryzen 5 5600X3D
+Ryzen 7 5700X
+Ryzen 7 5700X3D
+Ryzen 7 5800X
+Ryzen 7 5800X3D
+Ryzen 9 5900X
+Ryzen 9 5950X
+Ryzen 5 5600G
+Ryzen 7 5700G
+Ryzen 5 7500F
+Ryzen 5 7600
+Ryzen 5 7600X
+Ryzen 7 7700
+Ryzen 7 7700X
+Ryzen 7 7800X3D
+Ryzen 9 7900
+Ryzen 9 7900X
+Ryzen 9 7900X3D
+Ryzen 9 7950X
+Ryzen 9 7950X3D
+Ryzen 5 8500G
+Ryzen 5 8600G
+Ryzen 7 8700G
+Ryzen 5 9600
+Ryzen 5 9600X
+Ryzen 7 9700X
+Ryzen 7 9800X3D
+Ryzen 9 9900X
+Ryzen 9 9950X
+Ryzen 9 9950X3D
+Ryzen AI 9 HX 370
+Ryzen 7 7840U
+Ryzen 7 8845HS
+Core i3-10100
+Core i5-10400F
+Core i5-11400F
+Core i5-11600K
+Core i7-11700K
+Core i9-11900K
+Core i5-12400F
+Core i5-12600K
+Core i7-12700K
+Core i9-12900K
+Core i5-13400F
+Core i5-13600K
+Core i7-13700K
+Core i9-13900K
+Core i9-13900KS
+Core i5-14400F
+Core i5-14600K
+Core i7-14700K
+Core i9-14900K
+Core i9-14900KS
+Core Ultra 5 245K
+Core Ultra 5 245KF
+Core Ultra 7 265K
+Core Ultra 7 265KF
+Core Ultra 9 285K
+Core Ultra 7 155H
+Core Ultra 7 258V
+Core Ultra X7 358H
+Core Ultra 7 268V
+Core i7-1365U
+Core i7-1355U
+Core i5-1240P
+Core i7-12700H
+Core i9-13980HX
+Core i9-14900HX
+Core i7-13650HX
+Threadripper 7960X
+Threadripper PRO 7995WX
+Threadripper 3970X
+EPYC 9654
+Athlon 3000G
+Athlon 200GE
+Radeon 780M
+Radeon 890M
+GeForce MX450
+GeForce GT 1030
+Corsair Vengeance DDR5 32GB
+Corsair Vengeance LPX DDR4
+G.Skill Trident Z5 RGB
+G.Skill Trident Z5 Neo
+G.Skill Flare X5
+TeamGroup T-Force Delta RGB
+Kingston Fury Beast DDR5
+Kingston Fury Renegade
+Crucial Ballistix DDR5
+Samsung 970 EVO Plus
+Samsung 980 Pro
+Samsung 990 Pro
+Samsung 990 EVO
+Samsung 990 EVO Plus
+Samsung 870 EVO
+Samsung T7 Shield
+Samsung T7 Touch
+Samsung T5 EVO
+Samsung PM9A1
+Western Digital Black SN750
+Western Digital Black SN850
+Western Digital Black SN850X
+Western Digital Black SN770
+Western Digital Blue SN580
+Western Digital Blue SN5000
+Western Digital My Passport
+Western Digital My Book
+Western Digital Ultrastar DC HC550
+Seagate FireCuda 530
+Seagate FireCuda 540
+Seagate IronWolf Pro
+Seagate Barracuda Q5
+Seagate One Touch SSD
+Seagate Expansion Portable
+Crucial P3 Plus
+Crucial P5 Plus
+Crucial P310
+Crucial T500
+Crucial T700
+Crucial T705
+Crucial X9 Pro
+Crucial X10 Pro
+Kingston NV2
+Kingston NV3
+Kingston KC3000
+Kingston XS2000
+Kingston DataTraveler Max
+SanDisk Extreme Pro
+SanDisk Extreme Portable SSD
+SanDisk Ultra Dual Drive Luxe
+SanDisk Professional G-Drive
+Lexar NM790
+Corsair MP600 Pro XT
+Corsair MP700 Pro
+Corsair MP600 Core
+Gigabyte AORUS Gen5 12000
+Gigabyte AORUS Gen4 7300
+Gigabyte AORUS RTX 4090 Master
+ASUS ROG Strix RTX 4090
+ASUS TUF Gaming RTX 5070 Ti
+ASUS Dual RTX 4060
+MSI Gaming X Trio RTX 4090
+MSI Ventus 3X RTX 5070
+MSI MAG B650 Tomahawk WiFi
+MSI MPG Z790 Carbon WiFi
+ASUS ROG Crosshair X670E Hero
+ASUS ROG Strix B650E-F
+ASUS ROG Maximus Z790 Hero
+ASUS TUF Gaming B650-Plus
+ASUS Prime X670-P
+Gigabyte B650 Aorus Elite AX
+Gigabyte Z790 Aorus Master
+Gigabyte X870E Aorus Master
+ASRock B650M Pro RS
+ASRock X670E Taichi
+ASRock Z790 Steel Legend
+NZXT H5 Flow
+NZXT H7 Flow
+NZXT H9 Elite
+NZXT Kraken Elite 360
+NZXT N7 Z790
+Fractal Design Meshify 2
+Fractal Design North
+Fractal Design Pop Air
+Lian Li O11 Dynamic EVO
+Lian Li Lancool 216
+Lian Li Lancool 207
+Corsair 4000D Airflow
+Corsair 5000D Airflow
+Corsair 3000D RGB
+Corsair RM850x
+Corsair RM1000e
+Corsair HX1200
+Corsair iCUE H150i Elite
+Corsair iCUE H100i Elite
+Corsair K70 RGB Pro
+Corsair K100 Air
+Corsair K65 Plus
+Corsair M75 Air
+Corsair Virtuoso Pro
+Corsair HS80 RGB
+Corsair Void Elite
+Noctua NH-D15
+Noctua NH-U12A
+Noctua NH-D12L
+Cooler Master Hyper 212
+Cooler Master MasterLiquid 360L
+Thermalright Peerless Assassin 120
+Fitbit Charge 5
+Fitbit Inspire 2
+Fitbit Versa 3
+Fitbit Ace LTE
+Oura Ring 3
+Garmin Forerunner 165
+Garmin Forerunner 955
+Garmin Forerunner 570
+Garmin Forerunner 970
+Garmin Fenix 6 Pro
+Garmin Fenix 7 Pro
+Garmin Fenix 7X Pro
+Garmin Fenix 8 Pro
+Garmin Enduro 2
+Garmin Enduro 3
+Garmin Venu 2
+Garmin Venu 2 Plus
+Garmin Venu 3S
+Garmin Venu Sq 2
+Garmin Vivoactive 4
+Garmin Vivoactive 5
+Garmin Vivoactive 6
+Garmin Instinct 2X
+Garmin Instinct 3
+Garmin Instinct Crossover
+Garmin Edge 540
+Garmin Edge 840
+Garmin Edge 1040
+Garmin Edge 1050
+Garmin Lily 2
+Garmin Descent Mk3
+Garmin Marq Adventurer
+Garmin Quatix 7 Pro
+Garmin Venu X1
+Garmin Forerunner 165 Music
+Amazfit GTR 4
+Amazfit GTS 4
+Amazfit GTR 4 Pro
+Amazfit Balance
+Amazfit Active 2
+Amazfit T-Rex 3 Pro
+Amazfit Helio Strap
+Amazfit Bip 5
+Amazfit Band 7
+Polar Vantage V3
+Polar Vantage M2
+Polar Grit X2 Pro
+Polar Loop
+Polar Pacer Pro
+Coros Apex 2 Pro
+Coros Vertix 2S
+Coros Nomad
+Suunto 9 Peak Pro
+Suunto Race 2
+Suunto Vertical
+Suunto Run
+Withings ScanWatch 2
+Withings Body Smart
+Withings BPM Connect
+Bose QuietComfort Ultra Earbuds
+Bose QuietComfort Earbuds II
+Bose QuietComfort Earbuds
+Bose QuietComfort 45
+Bose QuietComfort Ultra Headphones
+Bose QuietComfort Headphones
+Bose Noise Cancelling Headphones 700
+Bose Ultra Open Earbuds
+Bose SoundLink Flex
+Bose SoundLink Max
+Bose SoundLink Micro
+Bose SoundLink Revolve II
+Bose Smart Soundbar 600
+Bose Frames Tempo
+Jabra Elite 7 Pro
+Jabra Elite 7 Active
+Jabra Elite 8 Active
+Jabra Elite 10
+Jabra Elite 4 Active
+Jabra Elite 85t
+Jabra Evolve2 65
+Jabra Evolve2 75
+Jabra Enhance Plus
+Sennheiser Momentum 3 Wireless
+Sennheiser Momentum 4 Wireless
+Sennheiser Momentum Sport
+Sennheiser Momentum True Wireless 4
+Sennheiser HD 660S2
+Sennheiser HD 600
+Sennheiser CX Plus True Wireless
+Sennheiser Accentum Plus
+Sennheiser IE 200
+Beats Studio Buds Plus
+Beats Solo Buds
+Beats Powerbeats Pro 2
+Beats Flex
+Beats Pill
+Anker Soundcore Liberty 4 NC
+Anker Soundcore Liberty 4
+Anker Soundcore Space A40
+Anker Soundcore Space Q45
+Anker Soundcore Life Q30
+Anker Soundcore Life P3
+Anker Soundcore Motion X600
+Anker Soundcore Motion 300
+Anker Soundcore Boost
+Anker Soundcore Flare 2
+Marshall Major IV
+Marshall Major V
+Marshall Emberton II
+Marshall Emberton III
+Marshall Stanmore III
+Marshall Acton III
+Marshall Woburn III
+Marshall Middleton
+Marshall Motif II ANC
+JBL Charge 5
+JBL Charge 6
+JBL Flip 5
+JBL Flip 6
+JBL Flip 7
+JBL Clip 5
+JBL Clip 4
+JBL Xtreme 4
+JBL Go 4
+JBL Pulse 5
+JBL Tour One M2
+JBL Live Pro 2
+JBL Live Beam 3
+JBL Tune 770NC
+JBL Tune Buds
+JBL Quantum 800
+JBL PartyBox 110
+JBL PartyBox Encore 2
+JBL Boombox 3
+JBL Authentics 500
+Bang & Olufsen Beoplay H95
+Bang & Olufsen Beoplay H100
+Bang & Olufsen Beoplay EX
+Bang & Olufsen Beoplay Portal
+Bang & Olufsen Beosound A5
+Bang & Olufsen Beosound Balance
+Bang & Olufsen Beosound Emerge
+Bang & Olufsen Beolab 28
+Ultimate Ears Boom 4
+Ultimate Ears Megaboom 4
+Ultimate Ears Wonderboom 4
+Ultimate Ears Fits
+Ultimate Ears Epicboom
+Sonos Arc Ultra
+Sonos Beam Gen 2
+Sonos Move 2
+Sonos Roam 2
+Sonos Ray
+Sonos Sub Mini
+Sonos Five
+Sonos One SL
+Logitech MX Master 3S
+Logitech MX Master 3
+Logitech MX Keys S
+Logitech MX Keys Mini
+Logitech MX Anywhere 3S
+Logitech MX Vertical
+Logitech MX Mechanical
+Logitech G Pro X Superlight 2
+Logitech G Pro X Superlight
+Logitech G Pro X 2 Lightspeed
+Logitech G502 X Plus
+Logitech G502 X Lightspeed
+Logitech G915 TKL
+Logitech G915 X
+Logitech G733
+Logitech G435
+Logitech G Pro X TKL
+Logitech G923
+Logitech G29 Driving Force
+Logitech Pebble Keys 2
+Logitech Zone Vibe 100
+Logitech Zone Vibe 125
+Logitech Zone Learn
+Logitech C920 HD Pro
+Logitech Brio 4K
+Logitech StreamCam
+Logitech Litra Glow
+Razer DeathAdder V3 Pro
+Razer DeathAdder V3
+Razer Viper V3 Pro
+Razer Viper Mini
+Razer Basilisk V3 Pro 35K
+Razer Huntsman V3 Pro
+Razer Huntsman Mini
+Razer BlackWidow V4 Pro
+Razer BlackWidow V4
+Razer Kraken V4
+Razer Kraken V4 Pro
+Razer Barracuda X
+Razer Blade 14
+Razer Blade 16
+Razer Blade 18
+Razer Blade 15
+Razer Kishi Ultra
+Razer Edge
+Razer Hammerhead True Wireless X
+Razer Wolverine V3 Pro
+SteelSeries Arctis Nova Pro Wireless
+SteelSeries Arctis Nova 7
+SteelSeries Arctis Nova 5
+SteelSeries Arctis Nova 7X
+SteelSeries Arctis Pro Wireless
+SteelSeries Apex Pro TKL
+SteelSeries Apex 7
+SteelSeries Aerox 3
+SteelSeries Rival 3
+HyperX Cloud II
+HyperX Cloud Alpha Wireless
+HyperX Cloud III
+HyperX Cloud Stinger 2
+HyperX Alloy Origins 65
+HyperX Pulsefire Haste 2
+HyperX QuadCast S
+Keychron K6
+Keychron K8 Pro
+Keychron Q1 Pro
+Keychron Q3 Pro
+Keychron V6
+Keychron Q6 Max
+Wacom Intuos Pro
+Wacom Intuos
+Wacom One 13
+Wacom Cintiq Pro 16
+Wacom Cintiq 22
+Huion Inspiroy H951P
+Huion Kamvas Pro 16
+XP-Pen Artist 16 Pro
+XP-Pen Deco 01 V3
+Elgato Stream Deck MK.2
+Elgato Stream Deck XL
+Elgato Stream Deck Plus
+Elgato Stream Deck Neo
+Elgato Wave:3
+Elgato Facecam MK.2
+Elgato HD60 X
+Elgato Cam Link 4K
+Xbox Series X Digital
+Xbox One X
+Xbox One S
+Xbox Elite Wireless Controller Series 2
+Xbox Adaptive Controller
+Xbox Wireless Headset
+Xbox Ally
+Xbox Ally X
+Nintendo Switch Sports
+Steam Deck LCD
+ASUS ROG Ally
+ASUS ROG Ally X
+Lenovo Legion Go
+Lenovo Legion Go S
+Lenovo Legion Go 2
+MSI Claw A1M
+Sony PlayStation 4 Pro
+PlayStation 5 Slim
+DualSense Edge
+DualSense Wireless Controller
+PlayStation Pulse 3D
+Meta Quest 2
+Meta Ray-Ban Display
+Meta Ray-Ban Gen 2
+HTC Vive Pro 2
+HTC Vive XR Elite
+Pico 4 Ultra
+Canon EOS R5 Mark II
+Canon EOS R6 Mark II
+Canon EOS R10
+Canon EOS R50
+Canon EOS R100
+Canon EOS R1
+Canon EOS R3
+Canon EOS RP
+Canon EOS 90D
+Canon EOS 250D
+Canon EOS 2000D
+Canon EOS M50 Mark II
+Canon EOS M6 Mark II
+Canon PowerShot G7 X Mark III
+Canon PowerShot G5 X Mark II
+Canon PowerShot V10
+Canon PowerShot ZOOM
+Canon PowerShot SX740 HS
+Nikon Z5
+Nikon Z6 II
+Nikon Z6 III
+Nikon Z7
+Nikon Z7 II
+Nikon Z9
+Nikon Zf
+Nikon Zfc
+Nikon Z30
+Nikon Z50
+Nikon Z50 II
+Nikon D780
+Nikon D850
+Nikon D7500
+Nikon Coolpix P1000
+Fujifilm X-T30 II
+Fujifilm X-T50
+Fujifilm X-S10
+Fujifilm X-H2
+Fujifilm X-H2S
+Fujifilm X-E5
+Fujifilm X-M5
+Fujifilm X-Half
+Fujifilm GFX100 II
+Fujifilm GFX100S II
+Fujifilm instax mini 12
+Fujifilm instax Mini Evo
+Sony Alpha 1
+Sony Alpha 1 II
+Sony Alpha 7 IV
+Sony Alpha 7 V
+Sony Alpha 7R V
+Sony Alpha 7C II
+Sony Alpha 7S III
+Sony Alpha 9 III
+Sony Alpha 6700
+Sony Alpha 6400
+Sony ZV-E10 II
+Sony ZV-E1
+Sony ZV-1 II
+Sony FX30
+Sony RX100 VII
+Sony RX100 VA
+Panasonic Lumix S5 II
+Panasonic Lumix S5 IIX
+Panasonic Lumix S9
+Panasonic Lumix G9 II
+Panasonic Lumix GH6
+Panasonic Lumix GH7
+Panasonic Lumix LX100 II
+OM System OM-1
+OM System OM-1 Mark II
+OM System OM-5
+OM System Tough TG-7
+Leica Q2
+Leica Q3 43
+Leica SL3
+Hasselblad X2D 100C
+Hasselblad 907X 100C
+Blackmagic Pocket Cinema Camera 6K Pro
+Blackmagic Pocket Cinema Camera 4K
+Blackmagic Pocket 4K
+GoPro HERO10 Black
+GoPro HERO11 Black
+GoPro HERO12 Black
+GoPro HERO13 Black
+GoPro MAX
+GoPro Hero 9 Black
+Insta360 X5
+Insta360 ONE RS
+Insta360 GO 3
+Insta360 Go Ultra
+Insta360 Ace Pro 2
+Insta360 Link 2
+DJI Osmo Action 4
+DJI Osmo Action 5 Pro
+DJI Osmo Mobile 6
+DJI Osmo Mobile SE
+DJI Osmo 360
+DJI Mini 3 Pro
+DJI Mini 4K
+DJI Mini 5 Pro
+DJI Mini 2 SE
+DJI Air 2S
+DJI Air 3S
+DJI Mavic 3 Pro
+DJI Mavic 3 Classic
+DJI Mavic Air 2
+DJI Avata 2
+DJI Flip
+DJI FPV
+DJI Inspire 3
+DJI Matrice 4 Enterprise
+DJI RS 4 Pro
+DJI Romo
+DJI Power 1000
+LG C2 OLED
+LG C3 OLED
+LG C4 OLED
+LG C5 OLED
+LG G3 OLED
+LG G4 OLED
+LG G5 OLED
+LG B4 OLED
+LG QNED99
+LG UR80
+Samsung QN90B Neo QLED
+Samsung QN90C Neo QLED
+Samsung QN90D Neo QLED
+Samsung QN85C Neo QLED
+Samsung QN800D Neo QLED
+Samsung S90C OLED
+Samsung S95C OLED
+Samsung S90D OLED
+Samsung S95D OLED
+Samsung The Frame
+Samsung The Serif
+Samsung Crystal UHD DU8000
+Sony Bravia XR A80L
+Sony Bravia XR A90L
+Sony Bravia XR A95L
+Sony Bravia XR X90L
+Sony Bravia XR X90K
+Sony Bravia XR X80L
+Sony Bravia XR X93L
+TCL QM8K
+TCL QM7K
+TCL QM6K
+TCL C855
+TCL S5
+Hisense U8K
+Hisense U8N
+Hisense U7N
+Hisense U6N
+Hisense U7K
+Hisense A7N
+Roku Ultra
+Roku Streaming Stick 4K
+Roku Express 4K
+Roku Streambar Pro
+Amazon Fire TV Stick 4K
+Amazon Fire TV Stick 4K Max
+Amazon Fire TV Stick HD
+Amazon Fire TV Cube
+Amazon Fire HD 10
+Amazon Fire HD 8
+Amazon Fire Max 11
+Amazon Echo Dot Max
+Amazon Echo Pop
+Amazon Echo Show 5
+Amazon Echo Show 8
+Amazon Echo Show 15
+Amazon Echo Studio
+Amazon Echo Hub
+Amazon Echo Frames
+Amazon Echo Buds
+Amazon Echo Input
+Amazon Kindle Paperwhite
+Amazon Kindle Paperwhite Signature Edition
+Amazon Kindle Scribe
+Amazon Kindle Oasis
+Amazon Kindle Colorsoft
+Amazon Kindle Kids
+Amazon Ring Video Doorbell 4
+Amazon Ring Video Doorbell Pro 2
+Amazon Ring Video Doorbell Wired
+Amazon Ring Stick Up Cam
+Amazon Ring Indoor Cam
+Amazon Ring Battery Doorbell Plus
+Amazon Blink Mini 2
+Amazon Blink Outdoor 4
+Google Nest Hub
+Google Nest Hub Max
+Google Nest Audio
+Google Nest Learning Thermostat
+Google Nest Cam
+Google Nest Cam with floodlight
+Google Nest Doorbell
+Google Nest Protect
+Google Nest Wifi Pro
+Google Nest Wifi
+Google TV Streamer
+Google Chromecast with Google TV
+Google Chromecast Ultra
+Philips Hue Bridge
+Philips Hue Play HDMI Sync Box
+Philips Hue Bloom
+Philips Hue Go
+Philips Hue White and Color Ambiance Starter Kit
+Ecobee SmartThermostat Premium
+Ecobee Smart Camera
+Eufy RoboVac G30
+Eufy RoboVac X8 Hybrid
+Eufy Security Floodlight Cam 2
+Eufy Video Doorbell 2K
+Eufy Smart Scale P2
+Roomba Max 705
+Ecovacs Deebot X8 Pro Omni
+Ecovacs Deebot T30 Omni
+Ecovacs Deebot N10
+Dreame L10s Ultra
+Dreame X40 Ultra
+Roborock S8 Pro Ultra
+Roborock Q7 Max
+Roborock Saros 10
+Dyson V12
+Dyson V15 Detect
+Dyson Purifier Cool
+Dyson PencilVac
+Dyson Omni-glide
+Ninebot Segway Max G2
+Ninebot Segway GT2
+Ninebot Segway F2 Pro
+Ninebot Segway Max G30P
+Niu KQi3 Pro
+Niu KQi Air
+Niu MQi GT
+Gotrax G4
+Gotrax G2
+Apollo City Pro
+Apollo Ghost
+Specialized Turbo Vado SL
+Specialized Turbo Levo SL
+Specialized Turbo Como SL
+Specialized Turbo Creo SL
+Trek Rail 9.8
+Trek Fuel EXe
+Cannondale Moterra Neo
+Cannondale Mavaro Neo
+Brompton Electric C Line
+Rad Power Bikes RadRover 6
+Rad Power Bikes RadCity 5 Plus
+Rad Power Bikes RadWagon 4
+Aventon Level 2
+Aventon Sinch.2
+Aventon Pace 500
+Ride1Up Roadster V2
+Lectric XP 4
+Lectric XP Trike
+Kobo Libra 2
+Kobo Clara BW
+Kobo Sage
+Kobo Clara Colour
+Boox Palma 2
+Boox Tab Ultra C
+Boox Go 7
+`);
+CST_GLOSSARY_EXTRA_ADD("tech", null, `
+Google Classroom
+Google Chat
+Google Voice
+Google Books
+Google News
+Google Finance
+Google Podcasts
+Google Hangouts
+Google Jamboard
+Google Vids
+Google NotebookLM
+Google Firebase
+Google App Engine
+Google Compute Engine
+Google Cloud Storage
+Google Cloud Run
+Google Vertex AI
+Google Looker Studio
+Microsoft PowerPoint
+Microsoft OneDrive
+Microsoft Office
+Microsoft Visual Studio
+Microsoft Paint
+Microsoft Windows
+Microsoft Store
+Microsoft Bing
+Microsoft Clipchamp
+Microsoft Loop
+Microsoft Planner
+Microsoft Forms
+Microsoft SharePoint
+Microsoft Power BI
+Microsoft Power Automate
+Microsoft Power Apps
+Microsoft Lists
+Microsoft Stream
+Microsoft Notepad
+Microsoft Publisher
+Microsoft Access
+Microsoft Project
+Microsoft Visio
+Microsoft Exchange
+Microsoft Dynamics 365
+Microsoft Entra
+Microsoft Defender
+Microsoft Intune
+Microsoft Sentinel
+Apple Books
+Apple Photos
+Apple Calendar
+Apple Mail
+Apple Pages
+Apple Numbers
+Apple Keynote
+tvOS
+Red Hat Enterprise Linux
+Raspberry Pi OS
+Internet Explorer
+Yahoo Mail
+~Yahoo
+Zoho Mail
+Zoho
+Outlook.com
+Tutanota
+~Signal
+~Medium
+Skype
+~Kick
+Vimeo
+Dailymotion
+Paramount Plus
+Adobe Acrobat
+Adobe Express
+Adobe Audition
+Adobe Animate
+Adobe Dreamweaver
+Adobe Substance
+Adobe Fresco
+~GIMP
+Inkscape
+Autodesk Maya
+Cinema 4D
+Filmora
+Camtasia
+OBS Studio
+~Audacity
+Steinberg Cubase
+~Eclipse
+NetBeans
+CodePen
+JSFiddle
+~Puppet
+~Chef
+~Vagrant
+Apache HTTP Server
+RabbitMQ
+Kibana
+Logstash
+~Jest
+~Cypress
+Nuxt.js
+~Pandas
+Apache Airflow
+Qlik
+~Go
+~Dart
+Murf AI
+Amazon CodeWhisperer
+Amazon SageMaker
+Civitai
+Gitpod
+~Glitch
+~Bubble
+~Make
+Qualtrics
+~Doodle
+~Segment
+HashiCorp Vault
+Microsoft
+Google
+~Apple
+~Amazon
+~Meta
+SendGrid
+pCloud
+iDrive
+Backblaze
+~Carbonite
+~Mega
+Smallpdf
+iLovePDF
+Yandex
+Freelancer.com
+TaskRabbit
+=foodpanda
+Trivago
+ViettelPay
+Payoneer
+Magento
+AWS
+Tencent Cloud
+Huawei Cloud
+~Juniper
+Citrix
+Nutanix
+~Sage
+~Gusto
+~Rippling
+Deel
+Nubank
+~Things
+~Forest
+~Freedom
+~Harvest
+Hubstaff
+Smartsheet
+Wrike
+~Teamwork
+Zoho Projects
+~Close
+~Copper
+Freshworks
+Gorgias
+Help Scout
+~Front
+~Hey
+Mailbird
+~Thunderbird
+~Bear
+~Craft
+Dropbox Paper
+~Quip
+~Scrivener
+~Ulysses
+Typora
+Mendeley
+Zotero
+EndNote
+~Overleaf
+PandaDoc
+~Pocket
+Flipboard
+Raindrop.io
+Malwarebytes
+Norton
+McAfee
+Kaspersky
+~Avast
+AVG
+Bitdefender
+Avira
+ESET
+Trend Micro
+Hotspot Shield
+Windscribe
+Mullvad
+TunnelBear
+Tailscale
+WireGuard
+OpenVPN
+Let's Encrypt
+~Keeper
+RoboForm
+Duo Security
+7-Zip
+WinRAR
+WinZip
+~Rufus
+CCleaner
+Revo Uninstaller
+~Everything
+Total Commander
+~Rectangle
+~Magnet
+Karabiner-Elements
+Chocolatey
+Winget
+Keka
+The Unarchiver
+VLC Media Player
+PotPlayer
+MPC-HC
+HandBrake
+FFmpeg
+ImageMagick
+~Pinta
+Paint.NET
+Greenshot
+ShareX
+Snagit
+Lightshot
+Flameshot
+Screencastify
+SimpleScreenRecorder
+Ghostery
+uBlock Origin
+AdBlock
+~Honey
+Pi-hole
+MapQuest
+~Foursquare
+Meetup
+Eventbrite
+Bandsintown
+Careem
+Mapbox
+Life360
+GOG Galaxy
+~Origin
+Battle.net
+PlayStation Network
+Quizizz
+~Mentimeter
+Socrative
+Padlet
+~Scratch
+Code.org
+Tinkercad
+Minecraft Education
+Wikidata
+Wiktionary
+Wikimedia Commons
+Crunchbase
+CNET
+ZDNet
+Tom's Hardware
+AnandTech
+PCMag
+Android Authority
+9to5Mac
+MacRumors
+GSMArena
+Dev.to
+Hashnode
+Stack Exchange
+~Discourse
+MediaWiki
+~Ghost
+Weebly
+Joomla
+~Drupal
+Jekyll
+~Contentful
+~Sanity
+Strapi
+Prismic
+Storyblok
+Umbraco
+Craft CMS
+Adobe Experience Manager
+Jitsi
+BlueJeans
+GoToMeeting
+~Whereby
+Riverside.fm
+~Restream
+StreamYard
+Streamlabs
+~Element
+~Matrix
+Threema
+~Wire
+Keybase
+Rocket.Chat
+Mattermost
+Chanty
+Arduino IDE
+~Processing
+p5.js
+Ren'Py
+RPG Maker
+GameMaker
+~Construct
+~Twine
+Pygame
+Adobe Podcast
+Auphonic
+Cleanvoice
+NaturalReader
+Voicemod
+Resemble AI
+Play.ht
+WellSaid Labs
+Respeecher
+Coqui TTS
+Docker Desktop
+Podman
+~Envoy
+~Consul
+~Nomad
+Keycloak
+InfluxDB
+TimescaleDB
+Couchbase
+Amazon CloudFront
+AWS Amplify
+Azure DevOps
+Oracle Cloud
+IBM Cloud
+Cloudinary
+Imgix
+Algolia
+Meilisearch
+Typesense
+Opsgenie
+Statuspage
+UptimeRobot
+Pingdom
+Papertrail
+Lucidchart
+=draw.io
+Excalidraw
+~Whimsical
+Balsamiq
+InVision
+Zeplin
+Odoo
+SAP Concur
+Keap
+Thinkific
+Podia
+KiotViet
+Haravan
+~Sapo
+`);

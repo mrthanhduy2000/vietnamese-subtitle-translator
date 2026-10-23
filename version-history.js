@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.9.1", luc: "23/10/2026", ten: "Từ điển thêm gần 4.800 tên: thể thao, cầu thủ, sản phẩm công nghệ, phần mềm, âm nhạc, phim",
+            y: [
+                "Thêm khoảng 4.800 tên tiếng Anh giữ nguyên trong phụ đề: giải đấu và đội bóng, vận động viên, điện thoại và thiết bị, phần mềm và công ty, nghệ sĩ và phim. Tên một từ trùng từ tiếng Anh thường được đánh dấu chỉ dùng giữa câu.",
+                "Các tên được soạn từ kiến thức chung, chưa đối chiếu với nguồn; có thể còn lỗi chính tả hay tên không đúng. Nên kiểm tra khi gặp.",
+                "Mọi cách đọc đều được kiểm tra trên bộ đọc của VieNeu: không tên nào còn đọc theo tiếng Việt. Thứ Hai đến Chủ nhật và tên tháng bị loại khỏi từ điển."
+            ]
+        },
+        {
             v: "2.9.0", luc: "23/10/2026", ten: "Từ điển thêm tên thiết bị và cầu thủ mới: Galaxy S26, Pixel Watch 5, Nikola Jokic, Kylian Mbappe",
             y: [
                 "Thêm các đời máy mới giữ nguyên tiếng Anh: Galaxy S26 (Ultra, Plus), Galaxy Watch 8, Pixel 10 Pro XL, Pixel Watch 4 và 5, MacBook Pro.",

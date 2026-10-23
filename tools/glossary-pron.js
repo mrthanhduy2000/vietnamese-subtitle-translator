@@ -75,6 +75,26 @@ const NUM_PH = new Set(g2p(["không một hai ba bốn năm sáu bảy tám chí
 const MANUAL_SAY = {
     // 2.6.4: codes with a slash ("CI/CD") are said as English letters, the slash is not read.
     // Bare "4K" and "8K" are left out on purpose: in Vietnamese they also mean money (8K = 8 nghìn)
+    // 2.9.1: hand readings for names VieNeu could not spell from the glossary (model numbers, short names)
+    "geforce rtx 2080 ti": ["jee force ar tee ex two zero eight zero tee eye"],
+    "geforce rtx 3060 ti": ["jee force ar tee ex three zero six zero tee eye"],
+    "geforce rtx 3070 ti": ["jee force ar tee ex three zero seven zero tee eye"],
+    "geforce rtx 3080 ti": ["jee force ar tee ex three zero eight zero tee eye"],
+    "geforce rtx 3090 ti": ["jee force ar tee ex three zero nine zero tee eye"],
+    "geforce rtx 4060 ti": ["jee force ar tee ex four zero six zero tee eye"],
+    "geforce rtx 4070 ti": ["jee force ar tee ex four zero seven zero tee eye"],
+    "geforce rtx 4070 ti super": ["jee force ar tee ex four zero seven zero tee eye super"],
+    "geforce rtx 5060 ti": ["jee force ar tee ex five zero six zero tee eye"],
+    "geforce rtx 5070 ti": ["jee force ar tee ex five zero seven zero tee eye"],
+    "geforce gtx 1080 ti": ["jee force gee tee ex one zero eight zero tee eye"],
+    "asus tuf gaming rtx 5070 ti": ["asus tee you eff gaming ar tee ex five zero seven zero tee eye"],
+    "ty cobb": ["tie cobb"],
+    "teofimo lopez": ["tee oh fee moe lo pez"],
+    "dillian whyte": ["dill ee an white"],
+    "sao paulo": ["sow pow loo"],
+    "louisiana ragin' cajuns": ["loo ee ann ah rage in cajuns"],
+    "terminator 2: judgment day": ["terminator two judgment day"],
+    "amazfit bip 5": ["amaz fit beep five"],
     "ci/cd": ["see eye see dee"],
     "ui/ux": ["you eye you ex"],
     "ac/dc": ["ay see dee see"],
