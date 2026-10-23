@@ -4,6 +4,12 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.9.7", luc: "23/10/2026", ten: "Thêm 140 thuật ngữ chuyên ngành",
+            y: [
+                "Bổ sung thuật ngữ AI, phần mềm, tài chính, y khoa, khoa học và thống kê mà phụ đề hay gặp. Thuật ngữ có từ Việt chuẩn được dịch thống nhất (ví dụ bán khống, quyền chọn mua, kháng thể đơn dòng), thuật ngữ người Việt vẫn nói tiếng Anh được giữ nguyên."
+            ]
+        },
+        {
             v: "2.9.6", luc: "23/10/2026", ten: "Không hiện thông báo hết hạn mức của MyMemory làm phụ đề",
             y: [
                 "Khi Google Translate lỗi và dịch vụ dự phòng MyMemory hết hạn mức trong ngày, nó trả về một câu cảnh báo bằng tiếng Anh với mã HTTP 200. Trước đây câu cảnh báo đó bị hiện lên màn hình như một dòng phụ đề. Nay nó bị loại và dòng đó để trống để dịch lại sau."
