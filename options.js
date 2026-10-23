@@ -970,6 +970,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Nghe thử: chạy qua đúng pipeline (kế hoạch ngữ điệu -> giọng), không đọc thô
     if (testBtn) {
+        // One voice preview at a time: a new one stops the previous, and the blob URL is released when it ends
+        let previewAudio = null, previewUrl = "";
+        const newPreviewAudio = blob => {
+            if (previewAudio) { try { previewAudio.pause(); } catch (e) { /* ignore */ } }
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+            previewUrl = URL.createObjectURL(blob);
+            const url = previewUrl;
+            previewAudio = new Audio(url);
+            previewAudio.addEventListener("ended", () => { URL.revokeObjectURL(url); if (previewUrl === url) previewUrl = ""; }, { once: true });
+            return previewAudio;
+        };
         testBtn.addEventListener("click", async () => {
             const P = window.CST_DUB_PLAN, E = window.CST_DUB_ENGINE, A = window.CST_DUB_AUDIO;
             const sample = [
@@ -991,7 +1002,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (!res || !res.ok) { testStatus.textContent = `✕ VieNeu lỗi: ${res ? res.error : "không phản hồi"}`; return; }
                 const bytes = A.base64ToBytes(res.audio);
                 const clean = A.prepareSpeech(/wav/i.test(res.mimeType || "") ? A.decodeWav(bytes).samples : A.pcm16leToFloat(bytes), res.sampleRate);
-                const audio = new Audio(URL.createObjectURL(new Blob([A.encodeWav(clean, res.sampleRate)], { type: "audio/wav" })));
+                const audio = newPreviewAudio(new Blob([A.encodeWav(clean, res.sampleRate)], { type: "audio/wav" }));
                 audio.volume = Number(volSlider.value) / 100;
                 // Cùng tốc độ sàn như khi lồng tiếng thật (giọng chậm không dưới ~4 âm tiết/giây nghe
                 // được, giữ cao độ); khi lồng tiếng, câu dày chữ còn được nhanh thêm cho khớp phụ đề
@@ -1012,7 +1023,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const bytes = A.base64ToBytes(res.audio);
                 const samples = /wav/i.test(res.mimeType || "") ? A.decodeWav(bytes).samples : A.pcm16leToFloat(bytes);
                 const clean = A.prepareSpeech(samples, res.sampleRate);
-                const audio = new Audio(URL.createObjectURL(new Blob([A.encodeWav(clean, res.sampleRate)], { type: "audio/wav" })));
+                const audio = newPreviewAudio(new Blob([A.encodeWav(clean, res.sampleRate)], { type: "audio/wav" }));
                 audio.volume = Number(volSlider.value) / 100;
                 audio.play();
                 testStatus.textContent = `✓ Giọng ${gVoiceSel.value} (model ${res.model}), dài ${(clean.length / res.sampleRate).toFixed(1)} giây.`;

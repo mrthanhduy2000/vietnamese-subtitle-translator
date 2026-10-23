@@ -642,3 +642,17 @@ test("Coursera: saved lectures keep the newest 200, the oldest key is removed", 
 test("Settings: clearing the translation cache also clears saved lectures", () => {
     assert.match(read("background.js"), /\^ytcache\|\^cscache\|\^ctxterms_/);
 });
+
+test("Coursera: two lectures saved at the same moment both land in the saved index", async () => {
+    const E = pageEnv();
+    await new Promise(r => setImmediate(r));
+    const groups = [{ text: "Hello." }];
+    // real storage answers with a copy, after a delay
+    const realGet = E.sandbox.chrome.storage.local.get;
+    E.sandbox.chrome.storage.local.get = async k => { const v = JSON.parse(JSON.stringify(await realGet(k))); await new Promise(r => setImmediate(r)); return v; };
+    await Promise.all([
+        E.run(`csWriteSaved("cscache1_a", ${JSON.stringify(groups)}, ["Xin chào."])`),
+        E.run(`csWriteSaved("cscache1_b", ${JSON.stringify(groups)}, ["Chào bạn."])`)
+    ]);
+    assert.deepEqual([...E.store.cscacheIdx.map(e => e[0])].sort(), ["cscache1_a", "cscache1_b"]);
+});
