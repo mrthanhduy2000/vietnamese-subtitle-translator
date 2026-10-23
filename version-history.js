@@ -4,6 +4,22 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.0.3", luc: "23/10/2026", ten: "Hỗ trợ ted.com, lồng tiếng đọc tên chuẩn hơn, từ điển và bảo mật được củng cố",
+            y: [
+                "Thêm ted.com: phụ đề các bài TED được lấy từ trang, dịch tự động khi mở bài và khi chuyển sang bài khác trong trang, kèm thông báo nếu bài đã có tiếng Việt. Trang khác không dùng thẻ phụ đề chuẩn có thể thêm bộ đọc riêng.",
+                "Khi máy chủ VieNeu không chạy (máy yếu, Chromebook, Linux ARM), lồng tiếng dùng giọng tiếng Việt có sẵn của trình duyệt thay vì im lặng, rồi tự chuyển lại VieNeu khi sẵn sàng. Cài đặt > Lồng tiếng có công tắc để tắt.",
+                "Máy yếu: khi giọng VieNeu chậm hơn lời nói, thông báo gợi ý tốc độ video phù hợp và một cú bấm là đặt được; Cài đặt hiện loại máy (Mac chip Intel hay Apple) cạnh tốc độ giọng đo được. Trình cài đặt trên Mac nhận đúng chip Apple khi chạy qua Rosetta; giọng trên Mac Intel là tùy chọn, chưa chính thức.",
+                "Câu lồng tiếng ngắn hơn khung thời gian nay dùng khoảng ngừng dài hơn ở dấu câu của chính nó, nên giọng bớt im lặng khi người nói vẫn đang nói. Không bỏ hay thêm chữ nào. Trên 101 video đã lưu, số lần im từ 1,5 giây trở lên giảm từ 1.439 xuống 1.260.",
+                "Lồng tiếng đọc đúng hơn: thêm khoảng 340 tên nước ngoài đọc theo cách đọc tiếng Anh (Sao Paulo, Tau Ceti, Typhoon Saola...), các tên có chữ R đánh vần (CRH3, BRCA1, H&R Block) hết bị đọc kiểu tiếng Việt, tiền tệ (100.000đ, VND, €, £), số thập phân dài, mã OTP/PIN, giờ 9am/9:30 PM, đơn vị m2, m3 và 60fps.",
+                "Bỏ 41 từ tiếng Anh thông dụng (You, One, Time, House...) ra khỏi danh sách tên riêng để không giữ nguyên trong câu tiếng Việt; tên thương hiệu như ChatGPT, GitHub, PyTorch được giữ nguyên cả khi phụ đề tự động viết thường; bổ sung hơn 170 thuật ngữ chuyên ngành (AI, phần mềm, tài chính, y khoa, luật, kỹ thuật, vận hành).",
+                "Cập nhật từ điển không làm dịch lại những đoạn đã dịch; đoạn đầu tiên của video không còn khựng khi bộ lọc thuật ngữ khởi động. Nạp từ điển, phân tích lồng tiếng đầu tiên và kiểm tra chất lượng bản dịch nhanh hơn (kiểm tra chất lượng khoảng 680 xuống 35 micro giây mỗi câu), kết quả không đổi.",
+                "Sửa các lỗi hiếm tìm ra bằng kiểm thử ngẫu nhiên: thời gian phụ đề không còn thành NaN trong tệp .srt xuất ra, dấu phẩy mồ côi cạnh dấu cắt dòng, số từ 16 chữ số trở lên, ký tự điều khiển gửi tới giọng đọc, và từ quá dài làm kiểm tra chậm cả giây.",
+                "Tin nhắn tới service worker đang ngủ được thử lại thay vì lỗi ngay; hai bài Coursera lưu cùng lúc không còn làm mất một mục trong chỉ mục; nghe thử giọng ở Cài đặt không chồng tiếng khi bấm lần hai; bản dịch dự phòng MyMemory trả lại đúng câu gốc tiếng Trung, Thái, Ả Rập bị loại thay vì hiện như bản dịch.",
+                "Củng cố bảo mật: bỏ qua tin nhắn lạ, chỉ tải phụ đề từ youtube.com, khai báo CSP, thoát HTML ở trang Cài đặt.",
+                "Giao diện: lần đầu cài đặt mở trang chào hướng dẫn từng bước (dán và kiểm tra khóa Gemini, thử giọng VieNeu, video mẫu); ô khóa Gemini lên đầu nhóm Dịch & AI; các nhóm trong Cài đặt dùng được bằng bàn phím và trình đọc màn hình; nút Sáng/Tối/Theo máy và liên kết \"Tạo lại giọng đọc\" to hơn, dễ bấm hơn."
+            ]
+        },
+        {
             v: "3.0.2", luc: "23/10/2026", ten: "Từ điển bỏ từ thông dụng lọt vào",
             y: [
                 "Bỏ khoảng 660 mục vừa thêm ở 2.9.2 và 2.9.5: từ tiếng Anh thông dụng bị coi là tên riêng (President, Earth, Major, Honor, Death...) và tên lịch sử che mất bản dịch tiếng Việt đã có (Nội chiến, Chiến tranh vùng Vịnh...).",
