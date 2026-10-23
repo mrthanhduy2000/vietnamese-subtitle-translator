@@ -82,9 +82,13 @@
     }
 
     async function loadHlsVtt(uri, fetchText) {
-        const cues = [];
+        const cues = [], seen = new Set();
         for (const seg of parseHlsTimeline(await fetchText(uri), uri)) {
             for (const c of parseVtt(await fetchText(seg.url))) {
+                // a cue crossing a segment boundary is repeated at the start of the next segment
+                const key = c.start + "|" + c.end + "|" + c.text;
+                if (seen.has(key)) continue;
+                seen.add(key);
                 cues.push(seg.offset ? { start: c.start + seg.offset, end: c.end + seg.offset, text: c.text } : c);
             }
         }
@@ -120,7 +124,13 @@
                 return r.text();
             });
             const makeCue = env.makeCue || ((s, e, t) => new root.VTTCue(s, e, t));
-            const have = Array.from(video.textTracks || []).filter(t => (t.label || "").startsWith(TRACK_MARK));
+            // Captions added for another page (the player may survive a client-side move) go stale
+            const mine = Array.from(video.textTracks || []).filter(t => (t.label || "").startsWith(TRACK_MARK));
+            const have = [];
+            for (const t of mine) {
+                if (t.cstPath === loc.pathname) have.push(t);
+                else { t.cstStale = true; t.mode = "disabled"; }
+            }
             if (have.length) return have.length;
             const sources = await adapter.sources(doc, { loc, fetchText });
             let added = 0;
@@ -129,6 +139,7 @@
                 if (!cues.length) continue;
                 const tt = video.addTextTrack("subtitles", TRACK_MARK + (s.label || s.lang), s.lang || "");
                 tt.mode = "hidden";
+                tt.cstPath = loc.pathname;
                 for (const c of cues) tt.addCue(makeCue(c.start, c.end, c.text));
                 added++;
             }

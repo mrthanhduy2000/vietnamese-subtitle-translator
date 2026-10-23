@@ -1023,9 +1023,14 @@ function pageTracks() {
     if (!v) return [];
     const own = els.filter(t => v.contains(t));
     const seen = new Set(own.map(t => t.track));
-    const extra = Array.from(v.textTracks || []).filter(tt => !seen.has(tt) && !/^cst/i.test(tt.label || "")
+    const extra = Array.from(v.textTracks || []).filter(tt => !seen.has(tt) && !/^cst/i.test(tt.label || "") && !tt.cstStale
         && tt.kind !== "metadata" && tt.kind !== "chapters" && tt.kind !== "descriptions");
-    return own.concat(extra.map(trackWrap));
+    const all = own.concat(extra.map(trackWrap));
+    // A site adapter's full captions beat the player's own track, which can still be loading
+    // (TED fills it as the talk plays): translating that one leaves everything after it untranslated
+    const mark = window.CST_SITES && window.CST_SITES.TRACK_MARK;
+    const site = mark ? all.filter(t => (t.label || "").startsWith(mark)) : [];
+    return site.length ? site : all;
 }
 
 function pickBestTrack() {
@@ -2745,11 +2750,15 @@ async function courseraAutoTranslateNow() {
     for (let i = 0; i < 80 && state.busy && location.href === url; i++) await sleep(250);
     if (state.busy) return null;
     let picked = null;
-    for (let i = 0; i < 30 && !(picked = pickBestTrack()); i++) {                   // chờ trình phát nạp track
-        // adapter sites: the captions come from the site, not the player; retry every 3 s while the video appears
-        if (i % 6 === 0 && csAdapterSite() && csVideo()) await window.CST_SITES.prepare(csVideo());
-        await sleep(500);
+    // adapter sites: the captions come from the site, not the player. Added before the player's own
+    // track can be picked, and again for every talk (the page may have moved on without a reload)
+    if (csAdapterSite()) {
+        for (let i = 0; i < 20 && location.href === url; i++) {
+            if (csVideo() && await window.CST_SITES.prepare(csVideo())) break;
+            await sleep(500);
+        }
     }
+    for (let i = 0; i < 30 && !(picked = pickBestTrack()); i++) await sleep(500);   // chờ trình phát nạp track
     if (location.href !== url || state.active || state.busy) return null;
     state.autoTriedUrl = url;
     if (!picked) return null;

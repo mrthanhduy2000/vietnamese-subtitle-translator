@@ -33,8 +33,8 @@ const FILES = {
 };
 const fetchText = async u => { if (!(u in FILES)) throw new Error("404 " + u); return FILES[u]; };
 
-const pageDoc = (stream = STREAM, key = "videoPlayerData") => ({
-    getElementById: id => id === "__NEXT_DATA__" ? { textContent: JSON.stringify({ props: { pageProps: { videoData: {
+const pageDoc = (stream = STREAM, key = "videoPlayerData", slug = "a") => ({
+    getElementById: id => id === "__NEXT_DATA__" ? { textContent: JSON.stringify({ slug, props: { pageProps: { videoData: {
         [key]: JSON.stringify({ resources: { hls: { stream } } }) } } } }) } : null,
 });
 
@@ -64,7 +64,7 @@ test("cue times after an HLS discontinuity are shifted by the time before it", a
 
 test("TED stream is found in videoPlayerData, playerData or hlsUrl", async () => {
     const S = load(), loc = { hostname: "www.ted.com", pathname: "/talks/a" };
-    for (const doc of [pageDoc(STREAM, "playerData"), { getElementById: () => ({ textContent: JSON.stringify({ props: { pageProps: { videoData: { hlsUrl: STREAM } } } }) }) }]) {
+    for (const doc of [pageDoc(STREAM, "playerData"), { getElementById: () => ({ textContent: JSON.stringify({ slug: "a", props: { pageProps: { videoData: { hlsUrl: STREAM } } } }) }) }]) {
         assert.equal(await S.prepare(fakeVideo(), { loc, doc, fetchText, makeCue: () => ({}) }), 1);
     }
 });
@@ -100,7 +100,7 @@ test("prepare adds only the English track to the video as a TextTrack", async ()
 
 test("prepare returns 0 and never throws on a missing stream, failed fetch or unknown site", async () => {
     const S = load(), loc = { hostname: "www.ted.com", pathname: "/talks/a" };
-    assert.equal(await S.prepare(fakeVideo(), { loc, doc: { getElementById: () => null }, fetchText }), 0);
+    assert.equal(await S.prepare(fakeVideo(), { loc, doc: { getElementById: () => null }, fetchText }), 0);   // no page data: the HTML fetch 404s
     assert.equal(await S.prepare(fakeVideo(), { loc, doc: pageDoc("https://x.test/none.m3u8"), fetchText }), 0);
     assert.equal(await S.prepare(fakeVideo(), { loc: { hostname: "example.com", pathname: "/" }, doc: pageDoc(), fetchText }), 0);
 });
@@ -127,5 +127,46 @@ test("ted.com pages get the scripts on arrival and are translated without a clic
     const cs = fs.readFileSync(path.join(__dirname, "..", "content.js"), "utf8");
     assert.match(cs, /function csAdapterSite\(\)/);
     assert.match(cs, /getCurrentSite\(\) !== "coursera" && !csAdapterSite\(\)/);
-    assert.match(cs, /csAdapterSite\(\) && csVideo\(\)\) await window\.CST_SITES\.prepare/);
+    assert.match(cs, /csVideo\(\) && await window\.CST_SITES\.prepare\(csVideo\(\)\)/);
+});
+
+const html = stream => `<html><script id="__NEXT_DATA__" type="application/json">${JSON.stringify({ slug: "next_talk",
+    props: { pageProps: { videoData: { hlsUrl: stream } } } })}</script></html>`;
+
+test("after a client-side move the DOM data is stale: the new talk's HTML is fetched", async () => {
+    const S = load(), v = fakeVideo();
+    const loc = { hostname: "www.ted.com", pathname: "/talks/next_talk" };
+    const ft = async u => u === "/talks/next_talk" ? html(STREAM) : fetchText(u);
+    const n = await S.prepare(v, { loc, doc: pageDoc(STREAM, "videoPlayerData", "old_talk"), fetchText: ft, makeCue: (s, e, t) => ({ s, e, t }) });
+    assert.equal(n, 1);
+});
+
+test("tracks of the previous talk go stale and are not reused", async () => {
+    const S = load(), v = fakeVideo();
+    const mk = () => ({ s: 0, e: 0, t: "" });
+    await S.prepare(v, { loc: { hostname: "www.ted.com", pathname: "/talks/a" }, doc: pageDoc(), fetchText, makeCue: mk });
+    const n = await S.prepare(v, { loc: { hostname: "www.ted.com", pathname: "/talks/b" }, doc: pageDoc(STREAM, "videoPlayerData", "b"), fetchText, makeCue: mk });
+    assert.equal(n, 1);
+    assert.equal(v.tracks.length, 2);
+    assert.equal(v.tracks[0].cstStale, true);
+    assert.equal(v.tracks[1].cstPath, "/talks/b");
+});
+
+test("a cue repeated across an HLS segment boundary is kept once", async () => {
+    const S = load();
+    const files = {
+        "https://x.test/p.m3u8": "#EXTM3U\n#EXTINF:30,\na.vtt\n#EXTINF:30,\nb.vtt",
+        "https://x.test/a.vtt": "WEBVTT\n\n00:29.000 --> 00:31.000\nsame\n",
+        "https://x.test/b.vtt": "WEBVTT\n\n00:29.000 --> 00:31.000\nsame\n\n00:32.000 --> 00:33.000\nnext\n",
+    };
+    const cues = await S.loadHlsVtt("https://x.test/p.m3u8", async u => files[u]);
+    assert.deepEqual(Array.from(cues.map(c => c.text)), ["same", "next"]);
+});
+
+test("content.js prefers adapter tracks, drops stale ones and prepares before picking on every talk", () => {
+    const cs = fs.readFileSync(path.join(__dirname, "..", "content.js"), "utf8");
+    assert.match(cs, /!tt\.cstStale/);
+    assert.match(cs, /return site\.length \? site : all;/);
+    const now = cs.indexOf("async function courseraAutoTranslateNow");
+    assert.ok(cs.indexOf("CST_SITES.prepare", now) > -1 && cs.indexOf("CST_SITES.prepare", now) < cs.indexOf("pickBestTrack()", now));
 });
