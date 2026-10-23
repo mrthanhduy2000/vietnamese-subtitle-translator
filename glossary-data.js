@@ -39916,7 +39916,6 @@ Kingdom of Dreams and Madness
 Tokyo Godfathers
 Millennium Actress
 Tokyo Magnitude 8.0
-~Memories
 ~Metropolis
 Steamboy
 Robot Carnival
@@ -39931,7 +39930,6 @@ Bubblegum Crash
 Ghost in the Shell Stand Alone Complex
 Ghost in the Shell Arise
 Stand Alone Complex
-~Innocence
 Blood The Last Vampire
 Vampire Princess Miyu
 Cyber City Oedo
@@ -39962,7 +39960,6 @@ Gundam Build Fighters
 Gundam Build Divers
 Ryuk
 Misa Amane
-~Near
 Mello
 Edward Elric
 Alphonse Elric
@@ -40001,7 +39998,6 @@ Sanji
 Tony Tony Chopper
 Nico Robin
 Franky
-~Brook
 Jinbe
 Portgas D. Ace
 Trafalgar Law
@@ -40023,7 +40019,6 @@ Orochimaru
 Madara Uchiha
 Obito Uchiha
 Minato Namikaze
-~Pain
 Boruto Uzumaki
 Ichigo Kurosaki
 Rukia Kuchiki
@@ -40039,7 +40034,6 @@ Gohan
 Frieza
 Krillin
 Majin Buu
-~Cell
 Broly
 Beerus
 Whis
@@ -40050,7 +40044,6 @@ Garou
 Shigeo Kageyama
 Reigen Arataka
 Denji
-~Power
 Makima
 Aki Hayakawa
 Pochita
@@ -40204,13 +40197,11 @@ Yoshiki Kishinuma
 Mikoto Misaka
 Kuroko Shirai
 Touma Kamijou
-~Index
 ~Accelerator
 ~Madhouse
 Wit Studio
 A-1 Pictures
 Production I.G
-~Sunrise
 ~Pierrot
 Studio Pierrot
 Gainax
@@ -40475,7 +40466,6 @@ Higurashi When They Cry
 Higurashi
 Umineko When They Cry
 Corpse Party
-~Another
 Elfen Lied
 Deadman Wonderland
 Blood Blockade Battlefront
@@ -40505,7 +40495,6 @@ Asterisk War
 Rakudai Kishi no Cavalry
 Strike the Blood
 Sirius the Jaeger
-~Gate
 GATE Jieitai
 Chaos Dragon
 Overlord Season 4
@@ -40569,7 +40558,6 @@ Hajime no Ippo Rising
 Yowamushi Pedal
 Ace of Diamond
 Diamond no Ace
-~Major
 Major 2nd
 Cross Game
 Kitchen Princess
@@ -40634,9 +40622,7 @@ Kamille Bidan
 Judau Ashta
 Simon Dragon
 Rossiu
-~Aqua
 Megumin
-~Darkness
 Rimuru Tempest
 Shuna
 Milim Nava
@@ -40656,7 +40642,6 @@ Subaru Natsuki
 Wilhelm van Astrea
 Crusch Karsten
 Petra Leyte
-~Felt
 Otto Suwen
 Julius Juukis
 Kiyotaka Ayanokoji
@@ -40798,7 +40783,6 @@ Jinpachi Ego
 Sae Itoshi
 Shoei Baro
 Hyoma
-~Ego
 Hajime Hinata
 Hinata Shoyo
 Kageyama Tobio
@@ -40956,7 +40940,6 @@ Jim Hawkins
 Long John Silver
 Dr Jekyll and Mr Hyde
 Strange Case of Dr Jekyll and Mr Hyde
-Kidnapped
 Dr Watson
 The Hound of the Baskervilles
 A Study in Scarlet
@@ -40979,7 +40962,6 @@ Captain Hastings
 Tommy and Tuppence
 Robert Langdon
 Angels and Demons
-~Inferno
 The Lost Symbol
 Digital Fortress
 Sophie Neveu
@@ -41031,7 +41013,6 @@ O'Brien
 ~Snowball
 Old Major
 ~Squealer
-~Boxer
 Down and Out in Paris and London
 Bernard Marx
 John the Savage
@@ -41255,7 +41236,6 @@ I Am a Cat
 Kokoro
 The Temple of the Golden Pavilion
 Confessions of a Mask
-~Kitchen
 The Wind-Up Bird Chronicle
 A Wild Sheep Chase
 Toru Okada
@@ -41506,7 +41486,6 @@ William Gibson
 Neuromancer
 Count Zero
 Molly Millions
-~Case
 Neal Stephenson
 Snow Crash
 Hiro Protagonist
@@ -41712,7 +41691,6 @@ Small Gods
 Night Watch
 Sam Vimes
 Rincewind
-~Death
 Granny Weatherwax
 Nanny Ogg
 Tiffany Aching
@@ -41738,7 +41716,6 @@ Oryx and Crake
 The Testaments
 William Golding
 Lord of the Flies
-~Piggy
 Jack Merridew
 ~Simon
 Evelyn Waugh
@@ -41833,9 +41810,7 @@ Annie Wilkes
 Johnny Smith
 Michael Crichton
 The Andromeda Strain
-~Sphere
 Timeline
-~Prey
 State of Fear
 John Hammond
 Ian Malcolm
@@ -42130,17 +42105,12 @@ Make Your Bed
 William H. McRaven
 Walter Isaacson
 ~Educated
-~Becoming
 Born a Crime
-~Quiet
-~Influence
 Pre-Suasion
 ~Mastery
 Stolen Focus
 Johann Hari
-~Range
 David Epstein
-~Principles
 Fooled by Randomness
 Superforecasting
 Philip Tetlock
@@ -42206,7 +42176,6 @@ The Singularity Is Near
 Parable of the Sower
 Between the World and Me
 Isabel Wilkerson
-~Caste
 Richard Rhodes
 The Making of the Atomic Bomb
 Robert Caro
@@ -42232,19 +42201,15 @@ Gary Explains
 Hardcore History
 Dan Carlin
 My Favorite Murder
-~Serial
 S-Town
 Revisionist History
 Behind the Bastards
-~Criminal
-~Lore
 Ologies
 Dirty John
 Sword and Scale
 Dr Death
 Pod Save the World
 Dwarkesh Podcast
-~Acquired
 The All-In Podcast
 Odd Lots
 The Rewatchables
@@ -42258,7 +42223,6 @@ Moistcr1tikal
 Tfue
 Sodapoppin
 TommyInnit
-~Dream
 Ranboo
 Quackity
 Philza
@@ -42424,7 +42388,6 @@ Rest Is Politics
 First We Feast Hot Ones
 Bon Appetit Hot Ones
 Chicken Shop Date
-~Sway
 The Sway Podcast
 Jordan Harbinger Show
 The Jordan Harbinger Show
@@ -43019,7 +42982,6 @@ Pikmin 4
 Wario Land
 WarioWare
 Punch-Out
-~Arms
 1-2-Switch
 Ring Fit Adventure
 EarthBound
@@ -43164,7 +43126,6 @@ Ninja Theory
 Obsidian Entertainment
 Playground Games
 Turn 10 Studios
-~Rare
 Mojang Studios
 Minecraft Legends
 Minecraft Story Mode
@@ -43189,7 +43150,6 @@ Fallout Shelter
 Fallout Tactics
 Fallout 1
 Fallout 2
-~Doom
 Doom 2
 Doom The Dark Ages
 Doom 3
@@ -43871,7 +43831,6 @@ The Legend of Heroes Trails into Reverie
 The Legend of Heroes Trails from Zero
 Hollow Knight Silksong
 Ori and the Blind Forest Definitive Edition
-~Inside
 ~Limbo
 ~Braid
 Super Meat Boy
@@ -43930,7 +43889,6 @@ Crusader Kings III
 Crusader Kings II
 Victoria 3
 Victoria II
-~Civilization
 Civilization V
 Civilization IV
 Civilization III
@@ -44009,7 +43967,6 @@ Guild Wars Prophecies
 Guild Wars Eye of the North
 `);
 CST_GLOSSARY_EXTRA_ADD("brands", null, `
-~Tide
 Persil
 Omo
 Lenor
@@ -44020,22 +43977,16 @@ Harpic
 Dettol
 Pine-Sol
 ~Glade
-~Bounty
 Puffs
 ~Brawny
 Scotch-Brite
 Vileda
 Mr Muscle
-~Pledge
-~Method
 Dyson
-~Shark
 Hoover
 Kenmore
-~Glad
 Reynolds Wrap
 Saran Wrap
-~Hefty
 Spic and Span
 Soft Scrub
 Scrubbing Bubbles
@@ -44044,23 +43995,19 @@ Simple Green
 Woolite
 ~Shout
 ~Resolve
-~Gain
 ~Snuggle
 ~Bounce
 Purex
-~Era
 Arm & Hammer
 Clean Breeze
 Lemon Fresh
 ~Dawn
 Palmolive
-~Finish
 ~Cascade
 Jet-Dry
 Electrasol
 Calgon
 ~Kiwi
-~Sweetheart
 ~Solo
 Chinet
 Glad Wrap
@@ -44081,7 +44028,6 @@ Corningware
 Fiestaware
 ~Stanley
 ~Thermos
-~Tiger
 ~Sunbeam
 Conair
 Remington
@@ -44148,8 +44094,6 @@ Old Spice
 ~Axe
 Right Guard
 Speed Stick
-~Secret
-~Degree
 Lubriderm
 Jergens
 Bag Balm
@@ -44157,7 +44101,6 @@ Blistex
 Chapstick
 Burt's Bees Lip
 Vicks
-Halls
 Ricola
 Cepacol
 Chloraseptic
@@ -44172,8 +44115,6 @@ Plum Organics
 Hipp
 Nutramigen
 Pediasure
-~Ensure
-~Boost
 Glucerna
 ~Carnation
 Horlicks
@@ -44182,7 +44123,6 @@ Yoo-hoo
 Hershey's Chocolate Milk
 Tampax
 Kotex
-~Always
 Libresse
 Stayfree
 ~Carefree
@@ -44196,13 +44136,11 @@ Monistat
 Astroglide
 K-Y
 Durex
-Lifestyles
 Schick Intuition
 Garnier Fructis
 ~Suave
 Tresemme
 Nexxus
-~Aussie
 L'Oreal Professionnel
 Schwarzkopf
 Wella
@@ -44295,7 +44233,6 @@ Fig Newtons
 Newtons
 Little Debbie
 Twinkies
-~Hostess
 Ding Dongs
 Zingers
 Snowballs
@@ -44344,7 +44281,6 @@ Mentos
 Tic Tac
 ~Trident
 ~Orbit
-~Extra
 Juicy Fruit
 Wrigley's
 Doublemint
@@ -44363,7 +44299,6 @@ Whoppers
 Raisinets
 Goobers
 Sno-Caps
-Dots
 Gobstopper
 Laffy Taffy
 Blow Pop
@@ -44379,10 +44314,8 @@ Wispa
 Double Decker
 Bounty Dark
 Maltesers
-~Galaxy
 ~Aero
 Quality Street
-Roses
 Celebrations
 Terry's
 Thorntons
@@ -44412,7 +44345,6 @@ Barq's
 Sunkist
 ~Crush
 Mirinda
-~Tango
 Ginger Ale
 Vernors
 Faygo
@@ -44423,7 +44355,6 @@ Big Red Soda
 Jarritos
 Inca Kola
 Kola Champagne
-~Monster
 ~Bang
 ~Celsius
 Ghost Energy
@@ -44541,11 +44472,9 @@ Crayola
 Etch A Sketch
 ~Slinky
 Jenga
-~Operation
 ~Scrabble
 ~Clue
 ~Battleship
-~Trouble
 Connect 4
 Pictionary
 ~Taboo
@@ -44568,7 +44497,6 @@ Tonka
 Radio Flyer
 Little Tikes Cozy Coupe
 Power Wheels
-~Razor
 Razor Scooter
 Micro Kickboard
 Schwinn
@@ -44580,9 +44508,7 @@ Schwinn Airdyne
 NordicTrack
 ProForm
 Life Fitness
-~Polar
 Mizuno
-~Champion
 ~Converse
 ~Columbia
 ~Marmot
@@ -44598,7 +44524,6 @@ Nine West
 Aldo
 Kenneth Cole
 Toms
-~Citizen
 Tissot
 ~Jordan
 ~Lee
@@ -44618,23 +44543,19 @@ Reebok Classic
 ~Gola
 ~Lotto
 Diadora
-~Kappa
 Umbro
 Le Coq Sportif
 ~Hummel
 Joma
 Erima
 Kelme
-~Peak
 Xtep
-~Warrior
 ~Mitre
 ~Kukri
 Slazenger
 ~Dunlop
 ~Wilson
 ~Spalding
-~Head
 Babolat
 ~Prince
 Yonex
@@ -44667,7 +44588,6 @@ Warrior Hockey
 Gray-Nicolls
 Gunn & Moore
 ~Kookaburra
-~Butterfly
 Stiga
 Donic
 Nittaku
@@ -44679,7 +44599,6 @@ Gaiam
 Manduka
 Liforme
 Bic
-~Pilot
 Pentel
 Uni-ball
 Paper Mate
@@ -44720,7 +44639,6 @@ Hi-Liter
 Liquid Paper
 Wite-Out
 Kleenex Hankies
-Staples
 Office Depot
 Ticonderoga
 Dixon Ticonderoga
@@ -44733,18 +44651,14 @@ Smead
 Herlitz
 Rapesco
 Leitz
-~Brother
 Epson
 ~Canon
 Xerox
 Pentax
 GoPro
-~Ring
-~Nest
 Harman Kardon
 Klipsch
 Denon
-~Pioneer
 Kenwood
 Onkyo
 Marantz
@@ -44761,8 +44675,6 @@ Alienware
 MacBook
 iPad
 iPhone
-Pixel
-~Honor
 PlayStation
 Atari
 Nvidia Shield
@@ -44837,7 +44749,6 @@ Smithfield
 Jimmy Dean
 Bob Evans
 Johnsonville
-~Banquet
 Lean Cuisine
 Stouffer's
 Marie Callender's
@@ -46063,15 +45974,11 @@ Toncoin
 Floki
 Arbitrum
 ~Optimism
-~Base
 Starknet
 zkSync
-~Mantle
 ~Linea
-~Scroll
 ~Blast
 BNB Chain
-~Stacks
 Mina Protocol
 ~Chia
 Nervos Network
@@ -46154,7 +46061,6 @@ BitShares
 Steem
 ~Hive
 ~Lisk
-~Ark
 NEM
 ~ICON
 ~Aion
@@ -46197,8 +46103,6 @@ Berachain
 Unichain
 Chainflip
 ~Babylon
-~Swell
-~Ink
 Abstract Chain
 ~Monad
 Plasma Network
@@ -46259,7 +46163,6 @@ Coinhako
 Independent Reserve
 Swyftx
 Trust Wallet
-~Phantom
 ~Exodus
 Coinbase Wallet
 Rainbow Wallet
@@ -46284,11 +46187,9 @@ Cool Cats
 Art Blocks
 Yuga Labs
 Dapper Labs
-~Flow
 Sorare
 Illuvium
 Star Atlas
-~Parallel
 Alien Worlds
 Splinterlands
 Aavegotchi
@@ -46372,10 +46273,8 @@ Wasabi Wallet
 Bitcoin Knots
 ~Umbrel
 Start9
-Casa
 Unchained Capital
 Xapo
-~Strike
 Cash App Bitcoin
 Lightspark
 OpenNode
@@ -46386,7 +46285,6 @@ Zeus Wallet
 Alby
 Blink Wallet
 Brex
-~Ramp
 ~Mercury
 Starling Bank
 ~Upstart
@@ -46405,7 +46303,6 @@ TrueLayer
 Yapily
 ~Tink
 Modern Treasury
-~Column
 Razorpay
 PhonePe
 Kakao Pay
@@ -46557,7 +46454,6 @@ Jito Labs
 ~Pimlico
 Biconomy
 Particle Network
-~Privy
 Dynamic Labs
 Web3Auth
 Magic Labs
@@ -47034,7 +46930,6 @@ Hot and Sour Soup
 Twice Cooked Pork
 Dongpo Pork
 ~Chai
-~Sake
 Shochu
 Umeshu
 Ramune
@@ -47714,7 +47609,6 @@ Provoleta
 Dulce de Leche
 Alfajores
 Medialunas
-~Mate
 Fernet
 Pao de Queijo
 Moqueca
@@ -47791,7 +47685,6 @@ Curry Goat
 ~Oxtail
 Escovitch Fish
 Rice and Peas
-~Festival
 Callaloo
 Roti Wrap
 ~Doubles
@@ -47856,7 +47749,6 @@ Chili con Carne
 Frito Pie
 Hot Chicken
 Buffalo Chicken Wings
-~Wings
 Hush Puppy
 Maryland Crab Cakes
 Frogmore Stew
@@ -47931,7 +47823,6 @@ Shiso
 Wakame
 Katsuobushi
 ~Bonito
-Uni
 Ikura
 Hamachi
 Unagi
@@ -48314,7 +48205,6 @@ Apizza Scholls
 Tony's Pizza Napoletana
 Pizzeria Bianco
 Home Slice Pizza
-~Quickly
 Walmart Supercenter
 Albertsons
 Meijer
@@ -48453,7 +48343,6 @@ Thriftway
 Berkeley Bowl
 Mollie Stone's Markets
 ~Speedway
-~Jumbo
 ~Spar
 ~Foodland
 Kraft Foods
@@ -48716,7 +48605,6 @@ AllSaints
 Reiss
 Karen Millen
 ~Whistles
-~Warehouse
 Topshop
 ASOS
 Missguided
@@ -48725,7 +48613,6 @@ Lulus
 Cupshe
 New Look
 River Island
-~Next
 ~Matalan
 Pull and Bear
 Oysho
@@ -48734,11 +48621,9 @@ Stone Island
 CP Company
 G-Star Raw
 ~Replay
-~Guess
 Superdry
 Jack Wolfskin
 Engineered Garments
-~Undercover
 Sacai
 ~Noah
 Aime Leon Dore
@@ -48764,7 +48649,6 @@ Hot Topic
 ~Torrid
 Lane Bryant
 Forever New
-~Coast
 Phase Eight
 ~Jigsaw
 Hobbs
@@ -48794,7 +48678,6 @@ Alex and Ani
 Pura Vida
 Brilliant Earth
 Blue Nile
-~Fresh
 Avene
 Dr Jart
 Iope
@@ -48829,7 +48712,6 @@ Dr Ceuracle
 Mixsoon
 Dear Klairs
 ~Benton
-Leaders
 Derma Factory
 Haruharu Wonder
 Tirtir
@@ -48958,7 +48840,6 @@ Maxclinic
 Maybelline New York
 Lakme
 Physicians Formula
-~Benefit
 Tarte Cosmetics
 NARS Cosmetics
 Make Up For Ever
@@ -49346,7 +49227,6 @@ Hermes Jour d'Hermes
 Hermes Galop d'Hermes
 Hermes H24
 ~Douglas
-~Boots
 Superdrug
 Watsons
 Look Fantastic
@@ -49535,13 +49415,11 @@ Chubb
 AIG
 Prudential Financial
 ~Progressive
-~Travelers
 Aflac
 Lincoln Financial Group
 Principal Financial Group
 Genworth Financial
 Hartford Financial Services Group
-~Nationwide
 Liberty Mutual
 Farmers Insurance
 Zurich Insurance Group
@@ -50773,7 +50651,6 @@ Amitiza
 Trulance
 Senokot
 Colace
-~Fleet
 Kaopectate
 Maalox
 Alka-Seltzer
@@ -51271,7 +51148,6 @@ Emergen-C
 Zarbee's
 Olly
 Hum Nutrition
-~Ritual
 Muscle Milk
 Nuun
 Electrolit
@@ -51420,7 +51296,6 @@ Lemonaid
 Clover Health
 Molina Healthcare
 Centene
-~Anthem
 Bupa
 GoodRx
 WebMD
@@ -51493,7 +51368,6 @@ Bupa Arabia
 CST_GLOSSARY_EXTRA_ADD("history", null, `
 First World War
 Second World War
-Persian Gulf War
 Iran-Iraq War
 Afghan War
 Soviet-Afghan War
@@ -51515,7 +51389,6 @@ First Boer War
 Spanish-American War
 Mexican-American War
 War of 1812
-American Revolutionary War
 French and Indian War
 Opium War
 First Opium War
@@ -51523,7 +51396,6 @@ Second Opium War
 Sino-Japanese War
 First Sino-Japanese War
 Second Sino-Japanese War
-Chinese Civil War
 Greco-Persian Wars
 Peloponnesian War
 Punic Wars
@@ -51531,9 +51403,7 @@ First Punic War
 Second Punic War
 Third Punic War
 Gallic Wars
-Roman Civil War
 Wars of the Diadochi
-Trojan War
 ~Crusades
 First Crusade
 Second Crusade
@@ -51564,14 +51434,11 @@ Balkan Wars
 First Balkan War
 Second Balkan War
 Italo-Turkish War
-Spanish Civil War
 Winter War
 Continuation War
 Polish-Soviet War
-Russian Civil War
 Estonian War of Independence
 Irish War of Independence
-Irish Civil War
 Greco-Turkish War
 Rif War
 Chaco War
@@ -51580,13 +51447,11 @@ Paraguayan War
 Falklands War
 Football War
 Six-Day War
-Yom Kippur War
 Arab-Israeli War
 Israeli War of Independence
 Suez Crisis
 Bay of Pigs
 Biafran War
-Nigerian Civil War
 Algerian War
 Indochina War
 First Indochina War
@@ -51594,23 +51459,12 @@ Second Indochina War
 Ogaden War
 Ethiopian-Somali War
 Eritrean War of Independence
-Angolan Civil War
-Mozambican Civil War
 Rhodesian Bush War
-Libyan Civil War
-Syrian Civil War
-Yemeni Civil War
-Lebanese Civil War
 Bosnian War
 Croatian War of Independence
 Kosovo War
 First Chechen War
 Second Chechen War
-Rwandan Genocide
-First Congo War
-Second Congo War
-Sierra Leone Civil War
-Liberian Civil War
 Darfur conflict
 Russo-Ukrainian War
 War in Donbas
@@ -51620,7 +51474,6 @@ Indo-Pakistani War of 1971
 Kargil War
 Sino-Indian War
 Sino-Vietnamese War
-Gulf of Tonkin incident
 Boxer Rebellion
 Taiping Rebellion
 Indian Rebellion of 1857
@@ -51632,7 +51485,6 @@ Third Anglo-Afghan War
 Anglo-Ashanti Wars
 Xhosa Wars
 Cape Frontier Wars
-Herero and Namaqua Genocide
 Maji Maji Rebellion
 Matabele War
 Boxer Uprising
@@ -51657,7 +51509,6 @@ Byzantine-Sasanian War
 Byzantine-Arab Wars
 Arab-Byzantine Wars
 Islamic conquest of Iberia
-Arab conquest of North Africa
 Great Arab Revolt
 Arab Revolt
 Mexican Revolution
@@ -51673,7 +51524,6 @@ Mexican War of Independence
 Hukbalahap rebellion
 Malayan Emergency
 Mau Mau Uprising
-Kenya Emergency
 Algerian Revolution
 Yugoslav Wars
 Slovenian War of Independence
@@ -51684,25 +51534,11 @@ Second Nagorno-Karabakh War
 Georgian-Abkhazian War
 Russo-Georgian War
 Five-Day War
-Tajik Civil War
-Afghan Civil War
-Iraqi Civil War
-Israeli invasion of Lebanon
-Lebanon War
-Second Lebanon War
-Sudanese Civil War
-Second Sudanese Civil War
-First Sudanese Civil War
 Ugandan Bush War
-Somali Civil War
-Ethiopian Civil War
-Guatemalan Civil War
-Salvadoran Civil War
 Nicaraguan Revolution
 Contra War
 Colombian conflict
 Peruvian internal conflict
-Shining Path insurgency
 Cenepa War
 Ecuadorian-Peruvian War
 Baltic Crusade
@@ -51713,8 +51549,6 @@ Wars of the Three Kingdoms
 Anglo-Scottish wars
 Wars of Scottish Independence
 Irish Confederate Wars
-Cromwellian conquest of Ireland
-Williamite War in Ireland
 Jacobite Rebellion
 War of the Quadruple Alliance
 War of the Bavarian Succession
@@ -51846,7 +51680,6 @@ Battle of Austerlitz
 Battle of Jena-Auerstedt
 Battle of Trafalgar
 Battle of the Nile
-Battle of Copenhagen
 Battle of Camperdown
 Battle of Cape St Vincent
 Battle of Quiberon Bay
@@ -51912,9 +51745,6 @@ Battle of the Alamo
 Battle of Goliad
 Battle of Gettysburg
 Battle of Antietam
-Battle of Bull Run
-First Battle of Bull Run
-Second Battle of Bull Run
 Battle of Shiloh
 Battle of Fort Sumter
 Battle of Fort Donelson
@@ -51945,7 +51775,6 @@ Battle of Little Bighorn
 Battle of Wounded Knee
 Battle of San Juan Hill
 Battle of Manila Bay
-Battle of Santiago de Cuba
 Battle of Las Guasimas
 Battle of Adobe Walls
 Battle of Balaclava
@@ -51953,7 +51782,6 @@ Battle of Inkerman
 Battle of the Alma
 Battle of Sevastopol
 Siege of Sevastopol
-Battle of Sedan
 Battle of Gravelotte
 Battle of Solferino
 Battle of Magenta
@@ -51968,7 +51796,6 @@ Battle of Plevna
 Siege of Plevna
 Battle of Shipka Pass
 Battle of Yalu River
-Battle of Pyongyang
 Battle of Dagu Forts
 Battle of Adwa
 Battle of Omdurman
@@ -52030,15 +51857,10 @@ Battle of Saint-Mihiel
 Meuse-Argonne Offensive
 Battle of Stalingrad
 Battle of Kursk
-Battle of Moscow
 Battle of Leningrad
 Siege of Leningrad
-Battle of Berlin
-Battle of Kiev
 Battle of Smolensk
 Battle of Dunkirk
-Battle of France
-Battle of Britain
 Battle of Normandy
 Battle of the Bulge
 Battle of Midway
@@ -52053,7 +51875,6 @@ Battle of the Philippine Sea
 Battle of Peleliu
 Battle of Bataan
 Battle of Corregidor
-Battle of Singapore
 Battle of Kasserine Pass
 Battle of El Alamein
 Battle of Tobruk
@@ -52070,18 +51891,14 @@ Battle of Taranto
 Battle of Cape Matapan
 Battle of Sirte
 Battle of Budapest
-Battle of Warsaw
 Battle of the Bismarck Sea
 Battle of Savo Island
 Battle of Cape Esperance
-Battle of Dien Bien Phu
 Battle of Inchon
 Battle of Chosin Reservoir
 Battle of Pusan Perimeter
 Battle of Ia Drang
 Battle of Khe Sanh
-Battle of Hue
-Tet Offensive
 Battle of Goose Green
 Battle of Mount Tumbledown
 Battle of Basra
@@ -52096,9 +51913,6 @@ Battle of Mariupol
 Battle of Kharkiv
 Battle of Kherson
 Battle of Avdiivka
-Battle of Shanghai
-Battle of Nanjing
-Battle of Wuhan
 Battle of Changsha
 Battle of Taierzhuang
 Battle of Changde
@@ -52109,7 +51923,6 @@ Battle of Hengyang
 Battle of Peking
 Battle of Mactan
 Battle of Quebec
-Battle of the Plains of Abraham
 Battle of Ticonderoga
 Battle of Lake George
 Battle of Oriskany
@@ -52148,16 +51961,11 @@ Operation Overlord
 Operation Barbarossa
 Operation Market Garden
 Operation Torch
-Operation Husky
 Operation Avalanche
-Operation Neptune
 Operation Dragoon
-Operation Sea Lion
 Operation Mincemeat
 Operation Bagration
-Operation Uranus
 Operation Citadel
-Operation Typhoon
 Operation Blue
 Operation Pedestal
 Operation Crossbow
@@ -52204,18 +52012,15 @@ Operation Desert Storm
 Operation Desert Shield
 Operation Iraqi Freedom
 Operation Enduring Freedom
-Operation Cyclone
 Operation Restore Hope
 Operation Provide Comfort
 Operation Allied Force
 Operation Deliberate Force
 Operation Desert Fox
 Operation Odyssey Dawn
-Operation Neptune Spear
 Operation Redwings
 Operation Entebbe
 Operation Wrath of God
-Operation Opera
 Operation Musketeer
 Operation Phoenix
 Operation Speedy Express
@@ -52236,7 +52041,6 @@ Operation Goodwood
 Operation Cobra
 Operation Bluecoat
 Operation Jubilee
-Operation Pluto
 Operation Pointblank
 Operation Cartwheel
 Operation Galvanic
@@ -52282,7 +52086,6 @@ Operation Corkscrew
 Operation Ladbroke
 Operation Fustian
 Operation Deadstick
-Operation Freshman
 Operation Galahad
 Operation Thursday
 Operation Longcloth
@@ -52302,7 +52105,6 @@ Operation Tumbler-Snapper
 Operation Upshot-Knothole
 Operation Buster-Jangle
 Operation Ranger
-Operation Teapot
 Operation Wigwam
 Operation Mosaic
 Operation Grapple
@@ -52333,40 +52135,24 @@ Magellan-Elcano Expedition
 Vasco da Gama's voyage
 Captain Cook's voyages
 Cook's voyages
-Mongol invasion of Europe
 Mongol conquests
-Mongol invasions of Japan
 Norman Conquest
 Spanish conquest of the Inca Empire
 Spanish conquest of the Aztec Empire
-Conquest of Mexico
-Conquest of Peru
 Conquest of Granada
-Conquest of Ireland
 Fall of Constantinople
-Fall of the Western Roman Empire
 Fall of Carthage
-Fall of Jerusalem
-Sack of Rome
 Sack of Constantinople
 Fall of Tenochtitlan
-Fall of Saigon
-Fall of Berlin
-Fall of Singapore
 Fall of the Bastille
 Storming of the Bastille
 Fall of Baghdad
 Fall of Acre
 Fall of Granada
 Srebrenica massacre
-Nanjing Massacre
 Rape of Nanking
 Bataan Death March
 Katyn massacre
-Armenian Genocide
-Cambodian genocide
-Khmer Rouge genocide
-Srebrenica genocide
 Halabja chemical attack
 Bloody Sunday
 Kent State shootings
@@ -52398,10 +52184,8 @@ Underground Railroad
 Trail of Tears
 Indian Removal Act
 Dawes Act
-Homestead Act
 Pacific Railway Act
 Alien and Sedition Acts
-Whiskey Rebellion
 Shays' Rebellion
 Dorr Rebellion
 Nat Turner's Rebellion
@@ -52419,11 +52203,8 @@ Great Leap Forward
 Cultural Revolution
 Great Proletarian Cultural Revolution
 Anti-Rightist Campaign
-Tiananmen Square protests of 1989
-Tiananmen Square massacre
 Four Modernizations
 Sino-Soviet split
-Hong Kong handover
 Tibetan uprising
 Peasants' Revolt
 German Peasants' War
@@ -52431,8 +52212,6 @@ German Peasants' War
 Great Famine
 Irish Famine
 Great Hunger
-Great Fire of London
-Great Plague of London
 Great Migration
 Great Awakening
 Second Great Awakening
@@ -52443,38 +52222,24 @@ Great Terror
 Holodomor
 Holodomor famine
 Shoah
-Nazi genocide of the Roma
 Porajmos
 Night of the Long Knives
 Kristallnacht
 Anschluss
-Munich Crisis
 Sudetenland Crisis
 Rhineland crisis
-Spanish flu
-Influenza pandemic of 1918
 Black Friday of 1869
 Panic of 1873
 Long Depression
 Panic of 1907
 Panic of 1893
 Crash of 1929
-Wall Street Crash of 1929
 Black Tuesday
 Dust Bowl
-Scramble for Africa
-Berlin Conference
-Berlin Blockade
-Berlin Airlift
-Berlin Crisis
-Warsaw Uprising
-Warsaw Ghetto Uprising
 Cuban Revolution
-Iran hostage crisis
 Iranian hostage crisis
 Watergate scandal
 Iran-Contra affair
-Chappaquiddick incident
 Mai Lai massacre
 Attica prison riot
 Three Mile Island accident
@@ -52485,48 +52250,31 @@ Deepwater Horizon oil spill
 September 11 attacks
 Oklahoma City bombing
 Lockerbie bombing
-Munich massacre
-Munich Olympics massacre
 Black September
 Achille Lauro hijacking
 Asian financial crisis
 Latin American debt crisis
 Russian financial crisis
-Tulip mania
 South Sea Bubble
 Mississippi Bubble
 Chernobyl disaster
-Space Shuttle Challenger disaster
-Space Shuttle Columbia disaster
 Hiroshima bombing
 Nagasaki bombing
 Bombing of Hiroshima
 Bombing of Nagasaki
-Attack on Pearl Harbor
-Pearl Harbor attack
 Halifax Explosion
 Hindenburg disaster
 Titanic sinking
-Lisbon earthquake
-San Francisco earthquake of 1906
 Great Chicago Fire
 Chicago fire of 1871
 Johnstown Flood
-Galveston hurricane
 Great Storm of 1703
-Krakatoa eruption
-Eruption of Krakatoa
-Eruption of Mount Vesuvius
-Eruption of Mount Pelee
 Tunguska event
-Great Smog of London
 Great Smog
 Minamata disease
 Ludlow massacre
 Triangle Shirtwaist Factory fire
 Triangle fire
-Gulf Coast hurricane of 1900
-Great Kanto earthquake
 Great Dhaka fire
 Bengal famine of 1943
 Great Bengal famine
@@ -52536,7 +52284,6 @@ Ukrainian famine
 Soviet famine of 1932-1933
 Great Irish Famine
 Chinese famine
-English Bill of Rights
 Declaration of the Rights of Man and of the Citizen
 Declaration of Rights
 Emancipation Proclamation
@@ -52544,13 +52291,11 @@ Gettysburg Address
 Articles of Confederation
 Federalist Papers
 Mayflower Compact
-Constitution of the United States
 Virginia Declaration of Rights
 Declaration of Sentiments
 Domesday Book
 Doomsday Book
 Edict of Nantes
-Edict of Milan
 Edict of Worms
 Edict of Restitution
 Act of Supremacy
@@ -52560,28 +52305,23 @@ Act of Settlement
 Habeas Corpus Act
 Petition of Right
 Instrument of Government
-Constitution of Japan
 Meiji Constitution
-Charter of the United Nations
 Atlantic Charter
 Nuremberg Laws
 Nuremberg Code
 Nuremberg Trials
-Tokyo Trials
 Zimmermann Telegram
 Dred Scott decision
 Dred Scott v. Sandford
 Marbury v. Madison
 Plessy v. Ferguson
 Miranda v. Arizona
-Civil Rights Act of 1964
 Voting Rights Act of 1965
 Golden Bull of 1356
 Golden Bull
 Bull Unam Sanctam
 Unam Sanctam
 Dictatus Papae
-Dictates of the Pope
 Investiture Controversy
 Gregorian Reform
 Avignon Papacy
@@ -52602,7 +52342,6 @@ Marburg Colloquy
 Ninety-Five Theses
 Schmalkaldic War
 Schmalkaldic League
-Revolt of the Netherlands
 Revolt of the Comuneros
 Sicilian Vespers
 War of the Eight Saints
@@ -52610,7 +52349,6 @@ Pazzi Conspiracy
 Hanseatic League
 Dutch Republic
 Dutch Golden Age
-Golden Age of Islam
 Byzantine Iconoclasm
 ~Iconoclasm
 Donation of Constantine
@@ -52649,15 +52387,12 @@ Treaty of Sevres
 Treaty of Lausanne
 Treaty of Rapallo
 Treaty of Locarno
-Treaty of London
-Treaty of Berlin
 Treaty of San Stefano
 Treaty of Frankfurt
 Treaty of Shimonoseki
 Treaty of Portsmouth
 Treaty of Kanagawa
 Treaty of Nanking
-Treaty of Tianjin
 Treaty of Aigun
 Treaty of Kiakhta
 Treaty of Adrianople
@@ -52667,12 +52402,10 @@ Treaty of Greenville
 Treaty of Fort Laramie
 Treaty of Waitangi
 Treaty of Hudaybiyyah
-Treaty of Paris
 Treaty of Westphalia
 Peace of Westphalia
 Treaty of Versailles
 Peace of Augsburg
-Peace of Prague
 Peace of Nikolsburg
 Peace of Frankfurt
 Peace of Passau
@@ -52685,8 +52418,6 @@ Peace of Ryswick
 Balfour Declaration
 Sykes-Picot Agreement
 Molotov-Ribbentrop Pact
-Munich Agreement
-Munich Pact
 Anglo-German Naval Agreement
 Kellogg-Briand Pact
 Washington Naval Treaty
@@ -52697,7 +52428,6 @@ Dual Alliance
 Franco-Russian Alliance
 Schlieffen Plan
 North Atlantic Treaty
-Warsaw Pact
 Eisenhower Doctrine
 Truman Doctrine
 Monroe Doctrine
@@ -52707,18 +52437,9 @@ Nixon Doctrine
 Potsdam Agreement
 Potsdam Conference
 Yalta Conference
-Tehran Conference
-Cairo Conference
 Bretton Woods Conference
 Bretton Woods Agreement
 Versailles Conference
-Paris Peace Conference
-Congress of Vienna
-Congress of Berlin
-Congress of Aix-la-Chapelle
-Congress of Verona
-Congress of Paris
-Congress of Ghent
 Hague Conventions
 Montreal Protocol
 Nuclear Non-Proliferation Treaty
@@ -52733,13 +52454,10 @@ Helsinki Final Act
 Camp David Accords
 Oslo Accords
 Dayton Agreement
-Good Friday Agreement
 Anglo-Irish Agreement
 Sunningdale Agreement
 Sino-British Joint Declaration
 Anglo-Chinese Joint Declaration
-Hong Kong Basic Law
-Gleiwitz incident
 Reichstag fire
 Enabling Act of 1933
 Lend-Lease Act
@@ -52765,13 +52483,9 @@ Exclusion Crisis
 Rye House Plot
 Monmouth Rebellion
 Glorious Revolution
-English Civil War
 ~Restoration
-Commonwealth of England
 ~Protectorate
 Protectorate of Oliver Cromwell
-Long Parliament
-Rump Parliament
 Pride's Purge
 Ship Money
 Bishops' Wars
@@ -52782,10 +52496,7 @@ Jacobite rising of 1715
 Jacobite Rising of 1689
 Tyrone's Rebellion
 Desmond Rebellions
-Plantation of Ulster
 Flight of the Earls
-Eastern Roman Empire
-Western Roman Empire
 Mughal Empire
 Achaemenid Empire
 Parthian Empire
@@ -52794,7 +52505,6 @@ Sassanid Empire
 Seleucid Empire
 Ptolemaic Kingdom
 Macedonian Empire
-Empire of Alexander the Great
 Mauryan Empire
 Gupta Empire
 Chola Empire
@@ -52810,9 +52520,6 @@ Qajar dynasty
 Zand dynasty
 Afsharid dynasty
 Timurid Empire
-Yuan dynasty
-Western Han dynasty
-Eastern Han dynasty
 Jin dynasty
 Sui dynasty
 Song dynasty
@@ -52856,7 +52563,6 @@ Khmer Empire
 Srivijaya
 Majapahit Empire
 Kingdom of Kongo
-Ghana Empire
 Mali Empire
 Songhai Empire
 Kanem-Bornu Empire
@@ -52866,7 +52572,6 @@ Zulu Kingdom
 Kingdom of Benin
 Kingdom of Dahomey
 Ashanti Empire
-Great Zimbabwe
 Mapungubwe
 Inca Empire
 Aztec Empire
@@ -52890,10 +52595,7 @@ Frankish Empire
 Merovingian dynasty
 Capetian dynasty
 Valois dynasty
-Bourbon dynasty
-Habsburg Monarchy
 Austro-Hungarian Empire
-Austro-Hungarian Monarchy
 Prussian Empire
 German Empire
 Second Reich
@@ -52901,20 +52603,14 @@ Weimar Republic
 Kingdom of Prussia
 Kingdom of Sardinia
 Kingdom of Two Sicilies
-Kingdom of Naples
 Papal States
 Republic of Venice
 Republic of Genoa
-Duchy of Milan
 Kingdom of Aragon
 Kingdom of Castile
 Kingdom of Navarre
-Kingdom of Portugal
-Kingdom of Hungary
 Kingdom of Bohemia
-Kingdom of Poland
 Polish-Lithuanian Commonwealth
-Grand Duchy of Lithuania
 Kievan Rus
 Golden Horde
 Khazar Khaganate
@@ -52924,7 +52620,6 @@ Empire of Trebizond
 Latin Empire
 Empire of Nicaea
 Crusader states
-Kingdom of Jerusalem
 Principality of Antioch
 County of Edessa
 Almoravid dynasty
@@ -52956,7 +52651,6 @@ Shunga Empire
 Indo-Greek Kingdom
 Hellenistic period
 Hellenistic Age
-Bronze Age collapse
 Mycenaean civilization
 Minoan civilization
 Hittite Empire
@@ -52966,9 +52660,6 @@ Neo-Babylonian Empire
 Babylonian Empire
 Akkadian Empire
 Sumerian civilization
-Old Kingdom of Egypt
-Middle Kingdom of Egypt
-New Kingdom of Egypt
 Third Intermediate Period
 Amarna period
 Ramesside period
@@ -52984,26 +52675,22 @@ Phoenician civilization
 Etruscan civilization
 Roman Republic
 Roman Kingdom
-Athenian democracy
 Spartan state
 Delian League
 Achaean League
 Aetolian League
 Corinthian League
 Kingdom of Georgia
-Kingdom of Armenia
 Kingdom of Axum
 Khwarazmian Empire
 Seljuk Empire
 Great Seljuk Empire
-Sultanate of Rum
 Kara-Khanid Khanate
 Kara-Khitan Khanate
 Ilkhanate
 Chagatai Khanate
 Khanate of Crimea
 Great Mongol State
-Yuan Empire
 Dali Kingdom
 Goryeo kingdom
 ~Champa
@@ -53020,7 +52707,6 @@ Mataram Sultanate
 Sultanate of Malacca
 Malacca Sultanate
 Sultanate of Aceh
-Sultanate of Brunei
 Kingdom of Kandy
 Kingdom of Mysore
 Kingdom of Travancore
@@ -53046,21 +52732,15 @@ Ostrogothic Kingdom
 Vandal Kingdom
 Suebi Kingdom
 Burgundian Kingdom
-Anglo-Saxon England
 ~Heptarchy
 Kingdom of Mercia
 Kingdom of Northumbria
 Kingdom of Wessex
 ~Danelaw
 Viking Age
-Norse Greenland
 Kalmar Union
 Swedish Empire
 Danish Empire
-Kingdom of Scotland
-Kingdom of Ireland
-Gaelic Ireland
-Principality of Wales
 Duchy of Burgundy
 Duchy of Brittany
 Duchy of Savoy
@@ -53073,23 +52753,15 @@ Livonian Order
 Knights Templar
 Knights Hospitaller
 Order of Saint John
-Grand Duchy of Moscow
-Tsardom of Russia
 Russian Empire
 ~Muscovy
-Principality of Moscow
 Novgorod Republic
 Republic of Pskov
 Cossack Hetmanate
 Zaporozhian Sich
 Ukrainian People's Republic
-Kingdom of Serbia
-Principality of Serbia
-Kingdom of Montenegro
-Kingdom of Romania
 Principality of Wallachia
 Principality of Moldavia
-Ottoman Egypt
 Eyalet of Algiers
 Regency of Tunis
 Regency of Algiers
@@ -53098,7 +52770,6 @@ Sultanate of Darfur
 Funj Sultanate
 Kingdom of Buganda
 Kingdom of Bunyoro
-Kingdom of Rwanda
 Kingdom of Burundi
 Lunda Empire
 Luba Empire
@@ -53106,10 +52777,7 @@ Kingdom of Lozi
 Mutapa Empire
 Rozwi Empire
 ~Inquisition
-~Blitz
 ~Armistice
-~Directory
-~Consulate
 `);
 CST_GLOSSARY_EXTRA_ADD("music", null, `
 NCT U
@@ -53149,14 +52817,11 @@ Pristin
 PRISTIN V
 Cosmic Girls
 WJSN
-~Nature
 BTOB
 B.A.P
 Block B
 ~Highlight
-~Infinite
 Teen Top
-~Beast
 Golden Child
 Seventeen Carat
 SF9
@@ -53172,7 +52837,6 @@ Clazziquai
 Dong Bang Shin Ki
 JYJ
 U-KISS
-~Boyfriend
 Exo-K
 Exo-M
 Super M
@@ -53203,7 +52867,6 @@ Orange Caramel
 Badkiz
 Baby Vox
 ~Jewelry
-~Sugar
 Coed School
 Jaurim
 Park Bom
@@ -53218,7 +52881,6 @@ Defsoul
 Paul Kim
 Ailee
 Jessi
-~Joy
 Soyou
 Jung Eun-ji
 Eunha
@@ -53229,7 +52891,6 @@ Yerin
 ~Minnie
 Soojin
 Yuna
-~Winter
 Eunchae
 Yunjin
 Chaewon
@@ -53246,7 +52907,6 @@ Jessica Jung
 Krystal Jung
 ~Kai
 ~Chen
-~Lay
 Kyungsoo
 Minho
 Jonghyun
@@ -53566,13 +53226,10 @@ Hatsukoi
 Wonder Land
 Gaining Ground
 Square Up
-~Dimension
 Dimension: Answer
 Mirror Mirror
 Flip Your Switch
 ~Reflection
-~Odd
-~Crash
 Kitaro
 Yuming
 Yoshinori Sunahara
@@ -53604,7 +53261,6 @@ Chage & Aska
 Tsuyoshi Domoto
 Takeshi Kaneshiro
 ~Jessica
-~Rain
 Kwon Boa
 Jung Yong-hwa
 Yunho
@@ -53760,7 +53416,6 @@ Ken Fisher
 Jim Cramer
 Jesse Livermore
 Tom Steyer
-Eric Yuan
 David Velez
 Vlad Tenev
 Baiju Bhatt
@@ -53775,7 +53430,6 @@ Biz Stone
 Ev Williams
 Noah Glass
 Pierre Omidyar
-Jimmy Wales
 Larry Sanger
 Jeff Weiner
 Ryan Holmes
@@ -54795,7 +54449,6 @@ Josep Borrell
 Kaja Kallas
 Antonio Costa
 Marcelo Rebelo de Sousa
-Luis Montenegro
 Ivan Duque
 Gustavo Petro
 Jiang Zemin
@@ -54833,7 +54486,6 @@ Tharman Shanmugaratnam
 Yingluck Shinawatra
 Min Aung Hlaing
 Sheikh Hasina
-Muhammad Yunus
 Khaleda Zia
 Prachanda
 Nawaz Sharif
@@ -55061,18 +54713,14 @@ Naveen Patnaik
 Jagan Mohan Reddy
 Sheikh Mujibur Rahman
 Ziaur Rahman
-Hussein Muhammad Ershad
 Begum Khaleda Zia
 Tarique Rahman
-Pakistan Muslim League
 Ghulam Ishaq Khan
 Zia-ul-Haq
-Muhammad Zia-ul-Haq
 Ayub Khan
 Yahya Khan
 Ghulam Mohammad
 Liaquat Ali Khan
-Muhammad Ali Jinnah
 Fatima Jinnah
 Maryam Nawaz
 Bilawal Bhutto Zardari
@@ -55088,7 +54736,6 @@ Abdul Ghani Baradar
 Ahmad Shah Massoud
 Sardar Daud Khan
 Mohammad Daoud Khan
-Nur Muhammad Taraki
 Hafizullah Amin
 Babrak Karmal
 Mohammad Najibullah
@@ -55114,7 +54761,6 @@ Gadi Eisenkot
 Tzipi Livni
 Ayelet Shaked
 Yoav Gallant
-Israel Katz
 Mahmoud al-Zahar
 Khaled Mashal
 Ziad al-Nakhalah
@@ -55247,7 +54893,6 @@ Felipe Calderon
 Vicente Fox
 Ernesto Zedillo
 Carlos Salinas de Gortari
-Miguel de la Madrid
 Nayib Bukele
 Daniel Ortega
 Rosario Murillo
@@ -55314,19 +54959,6 @@ Thomas Sankara
 Modibo Keita
 Yahya Jammeh
 Ousmane Sonko
-United Nations Security Council
-United Nations General Assembly
-United Nations Human Rights Council
-United Nations Development Programme
-United Nations Secretary-General
-United Nations High Commissioner for Human Rights
-United Nations High Commissioner for Refugees
-United Nations Children's Fund
-United Nations Office on Drugs and Crime
-United Nations Environment Programme
-United Nations Population Fund
-United Nations Relief and Works Agency
-United Nations Women
 UNDP
 UNEP
 UNRWA
@@ -55336,32 +54968,22 @@ Food and Agriculture Organization
 International Atomic Energy Agency
 International Criminal Court
 International Court of Justice
-International Committee of the Red Cross
 International Maritime Organization
 International Civil Aviation Organization
 International Telecommunication Union
 Universal Postal Union
-World Intellectual Property Organization
-Permanent Court of Arbitration
 Europol
 Frontex
 European Council
-Council of the European Union
 European Court of Justice
-European Court of Human Rights
-European Investment Bank
 European Stability Mechanism
-European Free Trade Association
 European Economic Area
 European Defence Agency
 European External Action Service
 European Anti-Fraud Office
-Council of Europe
 Organisation for Economic Co-operation and Development
 Organization for Economic Co-operation and Development
 North Atlantic Treaty Organization
-Western European Union
-Organization for Security and Co-operation in Europe
 Organization of American States
 Inter-American Development Bank
 African Union
@@ -55378,13 +55000,10 @@ Association of Southeast Asian Nations
 ASEAN
 Asia-Pacific Economic Cooperation
 Asian Development Bank
-Asian Infrastructure Investment Bank
 New Development Bank
-Shanghai Cooperation Organization
 Eurasian Economic Union
 Commonwealth of Nations
 Pacific Islands Forum
-Caribbean Community
 Mercosur
 G8
 AUKUS
@@ -55394,7 +55013,6 @@ Group of Twenty
 Central Intelligence Agency
 Federal Bureau of Investigation
 National Security Agency
-National Security Council
 Defense Intelligence Agency
 Office of the Director of National Intelligence
 Environmental Protection Agency
@@ -55410,33 +55028,22 @@ Department of Housing and Urban Development
 Department of Transportation
 Department of the Interior
 Office of Management and Budget
-Federal Reserve System
 Federal Communications Commission
 Federal Election Commission
-United States Congress
-US Congress
 House Freedom Caucus
 Congressional Black Caucus
-Senate Democrats
-Senate Republicans
-House Democrats
-House Republicans
 Democratic National Committee
 Republican National Committee
 Democratic Congressional Campaign Committee
 National Republican Senatorial Committee
 Democratic Governors Association
 Republican Governors Association
-Chairman of the Joint Chiefs of Staff
 State Duma
 Federation Council
-Security Council of Russia
 Federal Security Service
 Foreign Intelligence Service
 Russian Ministry of Foreign Affairs
 Elysee Palace
-National Assembly of France
-Senate of France
 Quai d'Orsay
 Foreign Office
 Cabinet Office
@@ -55453,37 +55060,21 @@ Ministry of Economy and Finance
 Ministry of Interior
 Ministry of Health and Welfare
 Ministry of Defense
-Scotland Office
-Northern Ireland Office
-Crown Prosecution Service
 Metropolitan Police
-Scotland Yard
 MI5
 MI6
-Reserve Bank of India
-Central Bank of Russia
 Deutsche Bundesbank
-Banque de France
 Privy Council
-Prime Minister's Office
 State Council
-National People's Congress
 Chinese Communist Party
-Communist Party of China
-Central Committee of the Communist Party of China
 Central Military Commission
 ~Politburo
 Politburo Standing Committee
 Central Political and Legal Affairs Commission
 National Assembly
-National Congress
 Supreme People's Assembly
-Workers' Party of Korea
 Korean Workers' Party
-Central Committee of the Workers' Party of Korea
 Lao People's Revolutionary Party
-Communist Party of Vietnam
-Communist Party of Cuba
 Sandinista National Liberation Front
 Cuban Communist Party
 Communist Party of the Soviet Union
@@ -55491,37 +55082,20 @@ Supreme Soviet
 Central Committee of the Communist Party of the Soviet Union
 Cabinet of Ministers
 Council of Ministers
-Prime Minister's Questions
-Liberal Democrats
 Liberal Democrat Party
 Scottish National Party
 Plaid Cymru
 Democratic Unionist Party
 Ulster Unionist Party
-Social Democratic and Labour Party
 Sinn Fein
-Alliance Party of Northern Ireland
-Green Party of England and Wales
 Reform UK
 UK Independence Party
 Brexit Party
-Social Democratic Party
-Liberal Party of Canada
-Conservative Party of Canada
-New Democratic Party
 Bloc Quebecois
-Progressive Conservative Party
-Liberal Party of Australia
 Australian Labor Party
 Labor Party
 Australian Greens
-National Party of Australia
 One Nation
-New Zealand First
-Labour Party of New Zealand
-New Zealand National Party
-ACT New Zealand
-Green Party of Aotearoa New Zealand
 Fianna Fail
 Fine Gael
 Libertarian Party
@@ -55538,91 +55112,59 @@ Progressive Party
 Socialist Party of America
 Christian Democratic Union
 Christian Social Union
-Social Democratic Party of Germany
-Free Democratic Party
-Alternative for Germany
 Alliance 90 The Greens
 The Left
 Die Linke
 National Rally
 Rally for the Republic
-La France Insoumise
 Socialist Party
 National Front
 Les Republicains
 Union for a Popular Movement
 Five Star Movement
 Forza Italia
-Brothers of Italy
-Democratic Party of Italy
 Northern League
 Podemos
 People's Party
 Spanish Socialist Workers' Party
 Ciudadanos
-Freedom Party of Austria
 Party for Freedom
 Christian Democratic Appeal
 Law and Justice
 Civic Platform
 Fidesz
 Jobbik
-New Democracy
 PASOK
-Social Democrats
 Socialist People's Party
 Danish People's Party
-Sweden Democrats
 Moderate Party
-Social Democratic Party of Sweden
 Centre Party
 Finns Party
 National Coalition Party
-Social Democrats of Finland
-Labour Party of Norway
 Progress Party
-Christian Democratic Party
 Bulgarian Socialist Party
-Slovenian Democratic Party
-African National Congress
 Democratic Alliance
 Economic Freedom Fighters
 Inkatha Freedom Party
 Chama Cha Mapinduzi
-Zimbabwe African National Union Patriotic Front
 Movement for Democratic Change
 Awami League
-Bangladesh Nationalist Party
 Jatiya Party
 Bharatiya Janata Party
-Indian National Congress
 Aam Aadmi Party
 Samajwadi Party
 Bahujan Samaj Party
-Trinamool Congress
 Janata Dal
 Rashtriya Janata Dal
 Shiv Sena
-Nationalist Congress Party
-Communist Party of India
-Liberal Democratic Party
-Constitutional Democratic Party of Japan
 Komeito
-Democratic Party of Japan
-Japan Communist Party
-Japan Innovation Party
 ~Kuomintang
 Democratic Progressive Party
 New Power Party
 People First Party
-Democratic Party of Korea
 People Power Party
-Justice Party of Korea
-Future Korea Party
 Uri Party
 Grand National Party
-Pakistan Tehreek-e-Insaf
-Pakistan Peoples Party
 Muttahida Qaumi Movement
 Jamaat-e-Islami
 Hezbollah
@@ -55635,16 +55177,13 @@ Shas
 Meretz
 Yisrael Beiteinu
 Blue and White
-Muslim Brotherhood
 Justice and Development Party
 Republican People's Party
-Peoples' Democratic Party
 Peronist Party
 Justicialist Party
 Radical Civic Union
 Workers' Party
 Brazilian Democratic Movement
-Brazilian Social Democracy Party
 Liberal Party
 Democratic Action Party
 Institutional Revolutionary Party
@@ -55652,26 +55191,17 @@ National Action Party
 Broad Front
 Colorado Party
 National Party
-Republican Party of Chile
 Nationalist Republican Alliance
 Frente Amplio
-Revolutionary Armed Forces of Colombia
 Party of the Brazilian Democratic Movement
-Liberal Democratic Party of Russia
-United Russia
-A Just Russia
 Communist Party of the Russian Federation
-Fatherland-All Russia
 Nur Otan
-Socialist Party of Albania
-Democratic Party of Albania
 Nicolas Maduro
 Erwin Schrodinger
 Ernest Rutherford
 Joseph John Thomson
 Hans Christian Oersted
 Andre-Marie Ampere
-Georg Ohm
 Alessandro Volta
 Charles Coulomb
 Robert Hooke
@@ -56137,7 +55667,6 @@ Harry Markowitz
 William Sharpe
 Gottfried Leibniz
 Rene Descartes
-Francis Bacon
 Epicurus
 Democritus
 Thales of Miletus
@@ -56153,7 +55682,6 @@ Hypatia
 Peter Abelard
 William of Ockham
 Duns Scotus
-Roger Bacon
 Anselm of Canterbury
 Giordano Bruno
 Erasmus of Rotterdam
@@ -56180,7 +55708,6 @@ Jacques Lacan
 Louis Althusser
 Gilles Deleuze
 Julia Kristeva
-Isaiah Berlin
 Hans-Georg Gadamer
 Paul Ricoeur
 Charles Taylor
@@ -56230,7 +55757,6 @@ Nikolaus Otto
 Rudolf Diesel
 Karl Benz
 Henry Bessemer
-Abraham Darby
 Joseph Whitworth
 Hiram Maxim
 Alfred Nobel
@@ -56379,7 +55905,6 @@ Clifford Shull
 Bertram Brockhouse
 James Hutton
 Charles Lyell
-Abraham Werner
 Nicolas Steno
 James Lovelock
 Wangari Maathai
@@ -56538,7 +56063,6 @@ Rafael Bombelli
 Francois Viete
 John Napier
 Henry Briggs
-Abraham de Moivre
 Brook Taylor
 Colin Maclaurin
 Jacob Bernoulli
@@ -56711,7 +56235,6 @@ Oskar Klein
 Hendrik Kramers
 George Uhlenbeck
 Samuel Goudsmit
-Abraham Pais
 Freeman Dyson
 Joseph Rotblat
 Hans Geiger
@@ -56895,7 +56418,6 @@ Lalitpur
 Kandy
 Galle
 Jaffna
-~Male
 Thimphu
 ~Herat
 Kandahar
@@ -57207,7 +56729,6 @@ Pembrokeshire
 Carmarthenshire
 ~Ulster
 Antrim
-~Down
 ~Tyrone
 Fermanagh
 Donegal
@@ -57701,7 +57222,6 @@ Stara Zagora
 Novi Sad
 Nis
 Kragujevac
-~Split
 Rijeka
 Zadar
 Osijek
@@ -57842,7 +57362,6 @@ Grand Rapids
 Tallahassee
 Huntsville
 ~Knoxville
-~Providence
 Brownsville
 ~Amarillo
 ~Mobile
@@ -60717,7 +60236,6 @@ Phuong Trang Bus
 ~Hertz
 ~Avis
 Enterprise Rent-A-Car
-~Budget
 Sixt
 Europcar
 Alamo Rent a Car
@@ -61468,7 +60986,6 @@ Frosthaven
 Azul
 Monopoly Deal
 ~Chess
-~Risk
 Cluedo
 ~Scythe
 Terraforming Mars
@@ -61583,7 +61100,6 @@ Xiangqi
 ~Reversi
 ~Backgammon
 ~Dominoes
-~Bridge
 ~Poker
 ~Blackjack
 Texas Hold'em
@@ -61685,7 +61201,6 @@ Codenames Duet
 Codenames Pictures
 Decrypto
 Mysterium Kids
-~Concept
 ~Articulate
 ~Cranium
 Scrabble Junior
@@ -61707,7 +61222,6 @@ Crazy Eights
 Go Fish
 Old Maid
 Egyptian Ratscrew
-~President
 ~Sheepshead
 ~Pinochle
 ~Bezique
@@ -62014,7 +61528,6 @@ Mojo Jojo
 ~Bubbles
 ~Buttercup
 Professor Utonium
-~Him
 ~Pinky
 ~Ed
 Edd
@@ -62100,7 +61613,6 @@ Tambry
 Gideon Gleeful
 Mr. Lunt
 ~Cow
-~Chicken
 ~Courage
 Muriel Bagge
 Eustace Bagge
@@ -62151,7 +61663,6 @@ Carl Fredricksen
 ~Kevin
 ~Sadness
 ~Anger
-~Fear
 ~Disgust
 Bing Bong
 Riley Andersen
@@ -62262,7 +61773,6 @@ Cleo
 Monstro
 Blue Fairy
 ~Smee
-~Lady
 ~Tramp
 Lady and the Tramp
 Winnie the Pooh and Tigger Too
@@ -62701,7 +62211,6 @@ Oogway
 Mr. Ping
 Lord Shen
 ~Poppy
-~Branch
 Biggie
 ~Manny
 ~Scrat
@@ -62914,8 +62423,6 @@ Booster Gold
 ~Firestorm
 ~Vixen
 Cyborg Superman
-~Steel
-~Question
 Phantom Stranger
 Zauriel
 Atom Smasher
@@ -63038,7 +62545,6 @@ Professor Pyg
 ~Hawkeye
 Scarlet Witch
 ~Quicksilver
-~Vision
 Winter Soldier
 War Machine
 The Wasp
@@ -63081,7 +62587,6 @@ Sub-Mariner
 Human Torch
 Mister Fantastic
 Invisible Woman
-~Thing
 Silver Surfer
 Franklin Richards
 Doctor Doom
@@ -63169,7 +62674,6 @@ Blue Marvel
 Ultimate Nullifier
 Justin Hammer
 Stilt-Man
-~Spot
 Speed Demon
 ~Ringmaster
 ~Moleman
@@ -63202,7 +62706,6 @@ Kitty Pryde
 ~Jubilee
 Psylocke
 ~Bishop
-~Cable
 ~Domino
 Emma Frost
 ~Banshee
@@ -63228,7 +62731,6 @@ Wade Wilson
 Negasonic Teenage Warhead
 ~Bullseye
 Elektra
-~Stick
 Typhoid Mary
 Hit-Monkey
 Man-Thing
@@ -63909,7 +63411,6 @@ Acorn TV
 Band of Brothers
 The Pacific
 Big Little Lies
-~Girls
 The Leftovers
 The Comeback
 ~Enlightened
@@ -63918,7 +63419,6 @@ Lovecraft Country
 Oz
 Generation Kill
 The Newsroom
-~Looking
 ~Entourage
 Carnivale
 The Gilded Age
@@ -63953,7 +63453,6 @@ Dear White People
 ~Frontier
 The Get Down
 ~Glow
-~Easy
 Unsolved Mysteries
 Terrace House
 ~Cheer
@@ -63989,7 +63488,6 @@ Mythic Quest
 ~See
 ~Servant
 ~Invasion
-~Trying
 The Afterparty
 ~Hijack
 Gen V
@@ -64171,7 +63669,6 @@ The Oprah Winfrey Show
 The Jerry Springer Show
 The Dr. Oz Show
 Live with Kelly and Mark
-~Today
 The Kelly Clarkson Show
 The Drew Barrymore Show
 Dr. Phil
@@ -64334,7 +63831,6 @@ Sleepy Hollow
 Hawaii Five-0
 MacGyver
 ~Elementary
-~Revolution
 ~Outlander
 Poldark
 Sanditon
@@ -64370,7 +63866,6 @@ Tiny House Nation
 How It's Made
 Deadliest Warrior
 Naked and Afraid
-~Alone
 Expedition Unknown
 Life Below Zero
 Mountain Men
@@ -65302,7 +64797,6 @@ Ansible Vault
 Ansible Core
 Ansible Lightspeed
 SaltStack
-~Salt
 Rundeck
 PagerDuty Runbook Automation
 Jenkins Blue Ocean
@@ -66605,7 +66099,6 @@ Cygwin
 MSYS2
 Git Bash
 Git for Windows
-~Paint
 ~Notepad
 WordPad
 ASP.NET Core
@@ -66683,14 +66176,9 @@ TextEdit
 ~Launchpad
 ~Automator
 ~Shortcuts
-~Mail
-~Notes
 ~Reminders
 ~Calendar
-~Photos
-~Music
 ~Maps
-~Books
 ~Preview
 =iPhone OS
 Android 1.5 Cupcake
@@ -66994,7 +66482,6 @@ ConEmu
 MobaXterm
 ~PuTTY
 Termux
-~Fish
 Ksh
 Tcsh
 X Window System
@@ -67295,14 +66782,12 @@ Creately
 ~Concepts
 Stormboard
 Klaxoon
-~Pages
 MindNode
 XMind
 ~Coggle
 MindMeister
 SimpleMind
 Freeplane
-~Papers
 JabRef
 Paperpile
 ~Vellum
@@ -67312,7 +66797,6 @@ Wordtune
 Pandoc
 Jira Software
 Azure DevOps Boards
-~Height
 Teamwork.com
 Podio
 ~Nifty
@@ -67328,14 +66812,12 @@ Remember The Milk
 Taskwarrior
 Amazing Marvin
 ~Structured
-~Motion
 Reclaim.ai
 ~Clockwise
 Super Productivity
 Pomofocus
 OmniFocus
 OmniPlan
-~Due
 Nozbe
 ~Quire
 Paymo
@@ -67360,7 +66842,6 @@ Zoom Rooms
 Zoom Phone
 Zoom Whiteboard
 Jitsi Meet
-~Around
 ~Gather
 Tuple
 Vidyard
@@ -67465,7 +66946,6 @@ Hidden Bar
 Typinator
 Espanso
 Setapp
-~Pieces
 ~Warp
 Ghostty
 ~Stickies
@@ -67549,13 +67029,11 @@ OCaml
 ~Gleam
 ~Ada
 ~Lisp
-~Scheme
 Prolog
 Smalltalk
 PureScript
 ReasonML
 CoffeeScript
-~Assembly
 Visual Basic
 VBA
 ~Racket
@@ -67566,7 +67044,6 @@ Verilog
 VHDL
 T-SQL
 SCSS
-~Less
 ~Markdown
 TOML
 Protobuf
@@ -67606,7 +67083,6 @@ ColdFusion
 Qiskit
 ~BASIC
 QBasic
-~Clean
 Promela
 React Router
 Redux Toolkit
@@ -67701,7 +67177,6 @@ JavaFX
 CocoaPods
 Carthage
 ~Hilt
-~Room
 ~Glide
 ~Realm
 ~Combine
@@ -67761,7 +67236,6 @@ Handsontable
 DataTables
 ~Tabulator
 Select2
-~Chosen
 Flatpickr
 Pikaday
 ~Pyramid
@@ -67774,13 +67248,11 @@ Plotly
 ~Requests
 Beautiful Soup
 ~Scrapy
-~Black
 ~Ruff
 Mypy
 Pylint
 Flake8
 Django REST Framework
-~Spring
 ~Hibernate
 Ktor
 Micronaut
@@ -67870,7 +67342,6 @@ Sanic
 ~Marshmallow
 ~Peewee
 ~Typer
-~Click
 Loguru
 Pipenv
 Virtualenv
@@ -67895,7 +67366,6 @@ Tortoise ORM
 Pyenv
 ~Hatch
 Setuptools
-~Wheel
 PyInstaller
 Nuitka
 Py2exe
@@ -67964,7 +67434,6 @@ UDP
 OpenGL
 Vulkan
 DirectX
-~Metal
 OpenCL
 LLVM
 GCC
@@ -68448,7 +67917,6 @@ Creator Studio
 Messenger Kids
 Fourthwall
 Twitch Clips
-~Later
 Planoly
 Creator IQ
 Upfluence
@@ -68461,7 +67929,6 @@ Talkwalker
 Kakao Story
 Naver Band
 Naver Blog
-~Band
 Cyworld
 Daum Cafe
 Mixi
@@ -68479,7 +67946,6 @@ Kuaishou Lite
 Xigua Video
 Wechat Channels
 Weixin Channels
-~Moments
 Tencent Video
 Mango TV
 Soul App
@@ -68524,7 +67990,6 @@ Vivino
 Nextdoor Neighbors
 Hily
 Happn
-~Match
 Plenty of Fish
 Zoosk
 =eHarmony
@@ -70275,7 +69740,6 @@ Soyuz
 Soyuz MS
 Soyuz 2
 Soyuz-2.1a
-~Progress
 Proton-M
 Energia
 ~Buran
@@ -70433,8 +69897,6 @@ Rosalind Franklin rover
 Beagle 2
 Emirates Mars Mission
 ~Sojourner
-~Spirit
-~Opportunity
 ~Curiosity
 Phoenix Mars Lander
 ~InSight
@@ -70833,9 +70295,6 @@ Pictor
 ~Sagitta
 Coma Berenices
 ~Cetus
-~Earth
-~Moon
-~Sun
 Ceres
 ~Vesta
 ~Pallas
@@ -74919,7 +74378,6 @@ Afghanistan Cricket Board
 Brumbies
 Waratahs
 ~Reds
-~Force
 ~Rebels
 ~Blues
 ~Chiefs
@@ -77862,7 +77320,6 @@ HiFiMAN
 Jabra
 Soundcore
 ~Edifier
-~Creative
 Grado Labs
 AKG
 Audeze
@@ -79349,7 +78806,6 @@ Audio-Technica BP40
 Samson Q2U
 Samson Go Mic
 Samson Meteor Mic
-~Blue
 Zoom F8n Pro
 Tascam DR-10L
 Tascam Portacapture X8
@@ -81106,7 +80562,6 @@ ViewSonic
 Eizo
 ~Crucial
 ~Gigabyte
-~Core
 Anker Soundcore
 Anker Soundcore P20i
 Anker MagGo
@@ -84164,7 +83619,6 @@ Sava
 Drava
 Tisza
 ~Inn
-~Main
 ~Moselle
 ~Meuse
 Scheldt
@@ -85803,7 +85257,6 @@ Rathlin Island
 Cape Clear
 Bere Island
 Sherkin Island
-~Jersey
 ~Guernsey
 ~Alderney
 ~Sark
@@ -86179,7 +85632,6 @@ Vic Mensa
 ~Noname
 Pusha T
 ~Clipse
-~Common
 Talib Kweli
 Mos Def
 Yasiin Bey
@@ -86563,7 +86015,6 @@ Dom Kennedy
 Blxst
 Kamaiyah
 Mozzy
-~Problem
 Snoop Youngin
 Mo3
 Rich Gang
@@ -86581,7 +86032,6 @@ Trae tha Truth
 Mike Jones
 Big Pokey
 Simon and Garfunkel
-~Cream
 ~Rush
 Megadeth
 ~Slayer
@@ -86650,7 +86100,6 @@ Matchbox Twenty
 Third Eye Blind
 Counting Crows
 Goo Goo Dolls
-~Live
 Hootie and the Blowfish
 Dave Matthews Band
 ~Phish
@@ -86663,7 +86112,6 @@ Don Henley
 Glenn Frey
 Linda Ronstadt
 Mary J Blige
-~Pink
 Boyz II Men
 New Kids on the Block
 Sugababes
@@ -86688,7 +86136,6 @@ System of a Down
 Korn
 Limp Bizkit
 Deftones
-~Tool
 Courtney Love
 Dinosaur Jr
 Husker Du
@@ -86700,9 +86147,7 @@ Mazzy Star
 Siouxsie and the Banshees
 Echo and the Bunnymen
 The Jesus and Mary Chain
-~Ride
 Patti Smith
-~Television
 Devo
 The B-52s
 Bonnie Tyler
@@ -86847,7 +86292,6 @@ Sarah McLachlan
 Imogen Heap
 Regina Spektor
 ~Feist
-~Cake
 ~Beck
 Jeff Buckley
 Elliott Smith
@@ -86917,7 +86361,6 @@ Brian McKnight
 Musiq Soulchild
 Jill Scott
 The Scorpions
-~Accept
 Helloween
 ~Saxon
 Dokken
@@ -86926,16 +86369,13 @@ Ratt
 ~Warrant
 Twisted Sister
 Quiet Riot
-~Extreme
 ~Winger
 Skid Row
-~Kiss
 Alice Cooper
 Blue Oyster Cult
 Meat Loaf
 Rick Springfield
 Pat Benatar
-~Heart
 Joan Jett
 The Runaways
 Sheila E
@@ -86986,13 +86426,11 @@ Kenny Loggins
 Michael McDonald
 Christopher Cross
 Steve Winwood
-~Traffic
 Blind Faith
 Electric Light Orchestra
 Badfinger
 Nazareth
 ~Slade
-~Sweet
 Gary Glitter
 Bay City Rollers
 Showaddywaddy
@@ -92028,13 +91466,11 @@ Gefjun
 Volsung
 Hervor
 Svadilfari
-~Re
 Amun
 Amon
 Amun-Ra
 ~Isis
 Horus
-~Set
 ~Seth
 Thoth
 Ptah
@@ -92052,7 +91488,7 @@ Geb
 Tefnut
 Nephthys
 Maat
-Ma'at
+~Ma'at
 ~Aten
 Atum
 ~Bes
@@ -92659,7 +92095,6 @@ Abdu'l-Baha
 ~Jehovah
 ~Elohim
 ~Adonai
-~El
 ~Jacob
 Esau
 ~Adam
@@ -92668,7 +92103,6 @@ Esau
 ~Enoch
 ~Methuselah
 Lamech
-~Lot
 Hagar
 ~Rachel
 ~Leah
@@ -92757,7 +92191,6 @@ Abaddon
 Gog and Magog
 ~Armageddon
 ~Leviticus
-~Numbers
 ~Deuteronomy
 ~Judges
 ~Chronicles
@@ -92972,7 +92405,6 @@ Holy See
 ~Deacon
 ~Abbot
 ~Abbess
-~Prior
 ~Friar
 ~Chaplain
 Opus Dei
@@ -93101,7 +92533,6 @@ Our Lady of the Rosary
 ~Angelus
 Stations of the Cross
 ~Eucharist
-~Mass
 ~Sacrament
 ~Confirmation
 ~Penance
@@ -95498,7 +94929,6 @@ Palace Skateboards
 Kith Treats
 Cactus Plant Flea Market
 Kaws
-~Neighborhood
 WTAPS
 ~Undefeated
 ~Atmos
@@ -96231,7 +95661,6 @@ Frosthaven
 Azul
 Monopoly Deal
 ~Chess
-~Risk
 Cluedo
 ~Scythe
 Terraforming Mars
@@ -96346,7 +95775,6 @@ Xiangqi
 ~Reversi
 ~Backgammon
 ~Dominoes
-~Bridge
 ~Poker
 ~Blackjack
 Texas Hold'em
@@ -96448,7 +95876,6 @@ Codenames Duet
 Codenames Pictures
 Decrypto
 Mysterium Kids
-~Concept
 ~Articulate
 ~Cranium
 Scrabble Junior
@@ -96470,7 +95897,6 @@ Crazy Eights
 Go Fish
 Old Maid
 Egyptian Ratscrew
-~President
 ~Sheepshead
 ~Pinochle
 ~Bezique
@@ -96777,7 +96203,6 @@ Mojo Jojo
 ~Bubbles
 ~Buttercup
 Professor Utonium
-~Him
 ~Pinky
 ~Ed
 Edd
@@ -96863,7 +96288,6 @@ Tambry
 Gideon Gleeful
 Mr. Lunt
 ~Cow
-~Chicken
 ~Courage
 Muriel Bagge
 Eustace Bagge
@@ -96914,7 +96338,6 @@ Carl Fredricksen
 ~Kevin
 ~Sadness
 ~Anger
-~Fear
 ~Disgust
 Bing Bong
 Riley Andersen
@@ -97025,7 +96448,6 @@ Cleo
 Monstro
 Blue Fairy
 ~Smee
-~Lady
 ~Tramp
 Lady and the Tramp
 Winnie the Pooh and Tigger Too
@@ -97464,7 +96886,6 @@ Oogway
 Mr. Ping
 Lord Shen
 ~Poppy
-~Branch
 Biggie
 ~Manny
 ~Scrat
@@ -97677,8 +97098,6 @@ Booster Gold
 ~Firestorm
 ~Vixen
 Cyborg Superman
-~Steel
-~Question
 Phantom Stranger
 Zauriel
 Atom Smasher
@@ -97801,7 +97220,6 @@ Professor Pyg
 ~Hawkeye
 Scarlet Witch
 ~Quicksilver
-~Vision
 Winter Soldier
 War Machine
 The Wasp
@@ -97844,7 +97262,6 @@ Sub-Mariner
 Human Torch
 Mister Fantastic
 Invisible Woman
-~Thing
 Silver Surfer
 Franklin Richards
 Doctor Doom
@@ -97932,7 +97349,6 @@ Blue Marvel
 Ultimate Nullifier
 Justin Hammer
 Stilt-Man
-~Spot
 Speed Demon
 ~Ringmaster
 ~Moleman
@@ -97965,7 +97381,6 @@ Kitty Pryde
 ~Jubilee
 Psylocke
 ~Bishop
-~Cable
 ~Domino
 Emma Frost
 ~Banshee
@@ -97991,7 +97406,6 @@ Wade Wilson
 Negasonic Teenage Warhead
 ~Bullseye
 Elektra
-~Stick
 Typhoid Mary
 Hit-Monkey
 Man-Thing
@@ -98672,7 +98086,6 @@ Acorn TV
 Band of Brothers
 The Pacific
 Big Little Lies
-~Girls
 The Leftovers
 The Comeback
 ~Enlightened
@@ -98681,7 +98094,6 @@ Lovecraft Country
 Oz
 Generation Kill
 The Newsroom
-~Looking
 ~Entourage
 Carnivale
 The Gilded Age
@@ -98716,7 +98128,6 @@ Dear White People
 ~Frontier
 The Get Down
 ~Glow
-~Easy
 Unsolved Mysteries
 Terrace House
 ~Cheer
@@ -98752,7 +98163,6 @@ Mythic Quest
 ~See
 ~Servant
 ~Invasion
-~Trying
 The Afterparty
 ~Hijack
 Gen V
@@ -98934,7 +98344,6 @@ The Oprah Winfrey Show
 The Jerry Springer Show
 The Dr. Oz Show
 Live with Kelly and Mark
-~Today
 The Kelly Clarkson Show
 The Drew Barrymore Show
 Dr. Phil
@@ -99097,7 +98506,6 @@ Sleepy Hollow
 Hawaii Five-0
 MacGyver
 ~Elementary
-~Revolution
 ~Outlander
 Poldark
 Sanditon
@@ -99133,7 +98541,6 @@ Tiny House Nation
 How It's Made
 Deadliest Warrior
 Naked and Afraid
-~Alone
 Expedition Unknown
 Life Below Zero
 Mountain Men
@@ -100065,7 +99472,6 @@ Ansible Vault
 Ansible Core
 Ansible Lightspeed
 SaltStack
-~Salt
 Rundeck
 PagerDuty Runbook Automation
 Jenkins Blue Ocean
@@ -101368,7 +100774,6 @@ Cygwin
 MSYS2
 Git Bash
 Git for Windows
-~Paint
 ~Notepad
 WordPad
 ASP.NET Core
@@ -101446,14 +100851,9 @@ TextEdit
 ~Launchpad
 ~Automator
 ~Shortcuts
-~Mail
-~Notes
 ~Reminders
 ~Calendar
-~Photos
-~Music
 ~Maps
-~Books
 ~Preview
 =iPhone OS
 Android 1.5 Cupcake
@@ -101757,7 +101157,6 @@ ConEmu
 MobaXterm
 ~PuTTY
 Termux
-~Fish
 Ksh
 Tcsh
 X Window System
@@ -102058,14 +101457,12 @@ Creately
 ~Concepts
 Stormboard
 Klaxoon
-~Pages
 MindNode
 XMind
 ~Coggle
 MindMeister
 SimpleMind
 Freeplane
-~Papers
 JabRef
 Paperpile
 ~Vellum
@@ -102075,7 +101472,6 @@ Wordtune
 Pandoc
 Jira Software
 Azure DevOps Boards
-~Height
 Teamwork.com
 Podio
 ~Nifty
@@ -102091,14 +101487,12 @@ Remember The Milk
 Taskwarrior
 Amazing Marvin
 ~Structured
-~Motion
 Reclaim.ai
 ~Clockwise
 Super Productivity
 Pomofocus
 OmniFocus
 OmniPlan
-~Due
 Nozbe
 ~Quire
 Paymo
@@ -102123,7 +101517,6 @@ Zoom Rooms
 Zoom Phone
 Zoom Whiteboard
 Jitsi Meet
-~Around
 ~Gather
 Tuple
 Vidyard
@@ -102228,7 +101621,6 @@ Hidden Bar
 Typinator
 Espanso
 Setapp
-~Pieces
 ~Warp
 Ghostty
 ~Stickies
@@ -102312,13 +101704,11 @@ OCaml
 ~Gleam
 ~Ada
 ~Lisp
-~Scheme
 Prolog
 Smalltalk
 PureScript
 ReasonML
 CoffeeScript
-~Assembly
 Visual Basic
 VBA
 ~Racket
@@ -102329,7 +101719,6 @@ Verilog
 VHDL
 T-SQL
 SCSS
-~Less
 ~Markdown
 TOML
 Protobuf
@@ -102369,7 +101758,6 @@ ColdFusion
 Qiskit
 ~BASIC
 QBasic
-~Clean
 Promela
 React Router
 Redux Toolkit
@@ -102464,7 +101852,6 @@ JavaFX
 CocoaPods
 Carthage
 ~Hilt
-~Room
 ~Glide
 ~Realm
 ~Combine
@@ -102524,7 +101911,6 @@ Handsontable
 DataTables
 ~Tabulator
 Select2
-~Chosen
 Flatpickr
 Pikaday
 ~Pyramid
@@ -102537,13 +101923,11 @@ Plotly
 ~Requests
 Beautiful Soup
 ~Scrapy
-~Black
 ~Ruff
 Mypy
 Pylint
 Flake8
 Django REST Framework
-~Spring
 ~Hibernate
 Ktor
 Micronaut
@@ -102633,7 +102017,6 @@ Sanic
 ~Marshmallow
 ~Peewee
 ~Typer
-~Click
 Loguru
 Pipenv
 Virtualenv
@@ -102658,7 +102041,6 @@ Tortoise ORM
 Pyenv
 ~Hatch
 Setuptools
-~Wheel
 PyInstaller
 Nuitka
 Py2exe
@@ -102727,7 +102109,6 @@ UDP
 OpenGL
 Vulkan
 DirectX
-~Metal
 OpenCL
 LLVM
 GCC
@@ -103211,7 +102592,6 @@ Creator Studio
 Messenger Kids
 Fourthwall
 Twitch Clips
-~Later
 Planoly
 Creator IQ
 Upfluence
@@ -103224,7 +102604,6 @@ Talkwalker
 Kakao Story
 Naver Band
 Naver Blog
-~Band
 Cyworld
 Daum Cafe
 Mixi
@@ -103242,7 +102621,6 @@ Kuaishou Lite
 Xigua Video
 Wechat Channels
 Weixin Channels
-~Moments
 Tencent Video
 Mango TV
 Soul App
@@ -103287,7 +102665,6 @@ Vivino
 Nextdoor Neighbors
 Hily
 Happn
-~Match
 Plenty of Fish
 Zoosk
 =eHarmony
@@ -105038,7 +104415,6 @@ Soyuz
 Soyuz MS
 Soyuz 2
 Soyuz-2.1a
-~Progress
 Proton-M
 Energia
 ~Buran
@@ -105196,8 +104572,6 @@ Rosalind Franklin rover
 Beagle 2
 Emirates Mars Mission
 ~Sojourner
-~Spirit
-~Opportunity
 ~Curiosity
 Phoenix Mars Lander
 ~InSight
@@ -105596,9 +104970,6 @@ Pictor
 ~Sagitta
 Coma Berenices
 ~Cetus
-~Earth
-~Moon
-~Sun
 Ceres
 ~Vesta
 ~Pallas
@@ -109682,7 +109053,6 @@ Afghanistan Cricket Board
 Brumbies
 Waratahs
 ~Reds
-~Force
 ~Rebels
 ~Blues
 ~Chiefs
@@ -112625,7 +111995,6 @@ HiFiMAN
 Jabra
 Soundcore
 ~Edifier
-~Creative
 Grado Labs
 AKG
 Audeze
@@ -114112,7 +113481,6 @@ Audio-Technica BP40
 Samson Q2U
 Samson Go Mic
 Samson Meteor Mic
-~Blue
 Zoom F8n Pro
 Tascam DR-10L
 Tascam Portacapture X8
@@ -115869,7 +115237,6 @@ ViewSonic
 Eizo
 ~Crucial
 ~Gigabyte
-~Core
 Anker Soundcore
 Anker Soundcore P20i
 Anker MagGo
@@ -118927,7 +118294,6 @@ Sava
 Drava
 Tisza
 ~Inn
-~Main
 ~Moselle
 ~Meuse
 Scheldt
@@ -120566,7 +119932,6 @@ Rathlin Island
 Cape Clear
 Bere Island
 Sherkin Island
-~Jersey
 ~Guernsey
 ~Alderney
 ~Sark
@@ -120942,7 +120307,6 @@ Vic Mensa
 ~Noname
 Pusha T
 ~Clipse
-~Common
 Talib Kweli
 Mos Def
 Yasiin Bey
@@ -121326,7 +120690,6 @@ Dom Kennedy
 Blxst
 Kamaiyah
 Mozzy
-~Problem
 Snoop Youngin
 Mo3
 Rich Gang
@@ -121344,7 +120707,6 @@ Trae tha Truth
 Mike Jones
 Big Pokey
 Simon and Garfunkel
-~Cream
 ~Rush
 Megadeth
 ~Slayer
@@ -121413,7 +120775,6 @@ Matchbox Twenty
 Third Eye Blind
 Counting Crows
 Goo Goo Dolls
-~Live
 Hootie and the Blowfish
 Dave Matthews Band
 ~Phish
@@ -121426,7 +120787,6 @@ Don Henley
 Glenn Frey
 Linda Ronstadt
 Mary J Blige
-~Pink
 Boyz II Men
 New Kids on the Block
 Sugababes
@@ -121451,7 +120811,6 @@ System of a Down
 Korn
 Limp Bizkit
 Deftones
-~Tool
 Courtney Love
 Dinosaur Jr
 Husker Du
@@ -121463,9 +120822,7 @@ Mazzy Star
 Siouxsie and the Banshees
 Echo and the Bunnymen
 The Jesus and Mary Chain
-~Ride
 Patti Smith
-~Television
 Devo
 The B-52s
 Bonnie Tyler
@@ -121610,7 +120967,6 @@ Sarah McLachlan
 Imogen Heap
 Regina Spektor
 ~Feist
-~Cake
 ~Beck
 Jeff Buckley
 Elliott Smith
@@ -121680,7 +121036,6 @@ Brian McKnight
 Musiq Soulchild
 Jill Scott
 The Scorpions
-~Accept
 Helloween
 ~Saxon
 Dokken
@@ -121689,16 +121044,13 @@ Ratt
 ~Warrant
 Twisted Sister
 Quiet Riot
-~Extreme
 ~Winger
 Skid Row
-~Kiss
 Alice Cooper
 Blue Oyster Cult
 Meat Loaf
 Rick Springfield
 Pat Benatar
-~Heart
 Joan Jett
 The Runaways
 Sheila E
@@ -121749,13 +121101,11 @@ Kenny Loggins
 Michael McDonald
 Christopher Cross
 Steve Winwood
-~Traffic
 Blind Faith
 Electric Light Orchestra
 Badfinger
 Nazareth
 ~Slade
-~Sweet
 Gary Glitter
 Bay City Rollers
 Showaddywaddy
@@ -126791,13 +126141,11 @@ Gefjun
 Volsung
 Hervor
 Svadilfari
-~Re
 Amun
 Amon
 Amun-Ra
 ~Isis
 Horus
-~Set
 ~Seth
 Thoth
 Ptah
@@ -126815,7 +126163,7 @@ Geb
 Tefnut
 Nephthys
 Maat
-Ma'at
+~Ma'at
 ~Aten
 Atum
 ~Bes
@@ -127422,7 +126770,6 @@ Abdu'l-Baha
 ~Jehovah
 ~Elohim
 ~Adonai
-~El
 ~Jacob
 Esau
 ~Adam
@@ -127431,7 +126778,6 @@ Esau
 ~Enoch
 ~Methuselah
 Lamech
-~Lot
 Hagar
 ~Rachel
 ~Leah
@@ -127520,7 +126866,6 @@ Abaddon
 Gog and Magog
 ~Armageddon
 ~Leviticus
-~Numbers
 ~Deuteronomy
 ~Judges
 ~Chronicles
@@ -127735,7 +127080,6 @@ Holy See
 ~Deacon
 ~Abbot
 ~Abbess
-~Prior
 ~Friar
 ~Chaplain
 Opus Dei
@@ -127864,7 +127208,6 @@ Our Lady of the Rosary
 ~Angelus
 Stations of the Cross
 ~Eucharist
-~Mass
 ~Sacrament
 ~Confirmation
 ~Penance
@@ -130261,7 +129604,6 @@ Palace Skateboards
 Kith Treats
 Cactus Plant Flea Market
 Kaws
-~Neighborhood
 WTAPS
 ~Undefeated
 ~Atmos
