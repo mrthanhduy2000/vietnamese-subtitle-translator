@@ -951,6 +951,28 @@ test("quick menu: Tab goes round inside it on both players, sliders included", (
     assert.equal((src.match(/trapTab\(menu, e\)/g) || []).length, 2, "both quick menus use it");
 });
 
+// Every raw failure maps to one plain Vietnamese sentence that says what to do next
+test("explainError: each failure class gets its own advice, never the raw English", () => {
+    const sb = loadContent(miniDom());
+    const say = m => sb.CST_UI.explainError(new Error(m));
+    const cases = [
+        ["Extension context invalidated.", /tải lại trang/i, true],
+        ["Could not establish connection. Receiving end does not exist.", /chưa phản hồi/i, true],
+        ["Không có phản hồi từ tiện ích", /chưa phản hồi/i, true],
+        ["Gemini x HTTP 429: hết hạn mức trong ngày (429)", /hết hạn mức/i, false],
+        ["Gemini x HTTP 429: vượt giới hạn tốc độ (429)", /1 phút/i, false],
+        ["API Key sai, hết hạn hoặc không đủ quyền", /API Key/i, true],
+        ["Failed to fetch", /kiểm tra mạng/i, false],
+        ["Gemini x HTTP 503: máy chủ Gemini quá tải", /quá tải/i, false],
+        ["something odd", /Chưa dịch được \(something odd\)/, false]
+    ];
+    for (const [raw, re, hasAction] of cases) {
+        const r = say(raw);
+        assert.match(r.text, re, raw);
+        assert.equal(!!r.actionLabel, hasAction, raw + ": action button");
+    }
+});
+
 // 2.9.8: popup text tokens must stay readable (WCAG AA, 4.5:1) in both themes.
 test("popup contrast: muted and secondary text, white-on-accent button and dark success button reach 4.5:1", () => {
     const css = R("popup.css");
@@ -1006,4 +1028,18 @@ test("legibility: same-colour box, or no box and no outline, is flagged; the def
     assert.ok(Math.abs(S.contrastRatio("#000000", "#ffffff") - 21) < 1e-9);
     assert.match(R("options.js"), /legibilityIssue\(s\)/);
     assert.match(R("options.html"), /id="legibilityHint"/);
+});
+
+// Settings tabs follow the WAI-ARIA tab pattern, so a screen reader and the arrow keys work.
+test("options tabs: tablist, tab and tabpanel roles linked by id, arrow keys wired", () => {
+    const html = R("options.html"), js = R("options.js");
+    const tabs = [...html.matchAll(/<button class="nav-tab[^"]*" id="navtab-(tab-\w+)" role="tab" aria-selected="(true|false)" aria-controls="(tab-\w+)"/g)];
+    assert.equal(tabs.length, 5, "every nav tab carries role=tab");
+    assert.equal(tabs.filter(t => t[2] === "true").length, 1, "exactly one selected tab");
+    for (const t of tabs) {
+        assert.equal(t[1], t[3]);
+        assert.ok(html.includes(`id="${t[1]}" class="tab-panel`) && html.includes(`aria-labelledby="navtab-${t[1]}"`), `${t[1]} panel is labelled by its tab`);
+    }
+    assert.ok(html.includes('role="tablist"'));
+    for (const key of ["ArrowRight", "ArrowLeft", "Home", "End"]) assert.ok(js.includes(key), key);
 });

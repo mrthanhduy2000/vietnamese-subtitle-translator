@@ -146,7 +146,7 @@
     // @generated speech-tables end
 
     // @generated glossary-say begin: tools/glossary-pron.js --write, do not edit by hand
-    // 3284 glossary names VieNeu read with Vietnamese sounds as written, and the spelling it reads
+    // 3280 glossary names VieNeu read with Vietnamese sounds as written, and the spelling it reads
     // the English way (checked on its front end, sea_g2p, in a Vietnamese carrier sentence)
     const GLOSSARY_SAY = {
         "$100m offers": "<en>one hundred million offers</en>",
@@ -805,7 +805,6 @@
         "commonsenseqa": "<en>commonsenseqa</en>",
         "comptia": "<en>comptia</en>",
         "comptia security+": "<en>comp t i a security plus</en>",
-        "congress of aix-la-chapelle": "<en>congress of aix lah chapelle</en>",
         "contiki-ng": "<en>contiki ng</en>",
         "continental extremecontact dws06": "<en>continental extreme contact d w s</en> 06",
         "cooler master cosmos c700p": "<en>cooler master cosmos c</en> 700 <en>p</en>",
@@ -1074,7 +1073,6 @@
         "e.t. the extra-terrestrial": "<en>e t the extra terrestrial</en>",
         "e=mc2": "<en>e equals m c squared</en>",
         "e=mc²": "<en>e equals m c squared</en>",
-        "eastern han dynasty": "<en>eastern hann dynasty</en>",
         "ecdsa": "<en>ecdsa</en>",
         "ecmascript": "<en>ecmascript</en>",
         "edhec business school": "<en>edhec business school</en>",
@@ -3013,7 +3011,6 @@
         "ternoa": "<en>ter no ah</en>",
         "tesamorelin": "<en>tes amorelin</en>",
         "testng": "<en>testng</en>",
-        "tet offensive": "<en>tett offensive</en>",
         "tetryl": "<en>tetr yl</en>",
         "texas a&m aggies": "<en>texas a and m aggies</en>",
         "texas a&m university": "<en>texas a and m university</en>",
@@ -3291,7 +3288,6 @@
         "western digital blue sn570": "<en>western digital blue s n</en> 570",
         "western digital blue sn580": "<en>western digital blue s n</en> 580",
         "western digital ultrastar dc hc550": "<en>western digital ultrastar d c h c</en> 550",
-        "western han dynasty": "<en>western hann dynasty</en>",
         "westlake rp28": "<en>westlake r p</en> 28",
         "westlake sa07": "<en>westlake s a</en> 07",
         "westlake sa57": "<en>westlake s a</en> 57",

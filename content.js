@@ -108,6 +108,38 @@ function cstToast(message, opts = {}) {
 }
 window.CST_UI = { toast: cstToast };
 
+// One place that turns a raw failure (a message from Gemini, Chrome or the network) into what the
+// viewer reads: what happened in plain Vietnamese and what to do next. Used by the Coursera and
+// YouTube translation errors so the same cause always reads the same way.
+function cstExplainError(err) {
+    const raw = String(err && err.message || err || "").trim();
+    const reload = { actionLabel: "Tải lại trang", onAction: () => location.reload() };
+    if (/context invalidated|extension was (updated|reloaded)/i.test(raw)) {
+        return { text: "Tiện ích vừa được cập nhật nên trang này đang dùng kết nối cũ. Hãy tải lại trang (F5) rồi bấm dịch lại.", ...reload };
+    }
+    if (/receiving end|establish connection|message port closed|không có phản hồi|service worker/i.test(raw)) {
+        return { text: "Tiện ích chưa phản hồi. Hãy chờ vài giây rồi bấm dịch lại; nếu vẫn lỗi, tải lại trang (F5).", ...reload };
+    }
+    if (/hết hạn mức|quota|per ?day|resource_exhausted/i.test(raw)) {
+        return { text: "Đã hết hạn mức Gemini trong ngày. Hãy thử lại vào ngày mai hoặc đổi API Key khác trong Cài đặt." };
+    }
+    if (/429|giới hạn tốc độ|rate.?limit/i.test(raw)) {
+        return { text: "Gemini đang giới hạn tốc độ vì gửi quá nhiều yêu cầu. Hãy chờ khoảng 1 phút rồi bấm dịch lại." };
+    }
+    if (/API Key|api key|\b(401|403)\b|permission_denied|unauthenticated/i.test(raw)) {
+        return { text: "API Key Gemini sai, hết hạn hoặc không đủ quyền. Hãy kiểm tra lại trong Cài đặt.",
+            actionLabel: "Mở Cài đặt", onAction: () => { try { chrome.runtime.sendMessage({ action: "openOptions" }); } catch (e) { /* bỏ qua */ } } };
+    }
+    if (/failed to fetch|networkerror|network|offline|timeout|timed out|quá thời gian|bridge-timeout|lỗi mạng/i.test(raw)) {
+        return { text: "Không kết nối được mạng hoặc máy chủ trả lời quá chậm. Hãy kiểm tra mạng rồi bấm dịch lại." };
+    }
+    if (/\b(500|502|503|504)\b|quá tải|overloaded|unavailable/i.test(raw)) {
+        return { text: "Máy chủ Gemini đang quá tải. Hãy thử lại sau vài phút." };
+    }
+    return { text: `Chưa dịch được${raw ? ` (${raw.slice(0, 140)})` : ""}. Hãy bấm dịch lại; nếu vẫn lỗi, tải lại trang (F5).` };
+}
+window.CST_UI.explainError = cstExplainError;
+
 function getCurrentSite() {
     const url = location.href;
     if (url.includes("coursera.org")) return "coursera";
@@ -545,7 +577,7 @@ function sendMessageAsync(msg) {
     return new Promise((resolve, reject) => {
         chrome.runtime.sendMessage(msg, response => {
             if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
-            else if (!response || !response.ok) reject(new Error(response ? response.error : "Khong co phan hoi"));
+            else if (!response || !response.ok) reject(new Error(response ? response.error : "Không có phản hồi từ tiện ích"));
             else resolve(response);
         });
     });
@@ -1623,7 +1655,8 @@ async function enableTranslation(opts = {}) {
         console.error("Dịch thất bại:", err);
         state.active = false;
         setIconState("error");
-        cstToast(`Dịch thất bại: ${err.message}\nHãy kiểm tra kết nối mạng rồi thử lại.`, { warn: true });
+        const why = cstExplainError(err);
+        cstToast(why.text, { warn: true, actionLabel: why.actionLabel, onAction: why.onAction });
     } finally {
         state.busy = false;
         // The state above was drawn while `busy` still held: the button kept spinning with
@@ -2245,7 +2278,10 @@ function csOpenMenu(btn) {
         rowSub.setAttribute("aria-checked", String(!!state.active));
         const nguon = csSubtitleSource();
         const hauTo = state.active && nguon ? ` · ${nguon.nhan.toLowerCase()}` : "";
-        rowSub.cstSub.textContent = (state.active && csTranslating() ? "Đang bật, đang dịch tiếp" : csTranslating() ? "Đang dịch…" : state.active ? "Đang bật" : "Đang tắt") + hauTo;
+        const gsDone = (state.dubGroups || []).filter(g => g && g.viText).length;
+        const gsAll = Math.max((state.dubGroups || []).length, state.groupTotal || 0);
+        const prog = csTranslating() && gsAll ? ` ${gsDone}/${gsAll} đoạn` : "";
+        rowSub.cstSub.textContent = (state.active && csTranslating() ? `Đang bật, đang dịch tiếp${prog}` : csTranslating() ? `Đang dịch${prog || "…"}` : state.active ? "Đang bật" : "Đang tắt") + hauTo;
         rowSub.cstSub.style.color = state.active && nguon && nguon.canhBao ? "var(--cst-warn)" : "";
         rowDub.setAttribute("aria-checked", String(isDub));
         const st = dubApi && dubApi.dub ? dubApi.dub.lastStatus : null;
@@ -2409,7 +2445,7 @@ async function loadGlossary() {
         state.glossaryTranslateAs = new Map();
         for (const key of enabledGroups) {
             if (groups[key] && Array.isArray(groups[key].terms)) {
-                fromGroups.push(...groups[key].terms);
+                for (const t of groups[key].terms) fromGroups.push(t);
             }
             for (const [en, vi] of Object.entries((groups[key] && groups[key].vi) || {})) {
                 state.glossaryTranslateAs.set(en, vi);
@@ -2440,10 +2476,12 @@ async function loadGlossary() {
 
         state.glossaryKeep = [...new Set([...userKeep, ...userTerms, ...fromGroups])];
         // Thuat ngu nhieu tu (dang hien thi cuoi cung) de bo phan doan khong cat doi
-        state.glossaryMultiTerms = [...new Set([
-            ...state.glossaryKeep,
-            ...state.glossaryTranslateAs.values()
-        ])].filter(t => /\s/.test(String(t).trim()));
+        // (filter first, then dedupe: the same list without a second 90,000-entry Set)
+        const multiSeen = new Set();
+        for (const src of [state.glossaryKeep, state.glossaryTranslateAs.values()]) {
+            for (const t of src) if (/\s/.test(String(t).trim())) multiSeen.add(t);
+        }
+        state.glossaryMultiTerms = [...multiSeen];
         state.glossaryNormalize = defaultNorm;
 
         rebuildGlossaryRegex();

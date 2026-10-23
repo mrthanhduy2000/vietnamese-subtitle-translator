@@ -218,6 +218,10 @@
 
     async function layNoiDungPhuDe(baseUrl) {
         const u = new URL(baseUrl, location.href);
+        // Only YouTube's own caption endpoint: this fetch sends the viewer's cookies.
+        if (u.protocol !== "https:" || !/(^|\.)youtube\.com$/.test(u.hostname) || !u.pathname.startsWith("/api/timedtext")) {
+            return { text: "", via: "none", reason: "bad-url" };
+        }
         if (!u.searchParams.get("fmt")) u.searchParams.set("fmt", "json3");
         const v = u.searchParams.get("v") || "";
         const lang = u.searchParams.get("lang") || "";
