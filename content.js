@@ -791,6 +791,8 @@ function groupEndsSentence(g) {
 // alive(): false once the viewer has left the page; no further window is sent (the one in flight
 // finishes and is cached by the service worker, so coming back costs nothing).
 // opts.startAt: the playhead; its window goes first. opts.onWindow(results): after every window.
+// opts.fallbacks: an array; each window that came back from Google or failed is pushed to it (the
+// group indexes), so the caller can ask Gemini for it again (csHealFallbacks).
 async function translateAllGroups(session, groups, onProgress, alive = () => true, opts = {}) {
     const results = new Array(groups.length).fill("");
     const windows = [];
@@ -834,6 +836,7 @@ async function translateAllGroups(session, groups, onProgress, alive = () => tru
             try {
                 const r = await translateWindow(session, idxs, { realtime: false });
                 idxs.forEach((gi, k) => { results[gi] = r.translations[k] || ""; });
+                if (opts.fallbacks && csWeakAnswer(r, idxs, groups)) opts.fallbacks.push(idxs);
             } catch (err) {
                 console.warn("Loi dich cua so, dich tung nhom:", err.message);
                 for (const gi of idxs) {
@@ -841,8 +844,10 @@ async function translateAllGroups(session, groups, onProgress, alive = () => tru
                     try {
                         const r = await translateWindow(session, [gi], { realtime: false });
                         results[gi] = r.translations[0] || "";
+                        if (opts.fallbacks && csWeakAnswer(r, [gi], groups)) opts.fallbacks.push([gi]);
                     } catch (e2) {
                         results[gi] = "";
+                        if (opts.fallbacks) opts.fallbacks.push([gi]);
                     }
                 }
             }
@@ -1317,6 +1322,103 @@ function genericMeta() {
     return { title, course: "", channel: host, courseKey: `generic_${host}_${first}` };
 }
 
+// ---------- Saved lectures (Coursera and generic pages) ----------
+// The service worker's per-window cache already answers a window it has seen, but its key holds the
+// protected glossary terms and the prompt version, so a glossary update (every release adds names)
+// or a prompt change re-bills every window that holds a new term; and that store is 30 MB shared with
+// YouTube, oldest out first. A lecture is therefore also kept whole, like YouTube's ytcache4_: the
+// final Vietnamese of every group, checked against a fingerprint of the groups' source text, so a
+// changed track or a changed grouping is translated afresh. Saved only when no group came from Google
+// or failed (csHealFallbacks asks Gemini for those first), so a revisit never keeps a stand-in.
+const CS_SAVE_PREFIX = "cscache1_";
+const CS_SAVE_INDEX = "cscacheIdx";          // [[key, luc]], oldest first: the sweep never reads all of storage
+const CS_SAVE_MAX = 200;
+
+function csSaveKey() {
+    const path = String(location.pathname || "/").replace(/\/+$/, "") || "/";
+    return (CS_SAVE_PREFIX + location.hostname + path).slice(0, 200);
+}
+
+// FNV-1a over the groups' source text and bounds: the same lecture cut into the same groups
+function csFingerprint(groups) {
+    let h = 0x811c9dc5;
+    const text = groups.map(g => `${g.text}\u0001${Math.round(g.start * 10)}`).join("\u0002");
+    for (let i = 0; i < text.length; i++) {
+        h ^= text.charCodeAt(i);
+        h = Math.imul(h, 0x01000193) >>> 0;
+    }
+    return `${groups.length}:${h.toString(16)}`;
+}
+
+// A window answer that must not be saved: Google's stand-in, or a group with text left without Vietnamese
+function csWeakAnswer(r, idxs, groups) {
+    if (!r || r.engine === "google_fallback") return true;
+    return idxs.some((gi, k) => String(groups[gi].text || "").trim() && !String((r.translations || [])[k] || "").trim());
+}
+
+async function csReadSaved(key, groups) {
+    try {
+        const got = await chrome.storage.local.get(key);
+        const data = got && got[key];
+        if (!data || data.fp !== csFingerprint(groups) || !Array.isArray(data.vi) || data.vi.length !== groups.length) return null;
+        return data;
+    } catch (e) {
+        return null;
+    }
+}
+
+async function csWriteSaved(key, groups, translations) {
+    if (groups.some((g, gi) => String(g.text || "").trim() && !String(translations[gi] || "").trim())) return false;
+    try {
+        const luc = Date.now();
+        const got = await chrome.storage.local.get(CS_SAVE_INDEX);
+        const index = (Array.isArray(got && got[CS_SAVE_INDEX]) ? got[CS_SAVE_INDEX] : []).filter(e => e && e[0] !== key);
+        index.push([key, luc]);
+        const drop = index.splice(0, Math.max(0, index.length - CS_SAVE_MAX)).map(e => e[0]);
+        await chrome.storage.local.set({ [key]: { luc, fp: csFingerprint(groups), vi: translations.slice() }, [CS_SAVE_INDEX]: index });
+        if (drop.length) await chrome.storage.local.remove(drop);
+        return true;
+    } catch (e) {
+        console.warn("[AI Subtitle] Không lưu được bản dịch bài này:", e.message);
+        return false;
+    }
+}
+
+// A window that came back from Google (or failed) is asked of Gemini again, like YouTube's YT_HEAL:
+// up to CS_HEAL.max rounds, gapMs, 2 x gapMs ... apart (a model rests after a slow answer), never a
+// window playing or due within leadS seconds, so the line on screen and its voice are not swapped
+// under the viewer. onHealed() after a round that mended something. True when nothing is left.
+const CS_HEAL = { max: 3, gapMs: 20000, leadS: 15 };
+async function csHealFallbacks(session, groups, results, wins, alive, onHealed) {
+    let left = wins.slice();
+    for (let round = 1; round <= CS_HEAL.max && left.length; round++) {
+        await sleep(CS_HEAL.gapMs * round);
+        if (!alive()) return false;
+        const v = csVideo();
+        const now = v ? v.currentTime : -Infinity;
+        const still = [];
+        let mended = 0;
+        for (const idxs of left) {
+            if (!alive()) return false;
+            const start = groups[idxs[0]].start, end = groups[idxs[idxs.length - 1]].end;
+            if (end >= now && start - now < CS_HEAL.leadS) { still.push(idxs); continue; }
+            try {
+                const r = await translateWindow(session, idxs, { realtime: false });
+                if (!alive()) return false;
+                if (csWeakAnswer(r, idxs, groups)) { still.push(idxs); continue; }
+                idxs.forEach((gi, k) => { results[gi] = r.translations[k]; });
+                mended++;
+            } catch (e) {
+                still.push(idxs);
+            }
+        }
+        if (mended && onHealed) onHealed();
+        console.log(`[AI Subtitle] Dịch lại bằng Gemini lần ${round}: sửa được ${mended}, còn ${still.length} đoạn dịch tạm bằng Google`);
+        left = still;
+    }
+    return left.length === 0;
+}
+
 // Coursera and generic pages: translate the video's own text track.
 // opts.onShown(): once, when the first translated lines are on screen (the voice can start then)
 async function translateTrackSite(opts = {}) {
@@ -1376,6 +1478,19 @@ async function translateTrackSite(opts = {}) {
     state.groupTotal = groups.length;
     console.log(`Linh vuc nhan dien: ${session.domain.primary}${session.domain.secondary ? " + " + session.domain.secondary : ""}`);
 
+    // A lecture translated before: shown at once, no request at all
+    const saveKey = csSaveKey();
+    const saved = await csReadSaved(saveKey, groups);
+    if (!alive()) return false;
+    if (saved) {
+        console.log("[AI Subtitle] Bài này đã dịch trước đó: dùng bản đã lưu, không gọi Gemini");
+        applyTranslation(trackEl.track, groups, saved.vi);
+        state.active = true;
+        setIconState("on");
+        if (opts.onShown) { try { opts.onShown(); } catch (e) { /* bỏ qua */ } }
+        return true;
+    }
+
     // Lines go on screen window by window (1.7.5). Before, nothing showed until the last window of the
     // whole lecture was back: one Gemini round trip per two windows, a dozen windows in a lecture.
     let shown = false;
@@ -1388,6 +1503,7 @@ async function translateTrackSite(opts = {}) {
         if (opts.onShown) { try { opts.onShown(); } catch (e) { /* bỏ qua */ } }
     };
     const v = csVideo();
+    const fallbacks = [];
     const translations = await translateAllGroups(
         session,
         groups,
@@ -1396,7 +1512,7 @@ async function translateTrackSite(opts = {}) {
             if (btn) btn.setAttribute("title", `Đang dịch ${done}/${total} nhóm…`);
         },
         alive,
-        { startAt: v ? v.currentTime : 0, onWindow: showSoFar }
+        { startAt: v ? v.currentTime : 0, onWindow: showSoFar, fallbacks }
     );
     if (!alive()) {
         console.log("[AI Subtitle] Đã chuyển trang trong lúc dịch: bỏ bản dịch của trang cũ");
@@ -1404,6 +1520,15 @@ async function translateTrackSite(opts = {}) {
     }
 
     applyTranslation(trackEl.track, groups, translations);
+    if (!fallbacks.length) {
+        csWriteSaved(saveKey, groups, translations);
+    } else {
+        // Not awaited: the lecture is on screen and `busy` is released; a page change or a switch-off stops it
+        console.log(`[AI Subtitle] ${fallbacks.length} đoạn dịch tạm bằng Google: chưa lưu, sẽ hỏi lại Gemini`);
+        csHealFallbacks(session, groups, translations, fallbacks, alive, () => applyTranslation(trackEl.track, groups, translations))
+            .then(ok => { if (ok && alive()) csWriteSaved(saveKey, groups, translations); })
+            .catch(() => {});
+    }
     return true;
 }
 

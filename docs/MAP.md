@@ -23,12 +23,12 @@ syllable count and, 1.7.8, the English spans).
 it to `manifest.json` in dependency order (and to `importScripts`, `options.html`, the harness pages
 under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tests if it is a dubbing file).
 
-## Source (35 files, ~89,400 lines)
+## Source (35 files, ~89,500 lines)
 
 | File | Lines | Role | Global export |
 |---|---|---|---|
 | `youtube.js` | 2323 | YouTube engine: bridge handshake, track pick, timedtext parse, self-drawn overlay, prefetch pool, controls + quick menu | none (same-world sibling of `content.js`, reads its `state`) |
-| `content.js` | 2635 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
+| `content.js` | 2760 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
 | `options.html` | 1457 | Settings page, 5 tabs (2.5.5): Phụ đề, Lồng tiếng, Dịch & AI (with the glossary), Chi phí & dữ liệu (cost with the top videos by period, cache, backup), Phiên bản (folded, 15 at first). Switches, one-line hints, seldom-changed fields under a `details.more` fold. ~900 lines are inline `<style>`; markup is only the rest | n/a |
 | `dub-engine.js` | 2668 | TTS providers + scheduler + video-clock sync + audio ducking | `CST_DUB_ENGINE` |
 | `background.js` | 2182 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access; reads who speaks (`analyzeSpeakers`, 2.5.2); opens Settings at `#welcome` after a first install | n/a (message router) |
@@ -58,7 +58,7 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `vi-quality.js` | 689 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
 | `screen-text.js` | 224 | On-screen subtitles: watches the frame's caption band, sends one crop per new caption to `readScreenText` (2.6.4) | `CST_SCREEN` |
 | `lang-detect.js` | 175 | Source-language decision without an API call | `CST_LANG` |
-| `version-history.js` | 2061 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
+| `version-history.js` | 2069 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
 | `version-check.js` | 57 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
 | `theme.js` | 42 | Light/Dark theme for the popup and settings page. Applies instantly from `localStorage` to avoid a flash, then syncs from `storage.sync`. Loaded by `popup.html` and `options.html` only, not a content script | `window.CST_THEME` |
 | `build-info.js` | 6 | **Generated** by `tools/bump-version.js`. Never edit | `CST_BUILD` |
@@ -94,7 +94,7 @@ Shared and settings pages:
 - `CST_CACHE` -> `background.js`, `dub-engine.js`
 - `CST_THEME`, `CST_HISTORY`, `CST_BACKUP` -> `options.js`; `CST_VERSION_CHECK` -> `options.js`, `popup.js`
 
-## Tests and tooling (`tests/*.js`: 40 files, ~14,600 lines)
+## Tests and tooling (`tests/*.js`: 40 files, ~14,700 lines)
 
 See `TESTING.md`. Short version: 27 files in `npm test` (listed in `package.json`: a new test file must be added there), all offline; 4 manual scripts;
 12 browser harness pages under `tests/harness/` (`live.html` has its own server, `live-server.js`; `headless.js` runs any of them in a headless Chrome); `tests/pin-cases.py` holds the Python scenarios `share.test.js` runs (`vieneu-pin.py` and the updater in-process, the network scripted, sleeps recorded); `tools/bump-version.js` owns the version number;

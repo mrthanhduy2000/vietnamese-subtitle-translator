@@ -547,3 +547,98 @@ test("sound captions: a note line inside a window of speech is filled from the l
     assert.deepEqual([...r.translations], ["Câu 1", "[Âm nhạc]", "Câu 2"]);
     assert.equal(r.engine, "gemini");
 });
+
+// Saved lectures: Coursera kept no copy of a whole lecture, only the service worker's per-window cache,
+// whose key moves with every glossary update; and a window Google stood in for stayed until the next visit
+async function courseraSaved({ local = {}, text = i => `Line ${i} says the gradient moves the weights a bit.`, answer } = {}) {
+    const cues = Array.from({ length: 120 }, (_, i) => ({ startTime: i * 3, endTime: i * 3 + 2.8, text: text(i) }));
+    const track = { srclang: "en", kind: "subtitles", label: "English", track: { mode: "disabled", cues, addCue() {}, removeCue() {} } };
+    const sent = [];
+    const E = pageEnv({
+        timers: true, files: ["lang-detect.js", "context-engine.js"], local,
+        location: { href: "https://www.coursera.org/learn/ml/lecture/a1/intro", hostname: "www.coursera.org", pathname: "/learn/ml/lecture/a1/intro" },
+        tracks: () => [track],
+        sendMessage: (msg, cb) => {
+            if (msg.action !== "translateUnit") return cb && cb({ ok: true });
+            sent.push(msg);
+            const fallback = answer ? answer(msg, sent.length) === "google" : false;
+            setTimeout(() => cb({ ok: true, engine: fallback ? "google_fallback" : "gemini", model: "m",
+                translations: msg.sentences.map(s => (fallback ? "Google: " : "Dịch: ") + s) }), 0);
+        }
+    });
+    const tick = ms => new Promise(r => setTimeout(r, ms));
+    await tick(20);
+    await E.run("enableTranslation()");
+    return { E, sent, tick, store: E.store };
+}
+const savedKey = "cscache1_www.coursera.org/learn/ml/lecture/a1/intro";
+
+test("Coursera: a lecture translated once is shown from the saved copy on the next visit, with no request", async () => {
+    const first = await courseraSaved();
+    await first.tick(20);
+    assert.ok(first.sent.length >= 4, `${first.sent.length} windows`);
+    const saved = first.store[savedKey];
+    assert.ok(saved && saved.vi.length === first.E.run("state.contextSession.units.length"), "the whole lecture was saved");
+    assert.deepEqual([...first.store.cscacheIdx.map(e => e[0])], [savedKey]);
+
+    const again = await courseraSaved({ local: { ...first.store } });
+    assert.equal(again.sent.length, 0, "the revisit asked Gemini again");
+    assert.equal(again.E.run("state.active"), true);
+    assert.ok(again.E.run("cs.viCues.length") > 100, "the saved lecture is on screen");
+    assert.equal(again.E.run("cs.viCues.map(c => c.text).join(' ')"), first.E.run("cs.viCues.map(c => c.text).join(' ')"), "not the lines of the first visit");
+});
+
+test("Coursera: a saved copy of another track (changed text) is not used", async () => {
+    const first = await courseraSaved();
+    await first.tick(20);
+    const changed = await courseraSaved({ local: { ...first.store }, text: i => `Line ${i} says the optimiser moves the weights a bit.` });
+    assert.ok(changed.sent.length >= 4, "a changed track must be translated afresh");
+    assert.doesNotMatch(changed.E.run("cs.viCues.map(c => c.text).join(' ')"), /gradient/);
+});
+
+test("Coursera: a window from Google is not saved, is asked of Gemini again, and the lecture is saved once healed", async () => {
+    let googleOnce = true;
+    const r = await courseraSaved({ answer: msg => (googleOnce && msg.sentences.some(s => s.startsWith("Line 40 ")) ? (googleOnce = false, "google") : "gemini") });
+    await r.tick(5);
+    assert.equal(r.store[savedKey], undefined, "a lecture with Google's stand-in was saved");
+    const before = r.sent.length;
+    for (let i = 0; i < 100 && !r.store[savedKey]; i++) await r.tick(10);   // first heal round: 20 s -> 200 ms
+    assert.equal(r.sent.length, before + 1, "only the Google window is asked again");
+    assert.ok(r.sent[before].sentences.some(s => s.startsWith("Line 40 ")));
+    assert.ok(r.store[savedKey], "the healed lecture was not saved");
+    assert.ok(!r.store[savedKey].vi.some(v => /Google:/.test(v)));
+    assert.doesNotMatch(r.E.run("cs.viCues.map(c => c.text).join(' ')"), /Google:/, "the screen still shows Google's line");
+});
+
+test("Coursera: a window Gemini keeps failing is asked 3 times, then the lecture stays unsaved", async () => {
+    const r = await courseraSaved({ answer: msg => (msg.sentences.some(s => s.startsWith("Line 40 ")) ? "google" : "gemini") });
+    const before = r.sent.length;
+    await r.tick(1400);                                                         // 200 + 400 + 600 ms
+    assert.equal(r.sent.length - before, 3);
+    await r.tick(300);
+    assert.equal(r.sent.length - before, 3, "asked more than CS_HEAL.max times");
+    assert.equal(r.store[savedKey], undefined);
+});
+
+test("Coursera: switching off stops the heal", async () => {
+    const r = await courseraSaved({ answer: msg => (msg.sentences.some(s => s.startsWith("Line 40 ")) ? "google" : "gemini") });
+    const before = r.sent.length;
+    r.E.run("disableTranslation()");
+    await r.tick(700);
+    assert.equal(r.sent.length, before, "a switched-off lecture was still sent");
+});
+
+test("Coursera: saved lectures keep the newest 200, the oldest key is removed", async () => {
+    const index = Array.from({ length: 200 }, (_, i) => [`cscache1_old${i}`, i + 1]);
+    const local = { cscacheIdx: index, cscache1_old0: { luc: 1, fp: "x", vi: [] }, cscache1_old1: { luc: 2, fp: "x", vi: [] } };
+    const r = await courseraSaved({ local });
+    await r.tick(20);
+    assert.equal(r.store.cscacheIdx.length, 200);
+    assert.equal(r.store.cscacheIdx[199][0], savedKey);
+    assert.equal(r.store.cscache1_old0, undefined, "the oldest lecture stayed");
+    assert.ok(r.store.cscache1_old1, "one too many removed");
+});
+
+test("Settings: clearing the translation cache also clears saved lectures", () => {
+    assert.match(read("background.js"), /\^ytcache\|\^cscache\|\^ctxterms_/);
+});
