@@ -1,8 +1,12 @@
-# Handoff (2026-10-23, 2.9.8)
+# Handoff (2026-10-23, 3.0.2)
 
 - Test-only change after 2.9.4 (no bump): GitHub Actions `test.yml`, `tests/units.test.js`, `npm run coverage`.
 
 ## State
+- 3.0.2 (glossary, cloud): `tools/glossary-filter.py <first-line> --names=<nltk names> --write` dropped ~660
+  everyday words and history names that hid Vietnamese renderings from the 2.9.2 and 2.9.5 batches
+  (~2,300 false hits gone on 3.2M words). Run it on every new batch before merging. 14 VieNeu names
+  (Temodar, Nissan Teana, Ram 1500...) still need `MANUAL_SAY` + `glossary-pron.js --write` on the Mac.
 - 3.0.1 (lane A/C, notices): `CST_UI.explainError` (content.js) maps a raw failure to one Vietnamese
   sentence plus an optional action button (reload / open Settings); Coursera "Dịch thất bại" and
   YouTube "Không dịch được" use it (YouTube auto mode still only logs). Progress "Đang dịch x/y đoạn"
