@@ -857,7 +857,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const testStatus = document.getElementById("testVoiceStatus");
 
     const dubSaved = await chrome.storage.sync.get({
-        dubVoiceName: "", dubDuck: 0.2, dubVolume: 1, dubProvider: "vieneu", dubPrepareWait: true, dubSpeakers: "auto", dubSpeakerAi: true,
+        dubVoiceName: "", dubDuck: 0.2, dubVolume: 1, dubProvider: "vieneu", dubPrepareWait: true, dubSystemFallback: true, dubSpeakers: "auto", dubSpeakerAi: true,
         dubGeminiVoice: "Kore", dubGeminiVoice2: "Charon", dubTtsModel: "", dubMaxRate: 0,
         dubLocalVoice: "", dubLocalVoice2: ""
     });
@@ -938,6 +938,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (speakerAiBox) speakerAiBox.checked = dubSaved.dubSpeakerAi !== false;
     const prepareWaitBox = document.getElementById("dubPrepareWait");
     if (prepareWaitBox) prepareWaitBox.checked = dubSaved.dubPrepareWait !== false;
+    const systemFallbackBox = document.getElementById("dubSystemFallback");
+    if (systemFallbackBox) systemFallbackBox.checked = dubSaved.dubSystemFallback !== false;
     if (gVoiceSel) gVoiceSel.value = dubSaved.dubGeminiVoice;
     if (gVoice2Sel) gVoice2Sel.value = dubSaved.dubGeminiVoice2;
     const maxRateSel = document.getElementById("dubMaxRate");
@@ -1072,6 +1074,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             dubVolume: volSlider ? Number(volSlider.value) / 100 : 1,
             dubProvider: providerSel ? providerSel.value : "vieneu",
             dubPrepareWait: document.getElementById("dubPrepareWait") ? document.getElementById("dubPrepareWait").checked : true,
+            dubSystemFallback: document.getElementById("dubSystemFallback") ? document.getElementById("dubSystemFallback").checked : true,
             dubSpeakers: speakersSel ? speakersSel.value : "auto",
             dubSpeakerAi: speakerAiBox ? speakerAiBox.checked : true,
             dubGeminiVoice: gVoiceSel ? gVoiceSel.value : "Kore",

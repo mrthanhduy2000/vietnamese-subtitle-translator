@@ -3,6 +3,8 @@
 - Test-only change after 2.9.4 (no bump): GitHub Actions `test.yml`, `tests/units.test.js`, `npm run coverage`.
 
 ## State
+- Unreleased (lane B, dubbing.js buildProviders): dubSystemFallback (default true) lets the browser Vietnamese voice
+  speak when VieNeu is down and sits behind VieNeu as engine fallback. Not heard on a real machine.
 - 3.0.1 (lane A/C, notices): `CST_UI.explainError` (content.js) maps a raw failure to one Vietnamese
   sentence plus an optional action button (reload / open Settings); Coursera "Dịch thất bại" and
   YouTube "Không dịch được" use it (YouTube auto mode still only logs). Progress "Đang dịch x/y đoạn"
