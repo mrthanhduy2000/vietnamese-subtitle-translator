@@ -8,6 +8,9 @@ npm test          # ~25 s (hardening.test.js sets the pace). The bar is 0 fail; 
                   # 442 tests / 441 pass as of 2026-09-27, and the count keeps growing
 ```
 
+`.github/workflows/test.yml` runs `npm test` on Node 22 for every push to main and every pull request
+(added 2026-10-23), so a PR shows red before it is merged.
+
 The one skip is intentional (see `reload-fight.test.js` below). **A fail is a regression, not noise.**
 The per-file counts below were taken on 2026-09-23 and drift as tests are added; treat them as a
 sense of weight, not an assertion.
