@@ -2065,8 +2065,9 @@ test("a first install opens the onboarding page; an update or a reload opens not
     assert.deepEqual(E.opened, ["chrome-extension://test-id/onboarding.html"]);
     const R = f => require("node:fs").readFileSync(require("node:path").join(__dirname, "..", f), "utf8");
     const html = R("options.html");
-    assert.match(html, /id="welcomeCard"[^>]*hidden/, "hidden until the page is opened with #welcome");
-    assert.match(R("options.js"), /location\.hash === "#welcome"/);
+    // The old welcome card in Settings was unreachable (nothing opens #welcome) and is gone
+    assert.doesNotMatch(html, /welcomeCard/);
+    assert.doesNotMatch(R("options.js"), /#welcome/);
 });
 
 test("mã cũ trong tab tự tắt khi tiện ích được nạp lại; nút / lớp phụ đề của mã cũ bị ẨN (không xóa) để mã mới thay", () => {

@@ -2,6 +2,10 @@
 
 Audit 2026-10-24: `npm test` 934 pass, 0 fail; BACKLOG holds only items that need the Mac, an ear or paid calls. LaunchAgent install below is still not done (auto mode blocked it from the remote session).
 
+## UX/UI review fixes (2026-10-23, lanes A/C, docs/changes/ux-review-fixes.md)
+- Done: toast length + warn mark, popup contrast, popup Tắt button + readiness line, welcome card removed, VieNeu box per OS, sidebar fade. `tests/ux-review.test.js`.
+- NOT done (BACKLOG candidate): the on-player menu is written twice (`youtube.js` ~1892-2090, `content.js` ~2300-2480); merge into `player-ui.js` only when next editing the menu.
+
 ## Auto-update of the author's git checkout (2026-10-23, lane D, tools only)
 - `tools/git-autoupdate.js`: ff-only to origin/main when on main, tree clean, no browser running (Chrome reads the folder at start, so no Reload). `--install` adds LaunchAgent `com.damduy.dichphude.gitupdate` (login + 30 min, log `~/Library/Logs/dichphude-gitupdate.log`). Tests: `tests/git-autoupdate.test.js`.
 - TO DO ON THE MAC (cloud cannot): `node tools/git-autoupdate.js --install`, check the log once git auth works from launchd. The share package never carried `tests/harness` (`share.test.js` now pins it); the Mac checkout does load it, since Chrome takes the whole folder.

@@ -182,8 +182,7 @@ by bundle id: Chrome, Cốc Cốc, Edge, Brave, Arc, Opera, Vivaldi, Chromium; W
 `Get-ChromiumBrowser`: the https handler, else App Paths, Cốc Cốc, Brave, Edge). The page names the
 browser it runs in (Edge `Edg/`, Opera `OPR/`, Cốc Cốc `coc_coc_browser`, Brave, Vivaldi, Chrome by
 its brand) with its own extensions address and button names; Firefox and Safari get a card with the
-address to copy into a Chromium browser. After Load unpacked the service worker opens Settings at
-`#welcome` (key, VieNeu status, pin and shortcuts). The patched VieNeu server listens on 127.0.0.1
+address to copy into a Chromium browser. After Load unpacked the service worker opens `onboarding.html` (key, VieNeu status, pin and shortcuts). The patched VieNeu server listens on 127.0.0.1
 unless `HOST` says otherwise (2.5.2; upstream defaults to 0.0.0.0); the desktop updater exists only where there is no VieNeu (no updater). If `~/VieNeu-TTS` moves to a new upstream commit, update the pin in both
 installers and copy the patched file again. `tests/share.test.js` guards the file list, the ASCII
 rule and the pin, and runs the start lines, the downloads, the updater and the push guard offline.

@@ -42,5 +42,5 @@ test("track sites start the voice from the Vietnamese track without translating,
 });
 
 test("a toast with an action button stays at least 30 s", () => {
-    assert.match(R("content.js"), /const ms = opts\.ms \|\| \(opts\.actionLabel \? 30000 : 6000\);/);
+    assert.match(R("content.js"), /const ms = opts\.ms \|\| \(opts\.actionLabel \? 30000 : Math\.min\(30000, Math\.max\(6000, /);
 });
