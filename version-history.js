@@ -4,10 +4,18 @@
 (function (root) {
     const HISTORY = [
         {
-            v: "2.9.8", luc: "23/10/2026", ten: "Thông báo lỗi dễ hiểu hơn và hiện tiến độ dịch",
+            v: "2.9.9", luc: "23/10/2026", ten: "Thông báo lỗi dễ hiểu hơn và hiện tiến độ dịch",
             y: [
                 "Khi dịch lỗi, thông báo giờ nói rõ nguyên nhân bằng tiếng Việt (hết hạn mức, quá giới hạn tốc độ, sai API Key, mất mạng, máy chủ quá tải, tiện ích vừa cập nhật) và chỉ việc nên làm tiếp, kèm nút Tải lại trang hoặc Mở Cài đặt khi cần. Trước đây Coursera luôn bảo kiểm tra mạng dù lỗi do nguyên nhân khác.",
                 "Cửa sổ tiện ích và menu trên trình phát hiện \"Đang dịch x/y đoạn\" thay vì chỉ \"Đang dịch…\"."
+            ]
+        },
+        {
+            v: "2.9.8", luc: "23/10/2026", ten: "Chữ phụ và nút chính dễ đọc hơn trong cửa sổ nhỏ và trang Cài đặt",
+            y: [
+                "Chữ mô tả, nhãn phiên bản và dòng phím tắt trong cửa sổ nhỏ trước đây chỉ đạt khoảng 3:1 độ tương phản (chuẩn dễ đọc là 4,5:1), nhất là ở nền sáng. Nay tất cả đạt từ 4,5:1 trở lên ở cả giao diện sáng lẫn tối.",
+                "Nút Bắt đầu dịch dùng cam đậm hơn một chút để chữ trắng rõ hơn (3,1:1 lên 4,8:1). Nút báo thành công ở giao diện tối không còn là chữ trắng trên nền xanh nhạt.",
+                "Trang Cài đặt: chữ phụ, nút Song ngữ và nhãn phần trăm cũng đạt 4,5:1. Không đổi cách dịch hay lồng tiếng."
             ]
         },
         {

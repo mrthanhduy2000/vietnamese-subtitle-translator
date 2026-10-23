@@ -972,3 +972,29 @@ test("explainError: each failure class gets its own advice, never the raw Englis
         assert.equal(!!r.actionLabel, hasAction, raw + ": action button");
     }
 });
+
+// 2.9.8: popup text tokens must stay readable (WCAG AA, 4.5:1) in both themes.
+test("popup contrast: muted and secondary text, white-on-accent button and dark success button reach 4.5:1", () => {
+    const css = R("popup.css");
+    const lum = hex => {
+        const c = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255)
+            .map(v => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
+        return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+    };
+    const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+    const tokens = block => Object.fromEntries([...block.matchAll(/--claude-([\w-]+):\s*(#[0-9A-Fa-f]{6})/g)].map(m => [m[1], m[2]]));
+    const light = tokens(css.slice(0, css.indexOf("@media (prefers-color-scheme: dark)")));
+    const darkStart = css.indexOf(':root[data-theme="dark"]');
+    const dark = Object.assign({}, light, tokens(css.slice(darkStart, css.indexOf("* {", darkStart))));
+    for (const [name, t] of [["light", light], ["dark", dark]]) {
+        for (const fg of ["text-secondary", "text-muted"]) {
+            for (const bg of ["bg", "card", "card-subtle", "card-hover"]) {
+                const r = ratio(t[fg], t[bg]);
+                assert.ok(r >= 4.5, `${name}: ${fg} on ${bg} is ${r.toFixed(2)}:1`);
+            }
+        }
+        assert.ok(ratio("#FFFFFF", t["accent-fill"]) >= 4.5, `${name}: white on the primary button`);
+        assert.ok(ratio("#FFFFFF", t["accent-fill-hover"]) >= 4.5, `${name}: white on the hovered button`);
+        assert.ok(ratio("#FFFFFF", t["success-fill"]) >= 4.5, `${name}: white on the success button`);
+    }
+});
