@@ -4,7 +4,7 @@
   "private": true,
   "description": "Tiện ích Chrome dịch phụ đề YouTube/Coursera sang tiếng Việt (không cần cài gói nào để chạy test)",
   "scripts": {
-    "test": "node --test tests/segmenter.test.js tests/context.test.js tests/integration.test.js tests/dub.test.js tests/cost.test.js tests/hardening.test.js tests/bridge.test.js tests/reload-fight.test.js tests/ui.test.js tests/voice-refresh.test.js tests/backlog.test.js tests/generic-site.test.js tests/settings.test.js tests/voice-pauses.test.js tests/spoken-lang.test.js tests/quality.test.js tests/voice-clean.test.js tests/audit.test.js tests/prosody.test.js tests/speech.test.js tests/speech-context.test.js tests/context-package.test.js tests/glossary.test.js tests/glossary-speech.test.js tests/review.test.js tests/share.test.js tests/screen-text.test.js tests/units.test.js tests/mymemory-quota.test.js tests/cache-idb.test.js tests/screen-reader.test.js tests/bridge-audio.test.js tests/popup-actions.test.js tests/youtube-captions.test.js tests/coursera-overlay.test.js tests/site-adapters.test.js",
+    "test": "node --test tests/*.test.js",
     "coverage": "node --require ./tests/vm-coverage-preload.js --test --experimental-test-coverage --test-coverage-exclude=tests/** --test-coverage-exclude=glossary-data.js tests/*.test.js",
     "compare": "node tests/compare.js --verbose",
     "review": "node tools/review.js",
