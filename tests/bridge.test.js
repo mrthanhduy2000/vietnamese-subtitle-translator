@@ -160,5 +160,79 @@ test("a body of events with no text is a blank track: tried after other tracks, 
     assert.ok(at > 0);
     const block = src.slice(at, at + 400);
     assert.doesNotMatch(block.slice(0, block.indexOf("return false")), /emptyCaptionsFor/, "no retry for a blank track");
-    assert.match(src, /others\.length && \(cues\.blank \|\|/, "a blank track gives way to another one first");
+    assert.match(src, /const better = await ytFindUsableTrack\(track, cues, info\.tracks/, "a blank track gives way to another one first");
+});
+
+function loadFindUsableTrack(src) {
+    const piece = (from, to) => src.slice(src.indexOf(from), src.indexOf(to, src.indexOf(from)));
+    const code = piece("function ytChonTrack(", "// ---------- Tai va doc ban chep loi");
+    return new Function("window", code + "; return ytFindUsableTrack;")({});
+}
+
+test("a blank or broken first track walks the other tracks until one has usable text, not just the next one", async () => {
+    const find = loadFindUsableTrack(fs.readFileSync(path.join(__dirname, "..", "youtube.js"), "utf8"));
+    const blank = Object.assign([], { blank: true });
+    const words = [{ start: 0, end: 2, text: "hello there" }];
+    const junk = [{ start: 0, end: 2, text: ". . ?" }];
+    const T = (languageCode, kind, body) => ({ languageCode, kind, body });
+    const run = async (first, firstCues, tracks, staleAt = Infinity) => {
+        const loaded = [];
+        const out = await find(first, firstCues, tracks, {
+            audio: null,
+            load: async t => { loaded.push(t.languageCode + (t.kind || "")); return t.body; },
+            broken: (t, c) => c === junk,
+            stale: () => loaded.length >= staleAt
+        });
+        return { out, loaded };
+    };
+    // blank uploaded en, blank uploaded fr, then a usable bn ASR: the third track is reached
+    const en = T("en", "", blank), fr = T("fr", "", blank), bn = T("bn", "asr", words);
+    let r = await run(en, blank, [en, fr, bn]);
+    assert.equal(r.out.track, bn);
+    assert.deepEqual(r.loaded, ["fr", "bnasr"]);
+    // a usable first track is kept and nothing more is fetched
+    const good = T("en", "", words);
+    r = await run(good, words, [good, bn]);
+    assert.equal(r.out, null);
+    assert.deepEqual(r.loaded, []);
+    // a broken ASR first track with only broken or empty others keeps its own text
+    const ko = T("ko", "asr", junk), ja = T("ja", "asr", junk), de = T("de", "", []);
+    r = await run(ko, junk, [ko, ja, de]);
+    assert.equal(r.out, null);
+    // a blank first track takes a broken one over nothing
+    r = await run(en, blank, [en, ja]);
+    assert.equal(r.out.track, ja);
+    // the walk is capped, and stops when the video changed
+    const many = Array.from({ length: 9 }, (_, i) => T("x" + i, "", blank));
+    r = await run(en, blank, [en, ...many]);
+    assert.equal(r.out, null);
+    assert.ok(r.loaded.length <= 4, `tried ${r.loaded.length}`);
+    r = await run(en, blank, [en, fr, bn], 1);
+    assert.equal(r.out, null);
+    assert.deepEqual(r.loaded, ["fr"]);
+});
+
+test("an XML caption body of empty paragraphs is a blank track too; an XML error page is not", () => {
+    const src = fs.readFileSync(path.join(__dirname, "..", "youtube.js"), "utf8");
+    const a = src.indexOf("function ytDocNoiDungPhuDe(");
+    // a stand-in DOMParser for the two shapes this needs: a caption root with <p> nodes, or another root
+    class FakeParser {
+        parseFromString(text) {
+            const root = (text.match(/<([a-z]+)/i) || [])[1] || "parsererror";
+            const nodes = [...text.matchAll(/<p\b([^>]*)>([^<]*)<\/p>/g)].map(m => ({
+                getAttribute: k => ((m[1].match(new RegExp(`\\b${k}="([^"]*)"`)) || [])[1] ?? null),
+                textContent: m[2]
+            }));
+            return { documentElement: { nodeName: root }, querySelectorAll: () => nodes };
+        }
+    }
+    const parse = new Function("DOMParser", src.slice(a, src.indexOf("\n}\n", a) + 2) + "; return ytDocNoiDungPhuDe;")(FakeParser);
+    const blank = parse('<?xml version="1.0"?><timedtext format="3"><body><p t="0" d="2000"> </p></body></timedtext>');
+    assert.equal(blank.length, 0);
+    assert.equal(blank.blank, true);
+    const page = parse("<html><body><p>Error 404</p></body></html>");
+    assert.equal(page.blank, undefined, "an error page is not a caption track");
+    const one = parse('<timedtext><body><p t="0" d="900">Hello</p></body></timedtext>');
+    assert.deepEqual(one.map(c => c.text), ["Hello"]);
+    assert.equal(one.blank, undefined);
 });

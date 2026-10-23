@@ -118,10 +118,11 @@ test("a machine transcript that heard nothing usable is told apart, a real one i
 
 test("YouTube: a broken machine transcript gives way to the best other track, the saved copy keeps the first choice's id", () => {
     const yt = read("youtube.js");
-    const at = yt.indexOf("LD.brokenTranscript(track.languageCode");
+    const fn = yt.slice(yt.indexOf("async function ytFindUsableTrack("), yt.indexOf("// ---------- Tai va doc ban chep loi"));
+    assert.match(fn, /t\.kind === "asr" && c\.length > 0 && ctx\.broken/, "only a machine transcript is judged");
+    assert.match(fn, /ytChonTrack\(rest, false/);
+    const at = yt.indexOf("LD.brokenTranscript(t.languageCode");
     assert.ok(at > 0);
     const block = yt.slice(at - 600, at + 900);
-    assert.match(block, /track\.kind === "asr"/, "only a machine transcript is judged");
-    assert.match(block, /ytChonTrack\(others, false/);
     assert.doesNotMatch(block, /yt\.srcTrack\s*=/, "yt.srcTrack stays the first choice's");
 });
