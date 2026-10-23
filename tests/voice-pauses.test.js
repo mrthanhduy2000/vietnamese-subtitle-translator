@@ -151,8 +151,8 @@ test("wiring: 48 kHz, shaping and cleanup on the VieNeu path, engine joins group
     const COST = require("../cost-policy.js");
     assert.equal(COST.LOCAL_TTS.sampleRate, 48000);
     const bg = read("background.js");
-    assert.match(bg, /splitTtsAudio\(bytes, mime, sr, parts, \{ maxPause, text, breath, clean: true, hpHz: localHighPass\(req\.voice\) \}\)/);
-    assert.match(bg, /AUDIO\.shapePauses\(piece, sr, opts\.text, \{ maxPause: opts\.maxPause, breath: opts\.breath \}\)/);
+    assert.match(bg, /splitTtsAudio\(bytes, mime, sr, parts, \{ maxPause, text, breath, slack, clean: true, hpHz: localHighPass\(req\.voice\) \}\)/);
+    assert.match(bg, /AUDIO\.shapePauses\(piece, sr, opts\.text, \{ maxPause: opts\.maxPause, breath: opts\.breath, slack: opts\.slack \}\)/);
     const eng = read("dub-engine.js");
     assert.match(eng, /speakerTurns, spoken, \.\.\.\(free \? FREE_SEGMENTS : \{\}\) \}/);
     assert.match(eng, /const FREE_SEGMENTS = \{ joinGroups: true, segSoft: 8, segHard: 11 \};/);
@@ -219,4 +219,50 @@ test("a sentence close to natural speed plays at exactly 1.0", () => {
     const eng = require("../dub-engine.js");
     assert.equal(eng.SYNC.snapToNatural, 0.05);
     assert.match(read("dub-engine.js"), /if \(natural === 1 && lag < 0\.3 && smoothOk && Math\.abs\(rate - 1\) <= SYNC\.snapToNatural/);
+});
+
+// ---- BACKLOG 48: a loose line hands its spare time to its own punctuation pauses ----
+test("pause slack: shared out by mark kind and capped, nothing without a mark", () => {
+    const P = require("../dub-prosody.js");
+    const text = "Nếu bạn muốn chạy nhanh hơn, bạn phải tập đều đặn. Mỗi tuần ba buổi là đủ.";
+    const full = P.pauseSlack(text, 5);
+    assert.equal(full.room, P.SLACK.comma + P.SLACK.sentence);
+    assert.equal(full.total, full.room, "a budget past the room fills every cap and no more");
+    const half = P.pauseSlack(text, full.room / 2);
+    assert.ok(Math.abs(half.total - full.room / 2) < 0.002);
+    assert.ok(half.adds[1].add > half.adds[0].add, "a sentence pause grows more than a comma's");
+    assert.deepEqual(P.pauseSlack("một câu không có dấu nào ở giữa", 1), { adds: [], total: 0, room: 0 });
+    assert.equal(P.pauseSlack(text, 0).total, 0);
+});
+
+test("pause slack: shapePauses grows the voice's stop at the comma, the take grows by the same", () => {
+    const text = "Nếu bạn muốn chạy nhanh hơn, bạn phải tập luyện thật đều đặn mỗi tuần.";
+    const x = speech([6 * 0.25, 9 * 0.25], [0.35]);
+    const plain = A.shapePauses(x, SR, text, { maxPause: 0.4 });
+    const loose = A.shapePauses(x, SR, text, { maxPause: 0.4, slack: 0.2 });
+    assert.equal(plain.grown, 0);
+    assert.ok(Math.abs(loose.grown - 0.2) < 0.002, String(loose.grown));
+    assert.ok(Math.abs((loose.samples.length - plain.samples.length) / SR - 0.2) < 0.01);
+    const [p0] = pauses(plain.samples), [p1] = pauses(loose.samples);
+    assert.ok(Math.abs(p1 - p0 - 0.2) < 0.03, `${p0} -> ${p1}`);
+    assert.equal(pauses(loose.samples).length, 1, "no new pause anywhere else");
+});
+
+test("pause slack: only a line far shorter than its slot asks for it, under its own store key", async () => {
+    const E = require("../dub-engine.js");
+    const calls = [];
+    const P = E.createVieneuProvider({ sendMessage: async m => { calls.push(m); return m.action === "synthesizeSpeech" ? { ok: true, parts: [{ wav: "AAAA", duration: 1, sampleRate: 48000 }] } : { ok: true, running: true }; } }, {});
+    const eng = new E.DubEngine({ video: { playbackRate: 1, currentTime: 0 }, getGroups: () => [], providers: { primary: P } });
+    eng.provider = P;
+    const mk = (id, start, text, td) => ({ id, start, speaker: "S1", text, targetDuration: td, continuesNext: false, phrases: [{ text, syl: text.split(/\s+/).length }] });
+    eng.plans = [mk("a", 0, "Xin chào các bạn, hôm nay trời đẹp.", 6), mk("b", 7, "Xin chào các bạn, hôm nay trời rất đẹp và gió thổi nhẹ.", 2.5), mk("c", 10, "Vâng.", 1)];
+    eng.voiceSps.set("S1", 4);
+    assert.equal(eng.looseSlack(eng.plans[0]), 0.25, "9 syllables in a 6 s slot: the comma takes its cap");
+    assert.equal(eng.looseSlack(eng.plans[1]), 0, "a line that fills its slot asks for nothing");
+    const p = { ...eng.plans[0], slackPauses: 0.25 };
+    assert.notEqual(await P.audioKey(p), await P.audioKey(eng.plans[0]));
+    await P.render([p], {});
+    assert.equal(calls.find(m => m.action === "synthesizeSpeech").slack, 0.25);
+    E.SYNC.slackMax = 0;
+    try { assert.equal(eng.looseSlack(eng.plans[0]), 0, "slackMax 0 turns it off"); } finally { E.SYNC.slackMax = 1.5; }
 });
