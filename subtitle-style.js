@@ -287,8 +287,69 @@
     const SIZE_UNIT = 0.7;
     const sizeFactor = fontSize => (Number(fontSize) || DEFAULT_STYLE.fontSize) / 100 * SIZE_UNIT;
 
+    // Overlay font size in px for a player `playerWidth` wide. The base grows with the player (2.6% of
+    // its width, 14 to 40 px) and is then scaled by the viewer's size; the floor keeps a small
+    // player (mini player, embed, narrow window) from drawing 9.8 px text, which is unreadable.
+    const MIN_FONT_PX = 12;
+    function overlayFontPx(playerWidth, fontSize) {
+        const base = Math.max(14, Math.min((Number(playerWidth) || 640) * 0.026, 40));
+        return Math.max(MIN_FONT_PX, base * sizeFactor(fontSize));
+    }
+
+    // One transition list for both overlays (YouTube and Coursera had drifted apart: Coursera never
+    // animated `top`). Motion is dropped for viewers who ask the system for less of it; the cue
+    // still fades in 0.12 s so a change of line is not a hard flash.
+    function overlayTransition(reduceMotion) {
+        if (reduceMotion) return "opacity 0.12s linear";
+        const ease = "0.24s cubic-bezier(.16,1,.3,1)";
+        return `opacity 0.12s ease-out, bottom 0.18s ease-out, top 0.18s ease-out, transform ${ease}, max-width ${ease}`;
+    }
+
+    function prefersReducedMotion() {
+        try {
+            return typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    // ---------- Legibility check for the chosen colours ----------
+    // The overlay sits on arbitrary video, so what must hold is the worst frame. Two failures a
+    // viewer can set up by accident: text and an opaque box of nearly the same colour, and no box
+    // and no outline at all (white text on a bright scene disappears). The Settings page shows
+    // the message; the style itself is never overridden.
+    function relLuminance(hex) {
+        let h = String(hex || "#000000").replace("#", "");
+        if (h.length === 3) h = h.split("").map(c => c + c).join("");
+        const ch = i => {
+            const v = (parseInt(h.substring(i, i + 2), 16) || 0) / 255;
+            return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+        };
+        return 0.2126 * ch(0) + 0.7152 * ch(2) + 0.0722 * ch(4);
+    }
+    function contrastRatio(a, b) {
+        const x = relLuminance(a), y = relLuminance(b);
+        return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+    }
+    // Returns null when fine, else { level: "bad" | "warn", message } in Vietnamese (shown to users).
+    function legibilityIssue(style) {
+        const s = normalizeStyle(style);
+        const hasBox = s.bgColor !== "transparent" && s.bgOpacity >= 40;
+        if (hasBox) {
+            const r = contrastRatio(s.fontColor, s.bgColor);
+            if (s.bgOpacity >= 60 && r < 3) return { level: "bad", ratio: r, message: "Màu chữ và màu nền quá gần nhau, phụ đề sẽ khó đọc. Hãy chọn chữ sáng trên nền tối, hoặc ngược lại." };
+            return null;
+        }
+        if (s.strokeStyle === "none") return { level: "bad", ratio: 0, message: "Không có nền và không có viền: chữ sẽ chìm khi cảnh phía sau sáng. Hãy bật nền hoặc chọn một kiểu viền." };
+        const r = contrastRatio(s.fontColor, s.strokeColor);
+        if (r < 3) return { level: "warn", ratio: r, message: "Màu viền gần giống màu chữ nên viền không giúp dễ đọc. Hãy chọn viền tương phản với chữ." };
+        return null;
+    }
+
     const api = {
+        legibilityIssue, contrastRatio,
         FONTS, STROKES, DEFAULT_STYLE, resolveDual, SIZE_UNIT, sizeFactor, lingerCues,
+        MIN_FONT_PX, overlayFontPx, overlayTransition, prefersReducedMotion,
         getFont, normalizeStyle, fontStack, ensureFont, isLocalFontAvailable,
         textShadow, backgroundColor, hexToRgba, googleFontsUrl,
         fitLines, textWidth

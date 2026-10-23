@@ -4,10 +4,25 @@
 (function (root) {
     const HISTORY = [
         {
-            v: "2.9.9", luc: "23/10/2026", ten: "Thông báo lỗi dễ hiểu hơn và hiện tiến độ dịch",
+            v: "3.0.1", luc: "23/10/2026", ten: "Thông báo lỗi dễ hiểu hơn và hiện tiến độ dịch",
             y: [
                 "Khi dịch lỗi, thông báo giờ nói rõ nguyên nhân bằng tiếng Việt (hết hạn mức, quá giới hạn tốc độ, sai API Key, mất mạng, máy chủ quá tải, tiện ích vừa cập nhật) và chỉ việc nên làm tiếp, kèm nút Tải lại trang hoặc Mở Cài đặt khi cần. Trước đây Coursera luôn bảo kiểm tra mạng dù lỗi do nguyên nhân khác.",
                 "Cửa sổ tiện ích và menu trên trình phát hiện \"Đang dịch x/y đoạn\" thay vì chỉ \"Đang dịch…\"."
+            ]
+        },
+        {
+            v: "3.0.0", luc: "23/10/2026", ten: "Trang Cài đặt cảnh báo khi màu phụ đề khó đọc",
+            y: [
+                "Phần xem trước nay báo ngay khi chữ và nền gần cùng màu, hoặc khi vừa không có nền vừa không có viền (chữ sẽ chìm trên cảnh sáng). Chỉ cảnh báo, không tự đổi lựa chọn của bạn.",
+                "Cài đặt mặc định và các kiểu viền thông thường không bị cảnh báo."
+            ]
+        },
+        {
+            v: "2.9.9", luc: "23/10/2026", ten: "Phụ đề không bị nhỏ quá ở trình phát nhỏ, tôn trọng chế độ giảm chuyển động",
+            y: [
+                "Ở trình phát hẹp (trình phát thu nhỏ, video nhúng, cửa sổ hẹp), chữ phụ đề trước đây có thể chỉ còn 9,8 px. Nay cỡ chữ không bao giờ dưới 12 px; dòng dài được ngắt lại cho vừa khung.",
+                "Nếu hệ điều hành bật giảm chuyển động, phụ đề không còn trượt lên xuống hay dịch ngang khi thanh điều khiển hiện ra, chỉ mờ dần.",
+                "Coursera nay trượt mượt khi phụ đề ở vị trí trên cùng, giống YouTube. Hai trang dùng chung một công thức cỡ chữ và một bộ hiệu ứng."
             ]
         },
         {

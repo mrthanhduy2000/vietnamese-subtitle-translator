@@ -1868,7 +1868,8 @@ function csOverlay() {
     // must not wrap them again (white-space:pre), and the box hugs the text (width:max-content).
     ov.style.cssText = "position:absolute;left:50%;transform:translateX(-50%);max-width:92%;" +
         "width:max-content;box-sizing:border-box;text-align:center;pointer-events:none;" +
-        "white-space:pre;opacity:0;z-index:60;transition:opacity .12s ease,bottom .18s ease-out,transform .24s cubic-bezier(.16,1,.3,1),max-width .24s cubic-bezier(.16,1,.3,1);";
+        "white-space:pre;opacity:0;z-index:60;transition:" + (window.CST_STYLE
+            ? window.CST_STYLE.overlayTransition(window.CST_STYLE.prefersReducedMotion()) : "opacity .12s ease") + ";";
     box.appendChild(ov);
     cs.styleKey = "";
     csApplyOverlayStyle(ov);
@@ -1888,9 +1889,8 @@ function csApplyOverlayStyle(ov) {
     const box = csPlayerBox();
     const width = (box && box.clientWidth) || 640;
     const height = (box && box.clientHeight) || 360;
-    const base = Math.max(14, Math.min(width * 0.026, 40));
     ov.style.fontFamily = S.fontStack(s.fontFamily);
-    ov.style.fontSize = `${(base * S.sizeFactor(s.fontSize)).toFixed(1)}px`;
+    ov.style.fontSize = `${S.overlayFontPx(width, s.fontSize).toFixed(1)}px`;
     ov.style.fontWeight = s.fontWeight;
     ov.style.lineHeight = String(s.lineHeight);
     ov.style.color = s.fontColor;
