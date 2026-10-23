@@ -1,19 +1,18 @@
-# Handoff (2026-10-23, 2.9.8)
-
-- Test-only change after 2.9.4 (no bump): GitHub Actions `test.yml`, `tests/units.test.js`, `npm run coverage`.
+# Handoff (2026-10-23, 2.9.9)
 
 ## State
-- 2.9.8 (lane C, UI): popup and Settings text now reach WCAG AA 4.5:1 in light and dark (muted/secondary
-  tokens, new `--claude-accent-fill` / `--claude-success-fill` behind white button text, `--primary-text`
-  for the options value pill). Guarded by the "popup contrast" test in `tests/ui.test.js`. Not run on
-  the Mac: popup rendered only in headless Chromium with the web shim.
-- 2.9.7 (lane D, background.js): `stripAddedFormatting` removes echoed list numbers, *italics*, <i>/<b>,
-  HTML entities only when the source line lacks them; `sanitizeModelOutput` drops zero-width chars and NBSP.
-  `TR_PROMPT_VERSION` unchanged (no prompt edit). Prompt text itself judged mature; nothing measurable offline.
+- 2.9.9 (lane A/D, glossary protection): the window cache key no longer holds protected terms or codes
+  (`SUBTITLE.md` "Protected glossary terms and the window cache"); matcher buckets warm up in idle slices
+  (first `protectGlossary` 50-80 ms -> ~2 ms). `tests/glossary-cache.test.js`. `regress.js` not run.
+  Lowercase-brand gap, not loosened: `BACKLOG.md`.
+- 2.9.8 (lane C, UI): popup and Settings text reach WCAG AA 4.5:1 (new `--claude-accent-fill`,
+  `--claude-success-fill`, `--primary-text`); "popup contrast" test in `tests/ui.test.js`. Only checked
+  in headless Chromium, not on the Mac.
+- 2.9.7 (lane D): `stripAddedFormatting` removes echoed list numbers, italics, <i>/<b>, entities only
+  when the source lacks them; `sanitizeModelOutput` drops zero-width chars. `TR_PROMPT_VERSION` unchanged.
 - 2.9.5 (lane B/D, glossary): +34,700 names from 50 topic drafts (`scratchpad/cands3`), 73,270
-  candidates in total. Drafted from memory, mostly unverified. About 181 still read Vietnamese by
-  VieNeu (writer LEFT list). Short source files need a spot-check: esports 86 lines, fitness 125,
-  board games 352, supplements 515.
+  candidates in total, mostly unverified. About 181 still read Vietnamese by VieNeu. Spot-check short
+  source files: esports 86 lines, fitness 125, board games 352, supplements 515.
 - 2.9.4 (other session, lane A, content.js): Coursera and generic pages keep each translated lecture
   whole (`cscache1_<host><path>`, index `cscacheIdx`, newest 200). Google-fallback windows are healed
   like YouTube (`csHealFallbacks`). `SUBTITLE.md` item 11.

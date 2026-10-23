@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.9.9", luc: "23/10/2026", ten: "Cập nhật từ điển không làm dịch lại những đoạn đã dịch",
+            y: [
+                "Trước đây mỗi bản cập nhật thêm tên vào từ điển lại khiến các đoạn có chứa tên mới bị dịch lại và tốn tiền Gemini. Nay bản dịch đã lưu được dùng lại nguyên vẹn, kể cả khi từ điển lớn thêm.",
+                "Đổi thuật ngữ riêng, cách hiển thị riêng hoặc bật tắt nhóm từ điển trong Cài đặt vẫn dịch lại như trước.",
+                "Đoạn đầu tiên của video không còn khựng khoảng 50 đến 80 mili giây khi bộ lọc thuật ngữ khởi động: phần việc này được làm sẵn lúc rảnh."
+            ]
+        },
+        {
             v: "2.9.8", luc: "23/10/2026", ten: "Chữ phụ và nút chính dễ đọc hơn trong cửa sổ nhỏ và trang Cài đặt",
             y: [
                 "Chữ mô tả, nhãn phiên bản và dòng phím tắt trong cửa sổ nhỏ trước đây chỉ đạt khoảng 3:1 độ tương phản (chuẩn dễ đọc là 4,5:1), nhất là ở nền sáng. Nay tất cả đạt từ 4,5:1 trở lên ở cả giao diện sáng lẫn tối.",

@@ -22,6 +22,7 @@ const state = {
     glossaryEnabled: true,
     glossaryMisses: 0,
     glossaryTranslateAs: new Map(),
+    glossaryFp: "",             // the user's own glossary choices, part of the translation cache key
     reExact: null,
     reLoose: null,
     reRisky: null,
@@ -228,6 +229,12 @@ function buildMasterRegex(terms, flags) {
         }
         return re;
     };
+    // Every bucket's regex is built on first use, and the big ones ("the ...": 1,100 terms) cost 40 to
+    // 80 ms: the first window of a video paid for them. warm() builds them largest first within a time
+    // budget, so the page can do it in idle slices after the glossary loads (2.9.7).
+    const pending = [];
+    buckets.forEach((m, k) => m.forEach((list, key) => pending.push([list.length, k, key])));
+    pending.sort((a, b) => a[0] - b[0]);
     const isWord = c => /\w/.test(c);
     const matchAt = (text, i) => {
         for (let k = 2; k >= 0; k--) {
@@ -243,6 +250,17 @@ function buildMasterRegex(terms, flags) {
     return {
         lastIndex: 0,
         size: terms.length,
+        // true once every bucket is built
+        warm(budgetMs) {
+            const end = Date.now() + budgetMs;
+            while (pending.length && Date.now() < end) {
+                const [, k, key] = pending.pop();
+                const re = bucketRegex(k, key);
+                // the engine compiles on a first run and again, natively, on the next
+                if (re) for (let i = 0; i < 2; i++) { re.lastIndex = 0; re.test("a b"); }
+            }
+            return pending.length === 0;
+        },
         // every match, left to right, not overlapping (what a global regex's replace visits)
         matches(text) {
             const out = [];
@@ -291,6 +309,24 @@ function buildContextualRegex(text) {
     }
 }
 
+// Builds the matchers' buckets in slices of a few ms between other work. A newer rebuild stops the
+// loop of the older one. The timers are unref'd where that exists (tests), so they never hold a process.
+const GLOSSARY_WARM_SLICE_MS = 6;
+let glossaryWarmGen = 0;
+function warmGlossaryMatchers() {
+    const gen = ++glossaryWarmGen;
+    const step = () => {
+        if (gen !== glossaryWarmGen) return;
+        let done = true;
+        for (const m of [state.reExact, state.reLoose]) if (m && m.warm && !m.warm(GLOSSARY_WARM_SLICE_MS)) { done = false; break; }
+        // the risky-name alternation is one regex: compiled here too, not on the first window
+        if (done && state.reRisky) for (let i = 0; i < 2; i++) { state.reRisky.lastIndex = 0; state.reRisky.test("a b"); }
+        if (!done) { const t = setTimeout(step, 20); if (t && t.unref) t.unref(); }
+    };
+    const t = setTimeout(step, 300);
+    if (t && t.unref) t.unref();
+}
+
 function rebuildGlossaryRegex() {
     const risky = new Set(
         (typeof CST_RISKY_PROPER !== "undefined" ? CST_RISKY_PROPER : [])
@@ -331,6 +367,7 @@ function rebuildGlossaryRegex() {
         state.reRisky = null;
     }
 
+    warmGlossaryMatchers();
     console.log(`Tu dien: ${exact.length} muc dung chu hoa, ${loose.length} muc khong phan biet, ${riskyList.length} ten rieng can than trong`);
 }
 
@@ -344,6 +381,15 @@ function translateAsFor(match) {
     if (k.endsWith("es") && map.has(k.slice(0, -2))) return map.get(k.slice(0, -2));
     if (k.endsWith("s") && map.has(k.slice(0, -1))) return map.get(k.slice(0, -1));
     return undefined;
+}
+
+// FNV-1a over what the user chose about the glossary (on or off, own terms, own renderings, groups on).
+// Built-in terms are not in it: a release that adds names must not make cached windows miss.
+function glossaryChoiceFp(saved, enabledGroups) {
+    const raw = [saved.glossaryEnabled ? 1 : 0, saved.userKeep || "", saved.userNormalize || "", [...enabledGroups].sort().join(",")].join("\u0001");
+    let h = 0x811c9dc5;
+    for (let i = 0; i < raw.length; i++) { h ^= raw.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return h.toString(36);
 }
 
 function protectGlossary(text) {
@@ -594,6 +640,8 @@ async function requestUnit(req, opts = {}) {
     const msg = {
         action: "translateUnit",
         sentences: prot.texts,
+        source: req.sentences,
+        protectFp: state.glossaryFp,
         context: req.context,
         placeholders,
         tier: opts.tier || "cheap",
@@ -603,19 +651,23 @@ async function requestUnit(req, opts = {}) {
     };
     let res = await sendMessageAsync(msg);
     let translations = res.translations || [];
+    // A cached window is restored with the terms it was translated with, which may differ from this
+    // run's protection when the glossary has grown since
+    const terms = res.fromCache && Array.isArray(res.placeholders) ? res.placeholders.map(p => p.term) : prot.terms;
 
     if (res.restored) {
         // Bản cuối từ cache (đã khôi phục thuật ngữ từ trước)
         translations = translations.map(finalizeTranslation);
-    } else if (prot.terms.length) {
+    } else if (terms.length) {
         const joined = translations.join(" ");
-        if (!glossaryIntact(joined, prot.terms)) {
-            // Ma bi hong: gui lai ban goc khong bao ve (van giu ngu canh)
+        if (!glossaryIntact(joined, terms)) {
+            // Ma bi hong: gui lai ban goc khong bao ve (van giu ngu canh). noCache: the same key would
+            // answer with the same broken entry; the new answer replaces it.
             console.warn("Ma danh dau bi hong, dich lai khong bao ve thuat ngu");
-            res = await sendMessageAsync({ ...msg, sentences: req.sentences, placeholders: [] });
+            res = await sendMessageAsync({ ...msg, sentences: req.sentences, placeholders: [], noCache: true });
             translations = (res.translations || []).map(finalizeTranslation);
         } else {
-            translations = translations.map(t => restoreGlossary(t, prot.terms));
+            translations = translations.map(t => restoreGlossary(t, terms));
         }
     } else {
         translations = translations.map(finalizeTranslation);
@@ -2349,6 +2401,7 @@ async function loadGlossary() {
             ? CST_resolveEnabledGroups(saved) : saved.enabledGroups;
 
         state.glossaryEnabled = saved.glossaryEnabled;
+        state.glossaryFp = glossaryChoiceFp(saved, enabledGroups);
 
         // Gom thuat ngu tu cac nhom nganh dang bat
         const fromGroups = [];
