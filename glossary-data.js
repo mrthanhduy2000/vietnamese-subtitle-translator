@@ -1606,7 +1606,6 @@ TrainingPeaks
 Runna
 Couch to 5K
 C25K
-~Future
 Fitbod
 Strong app
 Hevy
@@ -23017,7 +23016,6 @@ Sardinia
 Provence
 Côte d'Azur
 French Riviera
-~Nice
 Cannes
 Monaco
 Bordeaux
@@ -28143,7 +28141,6 @@ FNAF
 ~Outlast
 Silent Hill 2
 Alan Wake 2
-~Control
 Hogwarts Legacy
 Star Wars Jedi: Survivor
 Star Wars Outlaws
@@ -35153,7 +35150,6 @@ Hot Chip
 LCD Soundsystem
 The Presets
 M83
-~Air
 Royksopp
 Chemical Brothers
 The Prodigy
@@ -35217,7 +35213,6 @@ The Small Faces
 The Moody Blues
 Procol Harum
 King Crimson
-~Yes
 ~Genesis
 Jethro Tull
 Deep Purple
@@ -35258,7 +35253,6 @@ Gordon Lightfoot
 Lindsey Buckingham
 Christine McVie
 ~Thriller
-~Bad
 ~Dangerous
 Off the Wall
 Purple Rain
@@ -35282,7 +35276,6 @@ Bella Donna
 Nevermind
 In Utero
 ~Bleach
-~Ten
 Vitalogy
 ~Dirt
 Jar of Flies
@@ -35334,8 +35327,6 @@ The Unforgettable Fire
 Achtung Baby
 Songs of Innocence
 Songs of Experience
-~Boy
-~War
 ~Pop
 How to Dismantle an Atomic Bomb
 No Line on the Horizon
@@ -35418,7 +35409,6 @@ Reasonable Doubt
 Man on the Moon
 Dreamville
 ~Revival
-~Culture
 Culture II
 ~Views
 More Life
@@ -35436,9 +35426,7 @@ Don't Stop Me Now
 Bicycle Race
 Somebody to Love
 ~Yesterday
-~Help
 Come Together
-~Something
 Here Comes the Sun
 Eleanor Rigby
 Penny Lane
@@ -35451,8 +35439,6 @@ Black Dog
 Immigrant Song
 Comfortably Numb
 Another Brick in the Wall
-~Money
-~Time
 Hotel California
 Take It Easy
 Life in the Fast Lane
@@ -35463,7 +35449,6 @@ War Pigs
 Enter Sandman
 Nothing Else Matters
 Sad but True
-~One
 Master of Puppets
 Seek and Destroy
 Sweet Child O' Mine
@@ -35502,7 +35487,6 @@ Viva la Vida
 ~Paradise
 Hymn for the Weekend
 Shape of You
-~Perfect
 Thinking Out Loud
 ~Photograph
 Bad Habits
@@ -35526,7 +35510,6 @@ Anti-Hero
 Shake It Off
 Blank Space
 Bad Blood
-~Style
 Love Story
 You Belong with Me
 We Are Never Ever Getting Back Together
@@ -35549,7 +35532,6 @@ Run the World
 Drunk in Love
 ~Partition
 Hold Up
-~Sorry
 Love on Top
 Rolling in the Deep
 Someone Like You
@@ -35601,7 +35583,6 @@ Gimme More
 ~Lucky
 Genie in a Bottle
 What a Girl Wants
-~Beautiful
 ~Candyman
 ~Fighter
 Dirrty
@@ -35626,8 +35607,6 @@ Jolene
 I Will Always Love You
 Islands in the Stream
 ~Hallelujah
-~Respect
-~Think
 Natural Woman
 I Say a Little Prayer
 My Girl
@@ -35646,7 +35625,6 @@ Hotline Bling
 One Dance
 God's Plan
 Started from the Bottom
-~Work
 ~Umbrella
 ~Diamonds
 Only Girl
@@ -35706,7 +35684,6 @@ Kill This Love
 Lovesick Girls
 ~Ditto
 Hype Boy
-~Attention
 Super Shy
 Ice Cream Cake
 Next Level
@@ -35776,7 +35753,6 @@ Bridge of Spies
 ~Gravity
 ~Whiplash
 ~Moonlight
-~Us
 ~Parasite
 Once Upon a Time in America
 Les Miserables
@@ -35794,7 +35770,6 @@ Toy Story 4
 A Bug's Life
 Finding Dory
 ~Cars
-~Up
 The Good Dinosaur
 ~Coco
 ~Onward
@@ -35829,7 +35804,6 @@ The Mitchells vs. the Machines
 Despicable Me 4
 The Banshees of Inisherin
 ~Arrival
-~Her
 Under the Skin
 ~Sunshine
 Children of Men
@@ -35919,10 +35893,8 @@ Six Feet Under
 ~Deadwood
 Boardwalk Empire
 Fear the Walking Dead
-~Dark
 ~Torchwood
 Sherlock Holmes
-~Lost
 ~Heroes
 24
 ~Homeland
@@ -35933,12 +35905,10 @@ Buffy the Vampire Slayer
 ~Supernatural
 Smallville
 ~Charmed
-~Friends
 ~Frasier
 ~Cheers
 Happy Days
 Everybody Loves Raymond
-~Community
 Scrubs
 It's Always Sunny in Philadelphia
 ~Veep
@@ -35959,14 +35929,12 @@ Cobra Kai
 Mare of Easttown
 The Night Agent
 Bad Sisters
-~Industry
 The Diplomat
 The Pitt
 Blue Eye Samurai
 ~Fallout
 ~Silo
 Dead to Me
-~You
 Sex Education
 Derry Girls
 ~Shameless
@@ -35980,7 +35948,6 @@ Criminal Minds
 CSI: Crime Scene Investigation
 NCIS
 Law & Order
-~House
 ~Scandal
 ~Suits
 How to Get Away with Murder
@@ -37246,7 +37213,6 @@ Portsmouth
 Bristol City
 Sheffield Wednesday
 Luton Town
-~Reading
 Oxford United
 Wigan Athletic
 Blackpool
@@ -39503,7 +39469,6 @@ Nuxt.js
 ~Pandas
 Apache Airflow
 Qlik
-~Go
 ~Dart
 Murf AI
 Amazon CodeWhisperer
@@ -39512,7 +39477,6 @@ Civitai
 Gitpod
 ~Glitch
 ~Bubble
-~Make
 Qualtrics
 ~Doodle
 ~Segment
@@ -39549,7 +39513,6 @@ Nutanix
 ~Rippling
 Deel
 Nubank
-~Things
 ~Forest
 ~Freedom
 ~Harvest
@@ -39558,13 +39521,10 @@ Smartsheet
 Wrike
 ~Teamwork
 Zoho Projects
-~Close
 ~Copper
 Freshworks
 Gorgias
 Help Scout
-~Front
-~Hey
 Mailbird
 ~Thunderbird
 ~Bear
@@ -39609,7 +39569,6 @@ WinZip
 ~Rufus
 CCleaner
 Revo Uninstaller
-~Everything
 Total Commander
 ~Rectangle
 ~Magnet
@@ -129620,4 +129579,187 @@ Travis Scott Nike
 Travis Scott Fragment
 Nike Dunk Low Travis Scott
 Fragment Design
+`);
+
+// ============================================================ 2.9.7 specialist terms (AI, software, finance, medicine, science, statistics)
+CST_GLOSSARY_EXTRA_ADD("tech", null, `
+=embedding
+=zero-shot
+=few-shot
+dropout layer|lớp dropout
+true negative|âm tính thật
+data leakage|rò rỉ dữ liệu
+single point of failure|điểm lỗi duy nhất
+CAP theorem|định lý CAP
+denial-of-service attack|tấn công từ chối dịch vụ
+distributed denial-of-service|từ chối dịch vụ phân tán
+`);
+CST_GLOSSARY_EXTRA_ADD("economics", null, `
+short selling|bán khống
+=short squeeze
+margin call|lệnh gọi ký quỹ
+strike price|giá thực hiện
+call option|quyền chọn mua
+put option|quyền chọn bán
+options contract|hợp đồng quyền chọn
+futures contract|hợp đồng tương lai
+forward contract|hợp đồng kỳ hạn
+interest rate swap|hoán đổi lãi suất
+credit default swap|hoán đổi rủi ro tín dụng
+mortgage-backed securities|chứng khoán được bảo đảm bằng thế chấp
+price-to-book ratio|tỷ lệ giá trên giá trị sổ sách
+blue chip stock|cổ phiếu blue chip
+penny stock|cổ phiếu penny
+share buyback|mua lại cổ phiếu
+dividend payout ratio|tỷ lệ chi trả cổ tức
+ex-dividend date|ngày giao dịch không hưởng cổ tức
+bid-ask spread|chênh lệch giá mua bán
+limit order|lệnh giới hạn
+market order|lệnh thị trường
+stop-loss order|lệnh dừng lỗ
+=swing trading
+technical analysis|phân tích kỹ thuật
+fundamental analysis|phân tích cơ bản
+relative strength index|chỉ số sức mạnh tương đối
+Bollinger Bands
+candlestick chart|biểu đồ nến
+Phillips curve|đường cong Phillips
+Laffer curve|đường cong Laffer
+current account deficit|thâm hụt tài khoản vãng lai
+labor force participation rate|tỷ lệ tham gia lực lượng lao động
+liquidity trap|bẫy thanh khoản
+monetary base|cơ sở tiền tệ
+velocity of money|vận tốc lưu thông tiền tệ
+reserve requirement|dự trữ bắt buộc
+discount rate|lãi suất chiết khấu
+open market operations|nghiệp vụ thị trường mở
+=forward guidance
+negative interest rates|lãi suất âm
+ARIMA
+Black-Scholes|mô hình Black-Scholes
+Sharpe ratio|hệ số Sharpe
+Sortino ratio|hệ số Sortino
+CAPM
+efficient frontier|biên hiệu quả
+modern portfolio theory|lý thuyết danh mục đầu tư hiện đại
+Value at Risk|giá trị chịu rủi ro
+Basel III|Basel III
+Dodd-Frank
+Sarbanes-Oxley
+ESOP
+SAFE note
+=acqui-hire
+DAU
+MAU
+`);
+CST_GLOSSARY_EXTRA_ADD("medicine", null, `
+monoclonal antibody|kháng thể đơn dòng
+bioavailability|sinh khả dụng
+case fatality rate|tỷ lệ tử vong theo ca bệnh
+epinephrine|adrenaline
+peripheral nervous system|hệ thần kinh ngoại biên
+basal ganglia|hạch nền
+blood-brain barrier|hàng rào máu não
+adrenal gland|tuyến thượng thận
+meniscus|sụn chêm
+carcinoma|ung thư biểu mô
+cardiology|tim mạch học
+neurology|thần kinh học
+endocrinology|nội tiết học
+gastroenterology|tiêu hóa học
+dermatology|da liễu học
+nephrology|thận học
+hematology|huyết học
+PCR test|xét nghiệm PCR
+ELISA
+angioplasty|nong mạch
+intubation|đặt nội khí quản
+ventilator|máy thở
+ICD-10
+mTOR
+AMPK
+sirtuins|sirtuin
+BDNF
+SGLT2
+ACE inhibitor|thuốc ức chế men chuyển
+beta blocker|thuốc chẹn beta
+benzodiazepine|benzodiazepin
+histamine|histamin
+`);
+CST_GLOSSARY_EXTRA_ADD("science", null, `
+gravitational lensing|thấu kính hấp dẫn
+activation energy|năng lượng hoạt hóa
+ideal gas law|định luật khí lý tưởng
+redox reaction|phản ứng oxy hóa khử
+photolithography|quang khắc
+genetic drift|trôi dạt di truyền
+horizontal gene transfer|chuyển gen ngang
+endoplasmic reticulum|lưới nội chất
+Golgi apparatus|bộ máy Golgi
+=ribosome
+Krebs cycle|chu trình Krebs
+citric acid cycle|chu trình axit citric
+=albedo
+tectonic plate|mảng kiến tạo
+subduction zone|đới hút chìm
+singular value decomposition|phân rã giá trị suy biến
+Fourier transform|biến đổi Fourier
+Taylor series|chuỗi Taylor
+Pascal's triangle|tam giác Pascal
+irrational number|số vô tỉ
+Monte Carlo method|phương pháp Monte Carlo
+=full stack
+=microfrontend
+=tree shaking
+vision-language model|mô hình thị giác-ngôn ngữ
+byte pair encoding|mã hóa cặp byte
+BLEU
+ROUGE
+=curse of dimensionality
+t-SNE
+UMAP
+ensemble learning|học tập hợp
+Markov chain|chuỗi Markov
+hidden Markov model|mô hình Markov ẩn
+Kalman filter|bộ lọc Kalman
+Gaussian process|quá trình Gauss
+Pearson correlation|tương quan Pearson
+Spearman correlation|tương quan hạng Spearman
+multicollinearity|đa cộng tuyến
+heteroscedasticity|phương sai thay đổi
+`);
+
+// ============================================================ specialist terms, batch 2 (legal, engineering, operations, marketing)
+CST_GLOSSARY_EXTRA_ADD("legal", null, `
+=habeas corpus
+=probable cause
+=tort
+=fiduciary duty
+=eminent domain
+=easement
+=lien
+injunction|lệnh cấm tạm thời
+`);
+CST_GLOSSARY_EXTRA_ADD("engineering", null, `
+yield strength|giới hạn chảy
+Young's modulus|mô-đun Young
+PID controller|bộ điều khiển PID
+embedded system|hệ thống nhúng
+=op-amp
+three-phase power|điện ba pha
+power factor|hệ số công suất
+BIM
+LEED
+bullwhip effect|hiệu ứng roi da
+bill of materials|bảng kê vật tư
+EDI
+TQM
+OEE
+critical path method|phương pháp đường găng
+PERT
+work breakdown structure|cấu trúc phân rã công việc
+stakeholder analysis|phân tích các bên liên quan
+BCG matrix|ma trận BCG
+email deliverability|khả năng gửi email vào hộp thư đến
+IEP
 `);

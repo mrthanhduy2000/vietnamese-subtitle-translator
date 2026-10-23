@@ -1356,6 +1356,12 @@ function resolveEnabledGroups(saved) {
     return all.filter(k => s.enabledGroups.includes(k) || !known.has(k));
 }
 
+// Brands with an inner capital that content.js also matches in lower case ("chatgpt"), except these
+// whose lower-case form is an English word. Generated: node tools/brand-loose-skip.js <wordlist> --write
+// BEGIN CST_LOOSE_BRAND_SKIP (tools/brand-loose-skip.js)
+const LOOSE_BRAND_SKIP = ["affine","airdrop","airplay","beef","blackberry","bluejeans","cellphones","centos","curl","defi","diehard","earthbound","encase","endnote","fedex","figjam","goldeneye","goto","handbrake","ideal","ikon","indigo","insight","intercontinental","latex","leapfrog","lisa","masterclass","minimax","myspace","nisi","oversight","palm","prep","promotion","prores","putty","remarkable","rope","seabank","smackdown","smartypants","soho","spacy","squad","superglue","typescript","watchguard","zookeeper"];
+// END CST_LOOSE_BRAND_SKIP
+
 const DEFAULT_ENABLED_GROUPS = Object.keys(GLOSSARY_GROUPS);
 
 // Same three-way export as the other modules: page (window), service worker (globalThis), Node tests
@@ -1364,6 +1370,7 @@ const CST_GLOSSARY_API = {
     CST_DEFAULT_NORMALIZE: DEFAULT_NORMALIZE,
     CST_DEFAULT_ENABLED_GROUPS: DEFAULT_ENABLED_GROUPS,
     CST_RISKY_PROPER: RISKY_PROPER,
+    CST_LOOSE_BRAND_SKIP: LOOSE_BRAND_SKIP,
     CST_CONTEXTUAL_TERMS: CONTEXTUAL_TERMS,
     CST_GLOSSARY_VI: GLOSSARY_VI,
     CST_resolveEnabledGroups: resolveEnabledGroups
