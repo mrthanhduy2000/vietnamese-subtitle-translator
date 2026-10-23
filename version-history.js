@@ -4,6 +4,16 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.8.7", luc: "23/10/2026", ten: "Đo đúng số chữ lồng tiếng bị bỏ sót",
+            y: [
+                "Bộ đo trên máy từng tính nhầm là \"mất chữ\" ở hai trường hợp: câu đã đọc nhưng kế hoạch đọc vừa được làm mới, và chú thích trong ngoặc như \"(Đoàng!!)\" vốn cố ý không đọc. Nay hai trường hợp đó không bị tính nữa. Giọng đọc không đổi."
+            ],
+            bang: { cot: ["Video đã lưu", "Trước", "Nay"], hang: [
+                ["Chữ \"mất\" trên video Rumani", "13", "0"],
+                ["Chữ \"mất\" trên video hoạt hình có chú thích", "6", "0"]
+            ] }
+        },
+        {
             v: "2.8.6", luc: "23/10/2026", ten: "Giữ cách xưng \"tôi/mình\" cho video mọi ngôn ngữ",
             y: [
                 "Quy tắc giữ đúng cách người nói tự xưng (\"tôi\" hay \"mình\") trước đây chỉ bật khi lời gốc là tiếng Anh. Nay nó nhận ra \"tôi\" trong khoảng 30 ngôn ngữ (Hàn, Nhật, Trung, Thái, Tây Ban Nha, Pháp, Đức, Nga, Hindi, Ả Rập...), nên video không phải tiếng Anh cũng không còn lẫn \"tôi\" với \"mình\".",

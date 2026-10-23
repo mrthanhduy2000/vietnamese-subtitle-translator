@@ -1478,7 +1478,7 @@
 
     const api = {
         numberToVietnamese, countSyllables, adaptForSpeech, numberRole, classifyIntent, buildPhrases, speakerTurns, speakerAt, NO_TURNS, MAX_VOICES, speakerLines, speakerHints, mergeSpeakerHints,
-        buildDubScript, stripSoundNotes, speakerLabels, stripSpeakerLabels, stripLabelsAt, planSegment, planAll, smoothRates, speechSeconds, pauseSeconds, rateForSps, rateForSpeedup, speedMultiplier,
+        buildDubScript, stripSoundNotes, notesOnly, speakerLabels, stripSpeakerLabels, stripLabelsAt, planSegment, planAll, smoothRates, speechSeconds, pauseSeconds, rateForSps, rateForSpeedup, speedMultiplier,
         DEFAULT_VOICE_MODEL, LIMITS, INTENT_PROSODY, PAUSE
     };
     if (typeof module === "object" && module.exports) module.exports = api;

@@ -225,6 +225,11 @@ function run(engineMod, sc) {
     let overlapTicks = 0, maxRendered = 0, maxEls = 0, maxHeld = 0;
     const seeks = [];                  // { wall } waiting for the next start
     let lastPlayingSet = new Set(), seenStarts = 0;
+    const startTexts = new Map();       // stats.started entry -> its plan's subtitle text at the start
+    {
+        const st = eng.stats.started, push = st.push.bind(st);
+        st.push = (...xs) => { for (const x of xs) { const p = eng.planById.get(x.id); if (p) startTexts.set(x, p.subtitleText); } return push(...xs); };
+    }
     function observe() {
         const playing = audios.filter(a => !a.paused);
         if (playing.length > 1) overlapTicks++;
@@ -232,8 +237,11 @@ function run(engineMod, sc) {
         while (seenStarts < eng.stats.started.length) {
             const x = eng.stats.started[seenStarts++];
             starts.push({ wall: clock.now(), media: video.currentTime, id: x.id });
+            // the text as the line started: a refresh between that start and this look may have
+            // replaced the plan already, which counted a spoken line as words lost (2026-10-23)
             const pl = eng.planById.get(x.id);
-            if (pl) spokenTexts.push(pl.subtitleText);
+            const said = startTexts.get(x) != null ? startTexts.get(x) : pl && pl.subtitleText;
+            if (said != null) spokenTexts.push(said);
             const made = pl && madeUnder.get(pl.id + "\n" + pl.text);
             if (made) m.playedKeys.add(made);
             else if (pl) pendingKeys.push(provider.audioKey(pl).then(k => m.playedKeys.add(k)));
@@ -299,7 +307,8 @@ function run(engineMod, sc) {
             const want = new Map(), got = new Map();
             // what the voice is meant to read: no sound notes, no speaker labels (dub-planner.js)
             // (per subtitle line, as the planner strips them)
-            const said = g => { const labels = PLAN.speakerLabels((g.srcCues || []).map(c => c.text).join("\n")); return g.viCues && g.viCues.length ? g.viCues.map(c => PLAN.stripSpeakerLabels(PLAN.stripSoundNotes(c.text), labels)).join(" ") : PLAN.stripSoundNotes(g.viText); };
+            // (a source of notes only, "(Bang!!)", drops its notes from the Vietnamese as the planner does)
+            const said = g => { const src = (g.srcCues || []).map(c => c.text); const labels = PLAN.speakerLabels(src.join("\n")); const notes = src.length > 0 && PLAN.notesOnly(src.join(" ")); return g.viCues && g.viCues.length ? g.viCues.map(c => PLAN.stripSpeakerLabels(PLAN.stripSoundNotes(c.text, notes), labels)).join(" ") : PLAN.stripSoundNotes(g.viText, notes); };
             for (const g of groups) for (const w of words(said(g))) want.set(w, (want.get(w) || 0) + 1);
             for (const t of spokenTexts) for (const w of words(t)) got.set(w, (got.get(w) || 0) + 1);
             wordsLost = 0; wordsTwice = 0;

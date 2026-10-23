@@ -85,7 +85,9 @@ and 0 now. Groups that carry `batch` arrive together, as `youtube.js` translates
 (`trAhead` counts from the batch's last group, as the prefetch sends a window, 2.3.6; from its first
 it hid what a long window costs). `realGroups` is exported for scripts. `wordsLost` / `wordsTwice`
 (2.3.6) compare every group's Vietnamese with the text of each line as it started, as multisets of
-words; `spoken` counts lines, and a line that grew after it started (`DUBBING.md` "Across a caption
+words (2026-10-23: the text is taken at the start itself, a refresh just after it had counted a spoken
+line as lost, 13 words on Fx3l2wuj1gY; a source of notes only drops its notes as the planner does,
+`PLAN.notesOnly`: "(Bang!!)" was 6 words lost on JKW9_bw0oTY); `spoken` counts lines, and a line that grew after it started (`DUBBING.md` "Across a caption
 line cut") counted as spoken while its new words were never read. Filled only for a run that passed
 every group without a seek or pause (`--real`, `fastSlowdown`); on the 15 real videos: 29 lost, all
 in the one line dropped on zPSs9a0MYGw, none read twice.
