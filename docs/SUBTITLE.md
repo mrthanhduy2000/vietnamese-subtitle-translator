@@ -218,7 +218,9 @@ realtime +1/+2 groups. `cleanDescription` strips links, handles, sponsor lines, 
 The console "🤖 GEMINI" line ends with `contextSummary`: what context each request carried.
 2.7.4: `selfRef` (prompt `[XƯNG HÔ]`): `ContextSession.record` counts the speaker's "tôi" (not "chúng
 tôi") and clause-initial "mình" in the translations so far; once one has 4 uses and 3 times the other,
-a window whose source has I/me/my asks for it. `register: "talk"` (prompt `[VĂN PHONG]`) for a session
+a window whose source has I/me/my asks for it. 2.8.6: "I" in the source's own language
+(`saysI(text, lang)`, ~30 languages, whole words; CJK and Thai by the word itself; a language not in
+the table tries all), `meta.lang` from the YouTube track (none = English, as Coursera). `register: "talk"` (prompt `[VĂN PHONG]`) for a session
 whose domain is `general` and that has no course (everyday YouTube and generic pages; Coursera keeps the
 lecturer's voice of the system prompt). Both join the cache key only when present (tr-lab runs `self1`,
 `reg1`, TESTING.md). `CST_QUALITY.englishLeftovers` skips substance names by their endings

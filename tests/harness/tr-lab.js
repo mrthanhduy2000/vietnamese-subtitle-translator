@@ -27,7 +27,7 @@ const say = s => { log.push(s); document.getElementById("log").textContent = log
         const saved = (await chrome.storage.local.get(key))[key];
         if (!saved || !saved.g) { say(`${id} not saved`); continue; }
         const units = saved.g.map(g => g[3].map(c => c[2]).join(" ").replace(/\s+/g, " ").trim());
-        const session = () => { const s = new CST_CONTEXT.ContextSession({ title: `lab ${tag}` }); s.setUnits(units); return s; };
+        const session = () => { const s = new CST_CONTEXT.ContextSession({ title: `lab ${tag}`, lang: String(saved.src || "").split("|")[0] }); s.setUnits(units); return s; };
         const sa = session(), sb = session();
         out[id] = [];
         for (let w = 0, n = 0; w < units.length && n < max; w += win, n++) {

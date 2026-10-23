@@ -1577,7 +1577,8 @@ async function ytBatDauDich(opts = {}) {
             title: info.title || "",
             channel: info.author || "",
             description: info.description || "",
-            keywords: info.keywords || []
+            keywords: info.keywords || [],
+            lang: track.languageCode || ""          // the source's own "I" (ContextSession saysI)
         }, info.channelId ? `yt_${info.channelId}` : (info.author ? `yt_${info.author}` : ""));
         if (yt.session) yt.session.setUnits(groups.map(g => g.text));
         if (yt.groups !== groups || stale()) return false;

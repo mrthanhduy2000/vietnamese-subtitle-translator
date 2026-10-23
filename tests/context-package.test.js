@@ -269,6 +269,23 @@ test("the speaker's pronoun: once the translations settle on tôi or mình, a wi
     assert.equal(x.buildRequest([1]).context.selfRef, undefined);
 });
 
+test("the speaker's pronoun reaches a source in any language: its own word for I, whole words only", () => {
+    const yes = [["es", "Ayer yo fui al mercado"], ["fr", "J’ai mangé"], ["de", "Ich gehe"], ["ko", "저는 오늘 시장에 갔어요"],
+        ["ja", "私は学生です"], ["zh", "我今天去了"], ["th", "ผมไปตลาด"], ["ru", "Я иду домой"], ["hi", "मैं घर जा रहा हूँ"],
+        ["tr", "Ben eve gidiyorum"], ["cs", "můj dům"], ["pt-BR", "eu acho que sim"], ["en", "and i noticed it"], ["", "I cook."]];
+    const no = [["es", "Hoy vamos al mercado"], ["fr", "Il est allé"], ["fr", "Jean est là"], ["de", "Wir gehen"],
+        ["ko", "오늘 시장에 갔어요"], ["zh", "我们今天去了"], ["ru", "Мы идём"], ["tr", "Eve gidiyoruz"], ["en", "Today we went"]];
+    for (const [lang, t] of yes) assert.ok(C.saysI(t, lang), `${lang}: ${t}`);
+    for (const [lang, t] of no) assert.ok(!C.saysI(t, lang), `${lang}: ${t}`);
+    assert.ok(C.saysI("Jag går hem", "xx"), "a language not in the table tries every one");
+    // the session asks for the pronoun on a Korean window once the translations settled on mình
+    const s = new C.ContextSession({ lang: "ko" });
+    s.setUnits(["a", "저는 요리해요", "오늘 날씨 좋네요"]);
+    s.record([0], { translations: ["Hôm nay mình đi chợ, và mình mua rau. Giờ mình nấu. Mình ăn."] });
+    assert.equal(s.buildRequest([1]).context.selfRef, "mình");
+    assert.equal(s.buildRequest([2]).context.selfRef, undefined, "no first person in the window");
+});
+
 test("the speaker's pronoun: in the prompt and the cache key only when present", async () => {
     const bg = bgEnv(async () => { throw new Error("offline"); });
     const base = { sentences: ["I love it."], context: { topic: "t", domain: "d", prevSource: "", nextSource: "" } };
@@ -520,4 +537,20 @@ test("YouTube: a fallback line about to play is not swapped, and healing stops a
     assert.equal(vm.runInContext("ytFallbackToHeal(__h, 10, 120)", env), -1);
     const fresh = vm.runInContext("(() => { const g = [{ start: 40, end: 43, translated: true, fallback: true }]; const r = ytFallbackToHeal(g, 0, 120); return [r, g[0].healAt > Date.now()]; })()", env);
     assert.deepEqual([...fresh], [-1, true], "a new fallback waits YT_HEAL.gapMs first (the model rests after a slow answer)");
+});
+
+test("YouTube hands the source track's language to the context session", () => {
+    const src = require("fs").readFileSync(require("path").join(__dirname, "..", "youtube.js"), "utf8");
+    assert.match(src, /createContextSession\(\{[\s\S]{0,400}lang: track\.languageCode/);
+});
+
+test("a trailing double period from the source becomes an ellipsis; a range, a path and an ellipsis stay", () => {
+    const bg = bgEnv(async () => { throw new Error("offline"); });
+    const clean = t => bg.sandbox.sanitizeModelOutput(t, []);
+    assert.equal(clean("Rằng các bạn thấy thích thú.."), "Rằng các bạn thấy thích thú...");
+    assert.equal(clean("Vâng.. rồi sao"), "Vâng... rồi sao");
+    assert.equal(clean("từ 1..10"), "từ 1..10");
+    assert.equal(clean("thư mục ../src"), "thư mục ../src");
+    assert.equal(clean("Ừm... để xem"), "Ừm... để xem");
+    assert.equal(clean("Chờ chút...."), "Chờ chút....", "four dots are not touched");
 });

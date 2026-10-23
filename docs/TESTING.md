@@ -279,7 +279,11 @@ as it does for a viewer. Check first that the user is not watching a video in th
   is dropped from "a", `&add=field:value` is put into "b" only. Run `self1` (6 videos, 288 items):
   `selfRef` cut the speaker's tôi/mình mixing 28 -> 6 (the 6 are quoted thoughts and "mình" = self),
   no change in bạn/các bạn/chúng ta or length. Run `reg1` (6 vlogs, 36 windows, judged blind):
-  `register: "talk"` more natural in 30, the plain prompt in 2, 4 even. Both kept.
+  `register: "talk"` more natural in 30, the plain prompt in 2, 4 even. Both kept. Run `self2`
+  (2.8.6, 6 non-English videos ko zh fr uk de ja, 69 windows, the session given the track's
+  `lang`): `selfRef` now reaches 39 windows; mixing 11 -> 0, but 5 of the 11 sat in a window that fell
+  to Google in "a" only. The one real change: a Korean two-friend dialogue in "tôi" next to a video in
+  "mình". The gain is the English rule applied to every language, small in itself.
 - **`reload.html`**: reloads the extension (as the Reload button) after putting back dubbing left
   off by an interrupted driver run. A page file added after the last load is blocked
   (ERR_BLOCKED_BY_CLIENT) until a reload, so a new harness page needs one Reload first; Settings

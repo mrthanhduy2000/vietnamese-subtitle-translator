@@ -442,6 +442,9 @@ function sanitizeModelOutput(out, inputTokens) {
     t = t.replace(/^\s*(?:bản dịch(?: tiếng việt)?|translation)\s*:\s*/i, "");
     t = t.replace(/\*\*(.+?)\*\*/g, "$1");
     t = t.replace(/\s*\n\s*/g, " ").replace(/[ \t]{2,}/g, " ").trim();
+    // (2.8.6) A trailing ".." copied from the source ("Že vás baví..") is an ellipsis; a range
+    // ("1..10") or a path ("../") is left alone
+    t = t.replace(/(?<![.\p{N}])\.\.(?![.\p{L}\p{N}\/])/gu, "...");
     const m = t.match(/^["“](.*)["”]$/s);
     if (m && !/["“”]/.test(m[1])) t = m[1].trim();
     return t;

@@ -4,6 +4,17 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.8.6", luc: "23/10/2026", ten: "Giữ cách xưng \"tôi/mình\" cho video mọi ngôn ngữ",
+            y: [
+                "Quy tắc giữ đúng cách người nói tự xưng (\"tôi\" hay \"mình\") trước đây chỉ bật khi lời gốc là tiếng Anh. Nay nó nhận ra \"tôi\" trong khoảng 30 ngôn ngữ (Hàn, Nhật, Trung, Thái, Tây Ban Nha, Pháp, Đức, Nga, Hindi, Ả Rập...), nên video không phải tiếng Anh cũng không còn lẫn \"tôi\" với \"mình\".",
+                "Hai dấu chấm chép từ phụ đề gốc (\"thích thú..\") nay thành dấu ba chấm."
+            ],
+            bang: { cot: ["6 video không phải tiếng Anh, 69 đoạn (thử A/B)", "2.8.5", "Nay"], hang: [
+                ["Đoạn có gợi ý cách xưng", "0", "39"],
+                ["Đoạn Gemini đổi cách xưng giữa chừng", "1", "0"]
+            ] }
+        },
+        {
             v: "2.8.5", luc: "23/10/2026", ten: "Nghỉ xong thì nói nhịp mới, không đọc vội rồi im",
             y: [
                 "Trước đây sau một câu đọc nhanh, câu kế tiếp vẫn bị giữ nhịp nhanh dù giữa hai câu có khoảng nghỉ tới 4 giây, nên một câu ngắn bị đọc vội rồi giọng im trong khi người nói vẫn đang nói. Nay sau khoảng nghỉ từ 1 giây, câu mới được nói theo nhịp của chính nó, như người thật. Các câu nói liền nhau vẫn giữ nhịp đều như cũ."
