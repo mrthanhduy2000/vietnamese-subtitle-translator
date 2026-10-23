@@ -1606,7 +1606,6 @@ TrainingPeaks
 Runna
 Couch to 5K
 C25K
-~Future
 Fitbod
 Strong app
 Hevy
@@ -23017,7 +23016,6 @@ Sardinia
 Provence
 Côte d'Azur
 French Riviera
-~Nice
 Cannes
 Monaco
 Bordeaux
@@ -28143,7 +28141,6 @@ FNAF
 ~Outlast
 Silent Hill 2
 Alan Wake 2
-~Control
 Hogwarts Legacy
 Star Wars Jedi: Survivor
 Star Wars Outlaws
@@ -35153,7 +35150,6 @@ Hot Chip
 LCD Soundsystem
 The Presets
 M83
-~Air
 Royksopp
 Chemical Brothers
 The Prodigy
@@ -35217,7 +35213,6 @@ The Small Faces
 The Moody Blues
 Procol Harum
 King Crimson
-~Yes
 ~Genesis
 Jethro Tull
 Deep Purple
@@ -35258,7 +35253,6 @@ Gordon Lightfoot
 Lindsey Buckingham
 Christine McVie
 ~Thriller
-~Bad
 ~Dangerous
 Off the Wall
 Purple Rain
@@ -35282,7 +35276,6 @@ Bella Donna
 Nevermind
 In Utero
 ~Bleach
-~Ten
 Vitalogy
 ~Dirt
 Jar of Flies
@@ -35334,8 +35327,6 @@ The Unforgettable Fire
 Achtung Baby
 Songs of Innocence
 Songs of Experience
-~Boy
-~War
 ~Pop
 How to Dismantle an Atomic Bomb
 No Line on the Horizon
@@ -35418,7 +35409,6 @@ Reasonable Doubt
 Man on the Moon
 Dreamville
 ~Revival
-~Culture
 Culture II
 ~Views
 More Life
@@ -35436,9 +35426,7 @@ Don't Stop Me Now
 Bicycle Race
 Somebody to Love
 ~Yesterday
-~Help
 Come Together
-~Something
 Here Comes the Sun
 Eleanor Rigby
 Penny Lane
@@ -35451,8 +35439,6 @@ Black Dog
 Immigrant Song
 Comfortably Numb
 Another Brick in the Wall
-~Money
-~Time
 Hotel California
 Take It Easy
 Life in the Fast Lane
@@ -35463,7 +35449,6 @@ War Pigs
 Enter Sandman
 Nothing Else Matters
 Sad but True
-~One
 Master of Puppets
 Seek and Destroy
 Sweet Child O' Mine
@@ -35502,7 +35487,6 @@ Viva la Vida
 ~Paradise
 Hymn for the Weekend
 Shape of You
-~Perfect
 Thinking Out Loud
 ~Photograph
 Bad Habits
@@ -35526,7 +35510,6 @@ Anti-Hero
 Shake It Off
 Blank Space
 Bad Blood
-~Style
 Love Story
 You Belong with Me
 We Are Never Ever Getting Back Together
@@ -35549,7 +35532,6 @@ Run the World
 Drunk in Love
 ~Partition
 Hold Up
-~Sorry
 Love on Top
 Rolling in the Deep
 Someone Like You
@@ -35601,7 +35583,6 @@ Gimme More
 ~Lucky
 Genie in a Bottle
 What a Girl Wants
-~Beautiful
 ~Candyman
 ~Fighter
 Dirrty
@@ -35626,8 +35607,6 @@ Jolene
 I Will Always Love You
 Islands in the Stream
 ~Hallelujah
-~Respect
-~Think
 Natural Woman
 I Say a Little Prayer
 My Girl
@@ -35646,7 +35625,6 @@ Hotline Bling
 One Dance
 God's Plan
 Started from the Bottom
-~Work
 ~Umbrella
 ~Diamonds
 Only Girl
@@ -35706,7 +35684,6 @@ Kill This Love
 Lovesick Girls
 ~Ditto
 Hype Boy
-~Attention
 Super Shy
 Ice Cream Cake
 Next Level
@@ -35776,7 +35753,6 @@ Bridge of Spies
 ~Gravity
 ~Whiplash
 ~Moonlight
-~Us
 ~Parasite
 Once Upon a Time in America
 Les Miserables
@@ -35794,7 +35770,6 @@ Toy Story 4
 A Bug's Life
 Finding Dory
 ~Cars
-~Up
 The Good Dinosaur
 ~Coco
 ~Onward
@@ -35829,7 +35804,6 @@ The Mitchells vs. the Machines
 Despicable Me 4
 The Banshees of Inisherin
 ~Arrival
-~Her
 Under the Skin
 ~Sunshine
 Children of Men
@@ -35919,10 +35893,8 @@ Six Feet Under
 ~Deadwood
 Boardwalk Empire
 Fear the Walking Dead
-~Dark
 ~Torchwood
 Sherlock Holmes
-~Lost
 ~Heroes
 24
 ~Homeland
@@ -35933,12 +35905,10 @@ Buffy the Vampire Slayer
 ~Supernatural
 Smallville
 ~Charmed
-~Friends
 ~Frasier
 ~Cheers
 Happy Days
 Everybody Loves Raymond
-~Community
 Scrubs
 It's Always Sunny in Philadelphia
 ~Veep
@@ -35959,14 +35929,12 @@ Cobra Kai
 Mare of Easttown
 The Night Agent
 Bad Sisters
-~Industry
 The Diplomat
 The Pitt
 Blue Eye Samurai
 ~Fallout
 ~Silo
 Dead to Me
-~You
 Sex Education
 Derry Girls
 ~Shameless
@@ -35980,7 +35948,6 @@ Criminal Minds
 CSI: Crime Scene Investigation
 NCIS
 Law & Order
-~House
 ~Scandal
 ~Suits
 How to Get Away with Murder
@@ -37246,7 +37213,6 @@ Portsmouth
 Bristol City
 Sheffield Wednesday
 Luton Town
-~Reading
 Oxford United
 Wigan Athletic
 Blackpool
@@ -39503,7 +39469,6 @@ Nuxt.js
 ~Pandas
 Apache Airflow
 Qlik
-~Go
 ~Dart
 Murf AI
 Amazon CodeWhisperer
@@ -39512,7 +39477,6 @@ Civitai
 Gitpod
 ~Glitch
 ~Bubble
-~Make
 Qualtrics
 ~Doodle
 ~Segment
@@ -39549,7 +39513,6 @@ Nutanix
 ~Rippling
 Deel
 Nubank
-~Things
 ~Forest
 ~Freedom
 ~Harvest
@@ -39558,13 +39521,10 @@ Smartsheet
 Wrike
 ~Teamwork
 Zoho Projects
-~Close
 ~Copper
 Freshworks
 Gorgias
 Help Scout
-~Front
-~Hey
 Mailbird
 ~Thunderbird
 ~Bear
@@ -39609,7 +39569,6 @@ WinZip
 ~Rufus
 CCleaner
 Revo Uninstaller
-~Everything
 Total Commander
 ~Rectangle
 ~Magnet
@@ -129768,4 +129727,39 @@ Pearson correlation|tương quan Pearson
 Spearman correlation|tương quan hạng Spearman
 multicollinearity|đa cộng tuyến
 heteroscedasticity|phương sai thay đổi
+`);
+
+// ============================================================ specialist terms, batch 2 (legal, engineering, operations, marketing)
+CST_GLOSSARY_EXTRA_ADD("legal", null, `
+=habeas corpus
+=probable cause
+=tort
+=fiduciary duty
+=eminent domain
+=easement
+=lien
+injunction|lệnh cấm tạm thời
+`);
+CST_GLOSSARY_EXTRA_ADD("engineering", null, `
+yield strength|giới hạn chảy
+Young's modulus|mô-đun Young
+PID controller|bộ điều khiển PID
+embedded system|hệ thống nhúng
+=op-amp
+three-phase power|điện ba pha
+power factor|hệ số công suất
+BIM
+LEED
+bullwhip effect|hiệu ứng roi da
+bill of materials|bảng kê vật tư
+EDI
+TQM
+OEE
+critical path method|phương pháp đường găng
+PERT
+work breakdown structure|cấu trúc phân rã công việc
+stakeholder analysis|phân tích các bên liên quan
+BCG matrix|ma trận BCG
+email deliverability|khả năng gửi email vào hộp thư đến
+IEP
 `);
