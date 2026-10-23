@@ -1389,6 +1389,31 @@ Held audio in the page: up to 195 s on the fast talk (41 lines, about 18 MB of 4
 by its place. Without it the repeating lecture's store hits hide the server entirely: fastSlowdown
 showed no difference at all.
 
+### A weak machine: Intel Mac, few cores (dub-hardware.js)
+
+The free voice renders on the viewer's own CPU (ONNX, `VIENEU_DEVICE=cpu`, `fp32`: the pinned model
+has no int8 files). `rtf` = seconds to render one second of speech. Measured on the virtual-clock sim
+(`tools/playback-sim.js`, 6-minute lecture, constant rtf, `wall` 240 s): rtf 0.5 drops 1 line, 1.0
+drops 2, 1.3 drops 8 (14 late starts, 36 s of gaps), 1.8 drops 16. **A shorter look-ahead changes
+nothing** (`freeAhead` 60-90 vs 40-60 vs 25-40 vs 15-25: same drops at every rtf, translation reach is
+the cap), so nothing was added to `SYNC` for weak machines. What does work is a slower video: at rtf
+1.3 dropped lines go 8 -> 1 at rate 0.75; at 1.8 16 -> 1 at 0.6. `sustainableRate(rtf)` = `0.8 / rtf`
+in steps of 0.05, null under rtf 0.8 (the line the menu and Settings already draw), floor 0.25; under 0.5 the toast says to use Gemini or subtitles
+only. `dubbing.js` `canhBaoMayChuCham` checks `engine.health().rtf` every 8 s, warns once per page after
+two hits in a row, and its button sets `video.playbackRate`. The Settings page adds the machine line and
+the same rate. `machineTier` (cores <= 4, memory <= 4 GB, an Intel Mac = weak) is a prior only, not used
+for any decision yet: measured rtf decides.
+
+**First Intel measurement (intel-voice run, 2026-10-23, macos-15-intel runner, i7-8700B, 4 logical cores,
+14 GB):** VieNeu installs and runs, but only after leaving the locked `onnxruntime 1.24.4` out of
+`uv sync` (no macOS x86_64 wheel from 1.24) and installing `onnxruntime<1.24`. Three 3-second sentences:
+rtf 1.57, 1.77, 1.53 (4.8-5.5 s each, first audio about 0.9 s). So a 4-core Intel is behind real time:
+`sustainableRate` says about 0.5x, the edge of the "use Gemini or subtitles" message. A CI VM is no
+real Intel Mac (shared cores, no turbo guarantee); a 6-8 core MacBook Pro should do better. The workflow
+`.github/workflows/intel-voice.yml` (macos-15-intel, `continue-on-error`, on PRs touching the installer or by hand) repeats this.
+The installer keeps Intel voice-off by default (opt-in `DPD_INTEL_VOICE=1`) until a real Intel Mac is heard. It also reads the chip with
+`hw.optional.arm64`: a Terminal under Rosetta says `x86_64` on an Apple chip and used to be treated as Intel.
+
 ## The three TTS providers
 
 Selected by the `dubProvider` setting. `createVieneuProvider` / `createGeminiProvider` /
