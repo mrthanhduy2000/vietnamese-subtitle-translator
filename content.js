@@ -26,6 +26,7 @@ const state = {
     glossaryFp: "",             // the user's own glossary choices, part of the translation cache key
     reExact: null,
     reLoose: null,
+    reBrand: null,
     reRisky: null,
     dubEnabled: true,
     originalFirst: false,
@@ -224,6 +225,12 @@ function isLooseBrand(term, skip) {
     return low.length >= 4 && !skip.has(low);
 }
 
+// A brand matched in any case takes a plain "s" only: "iPhones", but never "es", so "UniFi" does not
+// catch the verb "unifies" (1.67M words of lowercased text, 3 of 31 loose hits were exactly that).
+function brandToPattern(term) {
+    return escapeRegex(term) + (/[a-z0-9]$/i.test(term) ? "s?" : "");
+}
+
 // Bien mot thuat ngu thanh mau nhan dien, co chap nhan dang so nhieu.
 // Day la phan sua loi quan trong: truoc day "landing page" khong bat duoc
 // "landing pages", "AI agent" khong bat duoc "AI agents".
@@ -249,7 +256,7 @@ function termToPattern(term) {
 // start only that bucket's own small regex is tried. Same results as the one big alternation: longer
 // terms first ("Claude Code" before "Claude"), plurals through termToPattern, no letter or digit
 // right before or after a match.
-function buildMasterRegex(terms, flags) {
+function buildMasterRegex(terms, flags, brand) {
     if (terms.length === 0) return null;
     const ci = flags.includes("i");
     const buckets = [new Map(), new Map(), new Map()];   // key length 1, 2, 3
@@ -268,7 +275,7 @@ function buildMasterRegex(terms, flags) {
         let re = compiled.get(id);
         if (re === undefined) {
             const list = buckets[k].get(key);
-            re = list ? new RegExp(`(?:${list.slice().sort((a, b) => b.length - a.length).map(termToPattern).join("|")})(?![\\w])`, ci ? "iy" : "y") : null;
+            re = list ? new RegExp(`(?:${list.slice().sort((a, b) => b.length - a.length).map(brand ? brandToPattern : termToPattern).join("|")})(?![\\w])`, ci ? "iy" : "y") : null;
             compiled.set(id, re);
         }
         return re;
@@ -362,7 +369,7 @@ function warmGlossaryMatchers() {
     const step = () => {
         if (gen !== glossaryWarmGen) return;
         let done = true;
-        for (const m of [state.reExact, state.reLoose]) if (m && m.warm && !m.warm(GLOSSARY_WARM_SLICE_MS)) { done = false; break; }
+        for (const m of [state.reExact, state.reBrand, state.reLoose]) if (m && m.warm && !m.warm(GLOSSARY_WARM_SLICE_MS)) { done = false; break; }
         // the risky-name alternation is one regex: compiled here too, not on the first window
         if (done && state.reRisky) for (let i = 0; i < 2; i++) { state.reRisky.lastIndex = 0; state.reRisky.test("a b"); }
         if (!done) { const t = setTimeout(step, 20); if (t && t.unref) t.unref(); }
@@ -378,6 +385,7 @@ function rebuildGlossaryRegex() {
 
     const exact = [];
     const loose = [];
+    const brands = [];
     const riskyList = [];
 
     state.glossaryCanon = new Map();
@@ -387,7 +395,7 @@ function rebuildGlossaryRegex() {
         if (risky.has(term)) riskyList.push(term);
         else if (needsExactCase(term)) {
             if (isLooseBrand(term, skipBrand)) {
-                loose.push(term);
+                brands.push(term);
                 if (!state.glossaryCanon.has(term.toLowerCase())) state.glossaryCanon.set(term.toLowerCase(), term);
             } else exact.push(term);
         } else loose.push(term);
@@ -396,6 +404,7 @@ function rebuildGlossaryRegex() {
     try {
         state.reExact = buildMasterRegex(exact, "g");
         state.reLoose = buildMasterRegex(loose, "gi");
+        state.reBrand = buildMasterRegex(brands, "gi", true);
 
         // Tang thu ba: ten rieng trung tu tieng Anh thong dung.
         // Chi bao ve khi KHONG dung dau cau, tranh bat nham
@@ -414,6 +423,7 @@ function rebuildGlossaryRegex() {
         console.warn("Khong dung duoc bieu thuc tu dien:", err.message);
         state.reExact = null;
         state.reLoose = null;
+        state.reBrand = null;
         state.reRisky = null;
     }
 
@@ -477,6 +487,10 @@ function protectGlossary(text) {
     if (state.reExact) {
         state.reExact.lastIndex = 0;
         out = out.replace(state.reExact, replaceWithToken);
+    }
+    if (state.reBrand) {
+        state.reBrand.lastIndex = 0;
+        out = out.replace(state.reBrand, replaceWithToken);
     }
     if (state.reLoose) {
         state.reLoose.lastIndex = 0;
