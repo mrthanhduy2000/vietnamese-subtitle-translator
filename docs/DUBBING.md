@@ -872,6 +872,27 @@ Knobs you will actually reach for:
   (6QULfp2wdZI, a Russian machine transcript broken into word salad needing 5.5-6.4 syl/s), where a
   line is dropped 11 s behind at every setting and which line it is changes. Tried and dropped:
   `holdEarlyMax` (a held pace may end a line at most N s early): jumps 55 -> 418, late 751 -> 930.
+- **Loose lines hand spare time to their pauses (BACKLOG 48, `docs/changes/loose-line-pauses.md`)**:
+  `looseSlack(p)` estimates the line at its floor pace (measured voice pace, `floorRate`) against the
+  end `chooseRate` aims at. With 1 s or more spare, (spare - 0.5) x floor seconds of take time, in
+  0.25 s steps, at most 1.5 s and what its marks can take (`PROSODY.pauseSlack`), go to the stops the
+  voice made at punctuation (`shapePauses` `opts.slack`; the inserted time is the silence's own quiet
+  samples read back and forth, `shrinkSilences`). Only marks: a gap without one never grows. The step
+  is in the audio key (`"slack0.75"`), memoised per speaker and words so a rewind or a repeated
+  sentence keeps its stored take. `measureVoice` and `chooseRate`'s native pace subtract the added
+  time (`r.slack`), else a loose take read as a slow voice and raised the floor. A line after a loose
+  one is not held to its pace (`slackFreesPace`): without it late starts rose 1,603 -> 1,614 because
+  the loose line now ended under `rateMemory` before a dense one. Simulator, 101 videos, 11,853 lines:
+
+  | | silences >= 1.5 s (s) | late > 0.5 s | > 2 s | lag s | jumps | words lost |
+  |---|---|---|---|---|---|---|
+  | off | 1,439 (3,424) | 1,603 | 207 | 2,450 | 82 | 48 |
+  | slack, pace held | 1,252 (2,906) | 1,614 | 204 | 2,458 | 88 | 48 |
+  | **slack + slackFreesPace (kept)** | 1,260 (2,923) | 1,580 | 193 | 2,404 | 96 | 16 |
+
+  Words lost are one video either way (6QULfp2wdZI, a word-salad transcript; which line drops moves).
+  `slackKeep` 0.8/1.2 and `slackFrom` 1.5/2 took fewer silences away for the same late cost. The
+  simulator's server adds the grown time to the take but not to generation (it is added afterwards).
 - **Chaining**: `chainLead` was cut from 2.0s to 0.8s because starting early accumulated error
   across chained segments, and to 0.3 s in 2.6.9: the voice reads a part faster than its slot, so
   nearly every chained part waited only for the lead and started the full 0.8 s before the speaker

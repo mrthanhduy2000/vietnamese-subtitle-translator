@@ -1,11 +1,4 @@
-# Handoff (2026-10-23, 3.0.2)
-
-## Perf thread (2.9.9)
-- `glossary-extra.js` merge no longer quadratic; `loadGlossary` drops a 90k-entry Set. Bench:
-  `node --expose-gc tools/bench-startup.js 7` (merge 159 -> 86 ms, loadGlossary 115 -> 95 ms, offline,
-  Linux). Output digest identical. Left alone: first `protectGlossary` ~70 ms (lazy bucket compile,
-  term-matching thread). Not measured: storage size, duplicate network calls, CPU during playback (Mac).
-- Test-only change after 2.9.4 (no bump): GitHub Actions `test.yml`, `tests/units.test.js`, `npm run coverage`.
+# Handoff (2026-10-23, 3.0.2 + unreleased)
 
 ## Site adapters thread (TED)
 - `site-adapters.js` + `site-ted.js` (docs/changes/site-adapters-ted.md). Offline tests pass. TRY ON CHROME:
@@ -15,6 +8,10 @@
 - Udemy, edX, Vimeo embeds still open (BACKLOG 9).
 
 ## State
+- Unreleased (lane B, BACKLOG 48, `docs/changes/loose-line-pauses.md`, DUBBING.md "Loose lines hand
+  spare time"): a line that would end 1 s+ early at its floor pace asks for longer punctuation pauses
+  (`looseSlack`, `pauseSlack`, `shapePauses opts.slack`, key `slack<step>`). 101 videos: silences
+  >= 1.5 s while the source talks 1,439 -> 1,260, late > 0.5 s 1,603 -> 1,580. Not heard by ear.
 - unreleased (lane A, loose brand match): inner-capital brands match in lower case, minus 49 English-word
   collisions (`docs/changes/loose-brand-match.md`). Regenerate the skip list after big glossary releases.
 - unreleased (lane A/D, glossary protection): the window cache key no longer holds protected terms or codes
@@ -48,27 +45,32 @@
 - 2.9.4 (glossary) and 2.9.5 were done in a cloud session: `regress.js` NOT run here.
 
 ## Traps
-- A name the writer cannot respell gets no reading: check `GLOSSARY_SAY` after `--write`. Merge keeps
-  an old entry for any term still in the list, so remove a bad line from the generated block first.
-- `$TMPDIR/fix.py` removes by core term in every block of `glossary-data.js`: check the removed count.
-- New glossary blocks let everyday words in (list in `tests/glossary.test.js`). A capitalised English
-  word ("Wired") needs the `~` prefix.
-- Write `glossary-data.js` with Bash `cat >>`, never Read/Write.
-- `pageEnv` (audit.test.js) objects come from another vm realm: spread into a local array before
-  `deepEqual`.
-- Driver pages: open `yt-driver.html` in its own window; reloading the extension kills a run.
+- `regress.js` has no SYNC override: for an off/on diff, set the value off in a scratch worktree,
+  `--save` there (its own copy of `review-archive/`), restore, rerun. Never `--save` main's copy from a branch.
+- A synthetic lecture repeats its sentences: a key that depends on the measured pace re-renders the
+  repeat. Memoise such a decision by words, not by start (`looseSlack`).
+- A plan object re-made by a refresh has `slackPauses`/`tightPauses` unset until it re-enters the
+  window: the simulator asks `eng.looseSlack` for the key it was made under.
+- VieNeu at 127.0.0.1:8000 is unreachable from the sandbox: hand the user a command that writes files.
+- A name the writer cannot respell gets no reading: check `GLOSSARY_SAY` after `--write`.
+- Write `glossary-data.js` with Bash `cat >>`, never Read/Write. A capitalised English word needs `~`.
+- `pageEnv` (audit.test.js) objects come from another vm realm: spread before `deepEqual`.
+- Driver pages: `yt-driver.html` in its own window; reloading the extension kills a run.
 - `seekWhileSlow` gives 15/7 or 16/6; timing tests fail during a driver batch: rerun first.
 
 ## Unfinished
-- On the Mac: `node tools/regress.js` (then `--save`) for 2.9.3 to 2.9.5; try a Coursera lecture twice.
-- Spot-check the drafted names (esports, fitness, board games, supplements) and fix the ~181 residual
-  Vietnamese readings via `MANUAL_SAY`. Not yet 100,000 terms.
+- BACKLOG 48: render the A/B takes (`node /private/tmp/claude-501/b48ab/render.js` on the Mac), shape
+  them (`$TMPDIR/b48shape.js`), listen. After merge, `node tools/regress.js --save` on main.
+- On the Mac: `regress.js` for 2.9.3 to 3.0.2; try a Coursera lecture twice; 14 VieNeu names
+  (Temodar, Nissan Teana, Ram 1500...) need `MANUAL_SAY` + `glossary-pron.js --write`.
+- Spot-check drafted names (esports, fitness, board games, supplements), ~181 residual Vietnamese readings.
 - Saved Coursera lectures are not in `tools/review.js` (reads `ytcache4_` only).
 - Not heard: 2.6.9-2.8.9 by ear (tôi/mình mixing at video start).
-- Uploaded Vietnamese tracks never saved by design (driver logs "NOT SAVED"): jFZksJqL1Vc XnQ7Py8D6v0
-  MebK9iEUzQA JwBuHx_3GOU rm_9cPXrv4A gN07gbipMoY nBN9zG1JNPg O_MQr4lHm0c c347oYQO57A PweksFQGzmI
-  Bwe7zLSPtXA h0I4083Bm9s dGCdYtk9fHQ nDg7NumntYc E8UKIJ2rLjg RCPS2VC3lk4 MmQp4PkvXV4 w7kz2lI1IMw.
-- Carried over: prompt 3 and the >> split (BACKLOG 44); 2.6.5-2.6.8 not checked live; `screen-text.js`
-  never ran; share repo promotion of 2.5.7-2.8.8 after a green install test; BACKLOG 43-47; 2.5.7
-  shortcuts on YouTube; joint-takes branches; 2.5.0 Coursera start hold; coverage gaps in TESTING.md (youtube.js, content.js, dubbing.js are lowest); voice items "có
-  nghĩa là", DN, NHNN; `ban-giao.md` lacks the share repo. Never ask about Chrome's Apple Events setting.
+- Uploaded Vietnamese tracks never saved by design: jFZksJqL1Vc XnQ7Py8D6v0 MebK9iEUzQA JwBuHx_3GOU
+  rm_9cPXrv4A gN07gbipMoY nBN9zG1JNPg O_MQr4lHm0c c347oYQO57A PweksFQGzmI Bwe7zLSPtXA h0I4083Bm9s
+  dGCdYtk9fHQ nDg7NumntYc E8UKIJ2rLjg RCPS2VC3lk4 MmQp4PkvXV4 w7kz2lI1IMw.
+- Carried over: BACKLOG 43-47 and 44 (prompt 3, >> split); 2.6.5-2.6.8 not checked live;
+  `screen-text.js` never ran; share repo promotion after a green install test; 2.5.7 shortcuts on
+  YouTube; joint-takes branches; 2.5.0 Coursera start hold; coverage gaps (youtube.js, content.js,
+  dubbing.js lowest); voice items "có nghĩa là", DN, NHNN; `ban-giao.md` lacks the share repo.
+  Never ask about Chrome's Apple Events setting.
