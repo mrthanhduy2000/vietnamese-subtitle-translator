@@ -22,6 +22,7 @@
         dubGeminiVoice2: "Charon",
         dubTtsModel: "",
         dubVoiceName: "",
+        dubSystemFallback: true,      // no VieNeu (server down, machine too weak): the browser's Vietnamese voice speaks instead
         dubDuck: 0.2,                 // mức tiếng gốc khi có lời Việt (giữ nhạc nền nghe được)
         dubVolume: 1,
         dubSpeakers: "auto",          // voices follow the speakers (2.5.2): "auto" | "one" (everyone in the main voice)
@@ -172,13 +173,16 @@
         let primary = null;
         const sys = hasSystem ? system : null;
         const loc = hasLocal ? local : null;
-        if (localOnly) primary = loc;
+        // The browser voice is a free fallback for a machine that cannot run VieNeu; it hands back to VieNeu
+        // by itself once the server answers (doiVieNeuSanSang). dubSystemFallback off keeps VieNeu-only.
+        const systemOk = s.dubSystemFallback !== false;
+        if (localOnly) primary = loc || (systemOk ? sys : null);
         else if (s.dubProvider === "system") primary = sys || loc || gemini;
         else if (s.dubProvider === "gemini") primary = gemini || loc || sys;
         else primary = loc || gemini || sys;                    // auto + vieneu: VieNeu trước
         // VieNeu lỗi giữa chừng (tắt máy chủ): chuyển sang giọng hệ thống miễn phí, không tự
         // chuyển sang Gemini (tránh tốn tiền ngoài ý muốn)
-        const fallback = !localOnly && (primary === gemini || primary === loc) && sys ? sys : null;
+        const fallback = (localOnly ? systemOk && primary === loc : (primary === gemini || primary === loc)) && sys ? sys : null;
         const localMissing = (localOnly || s.dubProvider === "vieneu") && !hasLocal;
         return { primary, fallback, hasSystem, canGemini, hasLocal, localMissing };
     }
@@ -407,7 +411,7 @@
             if (changes.dubVolume) e.settings.volume = level(changes.dubVolume.newValue, 1);
             if (changes.dubMaxRate) e.settings.maxRate = Number(changes.dubMaxRate.newValue) || null;   // next sentence on
             // Đổi giọng / nhà cung cấp: khởi động lại engine với cùng nguồn
-            if (changes.dubSpeakers || changes.dubSpeakerAi || changes.dubProvider || changes.dubGeminiVoice || changes.dubGeminiVoice2 || changes.dubVoiceName || changes.dubTtsModel || changes.costMode || changes.dubLocalVoice || changes.dubLocalVoice2) {
+            if (changes.dubSpeakers || changes.dubSpeakerAi || changes.dubProvider || changes.dubSystemFallback || changes.dubGeminiVoice || changes.dubGeminiVoice2 || changes.dubVoiceName || changes.dubTtsModel || changes.costMode || changes.dubLocalVoice || changes.dubLocalVoice2) {
                 const src = { video: e.d.video, getGroups: e.d.getGroups, container: dub.container };
                 start(src);
             }

@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
-"""Filter for the newest glossary blocks: drops everyday English words kept as names, and history
+"""Filter for glossary blocks: drops everyday English words kept as names, and history
 or people names that hide a settled Vietnamese rendering. Needs `pip install wordfreq`.
   python3 tools/glossary-filter.py <first-line> [--write]
-<first-line> is the 1-based line of glossary-data.js where the batch to check starts."""
+<first-line> is the 1-based line of glossary-data.js where the batch to check starts.
+Older blocks: python3 tools/glossary-filter.py 1 --zipf=5.0 --no-shadow --no-extra --names=<file> --write"""
 import json, re, subprocess, sys
 from wordfreq import zipf_frequency as z
 
 start = int(sys.argv[1]); write = "--write" in sys.argv
+ZIPF = next((float(a[7:]) for a in sys.argv if a.startswith("--zipf=")), 4.5)
+NO_SHADOW = "--no-shadow" in sys.argv   # older blocks: only the everyday-word rule
+NO_EXTRA = "--no-extra" in sys.argv     # the hand-picked list below was judged on the 2.9.2/2.9.5 batches
 path = "glossary-data.js"
 lines = open(path, encoding="utf8").read().split("\n")
 # names that are also everyday words but are real names in speech: never dropped
@@ -18,7 +22,7 @@ for a in sys.argv:
 NOT_NAMES = set("Major Honor Joy Sugar Ginger Prince Brother Mate Rain Winter Sunny Dawn Peak Coast Lay Guess Pilot Strike Ring Crash Case Base Fresh Cell Era Flow Gain Pain Power Head Secret Operation Champion Festival Nature Boyfriend Budget Memories".split())
 # everyday words judged by hand on 3.7M words of movie and speech text (2.9.6), below zipf 4.5
 EXTRA = set("Acquired Always Another Anthem Aqua Ark Arms Aussie Banquet Base Beast Benefit Blitz Boost Boots Bounty Boxer Brook Brother Budget Butterfly Casa Caste Cell Champion Citizen Civilization Coast Column Consulate Crash Criminal Darkness Death Degree Dimension Directory Doom Dots Down Dream Ego Era Festival Finish Fleet Galaxy Gate Glad Guess Halls Head Hefty Honor Hostess Index Inferno Infinite Ink Innocence Inside Joy Jumbo Kappa Kidnapped Kitchen Lay Leaders Lifestyles Lore MAC Major Mantle Marches Mate Monster Nationwide Nature Near Nest Next Odd Operation Pain Parallel Peak Phantom Piggy Pilot Pioneer Pixel Pledge Polar Power Prey Principles Privy Providence Quickly Quiet Rain Ramp Range Rare Razor Ritual Roses Sake Scroll Secret Serial Shark Sphere Split Stacks Staples Strike Sugar Sunrise Sway Sweetheart Swell Tango Tide Tiger Travelers Trouble Undercover Uni Warehouse Warrior Wings Winter".split())
-KEEP = set("Washington Lee Kim Wilson Jordan Hollywood Christian San Van Mobile Kingdom Prince Jessica Nicole Simon Madison Victoria Parker Kent Stanley Albert Dean Nancy Leo Johnny Bobby Hoover Orange Solo Douglas Emma Nelson Tan Chandler Dawn Sunny".split())
+KEEP = set("York Washington Lee Kim Wilson Jordan Hollywood Christian San Van Mobile Kingdom Prince Jessica Nicole Simon Madison Victoria Parker Kent Stanley Albert Dean Nancy Leo Johnny Bobby Hoover Orange Solo Douglas Emma Nelson Tan Chandler Dawn Sunny".split())
 
 def parse(l):
     t = l.strip()
@@ -45,11 +49,12 @@ for i, l in enumerate(lines):
     if vi or flag == "=": out.append(l); continue
     single = re.fullmatch(r"[A-Za-z][a-z']+", en) is not None
     f = z(en.lower(), "en") if single else 0
-    if single and en in EXTRA and flag != "=": dropped["everyday"].append(en); continue
-    if single and en not in KEEP and f >= 4.5 and not (en.lower() in NAMES and en not in NOT_NAMES):
+    if single and not NO_EXTRA and en in EXTRA and flag != "=": dropped["everyday"].append(en); continue
+    if single and en not in KEEP and f >= ZIPF and not (en.lower() in NAMES and en not in NOT_NAMES):
         if flag == "~": dropped["everyday"].append(en); continue
+        if NO_EXTRA: out.append(l); continue   # older blocks: never add "~" (it would stop sentence-start catches of London, California)
         out.append("~" + l.strip()); tilded += 1; continue
-    if group in ("history", "people") and " " in en:
+    if not NO_SHADOW and group in ("history", "people") and " " in en:
         low = en.lower()
         hit = any(re.search(r"(?<![\w])" + esc(k) + r"s?(?![\w])", low)
                   for w in set(low.split()) for k in vi_keys.get(w, []) if len(k) >= 3)

@@ -22,9 +22,11 @@ const state = {
     glossaryEnabled: true,
     glossaryMisses: 0,
     glossaryTranslateAs: new Map(),
+    glossaryCanon: new Map(),    // lower-case form -> canonical spelling of the brands matched case-insensitively
     glossaryFp: "",             // the user's own glossary choices, part of the translation cache key
     reExact: null,
     reLoose: null,
+    reBrand: null,
     reRisky: null,
     dubEnabled: true,
     originalFirst: false,
@@ -212,6 +214,23 @@ function needsExactCase(term) {
     return /[A-Z]/.test(term);
 }
 
+// A brand with a capital inside ("ChatGPT", "PyTorch", "iPhone") is also found in a lower-case caption:
+// automatic captions are written in lower case ("chatgpt", "github"). Only when its lower-case form is
+// not an English word ("palm" for PaLM, "rope" for RoPE, "got" for GoT): CST_LOOSE_BRAND_SKIP lists the
+// ones that are, made from a word list by tools/brand-loose-skip.js. Four letters at least.
+function isLooseBrand(term, skip) {
+    if (!/[a-z][A-Z]/.test(term)) return false;
+    const low = term.toLowerCase();
+    if (/\s/.test(low)) return true;
+    return low.length >= 4 && !skip.has(low);
+}
+
+// A brand matched in any case takes a plain "s" only: "iPhones", but never "es", so "UniFi" does not
+// catch the verb "unifies" (1.67M words of lowercased text, 3 of 31 loose hits were exactly that).
+function brandToPattern(term) {
+    return escapeRegex(term) + (/[a-z0-9]$/i.test(term) ? "s?" : "");
+}
+
 // Bien mot thuat ngu thanh mau nhan dien, co chap nhan dang so nhieu.
 // Day la phan sua loi quan trong: truoc day "landing page" khong bat duoc
 // "landing pages", "AI agent" khong bat duoc "AI agents".
@@ -237,7 +256,7 @@ function termToPattern(term) {
 // start only that bucket's own small regex is tried. Same results as the one big alternation: longer
 // terms first ("Claude Code" before "Claude"), plurals through termToPattern, no letter or digit
 // right before or after a match.
-function buildMasterRegex(terms, flags) {
+function buildMasterRegex(terms, flags, brand) {
     if (terms.length === 0) return null;
     const ci = flags.includes("i");
     const buckets = [new Map(), new Map(), new Map()];   // key length 1, 2, 3
@@ -256,7 +275,7 @@ function buildMasterRegex(terms, flags) {
         let re = compiled.get(id);
         if (re === undefined) {
             const list = buckets[k].get(key);
-            re = list ? new RegExp(`(?:${list.slice().sort((a, b) => b.length - a.length).map(termToPattern).join("|")})(?![\\w])`, ci ? "iy" : "y") : null;
+            re = list ? new RegExp(`(?:${list.slice().sort((a, b) => b.length - a.length).map(brand ? brandToPattern : termToPattern).join("|")})(?![\\w])`, ci ? "iy" : "y") : null;
             compiled.set(id, re);
         }
         return re;
@@ -350,7 +369,7 @@ function warmGlossaryMatchers() {
     const step = () => {
         if (gen !== glossaryWarmGen) return;
         let done = true;
-        for (const m of [state.reExact, state.reLoose]) if (m && m.warm && !m.warm(GLOSSARY_WARM_SLICE_MS)) { done = false; break; }
+        for (const m of [state.reExact, state.reBrand, state.reLoose]) if (m && m.warm && !m.warm(GLOSSARY_WARM_SLICE_MS)) { done = false; break; }
         // the risky-name alternation is one regex: compiled here too, not on the first window
         if (done && state.reRisky) for (let i = 0; i < 2; i++) { state.reRisky.lastIndex = 0; state.reRisky.test("a b"); }
         if (!done) { const t = setTimeout(step, 20); if (t && t.unref) t.unref(); }
@@ -366,18 +385,26 @@ function rebuildGlossaryRegex() {
 
     const exact = [];
     const loose = [];
+    const brands = [];
     const riskyList = [];
 
+    state.glossaryCanon = new Map();
+    const skipBrand = new Set(typeof CST_LOOSE_BRAND_SKIP !== "undefined" ? CST_LOOSE_BRAND_SKIP : []);
     for (const term of state.glossaryKeep) {
         if (!term || term.length < 2) continue;
         if (risky.has(term)) riskyList.push(term);
-        else if (needsExactCase(term)) exact.push(term);
-        else loose.push(term);
+        else if (needsExactCase(term)) {
+            if (isLooseBrand(term, skipBrand)) {
+                brands.push(term);
+                if (!state.glossaryCanon.has(term.toLowerCase())) state.glossaryCanon.set(term.toLowerCase(), term);
+            } else exact.push(term);
+        } else loose.push(term);
     }
 
     try {
         state.reExact = buildMasterRegex(exact, "g");
         state.reLoose = buildMasterRegex(loose, "gi");
+        state.reBrand = buildMasterRegex(brands, "gi", true);
 
         // Tang thu ba: ten rieng trung tu tieng Anh thong dung.
         // Chi bao ve khi KHONG dung dau cau, tranh bat nham
@@ -396,6 +423,7 @@ function rebuildGlossaryRegex() {
         console.warn("Khong dung duoc bieu thuc tu dien:", err.message);
         state.reExact = null;
         state.reLoose = null;
+        state.reBrand = null;
         state.reRisky = null;
     }
 
@@ -406,7 +434,15 @@ function rebuildGlossaryRegex() {
 // The rendering declared for a matched term. The match patterns accept plurals, the map holds the
 // singular: "interest rates" and "case studies" must find "interest rate" and "case study".
 function translateAsFor(match) {
-    const map = state.glossaryTranslateAs;
+    return inflectedLookup(state.glossaryTranslateAs, match);
+}
+
+// The canonical spelling of a brand that matched loosely: "chatgpt" in a lowercase caption is kept as "ChatGPT".
+function canonicalFor(match) {
+    return inflectedLookup(state.glossaryCanon, match);
+}
+
+function inflectedLookup(map, match) {
     const k = String(match).toLowerCase();
     if (map.has(k)) return map.get(k);
     if (k.endsWith("ies") && map.has(k.slice(0, -3) + "y")) return map.get(k.slice(0, -3) + "y");
@@ -443,7 +479,7 @@ function protectGlossary(text) {
         // thi dien dang muon hien, nguoc lai giu nguyen ban goc
         const custom = translateAsFor(match);
         const id = terms.length;
-        terms.push(custom !== undefined ? custom : match);
+        terms.push(custom !== undefined ? custom : (canonicalFor(match) || match));
         // Dung token an toan co khoang trang bao boc de may dich khong dinh tu lien vao token
         return ` [[__T${id}__]] `;
     };
@@ -451,6 +487,10 @@ function protectGlossary(text) {
     if (state.reExact) {
         state.reExact.lastIndex = 0;
         out = out.replace(state.reExact, replaceWithToken);
+    }
+    if (state.reBrand) {
+        state.reBrand.lastIndex = 0;
+        out = out.replace(state.reBrand, replaceWithToken);
     }
     if (state.reLoose) {
         state.reLoose.lastIndex = 0;
@@ -1451,7 +1491,20 @@ async function csReadSaved(key, groups) {
     }
 }
 
-async function csWriteSaved(key, groups, translations) {
+// The index is read, changed and written back: two saves at once (two windows of one lecture, or two
+// tabs) each read the old index and the later write dropped the other's entry. One at a time per tab,
+// and across tabs of the same site under a Web Lock when the page has one.
+let csSaveQueue = Promise.resolve();
+function csWriteSaved(key, groups, translations) {
+    const run = () => csWriteSavedNow(key, groups, translations);
+    const locked = () => (typeof navigator !== "undefined" && navigator.locks && navigator.locks.request
+        ? navigator.locks.request("cst-cscache-index", run) : run());
+    const next = csSaveQueue.then(locked, locked);
+    csSaveQueue = next.catch(() => {});
+    return next;
+}
+
+async function csWriteSavedNow(key, groups, translations) {
     if (groups.some((g, gi) => String(g.text || "").trim() && !String(translations[gi] || "").trim())) return false;
     try {
         const luc = Date.now();

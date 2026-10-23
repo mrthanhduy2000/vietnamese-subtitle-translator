@@ -258,3 +258,53 @@ test("a term the model also wrote out beside its code is restored once, not twic
     assert.equal(r("kinh tế [[__T0__]] mạnh", ["bùng nổ kinh tế"]), "Kinh tế bùng nổ kinh tế mạnh".replace(/^K/, "k"));
     assert.equal(r("[[__T0__]] tăng. [[__T1__]] giảm", ["lãi suất", "iOS"]), "Lãi suất tăng. iOS giảm");
 });
+
+// ---- brands in lower-case captions (CST_LOOSE_BRAND_SKIP, isLooseBrand) ----
+test("a brand with an inner capital is protected in a lower-case caption and restored in its own spelling", async () => {
+    const sb = loadContent();
+    await sb.loadGlossary();
+    const t = s => [...sb.protectGlossary(s).terms];
+    assert.deepEqual(t("i asked chatgpt about it"), ["ChatGPT"]);
+    assert.deepEqual(t("push it to github and run pytorch"), ["GitHub", "PyTorch"]);
+    assert.deepEqual(t("CHATGPT and ChatGPT and chatgpts"), ["ChatGPT", "ChatGPT", "ChatGPT"]);
+    assert.equal(sb.restoreGlossary("Tôi hỏi [[__T0__]].", t("i asked chatgpt")), "Tôi hỏi ChatGPT.");
+});
+
+test("a brand whose lower-case form is an English word stays case-sensitive", async () => {
+    const sb = loadContent();
+    await sb.loadGlossary();
+    const t = s => [...sb.protectGlossary(s).terms];
+    assert.deepEqual(t("a rope bridge over the palm"), [], "RoPE, PaLM");
+    assert.deepEqual(t("i got it, lol, wow, my mom said the ideal insight"), [], "GoT, LoL, WoW, MoM (under four letters or listed), iDEAL, InSight");
+    assert.deepEqual(t("we scaled the model with RoPE"), ["RoPE"], "written as the brand, still protected");
+    for (const w of ["palm", "rope", "ideal", "putty", "insight", "diehard", "endnote", "goto", "lisa"]) {
+        assert.ok(G.CST_LOOSE_BRAND_SKIP.includes(w), w);
+    }
+});
+
+test("every single-word brand with an inner capital is either matched loosely or listed as an English word", async () => {
+    const skip = new Set(G.CST_LOOSE_BRAND_SKIP);
+    const camel = Object.values(G.CST_GLOSSARY_GROUPS).flatMap(g => g.terms || []).filter(t => /[a-z][A-Z]/.test(t) && !/\s/.test(t));
+    assert.ok(camel.length > 1000);
+    assert.ok(skip.size > 20 && skip.size < 400, `${skip.size} skipped`);
+    const sb = loadContent();
+    await sb.loadGlossary();
+    // loose: found in lower case; skipped: not
+    let loose = 0;
+    for (const term of camel.slice(0, 600)) {
+        const low = term.toLowerCase();
+        if (low.length < 4) continue;
+        const found = sb.protectGlossary(`we saw ${low} today`).terms.length > 0;
+        if (!skip.has(low) && found) loose++;
+    }
+    assert.ok(loose > 300, `${loose} loose`);
+});
+
+test("a brand matched in any case takes a plain s, never es: UniFi does not catch the verb unifies", async () => {
+    const sb = loadContent();
+    await sb.loadGlossary();
+    const t = s => [...sb.protectGlossary(s).terms];
+    assert.deepEqual(t("it unifies and unified the parts"), []);
+    assert.deepEqual(t("two iphones and unifi"), ["iPhone", "UniFi"]);
+    assert.deepEqual(t("we use UniFi here"), ["UniFi"]);
+});
