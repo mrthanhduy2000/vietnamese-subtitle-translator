@@ -428,7 +428,7 @@
         dub.slowWarned = true;
         if (window.CST_UI && window.CST_UI.toast) {
             window.CST_UI.toast(
-                `Máy chủ giọng đang chậm: tạo 1 giây lời nói mất ${rtf.toFixed(2)} giây (bình thường khoảng 0,25). Giọng Việt có thể trễ dần.`,
+                `Máy chủ giọng đang chậm: tạo 1 giây lời nói mất ${rtf.toFixed(2).replace(".", ",")} giây (bình thường khoảng 0,25), nên giọng Việt có thể trễ dần. Hãy đóng bớt ứng dụng nặng trên máy hoặc chọn giọng nhẹ hơn trong Cài đặt.`,
                 { warn: true, actionLabel: "Mở Cài đặt", onAction: () => sendMessage({ action: "openOptions" }) }
             );
         }

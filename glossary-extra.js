@@ -21,7 +21,11 @@
     // What the merge saw, for tests/glossary.test.js: per group how many were added, and every line
     // that broke a rule above (must stay empty)
     const report = { added: {}, issues: [], dropped: [] };
-    const ALWAYS_CAPITALIZED = /^(monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|may|june|july|august|september|october|november|december|english|french|german|spanish|italian|chinese|japanese|korean|vietnamese|thai|russian|arabic|portuguese|dutch|greek|turkish|american|british|european|asian|african|canadian|australian|mexican|indian|christmas|easter|halloween|thanksgiving)s?$/i;
+    const ALWAYS_CAPITALIZED = new Set(("monday tuesday wednesday thursday friday saturday sunday january february march april may june july august september october november december " +
+        "english french german spanish italian chinese japanese korean vietnamese thai russian arabic portuguese dutch greek turkish american british european asian african canadian australian mexican indian " +
+        "christmas easter halloween thanksgiving").split(" "));
+    const hasUpperLetter = /[\p{Lu}0-9]/u;
+    const DASH = /[–—]/;
     let viSeen = null;
     function viIndex() {
         if (viSeen) return viSeen;
@@ -29,11 +33,24 @@
         for (const g of Object.values(GROUPS)) for (const [en, vi] of Object.entries(g.vi || {})) if (!viSeen.has(en)) viSeen.set(en, vi);
         return viSeen;
     }
+    // Lowercased terms per group and the risky names seen so far, kept across blocks: rebuilding the set
+    // for every block and scanning RISKY with includes() per line made the merge quadratic
+    const haveByGroup = new Map();
+    let riskySeen = null;
+    function haveOf(g) {
+        let h = haveByGroup.get(g);
+        if (!h || h.len !== g.terms.length) {
+            h = { set: new Set(g.terms.map(t => t.toLowerCase())), len: g.terms.length };
+            haveByGroup.set(g, h);
+        }
+        return h;
+    }
     function add(key, label, text) {
         if (!GROUPS[key]) GROUPS[key] = { label: label || key, terms: [], vi: {} };
         const g = GROUPS[key];
         if (!g.vi) g.vi = {};
-        const have = new Set(g.terms.map(t => t.toLowerCase()));
+        const hv = haveOf(g), have = hv.set;
+        if (RISKY && (!riskySeen || riskySeen.size !== RISKY.length)) riskySeen = new Set(RISKY);
         const vis = viIndex();
         let n = 0;
         for (const raw of String(text).split("\n")) {
@@ -45,25 +62,26 @@
             const parts = line.split("|");
             const en = parts[0].trim(), vi = (parts[1] || "").trim();
             if (!en || parts.length > 2 || (parts.length === 2 && !vi)) { report.issues.push(`${key}: "${raw.trim()}" malformed`); continue; }
-            if (/[–—]/.test(vi)) { report.issues.push(`${key}: "${en}" long dash`); continue; }
-            if (!vi && !keep && !/[\p{Lu}0-9]/u.test(en)) { report.issues.push(`${key}: "${en}" lowercase with no rendering and no =`); continue; }
+            if (vi && DASH.test(vi)) { report.issues.push(`${key}: "${en}" long dash`); continue; }
+            const k = en.toLowerCase();
+            if (!vi && !keep && k === en && !hasUpperLetter.test(en)) { report.issues.push(`${key}: "${en}" lowercase with no rendering and no =`); continue; }
             // (2.7.1) English writes these ordinary words capitalized, so the capital tells nothing:
             // the series "Wednesday" kept every weekday as written ("vào thứ Tư Wednesday", 8 times
             // in 2 of 75 saved videos). They need a rendering, never "kept as written"
-            if (!vi && ALWAYS_CAPITALIZED.test(en)) { report.issues.push(`${key}: "${en}" an everyday word English capitalizes, needs a rendering`); continue; }
-            const k = en.toLowerCase();
+            if (!vi && (ALWAYS_CAPITALIZED.has(k) || (k.endsWith("s") && ALWAYS_CAPITALIZED.has(k.slice(0, -1))))) { report.issues.push(`${key}: "${en}" an everyday word English capitalizes, needs a rendering`); continue; }
             if (vi) {
                 const prior = vis.get(k);
                 if (prior === undefined) { vis.set(k, vi); g.vi[k] = vi; }
                 else if (prior === vi) g.vi[k] = vi;
                 else report.dropped.push(`${key}: ${en} -> ${vi} (kept ${prior})`);
             }
-            if (risky && RISKY && !RISKY.includes(en)) RISKY.push(en);
+            if (risky && RISKY && !riskySeen.has(en)) { RISKY.push(en); riskySeen.add(en); }
             if (have.has(k)) continue;
             have.add(k);
             g.terms.push(en);
             n++;
         }
+        hv.len = g.terms.length;
         report.added[key] = (report.added[key] || 0) + n;
     }
     const api = { CST_GLOSSARY_EXTRA_ADD: add, CST_GLOSSARY_EXTRA_REPORT: report };

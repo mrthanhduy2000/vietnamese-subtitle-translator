@@ -1,10 +1,19 @@
-# Handoff (2026-10-23, 2.9.8)
+# Handoff (2026-10-23, 3.0.2)
 
+## Perf thread (2.9.9)
+- `glossary-extra.js` merge no longer quadratic; `loadGlossary` drops a 90k-entry Set. Bench:
+  `node --expose-gc tools/bench-startup.js 7` (merge 159 -> 86 ms, loadGlossary 115 -> 95 ms, offline,
+  Linux). Output digest identical. Left alone: first `protectGlossary` ~70 ms (lazy bucket compile,
+  term-matching thread). Not measured: storage size, duplicate network calls, CPU during playback (Mac).
 - Test-only change after 2.9.4 (no bump): GitHub Actions `test.yml`, `tests/units.test.js`, `npm run coverage`.
 
 ## State
 - Unreleased (lane B, dubbing.js buildProviders): dubSystemFallback (default true) lets the browser Vietnamese voice
   speak when VieNeu is down and sits behind VieNeu as engine fallback. Not heard on a real machine.
+- 3.0.2 (glossary, cloud): `tools/glossary-filter.py <first-line> --names=<nltk names> --write` dropped ~660
+  everyday words and history names that hid Vietnamese renderings from the 2.9.2 and 2.9.5 batches
+  (~2,300 false hits gone on 3.2M words). Run it on every new batch before merging. 14 VieNeu names
+  (Temodar, Nissan Teana, Ram 1500...) still need `MANUAL_SAY` + `glossary-pron.js --write` on the Mac.
 - 3.0.1 (lane A/C, notices): `CST_UI.explainError` (content.js) maps a raw failure to one Vietnamese
   sentence plus an optional action button (reload / open Settings); Coursera "Dịch thất bại" and
   YouTube "Không dịch được" use it (YouTube auto mode still only logs). Progress "Đang dịch x/y đoạn"
@@ -57,5 +66,5 @@
   Bwe7zLSPtXA h0I4083Bm9s dGCdYtk9fHQ nDg7NumntYc E8UKIJ2rLjg RCPS2VC3lk4 MmQp4PkvXV4 w7kz2lI1IMw.
 - Carried over: prompt 3 and the >> split (BACKLOG 44); 2.6.5-2.6.8 not checked live; `screen-text.js`
   never ran; share repo promotion of 2.5.7-2.8.8 after a green install test; BACKLOG 43-47; 2.5.7
-  shortcuts on YouTube; joint-takes branches; 2.5.0 Coursera start hold; coverage gaps in TESTING.md; voice items "có
+  shortcuts on YouTube; joint-takes branches; 2.5.0 Coursera start hold; coverage gaps in TESTING.md (yt-bridge, youtube, content, popup, player-ui are lowest); voice items "có
   nghĩa là", DN, NHNN; `ban-giao.md` lacks the share repo. Never ask about Chrome's Apple Events setting.

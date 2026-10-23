@@ -236,3 +236,13 @@ test("an XML caption body of empty paragraphs is a blank track too; an XML error
     assert.deepEqual(one.map(c => c.text), ["Hello"]);
     assert.equal(one.blank, undefined);
 });
+
+test("a caption request for a non-YouTube or non-timedtext URL is refused without any fetch", async () => {
+    const p = page({ direct: true });
+    for (const bad of ["https://evil.example/api/timedtext?v=vid1", "https://www.youtube.com.evil.example/api/timedtext?v=vid1",
+        "http://www.youtube.com/api/timedtext?v=vid1", "https://www.youtube.com/watch?v=vid1"]) {
+        const r = await p.ask(bad);
+        assert.equal(r.text, "", bad);
+    }
+    assert.equal(p.fetched.length, 0);
+});
