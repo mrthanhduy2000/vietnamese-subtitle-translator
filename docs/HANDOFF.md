@@ -11,8 +11,8 @@
   with the floor-read short lines only. `holdEarlyMax` tried and dropped (jumps 55 -> 418).
 - 2.8.6: `saysI(text, lang)` (~30 languages) lets `[XƯNG HÔ]` reach non-English sources, `meta.lang`
   from the YouTube track; tr-lab `self2` (TESTING.md). A trailing ".." becomes "..." (sanitize).
-- 2.8.7: playback-sim `wordsLost` takes a line's text at its start and drops a notes-only source's
-  notes (`PLAN.notesOnly` exported): the corpus's only real loss left is 6QULfp2wdZI (broken ru track).
+- 2.8.7: playback-sim `wordsLost` fixed (text at the start, notes-only sources): only real loss left
+  is 6QULfp2wdZI (broken ru track).
 - 2.8.8: note words in 11 more languages + an empty bracketed-note item keeps its source (Persian
   "[موسیقی]" failed windows); a blank track (`cues.blank`) tries another, else is told, no retry.
 - Multilingual batch 4 (20 ids, cs el fa he hu ro sv ta bn id it ms ur): 13 saved and reviewed, 2 bn
