@@ -289,7 +289,9 @@ A machine transcript that heard nothing usable (2.7.9, `CST_LANG.brokenTranscrip
 lines: letters under half of the characters, or a language with its own script, ko ja zh ru th ar he hi
 and kin, written in under 20% of it) gives way to `ytChonTrack(others, false)`; `yt.srcTrack` keeps the
 first choice's id so the saved copy is found again. Found on a Tamil-English interview tagged "ko (auto)";
-0 of 100 saved videos' tracks flagged.
+0 of 100 saved videos' tracks flagged. 2.8.8: so does a **blank** track (`cues.blank`: the body came
+with events but no text, as two Bengali vlogs' only "en" track, one " " event); with no other track it
+is told as blank ("Phụ đề của video này trống") and never retried as a missing pot.
 An auto start whose caption body came back empty (`yt.emptyCaptionsFor`; the player's pot not seen
 yet, typical of a background or covered tab) is tried again by `ytRetryEmptyCaptions` (2.7.2): when
 the tab is shown, else after 4, 12 and 30 s; turning translation off (`ytTatDich` bumps `yt.offSeq`)
@@ -303,6 +305,10 @@ only (`CST_QUALITY.soundNoteLine`) is filled from the list inside a window of sp
 the empty item ("Có mục dịch rỗng") failed the whole window to Google, which keeps a video unsaved.
 So does a line of a bare "foreign" (automatic captions' mark for speech in another language) and notes
 (2.7.5, `BARE_FOREIGN` in `soundNoteLine`: "[Tiếng nước ngoài]"); its window failed on every heal.
+2.8.8: `SOUND_WORDS` has music, applause and laughter in fa ro el he cs hu uk sv bn ta ur (45 -> 12 unknown
+note lines in 110 saved videos, the 12 English descriptions the model translates; mostly Persian "[موسیقی]" and Romanian "[Muzică]"), and in
+`readUnitAnswer` an item that is bracketed notes only and comes back empty keeps its source in any
+number (a note the list does not know never fails a window).
 In general (2.7.7, `readUnitAnswer`, `EMPTY_KEEP_WORDS` 3): an item the model left empty that has at most
 3 words, in a window with at most a quarter of its items empty, keeps its source words (a name, "that's
 all"); a longer empty item still fails the window ("Có mục dịch rỗng"), and from 2.7.8 its

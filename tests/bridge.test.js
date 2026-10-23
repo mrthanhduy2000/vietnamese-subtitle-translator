@@ -145,3 +145,20 @@ test("a display-form body (overlapping two-row blocks, no word times) gets one c
     ] }));
     assert.deepEqual(uploaded.map(c => c.text), ["I went to the store and bought some milk.", "Then I came home."]);
 });
+
+test("a body of events with no text is a blank track: tried after other tracks, told as blank, not retried as a missing pot", () => {
+    const src = fs.readFileSync(path.join(__dirname, "..", "youtube.js"), "utf8");
+    const a = src.indexOf("function ytDocNoiDungPhuDe(");
+    const parse = new Function(src.slice(a, src.indexOf("\n}\n", a) + 2) + "; return ytDocNoiDungPhuDe;")();
+    // as two Bengali vlogs' only track came (2026-10-23): one event of a single space
+    const blank = parse(JSON.stringify({ wireMagic: "pb3", events: [{ tStartMs: 0, dDurationMs: 2000, segs: [{ utf8: " " }] }] }));
+    assert.equal(blank.length, 0);
+    assert.equal(blank.blank, true);
+    assert.equal(parse("").blank, undefined, "an empty body (no pot yet) is not a blank track");
+    assert.equal(parse(JSON.stringify({ events: [{ tStartMs: 0, dDurationMs: 900, segs: [{ utf8: "Hello" }] }] })).blank, undefined);
+    const at = src.indexOf("cues.length === 0 && cues.blank");
+    assert.ok(at > 0);
+    const block = src.slice(at, at + 400);
+    assert.doesNotMatch(block.slice(0, block.indexOf("return false")), /emptyCaptionsFor/, "no retry for a blank track");
+    assert.match(src, /others\.length && \(cues\.blank \|\|/, "a blank track gives way to another one first");
+});

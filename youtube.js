@@ -367,11 +367,13 @@ async function ytTaiBanChepLoi(baseUrl) {
 function ytDocNoiDungPhuDe(rawText) {
     const cues = [];
     if (!rawText) return cues;
+    let parsedEvents = 0;
 
     // Cách 1: Thử parse dạng JSON3
     try {
         const data = JSON.parse(rawText);
         const events = data.events || [];
+        parsedEvents = events.length;
         for (const ev of events) {
             if (!ev.segs) continue;
             const text = ev.segs
@@ -443,6 +445,9 @@ function ytDocNoiDungPhuDe(rawText) {
         if (cues[i].end > cues[i + 1].start) cues[i].end = cues[i + 1].start;
     }
 
+    // (2.8.8) The body came and holds events, but not a word: the track itself is blank (an uploaded
+    // "en" track of one " " event on two Bengali vlogs). Not the missing pot of an empty body
+    if (!cues.length && parsedEvents > 0) cues.blank = true;
     return cues;
 }
 
@@ -1533,8 +1538,9 @@ async function ytBatDauDich(opts = {}) {
         // first choice's, so the saved copy is found again on the next visit, which chooses the same way
         const LD = window.CST_LANG;
         const others = info.tracks.filter(t => t !== track);
-        if (track.kind === "asr" && cues.length && others.length && LD && LD.brokenTranscript &&
-            LD.brokenTranscript(track.languageCode, cues.slice(0, 120).map(c => c.text).join(" ")).broken) {
+        // (2.8.8) ... and so does a blank track (cues.blank: events with no text)
+        if (others.length && (cues.blank || (track.kind === "asr" && cues.length && LD && LD.brokenTranscript &&
+            LD.brokenTranscript(track.languageCode, cues.slice(0, 120).map(c => c.text).join(" ")).broken))) {
             const alt = ytChonTrack(others, false, { audio: info.audio }).track;
             const altCues = alt ? await ytTaiBanChepLoi(alt.baseUrl).catch(() => []) : [];
             if (stale()) return false;
@@ -1544,6 +1550,11 @@ async function ytBatDauDich(opts = {}) {
                 cues = altCues;
                 yt.trackInfo = { languageCode: track.languageCode, kind: track.kind || "", viSan: false };
             }
+        }
+        if (cues.length === 0 && cues.blank) {
+            // nothing to wait for: playing, reloading or trying again gives the same blank track
+            baoLoi("Phụ đề của video này trống (người đăng tải lên một bản không có chữ), không có gì để dịch.");
+            return false;
         }
         if (cues.length === 0) {
             yt.emptyCaptionsFor = ma0;      // an auto start tries again (ytRetryEmptyCaptions)

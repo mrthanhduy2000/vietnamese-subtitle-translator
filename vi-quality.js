@@ -564,9 +564,9 @@
     // request), and a known note inside speech gets its square brackets back. Square brackets are
     // always a note; round ones only around a word of this list.
     const SOUND_WORDS = {
-        "Âm nhạc": ["music", "musik", "musique", "música", "musica", "muziek", "muzyka", "musika", "muzik", "müzik", "музыка", "موسيقى", "音楽", "音乐", "音樂", "음악", "संगीत", "เพลง", "ดนตรี", "âm nhạc", "nhạc"],
-        "Vỗ tay": ["applause", "applaus", "applaudissements", "aplausos", "applausi", "oklaski", "palakpakan", "alkış", "аплодисменты", "تصفيق", "拍手", "掌声", "掌聲", "박수", "तालियाँ", "เสียงปรบมือ", "tepuk tangan", "vỗ tay"],
-        "Tiếng cười": ["laughter", "laughs", "laughing", "laugh", "gelächter", "lachen", "rires", "risas", "risos", "risate", "śmiech", "смех", "ضحك", "笑い", "笑", "笑声", "笑聲", "웃음", "हंसी", "เสียงหัวเราะ", "tertawa", "tiếng cười", "cười"],
+        "Âm nhạc": ["music", "musik", "musique", "música", "musica", "muziek", "muzyka", "musika", "muzik", "müzik", "музыка", "موسيقى", "音楽", "音乐", "音樂", "음악", "संगीत", "เพลง", "ดนตรี", "موسیقی", "muzică", "muzica", "μουσική", "מוזיקה", "hudba", "zene", "музика", "সঙ্গীত", "মিউজিক", "இசை", "âm nhạc", "nhạc"],
+        "Vỗ tay": ["applause", "applaus", "applaudissements", "aplausos", "applausi", "oklaski", "palakpakan", "alkış", "аплодисменты", "تصفيق", "拍手", "掌声", "掌聲", "박수", "तालियाँ", "เสียงปรบมือ", "tepuk tangan", "تشویق", "aplauze", "χειροκρότημα", "χειροκροτήματα", "מחיאות כפיים", "potlesk", "taps", "оплески", "applåder", "হাততালি", "கைதட்டல்", "تالیاں", "vỗ tay"],
+        "Tiếng cười": ["laughter", "laughs", "laughing", "laugh", "gelächter", "lachen", "rires", "risas", "risos", "risate", "śmiech", "смех", "ضحك", "笑い", "笑", "笑声", "笑聲", "웃음", "हंसी", "เสียงหัวเราะ", "tertawa", "خنده", "râsete", "γέλια", "γέλιο", "צחוק", "smích", "nevetés", "сміх", "skratt", "হাসি", "சிரிப்பு", "ہنسی", "tiếng cười", "cười"],
         "Reo hò": ["cheering", "cheers", "reo hò", "hò reo"],
         "Âm thanh": ["sound"],
         "Im lặng": ["silence", "blank audio", "im lặng"],

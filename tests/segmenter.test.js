@@ -558,6 +558,9 @@ test("a bare \"foreign\" of automatic captions is a note on a line of nothing el
     assert.equal(Q.soundNoteLine("foreign [Music]").vi, "[Tiếng nước ngoài] [Âm nhạc]");
     assert.equal(Q.soundNoteLine("[Music] foreign").vi, "[Âm nhạc] [Tiếng nước ngoài]");
     assert.equal(Q.soundNoteLine("foreign").vi, "[Tiếng nước ngoài]");
+    // (2.8.8) music, applause and laughter in the languages of the fourth multilingual batch
+    for (const [src, vi] of [["[موسیقی]", "[Âm nhạc]"], ["[Muzică]", "[Âm nhạc]"], ["[μουσική]", "[Âm nhạc]"], ["[تشویق]", "[Vỗ tay]"], ["[smích]", "[Tiếng cười]"]])
+        assert.equal(Q.soundNoteLine(src).vi, vi, src);
     for (const speech of ["bye guys foreign [Music]", "foreign investment grew", "the foreign", "[Music] thank you [Music] foreign"])
         assert.equal(Q.soundNoteLine(speech), null, speech);
 });

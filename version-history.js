@@ -4,6 +4,17 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.8.8", luc: "23/10/2026", ten: "Chú thích \"[nhạc]\" mọi ngôn ngữ, phụ đề trống báo đúng",
+            y: [
+                "Chú thích âm thanh như \"[موسیقی]\" (nhạc, tiếng Ba Tư), \"[Muzică]\" (Rumani), \"[μουσική]\" (Hy Lạp) từng bị gửi cho Gemini, Gemini để trống và cả đoạn rơi về Google Dịch. Nay chúng hiện là [Âm nhạc], [Vỗ tay], [Tiếng cười] ngay, và một chú thích lạ bị để trống không còn làm hỏng cả đoạn.",
+                "Video có phụ đề tải lên nhưng không có chữ nào (gặp ở vlog tiếng Bengal) từng bị báo \"YouTube chưa trả nội dung, hãy F5\" và thử lại mãi. Nay tiện ích thử phụ đề khác nếu có; nếu không, báo rõ phụ đề trống."
+            ],
+            bang: { cot: ["110 video đã lưu", "2.8.7", "Nay"], hang: [
+                ["Dòng chú thích không nhận ra", "45", "12 (mô tả tiếng Anh, Gemini vẫn dịch)"],
+                ["Đoạn rơi về Google vì chú thích để trống", "3 trên video Ba Tư", "0"]
+            ] }
+        },
+        {
             v: "2.8.7", luc: "23/10/2026", ten: "Đo đúng số chữ lồng tiếng bị bỏ sót",
             y: [
                 "Bộ đo trên máy từng tính nhầm là \"mất chữ\" ở hai trường hợp: câu đã đọc nhưng kế hoạch đọc vừa được làm mới, và chú thích trong ngoặc như \"(Đoàng!!)\" vốn cố ý không đọc. Nay hai trường hợp đó không bị tính nữa. Giọng đọc không đổi."

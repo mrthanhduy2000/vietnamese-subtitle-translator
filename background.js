@@ -562,6 +562,11 @@ function readUnitAnswer(data, req, allowed) {
     // Google on every model and every heal, so the video was never saved (cstFallbackLog: 3 videos
     // in 51 new ones, every one an item the model took for no speech). A longer item left empty may
     // be lost meaning: the window still fails, as before, and so does one with many empty items.
+    // (2.8.8) An item that is a bracketed note and nothing else ("[موسیقی]", music in Persian, a note
+    // the list in vi-quality.js does not know) may come back empty in any number: it keeps its source,
+    // the dub planner leaves square-bracket notes silent. It failed a Persian video's windows (3 of 4)
+    const noteOnly = i => { const t = String(req.sentences[i] || ""); return /[\[♪♫]/.test(t) && !/[\p{L}\p{N}]/u.test(t.replace(/\[[^\][]*\]|[♪♫]+|>>/g, " ")); };
+    for (let i = 0; i < translations.length; i++) if (!translations[i] && noteOnly(i)) translations[i] = String(req.sentences[i]).trim();
     const empty = translations.map((t, i) => (t ? -1 : i)).filter(i => i >= 0);
     if (empty.length) {
         const short = i => (String(req.sentences[i] || "").match(/[\p{L}\p{N}]+/gu) || []).length <= EMPTY_KEEP_WORDS;

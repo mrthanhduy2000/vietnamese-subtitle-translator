@@ -866,6 +866,16 @@ test("an item left empty that is a name or a few words keeps its source; a longe
     assert.equal((await M.send({ ...REQ, sentences: many })).engine, "google_fallback", "more than a quarter empty");
 });
 
+test("bracketed notes left empty keep their source in any number; the window stays Gemini's", async () => {
+    const answer = t => ({ ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: JSON.stringify({ t }) }] }, finishReason: "STOP" }], usageMetadata: { promptTokenCount: 700, candidatesTokenCount: 40 } }) });
+    // a Persian window: three notes the list did not know, one line of speech
+    const sentences = ["[ناشناخته]", "[صدای در]", ">> [ناشناخته]", "امروز می‌خواهم آشپزی کنم"];
+    const E = bgEnv(async u => (u.includes("generativelanguage") ? answer(["", "", "", "Hôm nay mình muốn nấu ăn."]) : GOOGLE_OK), cfg({ geminiApiKey: "KEY-OLD-USER" }));
+    const r = await E.send({ ...REQ, sentences });
+    assert.equal(r.engine, "gemini");
+    assert.deepEqual(r.translations, ["[ناشناخته]", "[صدای در]", ">> [ناشناخته]", "Hôm nay mình muốn nấu ăn."]);
+});
+
 test("price of a typed model id: release suffixes, family by generation, unknown kind flagged", () => {
     const how = id => { const p = COST.priceOf(id); return [p.how, p.base]; };
     assert.deepEqual(how("gemini-3.1-flash-lite"), ["exact", "gemini-3.1-flash-lite"]);
