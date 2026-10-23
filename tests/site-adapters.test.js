@@ -119,3 +119,13 @@ test("wiring: scripts load before youtube.js and content.js calls prepare before
     const at = cs.indexOf("window.CST_SITES.prepare(csVideo())");
     assert.ok(at > -1 && at < cs.indexOf("const picked = pickBestTrack();", at));
 });
+
+test("ted.com pages get the scripts on arrival and are translated without a click", () => {
+    const m = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "manifest.json"), "utf8"));
+    const g = m.content_scripts.find(x => (x.js || []).includes("site-ted.js"));
+    assert.ok(g.matches.includes("*://*.ted.com/*"));
+    const cs = fs.readFileSync(path.join(__dirname, "..", "content.js"), "utf8");
+    assert.match(cs, /function csAdapterSite\(\)/);
+    assert.match(cs, /getCurrentSite\(\) !== "coursera" && !csAdapterSite\(\)/);
+    assert.match(cs, /csAdapterSite\(\) && csVideo\(\)\) await window\.CST_SITES\.prepare/);
+});

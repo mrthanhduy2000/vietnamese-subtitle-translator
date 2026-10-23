@@ -7,6 +7,9 @@
   the host permission) and whether `__NEXT_DATA__` still carries `playerData.resources.hls.stream`.
 - Udemy, edX, Vimeo embeds still open (BACKLOG 9).
 
+## TED auto (PR #46)
+- ted.com auto-translates on arrival; verify on the Mac: button/menu on TED's player, voice, SPA move to the next talk. Vietnamese track from TED is not shown by us (notice only).
+
 ## State
 - Unreleased (lane B, BACKLOG 48, `docs/changes/loose-line-pauses.md`, DUBBING.md "Loose lines hand
   spare time"): a line that would end 1 s+ early at its floor pace asks for longer punctuation pauses

@@ -4,3 +4,4 @@
 - HLS subtitle playlists have a 3.504 s lead-in before `#EXT-X-DISCONTINUITY`; cue times restart after it,
   so `loadHlsVtt` now adds the elapsed time before each discontinuity (`parseHlsTimeline`).
 - No version bump: the release thread collects this.
+- ted.com added to the content-script matches; `csAdapterSite()` lets `courseraAutoTranslate` run on adapter sites, so TED talks translate (and voice) on arrival. Not seen live: needs the Mac check.

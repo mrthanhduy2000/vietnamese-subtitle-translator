@@ -36,6 +36,7 @@
         {
             "matches": [
                 "*://*.coursera.org/*",
+                "*://*.ted.com/*",
                 "*://*.youtube.com/*"
             ],
             "js": [
