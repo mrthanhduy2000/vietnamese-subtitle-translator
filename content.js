@@ -1459,6 +1459,8 @@ async function translateTrackSite(opts = {}) {
         cstToast("Trang này không có video nào để dịch phụ đề.", { warn: true });
         return false;
     }
+    // Sites whose captions are not a <track> (CST_SITES adapters) get theirs added to the <video> first
+    if (generic && window.CST_SITES) await window.CST_SITES.prepare(csVideo());
     const picked = pickBestTrack();
     if (!picked) {
         cstToast(generic
