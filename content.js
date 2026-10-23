@@ -152,6 +152,11 @@ function getCurrentSite() {
     return "generic";
 }
 
+// A site with its own caption source (site-adapters.js); null when the page has none
+function csAdapterSite() {
+    return window.CST_SITES && getCurrentSite() === "generic" ? window.CST_SITES.find(location) : null;
+}
+
 // Coursera and every other page share one pipeline: a <video> with standard text tracks
 function isTrackSite(site) {
     return site === "coursera" || site === "generic";
@@ -613,14 +618,33 @@ function protectMany(sentences) {
     return { texts, terms: res.terms };
 }
 
-function sendMessageAsync(msg) {
+// The service worker is stopped by Chrome after ~30 s idle and can die mid-request. Sending wakes it,
+// but the first call can still fail with one of these. A retry succeeds because the worker is then up.
+// "Extension context invalidated" is NOT here: the page holds a dead connection until it is reloaded.
+const CST_TRANSIENT_SW_ERROR = /receiving end does not exist|could not establish connection|message port closed|no response|không có phản hồi/i;
+const CST_SW_RETRY_DELAYS_MS = [250, 1000];
+
+function sendMessageOnce(msg) {
     return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage(msg, response => {
-            if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
-            else if (!response || !response.ok) reject(new Error(response ? response.error : "Không có phản hồi từ tiện ích"));
-            else resolve(response);
-        });
+        try {
+            chrome.runtime.sendMessage(msg, response => {
+                if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
+                else if (!response || !response.ok) reject(new Error(response ? response.error : "Không có phản hồi từ tiện ích"));
+                else resolve(response);
+            });
+        } catch (e) { reject(e); }
     });
+}
+
+async function sendMessageAsync(msg) {
+    for (let attempt = 0; ; attempt++) {
+        try { return await sendMessageOnce(msg); }
+        catch (e) {
+            const delay = CST_SW_RETRY_DELAYS_MS[attempt];
+            if (delay === undefined || !CST_TRANSIENT_SW_ERROR.test(String(e && e.message))) throw e;
+            await new Promise(r => setTimeout(r, delay));
+        }
+    }
 }
 
 // What context went with the request, so it can be checked in the console while watching, with no
@@ -999,9 +1023,14 @@ function pageTracks() {
     if (!v) return [];
     const own = els.filter(t => v.contains(t));
     const seen = new Set(own.map(t => t.track));
-    const extra = Array.from(v.textTracks || []).filter(tt => !seen.has(tt) && !/^cst/i.test(tt.label || "")
+    const extra = Array.from(v.textTracks || []).filter(tt => !seen.has(tt) && !/^cst/i.test(tt.label || "") && !tt.cstStale
         && tt.kind !== "metadata" && tt.kind !== "chapters" && tt.kind !== "descriptions");
-    return own.concat(extra.map(trackWrap));
+    const all = own.concat(extra.map(trackWrap));
+    // A site adapter's full captions beat the player's own track, which can still be loading
+    // (TED fills it as the talk plays): translating that one leaves everything after it untranslated
+    const mark = window.CST_SITES && window.CST_SITES.TRACK_MARK;
+    const site = mark ? all.filter(t => (t.label || "").startsWith(mark)) : [];
+    return site.length ? site : all;
 }
 
 function pickBestTrack() {
@@ -2671,8 +2700,9 @@ async function init() {
 // Chỉ khi phụ đề KHÔNG phải tiếng Việt và nhận diện đủ chắc (nhận diện trên máy,
 // không gọi Gemini). Tắt "Tự động dịch" thì vẫn bấm nút dịch tay được.
 async function courseraAutoTranslate() {
-    // generic pages: the viewer just asked for a translation, nothing to decide automatically
-    if (getCurrentSite() !== "coursera") return null;
+    // generic pages: the viewer just asked for a translation, nothing to decide automatically,
+    // except on sites with an adapter (site-*.js), which are translated on arrival like Coursera
+    if (getCurrentSite() !== "coursera" && !csAdapterSite()) return null;
     if (!state.autoTranslate || state.active || state.autoTriedUrl === location.href) return null;
     const release = courseraHoldFirstPlay(location.href);
     try {
@@ -2720,6 +2750,14 @@ async function courseraAutoTranslateNow() {
     for (let i = 0; i < 80 && state.busy && location.href === url; i++) await sleep(250);
     if (state.busy) return null;
     let picked = null;
+    // adapter sites: the captions come from the site, not the player. Added before the player's own
+    // track can be picked, and again for every talk (the page may have moved on without a reload)
+    if (csAdapterSite()) {
+        for (let i = 0; i < 20 && location.href === url; i++) {
+            if (csVideo() && await window.CST_SITES.prepare(csVideo())) break;
+            await sleep(500);
+        }
+    }
     for (let i = 0; i < 30 && !(picked = pickBestTrack()); i++) await sleep(500);   // chờ trình phát nạp track
     if (location.href !== url || state.active || state.busy) return null;
     state.autoTriedUrl = url;
@@ -2739,6 +2777,10 @@ async function courseraAutoTranslateNow() {
     }
     state.langDecision = decision;
     console.log(`[AI Subtitle] Ngôn ngữ phụ đề: ${decision.lang} (${Math.round(decision.confidence * 100)}%, theo ${decision.source}) -> ${decision.action === "translate" ? "tự động dịch" : decision.action === "skip" ? "đã là tiếng Việt, không dịch" : "chưa chắc chắn, không tự dịch"}`);
+    // Adapter sites add their own tracks, so the viewer has no other sign that Vietnamese exists
+    if (decision.action === "skip" && picked.alreadyVietnamese && csAdapterSite()) {
+        cstToast("Video này đã có phụ đề tiếng Việt. Hãy chọn tiếng Việt trong menu phụ đề của trình phát.");
+    }
     if (decision.action === "translate") {
         // the voice starts with the first translated lines, not after the whole lecture
         await enableTranslation({ onShown: () => { if (location.href === url) courseraAutoDub(); } });

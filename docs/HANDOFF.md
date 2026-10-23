@@ -7,7 +7,14 @@
   the host permission) and whether `__NEXT_DATA__` still carries `playerData.resources.hls.stream`.
 - Udemy, edX, Vimeo embeds still open (BACKLOG 9).
 
+## TED auto (PR #46)
+- ted.com auto-translates on arrival; verify on the Mac: button/menu on TED's player, voice, SPA move to the next talk. Vietnamese track from TED is not shown by us (notice only).
+
 ## State
+- Weak machines (lane B/D, no bump, `docs/changes/weak-machines.md`): `dub-hardware.js` toast offers the video
+  speed a slow voice keeps up with (0.8/rtf); `SYNC` untouched (look-ahead made no difference in the sim);
+  `install-mac.sh` reads the chip via `hw.optional.arm64`, Intel voice opt-in `DPD_INTEL_VOICE=1`,
+  `.github/workflows/intel-voice.yml` times it on macos-15-intel. Details: `DUBBING.md` "A weak machine".
 - Unreleased (lane B, BACKLOG 48, `docs/changes/loose-line-pauses.md`, DUBBING.md "Loose lines hand
   spare time"): a line that would end 1 s+ early at its floor pace asks for longer punctuation pauses
   (`looseSlack`, `pauseSlack`, `shapePauses opts.slack`, key `slack<step>`). 101 videos: silences
@@ -59,6 +66,11 @@
 - `seekWhileSlow` gives 15/7 or 16/6; timing tests fail during a driver batch: rerun first.
 
 ## Unfinished
+- Intel voice works in CI with `onnxruntime<1.24` (rtf 1.5-1.8, 4-core runner). Hear it on a real Intel Mac
+  before making it the default.
+- On the Mac: `node tools/regress.js` (then `--save`) for 2.9.3 to 2.9.5; try a Coursera lecture twice.
+- Spot-check the drafted names (esports, fitness, board games, supplements) and fix the ~181 residual
+  Vietnamese readings via `MANUAL_SAY`. Not yet 100,000 terms.
 - BACKLOG 48: render the A/B takes (`node /private/tmp/claude-501/b48ab/render.js` on the Mac), shape
   them (`$TMPDIR/b48shape.js`), listen. After merge, `node tools/regress.js --save` on main.
 - On the Mac: `regress.js` for 2.9.3 to 3.0.2; try a Coursera lecture twice; 14 VieNeu names

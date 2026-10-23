@@ -62,10 +62,36 @@
             .map(l => new URL(l, baseUrl).href);
     }
 
+    // Segments with the playlist time at which each one starts a timeline period. After an
+    // #EXT-X-DISCONTINUITY the segment's own cue times restart from 0, so the time of everything
+    // before it (e.g. a 3.5 s ident ahead of the talk) must be added back to land on the video clock.
+    function parseHlsTimeline(playlist, baseUrl) {
+        const out = [];
+        let elapsed = 0, dur = 0, periodStart = 0;
+        for (const raw of String(playlist || "").split(/\r?\n/)) {
+            const l = raw.trim();
+            if (!l) continue;
+            if (l.startsWith("#EXTINF:")) { dur = parseFloat(l.slice(8)) || 0; continue; }
+            if (l.startsWith("#EXT-X-DISCONTINUITY") && !l.startsWith("#EXT-X-DISCONTINUITY-SEQUENCE")) { periodStart = elapsed; continue; }
+            if (l.startsWith("#")) continue;
+            out.push({ url: new URL(l, baseUrl).href, offset: periodStart });
+            elapsed += dur;
+            dur = 0;
+        }
+        return out;
+    }
+
     async function loadHlsVtt(uri, fetchText) {
-        const segs = parseHlsSegments(await fetchText(uri), uri);
-        const cues = [];
-        for (const s of segs) cues.push(...parseVtt(await fetchText(s)));
+        const cues = [], seen = new Set();
+        for (const seg of parseHlsTimeline(await fetchText(uri), uri)) {
+            for (const c of parseVtt(await fetchText(seg.url))) {
+                // a cue crossing a segment boundary is repeated at the start of the next segment
+                const key = c.start + "|" + c.end + "|" + c.text;
+                if (seen.has(key)) continue;
+                seen.add(key);
+                cues.push(seg.offset ? { start: c.start + seg.offset, end: c.end + seg.offset, text: c.text } : c);
+            }
+        }
         return cues;
     }
 
@@ -98,7 +124,13 @@
                 return r.text();
             });
             const makeCue = env.makeCue || ((s, e, t) => new root.VTTCue(s, e, t));
-            const have = Array.from(video.textTracks || []).filter(t => (t.label || "").startsWith(TRACK_MARK));
+            // Captions added for another page (the player may survive a client-side move) go stale
+            const mine = Array.from(video.textTracks || []).filter(t => (t.label || "").startsWith(TRACK_MARK));
+            const have = [];
+            for (const t of mine) {
+                if (t.cstPath === loc.pathname) have.push(t);
+                else { t.cstStale = true; t.mode = "disabled"; }
+            }
             if (have.length) return have.length;
             const sources = await adapter.sources(doc, { loc, fetchText });
             let added = 0;
@@ -107,6 +139,7 @@
                 if (!cues.length) continue;
                 const tt = video.addTextTrack("subtitles", TRACK_MARK + (s.label || s.lang), s.lang || "");
                 tt.mode = "hidden";
+                tt.cstPath = loc.pathname;
                 for (const c of cues) tt.addCue(makeCue(c.start, c.end, c.text));
                 added++;
             }
@@ -117,5 +150,5 @@
         }
     }
 
-    root.CST_SITES = { register, find, prepare, choose, parseVtt, parseHlsSubtitles, parseHlsSegments, loadHlsVtt, TRACK_MARK };
+    root.CST_SITES = { register, find, prepare, choose, parseVtt, parseHlsSubtitles, parseHlsSegments, parseHlsTimeline, loadHlsVtt, TRACK_MARK };
 })();

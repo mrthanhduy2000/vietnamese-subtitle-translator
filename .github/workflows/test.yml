@@ -25,6 +25,21 @@ jobs:
           npm run coverage 2>&1 | sed -n '/start of coverage/,/end of coverage/p' >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
+  # Warning only, never a gate: feature PRs leave the version to the release step (docs/changes/README.md).
+  version-guard:
+    if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Warn if the PR changes the version
+        run: |
+          files=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- manifest.json package.json build-info.js version-history.js)
+          if [ -n "$files" ]; then
+            echo "::warning title=Version files changed::Feature PRs should not bump the version or edit version-history.js. Add docs/changes/<slug>.md instead (see docs/changes/README.md). Changed: $(echo $files | tr '\n' ' ')"
+          fi
+
   # Friends on Windows run the same suite; macOS-only cases skip themselves (docs/WINDOWS.md).
   npm-test-windows:
     runs-on: windows-latest

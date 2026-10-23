@@ -403,7 +403,8 @@ test("máy chủ giọng chạy chậm: dịch vụ chạy ở mức ưu tiên t
     // 3. Trang Cài đặt hiện tốc độ đó, và phần lồng tiếng cảnh báo khi quá chậm
     assert.match(R("options.js"), /Tốc độ tạo giọng đo được/);
     assert.match(R("dubbing.js"), /canhBaoMayChuCham/);
-    assert.match(R("dubbing.js"), /rtf < 0\.8/, "ngưỡng cảnh báo");
+    assert.match(R("dubbing.js"), /slowAdvice/, "cảnh báo khi quá chậm");
+    assert.match(R("dub-hardware.js"), /behind: 0\.8/, "ngưỡng cảnh báo");
     // Bài chạy thật phải HỎNG khi máy chủ chậm, thay vì in ĐẠT
     assert.match(R("tests/vieneu.live.js"), /máy chủ VieNeu quá chậm/);
     assert.match(R("tests/vieneu.live.js"), /chỉ đọc \$\{rates\.length\}/, "0 câu được nói từng lọt qua và vẫn in ĐẠT");

@@ -1,0 +1,59 @@
+name: intel-voice
+
+# Does the VieNeu voice install and run on an Intel Mac, and how fast? The share installer refuses an
+# Intel Mac unless DPD_INTEL_VOICE=1; this job is that experiment. It never blocks a merge: the
+# answer is the speed it prints (seconds to render one sentence), not a pass or fail.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - tools/share/install-mac.sh
+      - tools/share/vieneu/**
+      - .github/workflows/intel-voice.yml
+
+jobs:
+  intel:
+    runs-on: macos-15-intel
+    continue-on-error: true
+    timeout-minutes: 50
+    env:
+      DPD_NO_OPEN: "1"
+      DPD_NO_DESKTOP: "1"
+      DPD_INTEL_VOICE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - name: The machine
+        run: |
+          uname -m; sysctl -n machdep.cpu.brand_string hw.logicalcpu hw.memsize
+          sysctl -n hw.optional.arm64 || echo "hw.optional.arm64: absent (a real Intel chip)"
+      - name: Lay the repo out as the share tree the installer reads
+        run: |
+          set -e
+          SRC="$RUNNER_TEMP/share"
+          mkdir -p "$SRC/extension/tools"
+          rsync -a --exclude .git --exclude tests --exclude docs --exclude tools --exclude .github ./ "$SRC/extension/"
+          for f in vieneu-autostart.command vieneu-autostart.ps1 vieneu-autostart.cmd vieneu-runner.pyw dichphude-update.py huong-dan-cai-dat.html vieneu-pin.py; do
+            cp "tools/$f" "$SRC/extension/tools/$f"
+          done
+          cp tools/share/vieneu-model.json "$SRC/extension/tools/vieneu-model.json"
+          cp -R tools/share/vieneu "$SRC/vieneu"
+          echo "DPD_SRC=$SRC" >> "$GITHUB_ENV"
+      - name: Install with the voice
+        run: |
+          set -o pipefail
+          /bin/bash tools/share/install-mac.sh 2>&1 | tee "$RUNNER_TEMP/install.log"
+      - name: Render a sentence and time it
+        run: |
+          set -x
+          curl -fsS 127.0.0.1:8000/health; echo
+          for i in 1 2 3; do
+            curl -fsS -o "$RUNNER_TEMP/t.wav" -w "take $i: %{time_total} s\n" 127.0.0.1:8000/v1/audio/speech \
+              -H 'content-type: application/json' \
+              -d '{"model":"x","input":"Xin chào, đây là thử nghiệm giọng đọc trên máy Mac chip Intel.","response_format":"wav"}'
+            # 16-bit mono PCM after a 44-byte header: seconds of speech = bytes / (2 * sample rate)
+            rate="$(curl -fsS 127.0.0.1:8000/v1/models | python3 -c 'import json,sys; print(json.load(sys.stdin)["data"][0]["sample_rate"])')"
+            echo "speech: $(stat -f%z "$RUNNER_TEMP/t.wav" | awk -v r="$rate" '{ printf "%.2f", ($1 - 44) / (2 * r) }') s at $rate Hz"
+          done
+      - name: Server log
+        if: always()
+        run: tail -60 ~/VieNeu-TTS/server.log || true
