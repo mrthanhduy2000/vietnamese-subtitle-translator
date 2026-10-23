@@ -60,6 +60,8 @@
                 "dubbing.js",
                 "content.js",
                 "screen-text.js",
+                "site-adapters.js",
+                "site-ted.js",
                 "youtube.js"
             ],
             "run_at": "document_idle",
