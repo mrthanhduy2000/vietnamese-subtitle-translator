@@ -20,3 +20,9 @@ test("MyMemory real translation still works", async () => {
     const r = await bgEnv(server(mm("Xin chào.", 200)), {}, { timeScale: 0.01 }).send(REQ);
     assert.deepEqual(r.translations, ["Xin chào."]);
 });
+
+test("MyMemory echoing a non-English source back is not a translation", async () => {
+    const src = "你好，欢迎来到这个课程。";
+    const r = await bgEnv(server(mm(src, 200)), {}, { timeScale: 0.01 }).send({ ...REQ, sentences: [src] });
+    for (const t of r.translations || []) assert.notEqual(t, src, "source shown as its own translation");
+});
