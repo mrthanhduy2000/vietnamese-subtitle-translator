@@ -10,6 +10,10 @@
 ## State
 - Unreleased (lane B, dubbing.js buildProviders): dubSystemFallback (default true) lets the browser Vietnamese voice
   speak when VieNeu is down and sits behind VieNeu as engine fallback. Not heard on a real machine.
+- unreleased (lane A/D, glossary protection): the window cache key no longer holds protected terms or codes
+  (`SUBTITLE.md` "Protected glossary terms and the window cache"); matcher buckets warm up in idle slices
+  (first `protectGlossary` 50-80 ms -> ~2 ms). `tests/glossary-cache.test.js`. `regress.js` not run.
+  Lowercase-brand gap, not loosened: `BACKLOG.md`.
 - 3.0.2 (glossary, cloud): `tools/glossary-filter.py <first-line> --names=<nltk names> --write` dropped ~660
   everyday words and history names that hid Vietnamese renderings from the 2.9.2 and 2.9.5 batches
   (~2,300 false hits gone on 3.2M words). Run it on every new batch before merging. 14 VieNeu names
@@ -24,17 +28,10 @@
 - 2.9.9 (lane A, overlay UX): `CST_STYLE.overlayFontPx` (12 px floor, one size formula for YouTube and
   Coursera), `overlayTransition` (honours prefers-reduced-motion; Coursera now animates `top` too).
   Not seen on a live page; click Reload and check a narrow/mini player.
-- 2.9.8 (lane C, UI): popup and Settings text now reach WCAG AA 4.5:1 in light and dark (muted/secondary
-  tokens, new `--claude-accent-fill` / `--claude-success-fill` behind white button text, `--primary-text`
-  for the options value pill). Guarded by the "popup contrast" test in `tests/ui.test.js`. Not run on
-  the Mac: popup rendered only in headless Chromium with the web shim.
-- 2.9.7 (lane D, background.js): `stripAddedFormatting` removes echoed list numbers, *italics*, <i>/<b>,
-  HTML entities only when the source line lacks them; `sanitizeModelOutput` drops zero-width chars and NBSP.
-  `TR_PROMPT_VERSION` unchanged (no prompt edit). Prompt text itself judged mature; nothing measurable offline.
+- 2.9.8 (UI contrast) and 2.9.7 (`stripAddedFormatting`, `sanitizeModelOutput`): see git log.
 - 2.9.5 (lane B/D, glossary): +34,700 names from 50 topic drafts (`scratchpad/cands3`), 73,270
-  candidates in total. Drafted from memory, mostly unverified. About 181 still read Vietnamese by
-  VieNeu (writer LEFT list). Short source files need a spot-check: esports 86 lines, fitness 125,
-  board games 352, supplements 515.
+  candidates in total, mostly unverified. About 181 still read Vietnamese by VieNeu. Spot-check short
+  source files: esports 86 lines, fitness 125, board games 352, supplements 515.
 - 2.9.4 (other session, lane A, content.js): Coursera and generic pages keep each translated lecture
   whole (`cscache1_<host><path>`, index `cscacheIdx`, newest 200). Google-fallback windows are healed
   like YouTube (`csHealFallbacks`). `SUBTITLE.md` item 11.

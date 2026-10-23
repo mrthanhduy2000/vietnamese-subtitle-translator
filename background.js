@@ -85,7 +85,10 @@ async function callMyMemoryTranslate(text, sourceLang = "en", targetLang = "vi")
         // ("MYMEMORY WARNING: YOU USED ALL AVAILABLE FREE TRANSLATIONS..."); that must never be shown
         const mmText = data && data.responseData && data.responseData.translatedText;
         const mmStatus = Number(data && data.responseStatus);
-        if (mmText && (!mmStatus || mmStatus === 200) && !/^\s*(MYMEMORY WARNING|PLEASE SELECT TWO DISTINCT LANGUAGES|INVALID LANGUAGE PAIR)/i.test(mmText)) {
+        // "auto" is read as English here, so a Chinese/Thai/Arabic line comes back unchanged: that echo
+        // is not a translation (a source with no Latin letter at all cannot be its own Vietnamese)
+        const echoed = mmText && mmText.trim() === String(text).trim() && /\p{L}/u.test(text) && !/[A-Za-z\u00C0-\u024F]/.test(text);
+        if (mmText && !echoed && (!mmStatus || mmStatus === 200) && !/^\s*(MYMEMORY WARNING|PLEASE SELECT TWO DISTINCT LANGUAGES|INVALID LANGUAGE PAIR)/i.test(mmText)) {
             return { text: mmText, detectedLang: sl, engine: "mymemory" };
         }
         throw new Error("Invalid MyMemory data");
@@ -870,13 +873,20 @@ const metaOf = req => ({ videoKey: req.videoKey || "", videoSec: Number(req.vide
 // Khóa bản dịch: mọi thứ quyết định kết quả, gồm ĐÚNG model tạo ra bản dịch
 // (bản của 2.5 và 3.1 không bao giờ dùng lẫn). Không gồm bản dịch câu trước hay
 // danh sách thuật ngữ đang học (thay đổi theo phiên) để mở lại video vẫn trúng.
-async function unitCacheKey(req, model) {
+// (next release) Nor the protected glossary terms: the key reads the ORIGINAL source text (req.source),
+// not the text with [[__T0__]] codes in it. The old key held the codes and the term list, so every
+// release that added names (+34,700 in 2.9.5) re-billed each window that matched a new name. The
+// entry keeps the terms it was translated with (entry.placeholders) and the page restores with those,
+// so a cached window stays whole whatever the glossary says now. protectFp is the user's own glossary
+// choices (custom renderings, groups switched off): changing those must still miss.
+async function unitCacheKey(req, model, legacy) {
     const c = req.context || {};
     const N = CST_CACHE.normalizeText;
+    const src = !legacy && Array.isArray(req.source) && req.source.length === (req.sentences || []).length ? req.source : req.sentences;
     return CST_CACHE.hashKey([
         "tr", TR_PROMPT_VERSION, "en", "vi", model,
-        (req.sentences || []).map(N),
-        (req.placeholders || []).map(p => p.term),
+        (src || []).map(N),
+        ...(legacy ? [(req.placeholders || []).map(p => p.term)] : (req.protectFp ? ["gl:" + req.protectFp] : [])),
         N(c.domain), N(c.topic).slice(0, 120), N(c.prevSource).slice(-200), N(c.nextSource).slice(0, 120),
         // source text, so deterministic; only when present, so every key without it stays as it was
         ...(c.refSource ? [N(c.refSource).slice(0, 200)] : []),
@@ -901,14 +911,15 @@ async function handleTranslateUnit(request) {
     const tier = request.tier === "strong" && budget.allowed ? "strong" : "cheap";
     const unavailable = await isUnavailableFn(cfg.geminiApiKey);
     const chain = COST.modelChain(tier, cfg, cfg.costMode, unavailable);
-    const req = { ...request, sentences };
+    const source = Array.isArray(request.source) && request.source.length === sentences.length ? request.source.map(x => String(x || "").trim()) : null;
+    const req = { ...request, sentences, ...(source ? { source } : {}) };
     // 1-2. CACHE (RAM -> IndexedDB) theo ĐÚNG model sẽ được gọi (model đầu chuỗi, đã bỏ
     // các model key không gọi được). Lượt dịch lại (refine) thì bỏ qua cache.
     // The later models of the chain are looked up too, but only those priced at or above the first:
     // when the first model was rate-limited, the next one translated and saved under its own key, and
     // a revisit that looked up the first model alone paid Gemini again for the same lines. A cheaper
     // model's translation never answers a request meant for a stronger one (tier "strong").
-    if (caches && !request.refine && chain.length) {
+    if (caches && !request.refine && !request.noCache && chain.length) {
         const floor = COST.costRank(chain[0]);
         const models = chain.filter((m, i) => i === 0 || COST.costRank(m) >= floor);
         const keys = await Promise.all(models.map(m => unitCacheKey(req, m).catch(() => null)));
@@ -918,8 +929,21 @@ async function handleTranslateUnit(request) {
             // costs at most two read timeouts before Gemini is asked
             const first = await caches.tr.get(key);
             const rest = first ? [] : await Promise.all(keys.slice(1).map(k => (k ? caches.tr.get(k) : null)));
-            const at = first ? 0 : rest.findIndex(Boolean) + 1;
-            const hit = first || rest[at - 1];
+            let at = first ? 0 : rest.findIndex(Boolean) + 1;
+            let hit = first || rest[at - 1];
+            // a window saved before this change sits under the key that held the codes: found there, it is
+            // copied to the new key with the terms it was translated with, so the next glossary update
+            // leaves it alone
+            if (!hit && source) {
+                const old = await Promise.all(models.map(m => unitCacheKey(req, m, true).catch(() => null)));
+                const found = await Promise.all(old.map(k => (k ? caches.tr.get(k) : null)));
+                const j = found.findIndex(Boolean);
+                if (j >= 0) {
+                    hit = { ...found[j], placeholders: req.placeholders || [] };
+                    if (keys[j]) caches.tr.set(keys[j], hit);
+                    at = j;
+                }
+            }
             if (hit) { track(meta, { hitsTr: 1, avoided: 1 }); return { ok: true, ...hit, fromCache: true, latency: 0, cacheKey: keys[at] }; }
             const late = !request.refine && lateUnits.get(key);
             if (late) {
@@ -952,7 +976,7 @@ function lateAnswerKeeper(req, model, tier) {
     return {
         keep(answer) {
             if (!answer) return settle(null);
-            const entry = { ...answer, engine: "gemini", model, tier };
+            const entry = { ...answer, engine: "gemini", model, tier, placeholders: req.placeholders || [] };
             keyP.then(k => { if (k && caches) caches.tr.set(k, entry); settle(entry); });
         },
         // called when the request timed out: from now on a twin request can wait for this answer
@@ -1000,7 +1024,7 @@ async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
                 let key = null;
                 if (caches) {
                     try { key = await unitCacheKey({ ...request, sentences }, model); } catch (e) { key = null; }
-                    if (key) caches.tr.set(key, { translations: r.translations, terms: r.terms, engine: r.engine, model: r.model, tier: r.tier });
+                    if (key) caches.tr.set(key, { translations: r.translations, terms: r.terms, engine: r.engine, model: r.model, tier: r.tier, placeholders: request.placeholders || [] });
                 }
                 return { ok: true, ...r, cacheKey: key, budget: budget.level };
             } catch (e) {

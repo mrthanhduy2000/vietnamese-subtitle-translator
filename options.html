@@ -740,7 +740,7 @@
             background: rgba(0,0,0,.65); color: #fff; font-family: var(--font-sans); font-size: 12px; letter-spacing: .2px; }
         .preview-dub-badge[hidden] { display: none; }
         .theme-pick { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg-soft); }
-        .theme-btn { padding: 4px 11px; border: none; border-radius: 999px; background: none; color: var(--text-sub);
+        .theme-btn { padding: 6px 12px; min-height: 28px; border: none; border-radius: 999px; background: none; color: var(--text-sub);
             font-family: var(--font-sans); font-size: 11.5px; cursor: pointer; }
         .theme-btn[aria-pressed="true"] { background: var(--bg-card); color: var(--text-main); font-weight: 600; box-shadow: var(--shadow-md); }
         .btn:focus-visible, .nav-tab:focus-visible, .mode-btn:focus-visible,
@@ -904,12 +904,12 @@
     <!-- Main 2-Column Content -->
     <main class="layout-main">
         <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <button class="nav-tab active" data-tab="tab-subtitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M6 15h4M14 15h4M6 11h12"></path></svg>Phụ đề</button>
-            <button class="nav-tab" data-tab="tab-dubbing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>Lồng tiếng</button>
-            <button class="nav-tab" data-tab="tab-gemini"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3c.4 4.6 3.9 8.1 8.5 8.5-4.6.4-8.1 3.9-8.5 8.5-.4-4.6-3.9-8.1-8.5-8.5C8.1 11.1 11.6 7.6 12 3Z"></path></svg>Dịch &amp; AI</button>
-            <button class="nav-tab" data-tab="tab-data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"></path></svg>Chi phí &amp; dữ liệu</button>
-            <button class="nav-tab nav-tab-quiet" data-tab="tab-history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15.5 14"></polyline></svg>Phiên bản</button>
+        <aside class="sidebar" role="tablist" aria-orientation="horizontal" aria-label="Nhóm cài đặt">
+            <button class="nav-tab active" id="navtab-tab-subtitle" role="tab" aria-selected="true" aria-controls="tab-subtitle" tabindex="0" data-tab="tab-subtitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M6 15h4M14 15h4M6 11h12"></path></svg>Phụ đề</button>
+            <button class="nav-tab" id="navtab-tab-dubbing" role="tab" aria-selected="false" aria-controls="tab-dubbing" tabindex="-1" data-tab="tab-dubbing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>Lồng tiếng</button>
+            <button class="nav-tab" id="navtab-tab-gemini" role="tab" aria-selected="false" aria-controls="tab-gemini" tabindex="-1" data-tab="tab-gemini"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3c.4 4.6 3.9 8.1 8.5 8.5-4.6.4-8.1 3.9-8.5 8.5-.4-4.6-3.9-8.1-8.5-8.5C8.1 11.1 11.6 7.6 12 3Z"></path></svg>Dịch &amp; AI</button>
+            <button class="nav-tab" id="navtab-tab-data" role="tab" aria-selected="false" aria-controls="tab-data" tabindex="-1" data-tab="tab-data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"></path></svg>Chi phí &amp; dữ liệu</button>
+            <button class="nav-tab nav-tab-quiet" id="navtab-tab-history" role="tab" aria-selected="false" aria-controls="tab-history" tabindex="-1" data-tab="tab-history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15.5 14"></polyline></svg>Phiên bản</button>
         </aside>
 
         <!-- Content Area -->
@@ -932,7 +932,7 @@
             </div>
 
             <!-- PHỤ ĐỀ -->
-            <div id="tab-subtitle" class="tab-panel active">
+            <div id="tab-subtitle" class="tab-panel active" role="tabpanel" aria-labelledby="navtab-tab-subtitle">
                 <!-- Segmented Mode Control -->
                 <div class="segmented-control">
                     <button type="button" id="subModeSingle" class="mode-btn active">Chỉ bản dịch</button>
@@ -945,7 +945,7 @@
                     <div class="preview-backdrop"></div>
 
                     <!-- YouTube Top Bar Overlay -->
-                    <div class="yt-mock-top">
+                    <div class="yt-mock-top" aria-hidden="true">
                         <div class="yt-mock-title-group">
                             <div class="yt-mock-avatar">
                                 <svg viewBox="0 0 24 24" width="14" height="14" fill="white"><path d="M8 5v14l11-7z"/></svg>
@@ -961,7 +961,7 @@
                     <div class="preview-subtitle-box" id="previewBox"><span class="orig-line" id="previewOrigLine" style="display: none;">But for me personally, the most important thing is consistency.</span><span class="vi-line" id="previewViLine">Nhưng với cá nhân tôi,<br>điều quan trọng nhất là sự nhất quán.</span></div>
 
                     <!-- YouTube Bottom Controls Bar Overlay -->
-                    <div class="yt-mock-bottom">
+                    <div class="yt-mock-bottom" aria-hidden="true">
                         <div class="yt-mock-progress-bar">
                             <div class="yt-mock-progress-buffer"></div>
                             <div class="yt-mock-progress-current"></div>
@@ -1037,7 +1037,7 @@
                                 <button type="button" class="color-dot" style="background:#ff9800;" data-color="#ff9800" title="Cam"></button>
                                 <button type="button" class="color-dot" style="background:#000000; border: 1px solid #94a3b8;" data-color="#000000" title="Đen"></button>
                                 <div class="color-dot-custom" id="fontColorCustom" title="Chọn màu tùy ý">
-                                    <input type="color" id="subFontColorPicker" value="#ffffff">
+                                    <input type="color" id="subFontColorPicker" aria-label="Chọn màu chữ tùy ý" value="#ffffff">
                                 </div>
                             </div>
                         </div>
@@ -1149,7 +1149,7 @@
             </div>
 
             <!-- LỒNG TIẾNG -->
-            <div id="tab-dubbing" class="tab-panel">
+            <div id="tab-dubbing" class="tab-panel" role="tabpanel" aria-labelledby="navtab-tab-dubbing">
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title">Lồng tiếng Việt</h2>
@@ -1228,7 +1228,7 @@
             </div>
 
             <!-- DỊCH & AI -->
-            <div id="tab-gemini" class="tab-panel">
+            <div id="tab-gemini" class="tab-panel" role="tabpanel" aria-labelledby="navtab-tab-gemini">
                 <div class="card">
                     <h2 class="card-title">Dịch phụ đề</h2>
                     <label class="toggle">
@@ -1327,7 +1327,7 @@
             </div>
 
             <!-- CHI PHÍ & DỮ LIỆU -->
-            <div id="tab-data" class="tab-panel">
+            <div id="tab-data" class="tab-panel" role="tabpanel" aria-labelledby="navtab-tab-data">
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title">Chi phí Gemini (ước tính)</h2>
@@ -1415,7 +1415,7 @@
                     <div class="card-actions">
                         <button type="button" class="btn btn-secondary" id="backupExport">Xuất tệp</button>
                         <button type="button" class="btn btn-secondary" id="backupImport">Nhập từ tệp…</button>
-                        <input type="file" id="backupFile" accept=".json,application/json" data-no-save="1" hidden>
+                        <input type="file" id="backupFile" aria-label="Chọn tệp sao lưu" accept=".json,application/json" data-no-save="1" hidden>
                     </div>
                     <div class="field-hint" id="backupStatus" role="status"></div>
                 </div>
@@ -1423,7 +1423,7 @@
             </div>
 
             <!-- PHIÊN BẢN -->
-            <div id="tab-history" class="tab-panel">
+            <div id="tab-history" class="tab-panel" role="tabpanel" aria-labelledby="navtab-tab-history">
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title">Lịch sử phiên bản</h2>

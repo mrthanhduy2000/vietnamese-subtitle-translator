@@ -8,15 +8,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     const navTabs = document.querySelectorAll(".nav-tab");
     const tabPanels = document.querySelectorAll(".tab-panel");
 
-    navTabs.forEach(tab => {
-        tab.addEventListener("click", () => {
-            const targetId = tab.dataset.tab;
-            navTabs.forEach(t => t.classList.remove("active"));
-            tabPanels.forEach(p => p.classList.remove("active"));
-
-            tab.classList.add("active");
-            const targetPanel = document.getElementById(targetId);
-            if (targetPanel) targetPanel.classList.add("active");
+    // WAI-ARIA tabs: the active tab is the only one in the Tab order, arrow keys / Home / End move between tabs
+    const selectTab = (tab, focus) => {
+        navTabs.forEach(t => {
+            const on = t === tab;
+            t.classList.toggle("active", on);
+            t.setAttribute("aria-selected", on ? "true" : "false");
+            t.tabIndex = on ? 0 : -1;
+        });
+        tabPanels.forEach(p => p.classList.toggle("active", p.id === tab.dataset.tab));
+        if (focus) tab.focus();
+    };
+    navTabs.forEach((tab, i) => {
+        tab.addEventListener("click", () => selectTab(tab, false));
+        tab.addEventListener("keydown", e => {
+            const last = navTabs.length - 1;
+            const to = { ArrowRight: i === last ? 0 : i + 1, ArrowLeft: i === 0 ? last : i - 1, Home: 0, End: last }[e.key];
+            if (to === undefined) return;
+            e.preventDefault();
+            selectTab(navTabs[to], true);
         });
     });
 
