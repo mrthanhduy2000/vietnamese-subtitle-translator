@@ -731,7 +731,8 @@ test("publish-share refuses --push while shipped files changed but the version d
     assert.match(c.message, /bump the version first/);
     // 3. A plain build into the checkout changes only its working tree: the last commit still counts
     build(pub);
-    assert.equal(publishCheck(fresh, pub).ok, false);
+    c = publishCheck(fresh, pub);
+    assert.equal(c.ok, false, JSON.stringify({ changed: c.changed, version: c.version, git: git("log", "--oneline").stdout, st: git("status", "--short").stdout }));
     git("checkout", "-q", "--", ".");
     // 4. The share repo holds a lower version: allowed
     const mf = path.join(pub, "extension", "manifest.json");
