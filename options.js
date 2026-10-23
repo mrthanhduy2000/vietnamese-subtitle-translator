@@ -179,6 +179,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         const origOptions = document.getElementById("origOptions");
         if (origOptions) origOptions.classList.toggle("is-off", !dual);
 
+        const legib = document.getElementById("legibilityHint");
+        if (legib) {
+            const issue = S.legibilityIssue(s);
+            legib.hidden = !issue;
+            legib.textContent = issue ? "⚠ " + issue.message : "";
+        }
+
         // 2. Position & Offset
         subOffsetVal.textContent = `${s.offset}%`;
         if (s.position === "top") {
