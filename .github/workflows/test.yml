@@ -1,16 +1,12 @@
 name: test
 
 on:
-  pull_request:
   push:
     branches: [main]
-
-concurrency:
-  group: test-${{ github.ref }}
-  cancel-in-progress: true
+  pull_request:
 
 jobs:
-  test:
+  npm-test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -18,9 +14,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      # No dependencies and no build step: the tests run straight from the checkout.
-      - name: npm test
-        run: npm test
+      # The extension has no dependencies and no build step: the suite is fully offline.
+      - run: npm test
+      # Informational: line/branch coverage per file in the job summary, never a gate.
       - name: Coverage summary
         if: always()
         run: |
