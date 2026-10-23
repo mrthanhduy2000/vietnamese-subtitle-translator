@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.9.2", luc: "23/10/2026", ten: "Từ điển gần 55.000 mục: thêm hơn 21.000 tên từ 20 nhóm chủ đề",
+            y: [
+                "Thêm hơn 21.000 tên tiếng Anh giữ nguyên trong phụ đề: thành phố và địa danh, đại học và sân bay, thương hiệu tiêu dùng, nhà hàng và món ăn, thời trang và làm đẹp, xe hơi, công ty tài chính, tiền điện tử, doanh nhân, nhà khoa học, chính trị gia, lịch sử, sách, trò chơi, anime, K-pop, kênh YouTube, hãng bay và khách sạn, thương hiệu y tế.",
+                "Các tên được soạn từ kiến thức chung, chưa đối chiếu với nguồn: có thể còn tên sai hoặc không tồn tại. Tên một từ trùng từ tiếng Anh thường chỉ dùng giữa câu.",
+                "Cách đọc: 14 tên vẫn được VieNeu đọc theo âm tiếng Việt, và sẽ được xử lý ở bản sau. Từ điển có khoảng 39.000 tên giữ tiếng Anh."
+            ]
+        },
+        {
             v: "2.9.1", luc: "23/10/2026", ten: "Từ điển thêm gần 4.800 tên: thể thao, cầu thủ, sản phẩm công nghệ, phần mềm, âm nhạc, phim",
             y: [
                 "Thêm khoảng 4.800 tên tiếng Anh giữ nguyên trong phụ đề: giải đấu và đội bóng, vận động viên, điện thoại và thiết bị, phần mềm và công ty, nghệ sĩ và phim. Tên một từ trùng từ tiếng Anh thường được đánh dấu chỉ dùng giữa câu.",

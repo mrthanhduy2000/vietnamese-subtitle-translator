@@ -23,7 +23,7 @@ syllable count and, 1.7.8, the English spans).
 it to `manifest.json` in dependency order (and to `importScripts`, `options.html`, the harness pages
 under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tests if it is a dubbing file).
 
-## Source (35 files, ~67,800 lines)
+## Source (35 files, ~89,400 lines)
 
 | File | Lines | Role | Global export |
 |---|---|---|---|
@@ -39,13 +39,13 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `dub-planner.js` | 1492 | Pure function: text -> speech script -> prosody and timing. No I/O | `CST_DUB_PLAN` |
 | `glossary.js` | 1373 | Pure data: 19 domain term groups, `GLOSSARY_VI` settled Vietnamese renderings, normalize rules, proper nouns never to translate, `resolveEnabledGroups` | `CST_GLOSSARY_GROUPS` and friends (globalThis + module.exports) |
 | `glossary-extra.js` | 72 | 2.5.9: the line format and `CST_GLOSSARY_EXTRA_ADD`, which merges a block of terms into a `glossary.js` group (or a new one); a term a group has is skipped, a rendering that contradicts another group's is dropped; `CST_GLOSSARY_EXTRA_REPORT` for the tests | `CST_GLOSSARY_EXTRA_ADD`, `CST_GLOSSARY_EXTRA_REPORT` |
-| `glossary-data.js` | 39766 | 2.5.9, 2.6.0: pure data, one `CST_GLOSSARY_EXTRA_ADD` block per domain: ~27,000 terms over 52 groups (2.6.1: 29,486 in all with `glossary.js`) (2.6.0 added people, brands, places, music, spirituality, outdoors, crafts, drinks, photography, engineering, agriculture, animals, philosophy, languages, military, weddings, accounting, plus product models, cars, schools, landmarks, creators and athletes). ~750 KB. Grep only, append with Bash | none (calls the merge) |
+| `glossary-data.js` | 60755 | 2.5.9, 2.6.0: pure data, one `CST_GLOSSARY_EXTRA_ADD` block per domain: ~27,000 terms over 52 groups (2.6.1: 29,486 in all with `glossary.js`) (2.6.0 added people, brands, places, music, spirituality, outdoors, crafts, drinks, photography, engineering, agriculture, animals, philosophy, languages, military, weddings, accounting, plus product models, cars, schools, landmarks, creators and athletes). ~750 KB. Grep only, append with Bash | none (calls the merge) |
 | `dubbing.js` | 626 | Thin page-level dubbing controller: settings, provider pick, badge, hold-video-while-preparing, health line and diagnostics text (`describeHealth`, `diagnostics`), the Gemini reading of who speaks on YouTube (`readSpeakers`) | `window.CST_DUB` |
 | `context-engine.js` | 610 | Domain detection + per-video sliding-window context sent with each translation | `CST_CONTEXT` |
 | `cst-cache.js` | 322 | Two-tier LRU cache (RAM -> IndexedDB) for translations and audio | `CST_CACHE` |
 | `dub-audio.js` | 609 | Pure WAV/PCM work: decode, rumble cut, hiss removal, normalize, silence, split; pause shaping (`alignStops` places the voice's stops on the text, `shapePauses` applies the prosody model's decisions) | `CST_DUB_AUDIO` |
 | `dub-prosody.js` | 831 | Pure prosody model (1.7.6): boundary value of every gap between words, pause roles and lengths, which of a take's stops to keep (dynamic program), breathing commas, the value of a segment cut; 1.8.0 clause frames (`constituents`), gap tiers, `signature` (VieNeu cache key), `tokenMap`. See `DUBBING.md` "Prosody model" | `CST_DUB_PROSODY` |
-| `dub-speech.js` | 1621 | Pure (1.7.8): English spans inside Vietnamese speech (lexicon, token shapes, evidence; 1.8.0 a three-state confidence score, 5+ letter codes) and the text VieNeu is sent for them (`render`: `<en>` tags, respellings, model numbers, at most 8 tags); `spanGaps` for the prosody model. Holds a generated block (`tools/build-speech-tables.js`). See `DUBBING.md` "English inside Vietnamese speech" | `CST_DUB_SPEECH` |
+| `dub-speech.js` | 2247 | Pure (1.7.8): English spans inside Vietnamese speech (lexicon, token shapes, evidence; 1.8.0 a three-state confidence score, 5+ letter codes) and the text VieNeu is sent for them (`render`: `<en>` tags, respellings, model numbers, at most 8 tags); `spanGaps` for the prosody model. Holds a generated block (`tools/build-speech-tables.js`). See `DUBBING.md` "English inside Vietnamese speech" | `CST_DUB_SPEECH` |
 | `cost-policy.js` | 397 | **Single source of truth** for the model catalog, cost modes, budgets, difficulty routing, local-TTS config | `CST_COST` |
 | `popup.js` | 364 | Popup logic; re-injects content scripts if they are missing | n/a |
 | `yt-bridge.js` | 306 | MAIN-world page bridge: reads YouTube's internal player response, fetches timedtext with the player's `pot` token | none (postMessage protocol only) |
@@ -58,7 +58,7 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `vi-quality.js` | 689 | Deterministic "machine-translation smell" detector; score above threshold triggers a retranslate | `CST_QUALITY` |
 | `screen-text.js` | 224 | On-screen subtitles: watches the frame's caption band, sends one crop per new caption to `readScreenText` (2.6.4) | `CST_SCREEN` |
 | `lang-detect.js` | 175 | Source-language decision without an API call | `CST_LANG` |
-| `version-history.js` | 2053 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
+| `version-history.js` | 2061 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
 | `version-check.js` | 57 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
 | `theme.js` | 42 | Light/Dark theme for the popup and settings page. Applies instantly from `localStorage` to avoid a flash, then syncs from `storage.sync`. Loaded by `popup.html` and `options.html` only, not a content script | `window.CST_THEME` |
 | `build-info.js` | 6 | **Generated** by `tools/bump-version.js`. Never edit | `CST_BUILD` |

@@ -39764,3 +39764,20992 @@ KiotViet
 Haravan
 ~Sapo
 `);
+CST_GLOSSARY_EXTRA_ADD("entertainment", null, `
+Dragon Ball GT
+Fullmetal Alchemist Brotherhood
+Fairy Tail
+Black Clover
+Hellsing
+Trigun
+Gurren Lagann
+Kill la Kill
+~Overlord
+Konosuba
+Puella Magi Madoka Magica
+Madoka Magica
+Yuri on Ice
+Assassination Classroom
+Food Wars
+Shokugeki no Souma
+Dr. Stone
+Hajime no Ippo
+Yu Yu Hakusho
+Samurai Champloo
+Parasyte
+Dororo
+Gintama
+Frieren Beyond Journey's End
+Bocchi the Rock
+Lucky Star
+Anohana
+Kaguya-sama Love Is War
+Horimiya
+Kimi ni Todoke
+~Nana
+Paranoia Agent
+Serial Experiments Lain
+Texhnolyze
+Ergo Proxy
+Gundam Wing
+Gundam SEED
+Macross
+Robotech
+Lupin III
+JoJo's Bizarre Adventure
+Golden Kamuy
+Mushishi
+Natsume's Book of Friends
+Blue Exorcist
+Noragami
+~Kingdom
+~Vagabond
+Nichijou
+The Melancholy of Haruhi Suzumiya
+Haruhi Suzumiya
+Danganronpa
+Akame ga Kill
+Hell's Paradise
+Made in Abyss
+Hunter x Hunter 2011
+Bungo Stray Dogs
+Azumanga Daioh
+Tsubasa Reservoir Chronicle
+xxxHOLiC
+Card Captor Sakura
+Fushigi Yuugi
+Magic Knight Rayearth
+Rave Master
+Air Gear
+Eyeshield 21
+Prince of Tennis
+The Prince of Tennis
+Ashita no Joe
+Initial D
+Gear Fighters Dashogun
+Tenchi Muyo
+Dr Slump
+Saint Seiya
+Knights of the Zodiac
+City Hunter
+Fist of the North Star
+~Devilman
+Cutie Honey
+Mazinger Z
+Getter Robo
+Astro Boy
+Speed Racer
+Kimba the White Lion
+Gatchaman
+~Yamato
+Space Battleship Yamato
+Captain Harlock
+Galaxy Express 999
+Urusei Yatsura
+Maison Ikkoku
+One Outs
+Gintama Movie
+Hyouka
+Chihayafuru
+Nodame Cantabile
+Honey and Clover
+Nana Osaki
+Death Parade
+~Erased
+Re Zero
+Log Horizon
+Log Horizon Season 2
+The Rising of the Shield Hero
+Shield Hero
+Re Life in a Different World from Zero
+Mahoutsukai no Yome
+The Ancient Magus Bride
+Ascendance of a Bookworm
+Tensura
+Slime Diaries
+Kumo Desu ga Nani ka
+Arifureta
+Campione
+Tokyo Ghoul:re
+Tokyo Ghoul Re
+Goblin Slayer
+Shield Hero Season 2
+Mob Psycho Season 3
+~Vinland
+Berserk of Gluttony
+Akatsuki no Yona
+Yona of the Dawn
+Kaiju No 8
+Ghost Hunt
+Devil May Cry
+Ninja Scroll
+Vampire Hunter D
+Wolf Children
+Summer Wars
+The Girl Who Leapt Through Time
+Mirai
+~Belle
+Redline
+Ocean Waves
+Whisper of the Heart
+Porco Rosso
+Arrietty
+From Up on Poppy Hill
+Tales from Earthsea
+Nausicaa of the Valley of the Wind
+Nausicaa
+Pom Poko
+My Neighbors the Yamadas
+Only Yesterday
+Earwig and the Witch
+The Cat Returns
+Kingdom of Dreams and Madness
+Tokyo Godfathers
+Millennium Actress
+Tokyo Magnitude 8.0
+~Memories
+~Metropolis
+Steamboy
+Robot Carnival
+Roujin Z
+Akira 1988
+Patlabor
+Patlabor The Movie
+Armitage III
+Dominion Tank Police
+Bubblegum Crisis
+Bubblegum Crash
+Ghost in the Shell Stand Alone Complex
+Ghost in the Shell Arise
+Stand Alone Complex
+~Innocence
+Blood The Last Vampire
+Vampire Princess Miyu
+Cyber City Oedo
+Escaflowne
+Vision of Escaflowne
+Outlaw Star
+Wolf's Rain
+~Noir
+Gasaraki
+Mononoke
+Kowloon Generic Romance
+Spriggan
+Macross Frontier
+Macross Plus
+Macross Delta
+Zeta Gundam
+Gundam 00
+Gundam Unicorn
+Gundam Iron-Blooded Orphans
+Gundam Thunderbolt
+Mobile Suit Zeta Gundam
+Mobile Suit Gundam Wing
+Mobile Suit Gundam SEED Destiny
+Mobile Suit Gundam Hathaway
+Gundam Hathaway
+Gundam Witch from Mercury
+Gundam Build Fighters
+Gundam Build Divers
+Ryuk
+Misa Amane
+~Near
+Mello
+Edward Elric
+Alphonse Elric
+Roy Mustang
+Winry Rockbell
+Riza Hawkeye
+Tanjiro Kamado
+Nezuko Kamado
+Zenitsu Agatsuma
+Inosuke Hashibira
+Giyu Tomioka
+Shinobu Kocho
+Kyojuro Rengoku
+Muzan Kibutsuji
+Tengen Uzui
+Mitsuri Kanroji
+Sanemi Shinazugawa
+Obanai Iguro
+Gyomei Himejima
+Mikasa Ackerman
+Armin Arlert
+Erwin Smith
+Hange Zoe
+Reiner Braun
+Bertholdt Hoover
+Annie Leonhart
+Historia Reiss
+Jean Kirstein
+Connie Springer
+Sasha Blouse
+Zeke Yeager
+Kenny Ackerman
+Nami
+Usopp
+Sanji
+Tony Tony Chopper
+Nico Robin
+Franky
+~Brook
+Jinbe
+Portgas D. Ace
+Trafalgar Law
+Boa Hancock
+Shanks
+Kaido
+Big Mom
+~Blackbeard
+Sakura Haruno
+Kakashi Hatake
+Itachi Uchiha
+Gaara
+Rock Lee
+Hinata Hyuga
+Shikamaru Nara
+Jiraiya
+Tsunade
+Orochimaru
+Madara Uchiha
+Obito Uchiha
+Minato Namikaze
+~Pain
+Boruto Uzumaki
+Ichigo Kurosaki
+Rukia Kuchiki
+Orihime Inoue
+Uryu Ishida
+Yoruichi Shihoin
+Kenpachi Zaraki
+Byakuya Kuchiki
+Aizen Sosuke
+Son Goku
+Gohan
+~Piccolo
+Frieza
+Krillin
+Majin Buu
+~Cell
+Broly
+Beerus
+Whis
+Gogeta
+Vegito
+~Genos
+Garou
+Shigeo Kageyama
+Reigen Arataka
+Denji
+~Power
+Makima
+Aki Hayakawa
+Pochita
+Asa Mitaka
+Yuji Itadori
+Megumi Fushiguro
+Nobara Kugisaki
+Ryomen Sukuna
+Maki Zenin
+Toji Fushiguro
+Kento Nanami
+Yuta Okkotsu
+Aoi Todo
+Loid Forger
+Yor Forger
+Bond Forger
+Izuku Midoriya
+Katsuki Bakugo
+Shoto Todoroki
+Ochaco Uraraka
+Tenya Iida
+Eijiro Kirishima
+All Might
+Shota Aizawa
+All For One
+Tomura Shigaraki
+Dabi
+Himiko Toga
+Natsu Dragneel
+Lucy Heartfilia
+Erza Scarlet
+Gray Fullbuster
+Wendy Marvell
+Gajeel Redfox
+Igneel
+Zeref
+Mavis Vermillion
+~Asta
+Yuno
+Noelle Silva
+Yami Sukehiro
+Ryo Saeba
+Kaori Makimura
+Kenshin Himura
+Sanosuke Sagara
+Kaoru Kamiya
+Spike Spiegel
+Jet Black
+Faye Valentine
+Vash the Stampede
+Meryl Stryfe
+Wolfwood
+Rei Ayanami
+Asuka Langley Soryu
+Shinji Ikari
+Misato Katsuragi
+Gendo Ikari
+Kaworu Nagisa
+Lelouch Lamperouge
+Suzaku Kururugi
+Kallen Stadtfeld
+Euphemia li Britannia
+Nunnally vi Britannia
+Madoka Kaname
+Homura Akemi
+Sayaka Miki
+Mami Tomoe
+Kyoko Sakura
+Kyubey
+Usagi Tsukino
+Ami Mizuno
+Rei Hino
+Makoto Kino
+Minako Aino
+Chibiusa
+Tuxedo Mask
+Hisoka Morow
+Killua Zoldyck
+Gon Freecss
+Kurapika
+Leorio
+Chrollo Lucilfer
+Meruem
+Netero
+Ging Freecss
+Kamina
+Yoko Littner
+Tohru Honda
+Kanna Kamui
+Lupin the Third
+Daisuke Jigen
+Goemon Ishikawa
+Fujiko Mine
+Koichi Zenigata
+Joseph Joestar
+Jotaro Kujo
+Dio Brando
+Giorno Giovanna
+Josuke Higashikata
+Johnny Joestar
+Kira Yoshikage
+~Kiki
+Jiji
+Sophie Hatter
+Howl Jenkins
+Calcifer
+Chihiro Ogino
+~Haku
+No Face
+Yubaba
+Ashitaka
+~San
+Lady Eboshi
+Marco Pagot
+Fio Piccolo
+Sosuke
+Fujimoto
+Lord Yupa
+Shizuku Tsukishima
+Seiji Amasawa
+Mio Sakai
+Tetsuo Shima
+Kaneda Shotaro
+Motoko Kusanagi
+Batou
+Togusa
+Aramaki
+Major Motoko
+Haruhi Fujioka
+Mori Ohtori
+Kyoya Ootori
+Tamaki Suou
+Hikaru Hitachiin
+Kaoru Hitachiin
+Kurumi Tokisaki
+Kosuke Ueki
+Nagisa Shingetsu
+Itsuki Koizumi
+Yuki Nagato
+Mikuru Asahina
+Kyon
+Ryouko Asakura
+Nagato Yuki
+Shinobu Oshino
+Koyomi Araragi
+Hitagi Senjougahara
+Tsubasa Hanekawa
+Mayoi Hachikuji
+Suruga Kanbaru
+Yoshiki Kishinuma
+Mikoto Misaka
+Kuroko Shirai
+Touma Kamijou
+~Index
+~Accelerator
+~Madhouse
+Wit Studio
+A-1 Pictures
+Production I.G
+~Sunrise
+~Pierrot
+Studio Pierrot
+Gainax
+~Trigger
+Studio Trigger
+J.C.Staff
+~Shaft
+Studio Deen
+Bee Train
+White Fox
+~Orange
+P.A. Works
+CoMix Wave Films
+Studio Colorido
+~Xebec
+Gonzo
+Studio Gallop
+Doga Kobo
+Lerche
+Silver Link
+David Production
+Liden Films
+Shin-Ei Animation
+Tatsunoko Productions
+Nippon Animation
+TMS Entertainment
+Studio Comet
+Studio Khara
+Studio Ponoc
+Cloverworks
+Asread
+Bandai Namco Pictures
+Kinema Citrus
+Signal.MD
+Studio Hibari
+Seven Arcs
+Studio Flag
+Platinum Vision
+Hoods Entertainment
+Tezuka Productions
+Mushi Production
+Ghibli
+Toho Animation
+Ajia-do Animation Works
+Jumondo
+Manglobe
+Sunrise Beyond
+Studio Bones
+Studio Ghibli Museum
+Studio Chizu
+Sanzigen
+Studio A-Cat
+Triangle Staff
+Actas
+Brain's Base
+~Diomedea
+Studio Kai
+Yokohama Animation Lab
+Mook Animation
+Ordet
+Passione
+GoHands
+Encourage Films
+Studio Gokumi
+Hal Film Maker
+Studio Mausu
+Mamoru Miyano
+Hiroshi Kamiya
+Kana Hanazawa
+Romi Park
+Megumi Hayashibara
+Tomokazu Sugita
+Yuki Kaji
+Yoshitsugu Matsuoka
+Yui Ishikawa
+Kenjiro Tsuda
+Rie Kugimiya
+Maaya Sakamoto
+Sora Amamiya
+Ai Kayano
+Nobuhiko Okamoto
+Saori Hayami
+Yuko Miyamura
+Daisuke Ono
+Jun Fukuyama
+Hikaru Midorikawa
+Takahiro Sakurai
+Koji Yusa
+Ryotaro Okiayu
+Kotaro Nishiyama
+Miyuki Sawashiro
+Yuichi Nakamura
+Akira Ishida
+Kappei Yamaguchi
+Kazuya Nakai
+Toru Furuya
+Ikue Otani
+Junko Takeuchi
+Megumi Ogata
+Kenichi Suzumura
+Tetsuya Kakihara
+Hiroki Yasumoto
+Yuko Kaida
+Mikako Komatsu
+Kaori Ishihara
+Nana Mizuki
+Aoi Yuki
+Yoko Hikasa
+Ryoko Shiraishi
+Mariya Ise
+Inori Minase
+Yuuki Aoi
+Atsumi Tanezaki
+Kana Ueda
+Ayumi Fujimura
+Haruka Tomatsu
+Ami Koshimizu
+Minori Suzuki
+Kazuki Yao
+Kenta Miyake
+Subaru Kimura
+Hiro Shimono
+Shun Horie
+Rikiya Koyama
+Tomoaki Maeno
+Nobunaga Shimazaki
+Yuma Uchida
+Jun Ichikawa
+Chiaki Kobayashi
+Miyu Irino
+Yoshimasa Hosoya
+Takuya Eguchi
+Daisuke Namikawa
+Kenji Nojima
+Hideo Ishikawa
+Masakazu Morita
+Kenichi Ogata
+Takeshi Kusao
+Shinichiro Miki
+Akio Otsuka
+Keiji Fujiwara
+Tomokazu Seki
+Jouji Nakata
+Tarusuke Shingaki
+Kazuhiro Yamaji
+Tomohiro Nishimura
+Bryce Papenbrook
+Johnny Yong Bosch
+Crispin Freeman
+Todd Haberkorn
+Justin Briner
+Kyle McCarley
+Aleks Le
+Michael Sinterniklaas
+Eric Vale
+Luci Christian
+Erica Mendez
+Cristina Vee
+Xander Mobus
+Alexis Tipton
+Monica Rial
+Brianna Knickerbocker
+Laura Bailey
+Mary Elizabeth McGlynn
+Stephanie Sheh
+Vic Mignogna
+Chris Patton
+Michelle Ruff
+Kari Wahlgren
+Jamie Marchi
+Sean Schemmel
+Christopher Sabat
+Kyle Hebert
+Colleen Clinkenbeard
+Lydia Mackay
+Robbie Daymond
+Max Mittelman
+Ben Diskin
+Aaron Dismuke
+Vincent Tong
+Sam Riegel
+Liam O'Brien
+Travis Willingham
+Matthew Mercer
+Steve Blum
+Greg Ayres
+Patrick Seitz
+Jerry Jewell
+Tara Platt
+Kate Higgins
+Wendee Lee
+Mona Marshall
+Veronica Taylor
+Tia Ballard
+Carrie Savage
+Jad Saxton
+Chris Hackney
+Sarah Natochenny
+Brittney Karbowski
+Anne Yatco
+Erin Fitzgerald
+Austin Tindle
+Derek Stephen Prince
+Brina Palencia
+Hector Afable
+Ricco Ross
+Brad Swaile
+Kira Buckland
+Cassandra Lee Morris
+Jennifer Seman
+Monica Ray
+Kelly Sheridan
+Colleen O'Shaughnessey
+Fire Force
+Enen no Shouboutai
+The Promised Neverland
+Promised Neverland
+Shinsekai Yori
+From the New World
+Psycho-Pass
+Psycho Pass
+Re:Creators
+Heaven's Lost Property
+Summer Time Rendering
+Sousou no Frieren
+Dungeon Meshi
+Delicious in Dungeon
+Mushoku Tensei Jobless Reincarnation
+Jobless Reincarnation
+Shangri-La Frontier
+The Eminence in Shadow
+Eminence in Shadow
+Kagewaza
+Tower of God
+The God of High School
+Solo Leveling Arise
+Omniscient Reader's Viewpoint
+Hell Girl
+Jigoku Shoujo
+Mieruko-chan
+Kaiju No. 8 Season 2
+Blue Period
+Vivy Fluorite Eye's Song
+Vivy
+Fate Zero
+Fate Stay Night
+Fate Stay Night Unlimited Blade Works
+Fate Grand Order
+Fate Apocrypha
+Fate Kaleid Liner Prisma Illya
+Type-Moon
+Carnival Phantasm
+Tsukihime
+Kara no Kyoukai
+The Garden of Sinners
+Fate Extra
+Hellsing Ultimate Abridged
+Angel Beats
+Plastic Memories
+Shiki
+Higurashi When They Cry
+Higurashi
+Umineko When They Cry
+Corpse Party
+~Another
+Elfen Lied
+Deadman Wonderland
+Blood Blockade Battlefront
+Kekkai Sensen
+Blood-C
+Saga of Tanya the Evil
+Tanya the Evil
+Eromanga Sensei
+Rent-a-Girlfriend
+Kanojo Okarishimasu
+The Quintessential Quintuplets
+Quintessential Quintuplets
+Gotoubun no Hanayome
+Nisekoi
+Love Hina
+Keijo
+Tenchi Universe
+Maid Dragon
+Miss Kobayashi's Dragon Maid
+Kobayashi-san Chi no Maid Dragon
+Konosuba God's Blessing on This Wonderful World
+Shinmai Maou no Testament
+Shinmai Maou
+Lord of Vermilion
+The Asterisk War
+Asterisk War
+Rakudai Kishi no Cavalry
+Strike the Blood
+Sirius the Jaeger
+~Gate
+GATE Jieitai
+Chaos Dragon
+Overlord Season 4
+Hinamatsuri
+Hinamatsuri Season 2
+Hikikomori Kyuuseishu
+The Devil Is a Part-Timer
+Hataraku Maou-sama
+Devil Is a Part-Timer
+Hakumei and Mikochi
+Zombie Land Saga
+Ninja Slayer
+Tenkai Knights
+Hanebado
+Dance in the Vampire Bund
+Mahou Tsukai Precure
+Pretty Cure
+~Precure
+Smile Precure
+Kiratto Precure
+Pretty Guardian Sailor Moon
+Sailor Stars
+Sailor Mini Moon
+Ojamajo Doremi
+Hime-chan no Ribbon
+Creamy Mami
+Magical Princess Minky Momo
+Minky Momo
+Little Witch Academia
+Mary and the Witch's Flower
+Lu Over the Wall
+Sazae-san
+Anpanman
+Hamtaro
+Ultraman
+Kamen Rider
+Super Sentai
+Monster Rancher
+Digimon Adventure
+Digimon Tamers
+Digimon Frontier
+Digimon Savers
+Jungle Emperor
+Kimba
+Panda Kopanda
+~Heidi
+Anne of Green Gables
+Rascal the Raccoon
+Dog of Flanders
+Digimon Data Squad
+Battle Angel Alita
+Alita
+Gunnm
+Hokuto no Ken
+Hokuto
+Kinnikuman
+Kinnikuman Nisei
+Tiger Mask
+Ring ni Kakero
+Hajime no Ippo Rising
+Yowamushi Pedal
+Ace of Diamond
+Diamond no Ace
+~Major
+Major 2nd
+Cross Game
+Kitchen Princess
+Kono Oto Tomare
+Puella Magi Oriko Magica
+Goblin Slayer Brand New Day
+Mahouka Koukou no Rettousei
+The Irregular at Magic High School
+Sword Gai
+Hakuouki
+Hakuoki
+Hetalia
+Axis Powers Hetalia
+Ouran Host Club
+Nodame
+Monster Musume
+Kiss x Sis
+Diabolik Lovers
+Uta no Prince-sama
+Iwatobi Swim Club
+Kuroko no Basket
+Kuroko no Basuke
+Ahiru no Sora
+Ano Natsu de Matteru
+Your Turn to Die
+Kakegurui
+Kakegurui Compulsive Gambler
+Mirai Nikki
+Future Diary
+Dragon Maid S
+Dragons Rioting
+Beastars
+Insomniacs After School
+Lycoris Recoil
+Lycoris
+Chainsaw Man Reze
+Bleach Thousand Year Blood War
+Thousand Year Blood War
+Mob Psycho 100 III
+One Piece Film Red
+One Piece Film Z
+One Piece Film Gold
+Film Strong World
+Shinchan Movie
+Dragon Ball Heroes
+Dragon Ball Z Kai
+Dragon Ball Kai
+Amuro Ray
+Char Aznable
+Kira Yamato
+Athrun Zala
+Lacus Clyne
+Setsuna F. Seiei
+Heero Yuy
+Duo Maxwell
+Trowa Barton
+Quatre Raberba Winner
+Zechs Merquise
+Milliardo Peacecraft
+Lockon Stratos
+Kamille Bidan
+Judau Ashta
+Simon Dragon
+Rossiu
+~Aqua
+Megumin
+~Darkness
+Rimuru Tempest
+Shuna
+Milim Nava
+Benimaru
+Ainz Ooal Gown
+~Demiurge
+Kirito
+Asuna Yuuki
+Asuna
+Leafa
+Alice Zuberg
+Kazuto Kirigaya
+~Emilia
+Subaru Natsuki
+~Beatrice
+~Puck
+Wilhelm van Astrea
+Crusch Karsten
+Petra Leyte
+~Felt
+Otto Suwen
+Julius Juukis
+Kiyotaka Ayanokoji
+Suzune Horikita
+Kei Karuizawa
+Honami Ichinose
+Ayanokouji
+Suzuka Sonoda
+Katsuragi
+Kazari
+Haruno Tokoro
+Kou Karasuma
+Ryuuen Kiyoshi
+Chika Fujiwara
+Kaguya Shinomiya
+Miyuki Shirogane
+Ai Hayasaka
+Shuichi Ikeda
+Shirogane
+Ichigo Hoshino
+Ai Hoshino
+Aqua Hoshino
+Ruby Hoshino
+Kana Arima
+Nagisa Furukawa
+Tomoya Okazaki
+Kotomi Ichinose
+Ushio Okazaki
+Mio Naruse
+Rika Furude
+Keiichi Maebara
+Mion Sonozaki
+Shion Sonozaki
+Satoshi Mirai
+Rin Tohsaka
+Shirou Emiya
+~Saber
+~Archer
+~Rider
+~Caster
+~Assassin
+~Berserker
+~Lancer
+Gilgamesh
+Illyasviel von Einzbern
+Sakura Matou
+Kiritsugu Emiya
+Kotomine Kirei
+Tohsaka
+Tatsuya Shiba
+Miyuki Shiba
+Chiaki Kanzaki
+Yui Yuigahama
+Yukino Yukinoshita
+Hachiman Hikigaya
+My Youth Romantic Comedy Is Wrong
+Oregairu
+Hayato Hayama
+Saika Totsuka
+Iroha Isshiki
+Haruno Yukinoshita
+Kyouko Mishima
+Tomoe Soujirou
+Kirari Hayase
+Masachika Kujo
+Alya Kujo
+Sayuri Sakurai
+Alya Shinomiya
+Chizuru Mizuhara
+Ruka Sarashina
+Mamoru Chiba
+Usagi Tsukino Sailor Moon
+Haruka Tenoh
+Michiru Kaiou
+Setsuna Meioh
+Hotaru Tomoe
+Chibi Usa
+~Luna
+Sailor Pluto
+Tuxedo Kamen
+Kyoko Otonashi
+Ritsu Tainaka
+Mio Akiyama
+Yui Hirasawa
+Mugi Nakano
+Azusa Nakano
+Tsumugi Kotobuki
+Ui Hirasawa
+Nodoka Manabe
+Ryo Yamada
+Hitoka Yamada
+Hitori Gotoh
+Nijika Ijichi
+Kikuri Hiroi
+Seika Ijichi
+Yuuta Togo
+Kurumi Koi
+Miyu Hasuno
+Shuji Tatsuhiko
+Akane Tsunemori
+Shinya Kogami
+Nobuchika Ginoza
+Kei Kaneda
+Hibiki Asakura
+Maki Sakurai
+Kota Mikoshiba
+Sakura Sakuragi
+Hanamichi Sakuragi
+Ryota Miyagi
+Kaede Rukawa
+Akira Sendoh
+Takenori Akagi
+Mitsui Hisashi
+Hiroshi Kogure
+Shohoku
+Ryota Kise
+Tetsuya Kuroko
+Taiga Kagami
+Shigehiro Kiyoshi
+Daiki Aomine
+Shintaro Midorima
+Atsushi Murasakibara
+Kazunari Takao
+Shinji Koganei
+Rakuzan
+Seirin
+Aomine
+Kagami
+Yoichi Isagi
+Meguru Bachira
+Rin Itoshi
+Hiori Yo
+Ryusei Shidou
+Michael Kaiser
+Seishiro Nagi
+Hyoma Chigiri
+Reo Mikage
+Jinpachi Ego
+Sae Itoshi
+Shoei Baro
+Hyoma
+~Ego
+Hajime Hinata
+Hinata Shoyo
+Kageyama Tobio
+Nishinoya Yuu
+Tsukishima Kei
+Tanaka Ryunosuke
+Asahi Azumane
+Daichi Sawamura
+Koushi Sugawara
+Kei Tsukishima
+Oikawa Tooru
+Kenma Kozume
+Tadashi Yamaguchi
+Ennoshita Chikara
+Tobio Kageyama
+Keishin Ukai
+Shiratorizawa
+Karasuno
+Nekoma
+Aoba Johsai
+Hajime Iwaizumi
+Mikoshiba
+Shinsuke Kita
+Eiji Okumura
+Cowboy Bebop Ein
+Sakura Wars
+Hajime no Ippo Champion Road
+Macross 7
+Macross Zero
+Ergo Proxy Season 2
+Mahou Sensei Negima
+Negima Magister Negi Magi
+Full Metal Panic
+Full Metal Panic Fumoffu
+Infinite Stratos
+Oreshura
+Seven Deadly Sins
+The Seven Deadly Sins
+Nanatsu no Taizai
+Kamisama Kiss
+Kamisama Hajimemashita
+Kamisama Kiss Season 2
+Snow White with the Red Hair
+Shirayuki
+Akagami no Shirayuki-hime
+Vampire Knight
+Vampire Knight Guilty
+Black Butler
+Kuroshitsuji
+Kuroshitsuji Book of Circus
+Pandora Hearts
+Soul Eater
+Soul Eater Evans
+Blue Dragon
+Air Master
+Hunter x Hunter Greed Island
+Yu-Gi-Oh Duel Monsters
+Yu-Gi-Oh Arc-V
+Yu-Gi-Oh GX
+Yu-Gi-Oh Zexal
+Beyblade
+Beyblade Burst
+Pokemon Journeys
+Pokemon Horizons
+Ash Ketchum
+Yoko
+Makoto Naegi
+Kyoko Kirigiri
+Chiaki Nanami
+Junko Enoshima
+Shuichi Saihara
+Ryuko Matoi
+Satsuki Kiryuin
+Elizabeth Bennet
+Mr Darcy
+~Emma
+Sense and Sensibility
+~Persuasion
+Mansfield Park
+Northanger Abbey
+Charlotte Bronte
+Emily Bronte
+Anne Bronte
+Agnes Grey
+Villette
+Heathcliff
+Catherine Earnshaw
+Edward Rochester
+Bertha Mason
+Great Expectations
+Oliver Twist
+A Tale of Two Cities
+David Copperfield
+Bleak House
+Hard Times
+Nicholas Nickleby
+Little Dorrit
+Our Mutual Friend
+Dombey and Son
+A Christmas Carol
+Ebenezer Scrooge
+Miss Havisham
+Artful Dodger
+Fagin
+Bill Sikes
+Uriah Heep
+Mr Micawber
+Pip Pirrip
+Jean Valjean
+Javert
+Cosette
+Fantine
+The Hunchback of Notre Dame
+~Quasimodo
+~Esmeralda
+Count Vronsky
+Pierre Bezukhov
+Natasha Rostova
+Fyodor Dostoyevsky
+The Idiot
+Notes from Underground
+Raskolnikov
+Alyosha Karamazov
+Ivan Karamazov
+Gustave Flaubert
+Madame Bovary
+Charles Bovary
+Thomas Hardy
+Tess of the d'Urbervilles
+Far from the Madding Crowd
+Jude the Obscure
+The Mayor of Casterbridge
+Michael Henchard
+Return of the Native
+George Eliot
+Middlemarch
+Silas Marner
+Adam Bede
+The Mill on the Floss
+Daniel Deronda
+Dorothea Brooke
+Mary Shelley
+~Frankenstein
+Victor Frankenstein
+Bram Stoker
+Dracula
+Count Dracula
+Jonathan Harker
+Mina Harker
+Lucy Westenra
+Van Helsing
+Robert Louis Stevenson
+Treasure Island
+Jim Hawkins
+Long John Silver
+Dr Jekyll and Mr Hyde
+Strange Case of Dr Jekyll and Mr Hyde
+Kidnapped
+Dr Watson
+The Hound of the Baskervilles
+A Study in Scarlet
+The Sign of the Four
+The Adventures of Sherlock Holmes
+The Valley of Fear
+Professor Moriarty
+Irene Adler
+Mycroft Holmes
+Hercule Poirot
+Miss Marple
+Murder on the Orient Express
+And Then There Were None
+The Murder of Roger Ackroyd
+Death on the Nile
+The ABC Murders
+Endless Night
+Evil Under the Sun
+Captain Hastings
+Tommy and Tuppence
+Robert Langdon
+Angels and Demons
+~Inferno
+The Lost Symbol
+Digital Fortress
+Sophie Neveu
+The Adventures of Tom Sawyer
+Adventures of Huckleberry Finn
+Huck Finn
+Tom Sawyer
+Becky Thatcher
+Samuel Clemens
+Herman Melville
+Captain Ahab
+~Ishmael
+Queequeg
+~Starbuck
+Bartleby the Scrivener
+Nathaniel Hawthorne
+The Scarlet Letter
+Hester Prynne
+Arthur Dimmesdale
+Roger Chillingworth
+The House of the Seven Gables
+Jay Gatsby
+Daisy Buchanan
+Nick Carraway
+Tender Is the Night
+Tom Buchanan
+The Old Man and the Sea
+A Farewell to Arms
+For Whom the Bell Tolls
+The Sun Also Rises
+Jake Barnes
+Lady Brett Ashley
+The Grapes of Wrath
+Of Mice and Men
+East of Eden
+Tortilla Flat
+Cannery Row
+Tom Joad
+Lennie Small
+George Milton
+Go Set a Watchman
+Atticus Finch
+Scout Finch
+Boo Radley
+Tom Robinson
+Bob Ewell
+Winston Smith
+O'Brien
+~Snowball
+Old Major
+~Squealer
+~Boxer
+Down and Out in Paris and London
+Bernard Marx
+John the Savage
+Lenina Crowne
+Mustapha Mond
+The Martian Chronicles
+Guy Montag
+Clarisse McClellan
+The Illustrated Man
+Something Wicked This Way Comes
+Slaughterhouse-Five
+Cat's Cradle
+Billy Pilgrim
+The Sirens of Titan
+Breakfast of Champions
+Kilgore Trout
+Holden Caulfield
+Franny and Zooey
+Nine Stories
+Jack Kerouac
+On the Road
+Dean Moriarty
+Sal Paradise
+The Dharma Bums
+Ken Kesey
+One Flew Over the Cuckoo's Nest
+Nurse Ratched
+Randle McMurphy
+Chief Bromden
+Joseph Heller
+Catch-22
+Yossarian
+Milo Minderbinder
+~Beloved
+Song of Solomon
+The Bluest Eye
+Sethe
+~Sula
+Alice Walker
+The Color Purple
+Celie
+Shug Avery
+I Know Why the Caged Bird Sings
+Chinua Achebe
+Things Fall Apart
+Okonkwo
+Nnedi Okorafor
+Octavia Butler
+~Kindred
+Lois Lowry
+The Giver
+~Jonas
+Madeleine L'Engle
+A Wrinkle in Time
+Meg Murry
+Charles Wallace
+Mrs Whatsit
+Ursula K. Le Guin
+A Wizard of Earthsea
+The Left Hand of Darkness
+The Dispossessed
+~Ged
+Tenar
+Gabriel Garcia Marquez
+Love in the Time of Cholera
+Macondo
+Aureliano Buendia
+Jose Arcadio Buendia
+Gregor Samsa
+The Trial
+Josef K
+The Castle
+The Stranger
+The Plague
+Meursault
+The Fall
+Antoine de Saint-Exupery
+Steppenwolf
+Demian
+Thomas Mann
+The Magic Mountain
+Hans Castorp
+Buddenbrooks
+Death in Venice
+Marcel Proust
+In Search of Lost Time
+Leopold Bloom
+Molly Bloom
+Stephen Dedalus
+Dubliners
+A Portrait of the Artist as a Young Man
+Finnegans Wake
+Mrs Dalloway
+Clarissa Dalloway
+To the Lighthouse
+Septimus Smith
+A Room of One's Own
+Vladimir Nabokov
+Lolita
+Humbert Humbert
+Pale Fire
+Pnin
+Mikhail Bulgakov
+The Master and Margarita
+Woland
+~Behemoth
+Boris Pasternak
+Yuri Zhivago
+Lara Antipova
+Alexander Solzhenitsyn
+One Day in the Life of Ivan Denisovich
+The Gulag Archipelago
+Ivan Denisovich
+Ivan Turgenev
+Fathers and Sons
+Nikolai Gogol
+Dead Souls
+Alexander Pushkin
+Eugene Onegin
+Boris Godunov
+Mikhail Lermontov
+A Hero of Our Time
+Ivan Goncharov
+Oblomov
+The Count of Monte Cristo
+The Three Musketeers
+Edmond Dantes
+D'Artagnan
+Athos
+Porthos
+~Aramis
+Milady de Winter
+Cardinal Richelieu
+The Man in the Iron Mask
+Gaston Leroux
+The Phantom of the Opera
+Christine Daae
+Emile Zola
+~Germinal
+Therese Raquin
+Choderlos de Laclos
+Les Liaisons Dangereuses
+Vicomte de Valmont
+Marquise de Merteuil
+Edmond Rostand
+Cyrano de Bergerac
+Candide
+Johann Wolfgang von Goethe
+~Faust
+~Mephistopheles
+The Sorrows of Young Werther
+Miguel de Cervantes
+Don Quixote
+Sancho Panza
+~Dulcinea
+~Homer
+The Iliad
+The Odyssey
+Odysseus
+Achilles
+~Hector
+~Penelope
+Telemachus
+Patroclus
+Priam
+~Agamemnon
+~Circe
+~Calypso
+Polyphemus
+Virgil
+The Aeneid
+Aeneas
+~Dido
+Dante Alighieri
+The Divine Comedy
+Purgatorio
+Paradiso
+Beatrice Portinari
+Ovid
+~Metamorphoses
+Sophocles
+Oedipus Rex
+~Antigone
+Euripides
+Medea
+Aeschylus
+~Oresteia
+~Clytemnestra
+Orestes
+~Electra
+Lu Xun
+The True Story of Ah Q
+Cao Xueqin
+Dream of the Red Chamber
+Luo Guanzhong
+Romance of the Three Kingdoms
+Liu Bei
+Cao Cao
+Guan Yu
+Zhuge Liang
+Lu Bu
+Wu Cheng'en
+Journey to the West
+Sun Wukong
+~Tripitaka
+Zhu Bajie
+Sha Wujing
+Monkey King
+The Dark Forest
+Death's End
+The Wandering Earth
+Ye Wenjie
+Jiang Rong
+Wolf Totem
+Mo Yan
+Red Sorghum
+Life and Death Are Wearing Me Out
+Natsume Soseki
+Botchan
+I Am a Cat
+Kokoro
+The Temple of the Golden Pavilion
+Confessions of a Mask
+~Kitchen
+The Wind-Up Bird Chronicle
+A Wild Sheep Chase
+Toru Okada
+Koushun Takami
+Chi-Chi
+Ngugi wa Thiong'o
+Wizard of the Crow
+Naguib Mahfouz
+Midaq Alley
+Orhan Pamuk
+My Name Is Red
+Elif Shafak
+The Forty Rules of Love
+Ismail Kadare
+Chronicle in Stone
+Milan Kundera
+The Unbearable Lightness of Being
+Franz Werfel
+Stefan Zweig
+Chess Story
+Erich Maria Remarque
+All Quiet on the Western Front
+Paul Baumer
+Stefan Heym
+Hans Fallada
+Italo Calvino
+Invisible Cities
+Umberto Eco
+The Name of the Rose
+William of Baskerville
+Adso of Melk
+The House of the Spirits
+Esteban Trueba
+Clara del Valle
+Laura Esquivel
+Mario Vargas Llosa
+Conversation in the Cathedral
+Julio Cortazar
+~Hopscotch
+Ficciones
+Juan Rulfo
+Pedro Paramo
+Carlos Ruiz Zafon
+The Shadow of the Wind
+Julian Carax
+Daniel Sempere
+Javier Marias
+Clarice Lispector
+The Hour of the Star
+Brida
+Jose Saramago
+~Blindness
+The Stone Raft
+Eca de Queiros
+The Maias
+Lewis Carroll
+Alice's Adventures in Wonderland
+Through the Looking-Glass
+Alice Liddell
+Cheshire Cat
+Mad Hatter
+White Rabbit
+Red Queen
+Humpty Dumpty
+~Jabberwocky
+J.M. Barrie
+Peter Pan
+Captain Hook
+Wendy Darling
+Tinker Bell
+~Neverland
+L. Frank Baum
+The Wonderful Wizard of Oz
+Dorothy Gale
+Glinda
+Tin Woodman
+Cowardly Lion
+Elphaba
+Gregory Maguire
+Beatrix Potter
+The Tale of Peter Rabbit
+A.A. Milne
+Winnie-the-Pooh
+Christopher Robin
+Eeyore
+~Tigger
+~Piglet
+~Kanga
+Kenneth Grahame
+The Wind in the Willows
+Mr Toad
+~Ratty
+~Mole
+~Badger
+Aslan
+Narnia
+Prince Caspian
+The Silver Chair
+The Magician's Nephew
+The Horse and His Boy
+The Voyage of the Dawn Treader
+Edmund Pevensie
+Lucy Pevensie
+Peter Pevensie
+Susan Pevensie
+Eustace Scrubb
+Reepicheep
+Jadis
+Rudyard Kipling
+Mowgli
+~Baloo
+Bagheera
+Shere Khan
+Kaa
+~Kim
+Just So Stories
+Jack London
+The Call of the Wild
+White Fang
+The Sea-Wolf
+~Buck
+John Thornton
+Richard Adams
+Watership Down
+~Hazel
+~Fiver
+~Bigwig
+El-ahrairah
+Anna Sewell
+Black Beauty
+~Ginger
+Lew Wallace
+Henryk Sienkiewicz
+Quo Vadis
+Frances Hodgson Burnett
+The Secret Garden
+Mary Lennox
+Colin Craven
+A Little Princess
+Sara Crewe
+Louisa May Alcott
+Jo March
+Meg March
+Beth March
+Amy March
+L.M. Montgomery
+Anne Shirley
+Gilbert Blythe
+E.B. White
+Charlotte's Web
+~Wilbur
+Stuart Little
+Laura Ingalls Wilder
+Little House on the Prairie
+Judy Blume
+Charlie and the Chocolate Factory
+Willy Wonka
+Matilda
+Miss Trunchbull
+The BFG
+The Witches
+James and the Giant Peach
+Fantastic Mr Fox
+Danny the Champion of the World
+Charlie Bucket
+Augustus Gloop
+Veruca Salt
+Violet Beauregarde
+Mike Teavee
+Oompa-Loompas
+Theodor Geisel
+Green Eggs and Ham
+The Cat in the Hat
+How the Grinch Stole Christmas
+Horton Hears a Who
+The Lorax
+Yertle the Turtle
+One Fish Two Fish Red Fish Blue Fish
+Fox in Socks
+Hop on Pop
+Eric Carle
+The Very Hungry Caterpillar
+Maurice Sendak
+Where the Wild Things Are
+Margaret Wise Brown
+Goodnight Moon
+Shel Silverstein
+The Giving Tree
+Where the Sidewalk Ends
+Lemony Snicket
+A Series of Unfortunate Events
+Violet Baudelaire
+Klaus Baudelaire
+Sunny Baudelaire
+Count Olaf
+Mark Haddon
+The Curious Incident of the Dog in the Night-Time
+Christopher Boone
+Markus Zusak
+The Book Thief
+Liesel Meminger
+Yann Martel
+Life of Pi
+Pi Patel
+Richard Parker
+A Thousand Splendid Suns
+~Amir
+Hassan
+Ian McEwan
+~Atonement
+Briony Tallis
+On Chesil Beach
+Stevens
+Daphne du Maurier
+Jamaica Inn
+Margaret Mitchell
+Scarlett O'Hara
+Rhett Butler
+Ashley Wilkes
+Melanie Hamilton
+Colleen McCullough
+The Thorn Birds
+Ralph Ellison
+Invisible Man
+Richard Wright
+Native Son
+Bigger Thomas
+James Baldwin
+Go Tell It on the Mountain
+Giovanni's Room
+Zora Neale Hurston
+Their Eyes Were Watching God
+Janie Crawford
+Langston Hughes
+Frank Herbert
+Paul Atreides
+Arrakis
+Muad'Dib
+Duncan Idaho
+Baron Harkonnen
+Gurney Halleck
+Lady Jessica
+Stilgar
+Chani
+Dune Messiah
+Children of Dune
+William Gibson
+Neuromancer
+Count Zero
+Molly Millions
+~Case
+Neal Stephenson
+Snow Crash
+Hiro Protagonist
+Cryptonomicon
+Isaac Asimov
+Hari Seldon
+The Caves of Steel
+The Robots of Dawn
+The Gods Themselves
+Susan Calvin
+Elijah Baley
+Arthur C. Clarke
+Rendezvous with Rama
+Childhood's End
+HAL 9000
+Dave Bowman
+Frank Poole
+Philip K. Dick
+Rick Deckard
+The Man in the High Castle
+Ubik
+The Three Stigmata of Palmer Eldritch
+Minority Report
+Douglas Adams
+The Hitchhiker's Guide to the Galaxy
+Arthur Dent
+Ford Prefect
+Zaphod Beeblebrox
+Marvin the Paranoid Android
+Trillian
+Deep Thought
+The Restaurant at the End of the Universe
+Mostly Harmless
+Dirk Gently's Holistic Detective Agency
+The Silmarillion
+The Children of Hurin
+Bilbo Baggins
+Frodo Baggins
+Samwise Gamgee
+Meriadoc Brandybuck
+Peregrin Took
+Gandalf
+Aragorn
+Legolas
+Gimli
+Boromir
+Gollum
+Sauron
+Saruman
+Galadriel
+Elrond
+Arwen
+Eowyn
+Theoden
+Faramir
+Denethor
+Smaug
+Thorin Oakenshield
+Beorn
+Radagast
+Tom Bombadil
+Shelob
+Balrog
+Mordor
+Rivendell
+Gondor
+~Rohan
+Lothlorien
+Moria
+Isengard
+Erebor
+~Shire
+~Bree
+A Game of Thrones
+A Clash of Kings
+A Storm of Swords
+A Feast for Crows
+A Dance with Dragons
+Jon Snow
+Daenerys Targaryen
+Tyrion Lannister
+Cersei Lannister
+Jaime Lannister
+Arya Stark
+Sansa Stark
+Eddard Stark
+Robb Stark
+Bran Stark
+Theon Greyjoy
+Joffrey Baratheon
+Stannis Baratheon
+Renly Baratheon
+Brienne of Tarth
+Melisandre
+Varys
+Littlefinger
+Hodor
+Samwell Tarly
+Petyr Baelish
+Viserys Targaryen
+Khal Drogo
+Jorah Mormont
+Oberyn Martell
+Westeros
+Essos
+Winterfell
+King's Landing
+Iron Throne
+Night's Watch
+Dothraki
+Harry Potter and the Chamber of Secrets
+Harry Potter and the Prisoner of Azkaban
+Harry Potter and the Goblet of Fire
+Harry Potter and the Order of the Phoenix
+Harry Potter and the Half-Blood Prince
+Hermione Granger
+Ron Weasley
+Albus Dumbledore
+Severus Snape
+Rubeus Hagrid
+Draco Malfoy
+Lord Voldemort
+Sirius Black
+Remus Lupin
+Neville Longbottom
+Ginny Weasley
+Fred Weasley
+George Weasley
+Minerva McGonagall
+~Dobby
+Kreacher
+Bellatrix Lestrange
+Lucius Malfoy
+Cedric Diggory
+Luna Lovegood
+Peter Pettigrew
+Dolores Umbridge
+Gilderoy Lockhart
+Alastor Moody
+Argus Filch
+Pomona Sprout
+Filius Flitwick
+Vernon Dursley
+Petunia Dursley
+Hedwig
+Crookshanks
+Fawkes
+Nagini
+Buckbeak
+Scabbers
+Ravenclaw
+Hufflepuff
+Quidditch
+Hogsmeade
+Diagon Alley
+Gringotts
+Azkaban
+Dementor
+Patronus
+Horcrux
+Ministry of Magic
+Fantastic Beasts and Where to Find Them
+The Casual Vacancy
+The Cuckoo's Calling
+Robert Galbraith
+Cormoran Strike
+Robin Ellacott
+The Ickabog
+Bella Swan
+Edward Cullen
+Jacob Black
+Breaking Dawn
+Katniss Everdeen
+Peeta Mellark
+Gale Hawthorne
+President Snow
+Haymitch Abernathy
+Effie Trinket
+Catching Fire
+Mockingjay
+~Divergent
+~Insurgent
+~Allegiant
+Tris Prior
+James Dashner
+The Maze Runner
+Percy Jackson and the Lightning Thief
+Annabeth Chase
+Grover Underwood
+The Sea of Monsters
+Camp Half-Blood
+The Kane Chronicles
+Magnus Chase
+Christopher Paolini
+Eragon
+Brisingr
+Saphira
+Galbatorix
+Terry Pratchett
+Discworld
+The Colour of Magic
+Small Gods
+Night Watch
+Sam Vimes
+Rincewind
+~Death
+Granny Weatherwax
+Nanny Ogg
+Tiffany Aching
+~Mort
+Moist von Lipwig
+The Wee Free Men
+American Gods
+The Graveyard Book
+Good Omens
+~Stardust
+Neverwhere
+The Sandman
+~Morpheus
+Shadow Moon
+Mr Wednesday
+Coraline Jones
+Aziraphale
+Crowley
+Anthony Burgess
+Alex DeLarge
+Offred
+Oryx and Crake
+The Testaments
+William Golding
+Lord of the Flies
+~Piggy
+Jack Merridew
+~Simon
+Evelyn Waugh
+Brideshead Revisited
+Sebastian Flyte
+Charles Ryder
+Wilkie Collins
+The Woman in White
+The Moonstone
+Count Fosco
+Marian Halcombe
+Henry James
+The Turn of the Screw
+The Portrait of a Lady
+Isabel Archer
+The Ambassadors
+Daisy Miller
+Edith Wharton
+The Age of Innocence
+Newland Archer
+Ellen Olenska
+The House of Mirth
+Lily Bart
+Ethan Frome
+William Makepeace Thackeray
+Becky Sharp
+Amelia Sedley
+Barry Lyndon
+Daniel Defoe
+Robinson Crusoe
+Man Friday
+Moll Flanders
+Henry Fielding
+Tom Jones
+Samuel Richardson
+~Pamela
+Laurence Sterne
+Tristram Shandy
+Jonathan Swift
+Gulliver's Travels
+Lemuel Gulliver
+~Lilliput
+~Brobdingnag
+John Bunyan
+The Pilgrim's Progress
+~Christian
+John Milton
+Paradise Lost
+Geoffrey Chaucer
+The Canterbury Tales
+Wife of Bath
+Troilus and Criseyde
+~Beowulf
+~Grendel
+Sir Gawain and the Green Knight
+Thomas Malory
+Le Morte d'Arthur
+King Arthur
+~Merlin
+Lancelot
+~Guinevere
+~Excalibur
+Morgan le Fay
+T.H. White
+The Once and Future King
+Marion Zimmer Bradley
+The Mists of Avalon
+Morgaine
+~Carrie
+~Misery
+Pet Sematary
+Cujo
+Salem's Lot
+The Dark Tower
+The Gunslinger
+Roland Deschain
+Dolores Claiborne
+The Green Mile
+Paul Edgecombe
+John Coffey
+The Dead Zone
+~Christine
+~Firestarter
+Needful Things
+Under the Dome
+Doctor Sleep
+Danny Torrance
+Jack Torrance
+The Stand
+Annie Wilkes
+~Pennywise
+Johnny Smith
+Michael Crichton
+The Andromeda Strain
+~Sphere
+Timeline
+~Prey
+State of Fear
+John Hammond
+Ian Malcolm
+Alan Grant
+Ellie Sattler
+Dennis Nedry
+Peter Benchley
+Matt Hooper
+Martin Brody
+~Quint
+Anne Rice
+Interview with the Vampire
+Lestat de Lioncourt
+Louis de Pointe du Lac
+The Vampire Lestat
+~Claudia
+Charles Portis
+True Grit
+Mattie Ross
+Rooster Cogburn
+Elmore Leonard
+Get Shorty
+Out of Sight
+Tom Clancy
+The Hunt for Red October
+Patriot Games
+Clear and Present Danger
+Robert Ludlum
+The Bourne Identity
+Jason Bourne
+Ian Fleming
+~Moonraker
+Dr No
+From Russia with Love
+Live and Let Die
+~Thunderball
+Blofeld
+John le Carre
+The Spy Who Came in from the Cold
+George Smiley
+Tinker Tailor Soldier Spy
+Frederick Forsyth
+The Day of the Jackal
+Daniel Keyes
+Flowers for Algernon
+Charlie Gordon
+Harlan Coben
+Tell No One
+Myron Bolitar
+James Patterson
+Alex Cross
+Along Came a Spider
+Gillian Flynn
+Amy Dunne
+Nick Dunne
+Sharp Objects
+Dark Places
+Paula Hawkins
+Rachel Watson
+Ruth Ware
+The Woman in Cabin 10
+Alex Michaelides
+Theo Faber
+Alicia Berenson
+Throne of Glass
+Celaena Sardothien
+Feyre Archeron
+Rhysand
+Crescent City
+Violet Sorrengail
+Xaden Riorson
+Mark Watney
+Ryland Grace
+Cormac McCarthy
+The Road
+Blood Meridian
+All the Pretty Horses
+Anton Chigurh
+Donna Tartt
+The Secret History
+The Goldfinch
+Richard Papen
+Henry Winter
+Jonathan Franzen
+The Corrections
+~Purity
+David Foster Wallace
+Infinite Jest
+The Pale King
+Hal Incandenza
+Jhumpa Lahiri
+The Namesake
+Interpreter of Maladies
+Gogol Ganguli
+Michael Chabon
+The Amazing Adventures of Kavalier & Clay
+The Yiddish Policemen's Union
+Thomas Pynchon
+Gravity's Rainbow
+~Vineland
+Mason & Dixon
+The Crying of Lot 49
+John Irving
+The World According to Garp
+The Cider House Rules
+A Prayer for Owen Meany
+Owen Meany
+The Refugees
+Bao Ninh
+The Sorrows of War
+~Hamlet
+~Macbeth
+Romeo and Juliet
+King Lear
+~Othello
+The Tempest
+A Midsummer Night's Dream
+Antony and Cleopatra
+Twelfth Night
+Much Ado About Nothing
+The Merchant of Venice
+Richard III
+Henry V
+~Coriolanus
+Prince Hamlet
+Lady Macbeth
+Iago
+~Shylock
+Falstaff
+~Ophelia
+~Portia
+~Titania
+~Oberon
+Prospero
+~Ariel
+~Caliban
+Malvolio
+Benedick
+Juliet Capulet
+Romeo Montague
+Mercutio
+~Tybalt
+~Polonius
+~Horatio
+Laertes
+~Cordelia
+~Goneril
+Regan
+~Rosalind
+Orsino
+Christopher Marlowe
+Doctor Faustus
+Tamburlaine
+Ben Jonson
+Volpone
+Joseph Conrad
+Heart of Darkness
+Lord Jim
+Nostromo
+Marlow
+Kurtz
+The Secret Agent
+Ford Madox Ford
+The Good Soldier
+Graham Greene
+The Power and the Glory
+The Quiet American
+Brighton Rock
+Jeanette Winterson
+Oranges Are Not the Only Fruit
+Hilary Mantel
+Wolf Hall
+Thomas Cromwell
+Bring Up the Bodies
+The Mirror and the Light
+Pat Barker
+The Silence of the Girls
+Madeline Miller
+The Song of Achilles
+Natalie Haynes
+A Thousand Ships
+Ann Patchett
+Bel Canto
+Barbara Kingsolver
+The Poisonwood Bible
+The Bean Trees
+Ann Brashares
+The Sisterhood of the Traveling Pants
+Jodi Picoult
+My Sister's Keeper
+The Fault in Our Stars
+Hazel Grace Lancaster
+Augustus Waters
+Looking for Alaska
+Paper Towns
+Dan Simmons
+The Terror
+Hyperion
+Mistborn
+Vin
+Kelsier
+The Way of Kings
+Kaladin
+Shallan Davar
+The Stormlight Archive
+Elantris
+Robert Jordan
+Rand al'Thor
+Mat Cauthon
+Perrin Aybara
+Egwene al'Vere
+Moiraine Damodred
+Aes Sedai
+R.F. Kuang
+Yellowface
+James Clavell
+Blackthorne
+Toranaga
+Richard Matheson
+I Am Legend
+Shirley Jackson
+The Haunting of Hill House
+We Have Always Lived in the Castle
+Mary Katherine Blackwood
+Thomas Harris
+Hannibal Lecter
+Clarice Starling
+Red Dragon
+Patricia Highsmith
+The Talented Mr Ripley
+Tom Ripley
+Ruth Rendell
+Stieg Larsson
+The Girl with the Dragon Tattoo
+Lisbeth Salander
+Mikael Blomkvist
+Jo Nesbo
+The Snowman
+Harry Hole
+Henning Mankell
+Kurt Wallander
+Arnaldur Indridason
+Jussi Adler-Olsen
+Jeffery Deaver
+The Bone Collector
+Lincoln Rhyme
+Kathy Reichs
+Temperance Brennan
+Brad Meltzer
+The Ghost Map
+Michael Connelly
+Harry Bosch
+The Lincoln Lawyer
+Mickey Haller
+John Grisham
+The Firm
+A Time to Kill
+Jake Brigance
+Scott Turow
+Presumed Innocent
+Rusty Sabich
+Lee Child
+Jack Reacher
+Killing Floor
+Nelson DeMille
+Robert Harris
+~Fatherland
+~Enigma
+~Archangel
+Dennis Lehane
+Gone Baby Gone
+Stephen Hunter
+Bob Lee Swagger
+How to Stop Worrying and Start Living
+~Blink
+~Outliers
+David and Goliath
+Super Freakonomics
+~Collapse
+Niccolo Machiavelli
+Meditations
+~Grit
+~Mindset
+Thinking in Bets
+Annie Duke
+Burton Malkiel
+One Up on Wall Street
+The Little Book of Common Sense Investing
+George S. Clason
+Tribe of Mentors
+Make Your Bed
+William H. McRaven
+Walter Isaacson
+~Educated
+~Becoming
+Born a Crime
+~Quiet
+~Influence
+Pre-Suasion
+~Mastery
+Stolen Focus
+Johann Hari
+~Range
+David Epstein
+~Principles
+Fooled by Randomness
+Superforecasting
+Philip Tetlock
+Enlightenment Now
+The Better Angels of Our Nature
+The Righteous Mind
+The Omnivore's Dilemma
+~Cosmos
+The Power of Positive Thinking
+Norman Vincent Peale
+The One Thing
+Gary Keller
+~Hooked
+Jake Knapp
+~Sprint
+~Traction
+Gino Wickman
+The E-Myth Revisited
+Michael Gerber
+Crossing the Chasm
+Geoffrey Moore
+The Goal
+Eliyahu Goldratt
+Give and Take
+~Originals
+Dare to Lead
+Brene Brown
+Sendhil Mullainathan
+~Nudge
+Cass Sunstein
+Hidden Potential
+Francesc Miralles
+Thomas Stanley
+W. Chan Kim
+Start-Up Nation
+Where Good Ideas Come From
+Steven Johnson
+The Long Tail
+Chris Anderson
+Emotional Design
+Surely You're Joking Mr Feynman
+The Man Who Mistook His Wife for a Hat
+Richard Preston
+The Hot Zone
+Jon Krakauer
+Into the Wild
+Into Thin Air
+Christopher McCandless
+Erik Larson
+The Devil in the White City
+~Principia
+Stephen Jay Gould
+Mary Roach
+~Stiff
+Bill Bryson
+A Short History of Nearly Everything
+Astrophysics for People in a Hurry
+The Elegant Universe
+Our Mathematical Universe
+The Coming Wave
+AI Superpowers
+The Singularity Is Near
+Parable of the Sower
+Between the World and Me
+Isabel Wilkerson
+~Caste
+Richard Rhodes
+The Making of the Atomic Bomb
+Robert Caro
+The Power Broker
+Ron Chernow
+Washington: A Life
+Doris Kearns Goodwin
+Team of Rivals
+David McCullough
+Jeff Shaara
+Killer Angels
+Michael Shaara
+Vsauce2
+TED-Ed
+~TED
+Practical Engineering
+Smarter Every Day
+MrWhosTheBoss
+Polymatter
+Religion for Breakfast
+Jerry Rig Everything
+Gary Explains
+Hardcore History
+Dan Carlin
+My Favorite Murder
+~Serial
+S-Town
+Revisionist History
+Behind the Bastards
+~Criminal
+~Lore
+Ologies
+Dirty John
+Sword and Scale
+Dr Death
+Pod Save the World
+Dwarkesh Podcast
+~Acquired
+The All-In Podcast
+Odd Lots
+The Rewatchables
+Joe Budden Podcast
+Bill Simmons Podcast
+Pardon My Take
+Full Send Podcast
+Impaulsive
+Summit1G
+Moistcr1tikal
+Tfue
+Sodapoppin
+TommyInnit
+~Dream
+Ranboo
+Quackity
+Philza
+Wilbur Soot
+Tubbo
+Ssundee
+DanTDM
+Stampy Cat
+Vanoss
+Preston
+Ali-A
+Joe Sugg
+Zoe Sugg
+Blippi
+Like Nastya
+Little Baby Bum
+Super Simple Songs
+Ryan's World
+Ryan Higa
+=nigahiga
+Bethany Mota
+Kingsley
+Grace Helbig
+Hannah Hart
+My Drunk Kitchen
+Miranda Sings
+Colleen Ballinger
+Fred Figglehorn
+Ryan Kaji
+AsapSCIENCE
+Bill Wurtz
+Tom Scott Videos
+Captain Disillusion
+~Tested
+Adam Savage's Tested
+Brick Experiment Channel
+The Slow Mo Guys
+Slow Mo Guys
+Lindsay Ellis
+Hbomberguy
+Contrapoints
+Jaiden Animations
+Jacob Geller
+Extra Credits
+Game Maker's Toolkit
+Mark Brown
+Razbuiam
+Zeezy
+Matt Walsh
+Folding Ideas
+Noah Caldwell-Gervais
+Tasting History
+Max Miller
+Jimmy Kimmel Live
+Late Night with Seth Meyers
+Ellen DeGeneres Show
+The Ellen Show
+Kelly and Mark
+Drew Barrymore Show
+The View
+Good Hang with Amy Poehler
+Mr Bean
+Smosh Games
+ScrewAttack
+Angry Joe
+Totalbiscuit
+Jim Sterling
+Jacksepticeye Gaming
+Achievement Hunter
+Rooster Teeth
+Red vs Blue
+RvB
+Mega64
+Achievement Hunter Podcast
+Let's Game It Out
+The Completionist
+Game Grumps
+Egoraptor
+Danny Sexbang
+Ninja Sex Party
+Vanoss Gaming
+Dan Bull
+KSI Podcast
+Sidemen Charity Match
+Ali-A Gaming
+Yogscast
+Stampylonghead
+Stampy
+Ssethtzeentv
+DanTDM Show
+Dan TDM
+Captain Sparklez
+Preston Playz
+Jerome Assland
+Ricky Dillon
+Caleb Hyles
+Connor Eatherton
+Davey Wavey
+Smallishbeans
+Lucas and Marcus
+Diana Kids
+Hobbykids
+Little Angel
+Mr Pumpkin
+Shark Family
+Pinkfong
+Hey Duggee
+Dave and Ava
+Katie Kids
+Art for Kids Hub
+Blippi Toys
+Vlad and Niki
+Vlad & Niki
+Like Nastya Show
+Ryan ToysReview
+Ryan Toys Review
+Toys and Colors
+Cookie Swirl C
+Cookie Swirl
+The Ringer NBA Show
+The Bill Simmons Podcast
+The Michael Brooks Show
+The Kevin Pereira Show
+Dan Le Batard Show
+The Dan Le Batard Show with Stugotz
+Pat McAfee Show
+The Pat McAfee Show
+First Take
+~Undisputed
+Pardon the Interruption
+Around the Horn
+SportsCenter
+Inside the NBA
+Bill Burr Monday Morning Podcast
+The Bill Burr Podcast
+Morning Joe
+Chris Hayes Show
+The Rachel Maddow Show
+Tucker Carlson Show
+The Tucker Carlson Show
+The Megyn Kelly Show
+The Ben Shapiro Show
+Daily Wire
+Triggernometry
+Triggernometry Podcast
+Oprah Winfrey Show
+~Dateline
+60 Minutes
+~Cracked
+Cracked Podcast
+The Onion
+Vice News Tonight
+Vox Explains
+Vox Media
+Bloomberg Business Week
+The Economist Podcast
+The Journal
+The Journal WSJ
+The Rest Is Politics
+The Rest Is History
+The Rest Is Football
+Rest Is Politics
+First We Feast Hot Ones
+Bon Appetit Hot Ones
+Chicken Shop Date
+~Sway
+The Sway Podcast
+Jordan Harbinger Show
+The Jordan Harbinger Show
+Peter Attia Drive
+The Peter Attia Drive
+Ben Greenfield Fitness
+Mind Pump Podcast
+Barbell Shrugged
+Jocko Podcast
+The Jocko Podcast
+Mike Rowe
+Mike Rowe Works
+Somebody's Gotta Do It
+Dirty Jobs
+Mike Rowe Works Podcast
+Waking Up with Sam Harris
+Ezra Klein Show
+The Ezra Klein Show
+The Rubin Report
+Breaking Points
+Kill Tony Show
+Hot Mess Podcast
+Dumb Blonde
+Marie Forleo
+Marie Forleo's B-School
+The Marie Forleo Podcast
+Oprah's Super Soul
+SuperSoul Conversations
+Russell Brand Podcast
+The Russell Brand Show
+Louis Theroux
+Louis Theroux's Podcast
+Joe Budden
+Akademiks
+DJ Akademiks
+Hot 97
+The Breakfast Club
+Sway in the Morning
+Big Boy's Neighborhood
+Power 105
+Charlamagne tha God
+Charlamagne
+Breakfast Club
+Ninja Streams
+Shroud Streams
+Dr Lupo
+Sodapoppin Streams
+Nickmercs
+Mythpat
+Tommyinnit Streams
+Ranboo Streams
+Dream SMP
+DreamSMP
+Technoblade Streams
+Philza Minecraft
+Eret
+Jschlatt
+Schlatt
+Fundy
+Fruitberries
+Tubbo Streams
+Skeppy
+BadBoyHalo
+Etho
+Grian
+Mumbo Jumbo
+MumboJumbo
+Hermitcraft
+Xisuma
+ImpulseSV
+iJevin
+Iskall85
+Stressmonster101
+PopularMMOs
+TheOrionSound
+Lazarbeam
+~Lazar
+Ali A
+Ssundee Minecraft
+Toby Turner
+Captain Sparklez Minecraft
+Tobuscus
+Fred Afterparty
+Gabe Hodges
+Dude Perfect Vlogs
+Spencer FPV
+Ryan Trahan Vlogs
+Ryan Higa Vlogs
+Jenna Marbles Show
+Lilly Singh Vlogs
+Shane Dawson TV
+Shane Dawson Conspiracy
+Jeffree Star Cosmetics
+Nikkie Tutorials
+Jaclyn Hill
+Kandee Johnson
+Alissa Ashley
+Jeffree Star Show
+Laura Lee
+Gabriel Zamora
+Lindsay Stefanie
+Hannah Stocking
+Hannah Stocking Vlogs
+Gigi Gorgeous
+Lele Pons
+Lele
+Brittany Furlan
+Rosanna Pansino
+Baked with Rosanna
+Nerdy Nummies
+Lindsey Stirling
+Bart Baker
+Anna Akana
+Bryce Hall
+Spencer X
+Loren Gray
+Lil Huddy
+Noah Beck
+Avani Gregg
+Vice Documentaries
+~Insider
+BBC News
+BBC Earth
+BBC Documentaries
+Discovery Channel
+History Channel
+PBS Digital Studios
+PBS Terra
+PBS Space Time
+Space Time
+Dr Becky
+Dr Mike Varshavski
+Doctor Mike Varshavski
+Medlife Crisis
+Mayo Clinic Health
+TEDx Talks
+The School of Life
+School of Life
+~Wisecrack
+Wisecrack Edutainment
+Overly Sarcastic Productions
+Lemmino Cars
+Carfection
+Kyle Hill
+Nerdwriter1
+Engineering Explained
+Engineering Mindset
+Tech Ingredients
+Cathode Ray Dude
+Tom Stanton
+Rick Beato
+Adam Neely
+Peter Hollens
+Rob Dyrdek Fantasy Factory
+Fantasy Factory
+Sesame Street Official
+Sesame Workshop
+Kurzgesagt Shorts
+Veritasium Shorts
+Sam Zeloof
+Ben Eater
+Andreas Spiess
+Mathologer
+Mathoma
+Blackpenredpen
+Eddie Woo
+Standup Maths
+Sixty Symbols
+Periodic Videos
+The Action Lab
+Fermilab
+Everyday Astronaut
+Scott Manley
+Anton Petrov
+Ross Scott
+Fraser Cain
+Universe Today
+Astrum
+PBS Space Time Channel
+Dr Becky Channel
+Crash Course Kids
+Crash Course Astronomy
+Thoughty2
+Simple History
+Epic History
+Historia Civilis
+Kings and Generals
+The Fat Electrician
+Fat Electrician
+Jeff Geerling
+Explaining Computers
+Ben Heck
+Electroboom
+Big Clive
+Robert Murray-Smith
+Dr Rhonda Patrick
+Sam Ruffino
+The Fitness Chef
+Simeon Panda
+Tim Dillon Show
+The Tim Dillon Show
+Bobby Lee Podcast
+Akaash Singh
+Theo Von This Past Weekend
+Brendan Schaub
+Chappelle Show
+Big Jay Oakerson
+Adam Ray
+Adam Carolla
+Carolla
+The Adam Carolla Show
+Dan Soder
+Dan Soder Show
+Hart to Heart
+Bert Kreischer Show
+Bert Kreischer Hell of a Week
+Tom Segura Podcast
+Ari Shaffir
+Shane Dawson Podcast
+Brian Redban
+Redban
+Joe DeRosa
+Duncan Trussell
+Duncan Trussell Family Hour
+Dave Smith
+Dave Smith Podcast
+Tim Kennedy
+Mike Tyson Mysteries
+Jim Norton
+Opie and Anthony
+Opie and Jim Norton
+The Howard Stern Show
+Howard Stern
+Steven Crowder
+Ben Shapiro Show
+PragerU
+TheRealPrager
+Daily Wire Podcast
+Infowars Podcast
+Unfiltered with Jesse
+Vanity Fair Podcast
+Pete Holmes
+You Made It Weird
+You Made It Weird with Pete Holmes
+Jordan Schlansky
+Nicole Byer
+Nicole Byer Podcast
+Mike Birbiglia
+Birbiglia
+Maria Bamford
+Hannah Gadsby
+Nikki Glaser
+Nikki Glaser Podcast
+Sarah Silverman Podcast
+Kristen Bell
+Kristen Bell and Dax Shepard
+Armchair Expert with Dax Shepard
+Monica Padman
+Will Arnett
+Chelsea Handler
+Chelsea Handler podcast
+Sarah Schauer
+On Purpose with Jay Shetty
+Dr Oz Show
+Dr Drew
+Dr Drew Podcast
+Dr Drew Pinsky
+Tim Dillon
+Jordan Peterson Podcast
+Dr Phil Show
+Ben Shapiro Podcast
+Dave Rubin Show
+Sarah Silverman Show
+Taylor Tomlinson Show
+Hot Mess Show
+Club Shay Shay
+~Nightcap
+Nightcap Show
+Speak for Yourself
+Skip and Shannon
+Bussin With The Boys
+Bomani Jones
+The Bomani Jones Show
+Big Cat
+Dan Patrick Show
+The Dan Patrick Show
+Chris Broussard
+Let's Go with Tom Brady
+Tom Brady Let's Go
+Manningcast
+The Manningcast
+Peyton's Places
+The Herd
+Colin Cowherd
+The Colin Cowherd Podcast
+Mad Dog Unleashed
+Mad Dog Radio
+The Rich Eisen Show
+Rich Eisen
+The Rich Eisen Show Podcast
+Rich Eisen Show
+Bill Simmons
+Ringer NFL Show
+The Rewatchables Podcast
+Ryen Russillo
+Ryen Russillo Show
+The Ryen Russillo Podcast
+Zach Lowe
+Zach Lowe Show
+The Lowe Post
+New Heights
+New Heights Podcast
+Cheap Heat
+Cheap Heat Podcast
+Gilbert Arenas
+Gilbert Arenas Show
+Gil's Arena
+The Big Podcast
+The Big Podcast with Shaq
+The Pat Mcafee Show Podcast
+Pat McAfee
+Dan Orlovsky
+~Greeny
+Greeny Show
+Good Good Golf
+Bob Does Sports
+Rick Shiels
+Peter Finch
+Me and My Golf
+Grant Horvat
+Grant Horvat Golf
+Mark Crossfield
+Bryan Brothers
+Strokes Gained
+Strokes Gained Podcast
+The Good Good Show
+Barstool
+Barstool Sports Podcast
+Portnoy
+Dave Portnoy
+Big Cat Podcast
+Barstool Blitz
+Joshua Weissman Cooking
+Jamie Oliver Food
+Chef John Food Wishes
+Pro Home Cooks
+Tasty Recipes
+Bon Appetit Test Kitchen
+Good Eats
+Gordon Ramsay Recipes
+Hells Kitchen
+Cooking with Dog
+Alex French Guy Cooking
+Alex the French Guy
+Emily Mariko
+Emmy Made in Japan
+Mark Wiens Travel
+Eat with Mark
+Drew Binsky Travels
+Matt DAvella
+Thomas Frank College
+Ali Abdaal Productivity
+Ali Abdaal Podcast
+Hormozi
+Valuetainment
+Dr Matthew Walker
+Patriot Act
+Hasan Minhaj Patriot Act
+Full Frontal
+Daily Show
+The Daily Show with Trevor Noah
+Late Show with David Letterman
+Late Night with Conan O'Brien
+Conan
+The Colbert Report
+Minority Mindset
+The Dave Ramsey Show
+Clark Howard
+The Money Guy Show
+Dave Lee
+Waveform
+Max Tech
+Digital Foundry
+Jarrod's Tech
+Paul's Hardware
+Bennett Foddy
+Brodie Robertson
+Cynical Brit
+Zero Punctuation
+Videogamedunkey
+Dunkey
+David Spade
+The Problem with Jon Stewart
+Jordan Klepper
+Jordan Klepper Fingers the Pulse
+Desus and Mero
+The Desus & Mero Show
+Carlos Mencia
+Jim Gaffigan
+Iliza Shlesinger
+Jen Kirkman
+Sebastian Maniscalco
+Bill Engvall
+Gabriel Iglesias Podcast
+Dave Attell
+Brian Regan
+Jeff Dunham
+Jeff Dunham Show
+Eddie Izzard
+Michael McIntyre
+Michael McIntyre's Big Show
+Jimmy Carr
+Joe Lycett
+Romesh Ranganathan
+Frankie Boyle
+Katherine Ryan
+~Taskmaster
+Bloody Disgusting
+Kinda Funny
+Kinda Funny Games
+Giant Bomb
+GameSpot
+Eurogamer
+Destructoid
+Angry Joe Show
+Angry Joe Gaming
+Gaming Historian
+Cheap Ass Gamer
+Matt Ferrell
+Ferrell Gaming
+CaptainSparklez
+Team Liquid
+Tyler1
+Ludwig Gaming
+Vegetta777
+ElRubius
+Grefg
+FaZe Clan
+Nintendo Entertainment System
+Super Nintendo Entertainment System
+Game Boy Color
+Nintendo GameCube
+Nintendo Wii
+Nintendo Wii U
+Virtual Boy
+PlayStation Portable
+PlayStation Vita
+PlayStation VR
+Sega Genesis
+Sega Dreamcast
+Sega Saturn
+Sega Master System
+Game Gear
+Neo Geo
+Atari 2600
+Atari 7800
+Commodore 64
+ZX Spectrum
+PC Engine
+WonderSwan
+Google Stadia
+Ubisoft Connect
+EA app
+Super Mario Bros
+Super Mario Bros 3
+Super Mario World
+Super Mario 64
+Super Mario Sunshine
+Super Mario Galaxy
+Super Mario Galaxy 2
+Super Mario 3D World
+Super Mario 3D Land
+Super Mario Bros Wonder
+New Super Mario Bros
+New Super Mario Bros Wii
+Super Mario Maker
+Super Mario Maker 2
+Super Mario Run
+Super Mario Party
+Mario Kart 8 Deluxe
+Mario Kart Wii
+Mario Kart Double Dash
+Mario Party
+Mario Tennis Aces
+Mario Golf
+Mario and Luigi Superstar Saga
+Paper Mario
+Paper Mario The Thousand-Year Door
+Super Paper Mario
+Luigi's Mansion 3
+Donkey Kong Country
+Donkey Kong Country Returns
+Donkey Kong Country Tropical Freeze
+Donkey Kong 64
+Super Smash Bros Melee
+Super Smash Bros Brawl
+Super Smash Bros for Wii U
+Super Smash Bros Ultimate
+Kirby and the Forgotten Land
+Kirby Star Allies
+Kirby Planet Robobot
+Kirby Air Riders
+Kirby Super Star
+Kirby's Dream Land
+Pokemon Red
+Pokemon Blue
+Pokemon Yellow
+Pokemon Gold
+Pokemon Silver
+Pokemon Crystal
+Pokemon Ruby
+Pokemon Sapphire
+Pokemon Emerald
+Pokemon FireRed
+Pokemon LeafGreen
+Pokemon Diamond
+Pokemon Pearl
+Pokemon Platinum
+Pokemon HeartGold
+Pokemon SoulSilver
+Pokemon Black
+Pokemon White
+Pokemon X
+Pokemon Y
+Pokemon Sun
+Pokemon Moon
+Pokemon Ultra Sun
+Pokemon Ultra Moon
+Pokemon Sword
+Pokemon Shield
+Pokemon Brilliant Diamond
+Pokemon Shining Pearl
+Pokemon Legends Arceus
+Pokemon Scarlet
+Pokemon Violet
+Pokemon Unite
+Pokemon Snap
+Pokemon Stadium
+Pokemon Colosseum
+Pokemon XD Gale of Darkness
+Pokemon Let's Go Pikachu
+Pokemon Let's Go Eevee
+Pokemon Trading Card Game
+Pokemon Mystery Dungeon Explorers of Sky
+The Legend of Zelda Ocarina of Time
+The Legend of Zelda Majora's Mask
+The Legend of Zelda The Wind Waker
+The Legend of Zelda Twilight Princess
+The Legend of Zelda Skyward Sword
+The Legend of Zelda A Link to the Past
+The Legend of Zelda Link's Awakening
+The Legend of Zelda Breath of the Wild
+The Legend of Zelda Tears of the Kingdom
+The Legend of Zelda Phantom Hourglass
+The Legend of Zelda Spirit Tracks
+The Legend of Zelda Minish Cap
+The Legend of Zelda Oracle of Seasons
+The Legend of Zelda Echoes of Wisdom
+The Legend of Zelda Four Swords
+Hyrule Warriors
+Hyrule Warriors Age of Calamity
+Ganondorf
+Hyrule
+Metroid Prime
+Metroid Dread
+Metroid Fusion
+Metroid Prime Hunters
+Metroid Zero Mission
+Samus Aran
+Splatoon 2
+Animal Crossing New Horizons
+Animal Crossing Wild World
+Animal Crossing City Folk
+Animal Crossing New Leaf
+Animal Crossing Pocket Camp
+Fire Emblem Awakening
+Fire Emblem Three Houses
+Fire Emblem Fates
+Fire Emblem Engage
+Fire Emblem Sacred Stones
+Fire Emblem Radiant Dawn
+Fire Emblem Path of Radiance
+Xenoblade Chronicles 2
+Xenoblade Chronicles 3
+Xenoblade Chronicles X
+Star Fox
+Star Fox 64
+Star Fox Zero
+F-Zero
+Pikmin 3
+Pikmin 4
+Wario Land
+WarioWare
+Punch-Out
+~Arms
+1-2-Switch
+Ring Fit Adventure
+EarthBound
+Chibi-Robo
+Bayonetta
+Bayonetta 2
+Bayonetta 3
+Ni no Kuni
+Ni no Kuni Wrath of the White Witch
+Pokken Tournament
+Golden Sun
+Advance Wars
+Advance Wars Dual Strike
+Mario and Sonic at the Olympic Games
+Mario Strikers Charged
+Captain Toad Treasure Tracker
+Yoshi's Island
+Yoshi's Woolly World
+Yoshi's Crafted World
+Yoshi
+Bowser's Fury
+Princess Peach Showtime
+~Toad
+~Daisy
+Rosalina
+Koopa
+Goomba
+Toadette
+Diddy Kong Racing
+Banjo-Kazooie
+Banjo-Tooie
+Conker's Bad Fur Day
+Perfect Dark
+GoldenEye 007
+God of War Ragnarok
+God of War II
+God of War III
+God of War Ascension
+Ghost of Yotei
+Horizon Call of the Mountain
+Uncharted 2 Among Thieves
+Uncharted 3 Drake's Deception
+Uncharted 4 A Thief's End
+Uncharted The Lost Legacy
+Uncharted Drake's Fortune
+The Last of Us Part I
+Marvel's Spider-Man 2
+Marvel's Spider-Man Miles Morales
+Marvel's Wolverine
+Marvel's Avengers
+Marvel's Midnight Suns
+Marvel Snap
+Dark Souls II
+Elden Ring Shadow of the Erdtree
+Sekiro Shadows Die Twice
+Armored Core VI Fires of Rubicon
+Armored Core
+Days Gone
+Death Stranding 2 On the Beach
+Returnal
+Ratchet and Clank
+Ratchet and Clank Rift Apart
+Gran Turismo Sport
+Gran Turismo 4
+Gran Turismo 3 A-Spec
+Crash Team Racing
+Spyro the Dragon
+Spyro Reignited Trilogy
+Jak and Daxter
+Sly Cooper and the Thievius Raccoonus
+inFAMOUS Second Son
+Killzone
+Resistance Fall of Man
+LittleBigPlanet
+Astro Bot Rescue Mission
+Astro's Playroom
+Gravity Rush
+Patapon
+~Wipeout
+Helldivers
+Detroit Become Human
+Heavy Rain
+Beyond Two Souls
+Until Dawn
+The Order 1886
+Sucker Punch Productions
+Quantic Dream
+Microsoft Studios
+Xbox Game Studios
+Bethesda Game Studios
+id Software
+Zenimax Media
+Rockstar North
+2K Games
+2K Sports
+Take-Two
+Grand Theft Auto III
+Grand Theft Auto Vice City
+Grand Theft Auto San Andreas
+Grand Theft Auto IV
+Grand Theft Auto Online
+Red Dead Revolver
+Max Payne
+Max Payne 3
+~Bully
+LA Noire
+~Manhunt
+The Warriors
+Midnight Club
+Halo Combat Evolved
+Halo 2
+Halo 3
+Halo 4
+Halo 5 Guardians
+Halo The Master Chief Collection
+Gears of War 2
+Gears of War 3
+Gears of War 4
+Gears of War 5
+Gears of War E-Day
+Forza Horizon 4
+Forza Motorsport 7
+~Fable
+Fable 2
+Fable 3
+Fable Anniversary
+Fable Legends
+State of Decay
+State of Decay 2
+Ori and the Blind Forest
+Ori and the Will of the Wisps
+Hellblade Senua's Sacrifice
+Hellblade 2 Senua's Saga
+Battletoads
+Sunset Overdrive
+Killer Instinct
+Banjo Kazooie Nuts and Bolts
+~Crackdown
+Crackdown 3
+Quantum Break
+Ninja Theory
+Obsidian Entertainment
+Playground Games
+Turn 10 Studios
+~Rare
+Mojang Studios
+Minecraft Legends
+Minecraft Story Mode
+Minecraft Earth
+Minecraft Education Edition
+Minecraft Bedrock Edition
+Minecraft Java Edition
+Minecraft Realms
+Elder Scrolls Online
+The Elder Scrolls
+The Elder Scrolls II Daggerfall
+The Elder Scrolls III Morrowind
+The Elder Scrolls IV Oblivion
+The Elder Scrolls V Skyrim
+The Elder Scrolls VI
+~Oblivion
+Morrowind
+Fallout 3
+Fallout New Vegas
+Fallout 76
+Fallout Shelter
+Fallout Tactics
+Fallout 1
+Fallout 2
+~Doom
+Doom 2
+Doom The Dark Ages
+Doom 3
+Quake II
+Quake III Arena
+Quake Champions
+Wolfenstein The New Order
+Wolfenstein II The New Colossus
+Wolfenstein Youngblood
+Wolfenstein Cyberpilot
+Dishonored 2
+Dishonored Death of the Outsider
+Prey 2017
+~Rage
+Rage 2
+Hi-Fi Rush
+Ghostwire Tokyo
+Deathloop
+Redfall
+The Evil Within
+The Evil Within 2
+Shinobi
+Evil Dead The Game
+The Elder Scrolls Legends
+Wolfenstein Enemy Territory
+Assassin's Creed II
+Assassin's Creed Brotherhood
+Assassin's Creed Revelations
+Assassin's Creed III
+Assassin's Creed IV Black Flag
+Assassin's Creed Unity
+Assassin's Creed Syndicate
+Assassin's Creed Origins
+Assassin's Creed Odyssey
+Assassin's Creed Valhalla
+Assassin's Creed Mirage
+Assassin's Creed Rogue
+Far Cry 2
+Far Cry 3
+Far Cry 4
+Far Cry 5
+Far Cry New Dawn
+Far Cry Primal
+Far Cry 3 Blood Dragon
+Watch Dogs 2
+Watch Dogs Legion
+Rainbow Six
+Rainbow Six Extraction
+Tom Clancy's Rainbow Six
+Tom Clancy's The Division
+Tom Clancy's The Division 2
+Tom Clancy's Ghost Recon
+Tom Clancy's Ghost Recon Breakpoint
+Tom Clancy's Ghost Recon Wildlands
+Tom Clancy's Splinter Cell
+Tom Clancy's Splinter Cell Blacklist
+Tom Clancy's Splinter Cell Conviction
+Tom Clancy's Splinter Cell Chaos Theory
+Splinter Cell
+Ghost Recon
+The Division
+Prince of Persia The Sands of Time
+Prince of Persia Warrior Within
+Prince of Persia The Two Thrones
+Prince of Persia 2008
+Prince of Persia The Lost Crown
+Rayman Legends
+Rayman Origins
+Child of Light
+Trials Rising
+Trials Fusion
+The Crew
+The Crew 2
+Riders Republic
+Skull and Bones
+Beyond Good and Evil 2
+Anno
+Anno 1800
+Might and Magic
+Heroes of Might and Magic
+Heroes of Might and Magic III
+Heroes of Might and Magic V
+Ghost Recon Advanced Warfighter
+EA Sports FC 26
+EA Sports FC 24
+EA Sports FC 25 Ultimate Team
+FIFA 14
+FIFA 15
+FIFA 16
+FIFA 17
+FIFA 18
+FIFA 19
+FIFA 20
+FIFA 21
+FIFA 22
+EA Sports FC 24 Ultimate Team
+Madden NFL 25
+Madden NFL 26
+Madden NFL 24
+Madden NFL 23
+Madden NFL 22
+Madden NFL 21
+NHL 25
+NHL 24
+NHL 23
+College Football 25
+~Battlefield
+Battlefield 1
+Battlefield 2
+Battlefield 3
+Battlefield 4
+Battlefield Hardline
+Battlefield Bad Company
+Battlefield Bad Company 2
+Battlefield Heroes
+Battlefield V
+Titanfall
+Titanfall 2
+Star Wars Battlefront
+Star Wars Battlefront II
+Star Wars Jedi Fallen Order
+Star Wars Jedi Survivor
+Star Wars Knights of the Old Republic
+Star Wars Republic Commando
+Star Wars The Force Unleashed
+Star Wars Squadrons
+Star Wars Eclipse
+Star Wars Galaxies
+Star Wars The Old Republic
+Mass Effect 2
+Mass Effect 3
+Mass Effect Andromeda
+Mass Effect Legendary Edition
+Dragon Age Origins
+Dragon Age II
+Dragon Age Inquisition
+Dragon Age The Veilguard
+Dead Space 2
+Dead Space 3
+Dead Space Remake
+Dead Space Remake 2023
+Command and Conquer
+Command and Conquer Red Alert
+Command and Conquer Tiberian Sun
+Command and Conquer Generals
+Command and Conquer 3 Tiberium Wars
+Command and Conquer Red Alert 3
+Command and Conquer Remastered
+Sim City
+SimCity 4
+SimCity 2000
+SimCity 2013
+The Sims 2
+The Sims 3
+The Sims Medieval
+~Spore
+Plants vs Zombies
+Plants vs Zombies 2
+Need for Speed Underground
+Need for Speed Most Wanted
+Need for Speed Carbon
+Need for Speed Heat
+Need for Speed Unbound
+Need for Speed Payback
+Need for Speed Hot Pursuit
+Need for Speed Rivals
+Burnout Paradise
+Burnout 3 Takedown
+Crysis
+Crysis 2
+Crysis 3
+Crysis Warhead
+Crysis Remastered
+Dragon Quest XI
+Dragon Quest Builders
+Dragon Quest Builders 2
+Dragon Quest Heroes
+Dragon Quest Monsters Joker
+Dragon Quest Treasures
+Final Fantasy VIII
+Final Fantasy IX
+Final Fantasy X
+Final Fantasy X-2
+Final Fantasy XII
+Final Fantasy XIII
+Final Fantasy XIV Endwalker
+Final Fantasy XV
+Final Fantasy Tactics
+Final Fantasy Type-0
+Final Fantasy Crystal Chronicles
+Final Fantasy Mystic Quest
+Final Fantasy Brave Exvius
+Kingdom Hearts II
+Kingdom Hearts III
+Kingdom Hearts Melody of Memory
+Kingdom Hearts Birth by Sleep
+Kingdom Hearts Re Chain of Memories
+Kingdom Hearts 358 2 Days
+Chrono Trigger
+Chrono Cross
+Secret of Mana
+Secret of Evermore
+Super Mario RPG
+Nier Automata
+NieR Replicant
+NieR Gestalt
+Octopath Traveler
+Octopath Traveler II
+Triangle Strategy
+Bravely Default
+Bravely Second
+Bravely Default II
+Dissidia Final Fantasy
+Dissidia Final Fantasy NT
+Tactics Ogre
+Vagrant Story
+Parasite Eve
+Xenogears
+Xenosaga
+Front Mission
+Live A Live
+Call of Duty Modern Warfare
+Call of Duty Modern Warfare 2
+Call of Duty Modern Warfare 3
+Call of Duty Modern Warfare II
+Call of Duty Modern Warfare III
+Call of Duty Black Ops
+Call of Duty Black Ops II
+Call of Duty Black Ops III
+Call of Duty Black Ops 4
+Call of Duty Black Ops Cold War
+Call of Duty Black Ops 6
+Call of Duty Black Ops 7
+Call of Duty WWII
+Call of Duty Advanced Warfare
+Call of Duty Infinite Warfare
+Call of Duty Vanguard
+Call of Duty Warzone
+Call of Duty Mobile
+Call of Duty 2
+Call of Duty 3
+Call of Duty 4
+Call of Duty United Offensive
+Call of Duty World at War
+Call of Duty Ghosts
+Crash Bash
+Resident Evil 2
+Resident Evil 3
+Resident Evil 5
+Resident Evil 6
+Resident Evil 7 Biohazard
+Resident Evil Code Veronica
+Resident Evil Remake
+Resident Evil Revelations
+Devil May Cry 2
+Devil May Cry 3
+Devil May Cry 4
+Devil May Cry 5
+DmC Devil May Cry
+Street Fighter III
+Street Fighter IV
+Street Fighter V
+Street Fighter Alpha
+Street Fighter EX
+Mega Man 2
+Mega Man X
+Mega Man Zero
+Mega Man Legends
+Mega Man Battle Network
+Mega Man 11
+Mega Man Star Force
+Monster Hunter Rise
+Monster Hunter Stories
+Monster Hunter Generations
+Monster Hunter Now
+Monster Hunter Frontier
+Monster Hunter 4 Ultimate
+Monster Hunter Tri
+Dead Rising
+Dead Rising 2
+Dead Rising 3
+Dead Rising 4
+Dead Rising 2 Off the Record
+Dead Rising Deluxe Remaster
+Ace Attorney
+Phoenix Wright Ace Attorney
+Phoenix Wright Ace Attorney Trilogy
+Apollo Justice Ace Attorney
+Resident Evil Survivor
+Okami
+Viewtiful Joe
+Bionic Commando
+Lost Planet
+Lost Planet 2
+Lost Planet 3
+Dino Crisis
+Breath of Fire
+Breath of Fire III
+Breath of Fire IV
+Onimusha
+Onimusha Warlords
+~Strider
+Final Fight
+Dragon's Dogma
+Dragon's Dogma 2
+Dragon's Dogma Dark Arisen
+Okami HD
+Exoprimal
+Street Fighter Duel
+Sengoku Basara
+Sengoku Basara 4
+Team Sonic Racing
+Sonic the Hedgehog 2
+Sonic the Hedgehog 3
+Sonic and Knuckles
+Sonic CD
+Sonic Adventure
+Sonic Adventure 2
+Sonic Heroes
+Sonic Unleashed
+Sonic Colors
+Sonic Generations
+Sonic Forces
+Sonic Frontiers
+Sonic Mania
+Sonic Superstars
+Sonic Rush
+Sonic Lost World
+Sonic Racing CrossWorlds
+Sonic Dash
+Shadow the Hedgehog
+Knuckles Chaotix
+Sega Mega Drive
+Sega Game Gear
+~Persona
+Persona 3
+Persona 4
+Persona 3 Reload
+Persona 4 Golden
+Persona Q
+Persona 5 Strikers
+Metaphor ReFantazio
+Shin Megami Tensei
+Shin Megami Tensei III Nocturne
+Shin Megami Tensei IV
+Shin Megami Tensei V
+Shin Megami Tensei V Vengeance
+Devil Survivor
+Digital Devil Saga
+Soul Hackers 2
+Yakuza
+Yakuza 0
+Yakuza Kiwami
+Yakuza Kiwami 2
+Yakuza 3
+Yakuza 4
+Yakuza 5
+Yakuza 6 The Song of Life
+Yakuza Like a Dragon
+Lost Judgment
+Like a Dragon Infinite Wealth
+Like a Dragon Gaiden
+Stranger of Paradise Final Fantasy Origin
+Stranger of Paradise
+Football Manager 2024
+Football Manager 2025
+Total War
+Total War Warhammer
+Total War Warhammer II
+Total War Warhammer III
+Total War Rome II
+Total War Three Kingdoms
+Total War Shogun 2
+Total War Attila
+Total War Pharaoh
+Warhammer 40000 Space Marine
+Warhammer 40000 Space Marine 2
+Warhammer 40000 Dawn of War
+Warhammer 40000 Darktide
+Warhammer Vermintide 2
+Warhammer Age of Sigmar
+Warhammer Age of Sigmar Storm Ground
+Warhammer Online
+Warhammer Chaosbane
+Warhammer Mark of Chaos
+Vermintide
+Tekken 2
+Tekken 3
+Tekken 4
+Tekken 5
+Tekken 6
+Tekken 7
+Soulcalibur
+Soulcalibur II
+Soulcalibur III
+Soulcalibur IV
+Soulcalibur V
+Soulcalibur VI
+Dark Souls Remastered
+Pac-Man World
+Pac-Man Championship Edition
+Pac-Man Museum
+Pac-Man 256
+Ms Pac-Man
+Dragon Ball Z Kakarot
+Dragon Ball FighterZ
+Dragon Ball Xenoverse
+Dragon Ball Xenoverse 2
+Dragon Ball Sparking Zero
+Dragon Ball Budokai
+Dragon Ball Budokai Tenkaichi 3
+Dragon Ball The Breakers
+Naruto Shippuden Ultimate Ninja Storm
+Naruto Shippuden Ultimate Ninja Storm 4
+Naruto to Boruto Shinobi Striker
+Naruto Ultimate Ninja Storm Revolution
+One Piece Pirate Warriors
+One Piece Pirate Warriors 4
+One Piece Odyssey
+One Piece World Seeker
+One Piece Burning Blood
+One Piece Unlimited World Red
+Jump Force
+Jump Force Deluxe
+Dark Cloud
+Ridge Racer
+Ridge Racer 7
+Ridge Racer Unbounded
+Tales of Arise
+Tales of Berseria
+Tales of Vesperia
+Tales of Symphonia
+Tales of Zestiria
+Tales of Graces
+Tales of Xillia
+Tales of Hearts R
+Tekken Tag Tournament
+Tekken Tag Tournament 2
+Mortal Kombat 2
+Mortal Kombat 3
+Mortal Kombat 4
+Mortal Kombat Trilogy
+Mortal Kombat II
+Mortal Kombat X
+Mortal Kombat 11
+Mortal Kombat Deception
+Mortal Kombat Armageddon
+Mortal Kombat Shaolin Monks
+Mortal Kombat Deadly Alliance
+Mortal Kombat Gold
+Mortal Kombat vs DC Universe
+Injustice Gods Among Us
+Injustice 2
+Injustice 2 Mobile
+Mortal Kombat Mobile
+Half-Life Alyx
+Counter-Strike Global Offensive
+Counter-Strike Source
+Counter-Strike 1.6
+Team Fortress Classic
+Left 4 Dead 2
+~Portal
+Dota
+Dota 2 The International
+Dota Underlords
+SteamWorld Heist
+SteamWorld Dig 2
+Team Fortress
+Day of Defeat
+Deathmatch Classic
+Alien Swarm
+League of Legends Wild Rift
+League of Legends Teamfight Tactics
+Legends of Runeterra
+2XKO
+Hextech Mayhem
+Arcane League of Legends
+Fortnite Save the World
+Fortnite Creative
+Rocket League Sideswipe
+Unreal Tournament
+Unreal Tournament 2004
+Unreal Tournament 3
+Gears Tactics
+Infinity Blade
+~Paragon
+World of Warcraft Classic
+World of Warcraft The Burning Crusade
+World of Warcraft Wrath of the Lich King
+World of Warcraft Cataclysm
+World of Warcraft Mists of Pandaria
+World of Warcraft Warlords of Draenor
+World of Warcraft Legion
+World of Warcraft Battle for Azeroth
+World of Warcraft Shadowlands
+World of Warcraft Dragonflight
+World of Warcraft The War Within
+World of Warcraft Midnight
+Warcraft II
+Warcraft III
+Warcraft III Reforged
+Warcraft Orcs and Humans
+Warcraft Adventures Lord of the Clans
+StarCraft II Wings of Liberty
+StarCraft II Heart of the Swarm
+StarCraft II Legacy of the Void
+StarCraft Remastered
+StarCraft Brood War
+Diablo II
+Diablo II Resurrected
+Diablo III
+Diablo Immortal
+Heroes of the Storm
+Overwatch Mobile
+Crash Team Racing Nitro-Fueled
+Warcraft Rumble
+Titan Quest
+Destiny Rise of Iron
+Destiny The Taken King
+Destiny 2 Lightfall
+Destiny 2 The Final Shape
+Destiny 2 Beyond Light
+~Marathon
+Respawn Entertainment
+Armored Core V
+Armored Core IV
+Armored Core Verdict Day
+Kingdom Under Fire
+Lords of the Fallen
+Lords of the Fallen 2
+Nioh
+Nioh 2
+Rise of the Ronin
+Wo Long Fallen Dynasty
+Ninja Gaiden
+Ninja Gaiden II
+Ninja Gaiden 3
+Ninja Gaiden Sigma
+Ninja Gaiden Black
+Ninja Gaiden Sigma 2
+Ninja Gaiden Dragon Sword
+Ninja Gaiden 4
+Team Ninja
+Koei Tecmo
+Dead or Alive
+Dead or Alive 5
+Dead or Alive 6
+Dead or Alive Xtreme
+Dead or Alive Xtreme Venus Vacation
+Dead or Alive Xtreme 3
+Dead or Alive Xtreme 3 Fortune
+Warriors Orochi
+Warriors Orochi 3
+Dynasty Warriors
+Dynasty Warriors 9
+Dynasty Warriors 8
+Dynasty Warriors 7
+Dynasty Warriors 6
+Dynasty Warriors 5
+Dynasty Warriors 4
+Samurai Warriors
+Samurai Warriors 4
+Samurai Warriors 5
+Nobunaga's Ambition
+Nobunaga's Ambition Sphere of Influence
+Gitaroo Man
+Ryu Ga Gotoku
+Yakuza Ishin
+Yakuza Dead Souls
+Yakuza Zero
+Remnant From the Ashes
+Remnant II
+Harry Potter Quidditch Champions
+Lego Star Wars The Skywalker Saga
+Lego Star Wars The Complete Saga
+Lego Star Wars The Force Awakens
+Lego Batman
+Lego Batman 2 DC Super Heroes
+Lego Batman 3 Beyond Gotham
+Lego Batman The Videogame
+Lego Marvel Super Heroes
+Lego Marvel Super Heroes 2
+Lego Harry Potter Years 1 to 4
+Lego Harry Potter Collection
+Lego Indiana Jones The Original Adventures
+Lego The Incredibles
+Lego Jurassic World
+Lego Dimensions
+Lego Worlds
+Lego Fortnite
+Lego City Undercover
+Lego The Hobbit
+Lego Movie Videogame
+Lego Ninjago
+Lego Island
+Lego Racers
+Lego Bricktales
+Lego Brawls
+Lego Builder's Journey
+Lego 2K Drive
+Lego Speed Champions
+Lego Jurassic World The Videogame
+Lego Indiana Jones
+Lego The Lord of the Rings
+Lego Star Wars II The Original Trilogy
+Lego Star Wars III The Clone Wars
+Lego Star Wars The Video Game
+Roblox Studio
+Brookhaven RP
+Adopt Me
+Blox Fruits
+Murder Mystery 2
+Tower of Hell
+Bee Swarm Simulator
+Fall Guys Ultimate Knockout
+Honkai Impact
+Tower of Fantasy
+Azur Lane
+Girls Frontline
+Girls Frontline 2 Exilium
+Boom Beach
+Hay Day
+Candy Crush Soda Saga
+Candy Crush Jelly Saga
+Angry Birds 2
+Angry Birds Space
+Angry Birds Star Wars
+Temple Run 2
+Crossy Road
+2048
+Words With Friends
+Monopoly Go
+Royal Match
+Royal Kingdom
+Merge Dragons
+Gardenscapes
+Homescapes
+~Township
+Pokemon Masters
+Pokemon Quest
+Dragon Quest Walk
+Dragon Quest Tact
+Chocobo GP
+Star Ocean
+Star Ocean The Second Story
+Star Ocean Till the End of Time
+Star Ocean The Last Hope
+Star Ocean The Divine Force
+Star Ocean Anamnesis
+Suikoden
+Suikoden II
+Suikoden III
+Suikoden IV
+Suikoden V
+Suikoden Tierkreis
+~Lunar
+Lunar Silver Star Story
+Lunar Eternal Blue
+Lunar 2 Eternal Blue
+Lost Odyssey
+Eternal Sonata
+Infinite Undiscovery
+Star Ocean Second Evolution
+Tales of Destiny
+Tales of Phantasia
+Tales of Symphonia Dawn of the New World
+Ys
+Ys Origin
+Ys VIII Lacrimosa of Dana
+Ys Oath in Felghana
+Ys Seven
+Ys Memories of Celceta
+Ys IX Monstrum Nox
+Ys Ark of Napishtim
+Falcom
+Trails in the Sky
+The Legend of Heroes Trails of Cold Steel
+The Legend of Heroes Trails into Reverie
+The Legend of Heroes Trails from Zero
+Hollow Knight Silksong
+Ori and the Blind Forest Definitive Edition
+~Inside
+~Limbo
+~Braid
+Super Meat Boy
+Super Meat Boy Forever
+Spelunky
+Spelunky 2
+Hotline Miami
+Hotline Miami 2 Wrong Number
+Enter the Gungeon
+Binding of Isaac
+The Binding of Isaac Rebirth
+The Binding of Isaac Afterbirth
+Risk of Rain
+Risk of Rain 2
+Vampire Survivors Mobile
+Dave the Diver
+Cult of the Lamb
+Pizza Tower
+Pizza Tower Gerome
+Animal Well
+Sea of Stars
+Chained Echoes
+Coffee Talk
+A Short Hike
+Untitled Goose Game
+Untitled Goose Game Potion Ending
+Night in the Woods
+Oxenfree
+Oxenfree II Lost Signals
+Firewatch
+Gone Home
+What Remains of Edith Finch
+Return of the Obra Dinn
+Pentiment
+Hyper Light Drifter
+Shovel Knight
+Shovel Knight Treasure Trove
+Axiom Verge
+Ori
+Owlboy
+~Gris
+Ogre Battle
+Kingdom Two Crowns
+Kingdom New Lands
+Kingdom Rush
+Bloons TD 6
+Bloons TD
+Plague Inc
+Plague Inc Evolved
+Cities Skylines
+Cities Skylines II
+Stellaris
+Europa Universalis IV
+Hearts of Iron IV
+Crusader Kings III
+Crusader Kings II
+Victoria 3
+Victoria II
+~Civilization
+Civilization V
+Civilization IV
+Civilization III
+Civilization II
+Civilization Revolution
+Sid Meier's Pirates
+Sid Meier's Alpha Centauri
+Age of Empires III
+Age of Empires IV
+Age of Empires Online
+Age of Mythology
+Age of Mythology Retold
+Age of Kings
+Age of Wonders
+Age of Wonders 4
+Empire Earth
+Empire Earth II
+Rise of Nations
+Company of Heroes
+Company of Heroes 2
+Company of Heroes 3
+Dawn of War
+Dawn of War II
+Dawn of War III
+Men of War
+Panzer Corps
+Hearts of Iron
+Hearts of Iron III
+Hearts of Iron II
+Paradox Interactive
+Paradox Development Studio
+Frostpunk
+Frostpunk 2
+The Witcher 2
+The Witcher 3 Wild Hunt
+The Witcher Adventure Game
+Cyberpunk 2077 Phantom Liberty
+Gwent
+Thronebreaker The Witcher Tales
+Dying Light
+Dying Light 2 Stay Human
+Dying Light The Beast
+Dead Island
+Dead Island 2
+Dead Island Riptide
+Techland
+Hellpoint
+Metro Exodus
+Metro 2033
+Metro Last Light
+Metro Redux
+4A Games
+Atomic Heart
+Kenshi
+Mount and Blade
+Mount and Blade Warband
+Mount and Blade II Bannerlord
+Bannerlord
+Terra Invicta
+Dune Awakening
+Subnautica Below Zero
+Star Citizen
+Squadron 42
+Eve Valkyrie
+Grim Dawn
+Path of Exile
+Path of Exile 2
+Lost Ark
+Black Desert Online
+Blade and Soul
+Guild Wars
+Guild Wars 2
+Guild Wars Nightfall
+Guild Wars Factions
+Guild Wars Prophecies
+Guild Wars Eye of the North
+`);
+CST_GLOSSARY_EXTRA_ADD("brands", null, `
+~Tide
+Persil
+Omo
+Lenor
+~Vanish
+Cif
+Domestos
+Harpic
+Dettol
+Pine-Sol
+~Glade
+~Bounty
+Puffs
+~Brawny
+Scotch-Brite
+Vileda
+Mr Muscle
+~Pledge
+~Method
+Dyson
+~Shark
+Hoover
+Kenmore
+~Glad
+Reynolds Wrap
+Saran Wrap
+~Hefty
+Spic and Span
+Soft Scrub
+Scrubbing Bubbles
+Krud Kutter
+Simple Green
+Woolite
+~Shout
+~Resolve
+~Gain
+~Snuggle
+~Bounce
+Purex
+~Era
+Arm & Hammer
+Clean Breeze
+Lemon Fresh
+~Dawn
+Palmolive
+~Finish
+~Cascade
+Jet-Dry
+Electrasol
+Calgon
+~Kiwi
+~Sweetheart
+~Solo
+Chinet
+Glad Wrap
+Hefty Slider
+Ziploc Freezer
+Foodsaver
+~Pur
+Culligan
+Dolce Gusto
+Tassimo
+Cuisinart
+Oster
+Hamilton Beach
+Tefal
+T-fal
+Calphalon
+Corningware
+Fiestaware
+~Stanley
+~Thermos
+~Tiger
+~Sunbeam
+Conair
+Remington
+Wahl
+Andis
+~Goody
+Lasko
+Vornado
+Dreo
+Rowenta
+~Frigidaire
+Maytag
+Amana
+Hotpoint
+~Sharp
+~Carrier
+Lennox
+Frigidaire Gallery
+Fisher & Paykel
+Glade PlugIns
+Scentsy
+Dr. Bronner's
+Ecover
+Seventh Gen
+Honest Company
+Aquafresh
+Oral-B Pro
+Parodontax
+Arm & Hammer Toothpaste
+Tom's of Maine
+Corsodyl
+Gillette Fusion
+Mach3
+Harry's
+Dollar Shave Club
+Remington Shaver
+Norelco
+Veet
+~Nair
+Pond's
+Estee Lauder
+Lancome
+~Sisley
+Guerlain
+Elizabeth Arden
+~MAC
+~ELF
+L'Oreal Paris
+Max Factor
+~Essence
+Catrice
+Sally Hansen
+OPI
+~Essie
+China Glaze
+Coco Mademoiselle
+Miss Dior
+Ralph Lauren Polo
+Armani Code
+Gucci Guilty
+Davidoff Cool Water
+Nautica
+Old Spice
+~Axe
+Right Guard
+Speed Stick
+~Secret
+~Degree
+Lubriderm
+Jergens
+Bag Balm
+Blistex
+Chapstick
+Burt's Bees Lip
+Vicks
+Halls
+Ricola
+Cepacol
+Chloraseptic
+Band-Aid
+Bactine
+Johnson's Baby
+Johnson's Baby Powder
+Luvs
+Earth's Best
+Happy Baby
+Plum Organics
+Hipp
+Nutramigen
+Pediasure
+~Ensure
+~Boost
+Glucerna
+~Carnation
+Horlicks
+Nesquik
+Yoo-hoo
+Hershey's Chocolate Milk
+Tampax
+Kotex
+~Always
+Libresse
+Stayfree
+~Carefree
+=o.b.
+Playtex
+Diva Cup
+~Lunette
+Thinx
+Summer's Eve
+Monistat
+Astroglide
+K-Y
+Durex
+Lifestyles
+Schick Intuition
+Garnier Fructis
+~Suave
+Tresemme
+Nexxus
+~Aussie
+L'Oreal Professionnel
+Schwarzkopf
+Wella
+Goldwell
+Oribe
+Drybar
+Ogx
+Tree Hut
+Shea Moisture
+Kenra
+~Sebastian
+~Ion
+~Hask
+John Frieda
+Got2b
+Vidal Sassoon
+Clairol
+Nice 'n Easy
+Garnier Nutrisse
+Miss Clairol
+Just for Men
+Grecian Formula
+Kellogg's Frosted Flakes
+Rice Krispies
+Apple Jacks
+Corn Pops
+Cocoa Krispies
+Raisin Bran
+Honey Smacks
+Eggo
+Nutri-Grain
+~Kashi
+Honey Nut Cheerios
+~Trix
+Cocoa Puffs
+Golden Grahams
+Wheaties
+Chex
+Multi Grain Cheerios
+Count Chocula
+Franken Berry
+Boo Berry
+Reese's Puffs
+Quaker Oatmeal Squares
+Quaker Chewy Bars
+Life Cereal
+Cap'n Crunch
+Captain Crunch
+Quisp
+Post Raisin Bran
+Post Grape-Nuts
+Grape-Nuts
+Fruity Pebbles
+Cocoa Pebbles
+Honey Bunches of Oats
+Malt-O-Meal
+Frosted Mini-Wheats
+Kix
+Golden Crisp
+Cookie Crisp
+Honey Comb
+Crispix
+Cinnamon Chex
+Bob's Red Mill
+Larabar
+Quest Bar
+Fiber One
+Special K Protein
+Nutter Butter
+Ritz
+Triscuit
+Wheat Thins
+Cheese Nips
+Fritos
+Tostitos
+Sun Chips
+Funyuns
+Cracker Jack
+Pepperidge Farm
+Milano
+Mint Milano
+Animal Crackers
+Teddy Grahams
+Honey Maid
+Lorna Doone
+Keebler
+Club Crackers
+Nilla Wafers
+Fig Newtons
+Newtons
+Little Debbie
+Twinkies
+~Hostess
+Ding Dongs
+Zingers
+Snowballs
+HoHos
+Drake's
+Yodels
+Nabisco
+Famous Amos
+Mrs. Fields
+Tate's
+Lenny & Larry's
+Voortman
+Biscoff
+Lotus Biscoff
+Speculoos
+Bahlsen
+Jacob's
+McVitie's
+Hobnobs
+Club Biscuits
+Jaffa Cakes
+Rich Tea
+Custard Creams
+~Garibaldi
+Party Ring
+Tunnock's
+Wagon Wheels
+Kit Kat Chunky
+3 Musketeers
+Bounty Bar
+Airheads
+Warheads
+Swedish Fish
+Kinder Joy
+Lindor
+Almond Joy
+Mounds
+Rolo
+Tootsie Roll
+Tootsie Pop
+Dum Dums
+Life Savers
+Certs
+Altoids
+Mentos
+Tic Tac
+~Trident
+~Orbit
+~Extra
+Juicy Fruit
+Wrigley's
+Doublemint
+Hubba Bubba
+~Bazooka
+Big Red
+Nerds
+Pez
+Lemonheads
+Hot Tamales
+Mike and Ike
+Good & Plenty
+Jujyfruits
+Milk Duds
+Whoppers
+Raisinets
+Goobers
+Sno-Caps
+Dots
+Gobstopper
+Laffy Taffy
+Blow Pop
+Ring Pop
+Chupa Chups
+Mentos Mint
+~Ferrara
+Dairy Milk
+Cadbury Creme Egg
+Crunchie
+~Flake
+Wispa
+Double Decker
+Bounty Dark
+Maltesers
+~Galaxy
+~Aero
+Quality Street
+Roses
+Celebrations
+Terry's
+Thorntons
+Green & Black's
+Cote d'Or
+Leonidas
+Vosges
+Lindt Excellence
+Propel
+Poland Spring
+Deer Park
+Nestle Pure Life
+Ice Mountain
+La Croix
+Bubly
+Sparkling Ice
+Canada Dry
+Schweppes
+Seagram's
+Fresca
+~Coke
+Diet Pepsi
+7UP
+Mug Root Beer
+A&W
+Barq's
+Sunkist
+~Crush
+Mirinda
+~Tango
+Ginger Ale
+Vernors
+Faygo
+Sierra Mist
+RC Cola
+~Shasta
+Big Red Soda
+Jarritos
+Inca Kola
+Kola Champagne
+~Monster
+~Bang
+~Celsius
+Ghost Energy
+~Reign
+NOS
+5-Hour Energy
+Full Throttle
+~Relentless
+Zevia
+GT's Kombucha
+Health-Ade
+Simply Lemonade
+Odwalla
+Naked Juice
+Welch's
+Capri Sun
+Juicy Juice
+Hi-C
+Kool-Aid
+~Tang
+Crystal Light
+Country Time
+Nestea
+Gold Peak
+Honest Tea
+Pure Leaf
+Celestial Seasonings
+Typhoo
+Tetley
+Brooke Bond
+Red Label
+Taylors of Harrogate
+Ahmad Tea
+Dilmah
+Lipton Yellow Label
+Bigelow
+Harney & Sons
+Republic of Tea
+Numi
+Yogi Tea
+Traditional Medicinals
+Starbucks Frappuccino
+Taster's Choice
+Starbucks Via
+Jacobs
+Douwe Egberts
+Kenco
+Death Wish
+Community Coffee
+Eight O'Clock
+Hills Bros
+Seattle's Best
+Caribou Coffee
+Lavazza Crema
+Keurig K-Cup
+Gevalia
+Medaglia d'Oro
+Cafe Bustelo
+Trung Nguyen
+Vinacafe
+Nescafe 3in1
+Bournvita
+Complan
+Califia Farms
+Almond Breeze
+Blue Diamond
+So Delicious
+Vita Coco
+Harmless Harvest
+Yakult Light
+Friso
+Ovaltine Malt
+Lacta
+~Revive
+Vinh Hao
+~Carabao
+M-150
+Sprite Zero
+Orangina
+Ribena
+Lucozade
+Irn-Bru
+Tizer
+Vimto
+Robinsons
+Um Bongo
+Kia Ora
+Sunny D
+Hawaiian Punch
+Kern's
+Bolthouse Farms
+LEGO
+LEGO Technic
+LEGO Star Wars
+Duplo
+Mega Bloks
+K'NEX
+Playmobil
+Little Tikes
+Step2
+VTech
+~LeapFrog
+Leappad
+~Matchbox
+Polly Pocket
+Monster High
+Bratz
+American Girl
+Cabbage Patch
+Furby
+Transformers
+G.I. Joe
+My Little Pony
+Crayola
+Etch A Sketch
+~Slinky
+Jenga
+~Operation
+~Scrabble
+~Clue
+~Battleship
+~Trouble
+Connect 4
+Pictionary
+~Taboo
+Apples to Apples
+Cards Against Humanity
+Exploding Kittens
+Ticket to Ride
+Carcassonne
+~Dixit
+Codenames
+Wingspan
+Pokemon Cards
+Magic: The Gathering
+Nerf Blaster
+Super Soaker
+Spin Master
+Zuru
+Bunch O Balloons
+Tonka
+Radio Flyer
+Little Tikes Cozy Coupe
+Power Wheels
+~Razor
+Razor Scooter
+Micro Kickboard
+Schwinn
+~Huffy
+~Trek
+Cervelo
+Santa Cruz
+Schwinn Airdyne
+NordicTrack
+ProForm
+Life Fitness
+~Polar
+Mizuno
+~Champion
+~Converse
+~Columbia
+~Marmot
+~Mammut
+Saucony
+~Keen
+Hush Puppies
+Ecco
+Florsheim
+Allen Edmonds
+Cole Haan
+Nine West
+Aldo
+Kenneth Cole
+Toms
+~Citizen
+Tissot
+~Jordan
+~Lee
+Forever 21
+Aeropostale
+Ann Taylor
+Talbots
+Eddie Bauer
+L.L.Bean
+Orvis
+Lands' End
+Hanes
+Fruit of the Loom
+~Jockey
+Calvin Klein Underwear
+Reebok Classic
+~Gola
+~Lotto
+Diadora
+~Kappa
+Umbro
+Le Coq Sportif
+~Hummel
+Joma
+Erima
+Kelme
+~Peak
+Xtep
+~Warrior
+~Mitre
+~Kukri
+Slazenger
+~Dunlop
+~Wilson
+~Spalding
+~Head
+Babolat
+~Prince
+Yonex
+Tecnifibre
+Mizuno Golf
+Callaway
+TaylorMade
+Titleist
+~Ping
+Cobra Golf
+Srixon
+Cleveland Golf
+Bridgestone Golf
+~Odyssey
+Scotty Cameron
+Footjoy
+Bushnell
+Rawlings
+EASTON
+Louisville Slugger
+DeMarini
+Marucci
+Mizuno Baseball
+Under Armour Baseball
+Riddell
+Schutt
+Bauer
+CCM
+Warrior Hockey
+Gray-Nicolls
+Gunn & Moore
+~Kookaburra
+~Butterfly
+Stiga
+Donic
+Nittaku
+~Joola
+Killerspin
+Franklin Sports
+Sklz
+Gaiam
+Manduka
+Liforme
+Bic
+~Pilot
+Pentel
+Uni-ball
+Paper Mate
+~Parker
+Cross Pen
+Pelikan
+Lamy
+Montblanc
+Faber-Castell
+Staedtler
+Prismacolor
+Derwent
+Copic
+Crayola Markers
+Sakura
+Pentel Brush Pen
+Tombow
+Mildliner
+Stabilo
+Edding
+Expo
+Elmer's
+UHU
+Super Glue
+Krazy Glue
+Loctite
+Duck Tape
+~Avery
+Leuchtturm1917
+Rhodia
+Field Notes
+~Mead
+Five Star
+Pacon
+Ampad
+Pilot Frixion
+Hi-Liter
+Liquid Paper
+Wite-Out
+Kleenex Hankies
+Staples
+Office Depot
+Ticonderoga
+Dixon Ticonderoga
+Swingline
+Fellowes
+Bostitch
+Acco
+Esselte
+Smead
+Herlitz
+Rapesco
+Leitz
+~Brother
+Epson
+~Canon
+Xerox
+Pentax
+GoPro
+~Ring
+~Nest
+Harman Kardon
+Klipsch
+Denon
+~Pioneer
+Kenwood
+Onkyo
+Marantz
+~Technics
+Bowers & Wilkins
+Ultimate Ears
+Roccat
+Redragon
+Thermaltake
+Cooler Master
+Asus
+~Acer
+Alienware
+MacBook
+iPad
+iPhone
+Pixel
+~Honor
+PlayStation
+Atari
+Nvidia Shield
+Tivo
+LIFX
+Neato
+Ecovacs
+Hoover Vacuum
+Karcher
+Black & Decker Drill
+Husqvarna
+Stihl
+Honda Mower
+~Toro
+Greenworks
+EGO Power
+Char-Broil
+~Igloo
+Deuter
+~Gregory
+~Kelty
+~Primus
+Coleman Lantern
+Columbia Jacket
+~Pedigree
+Iams
+~Wellness
+Temptations
+Dreamies
+Purina One
+Science Diet
+Nutro
+~Canidae
+Milk-Bone
+Beneful
+Cesar
+Advantix
+Seresto
+Catit
+Arm & Hammer Litter
+Hunt's
+Del Monte
+Progresso
+Chef Boyardee
+Velveeta
+Best Foods
+Duke's
+Miracle Whip
+French's
+Huy Fong
+Lipton Onion Soup
+McCormick
+Lawry's
+Tajin
+Badia
+Goya
+Ortega
+Old El Paso
+Taco Bell Sauce
+Hidden Valley
+Sweet Baby Ray's
+KC Masterpiece
+Bull's-Eye
+Stubb's
+Tyson
+Perdue
+Hormel
+~Spam
+Oscar Mayer
+Ball Park
+Smithfield
+Jimmy Dean
+Bob Evans
+Johnsonville
+~Banquet
+Lean Cuisine
+Stouffer's
+Marie Callender's
+Hungry-Man
+Healthy Choice
+Amy's
+Birds Eye
+Green Giant
+Ore-Ida
+McCain
+Totino's
+DiGiorno
+Red Baron
+~Tombstone
+Jack's
+Bagel Bites
+Hot Pockets
+Uncle Ben's
+Minute Rice
+~Barilla
+Ronzoni
+De Cecco
+Prego
+Ragu
+Classico
+Rao's
+Bertolli
+Mazola
+Crisco
+Wesson
+~Pam
+Land O Lakes
+Breakstone's
+~Cabot
+~Tillamook
+Sargento
+Boursin
+Velveeta Shells
+Hostess Twinkies
+Bush's Beans
+Libby's
+~Dole
+Chiquita
+Driscoll's
+Brer Rabbit
+Golden Syrup
+Log Cabin
+Mrs. Butterworth's
+Aunt Jemima
+Smucker's
+Jif
+~Skippy
+Welch's Jelly
+Bonne Maman
+Kraft Mayo
+Duke's Mayo
+Hellmann's Real
+`);
+CST_GLOSSARY_EXTRA_ADD("automotive", null, `
+Toyota Corolla Cross
+Toyota Corolla Hatchback
+Toyota Prius Prime
+Toyota Grand Highlander
+Toyota Sequoia
+Toyota Land Cruiser Prado
+Toyota FJ Cruiser
+Toyota GR Corolla
+Toyota GR Yaris
+Toyota Avalon
+Toyota Venza
+Toyota Crown
+Toyota Crown Signia
+Toyota C-HR
+Toyota Aygo
+Toyota Alphard
+Toyota Vellfire
+Toyota Hiace
+Toyota Chaser
+Toyota Celica
+Toyota Matrix
+Toyota Echo
+Toyota Solara
+Toyota Mirai
+Toyota Corona
+Toyota MR2
+Toyota T100
+Toyota Previa
+Toyota Urban Cruiser
+Toyota Raize
+Toyota Veloz
+Toyota Avanza
+Toyota Rush
+Toyota Fortuner Legender
+Lexus LS
+Lexus GS
+Lexus IS
+Lexus IS 500
+Lexus RX 350h
+Lexus NX 350h
+Lexus GX
+Lexus GX 460
+Lexus LX 600
+Lexus LS 500h
+Lexus ES 300h
+Lexus UX
+Lexus UX 300e
+Lexus LC
+Lexus LC 500
+Lexus RC
+Lexus CT
+Lexus TX
+Lexus RZ
+Lexus RZ 450e
+Lexus LM
+Lexus HS
+Lexus SC
+Honda Civic Type R
+Honda Civic Si
+Honda Civic Sedan
+Honda Civic Hatchback
+Honda Accord Hybrid
+Honda CR-V Hybrid
+Honda Passport
+Honda Ridgeline
+Honda Insight
+Honda Clarity
+Honda Prelude
+Honda S2000
+Honda Integra
+Honda Element
+Honda Crosstour
+Honda Legend
+Honda Brio
+Honda Amaze
+Honda Elevate
+Honda e
+Honda Vezel
+Honda Stepwgn
+Honda Freed
+Honda N-Box
+Honda Shuttle
+Honda Stream
+Honda Inspire
+Honda CBR600RR
+Honda CBR1000RR
+Honda CBR650R
+Honda Africa Twin
+Honda Gold Wing
+Honda Rebel 500
+Honda Monkey
+Honda Grom
+Honda Forza
+Honda PCX
+Honda Winner X
+Honda Wave Alpha
+Honda Future
+Honda Lead
+Honda Click
+Honda Ruckus
+Acura MDX Type S
+Acura RDX
+Acura NSX
+Acura NSX Type S
+Acura ZDX
+Nissan Maxima
+Nissan Sentra
+Nissan Versa
+Nissan GT-R Nismo
+Nissan 370Z
+Nissan 350Z
+Nissan 240SX
+Nissan Frontier
+Nissan Titan
+Nissan Pathfinder
+Nissan Murano
+Nissan Armada
+Nissan Kicks
+Nissan Juke
+Nissan Qashqai
+Nissan X-Trail
+Nissan Patrol
+Nissan Terra
+Nissan Almera
+Nissan Magnite
+Nissan Skyline
+Nissan Silvia
+Nissan Micra
+Nissan Pulsar
+Nissan Xterra
+Nissan Quest
+Nissan Cube
+Nissan Elgrand
+Nissan Serena
+Nissan Livina
+Nissan Teana
+Nissan Sunny
+Nissan Tiida
+Infiniti Q50
+Infiniti Q60
+Infiniti Q70
+Infiniti QX50
+Infiniti QX60
+Infiniti QX80
+Infiniti G37
+Infiniti FX35
+Infiniti M35
+Mazda6
+Mazda2
+Mazda CX-3
+Mazda CX-60
+Mazda CX-9
+Mazda MX-30
+Mazda RX-7
+Mazda RX-8
+Mazda Tribute
+Mazda BT-50
+Mazda Bongo
+Subaru Impreza
+Subaru WRX STI
+Subaru Legacy
+Subaru Ascent
+Subaru Solterra
+Subaru Levorg
+Subaru Baja
+Subaru Tribeca
+Mitsubishi Lancer
+Mitsubishi Lancer Evolution
+Mitsubishi Eclipse
+Mitsubishi Eclipse Cross
+Mitsubishi Outlander PHEV
+Mitsubishi Pajero Sport
+Suzuki Vitara
+Suzuki Hayabusa
+Suzuki GSX-R1000
+Suzuki GSX-R750
+Suzuki GSX-S1000
+Suzuki V-Strom 650
+Daihatsu Terios
+Daihatsu Rocky
+Daihatsu Ayla
+Daihatsu Xenia
+Daihatsu Sigra
+Daihatsu Copen
+Daihatsu Move
+Isuzu D-Max
+Isuzu MU-X
+Isuzu Trooper
+Hyundai Elantra N
+Hyundai Sonata
+Hyundai Sonata N Line
+Hyundai Azera
+Hyundai Veloster
+Hyundai Ioniq
+Hyundai Ioniq 5 N
+Hyundai Ioniq 9
+Hyundai Kona Electric
+Hyundai Kona N
+Hyundai i30
+Kia Forte
+Kia K5
+Kia K3
+Kia K4
+Kia K8
+Kia K9
+Kia Optima
+Kia Stinger
+Kia Cadenza
+Kia Rio
+Kia Ceed
+Kia Soul
+Kia Sedona
+Kia Niro
+Kia Niro EV
+Kia EV4
+Kia EV5
+Kia Picanto
+Genesis G70
+Genesis G90
+Genesis GV60
+Genesis GV70
+Genesis GV90
+Genesis G70 Shooting Brake
+Genesis Coupe
+Genesis Electrified G80
+Genesis X Convertible
+Genesis Mint
+Genesis Magma
+VinFast Limo Green
+BYD Song Plus
+BYD Yuan Plus
+BYD Qin Plus
+BYD Sealion 7
+Xpeng P7
+Xpeng G3
+Xpeng G6
+Xpeng P5
+Xpeng X9
+Xpeng Mona
+Nio ES6
+Nio ES8
+Nio ET5
+Nio ET9
+Li Auto L6
+Li Auto L7
+Li Auto L8
+Li Auto Mega
+Geely Coolray
+Geely Azkarra
+Geely Atlas
+Geely Galaxy E5
+Chery Tiggo 7
+Chery Tiggo 9
+Haval Jolion
+Haval H6
+Haval H9
+Haval H7
+Haval F7x
+Haval Dargo
+Changan CS75
+Changan CS35
+Changan CS55
+Changan Deepal S07
+Changan Deepal SL03
+Changan UNI-K
+Changan UNI-V
+BMW 1 Series
+BMW 2 Series
+BMW 2 Series Active Tourer
+BMW 2 Series Gran Coupe
+BMW 3 Series Touring
+BMW 3 Series Gran Turismo
+BMW 4 Series
+BMW 4 Series Gran Coupe
+BMW 5 Series Touring
+BMW 6 Series
+BMW 8 Series
+BMW X1
+BMW X2
+BMW X3 M
+BMW X4
+BMW X4 M
+BMW X5 M
+BMW X6
+BMW X6 M
+BMW XM
+BMW Z3
+BMW Z8
+BMW M2
+BMW M6
+BMW M8
+BMW M240i
+BMW M340i
+BMW M440i
+BMW M550i
+BMW M760i
+BMW i3
+BMW i5
+BMW i8
+BMW iX1
+BMW iX2
+BMW 120i
+BMW 320i
+BMW 330e
+BMW 520d
+BMW 530e
+BMW 740Li
+BMW 325i
+BMW 525i
+BMW 540i
+BMW 735i
+BMW 745e
+BMW 850i
+BMW 1M
+BMW Z4 M40i
+BMW R 1250 GS Adventure
+BMW R 1300 GS
+BMW R 1200 GS
+BMW R nineT
+BMW S 1000 RR
+BMW S 1000 R
+BMW S 1000 XR
+BMW M 1000 RR
+BMW K 1600 GTL
+BMW F 900 R
+BMW F 900 XR
+BMW F 800 GS
+BMW G 310 GS
+BMW G 310 R
+BMW C 400 X
+BMW CE 04
+BMW R 18
+Mercedes-Benz A-Class
+Mercedes-Benz B-Class
+Mercedes-Benz C-Class
+Mercedes-Benz CLA
+Mercedes-Benz CLS
+Mercedes-Benz E-Class
+Mercedes-Benz S-Class
+Mercedes-Benz G-Class
+Mercedes-Benz GLA
+Mercedes-Benz GLB
+Mercedes-Benz GLC
+Mercedes-Benz GLE
+Mercedes-Benz GLS
+Mercedes-Benz GLK
+Mercedes-Benz V-Class
+Mercedes-Benz Sprinter
+Mercedes-Benz SL
+Mercedes-Benz AMG GT
+Mercedes-Benz AMG GT Black Series
+Mercedes-Benz AMG GT 4-Door
+Mercedes-Benz AMG One
+Mercedes-Benz EQA
+Mercedes-Benz EQB
+Mercedes-Benz EQC
+Mercedes-Benz EQE
+Mercedes-Benz EQE SUV
+Mercedes-Benz EQS
+Mercedes-Benz EQS SUV
+Mercedes-Benz EQV
+Mercedes-Benz EQG
+Mercedes-Benz CLA 45 AMG
+Mercedes-Benz C63 AMG
+Mercedes-Benz E63 AMG
+Mercedes-Benz S63 AMG
+Mercedes-Benz G63 AMG
+Mercedes-Benz GLE 63 AMG
+Mercedes-Benz GT 63 S
+Mercedes-Benz Maybach S-Class
+Mercedes-Benz GLA 45 AMG
+Mercedes-Benz GLC Coupe
+Mercedes-Benz E-Class All-Terrain
+Mercedes-Benz CLA Shooting Brake
+Audi A1
+Audi A2
+Audi A3
+Audi A3 Sportback
+Audi A4 Allroad
+Audi A5
+Audi A6 Allroad
+Audi A7
+Audi A8
+Audi A8 L
+Audi TT
+Audi TT RS
+Audi R8 V10
+Audi RS3
+Audi RS4
+Audi RS5
+Audi RS7
+Audi RS Q8
+Audi RS e-tron GT
+Audi S3
+Audi S4
+Audi S5
+Audi S6
+Audi S8
+Audi SQ5
+Audi SQ7
+Audi SQ8
+Audi Q2
+Audi Q3
+Audi Q5 e-tron
+Audi Q6 e-tron
+Audi e-tron GT
+Audi e-tron S
+Volkswagen Golf
+Volkswagen Golf R
+Volkswagen Golf Alltrack
+Volkswagen Golf Variant
+Volkswagen Golf Sportsvan
+Volkswagen Polo
+Volkswagen Polo GTI
+Volkswagen Passat
+Volkswagen Passat Alltrack
+Volkswagen Jetta
+Volkswagen Arteon
+Volkswagen Tiguan
+Volkswagen Tiguan Allspace
+Volkswagen Touareg
+Volkswagen Atlas
+Volkswagen Atlas Cross Sport
+Volkswagen Taos
+Volkswagen T-Roc
+Volkswagen T-Cross
+Volkswagen Teramont
+Volkswagen ID.3
+Volkswagen ID.5
+Volkswagen ID.7
+Volkswagen ID. Buzz
+Volkswagen ID. Buzz Cargo
+Volkswagen ID. Buzz GTX
+Volkswagen ID. Life
+Volkswagen ID. Aero
+Volkswagen ID.Polo
+Volkswagen Scirocco
+Volkswagen Corrado
+Volkswagen New Beetle
+Volkswagen Bora
+Volkswagen Lupo
+Volkswagen Fox
+Volkswagen Up
+Volkswagen Phaeton
+Volkswagen Eos
+Volkswagen CC
+Volkswagen Routan
+Volkswagen Caddy
+Volkswagen Transporter
+Volkswagen Multivan
+Volkswagen Amarok
+Volkswagen Caravelle
+Volkswagen Vento
+Volkswagen Gol
+Volkswagen Voyage
+Volkswagen Polo Sedan
+Volkswagen Tiguan L
+Volkswagen Golf GTE
+Volkswagen Passat GTE
+Volkswagen Golf GTD
+Volkswagen Taigo
+Volkswagen Virtus
+Volkswagen Nivus
+Volkswagen Lamando
+Volkswagen Sagitar
+Volkswagen Tayron
+Volkswagen Tharu
+Porsche 911 Carrera
+Porsche 911 Carrera S
+Porsche 911 Carrera 4S
+Porsche 911 Turbo
+Porsche 911 Turbo S
+Porsche 911 GT2 RS
+Porsche 911 GT3 RS
+Porsche 911 Targa
+Porsche 911 Speedster
+Porsche 718 Boxster
+Porsche 718 Cayman
+Porsche 718 Cayman GT4
+Porsche 718 Spyder RS
+Porsche 718 Cayman GT4 RS
+Porsche 718 Boxster GTS
+Porsche Cayenne Coupe
+Porsche Cayenne Turbo
+Porsche Cayenne Turbo GT
+Porsche Cayenne Electric
+Porsche Cayenne S
+Porsche Macan Turbo
+Porsche Macan Electric
+Porsche Macan GTS
+Porsche Panamera Turbo S
+Porsche Panamera Turbo S E-Hybrid
+Porsche Panamera Sport Turismo
+Porsche Taycan Turbo
+Porsche Taycan Turbo S
+Porsche Taycan 4S
+Porsche Taycan Cross Turismo
+Porsche Taycan GTS
+Porsche Carrera GT
+Porsche 991
+Porsche 992
+Ferrari 296 GTB
+Ferrari 296 GTS
+Ferrari 296 Speciale
+Ferrari 812 Superfast
+Ferrari 812 GTS
+Ferrari 812 Competizione
+Ferrari F8 Tributo
+Ferrari F8 Spider
+Ferrari SF90 Stradale
+Ferrari SF90 Spider
+Ferrari SF90 XX
+Ferrari Roma Spider
+Ferrari Portofino
+Ferrari Portofino M
+Ferrari GTC4Lusso
+Ferrari 488 GTB
+Ferrari 488 Pista
+Ferrari 488 Spider
+Ferrari 458 Italia
+Ferrari 458 Spider
+Ferrari F50
+Ferrari Enzo
+Ferrari LaFerrari
+Ferrari LaFerrari Aperta
+Ferrari 812 Competizione A
+Ferrari 849 Testarossa
+Lamborghini Aventador SVJ
+Lamborghini Aventador S
+Lamborghini Huracan
+Lamborghini Huracan EVO
+Lamborghini Huracan STO
+Lamborghini Huracan Performante
+Lamborghini Temerario
+Lamborghini Gallardo
+Maserati Quattroporte
+Maserati Grecale
+Maserati GranTurismo
+Maserati GranCabrio
+Maserati MC20 Cielo
+Maserati Alfieri
+Maserati MC20 Notte
+Maserati Quattroporte Trofeo
+Maserati Ghibli Trofeo
+Maserati Levante Trofeo
+Alfa Romeo Giulia Quadrifoglio
+Alfa Romeo Stelvio Quadrifoglio
+Alfa Romeo Tonale
+Alfa Romeo 4C
+Fiat 500e
+Fiat 500X
+Fiat 500L
+Fiat 124 Spider
+Abarth 595
+Abarth 595 Competizione
+Abarth 124 Spider
+Abarth 500
+Abarth 695
+Abarth 500e
+Abarth Punto Evo
+Lancia Delta
+Lancia Ypsilon
+Lancia Stratos
+Bentley Continental GTC
+Bentley Continental GT Speed
+Bentley Flying Spur
+Bentley Bentayga Speed
+Bentley Mulsanne
+Rolls-Royce Wraith
+Rolls-Royce Dawn
+Rolls-Royce Phantom Coupe
+Rolls-Royce Black Badge Cullinan
+Aston Martin DB9
+Aston Martin DBS
+Aston Martin DBS Superleggera
+Aston Martin DBX
+Aston Martin DBX707
+Aston Martin Vantage AMR
+Aston Martin Vanquish
+Aston Martin Vanquish Volante
+Aston Martin Valkyrie
+Aston Martin Valhalla
+Aston Martin Vantage Roadster
+McLaren 765LT
+McLaren 570S
+McLaren 570GT
+McLaren 600LT
+McLaren 620R
+McLaren 650S
+McLaren 675LT
+McLaren Artura
+McLaren GT
+McLaren Elva
+McLaren W1
+McLaren Speedtail
+McLaren 570S Spider
+McLaren 720S Spider
+McLaren Solus GT
+Lotus Elise
+Lotus Exige
+Lotus Evora
+Lotus Evora GT
+Lotus Evora GT410
+Lotus Emeya
+Lotus Evija
+Ducati Panigale V4
+Ducati Panigale V4 S
+Ducati Panigale V4 R
+Ducati Panigale V2
+Ducati Panigale V2 Superleggera
+Ducati Streetfighter V4
+Ducati Streetfighter V2
+Ducati Streetfighter V4 S
+Ducati Monster SP
+Ducati Multistrada V4
+Ducati Multistrada V2
+Ducati Multistrada 1200
+Ducati DesertX
+Ducati Diavel
+Ducati Scrambler Icon
+Ducati Hypermotard
+Ducati Hypermotard 950
+Ducati SuperSport
+Ducati SuperSport 950
+Yamaha YZF-R1
+Yamaha YZF-R1M
+Yamaha YZF-R3
+Yamaha YZF-R6
+Yamaha YZF-R7
+Yamaha YZF-R15
+Yamaha MT-07
+Yamaha MT-09
+Yamaha MT-10
+Yamaha MT-15
+Yamaha MT-03
+Yamaha Tracer 9
+Yamaha Tracer 7
+Yamaha XSR700
+Yamaha XSR900
+Yamaha Tenere 700
+Yamaha Niken
+Yamaha NMAX
+Yamaha XMAX
+Yamaha Aerox
+Yamaha Nouvo
+Yamaha Sniper
+Yamaha Jupiter
+Yamaha Fazzio
+Yamaha Grand Filano
+Yamaha Vino
+Yamaha Mio
+Yamaha FZ150
+Yamaha Fazer
+Yamaha Raider
+Yamaha Vixion
+Yamaha Lexam
+Yamaha Cygnus
+Yamaha Bolt
+Yamaha Star Bolt
+Yamaha Virago
+Yamaha Road Star
+Yamaha V-Max
+Yamaha FJR1300
+Yamaha TMAX
+Yamaha Zuma
+Kawasaki Ninja ZX-10R
+Kawasaki Ninja ZX-6R
+Kawasaki Ninja ZX-4R
+Kawasaki Ninja H2
+Kawasaki Ninja 400
+Kawasaki Ninja 650
+Kawasaki Ninja 300
+Kawasaki Ninja 250
+Kawasaki Ninja 1000SX
+Kawasaki Z900RS
+Kawasaki Z650
+Kawasaki Z1000
+Kawasaki Z400
+Kawasaki Z125
+Kawasaki Versys 650
+Kawasaki Versys 1000
+Kawasaki KLR650
+Kawasaki KX250
+Kawasaki KX450
+Kawasaki Vulcan 900
+Kawasaki Eliminator
+Kawasaki W800
+Kawasaki Ninja ZX-14R
+Kawasaki Concours 14
+KTM 390 Duke
+KTM 790 Duke
+KTM 890 Duke
+KTM 1290 Super Duke R
+KTM 1290 Super Adventure
+KTM 1190 Adventure
+KTM 1290 Super Duke GT
+KTM 125 Duke
+KTM 200 Duke
+KTM 250 Duke
+KTM 390 Adventure
+KTM 790 Adventure
+KTM RC 390
+KTM RC 200
+KTM 350 EXC-F
+KTM 450 SX-F
+KTM 250 SX-F
+KTM Freeride E-XC
+KTM 690 Enduro R
+KTM 1290 Super Duke R Evo
+Husqvarna Svartpilen 401
+Husqvarna Vitpilen 401
+Husqvarna Norden 901
+Triumph Bonneville T100
+Triumph Bonneville T120
+Triumph Bonneville Speedmaster
+Triumph Speed Triple
+Triumph Speed Triple 1200 RS
+Triumph Street Triple RS
+Triumph Tiger 900
+Triumph Tiger 1200
+Triumph Tiger 800
+Triumph Scrambler 1200
+Triumph Thruxton
+Triumph Trident 660
+Triumph Daytona 765
+Triumph Rocket 3
+Triumph Rocket
+Triumph Speed 400
+Triumph Scrambler 400X
+Triumph Trident
+Triumph Thunderbird
+Triumph Tiger Sport 660
+Triumph Tiger Explorer
+Triumph Sprint RS
+Triumph Daytona 675
+Triumph Speed Four
+Triumph Trophy
+Harley-Davidson Road King
+Harley-Davidson Street Glide
+Harley-Davidson Road Glide
+Harley-Davidson Electra Glide
+Harley-Davidson Ultra Limited
+Harley-Davidson Sportster S
+Harley-Davidson Iron 883
+Harley-Davidson Forty-Eight
+Harley-Davidson Softail Standard
+Harley-Davidson Heritage Classic
+Harley-Davidson Breakout
+Harley-Davidson Low Rider S
+Harley-Davidson Pan America
+Harley-Davidson Livewire
+Harley-Davidson Street Bob
+Harley-Davidson Fat Bob
+Harley-Davidson Nightster
+Harley-Davidson Street 750
+Harley-Davidson Street 500
+Harley-Davidson Softail Slim
+Harley-Davidson Dyna Wide Glide
+Harley-Davidson V-Rod
+Harley-Davidson Fat Boy 114
+Harley-Davidson CVO Road Glide
+Aprilia RSV4
+Aprilia RSV4 Factory
+Aprilia Tuono V4
+Aprilia Tuono 660
+Aprilia RS 660
+Aprilia RS 457
+Aprilia RS 125
+Aprilia RSV 1000
+Aprilia Tuono 125
+Aprilia Shiver
+Aprilia Dorsoduro
+Aprilia Tuareg 660
+Aprilia Caponord
+Aprilia SR GT
+Aprilia SXR 160
+Aprilia SR Max
+Aprilia RX 125
+Aprilia Mana
+Aprilia Scarabeo
+Aprilia RS 50
+MV Agusta F4
+MV Agusta Brutale
+MV Agusta Brutale 1000
+Benelli TNT 600
+Benelli Leoncino
+Benelli TRK 502
+Benelli Imperiale
+Royal Enfield Bullet
+Royal Enfield Classic 500
+Royal Enfield Meteor 350
+Royal Enfield Hunter 350
+Royal Enfield Interceptor 650
+Royal Enfield Continental GT 650
+Royal Enfield Himalayan
+Royal Enfield Thunderbird 350
+Indian Scout
+Indian Scout Bobber
+Indian Chief
+Indian Chieftain
+Indian Challenger
+Indian Roadmaster
+Indian FTR
+Indian FTR 1200
+Indian Springfield
+Indian Pursuit
+Indian Super Chief
+Vespa GTS
+Vespa 946
+Vespa LX
+Vespa Elettrica
+Vespa PX
+Ford F-150 Lightning
+Ford F-150 Raptor
+Ford F-150 Raptor R
+Ford F-250 Super Duty
+Ford F-350
+Ford F-350 Super Duty
+Ford F-450
+Ford F-550
+Ford F-100
+Ford F-Series
+Ford Ranger EV
+Ford Ranger Super Cab
+Ford Bronco Sport
+Ford Bronco Raptor
+Ford Bronco DR
+Ford Mustang GT
+Ford Mustang GT500
+Ford Mustang Shelby GT350
+Ford Mustang Shelby GT500
+Ford Mustang Dark Horse
+Ford Mustang Bullitt
+Ford Mustang Mach 1
+Ford Mustang Mach-E
+Ford Mustang Boss 302
+Ford Mustang Boss 429
+Ford Mustang Cobra
+Ford Mustang Fastback
+Ford Mustang Convertible
+Ford GT40
+Ford Focus RS
+Ford Focus ST
+Ford Focus Electric
+Ford Fiesta ST
+Ford Fiesta RS
+Ford Fusion
+Ford Fusion Sport
+Ford Fusion Hybrid
+Ford Taurus
+Ford Taurus SHO
+Ford Taurus SVT
+Ford Edge
+Ford Edge ST
+Ford Explorer ST
+Ford Explorer Hybrid
+Ford Expedition Max
+Ford Excursion
+Ford Flex
+Ford Transit Connect
+Ford Transit Custom
+Ford Transit Courier
+Ford Tourneo
+Ford Tourneo Courier
+Ford Tourneo Custom
+Ford E-Series
+Ford Econoline
+Ford Ecosport
+Ford Territory
+Ford Puma
+Ford Kuga
+Ford Ka
+Ford Galaxy
+Ford Mondeo
+Ford S-Max
+Ford Courier
+Ford Model T
+Ford Model A
+Ford Falcon
+Ford Fairlane
+Ford Crown Victoria
+Ford Thunderbird
+Ford Probe
+Ford Escort
+Ford Contour
+Ford Five Hundred
+Ford Freestar
+Ford Windstar
+Ford Aerostar
+Ford Ranger Tremor
+Ford Super Duty Tremor
+Ford Mach-E GT
+Ford Explorer Timberline
+Lincoln Navigator
+Lincoln Navigator L
+Lincoln Aviator
+Lincoln Corsair
+Lincoln Nautilus
+Lincoln Continental
+Lincoln MKZ
+Lincoln MKX
+Lincoln Town Car
+Chevrolet Silverado 1500
+Chevrolet Silverado 2500HD
+Chevrolet Silverado 3500HD
+Chevrolet Silverado ZR2
+Chevrolet Silverado EV
+Chevrolet Colorado
+Chevrolet Colorado ZR2
+Chevrolet Traverse
+Chevrolet Equinox EV
+Chevrolet Blazer
+Chevrolet Blazer EV
+Chevrolet Trailblazer
+Chevrolet Camaro ZL1
+Chevrolet Camaro SS
+Chevrolet Camaro Z28
+Chevrolet Corvette Stingray
+Chevrolet Corvette Z06
+Chevrolet Corvette ZR1
+Chevrolet Corvette Grand Sport
+Chevrolet Corvette C8
+Chevrolet Corvette C7
+Chevrolet Corvette C6
+Chevrolet Corvette ZR1X
+Chevrolet Corvette E-Ray
+Chevrolet Impala
+Chevrolet Cruze
+Chevrolet Sonic
+Chevrolet Spark
+Chevrolet Bolt EV
+Chevrolet Bolt EUV
+Chevrolet Trax
+Chevrolet Captiva
+Chevrolet Aveo
+Chevrolet Cobalt
+Chevrolet Express
+Chevrolet Astro
+Chevrolet Venture
+Chevrolet Monte Carlo
+Chevrolet Chevelle
+Chevrolet Nova
+Chevrolet Caprice
+Chevrolet Avalanche
+Chevrolet SSR
+Chevrolet HHR
+Chevrolet Tracker
+Chevrolet Onix
+Chevrolet Orlando
+Chevrolet Tahoe Hybrid
+GMC Sierra 1500
+GMC Sierra 2500HD
+GMC Sierra 3500HD
+GMC Sierra EV
+GMC Sierra Denali
+GMC Sierra AT4
+GMC Canyon
+GMC Canyon AT4
+GMC Yukon
+GMC Yukon XL
+GMC Yukon Denali
+GMC Acadia
+GMC Terrain
+GMC Hummer EV Pickup
+GMC Hummer EV SUV
+GMC Envoy
+GMC Jimmy
+GMC Savana
+GMC Safari
+GMC Sonoma
+GMC Syclone
+GMC Typhoon
+GMC Vandura
+GMC Rally
+GMC Envoy XL
+Cadillac Escalade ESV
+Cadillac Escalade IQ
+Cadillac CT4
+Cadillac CT4-V
+Cadillac CT4-V Blackwing
+Cadillac CT5
+Cadillac CT5-V
+Cadillac CT5-V Blackwing
+Cadillac CT6
+Cadillac CT6-V
+Cadillac CTS
+Cadillac CTS-V
+Cadillac ATS
+Cadillac ATS-V
+Cadillac XT4
+Cadillac XT5
+Cadillac XT6
+Cadillac XTS
+Cadillac SRX
+Cadillac DTS
+Cadillac STS
+Cadillac Optiq
+Cadillac Vistiq
+Cadillac Celestiq
+Cadillac Eldorado
+Cadillac DeVille
+Cadillac Allante
+Cadillac Escalade EV
+Buick Enclave
+Buick Encore
+Buick Encore GX
+Buick Envision
+Buick LaCrosse
+Buick Regal
+Buick Regal GS
+Buick Regal TourX
+Buick Verano
+Buick LeSabre
+Buick Park Avenue
+Buick Century
+Buick Rendezvous
+Buick Riviera
+Buick GNX
+Buick Skylark
+Buick Grand National
+Buick Roadmaster
+Buick Envista
+Dodge Charger Daytona
+Dodge Charger SRT Hellcat
+Dodge Charger SRT8
+Dodge Charger Scat Pack
+Dodge Challenger SRT Hellcat
+Dodge Challenger SRT Demon
+Dodge Challenger SRT8
+Dodge Viper
+Dodge Viper SRT10
+Dodge Viper ACR
+Dodge Durango
+Dodge Durango SRT
+Dodge Durango SRT Hellcat
+Dodge Journey
+Dodge Dart
+Dodge Caravan
+Dodge Grand Caravan
+Dodge Neon
+Dodge Stratus
+Dodge Avenger
+Dodge Intrepid
+Dodge Nitro
+Dodge Caliber
+Dodge Dakota
+Dodge Magnum
+Dodge Charger EV
+Chrysler 300
+Chrysler 300C
+Chrysler Pacifica Hybrid
+Chrysler Voyager
+Chrysler Town and Country
+Chrysler Sebring
+Chrysler PT Cruiser
+Chrysler Crossfire
+Chrysler Aspen
+Chrysler LeBaron
+Chrysler Neon
+Jeep Wrangler Rubicon
+Jeep Wrangler Sahara
+Jeep Wrangler Unlimited
+Jeep Wrangler 4xe
+Jeep Wrangler 392
+Jeep Wrangler JK
+Jeep Wrangler JL
+Jeep Wrangler Rubicon 392
+Jeep Gladiator Mojave
+Jeep Gladiator Rubicon
+Jeep Grand Cherokee L
+Jeep Grand Cherokee SRT
+Jeep Grand Cherokee 4xe
+Jeep Grand Cherokee Trackhawk
+Jeep Cherokee XJ
+Jeep Compass
+Jeep Compass Trailhawk
+Jeep Renegade
+Jeep Wagoneer
+Jeep Grand Wagoneer
+Jeep Avenger
+Jeep Recon
+Jeep CJ-7
+Ram 1500 TRX
+Ram 1500 REV
+Ram 1500 Classic
+Ram 1500 Ramcharger
+Ram 1500 Rebel
+Ram 1500 Hemi
+Ram 2500
+Ram 3500
+Ram Power Wagon
+Ram Rebel
+Ram ProMaster
+Ram ProMaster City
+Tesla Model S
+Tesla Model 3 Performance
+Tesla Model X
+Tesla Model X Plaid
+Tesla Model Y Performance
+Tesla Model Y Juniper
+Tesla Model 3 Highland
+Tesla Model Y L
+Rivian EDV
+Lucid Air Pure
+Lucid Air Touring
+Lucid Gravity Touring
+Fisker Ocean
+Fisker Ocean Extreme
+Fisker Karma
+Hummer H1
+Hummer H2
+Hummer H3
+Pontiac GTO
+Pontiac Firebird
+Pontiac Trans Am
+Pontiac Grand Prix
+Pontiac G6
+Pontiac G8
+Pontiac Bonneville
+Pontiac Fiero
+Oldsmobile Cutlass
+Oldsmobile Aurora
+Oldsmobile Alero
+Oldsmobile Bravada
+Oldsmobile 442
+Oldsmobile Toronado
+Mercury Grand Marquis
+Mercury Sable
+Mercury Cougar
+Mercury Mountaineer
+Mercury Marauder
+Plymouth Barracuda
+Plymouth Road Runner
+Plymouth Superbird
+Plymouth Neon
+Plymouth Fury
+Saab 9-3
+Saab 9-5
+Saab 9-2X
+`);
+CST_GLOSSARY_EXTRA_ADD("crypto", null, `
+Monero
+Zcash
+~Dash
+~Stellar
+Tezos
+Algorand
+~Hedera
+~Tron
+NEAR Protocol
+Aptos
+~Sui
+~Sei
+Celestia
+Injective
+Kaspa
+Filecoin
+Internet Computer
+VeChain
+Hyperliquid
+Toncoin
+~Bonk
+=dogwifhat
+Floki
+Arbitrum
+~Optimism
+~Base
+Starknet
+zkSync
+~Mantle
+~Linea
+~Scroll
+~Blast
+BNB Chain
+~Stacks
+Mina Protocol
+~Chia
+Nervos Network
+Ravencoin
+Decred
+Bitcoin Cash
+Bitcoin SV
+Ethereum Classic
+~Ergo
+~Waves
+~Neo
+Qtum
+Zilliqa
+~Harmony
+~Fantom
+Celo
+~Osmosis
+~Terra
+THORChain
+Akash Network
+~Theta
+Axie Infinity
+Decentraland
+Enjin
+Chiliz
+Immutable X
+~Ronin
+Pyth Network
+Jupiter Exchange
+Raydium
+Marinade Finance
+Jito
+~Lido
+Rocket Pool
+Frax
+Liquity
+Synthetix
+dYdX
+GMX
+Gains Network
+~Pendle
+~Ethena
+MakerDAO
+Curve Finance
+~Balancer
+SushiSwap
+PancakeSwap
+~Aerodrome
+~Velodrome
+Trader Joe
+1inch
+Kyber Network
+Bancor
+Compound Finance
+Yearn Finance
+Convex Finance
+OlympusDAO
+Ondo Finance
+Maple Finance
+~Centrifuge
+The Graph
+Band Protocol
+API3
+UMA Protocol
+Arweave
+Siacoin
+Storj
+Livepeer
+Ocean Protocol
+Fetch.ai
+SingularityNET
+Bittensor
+Worldcoin
+Render Network
+~Golem
+~IOTA
+~Nano
+~Verge
+BitShares
+Steem
+~Hive
+~Lisk
+~Ark
+NEM
+~ICON
+~Aion
+Wanchain
+Telos
+EOS
+Bitcoin Gold
+Pi Network
+Notcoin
+Story Protocol
+EigenLayer
+~Symbiotic
+Renzo
+Kelp DAO
+Puffer Finance
+Taiko
+Polygon zkEVM
+~Metis
+Boba Network
+~Aurora
+~Moonbeam
+Moonriver
+Astar
+Oasis Network
+Secret Network
+~Stride
+~Persistence
+Mars Protocol
+Kujira
+Maya Protocol
+Pump.fun
+Drift Protocol
+=marginfi
+Kamino
+Solend
+~Tensor
+~Sanctum
+Helius
+Berachain
+Unichain
+Chainflip
+~Babylon
+~Swell
+~Ink
+Abstract Chain
+~Monad
+Plasma Network
+Bitfinex
+Bitstamp
+KuCoin
+Gate.io
+Huobi
+HTX
+MEXC
+Bitmart
+Upbit
+Bithumb
+Coinone
+Coincheck
+bitFlyer
+Bitso
+Luno
+Bitvavo
+Bitpanda
+Bit2Me
+Phemex
+Deribit
+BitMEX
+Blockchain.com
+BitPay
+Wirex
+Nexo
+Celsius Network
+BlockFi
+Voyager Digital
+Alameda Research
+Three Arrows Capital
+Terraform Labs
+Genesis Trading
+Galaxy Digital
+~Grayscale
+Bitwise Asset Management
+DAI
+PYUSD
+TrueUSD
+Paxos
+Binance USD
+~Uphold
+Paxful
+LocalBitcoins
+Coinmama
+Mercado Bitcoin
+WazirX
+CoinDCX
+CoinSwitch
+Zebpay
+Bitbns
+Liquid Exchange
+Bitkub
+Indodax
+Coinhako
+Independent Reserve
+Swyftx
+Trust Wallet
+~Phantom
+~Exodus
+Coinbase Wallet
+Rainbow Wallet
+~Argent
+Gnosis Safe
+Rabby Wallet
+Keplr
+Atomic Wallet
+~Electrum
+Magic Eden
+Rarible
+SuperRare
+Nifty Gateway
+Zora
+LooksRare
+X2Y2
+Azuki
+~Doodles
+Moonbirds
+Pudgy Penguins
+Cool Cats
+Art Blocks
+Yuga Labs
+Dapper Labs
+~Flow
+Sorare
+Illuvium
+Star Atlas
+~Parallel
+Alien Worlds
+Splinterlands
+Aavegotchi
+CryptoKitties
+The Sandbox
+Meebits
+MoonPay
+Transak
+Ramp Network
+Wyre
+~Alchemy
+Infura
+QuickNode
+Moralis
+Thirdweb
+Etherscan
+Solscan
+Blockchair
+CoinMarketCap
+CoinGecko
+Messari
+Nansen
+Dune Analytics
+Glassnode
+Chainalysis
+Arkham Intelligence
+DefiLlama
+DEXTools
+DexScreener
+Hop Protocol
+Stargate Finance
+LayerZero
+Across Protocol
+Connext
+Axelar
+Ankr
+Lido Finance
+Stader Labs
+Fireblocks
+Anchorage Digital
+BitGo
+Copper Technologies
+Bitcoin Core
+RSK
+~Rootstock
+Liquid Network
+Hyperledger
+Hyperledger Fabric
+R3 Corda
+Corda
+~Quorum
+Ethereum Name Service
+~ENS
+Unstoppable Domains
+Brave Wallet
+Safe Wallet
+Kraken Pro
+Coinbase Prime
+Bakkt
+Gemini Trust
+Exodus Wallet
+SafePal
+Tangem
+Keystone Wallet
+OneKey
+Bitcoin.com
+Cake Wallet
+Edge Wallet
+Ellipal
+Zengo
+Crypto.com DeFi Wallet
+Kucoin Wallet
+Bitpie
+TokenPocket
+imToken
+Math Wallet
+Coin98
+BlueWallet
+Sparrow Wallet
+Wasabi Wallet
+Bitcoin Knots
+~Umbrel
+Start9
+Casa
+Unchained Capital
+Xapo
+~Strike
+Cash App Bitcoin
+Lightspark
+OpenNode
+Breez
+Phoenix Wallet
+Muun Wallet
+Zeus Wallet
+Alby
+Blink Wallet
+Brex
+~Ramp
+~Mercury
+Starling Bank
+~Upstart
+Varo Bank
+Skrill
+Neteller
+Checkout.com
+Marqeta
+~Lithic
+Airwallex
+Payhawk
+Pleo
+Zopa
+GoCardless
+TrueLayer
+Yapily
+~Tink
+Modern Treasury
+~Column
+Razorpay
+PhonePe
+Kakao Pay
+~Toss
+Sacombank
+VietinBank
+VIB
+HDBank
+OCB
+SHB
+Viettel Money
+Credit Karma
+Mint Personal Finance
+Remote.com
+TransferWise
+WorldRemit
+Stash Invest
+Fidelity Crypto
+TD Ameritrade
+Trading 212
+Freetrade
+Moomoo
+Tiger Brokers
+Futu
+Coinbase Earn
+Zerohash
+Bridge.xyz
+Circle Internet Financial
+Brale
+Blockchain Capital
+Coinshares
+21Shares
+Fidelity Digital Assets
+Franklin Templeton Digital
+Invesco Galaxy
+Hashdex
+Valkyrie Funds
+Osprey Funds
+Coinbase Ventures
+~Paradigm
+a16z Crypto
+Pantera Capital
+Polychain Capital
+Multicoin Capital
+Dragonfly Capital
+Framework Ventures
+Electric Capital
+Delphi Digital
+The Block
+The Defiant
+Blockworks
+~Bankless
+Token Terminal
+Kaiko
+CryptoQuant
+CryptoSlate
+Coin Metrics
+Santiment
+IntoTheBlock
+Flipside Crypto
+Artemis Analytics
+Nansen Labs
+Arkham
+Bubblemaps
+Blockscout
+OKLink
+Tronscan
+BscScan
+PolygonScan
+Basescan
+Arbiscan
+Snowtrace
+FTMScan
+Mintscan
+Keplr Wallet
+Hashpack
+Solflare
+Backpack Wallet
+Magic Eden Wallet
+Slope Wallet
+Glow Wallet
+Sollet
+MathWallet
+Ledger Nano
+Ledger Nano X
+Trezor Model T
+Trezor Safe 3
+Coldcard
+Passport Wallet
+Keystone Pro
+Ellipal Titan
+Cypherock
+Arculus
+Ondo
+Ribbon Finance
+Notional Finance
+Element Finance
+Angle Protocol
+~Abracadabra
+Stakewise
+Swell Network
+Ether.fi
+~Kelp
+Lybra Finance
+Rocket Pool ETH
+Frax Ether
+Sablier
+Hedgey Finance
+~Superfluid
+Hats Finance
+Code4rena
+Immunefi
+CertiK
+PeckShield
+Trail of Bits
+OpenZeppelin
+Consensys
+Consensys Diligence
+ConsenSys Codefi
+Gitcoin
+Optimism Collective
+Arbitrum DAO
+Uniswap Labs
+Compound Labs
+Maker Foundation
+Chainlink Labs
+Ethereum Foundation
+Solana Foundation
+Cardano Foundation
+Polkadot Network
+Kusama
+Moonbeam Network
+Parity Technologies
+Cosmos Hub
+Interchain Foundation
+~Ignite
+Tendermint
+CometBFT
+Vyper
+Hardhat
+~Foundry
+Truffle Suite
+Remix IDE
+~Tenderly
+Blocknative
+Flashbots
+Eigenphi
+Jito Labs
+~Pimlico
+Biconomy
+Particle Network
+~Privy
+Dynamic Labs
+Web3Auth
+Magic Labs
+Lens Protocol
+Farcaster
+Friend Tech
+Zora Network
+Base Network
+Degen Chain
+Ronin Network
+Immutable Passport
+Gala Games
+Playnance
+Kaia
+Klaytn
+Finschia
+Nervos CKB
+Cardano Lace
+Yoroi Wallet
+Daedalus Wallet
+Eternl Wallet
+Nami Wallet
+Lace Wallet
+Vespr Wallet
+Typhon Finance
+Minswap
+SundaeSwap
+WingRiders
+Liqwid Finance
+Indigo Protocol
+Ergo Platform
+Cardano Foundation Labs
+Hoskinson
+IOHK
+Input Output Global
+Emurgo
+Cardano Ventures
+Tezos Foundation
+Dexter Exchange
+Quipuswap
+Plenty Network
+Algorand Foundation
+Pera Wallet
+Folks Finance
+~Tinyman
+AlgoExplorer
+Hedera Hashgraph
+HashPack Wallet
+SaucerSwap
+Stader Hedera
+Dfinity Foundation
+NNS Governance
+Internet Identity
+Oisy Wallet
+Plug Wallet
+Stoic Wallet
+Hiro Wallet
+Xverse Wallet
+Leather Wallet
+Boom Wallet
+Unisat
+Xverse
+Atomicals
+Bitcoin Ordinals
+~Counterparty
+Bisq
+Hodl Hodl
+Peach Bitcoin
+Robosats
+Pangolin Exchange
+Lightning Labs
+Fedimint
+Fedi Federation
+ZBD
+Bitkey
+Block Inc
+Square Crypto
+Proton Wallet
+Lyra Finance
+Beefy Finance
+Harvest Finance
+Alpaca Finance
+Ellipsis Finance
+Venus Protocol
+Wombat Exchange
+Thena
+Bunni Finance
+Equalizer Exchange
+Ramses Exchange
+Chronos Finance
+~Solidly
+Synapse Protocol
+Celer Network
+Orbiter Finance
+Socket Protocol
+Li.Fi
+Jumper Exchange
+Rango Exchange
+Squid Router
+Symbiosis Finance
+Debridge
+Allbridge
+Mayan Finance
+Ontology Network
+Verge Currency
+Factom
+Pivx
+Digibyte
+Vertcoin
+Namecoin
+Peercoin
+Feathercoin
+Novacoin
+Reddcoin
+Bytecoin
+Dogecoin Core
+Bitcoin Private
+Bitcoin Interest
+Horizen
+~Ardor
+Nxt
+Counterparty XCP
+Stellar Lumens
+XRP Ledger
+OKB
+Crypto.com Coin
+KuCoin Token
+FTX Token
+~Serum
+Saber Protocol
+Mango Markets
+Zeta Markets
+Hubble Exchange
+Phoenix Protocol
+Lifinity
+Crema Finance
+Aldrin
+Step Finance
+Hawksight
+Port Finance
+~Larix
+Tulip Protocol
+~Francium
+Apricot Finance
+Solpad
+Metaplex
+Bonfida
+Solana Name Service
+Tellor
+Witnet
+Razor Network
+DIA Data
+Flare Network
+~Songbird
+Ankr Network
+Stakewise V3
+Hashflow
+Woofi
+Kwenta
+Vertex Protocol
+Aevo Exchange
+Lyra Protocol
+Polynomial Protocol
+Paradex
+Orderly Network
+Rage Trade
+Perpetual Protocol
+Gearbox Protocol
+Euler Finance
+Morpho Blue
+Radiant Capital
+Silo Finance
+Exactly Protocol
+Instadapp
+DeFi Saver
+~Zapper
+Zerion
+Rotki
+Debank
+Revoke.cash
+Llamafolio
+Concentrator Finance
+Stake DAO
+Votium
+Bribe Protocol
+Tokemak
+Redacted Cartel
+Index Coop
+Set Protocol
+Enzyme Finance
+dHEDGE
+Melon Protocol
+Opyn
+Hegic
+Premia Finance
+Dopex
+Charm Finance
+Gelato Network
+Keep3r Network
+Kinto
+Karak Network
+Mellow Finance
+Hyperlane
+~Caldera
+Conduit Network
+AltLayer
+Fuel Network
+Eclipse Network
+Movement Labs
+Zircuit
+Manta Network
+Dymension
+Initia Network
+Warden Protocol
+Quicksilver Protocol
+Umee Network
+Gravity Bridge
+Evmos
+Canto Network
+Crescent Network
+Sommelier Finance
+Juno Network
+Regen Network
+Agoric
+Mantra Chain
+Coreum
+Kyve Network
+Pocket Network
+Fleek Network
+Crust Network
+Akave
+Walrus Protocol
+Theta Network
+Vanar Chain
+Sei Network
+Saga Chain
+Fraxtal Chain
+Morph Chain
+Taiko Network
+Bitlayer
+Botanix Network
+Axie
+Ronin Wallet
+~Pixels
+Treasure DAO
+Smooth Love Potion
+Revomon
+Ember Sword
+DeFi Kingdoms
+Crypto Blades
+Thetan Arena
+Stepn
+Gods Unchained
+Guild of Guardians
+Nyan Heroes
+Cryptomines
+Everdome
+Pegaxy
+Mobox
+Yield Guild Games
+Merit Circle
+Ubisoft Quartz
+Bored Ape Kennel Club
+Mutant Ape Yacht Club
+Mayc
+Chromie Squiggle
+Fidenza
+Pixelmon
+CryptoDads
+Bored Dogs
+Veefriends
+Gutter Cat Gang
+Milady Maker
+~Milady
+Cryptoadz
+Rumble Kong League
+Sappy Seals
+Creepz
+Azuki Elementals
+Moonbirds Oddities
+Pudgy Parties
+Nouns DAO
+~Nouns
+Lil Pudgys
+Captainz
+Forgotten Runes
+Loot Project
+Chainfaces
+Cryptoniks
+Shibarium
+Shiba Eternity
+Kishu Inu
+Akita Inu
+Dogelon Mars
+Baby Doge Coin
+Samoyedcoin
+Hoge Finance
+Safemoon
+Mog Coin
+Goatseus Maximus
+Fartcoin
+Michi Coin
+Wojak Coin
+Slerf
+Peanut the Squirrel
+Ponke
+Mumu the Bull
+Coinbase Commerce
+Coinbase Pay
+Coinbase One
+Coinbase Card
+Coinbase Advanced
+Coinbase Custody
+Kraken Futures
+Binance Pay
+Binance Launchpad
+Binance Smart Chain
+Binance Card
+Bybit Card
+OKX Wallet
+OKX Web3
+Bitget Wallet
+Gate Wallet
+Crypto.com Pay
+Crypto.com Card
+Crypto.com Exchange
+Crypto.com Chain
+Gemini Earn
+Gemini Credit Card
+Gemini Dollar
+Revolut Business
+Cash App Card
+Venmo Card
+PayPal Pay Later
+Mastercard Send
+Visa Direct
+Bitwage
+Request Network
+Bitrefill
+Spedn
+Coinkite
+Bitfury
+Bitmain
+Antminer
+MicroBT
+Whatsminer
+Ebang
+Bitdeer
+Core Scientific
+Riot Platforms
+Marathon Digital
+CleanSpark
+Hut 8 Mining
+Cipher Mining
+Iris Energy
+Bitfarms
+Argo Blockchain
+Greenidge Generation
+Stronghold Digital Mining
+Terawulf
+Bit Digital
+Hive Digital Technologies
+Bitcoin Depot
+Athena Bitcoin
+Bitcoin Magazine
+Nervos
+~Crust
+Kadena
+Hashgraph
+IOST
+Chromia
+MultiversX
+Ethereum 2.0
+Beacon Chain
+Mantra OM
+Aleo
+~Mina
+Oasis Labs
+Ternoa
+Cudos
+Jackal Protocol
+Lava Network
+Terra Classic
+Hyperledger Besu
+Hyperledger Indy
+Hyperledger Iroha
+Hyperledger Sawtooth
+Kadena Chainweb
+Alastria
+Marco Polo Network
+Komgo
+=we.trade
+Contour Network
+TradeIX
+Blockstream
+Blockstream Green
+Blockstream Satellite
+Bitcoin Suisse
+Sygnum
+Seba Bank
+Taurus Group
+Metaco
+Sentinel Protocol
+Securitize
+Tokeny
+Polymath Network
+Harbor Securities
+Ondo Global Markets
+Backed Finance
+Fidelity Wise Origin
+BlackRock Bitcoin
+ProShares Bitcoin
+Hashkey Exchange
+HashKey Capital
+OSL Group
+Matrixport
+Bitdeer Holdings
+Animoca Brands
+Sky Mavis
+Axie Infinity Shards
+Solana Mobile
+Saga Phone
+Coinbase Smart Wallet
+Argent X
+Braavos Wallet
+ArgentX
+Infinity Wallet
+Coin Wallet
+Zerion Wallet
+Frontier Wallet
+Bitski
+Torus Labs
+Web3 Onboard
+RainbowKit
+Web3.js
+Viem
+Hardhat Network
+Ganache Chain
+Scaffold-ETH
+Moralis SDK
+Covalent Network
+Goldsky
+The Graph Protocol
+Subsquid
+Bitquery
+`);
+CST_GLOSSARY_EXTRA_ADD("food", null, `
+Tonkotsu Ramen
+Miso Ramen
+Shoyu Ramen
+Shio Ramen
+Tsukemen
+Yakisoba
+~Maki
+Daifuku
+Mochi Ice Cream
+Teriyaki
+Natto
+Sundubu Jjigae
+Korean Fried Chicken
+Kalguksu
+~Dumpling
+Xiao Long Bao
+General Tso Chicken
+Sweet and Sour Pork
+Chop Suey
+Egg Foo Young
+Wonton Soup
+Scallion Pancake
+Jianbing
+Char Siu Bao
+Dan Dan Noodles
+Hot and Sour Soup
+Twice Cooked Pork
+Dongpo Pork
+~Chai
+~Sake
+Shochu
+Umeshu
+Ramune
+Thai Iced Tea
+Pad Kra Pao
+Panang Curry
+Tom Kha Gai
+Larb
+Khao Man Gai
+Mee Goreng
+Gado Gado
+Rojak
+Kaya Toast
+Cha Gio
+Banh Cuon
+Nasi Campur
+Nasi Padang
+Ayam Goreng
+Ayam Penyet
+Bakso
+Soto Ayam
+Mie Ayam
+Lontong
+Ketupat
+~Sambal
+Sambal Matah
+Tahu Goreng
+Rempeh
+Bubur Ayam
+Pandan Cake
+Kopi Susu
+Teh Tarik
+Kopi Tubruk
+Es Teler
+Cendol
+Es Campur
+Klepon
+Kue Lapis
+Martabak
+Pisang Goreng
+Kare Kare
+Lechon Kawali
+Pancit
+Pancit Canton
+Lumpia
+Sisig
+Halo Halo
+Bibingka
+Puto
+Leche Flan
+Ube
+Tinola
+Dinuguan
+Crispy Pata
+~Balut
+Bagoong
+Chicken Inasal
+Tapsilog
+Silog
+Tocino
+Longganisa
+Pinakbet
+Lechon Paksiw
+Pork Sinigang
+Chicken Biryani
+Hyderabadi Biryani
+Lamb Biryani
+Chicken Tikka
+Tandoori Chicken
+Murgh Makhani
+Palak Paneer
+Paneer Tikka
+Saag Paneer
+Chana Masala
+Dal Makhani
+Dal Tadka
+Rajma
+Aloo Gobi
+Baingan Bharta
+Bhindi Masala
+Malai Kofta
+Korma
+Chicken Korma
+Vindaloo
+Pork Vindaloo
+Jalfrezi
+Dhansak
+Rogan Josh
+Keema
+Kheema Pav
+Pav Bhaji
+Vada Pav
+Pakora
+Bhaji
+Chaat
+Pani Puri
+Bhel Puri
+Dahi Puri
+Papdi Chaat
+Aloo Tikki
+~Dosa
+Masala Dosa
+Idli
+Vada
+~Sambar
+Rasam
+Uttapam
+Upma
+Pongal
+Appam
+Puttu
+Avial
+Thoran
+Chettinad Chicken
+Chicken 65
+Gobi Manchurian
+Hakka Noodles
+Kathi Roll
+Chole Bhature
+Chole
+~Poha
+Dhokla
+Khandvi
+Thepla
+Mango Lassi
+Masala Chai Latte
+Kulfi
+Gulab Jamun
+Rasgulla
+Rasmalai
+Jalebi
+Barfi
+Kheer
+Halwa
+Sooji Halwa
+Gajar Halwa
+Ladoo
+Besan Ladoo
+Garlic Naan
+Peshwari Naan
+Roti
+Paratha
+Aloo Paratha
+Kulcha
+Chapati
+Puri
+Bhatura
+Khichdi
+Pulao
+Tahari
+Nihari
+Haleem
+Seekh Kebab
+Shami Kebab
+Chapli Kebab
+Kofta
+Chicken Karahi
+Mutton Karahi
+Lamb Karahi
+Chicken Handi
+Mutton Rogan Josh
+Yakhni Pulao
+Murgh Cholay
+Rice and Curry
+Mughlai Paratha
+Chicken Chettinad
+Kottu Roti
+Kottu
+~Hoppers
+String Hoppers
+Pol Sambol
+Lamprais
+Parippu
+Chicken Momo
+Thukpa
+Sel Roti
+Dal Bhat
+Gundruk
+Yak Cheese
+Aloo Achar
+Kachumber
+Raita
+~Chutney
+Mango Chutney
+Mint Chutney
+Tamarind Chutney
+Baba Ghanoush
+Muhammara
+Shawarma Wrap
+Chicken Shawarma
+Fattoush
+Kibbeh
+Kibbeh Nayyeh
+Labneh
+Manakish
+Za'atar Bread
+Fatteh
+Mujadara
+Maqluba
+Mansaf
+Kabsa
+Mandi
+Machboos
+Shish Taouk
+Shish Kebab
+Adana Kebab
+Kofte
+Lahmacun
+Pide
+Borek
+Gozleme
+Simit
+Turkish Delight
+Lokum
+~Pilaf
+Iskender Kebab
+Pide Bread
+Manti
+Kunefe
+Kunafa
+Ayran
+Turkish Coffee
+Turkish Tea
+~Raki
+Ouzo
+Tiropita
+Dolmades
+Gyros
+Pastitsio
+Saganaki
+Keftedes
+Horiatiki
+Taramasalata
+Tarama
+~Fava
+Loukoumades
+Galaktoboureko
+Melomakarona
+Kourabiedes
+Retsina
+Metaxa
+Avgolemono
+Fasolada
+Gigantes
+Psarosoupa
+Hilopites
+Kleftiko
+Yemista
+Halloumi Fries
+Mezze
+Meze
+Dolma
+Stuffed Grape Leaves
+Kofta Kebab
+Ghormeh Sabzi
+Ghormeh
+Fesenjan
+Gheymeh
+Tahdig
+Zereshk Polo
+Joojeh Kebab
+Koobideh
+Chelow Kebab
+Kashk Bademjan
+Ash Reshteh
+Dizi
+Sholeh Zard
+Faloodeh
+Persian Rice
+~Sabzi
+Lavash
+Barbari
+Sangak
+Khoresh
+Jujeh
+Shirazi Salad
+Doogh
+Sharbat
+Rosewater Lemonade
+Nan-e Barbari
+Yufka
+Sigara Boregi
+Pogaca
+Kisir
+Menemen
+Imam Bayildi
+Cacik
+Ezme
+Hunkar Begendi
+Testi Kebabi
+Sarma
+Pilav
+Lentil Soup
+Mercimek Corbasi
+Yayla Corba
+Ashure
+Hamsi
+Kokorec
+Cig Kofte
+Kuzu Tandir
+Lamb Tandoor
+Hamam Kebab
+Bulgur Pilaf
+Ful Medames
+Ful
+Koshari
+Molokhia
+Mahshi
+Feteer
+Feteer Meshaltet
+Taameya
+Hawawshi
+Om Ali
+Basbousa
+Konafa
+Qatayef
+Harira
+Chicken Tagine
+Lamb Tagine
+Preserved Lemon
+Pastilla
+Bastilla
+Msemen
+Harcha
+Batbout
+Merguez
+Brik
+Chermoula
+Zaalouk
+Makroudh
+Mint Tea
+Moroccan Mint Tea
+Sfenj
+Rfissa
+Bissara
+Mechoui
+Berbere
+Injera
+Doro Wat
+Tibs
+Kitfo
+Shiro
+Misir Wat
+Gomen
+Kik Alicha
+Tej
+~Buna
+Ethiopian Coffee
+Kocho
+Dabo Kolo
+Mitmita
+Akara
+Jollof Rice
+Waakye
+Fufu
+Egusi Soup
+Egusi
+Suya
+Kelewele
+Banku
+Kenkey
+Puff Puff
+Bitterleaf Soup
+Ogbono Soup
+Pepper Soup
+Moi Moi
+Chin Chin
+Kedjenou
+Attieke
+Aloco
+Thieboudienne
+Yassa
+Mafe
+Dibi
+Chapo
+~Bobotie
+Bunny Chow
+~Biltong
+Boerewors
+Malva Pudding
+Chakalaka
+~Pap
+~Samp
+Melktert
+Koeksister
+Amarula
+Mosi
+Ugali
+Nyama Choma
+~Pilau
+Matoke
+Mandazi
+Chapati Rolls
+Sukuma Wiki
+Mishkaki
+Samaki
+Spaghetti Carbonara
+Spaghetti Bolognese
+Amatriciana
+Pasta alla Norma
+Pasta e Fagioli
+Pesto Genovese
+Crostini
+Arancini
+Panzanella
+Ribollita
+Minestrone
+Osso Buco
+Risotto alla Milanese
+~Polenta
+Cannelloni
+Tagliatelle
+Pappardelle
+Linguine alle Vongole
+Puttanesca
+Arrabbiata
+Vitello Tonnato
+Carpaccio
+Mortadella
+Bresaola
+Porchetta
+Cotechino
+Pancetta
+Guanciale
+Parmigiano Reggiano
+Mozzarella di Bufala
+Taleggio
+Ricotta Cheesecake
+~Zabaglione
+Semifreddo
+Biscotti
+Cantucci
+Panettone
+Pandoro
+Sfogliatella
+Zeppole
+Cassata
+Granita
+Caffe Latte
+Limoncello
+Amaro
+~Chianti
+~Grappa
+Frittata
+Caponata
+Parmigiana
+Eggplant Parmesan
+Involtini
+Saltimbocca
+Piccata
+Cacciatore
+Pollo alla Cacciatora
+Bistecca alla Fiorentina
+Porchetta Sandwich
+Panino
+Focaccia Genovese
+Pizza Napoletana
+Calzone
+Stromboli
+Sicilian Pizza
+Pizza Bianca
+Pizza Romana
+Bucatini
+Orecchiette
+Trofie
+Casarecce
+Strozzapreti
+Fregola
+Sagne Chine
+Crudo
+Crudo di Mare
+Fritto Misto
+Baccala
+Cioppino
+Boeuf Bourguignon
+Quiche Lorraine
+Croque Madame
+Crepes Suzette
+~Gratin
+Potato Gratin
+Gratin Dauphinois
+~Souffle
+Cassoulet
+Confit de Canard
+Duck Confit
+Steak Frites
+Steak Tartare
+Pot au Feu
+Blanquette de Veau
+Bouchee a la Reine
+~Vichyssoise
+French Onion Soup
+Madeleine
+~Financier
+~Eclair
+Profiterole
+Mille-Feuille
+Paris-Brest
+Opera Cake
+Tarte Tatin
+Clafoutis
+Creme Brulee
+Creme Caramel
+Mousse au Chocolat
+Chocolate Mousse
+Ile Flottante
+Croquembouche
+Kouign Amann
+Galette
+Galette des Rois
+Pissaladiere
+Socca
+Salade Nicoise
+Tapenade
+Aioli
+~Rouille
+Tartiflette
+Choucroute
+Currywurst
+Weisswurst
+Knackwurst
+Wiener Schnitzel
+~Sauerbraten
+Spaetzle
+Brezel
+Schweinshaxe
+Bratkartoffeln
+Rouladen
+Kartoffelsalat
+Lebkuchen
+~Stollen
+Black Forest Cake
+Schwarzwalder Kirschtorte
+Apple Strudel
+Sachertorte
+Linzer Torte
+Kaiserschmarrn
+Germknodel
+Bienenstich
+~Berliner
+Pfannkuchen
+Dampfnudel
+Maultaschen
+Obatzda
+Leberkase
+Muesli
+Kaesespatzle
+Gulasch
+Chicken Paprikash
+Lecso
+Langos
+Chimney Cake
+Bigos
+Kielbasa
+Zurek
+Barszcz
+~Kasha
+Pelmeni
+Blini
+Beef Stroganoff
+Chicken Kiev
+Olivier Salad
+Shchi
+Solyanka
+~Kvass
+Kulebyaka
+Syrniki
+Medovik
+Pirozhki
+Shashlik
+Plov
+Manti Dumplings
+Lagman
+Halva
+Tvorog
+~Barbacoa
+Birria Tacos
+Carne Asada
+Tacos al Pastor
+Fish Tacos
+Baja Fish Tacos
+Chile Relleno
+Chiles Rellenos
+Enchiladas Verdes
+Enchiladas Rojas
+Enchiladas Suizas
+Menudo
+Mole Poblano
+Chilaquiles
+Huevos Rancheros
+Huevos Divorciados
+Molletes
+Tlayuda
+Sopes
+Gorditas
+Flautas
+Taquitos
+Tostada
+Esquites
+Aguachile
+Tiradito
+Salsa Roja
+Queso Fundido
+Chorizo
+Tres Leches Cake
+~Flan
+Conchas
+Pan Dulce
+Horchata
+Agua Fresca
+~Tepache
+Michelada
+~Pulque
+Paloma
+Cafe de Olla
+Champurrado
+Atole
+Tortilla Soup
+Sopa de Lima
+Caldo de Res
+Caldo de Pollo
+Pork Tamales
+Nopales
+Cochinita Pibil
+Pibil
+Sikil Pak
+Panuchos
+Salbutes
+Papadzules
+Poc Chuc
+Marquesitas
+Pollo Asado
+Frijoles de Olla
+Refried Beans
+Mexican Rice
+Tortilla Chips
+Nachos Supreme
+Burrito Bowl
+California Burrito
+Chimichanga
+Fajitas
+Chicken Fajitas
+Sopapilla
+Puffy Taco
+Chalupa
+Tostadas de Tinga
+Tinga
+Lengua
+Cabeza
+Chicharron
+Chicharrones
+Ceviche Mixto
+Causa Limena
+Causa
+Lomo Saltado
+Aji de Gallina
+Anticuchos
+Papa a la Huancaina
+Huancaina
+Rocoto Relleno
+Ceviche de Pescado
+Chupe de Camarones
+Picarones
+Suspiro a la Limena
+Pisco Sour
+Chicha Morada
+Cuy
+Arroz con Pollo
+Pachamanca
+Ceviche Peruano
+Beef Empanadas
+Chimichurri
+Asado
+Milanesa
+Choripan
+Provoleta
+Dulce de Leche
+Alfajores
+Medialunas
+~Mate
+Fernet
+Pao de Queijo
+Moqueca
+Coxinha
+Brigadeiro
+Acaraje
+Vatapa
+Caipirinha
+Caipira
+~Pastel
+Farofa
+Picanha
+Brazilian Churrasco
+Brigadeiros
+Quindim
+Pudim
+Pudim de Leite
+Bolo de Fuba
+~Tapioca
+Cuscuz
+Arepas
+Pabellon Criollo
+Pabellon
+Hallaca
+Hallacas
+Teques
+Patacones
+Bandeja Paisa
+Ajiaco
+Empanada Colombiana
+Lechona
+Arepa de Choclo
+Sancocho
+Bollos
+Pandebono
+Aborrajados
+Changua
+Cazuela
+Pastel de Choclo
+Completo
+Humitas
+Pastel de Papa
+Chupe
+Caldo de Gallina
+Fricase
+Chancho en Piedra
+Dominican Mangu
+Mangu
+Sancocho Dominicano
+Pollo Guisado
+Moros y Cristianos
+Tostones
+Mofongo
+Pastelon
+Arroz con Gandules
+Lechon Asado
+Pernil
+Cuban Sandwich
+Ropa Vieja
+Picadillo
+~Yuca
+Yuca Frita
+Maduros
+Croquetas
+Flan de Coco
+Cuba Libre
+Pina Colada
+Rum Punch
+Jerk Chicken
+Jerk Pork
+Ackee and Saltfish
+Ackee
+Curry Goat
+~Oxtail
+Escovitch Fish
+Rice and Peas
+~Festival
+Callaloo
+Roti Wrap
+~Doubles
+Pelau
+Pepperpot
+Bake and Shark
+Saltfish
+~Sorrel
+Sorrel Drink
+Ginger Beer
+Stew Peas
+Fried Plantain
+~Grits
+Shrimp and Grits
+Chicken Gumbo
+Etouffee
+Crawfish Etouffee
+Boudin
+Cajun Boudin
+Po Boy
+Muffuletta
+Beignets
+Pralines
+Bananas Foster
+Brunswick Stew
+~Burgoo
+Chicken and Waffles
+~Barbecue
+Burnt Ends
+~Ribs
+Baby Back Ribs
+Spare Ribs
+St Louis Ribs
+Smoked Turkey
+Chili Dog
+Sloppy Joe
+~Reuben
+Cuban Sandwich Cubano
+New England Clam Chowder
+Manhattan Clam Chowder
+Waldorf Salad
+Macaroni and Cheese
+Chicken Pot Pie
+Pot Pie
+Cherry Pie
+Shoofly Pie
+Whoopie Pie
+Snickerdoodles
+Red Velvet Cake
+Funnel Cake
+Buttermilk Pancakes
+Everything Bagel
+Bagel and Lox
+~Pastrami
+Pastrami on Rye
+Corned Beef
+Hoagie
+Italian Sub
+~Chili
+Texas Chili
+Chili con Carne
+Frito Pie
+Hot Chicken
+Buffalo Chicken Wings
+~Wings
+Hush Puppy
+Maryland Crab Cakes
+Frogmore Stew
+Low Country Boil
+Shrimp Boil
+Crawfish Boil
+~Scrapple
+Chess Pie
+Sweet Potato Pie
+Peach Cobbler
+~Cobbler
+Banana Pudding
+Bread Pudding
+Pimento Cheese
+Deviled Eggs
+~Pimento
+Poutine
+Tourtiere
+Butter Tart
+Nanaimo Bars
+Beavertail
+Montreal Smoked Meat
+Smoked Meat
+Lobster Thermidor
+~Challah
+Bagel Dough
+Brioche Buns
+Ciabatta Bread
+Naan Bread
+Flatbread
+Injera Bread
+~Matzo
+Matzah Ball Soup
+Matzo Ball
+Latke
+Potato Latke
+Blintz
+~Kugel
+Hamantaschen
+Babka
+Rugelach
+Gefilte Fish
+Cholent
+Shakshuka Eggs
+Lamb Shoulder
+Silken Tofu
+Firm Tofu
+Tempeh Bacon
+Jackfruit Tacos
+Plant Based Burger
+White Miso
+Red Miso
+Sesame Paste
+Sambal Oelek
+Chili Crisp
+Nuoc Cham
+Black Bean Sauce
+XO Sauce
+Shacha Sauce
+Doubanjiang
+Sichuan Peppercorn
+Szechuan Peppercorn
+Five Spice
+Ras el Hanout
+Zaatar
+Dukkah
+Berbere Spice
+Shichimi Togarashi
+Yuzu Kosho
+Shiso
+~Perilla
+Wakame
+Katsuobushi
+~Bonito
+Uni
+Ikura
+Hamachi
+Unagi
+Anago
+Tobiko
+Mentaiko
+Kamaboko
+Surimi
+Crab Stick
+Dashi Broth
+Kaeshi
+~Tare
+Doenjang Jjigae
+Perilla Leaves
+Ssamjang
+Kimchi Fried Rice
+Kimchi Pancake
+Kimchi Stew
+Kongnamul Gukbap
+Haemul Pajeon
+Pajeon
+Mung Bean Pancake
+Hwe
+Jeon
+Yukgaejang
+Seolleongtang
+Galbitang
+Bossam
+Jokbal
+Dakgalbi
+Ddukbokki
+Odeng
+Eomuk
+Hotdog Korean
+Bungeoppang
+Gyeranppang
+Hodu Gwaja
+Patbingsu
+Shaved Ice
+Snow Ice
+Ice Cream Sandwich
+Yakgwa
+Yaksik
+Dasik
+Songpyeon
+Tteok
+Rice Cake
+Rice Cakes
+Sweet Red Bean
+Red Bean Paste
+Adzuki
+Anko
+Matcha Ice Cream
+Yuzu Tea
+Black Sesame
+Kinako
+Mitarashi
+Imagawayaki
+Warabi Mochi
+Mochi Cake
+Castella
+Melon Pan
+Anpan
+Kare Raisu
+Japanese Curry
+Omurice
+Oyakodon Rice
+Hayashi Rice
+Tamagoyaki
+Dashimaki Tamago
+Chawanmushi
+Nabe
+Shabu Shabu
+Yosenabe
+Oden
+Kaiseki
+Ekiben
+Nikujaga
+Hiyashi Chuka
+Zaru Soba
+Kake Udon
+Kitsune Udon
+Tanuki Soba
+Tenzaru
+~Tendon
+Ten Don
+Unadon
+Katsu Sando
+Tamagosando
+Chicken Karaage
+Tsukune
+Kushiyaki
+Hatsu
+Harami
+~Tan
+Gyu Tan
+Motsunabe
+Hakata Ramen
+Sapporo Ramen
+Kitakata Ramen
+Abura Soba
+Mazesoba
+Yaki Onigiri
+Ochazuke
+Tofu Steak
+Agedashi Tofu
+Hiyayakko
+Goma Dofu
+Yudofu
+Ankake
+Inari Sushi
+Inarizushi
+Gunkan
+Tekka Maki
+Futomaki
+Uramaki
+California Roll
+Spider Roll
+Dragon Roll
+Rainbow Roll
+Philadelphia Roll
+Ahi Poke
+Spam Musubi
+Musubi
+Loco Moco
+Saimin
+Malasada
+Haupia
+Kalua Pig
+Lau Lau
+~Poi
+Shave Ice Hawaii
+Lilikoi
+Passion Fruit Juice
+Zaxby's
+Bojangles
+Church's Chicken
+Del Taco
+El Pollo Loco
+Moe's Southwest Grill
+Taco John's
+Long John Silver's
+Captain D's
+Krystal
+Steak 'n Shake
+~Checkers
+~Rally's
+Back Yard Burgers
+Freddy's Frozen Custard
+Portillo's
+~Potbelly
+Firehouse Subs
+Quizno's
+Schlotzsky's
+Pei Wei
+Cosi
+Noodles & Company
+Dig Inn
+Dutch Bros Coffee
+Biggby Coffee
+Coffee Bean & Tea Leaf
+Caffe Nero
+Gloria Jean's
+Scooter's Coffee
+7 Brew
+Intelligentsia Coffee
+Stumptown Coffee Roasters
+Verve Coffee Roasters
+Joe Coffee
+Ritual Coffee Roasters
+Counter Culture Coffee
+Tully's Coffee
+Seattle's Best Coffee
+Diedrich Coffee
+Coffee Time
+LongHorn Steakhouse
+Ruby Tuesday
+~Hooters
+Perkins
+Golden Corral
+Red Robin
+BJ's Restaurant & Brewhouse
+Yard House
+Bonefish Grill
+Carrabba's Italian Grill
+Maggiano's Little Italy
+Romano's Macaroni Grill
+Buca di Beppo
+Brio Tuscan Grille
+Fogo de Chao
+Ruth's Chris Steak House
+Morton's The Steakhouse
+The Capital Grille
+Del Frisco's
+Smith & Wollensky
+STK Steakhouse
+Logan's Roadhouse
+Cheddar's Scratch Kitchen
+Shoney's
+Friendly's
+Huddle House
+Coco's
+Village Inn
+Eat'n Park
+Johnny Rockets
+Chuck E. Cheese
+Dave & Buster's
+Round Table Pizza
+Mellow Mushroom
+Blaze Pizza
+MOD Pizza
+Uno Pizzeria & Grill
+Giordano's
+Lou Malnati's
+California Pizza Kitchen
+Cicis Pizza
+Marco's Pizza
+Papa Murphy's
+Hungry Howie's
+Jet's Pizza
+~Pinkberry
+Red Mango
+16 Handles
+Menchie's
+Yogurtland
+TCBY
+~Carvel
+Dreyer's
+Breyers
+~Klondike
+Taco Bueno
+Del Taco Restaurants
+Kura Sushi
+Genki Sushi
+Tenya
+Teriyaki Madness
+Sarku Japan
+Freshness Burger
+Mang Inasal
+Chowking
+Greenwich Pizza
+Red Ribbon
+Max's Restaurant
+Goldilocks Bakeshop
+Boba Guys
+Tapioca Express
+Nayuki
+Little Sheep
+Xiabu Xiabu
+Crystal Jade
+Maxim's
+Bonchon
+Kyochon
+Trung Nguyen Coffee
+Phuc Long Coffee & Tea
+Mr. Pickles
+Hard Rock Cafe
+Planet Hollywood
+Rainforest Cafe
+Max & Erma's
+Ruby's Diner
+Hometown Buffet
+Old Country Buffet
+Sweet Tomatoes
+Souplantation
+Corner Bakery Cafe
+Au Bon Pain
+Einstein Bros. Bagels
+Bruegger's Bagels
+Manhattan Bagel
+Second Cup
+Timothy's World Coffee
+Mister Donut
+Shipley Do-Nuts
+Winchell's Donut House
+Duck Donuts
+Voodoo Doughnut
+Insomnia Cookies
+Nestle Toll House Cafe
+Great American Cookies
+Wetzel's Pretzels
+Pretzelmaker
+Hot Dog on a Stick
+Nathan's Famous
+Ben's Chili Bowl
+Skyline Chili
+Gold Star Chili
+Frisch's Big Boy
+Big Boy
+Bob's Big Boy
+Jerry's Famous Deli
+Canter's Deli
+Katz's Delicatessen
+Carnegie Deli
+Zabar's
+Russ & Daughters
+Ess-a-Bagel
+Eisenberg's Sandwich Shop
+Primanti Bros.
+Pat's King of Steaks
+Geno's Steaks
+Jim's Steaks
+Tony Luke's
+Ike's Vegan Cheesesteaks
+Donovan's Reuben Room
+Arnold's Country Kitchen
+Cheesecake Factory Bakery
+Big Ray's Fish House
+Dickey's Barbecue Pit
+Famous Dave's
+Sonny's BBQ
+Smokey Bones
+Rib Crib
+Jim 'N Nick's Bar-B-Q
+County Line Barbecue
+Franklin Barbecue
+Salt Lick
+Louie Mueller Barbecue
+Arthur Bryant's
+Gates Bar-B-Q
+Dinosaur Bar-B-Que
+Pappy's Smokehouse
+Joe's Kansas City
+Corky's Ribs & BBQ
+Black's Barbecue
+Bryan's Pit Barbecue
+Woodshed Smokehouse
+Killen's Barbecue
+Kneaders
+Shari's
+Elmer's Pancake House
+Original Pancake House
+First Watch
+Snooze an A.M. Eatery
+Another Broken Egg Cafe
+Eggs Up Grill
+Pancake Corner
+Habit Burger Grill
+Good Times Burgers
+~Fatburger
+Umami Burger
+Wayback Burgers
+Burgerfi
+Fuddruckers
+Steak Escape
+Charleys Philly Steaks
+Penn Station East Coast Subs
+Blimpie
+Erbert & Gerbert's
+Mr. Hero
+Capriotti's Sandwich Shop
+McAlister's Deli
+Jason's Deli
+Lenny's Sub Shop
+Which Wich
+Potbelly Sandwich Shop
+Villa Italian Kitchen
+Pizza Inn
+Pizza Ranch
+Happy Joe's
+Godfather's Pizza
+Peter Piper Pizza
+Pizzeria Uno Chicago Grill
+Old Chicago Pizza
+Bertucci's
+Pie Five Pizza
+Donatos Pizza
+Ledo Pizza
+Patsy's Pizzeria
+Lombardi's Pizza
+Grimaldi's Pizzeria
+Di Fara Pizza
+Joe's Pizza
+Prince Street Pizza
+Louie & Ernie's Pizza
+Frank Pepe Pizzeria Napoletana
+Sally's Apizza
+Modern Apizza
+Apizza Scholls
+Tony's Pizza Napoletana
+Pizzeria Bianco
+Home Slice Pizza
+~Quickly
+Walmart Supercenter
+Albertsons
+Meijer
+Hy-Vee
+Giant Eagle
+Stop & Shop
+Food Lion
+Harris Teeter
+Winn-Dixie
+Piggly Wiggly
+ShopRite
+Weis Markets
+Ralphs
+Vons
+Fred Meyer
+Smith's Food and Drug
+King Soopers
+Fry's Food Stores
+Jewel-Osco
+Shaw's
+Acme Markets
+Tom Thumb
+Randalls
+~Pavilions
+Save Mart
+Raley's
+Harmons
+Lucky Supermarkets
+Gelson's Markets
+Bristol Farms
+Fairway Market
+Hannaford
+Price Chopper
+Giant Food
+Star Market
+Market Basket
+Ingles Markets
+Bi-Lo
+Southeastern Grocers
+Brookshire's
+Dillons
+Baker's Foods
+Gerbes Super Markets
+Festival Foods
+Woodman's Markets
+Cub Foods
+Lunds & Byerlys
+Kowalski's Markets
+Marsh Supermarkets
+Pathmark
+Big Y
+Price Rite
+The Fresh Market
+Earth Fare
+Natural Grocers
+Fresh Thyme Farmers Market
+Lucky's Market
+Grocery Outlet
+Big Lots
+Save-A-Lot
+WinCo Foods
+Smart & Final
+Stater Bros. Markets
+Food 4 Less
+Mariano's
+Pick 'n Save
+Gordon Food Service
+Sysco
+US Foods
+Restaurant Depot
+Morrisons
+Ocado
+Iceland Foods
+Marks & Spencer Food Hall
+Auchan
+E.Leclerc
+Intermarche
+Monoprix
+Franprix
+Edeka
+Rewe
+Kaufland
+Netto
+Coop Italia
+Esselunga
+Conad
+Mercadona
+Eroski
+Continente
+Pingo Doce
+Albert Heijn
+Delhaize
+Colruyt
+Migros
+~Billa
+Hofer
+Zabka
+Biedronka
+Pyaterochka
+Magnit
+Lenta
+~Wawa
+Sheetz
+QuikTrip
+Casey's General Store
+Kwik Trip
+Pilot Flying J
+Love's Travel Stops
+FairPrice
+Ito-Yokado
+Seiyu
+Tops Market
+~Coles
+Woolworths
+IGA
+New World Supermarkets
+Pak'nSave
+Cold Storage
+Sheng Siong
+RT-Mart
+Hema
+Yonghui
+Mega Market
+Coopmart
+Bashas'
+Ukrop's
+Heinen's
+Buehler's
+Strack & Van Til
+Schnucks
+Dierbergs
+Straub's
+Piggly Wiggly Carolina
+Lowes Foods
+Thriftway
+Berkeley Bowl
+Mollie Stone's Markets
+~Speedway
+~Jumbo
+~Spar
+~Foodland
+Kraft Foods
+Campbell's Soup
+Tyson Foods
+Vegemite
+~Marmite
+Post Shredded Wheat
+Cool Whip
+Jell-O
+SunnyD
+Bang Energy
+Dannon
+Yoplait
+Go-Gurt
+Lactaid
+Horizon Organic
+Stonyfield
+Land O'Lakes
+Vienna Sausages
+Hamburger Helper
+Annie's Homegrown
+King Arthur Baking
+Ho Hos
+Entenmann's
+Stroehmann
+Tip Top Bread
+Stacy's Pita Chips
+Smartfood
+Slim Jim
+Jack Link's
+Utz
+Herr's
+Golden Flake
+Zapp's
+Kettle Brand
+Popchips
+Pringles Snacks
+Luna Bar
+A&W Root Beer
+Kickapoo Joy Juice
+Tampico
+Sunny Delight
+Capri Sun Pouch
+Bai Drinks
+Vitamin Water
+Voss Water
+Polar Seltzer
+Hint Water
+Zico Coconut Water
+Red Bull Energy
+Rockstar Energy
+Reign Energy
+Yerba Mate Guayaki
+Guayaki
+Numi Tea
+Kusmi Tea
+Nescafe Gold
+Starbucks Coffee
+Tchibo
+Jacobs Kronung
+Melitta
+Kicking Horse Coffee
+Allegro Coffee
+Death Wish Coffee
+Lucky Jack Coffee
+Chock full o'Nuts
+Eight O'Clock Coffee
+Chase & Sanborn
+Yuban
+Sanka
+Postum
+Glaceau Smartwater
+~Combos
+~Bugles
+~Planters
+Baby Ruth
+~Butterfinger
+York Peppermint Patties
+~Heath
+~Skor
+~Payday
+Crunch Bar
+Nestle Crunch
+Nestle Butterfinger
+Russell Stover
+See's Candies
+Whitman's Chocolates
+Tootsie Pops
+Hershey Bar
+Cadbury Dairy Milk
+Extra Gum
+Red Vines
+~Peeps
+Necco Wafers
+Dots Candy
+Gobstoppers
+Charms Blow Pop
+Bazooka Joe
+Big League Chew
+Meiji Chocolate
+Lotte Chocolate Pie
+Haitai
+Oishi
+Tim Tam
+Arnott's
+Violet Crumble
+Caramello Koala
+Cherry Ripe
+Freddo
+Cadbury Freddo
+Wagon Wheel
+Mars Bar
+Tunnock's Teacakes
+Walkers Crisps
+Pringles UK
+Monster Munch
+Quavers
+Wotsits
+Hula Hoops
+Doritos Dippas
+Kettle Chips
+Golden Wonder
+McCoy's Crisps
+Bisto
+Marmite Yeast Extract
+Cathedral City
+President Brie
+Rachel's Organic
+Arla
+~Muller
+Activia Yogurt
+Ehrmann
+Leibniz
+Haribo Goldbears
+Kinder Surprise
+Nutella B-ready
+Boost Nutrition
+Carnation Instant Breakfast
+Breyers Ice Cream
+Ben & Jerry's Ice Cream
+Haagen-Dazs Ice Cream
+Talenti
+Tillamook Ice Cream
+Blue Bell Ice Cream
+Turkey Hill
+Edy's
+Dreyer's Grand Ice Cream
+Friendly's Ice Cream
+Good Humor
+Nestle Drumstick
+Cornetto
+Ben and Jerry's Phish Food
+Klondike Bar
+Eskimo Pie
+Snickers Ice Cream
+Dove Bars
+Mochi Yukimi
+Wall's
+Peter Pan Peanut Butter
+Smucker's Uncrustables
+Uncrustables
+Ritz Bits
+Keebler Elfin Pals
+Sunshine Biscuits
+Mother's Cookies
+Graham Crackers
+Oreo Thins
+Chips Ahoy
+Milano Cookies
+Pepperidge Farm Milano
+Archway Cookies
+Mrs. Fields Cookies
+Otis Spunkmeyer
+Tate's Bake Shop
+Pepperidge Farm Goldfish
+Cheetos Puffs
+Chester's
+Hot Cheetos
+Sabritas
+Barcel
+Gamesa
+Marinela
+Ricolino
+~Smarties
+~Twirl
+~Popsicle
+~Fudgsicle
+~Drumstick
+Pad Krapow
+Tom Yum Goong
+Beef Rendang
+Char Kway Teow
+Hokkien Mee
+Bak Kut Teh
+Chicken Satay
+~Gado-Gado
+Teriyaki Chicken
+Chicken Katsu
+Soba Noodles
+~Chashu
+Maki Roll
+Spicy Tuna Roll
+General Tso's Chicken
+Beef and Broccoli
+Egg Drop Soup
+Crab Rangoon
+Egg Roll
+~Potstickers
+Mongolian Beef
+Hong Shao Rou
+Lion's Head Meatballs
+Bao Buns
+Cha Siu Bao
+Fried Wonton
+Chinese Chicken Salad
+Yangzhou Fried Rice
+Medu Vada
+~Papadum
+Lamb Vindaloo
+Prawn Malai
+~Tikka
+Tacos de Carnitas
+Chile con Carne
+Tex-Mex Burrito
+Breakfast Burrito
+Carne Guisada
+Carnitas Tacos
+Lasagna Bolognese
+Caprese Salad
+Prosciutto di Parma
+~Grissini
+Pappardelle al Ragu
+Penne alla Vodka
+Chicken Parmigiana
+Eggplant Parmigiana
+Veal Parmigiana
+~Antipasto
+Insalata Caprese
+`);
+CST_GLOSSARY_EXTRA_ADD("fashion", null, `
+American Eagle Outfitters
+Armani
+Emporio Armani
+Yves Saint Laurent
+Comme des Garcons
+Tiffany & Co
+Chopard
+Diane von Furstenberg
+Oscar de la Renta
+Carolina Herrera
+Marchesa
+Zimmermann
+Rixo
+Isabel Marant
+Sandro
+Maje
+The Kooples
+AllSaints
+Reiss
+Karen Millen
+~Whistles
+~Warehouse
+Topshop
+ASOS
+Missguided
+Nasty Gal
+Lulus
+Cupshe
+New Look
+River Island
+~Next
+~Matalan
+Pull and Bear
+Oysho
+Dr Martens
+Stone Island
+CP Company
+G-Star Raw
+~Replay
+~Guess
+Superdry
+Jack Wolfskin
+Engineered Garments
+~Undercover
+Sacai
+~Noah
+Aime Leon Dore
+Lanvin
+Moschino
+Roberto Cavalli
+Missoni
+Etro
+Max Mara
+Brunello Cucinelli
+Loro Piana
+Ermenegildo Zegna
+Zegna
+Elie Saab
+Zuhair Murad
+Proenza Schouler
+Rebecca Minkoff
+Sergio Rossi
+Charles & Keith
+Vince Camuto
+Brandy Melville
+Hot Topic
+~Torrid
+Lane Bryant
+Forever New
+~Coast
+Phase Eight
+~Jigsaw
+Hobbs
+~Boden
+~Joules
+Seasalt
+~Toast
+Filippa K
+Samsoe Samsoe
+Cecilie Bahnsen
+Nudie Jeans
+Weekend Max Mara
+Ted Baker London
+Lucky Brand
+Guess Jeans
+Charlotte Russe
+Bebe
+White House Black Market
+Chico's
+Eileen Fisher
+J.McLaughlin
+Coldwater Creek
+~Loft
+Reformation Jeans
+Baublebar
+Alex and Ani
+Pura Vida
+Brilliant Earth
+Blue Nile
+~Fresh
+Avene
+Dr Jart
+Iope
+Peach and Lily
+~Tula
+~Herbivore
+Dennis Gross
+~Versed
+Cocokind
+First Aid Beauty
+Florence by Mills
+Curel
+Kose
+Fancl
+Kanebo
+Kao
+Sekkisei
+The Face Shop
+Nature Republic
+Tony Moly
+Skinfood
+Mamonde
+~Clio
+Romand
+Peripera
+Ma:nyo
+Dr G
+Abib
+Heimish
+Axis-Y
+Dr Ceuracle
+Mixsoon
+Dear Klairs
+~Benton
+Leaders
+Derma Factory
+Haruharu Wonder
+Tirtir
+Make P:rem
+Huxley
+Hanskin
+Sebamed
+Bepanthen
+Physiogel
+Dermatologica
+Cetaphil Pro
+Avene Cicalfate
+Eucerin Advanced Repair
+Olay Total Effects
+Aveeno Positively Radiant
+Garnier Micellar Water
+Nivea Creme
+Dove Beauty Bar
+Biotherm
+Guerlain Skincare
+Orlane
+Filorga
+Institut Esthederm
+Lierac
+Ducray
+Klorane
+Rohto
+Sunplay
+Heliocare
+Blue Lizard
+Coppertone
+Banana Boat
+Hawaiian Tropic
+Sun Bum
+Thinkbaby
+Alba Botanica
+Hawaiian Tropic Silk Hydration
+La Mer
+Sisley Black Rose
+Chanel Sublimage
+Dior Capture
+Estee Lauder Advanced Night Repair
+Lancome Genifique
+Shiseido Vital Perfection
+Sulwhasoo First Care Activating Serum
+Laneige Water Bank
+Innisfree Green Tea Seed
+Etude House Soonjung
+COSRX Advanced Snail
+Beauty of Joseon Relief Sun
+Torriden DIVEIN
+Dr Jart Ceramidin
+Skin1004 Madagascar Centella
+Purito Centella Unscented
+Iope Air Cushion
+Hada Labo Gokujyun Lotion
+Peach and Lily Glass Skin
+Glow Recipe Watermelon
+Summer Fridays Lip Butter
+Tula Probiotic
+Herbivore Botanicals
+Youth To The People Superfood
+Origins GinZing
+Murad Acne
+Obagi Nu-Derm
+Kate Somerville EradiKate
+Dr Dennis Gross Alpha Beta
+Drunk Elephant C-Firma
+Drunk Elephant Lala Retro
+Drunk Elephant T.L.C. Sukari
+Paula's Choice 2 Percent BHA
+Fresh Sugar Lip Treatment
+Neutrogena Hydro Boost Gel
+Cetaphil Gentle Skin Cleanser
+Aveeno Daily Moisturizing Lotion
+Olay Regenerist Micro-Sculpting Cream
+Garnier Vitamin C
+Nivea Soft
+Eucerin Original Healing
+Vichy Mineral 89
+Bioderma Sebium
+Avene Thermal Spring Water
+Uriage Bariederm
+Caudalie Vinoperfect
+Clinique Dramatically Different
+Estee Lauder Double Wear Stay-in-Place
+Lancome Renergie
+Dr Jart Cicapair
+The Ordinary Niacinamide 10 Percent plus Zinc 1 Percent
+The Ordinary Hyaluronic Acid 2 Percent plus B5
+The Ordinary Retinal
+The Ordinary AHA BHA Peeling Solution
+The Ordinary Azelaic Acid Suspension
+The Ordinary Squalane Cleanser
+The Ordinary Caffeine Solution
+Good Molecules Niacinamide
+Naturium Niacinamide
+Inkey List Retinol
+Cerave Foaming Cleanser
+Cerave Renewing SA Cream
+Cerave PM Lotion
+Cerave Blemish Control
+La Roche-Posay Toleriane
+La Roche-Posay Effaclar
+La Roche-Posay Anthelios
+La Roche-Posay Cicaplast Baume B5
+La Roche-Posay Lipikar
+La Roche-Posay Retinol B3
+Biore Deep Cleansing Pore Strips
+Pixi Glow Tonic
+Pixi Vitamin C Serum
+Pixi Hydrating Milky Mist
+Glamglow Youthmud
+Fenty Skin Fat Water
+Fenty Skin Hydra Vizor
+Cosrx Propolis Light Ampoule
+Aestura Atobarrier
+Dr Althea
+Ciracle
+Acwell
+Nacific
+Frudia
+Tocobo
+Dr Ceuracle Vegan Kale
+Maxclinic
+Maybelline New York
+Lakme
+Physicians Formula
+~Benefit
+Tarte Cosmetics
+NARS Cosmetics
+Make Up For Ever
+KVD Beauty
+Becca Cosmetics
+Hourglass Cosmetics
+Clarins Makeup
+Guerlain Makeup
+Sisley Paris Makeup
+Kiko Milano
+Pupa Milano
+Deborah Milano
+Bourjois
+Almay
+Ilia Beauty
+Stila
+Nudestix
+IT Cosmetics
+Wander Beauty
+Lime Crime
+Thrive Causemetics
+Mented Cosmetics
+Pacifica Beauty
+Kaja Beauty
+Ole Henriksen
+Bperfect
+Sleek MakeUP
+Revolution Pro
+Ciate London
+Barry M
+Bourjois Healthy Mix
+Lancome Teint Idole
+Lancome Juicy Shaker
+Lancome Absolue Rouge
+Charlotte Tilbury Hollywood Flawless Filter
+Charlotte Tilbury Airbrush Flawless
+Rare Beauty Soft Pinch Liquid Blush
+Rare Beauty Positive Light Silky Liquid Highlighter
+Fenty Gloss Bomb
+Fenty Eaze Drop
+Huda Beauty Faux Filler
+Huda Beauty Liquid Matte
+Too Faced Better Than Sex Mascara
+Too Faced Chocolate Bar
+Urban Decay Naked Palette
+Urban Decay Naked Skin
+Maybelline Fit Me Foundation
+Maybelline Lash Sensational
+Maybelline Instant Age Rewind
+Maybelline Super Stay Matte Ink
+Maybelline Color Sensational
+Maybelline Baby Lips
+Maybelline Brow Fast
+Maybelline Tattoo Brow
+Maybelline Fit Me Concealer
+Maybelline Dream Matte Mousse
+Maybelline Lash Sensational Sky High
+Maybelline Volum Express
+L'Oreal Infallible
+L'Oreal True Match
+L'Oreal Voluminous
+L'Oreal Paris Revitalift
+L'Oreal Paris Elnett
+L'Oreal Paris Telescopic
+L'Oreal Paris Glam Bronze
+L'Oreal Paris Pure Clay
+Revlon ColorStay
+Revlon Super Lustrous
+Revlon Photoready
+Revlon Kiss Cosmetics
+Revlon Lip Butter
+NYX Setting Spray
+NYX Butter Gloss
+NYX Lip Lingerie
+NYX Lip Cream
+NYX Jumbo Eye Pencil
+NYX Fat Oil Lip Drip
+NYX Ultimate Multi-Finish Foundation
+Milani Conceal Plus Perfect
+Milani Baked Blush
+Essence Stay All Day
+Wet n Wild Megalast
+Wet n Wild Megaglo
+Rimmel Scandaleyes
+Rimmel Stay Matte
+Rimmel Kate Moss
+Covergirl Lash Blast
+Covergirl Outlast
+Covergirl Clean Fresh
+Physicians Formula Butter Bronzer
+Physicians Formula Murumuru Butter
+Tarte Tartelette
+Tarte Maneater Mascara
+Benefit Benetint
+Benefit They're Real Mascara
+Benefit Brow Zings
+Benefit Porefessional
+NARS Orgasm Blush
+NARS Light Reflecting Foundation
+NARS Velvet Matte Lip Pencil
+NARS Powermatte Lip Pigment
+MAC Lipstick Velvet Teddy
+MAC Studio Fix Fluid
+MAC Prep and Prime
+MAC Fix Plus
+MAC Mineralize Skinfinish
+MAC Pro Longwear
+MAC Cosmetics Lipstick Chili
+Bobbi Brown Skin Foundation Stick
+Bobbi Brown Lip Color
+Bobbi Brown Shimmer Brick
+Bobbi Brown Long Wear Concealer
+Estee Lauder Double Wear
+Estee Lauder Futurist Foundation
+Estee Lauder Pure Color Envy
+Estee Lauder Pure Color Love
+Estee Lauder Bronze Goddess
+Estee Lauder Revitalizing Supreme
+Make Up For Ever Ultra HD
+Make Up For Ever Full Cover Concealer
+Make Up For Ever Rouge Artist
+Kylie Jenner Lip Kit
+Kiko Milano Smart Fusion
+Kiko Milano Unlimited Lipstick
+KVD Lock-It Foundation
+KVD Good Apple
+KVD Tattoo Liner
+KVD Vegan Beauty Lock-It Concealer
+Hourglass Ambient Lighting Powder
+Hourglass Vanish Seamless Finish Foundation Stick
+Hourglass Unlocked Instant Extensions Mascara
+Laura Mercier Translucent Loose Setting Powder
+Laura Mercier Tinted Moisturizer
+Laura Mercier Caviar Stick
+Glossier Cloud Paint
+Glossier Stretch Concealer
+Glossier Generation G
+Glossier Balm Dotcom
+Glossier Milky Jelly Cleanser
+Haus Labs Triclone Skin Tech
+Haus Labs Color Fuse Eyeshadow
+Ilia Super Serum Skin Tint
+Ilia Lip Wrap
+Kosas Cloud Set
+Kosas Tinted Face Oil
+Saie Dew Balm
+Saie Slip Tint
+Stila Heaven's Hue Highlighter
+Stila Kitten Eyeliner
+Smashbox Photo Finish Primer
+Smashbox Cover Shot Concealer
+Nudestix Nudies
+Nudestix Tinted Blur Stick
+IT Cosmetics Bye Bye Pores
+IT Cosmetics Your Skin But Better
+IT Cosmetics CC Cream
+Too Faced Born This Way Foundation
+Too Faced Shadow Insurance
+Too Faced Lip Injection
+Too Faced Hangover Primer
+Tarte Rainforest of the Sea
+Anastasia Brow Wiz
+Anastasia Dipbrow Pomade
+Anastasia Subculture Palette
+Anastasia Liquid Lipstick
+Anastasia Beverly Hills Glow Kit
+Juvia's Place Nubian Palette
+Pat McGrath Labs Mothership
+Pat McGrath Labs Lust Gloss
+Pat McGrath Labs Divine Rose
+Colourpop Super Shock Shadow
+Colourpop Lippie Stix
+Colourpop Ultra Matte Lip
+Jeffree Star Velour Liquid Lipstick
+Becca Shimmering Skin Perfector
+Becca First Light Priming Filter
+Tower 28 SwishWater
+Tower 28 BeachPlease
+Ole Henriksen Truth Serum
+Barry M Dewy Foundation
+Barry M Lip Paint
+Sleek Make Up Face Form
+Revolution Pro Lip Paste
+Ciate Caviar Manicure
+Ciate Paint Pot
+Lakme Eyeconic
+Lakme 9 to 5
+Lakme Absolute
+Chanel No 5
+Chanel No. 19
+Chanel Coco
+Chanel Bleu de Chanel
+Chanel Chance
+Chanel Allure
+Chanel Gabrielle
+Chanel Chance Eau Tendre
+Chanel Sycomore
+Dior Homme Intense
+Dior J'adore
+Dior Poison
+Dior Fahrenheit
+Dior Eau Sauvage
+Hermes Terre d'Hermes
+Hermes Un Jardin Sur Le Nil
+Hermes Twilly
+Hermes Rouge H
+Guerlain Shalimar
+Guerlain Mon Guerlain
+Guerlain Habit Rouge
+Guerlain Aqua Allegoria
+Guerlain L'Homme Ideal
+Yves Saint Laurent Libre
+YSL Black Opium
+YSL Y
+YSL Mon Paris
+YSL La Nuit de L'Homme
+Paco Rabanne 1 Million
+Paco Rabanne Invictus
+Paco Rabanne Lady Million
+Jean Paul Gaultier Le Male
+Jean Paul Gaultier Scandal
+Jean Paul Gaultier Classique
+Viktor and Rolf Flowerbomb
+Viktor and Rolf Spicebomb
+Lancome La Vie Est Belle
+Lancome Idole
+Lancome Tresor
+Thierry Mugler Angel
+Mugler Aura
+Calvin Klein Eternity
+CK One
+Calvin Klein Obsession
+Calvin Klein Euphoria
+Calvin Klein Escape
+Armani Acqua di Gio
+Armani Si
+Armani Stronger With You
+Armani Because It's You
+Versace Bright Crystal
+Versace Dylan Blue
+Versace Pour Homme
+Versace Yellow Diamond
+Dolce and Gabbana Light Blue
+Dolce and Gabbana The One
+Dolce and Gabbana Q
+Prada Luna Rossa
+Prada Infusion d'Iris
+Tom Ford Oud Wood
+Tom Ford Black Orchid
+Tom Ford Tobacco Vanille
+Tom Ford Ombre Leather
+Tom Ford Noir
+Maison Francis Kurkdjian Baccarat Rouge 540
+Maison Francis Kurkdjian Aqua Universalis
+Le Labo Another 13
+Le Labo Bergamote 22
+Le Labo Rose 31
+Byredo Gypsy Water
+Byredo Blanche
+Byredo Mojave Ghost
+Diptyque Do Son
+Diptyque Philosykos
+Diptyque Feu de Bois
+Jo Malone London English Pear and Freesia
+Jo Malone London Wood Sage and Sea Salt
+Jo Malone London Lime Basil and Mandarin
+Jo Malone London Red Roses
+Creed Green Irish Tweed
+Creed Millesime Imperial
+Maison Margiela Replica Jazz Club
+Maison Margiela Replica Lazy Sunday Morning
+Maison Margiela Replica By the Fireplace
+Kilian Angels' Share
+Kilian Black Phantom
+Initio Oud for Greatness
+Initio Side Effect
+Xerjoff Naxos
+Xerjoff Erba Pura
+Penhaligon's Halfeti
+Penhaligon's Blenheim Bouquet
+Acqua di Parma Colonia
+Acqua di Parma Blu Mediterraneo
+Clinique Happy
+Burberry Her
+Burberry Brit
+Burberry Weekend
+Gucci Bloom
+Gucci Flora
+Gucci Rush
+Gucci Memoire d'Une Odeur
+Marc Jacobs Perfect
+Bvlgari Man in Black
+Bvlgari Omnia Crystalline
+Bvlgari Aqva
+Bvlgari Pour Homme
+Hugo Boss Bottled
+Hugo Boss The Scent
+Hugo Boss Boss Alive
+Azzaro Chrome
+Azzaro Wanted
+Issey Miyake L'Eau d'Issey
+Issey Miyake Nuit d'Issey
+Kenzo Flower
+Narciso Rodriguez For Her
+Narciso Rodriguez Musc Noir
+Victoria's Secret Bare Vanilla
+Victoria's Secret Tease
+Bath and Body Works Japanese Cherry Blossom
+Bath and Body Works Cucumber Melon
+Bath and Body Works Black Cherry Merlot
+Bath and Body Works Warm Vanilla Sugar
+Bath and Body Works Into the Night
+Frederic Malle Portrait of a Lady
+Frederic Malle Musc Ravageur
+Frederic Malle Lipstick Rose
+Givenchy Gentleman
+Givenchy Irresistible
+Givenchy L'Interdit
+Carolina Herrera 212
+Carolina Herrera Bad Boy
+Lacoste L.12.12
+Ralph Lauren Polo Blue
+Ralph Lauren Ralph
+Ralph Lauren Romance
+Cacharel Anais Anais
+Nina Ricci L'Air du Temps
+Nina Ricci Nina
+Estee Lauder Youth Dew
+Estee Lauder White Linen
+Estee Lauder Pleasures
+Elizabeth Arden Red Door
+Elizabeth Arden Green Tea
+Yves Saint Laurent Opium
+Paco Rabanne Olympea
+Mugler Angel Elixir
+Montblanc Explorer
+Montblanc Legend
+Jimmy Choo Illicit
+Jimmy Choo I Want Choo
+Ariana Grande Sweet Like Candy
+Britney Spears Fantasy
+Britney Spears Curious
+Juicy Couture Viva La Juicy
+Escada Especially
+Bvlgari Goldea
+Mancera Cedrat Boise
+Parfums de Marly Layton
+Parfums de Marly Delina
+Parfums de Marly Percival
+Nishane Hacivat
+Amouage Reflection
+Amouage Interlude
+Montale Aoud Lime
+Roja Parfums Elysium
+Ex Nihilo Fleur Narcotique
+Nasomatto Black Afgano
+Maison Crivelli Ambre Nuit
+Memo Paris Italian Leather
+Byredo Bal d'Afrique
+Atelier Cologne Orange Sanguine
+Atelier Cologne Cedrat Enivrant
+Zara Pour Homme
+Lattafa Khamrah
+Lattafa Asad
+Rasasi Hawas
+Al Haramain Amber Oud
+Elie Saab Girl of Now
+Moschino Toy 2
+Thierry Mugler Alien Goddess
+Kenzo World
+Benetton United Dreams
+Bulgari Splendida
+Versace Crystal Noir
+Gucci Guilty Pour Homme
+Gucci Bamboo
+Dolce and Gabbana Dolce Rose
+Burberry Goddess
+Giorgio Armani Si Passione
+Bottega Veneta Knot
+Bottega Veneta Illusione
+Loewe 001 Woman
+Loewe Solo
+Hermes Eau des Merveilles
+Hermes Jour d'Hermes
+Hermes Galop d'Hermes
+Hermes H24
+~Douglas
+~Boots
+Superdrug
+Watsons
+Look Fantastic
+Cult Beauty
+Space NK
+Feelunique
+Beautylish
+Bluemercury
+Credo Beauty
+Glossybox
+Birchbox
+Cloud Nine
+T3 Micro
+BaBylissPRO
+Clarisonic
+Kerastase Elixir Ultime
+L'Oreal Elvive
+Head and Shoulders
+Pantene Pro-V
+Dove Men Care
+Nivea Men
+Native Deodorant
+Schmidt's
+~Lume
+Hello Products
+Carol's Daughter
+Pattern Beauty
+Curlsmith
+Ouidad
+Aunt Jackie's
+As I Am
+Eco Style
+Jessicurl
+DevaCurl
+Kristin Ess
+Pacifica
+Ursa Major
+Kerastase Nutritive
+Joico
+Sebastian Professional
+Nioxin
+Virtue Labs
+Kevin Murphy
+Kenra Professional
+Philip Kingsley
+Malin and Goetz
+Le Labo Hand Balm
+Bath and Body Works
+Bioderma Cicabio
+Yes To
+Aveeno Baby
+~Mustela
+Sanex
+Ahava
+Pure Dead Sea
+Vaseline Intensive Care
+Eos Lip Balm
+Lip Smacker
+Burt's Bees Lip Balm
+Kiss Products
+Ardell
+Duo Lash Glue
+Lash Lab
+Zoya
+Orly
+Butter London
+Deborah Lippmann
+Nails Inc
+Gelish
+CND Shellac
+Kiss Nails
+Dashing Diva
+Mavala
+~Julep
+Olive and June
+L'Oreal Color Riche
+Maybelline Color Show
+Cutex
+Sally Hansen Miracle Gel
+Lush Cosmetics
+Tatcha Water Cream
+Glow Recipe Plum Plump
+Bioelements
+Eminence Organic Skin Care
+Juice Beauty
+Freeman Beauty
+Mario Badescu Facial Spray
+Dr Brandt
+Dr Loretta
+Dr Barbara Sturm
+Dr Dennis Gross Skincare
+Augustinus Bader
+Sunday Riley Luna
+Tata Harper
+Ilapothecary
+Kora Organics
+Herbivore Pink Clay
+Biossance
+Pacifica Glow
+Hydropeptide
+Perricone MD
+Kate Somerville Skincare
+Lancer Skincare
+Ren Clean Skincare
+Ren Radiance
+Dermstore
+Dr Jart Ceramidin Cream
+Osea Malibu
+Vintner's Daughter
+Tatcha The Essence
+Youth To The People Leaf
+Caudalie Resveratrol
+Lierac Premium
+Nuxe Huile Prodigieuse
+Filorga NCEF Reverse
+Biodance
+Abib Jelly Pad
+Some By Mi AHA BHA PHA
+Dr Ceuracle Green Tangerine
+Torriden Cellmazing
+Medicube Zero Pore
+Mixsoon Bean Essence
+Round Lab Birch Juice
+Benton Snail Bee
+Pyunkang Yul Essence Toner
+Derma Factory Cica
+Haruharu Wonder Black Rice
+Tirtir Mask Fit
+Skin Aqua UV Moisture
+Sebamed Liquid Face Wash
+Bepanthen Baby
+Physiogel Calming
+Vanicream Lotion
+Aquaphor Healing
+Dermalogica Clear Start
+Obagi Clenziderm
+`);
+CST_GLOSSARY_EXTRA_ADD("business", null, `
+U.S. Bancorp
+PNC Financial Services
+Truist Financial
+TD Bank
+Citizens Financial Group
+Fifth Third Bancorp
+M&T Bank
+KeyCorp
+Regions Financial
+Huntington Bancshares
+Ally Financial
+Discover Financial Services
+Synchrony Financial
+Northern Trust
+BNY Mellon
+Raymond James
+Stifel Financial
+Jefferies Financial Group
+Lazard
+Evercore
+Houlihan Lokey
+Piper Sandler
+Cowen
+Oppenheimer & Co.
+Invesco
+Franklin Templeton
+T. Rowe Price
+Dimensional Fund Advisors
+PIMCO
+Capital Group
+American Funds
+Janus Henderson
+Nuveen
+Ameriprise Financial
+Edward Jones
+Apollo Global Management
+Ares Management
+Brookfield Asset Management
+Bain Capital
+TPG Capital
+Warburg Pincus
+Hellman & Friedman
+Thoma Bravo
+Vista Equity Partners
+General Atlantic
+Markel Group
+Chubb
+AIG
+Prudential Financial
+~Progressive
+~Travelers
+Aflac
+Lincoln Financial Group
+Principal Financial Group
+Genworth Financial
+Hartford Financial Services Group
+~Nationwide
+Liberty Mutual
+Farmers Insurance
+Zurich Insurance Group
+Munich Re
+Swiss Re
+Generali
+Aviva
+Legal & General
+Prudential plc
+Sun Life Financial
+Great-West Lifeco
+Ping An Insurance
+AIA Group
+China Life Insurance
+~Assurant
+CNO Financial Group
+Unum Group
+Reinsurance Group of America
+Erie Indemnity
+Kemper
+Hanover Insurance
+Mercury General
+Loews Corporation
+CNA Financial
+Cincinnati Financial
+W. R. Berkley
+Everest Group
+RenaissanceRe
+Arch Capital
+Root Insurance
+Hiscox
+Beazley
+Lloyd's of London
+Ryan Specialty
+Brown & Brown
+Marsh McLennan
+Aon
+Willis Towers Watson
+Arthur J. Gallagher
+Globe Life
+Primerica
+Equitable Holdings
+Brighthouse Financial
+Jackson Financial
+Corebridge Financial
+Voya Financial
+Pacific Life
+Northwestern Mutual
+New York Life
+Mutual of Omaha
+TIAA
+Guardian Life
+John Hancock
+Transamerica
+Protective Life
+USAA
+MassMutual
+Thrivent
+First American Financial
+Fidelity National Financial
+Old Republic
+Wellington Management
+Wilmington Trust
+Comerica
+Zions Bancorporation
+Western Alliance Bancorporation
+East West Bancorp
+Popular Inc.
+First Horizon
+Synovus
+Valley National Bancorp
+Webster Financial
+Associated Banc-Corp
+Flagstar Bank
+BOK Financial
+Prosperity Bancshares
+Wintrust Financial
+Texas Capital Bancshares
+Pinnacle Financial Partners
+Hancock Whitney
+Columbia Banking System
+Banc of California
+Customers Bancorp
+Axos Financial
+Ameris Bancorp
+SVB Financial Group
+Signature Bank
+Bank OZK
+Credit Acceptance
+Navy Federal Credit Union
+Pentagon Federal Credit Union
+Alliant Credit Union
+BMO Financial Group
+Bank of Montreal
+Royal Bank of Canada
+Toronto-Dominion Bank
+Scotiabank
+Canadian Imperial Bank of Commerce
+National Bank of Canada
+Desjardins Group
+Lloyds Banking Group
+NatWest Group
+BBVA
+CaixaBank
+Banco Sabadell
+Bankinter
+UniCredit
+Intesa Sanpaolo
+Mediobanca
+Monte dei Paschi di Siena
+Commerzbank
+ING Group
+ABN AMRO
+Rabobank
+Societe Generale
+Credit Agricole
+Julius Baer
+Pictet Group
+Nordea
+Danske Bank
+Handelsbanken
+Swedbank
+DNB Bank
+Erste Group
+Raiffeisen Bank International
+KBC Group
+Bank of Ireland
+AIB Group
+Millennium BCP
+Man Group
+Schroders
+Aberdeen Group
+Amundi
+Natixis
+Allianz Global Investors
+Legal & General Investment Management
+Fidelity International
+Baillie Gifford
+Hargreaves Lansdown
+AJ Bell
+Interactive Investor
+Plus500
+IG Group
+CMC Markets
+Saxo Bank
+~Nutmeg
+Tokio Marine
+Sompo Holdings
+Mitsubishi UFJ Financial Group
+Sumitomo Mitsui Financial Group
+Mizuho Financial Group
+Nomura Holdings
+Daiwa Securities Group
+SMBC Nikko Securities
+Resona Holdings
+ORIX Corporation
+Dai-ichi Life Holdings
+Nippon Life Insurance
+Hana Financial Group
+KB Financial Group
+Shinhan Financial Group
+Woori Financial Group
+OCBC Bank
+United Overseas Bank
+CIMB Group
+Public Bank
+Bank Central Asia
+Bank Mandiri
+Bank Rakyat Indonesia
+Bank Negara Indonesia
+SSI Securities
+VNDirect
+HSC Securities
+VPBankS
+Mirae Asset Vietnam
+Vietcap Securities
+MB Securities
+TCBS
+Bao Viet Holdings
+PVI Insurance
+~Timo
+Kasikornbank
+Siam Commercial Bank
+Bangkok Bank
+Krungthai Bank
+Bank of Ayudhya
+Standard Bank Group
+Absa Group
+Nedbank
+FirstRand
+Capitec Bank
+Equity Group Holdings
+Ecobank
+Access Bank
+Zenith Bank
+Emirates NBD
+First Abu Dhabi Bank
+Qatar National Bank
+Saudi National Bank
+Al Rajhi Bank
+Riyad Bank
+Kotak Mahindra Bank
+HDFC Bank
+ICICI Bank
+Axis Bank
+State Bank of India
+Punjab National Bank
+Bajaj Finance
+Bajaj Finserv
+Zerodha
+Groww
+Angel One
+Motilal Oswal Financial Services
+Life Insurance Corporation of India
+ICICI Prudential Life Insurance
+HDFC Life Insurance
+SBI Life Insurance
+Max Life Insurance
+Itau Unibanco
+Banco Bradesco
+Banco do Brasil
+Caixa Economica Federal
+Banorte
+Banco de Chile
+Bancolombia
+Mercado Pago
+Sberbank
+VTB Bank
+Gazprombank
+ICBC
+China Construction Bank
+Agricultural Bank of China
+Bank of China
+China Merchants Bank
+Ping An Bank
+CITIC Securities
+China International Capital Corporation
+Haitong Securities
+Guotai Junan Securities
+East Money Information
+Futu Holdings
+GCash
+TrueMoney
+PayPay
+Dave Inc.
+SoFi Technologies
+Ria Money Transfer
+Diners Club
+JCB Co.
+Paysafe
+Worldline
+Nexi
+Fiserv
+Fidelity National Information Services
+Global Payments
+Jack Henry & Associates
+LendingClub
+Prosper Marketplace
+Oportun
+OneMain Holdings
+Rocket Companies
+Mr. Cooper
+loanDepot
+Fannie Mae
+Freddie Mac
+Ginnie Mae
+Sallie Mae
+Navient
+Nelnet
+Experian
+Equifax
+TransUnion
+FactSet
+Refinitiv
+London Stock Exchange Group
+Cboe Global Markets
+Deutsche Boerse
+Euronext
+Hong Kong Exchanges and Clearing
+Japan Exchange Group
+Shanghai Stock Exchange
+Shenzhen Stock Exchange
+Singapore Exchange
+Australian Securities Exchange
+Tokyo Stock Exchange
+Korea Exchange
+Bombay Stock Exchange
+National Stock Exchange of India
+Saudi Exchange
+Johannesburg Stock Exchange
+Toronto Stock Exchange
+Grayscale Investments
+~Greenlight
+Bunq
+Qonto
+~Mollie
+Rapyd
+PagSeguro Digital
+StoneCo
+Kaspi.kz
+Tinkoff Bank
+Paysera
+Ebury
+Azimo
+Currencycloud
+Thunes
+Nium
+LendingTree
+RuPay
+Elo
+Cartes Bancaires
+Interac
+Bancontact
+~iDEAL
+~Pix
+UPI
+National Payments Corporation of India
+FedNow
+Faster Payments
+Amazon Pay
+Ant Financial Services
+Ripple Labs
+S&P 400 MidCap
+S&P 600 SmallCap
+Nasdaq Composite
+Dow Jones Transportation Average
+Dow Jones Utility Average
+Russell 1000
+Russell 3000
+Russell Midcap
+FTSE 250
+FTSE All-Share
+FTSE 350
+FTSE MIB
+FTSE China A50
+DAX 40
+MDAX
+SDAX
+SBF 120
+Euro Stoxx 50
+Stoxx Europe 600
+IBEX 35
+Swiss Market Index
+AEX Index
+OMX Stockholm 30
+OMX Copenhagen 20
+OBX Index
+TOPIX
+JPX-Nikkei 400
+Hang Seng Index
+Hang Seng Tech Index
+Hang Seng China Enterprises Index
+Shanghai Composite Index
+Shenzhen Component Index
+CSI 300 Index
+SSE 50 Index
+ChiNext Index
+STAR 50 Index
+KOSPI 200
+KOSDAQ 150
+TAIEX
+BSE Sensex
+Nifty Bank Index
+Nifty Next 50
+Straits Times Index
+Jakarta Composite Index
+FTSE Bursa Malaysia KLCI
+SET Index
+Philippine Stock Exchange Index
+VN30 Index
+Tadawul All Share Index
+TA-35 Index
+Ibovespa
+IPC Mexico
+MSCI World Index
+MSCI ACWI
+MSCI Emerging Markets Index
+MSCI EAFE
+MSCI China
+MSCI India
+MSCI Vietnam
+Cboe Volatility Index
+ICE BofA US High Yield Index
+Bloomberg US Aggregate Bond Index
+SPDR S&P 500 ETF Trust
+SPDR Dow Jones Industrial Average ETF Trust
+SPDR Gold Shares
+iShares Core S&P 500 ETF
+iShares Russell 2000 ETF
+iShares MSCI Emerging Markets ETF
+iShares Core MSCI Total International Stock ETF
+iShares Core U.S. Aggregate Bond ETF
+iShares Gold Trust
+iShares Bitcoin Trust
+iShares Silver Trust
+Invesco QQQ Trust
+Invesco S&P 500 Equal Weight ETF
+Vanguard Total Stock Market ETF
+Vanguard S&P 500 ETF
+Vanguard FTSE All-World ETF
+Vanguard Total Bond Market ETF
+Vanguard Value ETF
+Vanguard Growth ETF
+Schwab U.S. Broad Market ETF
+Schwab U.S. Dividend Equity ETF
+ARK Innovation ETF
+ProShares Ultra QQQ
+ProShares UltraPro QQQ
+ProShares Short S&P 500
+Direxion Daily Semiconductor Bull 3X Shares
+VanEck Vectors Gold Miners ETF
+Global X Lithium & Battery Tech ETF
+Grayscale Bitcoin Trust
+Grayscale Ethereum Trust
+Fidelity Contrafund
+Fidelity Magellan Fund
+Fidelity Growth Company Fund
+Fidelity Blue Chip Growth Fund
+Fidelity Total Market Index Fund
+American Funds Growth Fund of America
+Capital Group Investment Company of America
+Dimensional US Core Equity
+Yale University Endowment
+Harvard Management Company
+CalPERS
+CalSTRS
+Norges Bank Investment Management
+Norway's Government Pension Fund Global
+GIC Private Limited
+Temasek Holdings
+Mubadala Investment Company
+Abu Dhabi Investment Authority
+Public Investment Fund
+Qatar Investment Authority
+China Investment Corporation
+National Social Security Fund
+Japan Government Pension Investment Fund
+Ontario Teachers' Pension Plan
+Canada Pension Plan Investment Board
+VinaCapital
+Dragon Capital
+Vietnam Enterprise Investments
+Bank Leumi
+Bank Hapoalim
+Israel Discount Bank
+Akbank
+Garanti BBVA
+Isbank
+Yapi Kredi
+Halkbank
+Vakifbank
+Ziraat Bankasi
+Bank Pekao
+PKO Bank Polski
+mBank
+OTP Bank
+Banca Transilvania
+Komercni Banka
+Ceska Sporitelna
+Piraeus Bank
+National Bank of Greece
+Alpha Bank
+Eurobank
+Novo Banco
+Bank of Cyprus
+Attijariwafa Bank
+Bank of Africa
+Stanbic IBTC
+Guaranty Trust Bank
+First Bank of Nigeria
+United Bank for Africa
+Commercial International Bank
+National Bank of Egypt
+Banque Misr
+Arab Bank
+Bank Muscat
+Kuwait Finance House
+National Bank of Kuwait
+Mashreq Bank
+Dubai Islamic Bank
+Abu Dhabi Commercial Bank
+Al Baraka Bank
+Halyk Bank
+Galicia Financial Group
+Banco Macro
+Banco Pichincha
+Credicorp
+Banco de Credito del Peru
+Davivienda
+Banco Itau Chile
+Banco Santander Chile
+BanReservas
+Banco Popular Dominicano
+Inter&Co
+BTG Pactual
+XP Inc.
+Banco Inter
+C6 Bank
+Banco Azteca
+Gentera
+Baloise
+~Helvetia
+Sampo
+Tryg
+Gjensidige
+Storebrand
+If P&C Insurance
+Mapfre
+Unipol
+Ageas
+NN Group
+Aegon
+Phoenix Group
+Admiral Group
+Direct Line Group
+Just Group
+Sanlam
+Old Mutual
+Discovery Limited
+Momentum Group
+DWS Group
+Robeco
+Candriam
+Lombard Odier
+Vontobel
+Edmond de Rothschild
+Rothschild & Co
+M&G
+Jupiter Fund Management
+Ninety One
+Investec
+Liontrust
+Rathbones
+St. James's Place
+~Quilter
+Brewin Dolphin
+Eximbank
+LienVietPostBank
+SeABank
+Nam A Bank
+VietABank
+BaoViet Bank
+PG Bank
+Bac A Bank
+Kienlongbank
+SAIGONBANK
+VietCapital Bank
+Maritime Bank
+VietCapital Securities
+Viet Capital Securities
+KB Securities Vietnam
+Rong Viet Securities
+BVSC
+Saigon Securities
+Bank of East Asia
+Hang Seng Bank
+China CITIC Bank
+China Everbright Bank
+Industrial Bank Co.
+Shanghai Pudong Development Bank
+China Minsheng Banking Corp
+Bank of Communications
+China Pacific Insurance
+China Taiping Insurance
+PICC Property and Casualty
+Hua Xia Bank
+Bank of Beijing
+Bank of Shanghai
+Bank of Nanjing
+Ping An Securities
+Huatai Securities
+Guosen Securities
+Dongfang Securities
+China Asset Management
+E Fund Management
+Harvest Fund Management
+Bosera Asset Management
+Penghua Fund Management
+Hua An Fund Management
+Fullgoal Fund Management
+Tianhong Asset Management
+Lufax
+Qifu Technology
+LexinFintech
+Yiren Digital
+ZhongAn Online P&C Insurance
+Hundsun Technologies
+OneConnect
+Huize Insurance
+Matsui Securities
+SBI Holdings
+Rakuten Securities
+Monex Group
+Okasan Securities
+Kiwoom Securities
+Samsung Securities
+Korea Investment & Securities
+NH Investment & Securities
+Hanwha Investment & Securities
+Meritz Securities
+Shinhan Investment Corp.
+Daishin Securities
+Mirae Asset Securities
+Fubon Financial Holding
+Cathay Financial Holding
+CTBC Financial Holding
+E.SUN Financial Holding
+Taishin Financial Holding
+Yuanta Financial Holding
+Mega Financial Holding
+Hua Nan Financial Holdings
+First Financial Holding
+Chang Hwa Bank
+Taiwan Cooperative Bank
+Shin Kong Financial
+Meiji Yasuda Life Insurance
+Sumitomo Life Insurance
+Japan Post Holdings
+Japan Post Bank
+Japan Post Insurance
+Nomura Asset Management
+Nikko Asset Management
+Sparx Group
+Mitsubishi UFJ Trust and Banking
+Sompo Japan
+Mitsui Sumitomo Insurance
+Sony Financial Group
+Shriram Finance
+Muthoot Finance
+Piramal Finance
+Cholamandalam Investment and Finance
+Mahindra Finance
+Tata Capital
+IIFL Finance
+Aditya Birla Capital
+Yes Bank
+IndusInd Bank
+IDFC First Bank
+Federal Bank
+RBL Bank
+Bandhan Bank
+Union Bank of India
+Canara Bank
+Bank of Baroda
+Indian Bank
+Central Bank of India
+Indian Overseas Bank
+Equitas Small Finance Bank
+Ujjivan Small Finance Bank
+Jio Financial Services
+Bajaj Allianz
+HDFC ERGO
+ICICI Lombard
+Star Health and Allied Insurance
+New India Assurance
+General Insurance Corporation of India
+Kotak Life Insurance
+Edelweiss Financial Services
+Nuvama Wealth
+Anand Rathi
+Sharekhan
+Upstox
+5paisa
+~Dhan
+Jupiter Money
+Fi Money
+Slice Small Finance Bank
+Navi Technologies
+Cred
+Stashfin
+Kissht
+Lendingkart
+Capital Float
+Moneyview
+Banco BPM
+Caixa Geral de Depositos
+Bankia
+Ibercaja
+Unicaja
+Kutxabank
+Triodos Bank
+ASN Bank
+Van Lanschot Kempen
+Argenta
+Belfius
+Bank Austria
+Oberbank
+Helaba
+LBBW
+DZ Bank
+Aareal Bank
+HypoVereinsbank
+Postbank
+DKB
+ING-DiBa
+=comdirect
+Trade Republic
+Scalable Capital
+=flatex
+~Lightyear
+DEGIRO
+Metro Bank
+Virgin Money
+Clydesdale Bank
+Shawbrook Bank
+OakNorth Bank
+Zopa Bank
+Chase UK
+Tandem Bank
+Coventry Building Society
+Nationwide Building Society
+Yorkshire Building Society
+Skipton Building Society
+Leeds Building Society
+Royal London
+Standard Life
+Scottish Widows
+Aegon UK
+Friends Life
+Churchill Insurance
+Markerstudy
+Ecclesiastical Insurance
+RSA Insurance Group
+QBE Insurance
+IAG Insurance Australia Group
+Suncorp
+Medibank
+NIB Holdings
+AMP Limited
+Macquarie Group
+Commonwealth Bank of Australia
+Westpac Banking Corporation
+ANZ Banking Group
+National Australia Bank
+Bendigo and Adelaide Bank
+Judo Capital
+Kiwibank
+ASB Bank
+Bank of New Zealand
+Heartland Bank
+LPL Financial
+Hilltop Holdings
+Cadence Bank
+Old National Bancorp
+First Citizens BancShares
+Glacier Bancorp
+Simmons Bank
+Fulton Financial
+Umpqua Holdings
+Eastern Bankshares
+Provident Financial Services
+Investors Bancorp
+Sterling Bancorp
+Hope Bancorp
+Cathay General Bancorp
+Hanmi Financial
+Preferred Bank
+Pacific Premier Bancorp
+CVB Financial
+Heartland Financial USA
+Commerce Bancshares
+UMB Financial
+Arvest Bank
+BancorpSouth
+Trustmark
+First Financial Bankshares
+International Bancshares
+Bank of Hawaii
+First Hawaiian Bank
+Central Pacific Financial
+City National Bank
+Upgrade Inc.
+Earnest Operations
+Happy Money
+~Avant
+Mission Lane
+~Petal
+~Aspiration
+MoneyLion
+~Albert
+Empower Retirement
+Ellevest
+~Bitwise
+Wealthsimple
+Questrade
+Tangerine Bank
+EQ Bank
+Neo Financial
+Clearco
+Fundbox
+BlueVine
+Kiavi
+Lendio
+BILL Holdings
+Expensify
+Bread Financial
+Barclaycard
+Capital One UK
+Credit One Bank
+First Premier Bank
+Merrick Bank
+~Imprint
+Columbia Threadneedle
+Principal Global Investors
+MFS Investment Management
+Putnam Investments
+Eaton Vance
+Federated Hermes
+Lord Abbett
+Harris Associates
+Artisan Partners
+Neuberger Berman
+AllianceBernstein
+Victory Capital
+Cohen & Steers
+Hartford Funds
+Ariel Investments
+Baron Capital
+Jensen Investment Management
+Dodge & Cox
+Matthews Asia
+Royce & Associates
+Westwood Holdings
+Pzena Investment Management
+Diamond Hill Capital
+GAMCO Investors
+Brandywine Global
+Loomis Sayles
+Western Asset Management
+Calamos Investments
+First Eagle Investment Management
+AQR Capital Management
+D. E. Shaw
+Elliott Management
+Pershing Square
+Third Point
+Baupost Group
+Viking Global
+Coatue Management
+Tiger Management
+EQT
+CVC Capital Partners
+Permira
+Cinven
+Advent International
+Apax Partners
+Partners Group
+Ardian
+Eurazeo
+Macquarie Asset Management
+Stonepeak
+Blue Owl Capital
+Hamilton Lane
+StepStone Group
+Oaktree Capital
+Golub Capital
+Sixth Street
+Platinum Equity
+Clayton Dubilier & Rice
+Vector Capital
+Greylock Partners
+Lux Capital
+Bessemer Venture Partners
+Matrix Partners
+IDG Capital
+Hillhouse Capital
+HongShan
+Qiming Venture Partners
+GGV Capital
+Mekong Capital
+Hannover Re
+SCOR
+PartnerRe
+Axis Capital
+Aspen Insurance
+Groupama
+MAIF
+Covea
+AG Insurance
+Ethias
+Achmea
+Talanx
+Debeka
+Signal Iduna
+HDI Versicherung
+ERGO Group
+Vaudoise Assurances
+Swiss Life
+Athora
+Poste Vita
+Cattolica Assicurazioni
+Reale Mutua
+Catalana Occidente
+Pelayo
+Cetera Financial Group
+Wedbush Securities
+Needham & Company
+Canaccord Genuity
+Cantor Fitzgerald
+BTIG
+KeyBanc Capital Markets
+Guggenheim Partners
+Moelis & Company
+PJT Partners
+Centerview Partners
+Perella Weinberg Partners
+Greenhill & Co.
+Ladenburg Thalmann
+Virtu Financial
+Susquehanna International Group
+Hudson River Trading
+Optiver
+Flow Traders
+Jump Trading
+DRW
+Tower Research Capital
+Akuna Capital
+Hercules Capital
+Main Street Capital
+Ares Capital
+Prospect Capital
+FS KKR Capital
+Fairfax Financial
+Brookfield Reinsurance
+Sprott Inc.
+CI Financial
+Mackenzie Investments
+IG Wealth Management
+Manulife Investment Management
+`);
+CST_GLOSSARY_EXTRA_ADD("health", null, `
+Byetta
+Bydureon
+Basaglar
+Toujeo
+Levemir
+Tresiba
+Admelog
+Fiasp
+Lyumjev
+Humulin
+Novolin
+Glucophage
+Janumet
+Invokana
+Steglatro
+Synjardy
+Xigduo
+Tradjenta
+Onglyza
+Actos
+Avandia
+Amaryl
+Glucotrol
+Zocor
+Pravachol
+Livalo
+Vytorin
+Nexlizet
+Praluent
+Tricor
+Lopid
+Niaspan
+Vascepa
+Lovaza
+Effient
+Brilinta
+Pradaxa
+Savaysa
+Coumadin
+Jantoven
+Lovenox
+Arixtra
+Entresto
+Diovan
+Cozaar
+Hyzaar
+Benicar
+Micardis
+Avapro
+Atacand
+Norvasc
+Procardia
+Cardizem
+Calan
+Lopressor
+Toprol-XL
+Tenormin
+Coreg
+Inderal
+Zestril
+Prinivil
+Vasotec
+Altace
+Lotensin
+Accupril
+Aldactone
+Lasix
+Bumex
+Demadex
+Zaroxolyn
+Lanoxin
+Cordarone
+Pacerone
+Multaq
+Ranexa
+Imdur
+Nitrostat
+Isordil
+Catapres
+Minipress
+Hytrin
+Cardura
+Flomax
+Tamsulosin
+Proscar
+Avodart
+Uroxatral
+Detrol
+Ditropan
+Vesicare
+Myrbetriq
+Toviaz
+Levitra
+Vardenafil
+Staxyn
+Stendra
+Nadolol
+Labetalol
+Hydralazine
+Clonidine
+Eplerenone
+Triamterene
+Indapamide
+Olmesartan
+Candesartan
+Benazepril
+Quinapril
+Captopril
+Felodipine
+Fenofibrate
+Gemfibrozil
+Colesevelam
+Icosapent
+Ticagrelor
+Prasugrel
+Dipyridamole
+Cilostazol
+Pentoxifylline
+Ranolazine
+Ivabradine
+Sacubitril
+Ertugliflozin
+Linagliptin
+Saxagliptin
+Alogliptin
+Pioglitazone
+Repaglinide
+Nateglinide
+Insulin Aspart
+Insulin Detemir
+Insulin Degludec
+Pramlintide
+Teriparatide
+Abaloparatide
+Denosumab
+Alendronate
+Risedronate
+Ibandronate
+Zoledronic Acid
+Raloxifene
+Evista
+Fosamax
+Actonel
+Boniva
+Prolia
+Forteo
+Tymlos
+Evenity
+Paxil
+Celexa
+Effexor
+Pristiq
+Cymbalta
+Remeron
+Trintellix
+Viibryd
+Desyrel
+Elavil
+Pamelor
+Nardil
+Parnate
+Marplan
+Emsam
+Rexulti
+Vraylar
+Risperdal
+Zyprexa
+Latuda
+Geodon
+Invega
+Clozaril
+Haldol
+Lithobid
+Depakote
+Tegretol
+Trileptal
+Keppra
+Neurontin
+~Dilantin
+Restoril
+Halcion
+Lunesta
+Belsomra
+Dayvigo
+Quviviq
+Rozerem
+Silenor
+Focalin
+Intuniv
+Nuvigil
+Xyrem
+Aricept
+Namenda
+Exelon
+Razadyne
+Sinemet
+Requip
+Mirapex
+Azilect
+Xadago
+Nuplazid
+Austedo
+Ingrezza
+Xenazine
+Rilutek
+Radicava
+Ampyra
+Aubagio
+Tecfidera
+Mayzent
+Gilenya
+Copaxone
+Avonex
+Rebif
+Betaseron
+Ocrevus
+Kesimpta
+Lemtrada
+Tysabri
+Briumvi
+Maxalt
+Zomig
+Relpax
+Qulipta
+Aimovig
+Ajovy
+Emgality
+Vyepti
+Myobloc
+Daxxify
+Norco
+Roxicodone
+Dilaudid
+Nucynta
+Ultram
+Ultracet
+Subutex
+Zubsolv
+Vivitrol
+Sublocade
+Brixadi
+Kloxxado
+Lucemyra
+Chantix
+Zyban
+Antabuse
+Campral
+Revia
+Savella
+Celebrex
+Mobic
+Voltaren
+Naprosyn
+Anaprox
+Feldene
+Toradol
+Indocin
+Relafen
+Daypro
+Dolobid
+Arthrotec
+Duexis
+Vimovo
+Zipsor
+Cambia
+Zorvolex
+Lidoderm
+~Flector
+Salonpas
+Biofreeze
+Tiger Balm
+Bengay
+Aspercreme
+Zanaflex
+Flexeril
+Skelaxin
+~Soma
+Robaxin
+Lioresal
+Baclofen
+Dantrium
+Norflex
+Amrix
+Lorzone
+Protonix
+Prevacid
+Aciphex
+Dexilant
+Carafate
+Reglan
+Phenergan
+~Emend
+Marinol
+Lomotil
+Motegrity
+Linzess
+Amitiza
+Trulance
+Senokot
+Colace
+~Fleet
+Kaopectate
+Maalox
+Alka-Seltzer
+Zegerid
+Xifaxan
+Dificid
+Viberzi
+Lotronex
+Clarinex
+Atarax
+Vistaril
+Periactin
+Singulair
+Nasonex
+Rhinocort
+Veramyst
+Astelin
+Otrivin
+Delsym
+Tessalon
+Tussionex
+Theraflu
+Coricidin
+Advair
+Symbicort
+Breo
+Dulera
+Spiriva
+Stiolto
+Anoro
+Incruse
+Ventolin
+ProAir
+Proventil
+Xopenex
+Qvar
+Pulmicort
+Asmanex
+Flovent
+Alvesco
+Trelegy
+Relvar
+Nucala
+Xolair
+Fasenra
+Tezspire
+Cinqair
+Daliresp
+Esbriet
+Ofev
+Kalydeco
+Orkambi
+Symdeko
+Trikafta
+Alyftrek
+Amoxil
+Keflex
+Zithromax
+Biaxin
+Cipro
+Levaquin
+Avelox
+Bactrim
+Septra
+Macrobid
+Macrodantin
+Flagyl
+Tindamax
+Vancocin
+Zyvox
+Cleocin
+Minocin
+Vibramycin
+Solodyn
+Rocephin
+Ceftin
+Omnicef
+Vantin
+Cefzil
+Suprax
+Spectracef
+Invanz
+Merrem
+Zosyn
+Unasyn
+Primaxin
+Azactam
+Tygacil
+Xenleta
+Nuzyra
+Baxdela
+Sivextro
+Dalvance
+Orbactiv
+Teflaro
+Vabomere
+Recarbrio
+Fetroja
+Zerbaxa
+Avycaz
+Xerava
+Prevymis
+Zovirax
+Famvir
+Denavir
+Relenza
+Xofluza
+Rapivab
+Lagevrio
+Veklury
+Actimmune
+Diflucan
+Sporanox
+Vfend
+Noxafil
+Cresemba
+Brexafemme
+Lamisil
+Mycelex
+Lotrimin
+Vagisil
+Gynazole
+Clotrimazole
+Miconazole
+Itraconazole
+Voriconazole
+Posaconazole
+Yervoy
+Tecentriq
+Imfinzi
+Bavencio
+Libtayo
+Jemperli
+Perjeta
+Kadcyla
+Enhertu
+Avastin
+Erbitux
+Vectibix
+Rituxan
+Gazyva
+Darzalex
+Kyprolis
+Velcade
+Revlimid
+Pomalyst
+Thalomid
+Gleevec
+Sprycel
+Tasigna
+Bosulif
+Iclusig
+Tagrisso
+Tarceva
+Iressa
+Gilotrif
+Alecensa
+Xalkori
+Tabrecta
+Lorbrena
+Tykerb
+Ibrance
+Kisqali
+Verzenio
+Faslodex
+Arimidex
+Femara
+Aromasin
+Nolvadex
+Fareston
+Xtandi
+Zytiga
+Erleada
+Nubeqa
+Lynparza
+Zejula
+Rubraca
+Talzenna
+Imbruvica
+Calquence
+Brukinsa
+Venclexta
+Jakafi
+Inrebic
+Xeloda
+Lonsurf
+Stivarga
+Nexavar
+Sutent
+Votrient
+Inlyta
+Cabometyx
+Lenvima
+Afinitor
+Temodar
+Hycamtin
+Taxol
+Taxotere
+Abraxane
+Adriamycin
+Ellence
+Eloxatin
+Paraplatin
+Cisplatin
+Carboplatin
+Oxaliplatin
+Cytoxan
+Leukeran
+Myleran
+Purixan
+Trexall
+Otrexup
+Rasuvo
+Remicade
+Inflectra
+Renflexis
+Avsola
+Simponi
+Cimzia
+Stelara
+Skyrizi
+Tremfya
+Cosentyx
+Taltz
+Siliq
+Bimzelx
+Ilumya
+Otezla
+Xeljanz
+Olumiant
+Rinvoq
+Kevzara
+Actemra
+Orencia
+Kineret
+Ilaris
+Benlysta
+Lupkynis
+Saphnelo
+Nplate
+Neupogen
+Neulasta
+Epogen
+Procrit
+Aranesp
+Retacrit
+Promacta
+Doptelet
+Mulpleta
+Soliris
+Ultomiris
+Empaveli
+Fabhalta
+Tepezza
+Uplizna
+Enspryng
+Vyvgart
+Rystiggo
+Zolgensma
+Spinraza
+Evrysdi
+Exondys 51
+Vyondys 53
+Amvuttra
+Onpattro
+Tegsedi
+Wainua
+Givlaari
+Oxlumo
+Aduhelm
+Hemlibra
+Advate
+Eloctate
+Benefix
+Alprolix
+Idelvion
+Hympavzi
+Qfitlia
+Amicar
+Cyklokapron
+Vitamin K
+Praxbind
+Andexxa
+Kcentra
+~Protamine
+Fragmin
+Argatroban
+Bivalirudin
+Angiomax
+Activase
+TNKase
+Retavase
+Kinlytic
+Abciximab
+Integrilin
+Aggrastat
+Gardasil
+Shingrix
+Prevnar
+Pneumovax
+Comirnaty
+Spikevax
+Nuvaxovid
+Novavax
+Fluzone
+Flublok
+Fluad
+FluMist
+Afluria
+Flucelvax
+Menactra
+Menveo
+Bexsero
+Trumenba
+Boostrix
+Adacel
+Daptacel
+Infanrix
+Pediarix
+Pentacel
+Vaxelis
+Kinrix
+Quadracel
+Engerix-B
+Recombivax
+Heplisav-B
+Havrix
+Vaqta
+Twinrix
+Rotarix
+RotaTeq
+Varivax
+ProQuad
+Priorix
+Ipol
+Typhim Vi
+Vivotif
+Ixiaro
+Imovax
+RabAvert
+Jynneos
+ACAM2000
+Ervebo
+Dengvaxia
+Qdenga
+Ixchiq
+Arexvy
+Abrysvo
+mResvia
+Beyfortus
+Synagis
+Enflonsia
+Biktarvy
+Descovy
+Truvada
+Viread
+Genvoya
+Stribild
+Odefsey
+Complera
+Atripla
+Symtuza
+Prezcobix
+Prezista
+Isentress
+Tivicay
+Triumeq
+Dovato
+Juluca
+Cabenuva
+Vocabria
+Sunlenca
+Rukobia
+Edurant
+Intelence
+Selzentry
+Epzicom
+Trizivir
+Combivir
+Retrovir
+Epivir
+Ziagen
+Viramune
+Sustiva
+Kaletra
+Norvir
+Reyataz
+Evotaz
+Lexiva
+Invirase
+Crixivan
+Aptivus
+Viekira
+Mavyret
+Epclusa
+Harvoni
+Sovaldi
+Vosevi
+Zepatier
+Baraclude
+Vemlidy
+Hepsera
+Pegasys
+PegIntron
+Intron A
+Olysio
+Copegus
+Ribavirin
+Vaxchora
+GlaxoSmithKline
+Eli Lilly and Company
+Gilead Sciences
+Regeneron Pharmaceuticals
+~Biogen
+Takeda Pharmaceutical
+Boehringer Ingelheim
+Teva Pharmaceutical
+Viatris
+Mylan
+Sandoz
+Astellas
+Daiichi Sankyo
+Eisai
+Otsuka
+Shionogi
+CSL Behring
+Grifols
+Bausch Health
+Allergan
+Perrigo
+Hikma
+Dr. Reddy's Laboratories
+Sun Pharma
+Cipla
+~Lupin
+Aurobindo
+Zydus
+Glenmark
+Sinovac
+Sinopharm
+Serum Institute of India
+Bharat Biotech
+Covaxin
+Covishield
+Sputnik V
+CoronaVac
+Janssen
+Jazz Pharmaceuticals
+Incyte
+Alnylam
+Ionis Pharmaceuticals
+Sarepta Therapeutics
+BioMarin
+Ultragenyx
+Horizon Therapeutics
+Exelixis
+Seagen
+~Alkermes
+Neurocrine Biosciences
+Intra-Cellular Therapies
+Axsome Therapeutics
+Sage Therapeutics
+Acadia Pharmaceuticals
+Supernus
+Lundbeck
+Ipsen
+Galderma
+LEO Pharma
+UCB
+Hologic
+Bayer HealthCare
+Pharmacia
+Upjohn
+Wyeth
+Schering-Plough
+Abbott Laboratories
+Genentech
+Kite Pharma
+Medimmune
+One A Day
+Nature's Bounty
+Solgar
+Jarrow Formulas
+Sundown Naturals
+Puritan's Pride
+MegaFood
+Rainbow Light
+New Chapter
+Qunol
+Citrucel
+Benefiber
+Florastor
+Emergen-C
+~Airborne
+Zarbee's
+Olly
+Hum Nutrition
+~Ritual
+Muscle Milk
+Nuun
+Electrolit
+Hydralyte
+SmartyPants
+Vitafusion
+Flintstones
+L'il Critters
+Nature's Way
+Osteo Bi-Flex
+Schiff
+Ester-C
+Member's Mark
+~Equate
+Up&Up
+~Chondroitin
+~Elderberry
+~Echinacea
+~Valerian
+Ginkgo Biloba
+Saw Palmetto
+Milk Thistle
+~Cranberry
+~Moringa
+Spirulina
+~Chlorella
+~Maca
+~SAMe
+Bromelain
+Lactobacillus Rhamnosus GG
+Bacillus Coagulans
+Nattokinase
+~Lycopene
+Pantothenic Acid
+Choline Bitartrate
+Sodium Bicarbonate
+Betaine Anhydrous
+BCAA
+Basic Metabolic Panel
+Comprehensive Metabolic Panel
+Liver Function Test
+Hemoglobin A1c
+Thyroid Stimulating Hormone
+Free T4
+Prothrombin Time
+International Normalized Ratio
+Activated Partial Thromboplastin Time
+D-Dimer
+Erythrocyte Sedimentation Rate
+C-Reactive Protein
+Ferritin
+~Creatinine
+Troponin
+B-type Natriuretic Peptide
+Prostate-Specific Antigen
+CA-125
+CEA Test
+Alpha-Fetoprotein
+HPV Test
+~Sigmoidoscopy
+Upper Endoscopy
+Holter Monitor
+Cardiac Catheterization
+Angiogram
+Coronary CT Angiography
+Ankle-Brachial Index
+~Spirometry
+Peak Flow Meter
+Pulse Oximetry
+Arterial Blood Gas
+Polysomnography
+Multiple Sleep Latency Test
+~Electroencephalogram
+Electromyography
+Nerve Conduction Study
+Lumbar Puncture
+Bone Density Scan
+PET-CT
+Functional MRI
+~Angiography
+~Fluoroscopy
+Barium Swallow
+Glucose Tolerance Test
+Rapid Strep Test
+Polymerase Chain Reaction
+Western Blot
+Enzyme-Linked Immunosorbent Assay
+Tuberculin Skin Test
+Quantiferon Gold
+Allergy Skin Test
+Snellen Chart
+Ishihara Test
+Amsler Grid
+Glasgow Coma Scale
+Apgar Score
+Mini-Mental State Examination
+Montreal Cognitive Assessment
+PHQ-9
+GAD-7
+Beck Depression Inventory
+Edinburgh Postnatal Depression Scale
+AUDIT Questionnaire
+CAGE Questionnaire
+Braden Scale
+Morse Fall Scale
+Romberg Test
+BRCA Test
+Karyotype Analysis
+Newborn Screening
+~Audiogram
+Tympanometry
+Visual Field Test
+Optical Coherence Tomography
+Fundus Photography
+Bone Marrow Biopsy
+Omnipod
+Tandem Diabetes Care
+Senseonics
+Eversense
+Accu-Chek
+OneTouch
+Contour Next
+Eko
+Masimo
+Stryker
+Zimmer Biomet
+Boston Scientific
+Edwards Lifesciences
+Impella
+~Inogen
+ResMed
+Philips Respironics
+Butterfly Network
+Accuray
+Varian Medical Systems
+~Zoll
+Hill-Rom
+Cardinal Health
+Owens & Minor
+Cerner
+~Epic
+Teladoc
+Hinge Health
+Lemonaid
+~Oscar
+Clover Health
+Molina Healthcare
+Centene
+~Anthem
+Bupa
+GoodRx
+WebMD
+Healthline
+MedlinePlus
+Drugs.com
+Zocdoc
+Health Connect
+Massachusetts General Hospital
+Mass General Brigham
+Stanford Health Care
+UCSF Medical Center
+Mount Sinai Hospital
+NewYork-Presbyterian
+Cedars-Sinai
+Sutter Health
+Memorial Sloan Kettering Cancer Center
+MD Anderson Cancer Center
+Dana-Farber Cancer Institute
+Boston Children's Hospital
+Great Ormond Street Hospital
+Royal Free Hospital
+Guy's and St Thomas' NHS Foundation Trust
+Hopkins Medicine
+Vanderbilt University Medical Center
+UCLA Health
+UCSF Health
+Duke University Hospital
+Mount Sinai
+Penn Medicine
+Northwestern Medicine
+Cleveland Clinic Abu Dhabi
+Bumrungrad Hospital
+Tam Anh Hospital
+Samsung Medical Center
+Asan Medical Center
+Seoul National University Hospital
+Peking Union Medical College Hospital
+Charite
+Karolinska University Hospital
+Mayo Clinic Health System
+Department of Health and Human Services
+Centers for Medicare and Medicaid Services
+European Medicines Agency
+National Health Service
+Public Health England
+Health Canada
+Therapeutic Goods Administration
+American Heart Association
+American Cancer Society
+American Diabetes Association
+American Medical Association
+American Academy of Pediatrics
+American Psychological Association
+National Alliance on Mental Illness
+Mental Health America
+Alzheimer's Association
+Parkinson's Foundation
+Multiple Sclerosis Society
+Cancer Research UK
+Macmillan Cancer Support
+Wellcome Trust
+Bill and Melinda Gates Foundation
+Global Fund
+UNAIDS
+Yale New Haven Health
+~Kaiser
+Bupa Arabia
+`);
+CST_GLOSSARY_EXTRA_ADD("history", null, `
+First World War
+Second World War
+Persian Gulf War
+Iran-Iraq War
+Afghan War
+Soviet-Afghan War
+Russo-Japanese War
+Russo-Turkish War
+Crimean War
+Franco-Prussian War
+Austro-Prussian War
+Seven Years' War
+Thirty Years' War
+Hundred Years' War
+War of the Roses
+Napoleonic Wars
+Peninsular War
+Anglo-Zulu War
+Boer War
+Second Boer War
+First Boer War
+Spanish-American War
+Mexican-American War
+War of 1812
+American Revolutionary War
+French and Indian War
+Opium War
+First Opium War
+Second Opium War
+Sino-Japanese War
+First Sino-Japanese War
+Second Sino-Japanese War
+Chinese Civil War
+Greco-Persian Wars
+Peloponnesian War
+Punic Wars
+First Punic War
+Second Punic War
+Third Punic War
+Gallic Wars
+Roman Civil War
+Wars of the Diadochi
+Trojan War
+~Crusades
+First Crusade
+Second Crusade
+Third Crusade
+Fourth Crusade
+Albigensian Crusade
+Children's Crusade
+Reconquista
+Hussite Wars
+Italian Wars
+Eighty Years' War
+Dutch Revolt
+Anglo-Dutch Wars
+Anglo-Spanish War
+Nine Years' War
+War of the Spanish Succession
+War of the Austrian Succession
+War of the Polish Succession
+Great Northern War
+Russo-Swedish War
+Thirteen Years' War
+Livonian War
+Ottoman-Venetian Wars
+Cretan War
+Austro-Turkish War
+Great Turkish War
+Balkan Wars
+First Balkan War
+Second Balkan War
+Italo-Turkish War
+Spanish Civil War
+Winter War
+Continuation War
+Polish-Soviet War
+Russian Civil War
+Estonian War of Independence
+Irish War of Independence
+Irish Civil War
+Greco-Turkish War
+Rif War
+Chaco War
+War of the Pacific
+Paraguayan War
+Falklands War
+Football War
+Six-Day War
+Yom Kippur War
+Arab-Israeli War
+Israeli War of Independence
+Suez Crisis
+Bay of Pigs
+Biafran War
+Nigerian Civil War
+Algerian War
+Indochina War
+First Indochina War
+Second Indochina War
+Ogaden War
+Ethiopian-Somali War
+Eritrean War of Independence
+Angolan Civil War
+Mozambican Civil War
+Rhodesian Bush War
+Libyan Civil War
+Syrian Civil War
+Yemeni Civil War
+Lebanese Civil War
+Bosnian War
+Croatian War of Independence
+Kosovo War
+First Chechen War
+Second Chechen War
+Rwandan Genocide
+First Congo War
+Second Congo War
+Sierra Leone Civil War
+Liberian Civil War
+Darfur conflict
+Russo-Ukrainian War
+War in Donbas
+Indo-Pakistani War of 1947
+Indo-Pakistani War of 1965
+Indo-Pakistani War of 1971
+Kargil War
+Sino-Indian War
+Sino-Vietnamese War
+Gulf of Tonkin incident
+Boxer Rebellion
+Taiping Rebellion
+Indian Rebellion of 1857
+Sepoy Mutiny
+Mahdist War
+First Anglo-Afghan War
+Second Anglo-Afghan War
+Third Anglo-Afghan War
+Anglo-Ashanti Wars
+Xhosa Wars
+Cape Frontier Wars
+Herero and Namaqua Genocide
+Maji Maji Rebellion
+Matabele War
+Boxer Uprising
+Ionian Revolt
+Sacred War
+Lamian War
+Pyrrhic War
+Social War
+Mithridatic Wars
+Jugurthine War
+Third Servile War
+Sicilian Slave War
+Spartacus revolt
+Macedonian Wars
+First Macedonian War
+Second Macedonian War
+Third Macedonian War
+Syrian Wars
+Roman-Seleucid War
+Roman-Persian Wars
+Byzantine-Sasanian War
+Byzantine-Arab Wars
+Arab-Byzantine Wars
+Islamic conquest of Iberia
+Arab conquest of North Africa
+Great Arab Revolt
+Arab Revolt
+Mexican Revolution
+Cristero War
+Cristero Rebellion
+Philippine-American War
+Philippine Revolution
+Cuban War of Independence
+Latin American wars of independence
+Spanish American wars of independence
+Peruvian War of Independence
+Mexican War of Independence
+Hukbalahap rebellion
+Malayan Emergency
+Mau Mau Uprising
+Kenya Emergency
+Algerian Revolution
+Yugoslav Wars
+Slovenian War of Independence
+Transnistria War
+Nagorno-Karabakh War
+First Nagorno-Karabakh War
+Second Nagorno-Karabakh War
+Georgian-Abkhazian War
+Russo-Georgian War
+Five-Day War
+Tajik Civil War
+Afghan Civil War
+Iraqi Civil War
+Israeli invasion of Lebanon
+Lebanon War
+Second Lebanon War
+Sudanese Civil War
+Second Sudanese Civil War
+First Sudanese Civil War
+Ugandan Bush War
+Somali Civil War
+Ethiopian Civil War
+Guatemalan Civil War
+Salvadoran Civil War
+Nicaraguan Revolution
+Contra War
+Colombian conflict
+Peruvian internal conflict
+Shining Path insurgency
+Cenepa War
+Ecuadorian-Peruvian War
+Baltic Crusade
+Northern Crusades
+Teutonic Order wars
+Hundred Years War
+Wars of the Three Kingdoms
+Anglo-Scottish wars
+Wars of Scottish Independence
+Irish Confederate Wars
+Cromwellian conquest of Ireland
+Williamite War in Ireland
+Jacobite Rebellion
+War of the Quadruple Alliance
+War of the Bavarian Succession
+Pig War
+Aroostook War
+Battle of Ayacucho
+Battle of Marathon
+Battle of Thermopylae
+Battle of Salamis
+Battle of Plataea
+Battle of Mycale
+Battle of Artemisium
+Battle of Lade
+Battle of Gaugamela
+Battle of Issus
+Battle of Granicus
+Battle of Cunaxa
+Battle of Hydaspes
+Battle of Chaeronea
+Battle of Mantinea
+Battle of Leuctra
+Battle of Coronea
+Battle of Delium
+Battle of Syracuse
+Battle of Himera
+Battle of Cannae
+Battle of Zama
+Battle of Trebia
+Battle of Lake Trasimene
+Battle of Metaurus
+Battle of Ilipa
+Battle of Raphia
+Battle of Ipsus
+Battle of Pydna
+Battle of Cynoscephalae
+Battle of Magnesia
+Battle of Actium
+Battle of Pharsalus
+Battle of Philippi
+Battle of Mutina
+Battle of Alesia
+Battle of Teutoburg Forest
+Battle of Adrianople
+Battle of Milvian Bridge
+Battle of Chalons
+Battle of Tours
+Battle of Poitiers
+Battle of Hastings
+Battle of Stamford Bridge
+Battle of Brunanburh
+Battle of Maldon
+Battle of Edington
+Battle of Ethandun
+Battle of Ashdown
+Battle of Clontarf
+Battle of Stiklestad
+Battle of Badon
+Battle of Covadonga
+Battle of Sagrajas
+Battle of Las Navas de Tolosa
+Battle of Ain Jalut
+Battle of Manzikert
+Battle of Hattin
+Battle of Arsuf
+Battle of Montgisard
+Battle of Dorylaeum
+Battle of Ascalon
+Battle of Mansurah
+Battle of Damietta
+Battle of Kadesh
+Battle of Qadesh
+Battle of Carchemish
+Battle of Nineveh
+Battle of Halys
+Battle of Acre
+Battle of Bannockburn
+Battle of Stirling Bridge
+Battle of Falkirk
+Battle of Crecy
+Battle of Agincourt
+Siege of Orleans
+Battle of Castillon
+Battle of Towton
+Battle of Bosworth Field
+Battle of Tewkesbury
+Battle of Barnet
+Battle of St Albans
+Battle of Wakefield
+Battle of Grunwald
+Battle of Nicopolis
+Battle of Varna
+Battle of Ankara
+Battle of Kosovo
+Battle of Legnano
+Battle of Mohacs
+Battle of Lepanto
+Battle of Preveza
+Battle of Djerba
+Battle of Pavia
+Battle of Marignano
+Battle of Ravenna
+Battle of Lutter
+Battle of White Mountain
+Battle of Breitenfeld
+Battle of Lutzen
+Battle of Nordlingen
+Battle of Rocroi
+Battle of Dettingen
+Battle of Fontenoy
+Battle of Naseby
+Battle of Marston Moor
+Battle of Edgehill
+Battle of Dunbar
+Battle of Worcester
+Battle of Sedgemoor
+Battle of the Boyne
+Battle of Aughrim
+Battle of Killiecrankie
+Battle of Prestonpans
+Battle of Culloden
+Battle of Blenheim
+Battle of Ramillies
+Battle of Oudenaarde
+Battle of Malplaquet
+Battle of Denain
+Battle of Poltava
+Battle of Narva
+Battle of Austerlitz
+Battle of Jena-Auerstedt
+Battle of Trafalgar
+Battle of the Nile
+Battle of Copenhagen
+Battle of Camperdown
+Battle of Cape St Vincent
+Battle of Quiberon Bay
+Battle of the Saintes
+Battle of Saratoga
+Battle of Yorktown
+Battle of Bunker Hill
+Battle of Lexington and Concord
+Battle of Trenton
+Battle of Princeton
+Battle of Brandywine
+Battle of Germantown
+Battle of Monmouth
+Battle of Cowpens
+Battle of Guilford Courthouse
+Battle of Kings Mountain
+Battle of Camden
+Battle of Bennington
+Battle of Long Island
+Battle of Alamance
+Battle of Fallen Timbers
+Battle of New Orleans
+Battle of Lake Erie
+Battle of Tippecanoe
+Battle of the Thames
+Battle of Bladensburg
+Battle of Plattsburgh
+Battle of Chippewa
+Battle of Lundy's Lane
+Battle of Waterloo
+Battle of Borodino
+Battle of Leipzig
+Battle of the Nations
+Battle of Dresden
+Battle of Friedland
+Battle of Wagram
+Battle of Eylau
+Battle of Marengo
+Battle of Ulm
+Battle of Lodi
+Battle of Rivoli
+Battle of Salamanca
+Battle of Vitoria
+Battle of Talavera
+Battle of Corunna
+Battle of Albuera
+Battle of Bussaco
+Battle of Ligny
+Battle of Quatre Bras
+Battle of Navarino
+Battle of Boyaca
+Battle of Pichincha
+Battle of Chacabuco
+Battle of Maipu
+Battle of Carabobo
+Battle of Chapultepec
+Battle of Buena Vista
+Battle of Cerro Gordo
+Battle of Palo Alto
+Battle of Monterrey
+Battle of San Jacinto
+Battle of the Alamo
+Battle of Goliad
+Battle of Gettysburg
+Battle of Antietam
+Battle of Bull Run
+First Battle of Bull Run
+Second Battle of Bull Run
+Battle of Shiloh
+Battle of Fort Sumter
+Battle of Fort Donelson
+Battle of Fort Henry
+Battle of Hampton Roads
+Battle of Port Royal
+Battle of Mobile Bay
+Battle of Stones River
+Battle of Perryville
+Battle of Chancellorsville
+Battle of Fredericksburg
+Battle of Chickamauga
+Battle of Chattanooga
+Battle of Atlanta
+Battle of Resaca
+Battle of Kennesaw Mountain
+Battle of Franklin
+Battle of Nashville
+Battle of Monocacy
+Battle of Five Forks
+Battle of the Wilderness
+Battle of Spotsylvania
+Battle of Cold Harbor
+Battle of Petersburg
+Battle of Appomattox Court House
+Siege of Vicksburg
+Battle of Little Bighorn
+Battle of Wounded Knee
+Battle of San Juan Hill
+Battle of Manila Bay
+Battle of Santiago de Cuba
+Battle of Las Guasimas
+Battle of Adobe Walls
+Battle of Balaclava
+Battle of Inkerman
+Battle of the Alma
+Battle of Sevastopol
+Siege of Sevastopol
+Battle of Sedan
+Battle of Gravelotte
+Battle of Solferino
+Battle of Magenta
+Battle of Custoza
+Battle of Sadowa
+Battle of Tsushima
+Battle of Mukden
+Battle of Liaoyang
+Battle of Port Arthur
+Siege of Port Arthur
+Battle of Plevna
+Siege of Plevna
+Battle of Shipka Pass
+Battle of Yalu River
+Battle of Pyongyang
+Battle of Dagu Forts
+Battle of Adwa
+Battle of Omdurman
+Battle of Ulundi
+Battle of Isandlwana
+Battle of Rorke's Drift
+Battle of Blood River
+Battle of Majuba Hill
+Battle of Spion Kop
+Battle of Colenso
+Battle of Magersfontein
+Battle of Ladysmith
+Battle of Paardeberg
+Battle of Elandslaagte
+Battle of Modder River
+Battle of Tel el-Kebir
+Battle of Abu Klea
+Battle of Magdala
+Battle of Dogali
+Battle of Kut
+Siege of Kut
+Battle of Beersheba
+Battle of Gaza
+Battle of Romani
+Battle of Magdhaba
+Battle of Rafa
+Battle of Sharqat
+Battle of Sakarya
+Battle of Dumlupinar
+Battle of Inonu
+Battle of Chanak
+Battle of Verdun
+Battle of the Somme
+Battle of Passchendaele
+Battle of Ypres
+First Battle of Ypres
+Second Battle of Ypres
+Third Battle of Ypres
+Battle of Messines
+Battle of Cambrai
+Battle of Gallipoli
+Battle of Caporetto
+Battle of Vittorio Veneto
+Battle of Jutland
+Battle of the Falklands
+Battle of Coronel
+Battle of the Marne
+First Battle of the Marne
+Second Battle of the Marne
+Battle of the Frontiers
+Battle of Tannenberg
+Battle of the Masurian Lakes
+Battle of Gorlice-Tarnow
+Battle of Lemberg
+Battle of Megiddo
+Battle of Mons
+Battle of Amiens
+Battle of Saint-Mihiel
+Meuse-Argonne Offensive
+Battle of Stalingrad
+Battle of Kursk
+Battle of Moscow
+Battle of Leningrad
+Siege of Leningrad
+Battle of Berlin
+Battle of Kiev
+Battle of Smolensk
+Battle of Dunkirk
+Battle of France
+Battle of Britain
+Battle of Normandy
+Battle of the Bulge
+Battle of Midway
+Battle of the Coral Sea
+Battle of Guadalcanal
+Battle of Leyte Gulf
+Battle of Okinawa
+Battle of Iwo Jima
+Battle of Tarawa
+Battle of Saipan
+Battle of the Philippine Sea
+Battle of Peleliu
+Battle of Bataan
+Battle of Corregidor
+Battle of Singapore
+Battle of Kasserine Pass
+Battle of El Alamein
+Battle of Tobruk
+Battle of Monte Cassino
+Battle of Anzio
+Battle of Arnhem
+Battle of Kohima
+Battle of Imphal
+Battle of Crete
+Battle of the Atlantic
+Battle of the River Plate
+Battle of Narvik
+Battle of Taranto
+Battle of Cape Matapan
+Battle of Sirte
+Battle of Budapest
+Battle of Warsaw
+Battle of the Bismarck Sea
+Battle of Savo Island
+Battle of Cape Esperance
+Battle of Dien Bien Phu
+Battle of Inchon
+Battle of Chosin Reservoir
+Battle of Pusan Perimeter
+Battle of Ia Drang
+Battle of Khe Sanh
+Battle of Hue
+Tet Offensive
+Battle of Goose Green
+Battle of Mount Tumbledown
+Battle of Basra
+Battle of Mogadishu
+Battle of Fallujah
+Battle of Mosul
+Battle of Aleppo
+Battle of Grozny
+Battle of Debaltseve
+Battle of Bakhmut
+Battle of Mariupol
+Battle of Kharkiv
+Battle of Kherson
+Battle of Avdiivka
+Battle of Shanghai
+Battle of Nanjing
+Battle of Wuhan
+Battle of Changsha
+Battle of Taierzhuang
+Battle of Changde
+Battle of Khalkhin Gol
+Battle of Nomonhan
+Battle of Lake Khasan
+Battle of Hengyang
+Battle of Peking
+Battle of Mactan
+Battle of Quebec
+Battle of the Plains of Abraham
+Battle of Ticonderoga
+Battle of Lake George
+Battle of Oriskany
+Battle of Monongahela
+Battle of Fort Necessity
+Battle of Louisbourg
+Battle of Minden
+Battle of Plassey
+Battle of Buxar
+Battle of Panipat
+Battle of Assaye
+Battle of Seringapatam
+Battle of Laswari
+Battle of Delhi
+Battle of Kirkee
+Battle of Khanwa
+Battle of Haldighati
+Battle of Talikota
+Battle of Samugarh
+Battle of Dharmat
+Battle of Chinsurah
+Battle of Pondicherry
+Battle of Arcot
+Battle of Trichinopoly
+Battle of Sobraon
+Battle of Ferozeshah
+Battle of Chillianwala
+Battle of Gujrat
+Battle of Aliwal
+Battle of Mudki
+Battle of Multan
+Battle of Kandahar
+Battle of Maiwand
+Battle of Gandamak
+Operation Overlord
+Operation Barbarossa
+Operation Market Garden
+Operation Torch
+Operation Husky
+Operation Avalanche
+Operation Neptune
+Operation Dragoon
+Operation Sea Lion
+Operation Mincemeat
+Operation Bagration
+Operation Uranus
+Operation Citadel
+Operation Typhoon
+Operation Blue
+Operation Pedestal
+Operation Crossbow
+Operation Hydra
+Operation Paperclip
+Operation Ichi-Go
+Operation Ten-Go
+Operation Downfall
+Operation Olympic
+Operation Coronet
+Operation Sunrise
+Operation Fortitude
+Operation Bodyguard
+Operation Titanic
+Operation Glimmer
+Operation Chariot
+Operation Valkyrie
+Operation Weserubung
+Operation Michael
+Operation Georgette
+Operation Argument
+Operation Gomorrah
+Operation Source
+Operation Chastise
+Operation Frankton
+Operation Jaywick
+Operation Anthropoid
+Operation Mongoose
+Operation Northwoods
+Operation Gladio
+Operation Condor
+Operation Ajax
+Operation Ranch Hand
+Operation Rolling Thunder
+Operation Linebacker
+Operation Linebacker II
+Operation Frequent Wind
+Operation Babylift
+Operation Eagle Claw
+Operation Urgent Fury
+Operation Just Cause
+Operation El Dorado Canyon
+Operation Desert Storm
+Operation Desert Shield
+Operation Iraqi Freedom
+Operation Enduring Freedom
+Operation Cyclone
+Operation Restore Hope
+Operation Provide Comfort
+Operation Allied Force
+Operation Deliberate Force
+Operation Desert Fox
+Operation Odyssey Dawn
+Operation Neptune Spear
+Operation Redwings
+Operation Entebbe
+Operation Wrath of God
+Operation Opera
+Operation Musketeer
+Operation Phoenix
+Operation Speedy Express
+Operation Junction City
+Operation Cedar Falls
+Operation Attleboro
+Operation Starlite
+Operation Masher
+Operation Lam Son 719
+Operation Toan Thang
+Operation Varsity
+Operation Plunder
+Operation Veritable
+Operation Grenade
+Operation Infatuate
+Operation Epsom
+Operation Goodwood
+Operation Cobra
+Operation Bluecoat
+Operation Jubilee
+Operation Pluto
+Operation Pointblank
+Operation Cartwheel
+Operation Galvanic
+Operation Forager
+Operation Detachment
+Operation Hailstone
+Operation Flintlock
+Operation Catchpole
+Operation Watchtower
+Operation Shingle
+Operation Diadem
+Operation Strangle
+Operation Vengeance
+Operation Rubble
+Operation Mallard
+Operation Compass
+Operation Crusader
+Operation Battleaxe
+Operation Brevity
+Operation Lightfoot
+Operation Supercharge
+Operation Dynamo
+Operation Aerial
+Operation Cycle
+Operation Ariel
+Operation Menace
+Operation Catapult
+Operation Claymore
+Operation Performance
+Operation Gold
+Operation Juno
+Operation Sword
+Operation Utah
+Operation Gunnerside
+Operation Biting
+Operation Colossus
+Operation Tiger
+Operation Harpoon
+Sinai Campaign
+Suez Campaign
+Operation Anvil
+Operation Corkscrew
+Operation Ladbroke
+Operation Fustian
+Operation Deadstick
+Operation Freshman
+Operation Galahad
+Operation Thursday
+Operation Longcloth
+Operation U-Go
+Operation Meetinghouse
+Operation Carpetbagger
+Operation Aphrodite
+Operation Frantic
+Operation Crossroads
+Operation Greenhouse
+Operation Ivy
+Operation Castle
+Operation Plumbbob
+Operation Hardtack
+Operation Sandstone
+Operation Tumbler-Snapper
+Operation Upshot-Knothole
+Operation Buster-Jangle
+Operation Ranger
+Operation Teapot
+Operation Wigwam
+Operation Mosaic
+Operation Grapple
+Operation Dominic
+Operation Fishbowl
+Operation Sea Dragon
+Operation Chromite
+Operation Thunderbolt
+Lewis and Clark Expedition
+Corps of Discovery
+Burke and Wills Expedition
+Franklin Expedition
+Donner Party
+Shackleton's Endurance Expedition
+Endurance expedition
+Scott's Terra Nova Expedition
+Terra Nova Expedition
+Amundsen's South Pole expedition
+Peary North Pole expedition
+Byrd Antarctic Expedition
+Great Trek
+Long March
+Voyages of Zheng He
+Zheng He's voyages
+Columbus's first voyage
+Magellan Expedition
+Magellan-Elcano Expedition
+Vasco da Gama's voyage
+Captain Cook's voyages
+Cook's voyages
+Mongol invasion of Europe
+Mongol conquests
+Mongol invasions of Japan
+Norman Conquest
+Spanish conquest of the Inca Empire
+Spanish conquest of the Aztec Empire
+Conquest of Mexico
+Conquest of Peru
+Conquest of Granada
+Conquest of Ireland
+Fall of Constantinople
+Fall of the Western Roman Empire
+Fall of Carthage
+Fall of Jerusalem
+Sack of Rome
+Sack of Constantinople
+Fall of Tenochtitlan
+Fall of Saigon
+Fall of Berlin
+Fall of Singapore
+Fall of the Bastille
+Storming of the Bastille
+Fall of Baghdad
+Fall of Acre
+Fall of Granada
+Srebrenica massacre
+Nanjing Massacre
+Rape of Nanking
+Bataan Death March
+Katyn massacre
+Armenian Genocide
+Cambodian genocide
+Khmer Rouge genocide
+Srebrenica genocide
+Halabja chemical attack
+Bloody Sunday
+Kent State shootings
+Haymarket affair
+Peterloo Massacre
+Tolpuddle Martyrs
+Chartist movement
+Luddite riots
+Gordon Riots
+Massacre of Glencoe
+Glencoe massacre
+Boston Massacre
+Boston Tea Party
+Stamp Act Crisis
+Intolerable Acts
+Coercive Acts
+Townshend Acts
+Sugar Act
+Navigation Acts
+Quebec Act
+Royal Proclamation of 1763
+Pontiac's War
+Pontiac's Rebellion
+Kansas-Nebraska Act
+Missouri Compromise
+Compromise of 1850
+Fugitive Slave Act
+Underground Railroad
+Trail of Tears
+Indian Removal Act
+Dawes Act
+Homestead Act
+Pacific Railway Act
+Alien and Sedition Acts
+Whiskey Rebellion
+Shays' Rebellion
+Dorr Rebellion
+Nat Turner's Rebellion
+Harpers Ferry raid
+John Brown's raid
+Haitian Revolution
+Meiji Restoration
+Xinhai Revolution
+Wuchang Uprising
+Hundred Days' Reform
+Self-Strengthening Movement
+Boxer Protocol
+Hundred Flowers Campaign
+Great Leap Forward
+Cultural Revolution
+Great Proletarian Cultural Revolution
+Anti-Rightist Campaign
+Tiananmen Square protests of 1989
+Tiananmen Square massacre
+Four Modernizations
+Sino-Soviet split
+Hong Kong handover
+Tibetan uprising
+Peasants' Revolt
+German Peasants' War
+~Jacquerie
+Great Famine
+Irish Famine
+Great Hunger
+Great Fire of London
+Great Plague of London
+Great Migration
+Great Awakening
+Second Great Awakening
+Great Schism
+Western Schism
+Great Purge
+Great Terror
+Holodomor
+Holodomor famine
+Shoah
+Nazi genocide of the Roma
+Porajmos
+Night of the Long Knives
+Kristallnacht
+Anschluss
+Munich Crisis
+Sudetenland Crisis
+Rhineland crisis
+Spanish flu
+Influenza pandemic of 1918
+Black Friday of 1869
+Panic of 1873
+Long Depression
+Panic of 1907
+Panic of 1893
+Crash of 1929
+Wall Street Crash of 1929
+Black Tuesday
+Dust Bowl
+Scramble for Africa
+Berlin Conference
+Berlin Blockade
+Berlin Airlift
+Berlin Crisis
+Warsaw Uprising
+Warsaw Ghetto Uprising
+Cuban Revolution
+Iran hostage crisis
+Iranian hostage crisis
+Watergate scandal
+Iran-Contra affair
+Chappaquiddick incident
+Mai Lai massacre
+Attica prison riot
+Three Mile Island accident
+Bhopal disaster
+Bhopal gas tragedy
+Exxon Valdez oil spill
+Deepwater Horizon oil spill
+September 11 attacks
+Oklahoma City bombing
+Lockerbie bombing
+Munich massacre
+Munich Olympics massacre
+Black September
+Achille Lauro hijacking
+Asian financial crisis
+Latin American debt crisis
+Russian financial crisis
+Tulip mania
+South Sea Bubble
+Mississippi Bubble
+Chernobyl disaster
+Space Shuttle Challenger disaster
+Space Shuttle Columbia disaster
+Hiroshima bombing
+Nagasaki bombing
+Bombing of Hiroshima
+Bombing of Nagasaki
+Attack on Pearl Harbor
+Pearl Harbor attack
+Halifax Explosion
+Hindenburg disaster
+Titanic sinking
+Lisbon earthquake
+San Francisco earthquake of 1906
+Great Chicago Fire
+Chicago fire of 1871
+Johnstown Flood
+Galveston hurricane
+Great Storm of 1703
+Krakatoa eruption
+Eruption of Krakatoa
+Eruption of Mount Vesuvius
+Eruption of Mount Pelee
+Tunguska event
+Great Smog of London
+Great Smog
+Minamata disease
+Ludlow massacre
+Triangle Shirtwaist Factory fire
+Triangle fire
+Gulf Coast hurricane of 1900
+Great Kanto earthquake
+Great Dhaka fire
+Bengal famine of 1943
+Great Bengal famine
+Bengal Famine
+Great Chinese Famine
+Ukrainian famine
+Soviet famine of 1932-1933
+Great Irish Famine
+Chinese famine
+English Bill of Rights
+Declaration of the Rights of Man and of the Citizen
+Declaration of Rights
+Emancipation Proclamation
+Gettysburg Address
+Articles of Confederation
+Federalist Papers
+Mayflower Compact
+Constitution of the United States
+Virginia Declaration of Rights
+Declaration of Sentiments
+Domesday Book
+Doomsday Book
+Edict of Nantes
+Edict of Milan
+Edict of Worms
+Edict of Restitution
+Act of Supremacy
+Act of Union
+Acts of Union
+Act of Settlement
+Habeas Corpus Act
+Petition of Right
+Instrument of Government
+Constitution of Japan
+Meiji Constitution
+Charter of the United Nations
+Atlantic Charter
+Nuremberg Laws
+Nuremberg Code
+Nuremberg Trials
+Tokyo Trials
+Zimmermann Telegram
+Dred Scott decision
+Dred Scott v. Sandford
+Marbury v. Madison
+Plessy v. Ferguson
+Miranda v. Arizona
+Civil Rights Act of 1964
+Voting Rights Act of 1965
+Golden Bull of 1356
+Golden Bull
+Bull Unam Sanctam
+Unam Sanctam
+Dictatus Papae
+Dictates of the Pope
+Investiture Controversy
+Gregorian Reform
+Avignon Papacy
+Babylonian Captivity
+Council of Constance
+Council of Trent
+Council of Nicaea
+First Council of Nicaea
+Council of Ephesus
+Council of Chalcedon
+Council of Florence
+Council of Basel
+Diet of Worms
+Diet of Speyer
+Diet of Augsburg
+Leipzig Debate
+Marburg Colloquy
+Ninety-Five Theses
+Schmalkaldic War
+Schmalkaldic League
+Revolt of the Netherlands
+Revolt of the Comuneros
+Sicilian Vespers
+War of the Eight Saints
+Pazzi Conspiracy
+Hanseatic League
+Dutch Republic
+Dutch Golden Age
+Golden Age of Islam
+Byzantine Iconoclasm
+~Iconoclasm
+Donation of Constantine
+Treaty of Verdun
+Treaty of Mersen
+Treaty of Meerssen
+Treaty of Aix-la-Chapelle
+Treaty of Hubertusburg
+Treaty of Dresden
+Treaty of Teschen
+Treaty of Fontainebleau
+Treaty of Pressburg
+Treaty of Schonbrunn
+Treaty of Campo Formio
+Treaty of Luneville
+Treaty of Basel
+Treaty of The Hague
+Treaty of Limerick
+Treaty of Cateau-Cambresis
+Treaty of Ryswick
+Treaty of Rijswijk
+Treaty of Utrecht
+Treaty of Nystad
+Treaty of Nerchinsk
+Treaty of Tordesillas
+Treaty of Zaragoza
+Treaty of Tilsit
+Treaty of Amiens
+Treaty of Ghent
+Treaty of Guadalupe Hidalgo
+Treaty of Brest-Litovsk
+Treaty of Bucharest
+Treaty of Trianon
+Treaty of Saint-Germain
+Treaty of Sevres
+Treaty of Lausanne
+Treaty of Rapallo
+Treaty of Locarno
+Treaty of London
+Treaty of Berlin
+Treaty of San Stefano
+Treaty of Frankfurt
+Treaty of Shimonoseki
+Treaty of Portsmouth
+Treaty of Kanagawa
+Treaty of Nanking
+Treaty of Tianjin
+Treaty of Aigun
+Treaty of Kiakhta
+Treaty of Adrianople
+Treaty of Vereeniging
+Treaty of Fort Stanwix
+Treaty of Greenville
+Treaty of Fort Laramie
+Treaty of Waitangi
+Treaty of Hudaybiyyah
+Treaty of Paris
+Treaty of Westphalia
+Peace of Westphalia
+Treaty of Versailles
+Peace of Augsburg
+Peace of Prague
+Peace of Nikolsburg
+Peace of Frankfurt
+Peace of Passau
+Peace of Lodi
+Peace of Callias
+Peace of Nicias
+King's Peace
+Peace of Amiens
+Peace of Ryswick
+Balfour Declaration
+Sykes-Picot Agreement
+Molotov-Ribbentrop Pact
+Munich Agreement
+Munich Pact
+Anglo-German Naval Agreement
+Kellogg-Briand Pact
+Washington Naval Treaty
+Anglo-Japanese Alliance
+Triple Alliance
+Triple Entente
+Dual Alliance
+Franco-Russian Alliance
+Schlieffen Plan
+North Atlantic Treaty
+Warsaw Pact
+Eisenhower Doctrine
+Truman Doctrine
+Monroe Doctrine
+Hallstein Doctrine
+Brezhnev Doctrine
+Nixon Doctrine
+Potsdam Agreement
+Potsdam Conference
+Yalta Conference
+Tehran Conference
+Cairo Conference
+Bretton Woods Conference
+Bretton Woods Agreement
+Versailles Conference
+Paris Peace Conference
+Congress of Vienna
+Congress of Berlin
+Congress of Aix-la-Chapelle
+Congress of Verona
+Congress of Paris
+Congress of Ghent
+Hague Conventions
+Montreal Protocol
+Nuclear Non-Proliferation Treaty
+Partial Test Ban Treaty
+Limited Test Ban Treaty
+SALT I
+SALT II
+Strategic Arms Limitation Talks
+START I
+Helsinki Accords
+Helsinki Final Act
+Camp David Accords
+Oslo Accords
+Dayton Agreement
+Good Friday Agreement
+Anglo-Irish Agreement
+Sunningdale Agreement
+Sino-British Joint Declaration
+Anglo-Chinese Joint Declaration
+Hong Kong Basic Law
+Gleiwitz incident
+Reichstag fire
+Enabling Act of 1933
+Lend-Lease Act
+Neutrality Acts
+Selective Service Act
+Smith-Connally Act
+Tripartite Pact
+Anti-Comintern Pact
+Pact of Steel
+Axis Pact
+Four-Power Pact
+Locarno Treaties
+Dawes Plan
+Young Plan
+Hoover Moratorium
+Ruhr occupation
+Ruhr Crisis
+Rhineland remilitarization
+Spanish Armada
+Gunpowder Plot
+Popish Plot
+Exclusion Crisis
+Rye House Plot
+Monmouth Rebellion
+Glorious Revolution
+English Civil War
+~Restoration
+Commonwealth of England
+~Protectorate
+Protectorate of Oliver Cromwell
+Long Parliament
+Rump Parliament
+Pride's Purge
+Ship Money
+Bishops' Wars
+Irish Rebellion of 1641
+Forty-Five Rebellion
+Jacobite rising of 1745
+Jacobite rising of 1715
+Jacobite Rising of 1689
+Tyrone's Rebellion
+Desmond Rebellions
+Plantation of Ulster
+Flight of the Earls
+Eastern Roman Empire
+Western Roman Empire
+Mughal Empire
+Achaemenid Empire
+Parthian Empire
+Sasanian Empire
+Sassanid Empire
+Seleucid Empire
+Ptolemaic Kingdom
+Macedonian Empire
+Empire of Alexander the Great
+Mauryan Empire
+Gupta Empire
+Chola Empire
+Chola dynasty
+Pallava dynasty
+Vijayanagara Empire
+Maratha Empire
+Maratha Confederacy
+Sikh Empire
+Durrani Empire
+Safavid Empire
+Qajar dynasty
+Zand dynasty
+Afsharid dynasty
+Timurid Empire
+Yuan dynasty
+Western Han dynasty
+Eastern Han dynasty
+Jin dynasty
+Sui dynasty
+Song dynasty
+Northern Song dynasty
+Southern Song dynasty
+Liao dynasty
+Xia dynasty
+Shang dynasty
+Zhou dynasty
+Qin dynasty
+Warring States period
+Spring and Autumn period
+Three Kingdoms
+Sixteen Kingdoms
+Northern and Southern dynasties
+Five Dynasties and Ten Kingdoms
+Six Dynasties
+Joseon dynasty
+Goryeo dynasty
+Silla kingdom
+Baekje
+Goguryeo
+Balhae
+Tokugawa shogunate
+Tokugawa period
+Edo period
+Heian period
+Kamakura shogunate
+Ashikaga shogunate
+Muromachi period
+Sengoku period
+Azuchi-Momoyama period
+Nara period
+Asuka period
+Yayoi period
+Jomon period
+Meiji period
+Taisho period
+Showa period
+Khmer Empire
+Srivijaya
+Majapahit Empire
+Kingdom of Kongo
+Ghana Empire
+Mali Empire
+Songhai Empire
+Kanem-Bornu Empire
+Kingdom of Aksum
+Aksumite Empire
+Zulu Kingdom
+Kingdom of Benin
+Kingdom of Dahomey
+Ashanti Empire
+Great Zimbabwe
+Mapungubwe
+Inca Empire
+Aztec Empire
+Maya civilization
+Olmec civilization
+Toltec Empire
+~Teotihuacan
+Chimu Empire
+Muisca Confederation
+Tiwanaku
+Wari Empire
+Chavin culture
+Moche culture
+Nazca culture
+Mississippian culture
+Hohokam culture
+Ancestral Puebloans
+Pueblo Revolt
+Carolingian Empire
+Frankish Empire
+Merovingian dynasty
+Capetian dynasty
+Valois dynasty
+Bourbon dynasty
+Habsburg Monarchy
+Austro-Hungarian Empire
+Austro-Hungarian Monarchy
+Prussian Empire
+German Empire
+Second Reich
+Weimar Republic
+Kingdom of Prussia
+Kingdom of Sardinia
+Kingdom of Two Sicilies
+Kingdom of Naples
+Papal States
+Republic of Venice
+Republic of Genoa
+Duchy of Milan
+Kingdom of Aragon
+Kingdom of Castile
+Kingdom of Navarre
+Kingdom of Portugal
+Kingdom of Hungary
+Kingdom of Bohemia
+Kingdom of Poland
+Polish-Lithuanian Commonwealth
+Grand Duchy of Lithuania
+Kievan Rus
+Golden Horde
+Khazar Khaganate
+Bulgarian Empire
+Serbian Empire
+Empire of Trebizond
+Latin Empire
+Empire of Nicaea
+Crusader states
+Kingdom of Jerusalem
+Principality of Antioch
+County of Edessa
+Almoravid dynasty
+Almohad Caliphate
+Umayyad Caliphate
+Abbasid Caliphate
+Fatimid Caliphate
+Ayyubid dynasty
+Mamluk Sultanate
+Rashidun Caliphate
+Ghaznavid Empire
+Ghurid dynasty
+Delhi Sultanate
+Khilji dynasty
+Tughlaq dynasty
+Lodi dynasty
+Sur Empire
+Bengal Sultanate
+Hoysala Empire
+Rashtrakuta dynasty
+Chalukya dynasty
+Western Chalukya Empire
+Pala Empire
+Sena dynasty
+Maurya dynasty
+Kushan Empire
+Satavahana dynasty
+Shunga Empire
+Indo-Greek Kingdom
+Hellenistic period
+Hellenistic Age
+Bronze Age collapse
+Mycenaean civilization
+Minoan civilization
+Hittite Empire
+Assyrian Empire
+Neo-Assyrian Empire
+Neo-Babylonian Empire
+Babylonian Empire
+Akkadian Empire
+Sumerian civilization
+Old Kingdom of Egypt
+Middle Kingdom of Egypt
+New Kingdom of Egypt
+Third Intermediate Period
+Amarna period
+Ramesside period
+Kingdom of Kush
+Nubian kingdom
+Elamite Empire
+Kingdom of Urartu
+Median Empire
+Lydian Empire
+Phrygian kingdom
+Carthaginian Empire
+Phoenician civilization
+Etruscan civilization
+Roman Republic
+Roman Kingdom
+Athenian democracy
+Spartan state
+Delian League
+Achaean League
+Aetolian League
+Corinthian League
+Kingdom of Georgia
+Kingdom of Armenia
+Kingdom of Axum
+Khwarazmian Empire
+Seljuk Empire
+Great Seljuk Empire
+Sultanate of Rum
+Kara-Khanid Khanate
+Kara-Khitan Khanate
+Ilkhanate
+Chagatai Khanate
+Khanate of Crimea
+Great Mongol State
+Yuan Empire
+Dali Kingdom
+Goryeo kingdom
+~Champa
+Lan Xang
+Ayutthaya Kingdom
+Kingdom of Ayutthaya
+Sukhothai Kingdom
+Kingdom of Pagan
+Pagan Kingdom
+Toungoo dynasty
+Konbaung dynasty
+Kingdom of Mataram
+Mataram Sultanate
+Sultanate of Malacca
+Malacca Sultanate
+Sultanate of Aceh
+Sultanate of Brunei
+Kingdom of Kandy
+Kingdom of Mysore
+Kingdom of Travancore
+Kingdom of Bengal
+Mughal Bengal
+Rajput kingdoms
+Kingdom of Gondwana
+Chera dynasty
+Pandya dynasty
+Kalinga Empire
+Kadamba dynasty
+Vakataka dynasty
+Pushyabhuti dynasty
+Vardhana dynasty
+Shahi dynasty
+Kidarite Empire
+Hephthalite Empire
+Hunnic Empire
+Avar Khaganate
+Lombard Kingdom
+Visigothic Kingdom
+Ostrogothic Kingdom
+Vandal Kingdom
+Suebi Kingdom
+Burgundian Kingdom
+Anglo-Saxon England
+~Heptarchy
+Kingdom of Mercia
+Kingdom of Northumbria
+Kingdom of Wessex
+~Danelaw
+Viking Age
+Norse Greenland
+Kalmar Union
+Swedish Empire
+Danish Empire
+Kingdom of Scotland
+Kingdom of Ireland
+Gaelic Ireland
+Principality of Wales
+Duchy of Burgundy
+Duchy of Brittany
+Duchy of Savoy
+Kingdom of Lombardy
+Republic of Florence
+Republic of Siena
+Republic of Ragusa
+Teutonic Order
+Livonian Order
+Knights Templar
+Knights Hospitaller
+Order of Saint John
+Grand Duchy of Moscow
+Tsardom of Russia
+Russian Empire
+~Muscovy
+Principality of Moscow
+Novgorod Republic
+Republic of Pskov
+Cossack Hetmanate
+Zaporozhian Sich
+Ukrainian People's Republic
+Kingdom of Serbia
+Principality of Serbia
+Kingdom of Montenegro
+Kingdom of Romania
+Principality of Wallachia
+Principality of Moldavia
+Ottoman Egypt
+Eyalet of Algiers
+Regency of Tunis
+Regency of Algiers
+Sokoto Caliphate
+Sultanate of Darfur
+Funj Sultanate
+Kingdom of Buganda
+Kingdom of Bunyoro
+Kingdom of Rwanda
+Kingdom of Burundi
+Lunda Empire
+Luba Empire
+Kingdom of Lozi
+Mutapa Empire
+Rozwi Empire
+~Inquisition
+~Blitz
+~Armistice
+~Directory
+~Consulate
+`);
+CST_GLOSSARY_EXTRA_ADD("music", null, `
+NCT U
+2NE1
+Wonder Girls
+Brown Eyed Girls
+After School
+Miss A
+Oh My Girl
+Dreamcatcher
+GFRIEND
+Lovelyz
+MOMOLAND
+~Everglow
+CRAVITY
+VICTON
+ONEUS
+Monsta X
+iKON
+~WINNER
+~Treasure
+Xdinary Heroes
+ALL DAY PROJECT
+Billlie
+NMIXX
+TRI.BE
+VIVIZ
+WEEEKLY
+Cherry Bullet
+BLACKSWAN
+CLC
+I.O.I
+Rocket Punch
+Hearts2Hearts
+LOONA
+Pristin
+PRISTIN V
+Cosmic Girls
+WJSN
+~Nature
+BTOB
+B.A.P
+Block B
+~Highlight
+~Infinite
+Teen Top
+~Beast
+Golden Child
+Seventeen Carat
+SF9
+N.Flying
+DAY6
+2AM
+Shinhwa
+H.O.T.
+Fin.K.L
+Sechskies
+G.O.D
+Clazziquai
+Dong Bang Shin Ki
+JYJ
+U-KISS
+~Boyfriend
+Exo-K
+Exo-M
+Super M
+Got the Beat
+VIXX
+Snuper
+Nu'est
+Nu'est W
+Wanna One
+Jeong Sewoon
+Sistar
+T-ara
+Crayon Pop
+Girl's Day
+4Minute
+Kara
+AOA
+Weki Meki
+Gugudan
+Hyolyn
+Nine Muses
+Taetiseo
+GP Basic
+Triple H
+Dal Shabet
+Hello Venus
+Orange Caramel
+Badkiz
+Baby Vox
+~Jewelry
+~Sugar
+Coed School
+Jaurim
+Park Bom
+Son Dambi
+Dynamic Duo
+Mad Clown
+Zion.T
+~Bobby
+Hwang Chi-yeul
+Defsoul
+~Dean
+Paul Kim
+Ailee
+Jessi
+~Joy
+Soyou
+Jung Eun-ji
+Eunha
+Sowon
+Yuju
+Umji
+Yerin
+~Minnie
+Soojin
+Yuna
+~Winter
+Eunchae
+Yunjin
+Chaewon
+Eunbi
+T.O.P
+Tiffany Young
+Hyoyeon
+Sooyoung
+Yoona
+Yuri
+~Sunny
+Seohyun
+Jessica Jung
+Krystal Jung
+~Kai
+~Chen
+~Lay
+Kyungsoo
+Minho
+Jonghyun
+Onew
+Min Yoongi
+Jung Hoseok
+Kim Seokjin
+~Joshua
+~Jun
+~Dino
+Hansol
+Soonyoung
+Minghao
+Jisung
+Donghyuck
+Doyoung
+Taeil
+~Johnny
+Yuta
+Winwin
+Lucas
+Yangyang
+Kun
+Xiaojun
+Hendery
+Dongyoung
+Jungwoo
+Lia
+Yoon Jong-shin
+~Gummy
+Bada
+Hyorin
+Hani
+Jiyeon
+~Suzy
+Eunjung
+Nicole
+Lee Hyo-ri
+Kim Bum-soo
+Choi Siwon
+Lee Donghae
+Kim Jaejoong
+Park Yoochun
+Kim Junsu
+Heo Young-saeng
+Cho Kyuhyun
+Han Geng
+Zhoumi
+Kangin
+Lee Teuk
+Ryeowook
+Yesung
+Kim Heechul
+Lee Taemin
+Son Na-eun
+Kim Woo-seok
+Ong Seong-wu
+Lee Dae-hwi
+Park Woo-jin
+Yoon Mi-rae
+Park Ji-hyo
+Kumi Koda
+Gackt
+Yoshiki
+X Japan
+Glay
+L'Arc-en-Ciel
+Dreams Come True
+Ken Hirai
+Masaharu Fukuyama
+Hibari Misora
+Miyuki Nakajima
+Yumi Matsutoya
+Seiko Matsuda
+Akina Nakamori
+Kinki Kids
+Momoiro Clover Z
+Sekai no Owari
+Kana Nishino
+Back Number
+Yui
+Ringo Sheena
+Kobukuro
+Ikimono-gakari
+Exile Tribe
+Da Pump
+Hiroyuki Sawano
+Yuki Hayashi
+Tatsuro Yamashita
+Yellow Magic Orchestra
+Yukihiro Takahashi
+Shonen Knife
+Boom Boom Satellites
+Ling Tosite Sigure
+Man With a Mission
+Kiyoshi Hikawa
+Keisuke Kuwata
+Southern All Stars
+Kazumasa Oda
+Tomohisa Yamashita
+Kazuya Kamenashi
+Ryo Nishikido
+Yuya Tegoshi
+Hiroshi Tamaki
+Johnny's West
+A.B.C-Z
+Kis-My-Ft2
+Sexy Zone
+SixTONES
+Kanjani8
+Tokio
+KAT-TUN
+Keyakizaka46
+Hinatazaka46
+SKE48
+NMB48
+HKT48
+Sakurazaka46
+Morning Musume
+Berryz Kobo
+Angerme
+Mano Erina
+Tsunku
+Yuki Kajiura
+Kanako Ito
+Mai Kuraki
+Ai Otsuka
+Ami Suzuki
+Shoko Nakagawa
+Chihiro Onitsuka
+Misia
+Mayumi Iizuka
+Maki Goto
+Hitomi Yaida
+Aya Hirano
+Yoko Takahashi
+Mika Nakashima
+Kiyoharu
+Yukiko Okada
+Pizzicato Five
+~Cornelius
+Haruomi Hosono
+Kazuhiko Katoh
+Masayoshi Takanaka
+Kenichi Hagiwara
+Kenji Kawai
+Ken Ishii
+Tomoyasu Hotei
+Tetsuya Komuro
+Stefanie Sun
+Coco Lee
+A-Mei
+Aaron Kwok
+Leslie Cheung
+Anita Mui
+Wang Leehom
+Lee Hom
+David Tao
+Jam Hsiao
+Gigi Leung
+Eric Chou
+Show Luo
+Zhou Shen
+Cai Xukun
+Tan Weiwei
+Angela Chang
+Sandy Lam
+Vanness Wu
+Ella Chen
+S.H.E
+Hebe Tien
+Rene Liu
+Lala Hsu
+Jonathan Lee
+Gary Chaw
+A-Lin
+Yoga Lin
+Tanya Chua
+Joanna Wang
+Tia Ray
+Nicholas Tse
+Ouyang Nana
+Aska Yang
+Jerry Yan
+Harlem Yu
+Jiro Wang
+Dou Wei
+Zhang Xueyou
+Sammi Cheng
+Janice Vidal
+Vivian Chow
+Kelly Chen
+Nicky Wu
+Ekin Cheng
+Edison Chen
+Nicholas Teo
+Lo Ta-yu
+Lin Yu-chun
+Wu Bai
+China Blue
+Tat Ming Pair
+Sam Hui
+Alan Tam
+Leon Lai
+Jordan Chan
+Kenny Bee
+Danny Chan
+Roman Tam
+Hins Cheung
+Lowell Lo
+Cyndi Wang
+Mavis Fan
+Christine Fan
+Eric Moo
+Nicholas Chou
+Kevin Cheng
+Wang Yuan
+Zhou Bichang
+Xu Wei
+Li Yuchun
+Bai Yu
+Zhang Liyin
+Liu Huan
+Han Hong
+Cheng Xiao
+Wu Yifan
+Zhang Yixing
+Li Zhen
+Huang Zitao
+Zhou Mi
+Eason Chung
+Edmond Leung
+Gigi Lai
+Miriam Yeung
+HYBE Corporation
+Big Hit Entertainment
+Pledis Entertainment
+FNC Entertainment
+Source Music
+Woollim Entertainment
+Kakao Entertainment
+Kakao M
+Fantagio
+Dsp Media
+Plan A Entertainment
+Stone Music Entertainment
+Belift Lab
+Antenna Music
+Ador Music
+Pledis
+Mnet Asian Music Awards
+Seoul Music Awards
+Gaon Chart Music Awards
+Hanteo Music Awards
+Asia Artist Awards
+Korean Music Awards
+Genie Music
+~Melon
+~Hanteo
+~Gaon Chart
+Oricon
+Billboard Japan
+Avex Trax
+Avex Group
+Avex Entertainment
+Johnny & Associates
+Stardust Promotion
+Sony Music Japan
+Sony Music Entertainment Japan
+Universal Music Japan
+Universal Sigma
+Warner Music Japan
+Victor Entertainment
+Pony Canyon
+Toshiba EMI
+EMI Records Japan
+Lantis
+Kadokawa Music
+King Records
+Nippon Columbia
+Tokuma Japan
+Flying Dog
+Sony Music Taiwan
+Universal Music Taiwan
+Warner Music Taiwan
+Emperor Entertainment
+Universal Music Hong Kong
+Capital Artists
+Music Bank
+Inkigayo
+M Countdown
+Gayo Daejeon
+Soribada
+Japan Record Awards
+Japan Gold Disc Awards
+Golden Melody Awards
+Golden Melody
+Love Yourself: Tear
+Love Yourself: Answer
+Love Yourself: Her
+Love Yourself: Speak Yourself
+Map of the Soul: Persona
+Map of the Soul: 7
+Map of the Soul: 7 The Journey
+Dark & Wild
+Chapter One
+Hidden Sequence
+Girls Forever
+Hwaa
+Electric Shock
+Sour Grapes
+Fantome
+First Love
+Ultra Blue
+Deep River
+Hatsukoi
+Wonder Land
+Gaining Ground
+Square Up
+~Dimension
+Dimension: Answer
+Mirror Mirror
+Flip Your Switch
+~Reflection
+~Odd
+~Crash
+Kitaro
+Yuming
+Yoshinori Sunahara
+Hitoshi Sakimoto
+Nobuo Uematsu
+Yoko Shimomura
+Motoi Sakuraba
+Takashi Hosokawa
+Hiroshi Kitadani
+Kazuyoshi Saito
+Miki Imai
+Akihiko Matsumoto
+Tsuyoshi Nagabuchi
+Kenji Sawada
+Sayaka Sasaki
+Shinsei Kamattechan
+Kanon Wakeshima
+Nanase Aikawa
+Hitomi Shimatani
+Shiina Ringo
+Yoko Kanno
+Gen Hoshino
+Tatsuya Kitani
+Ryo Fukuda
+Hiroshi Itsuki
+Ichiro Mizuki
+Chage and Aska
+Chage & Aska
+Tsuyoshi Domoto
+Takeshi Kaneshiro
+~Jessica
+~Rain
+Kwon Boa
+Jung Yong-hwa
+Yunho
+Changmin
+Sungha Jung
+Sung Si-kyung
+Lee Juck
+Tiger JK
+Wonho
+~Leo
+Dara
+Sandara Park
+Minzy
+Bekuh Boom
+Roy Kim
+Kangta
+Bi
+Bang Yong-guk
+Moon Jong-up
+Jiyong
+Shin Seung-hun
+Sam Kim
+Hwang Min-hyun
+Kim Jong-hyun
+Jacky Wu
+Vicky Zhao
+Eric Suen
+Kay Tse
+Cass Phang
+Denise Ho
+Anthony Wong
+Stephanie Cheng
+Candy Lo
+Sally Yeh
+Sophie Ma
+Lee Hyori
+Park Jin-young
+Ha Sung-woon
+Hideaki Tokunaga
+Kokia
+Puffy AmiYumi
+Zard
+Kalafina
+Mai Hagiwara
+Aya Ueto
+Yuna Ito
+Ringo Shiina
+`);
+CST_GLOSSARY_EXTRA_ADD("people", null, `
+Nathan Blecharczyk
+Tony Fadell
+Phil Schiller
+Craig Federighi
+Eddy Cue
+Jeff Williams
+Aaron Levie
+Dylan Field
+Melanie Perkins
+Jerry Yang
+David Filo
+Marissa Mayer
+Meg Whitman
+Carly Fiorina
+Ginni Rometty
+Lou Gerstner
+Arvind Krishna
+Jim Farley
+Mary Barra
+Brian Roberts
+Rupert Murdoch
+Gordon Moore
+Robert Noyce
+David Packard
+Bill Hewlett
+Safra Catz
+Tom Siebel
+Jeff Immelt
+Lee Iacocca
+John Pierpont Morgan
+Sam Walton
+Mark Parker
+Kevin Plank
+Richard Liu
+Ma Huateng
+Wang Chuanfu
+Li Shufu
+Masaru Ibuka
+Sakichi Toyoda
+Chung Mong-koo
+Nandan Nilekani
+Bhavish Aggarwal
+Vijay Shekhar Sharma
+Deepinder Goyal
+Nikhil Kamath
+Sunil Mittal
+Dhirubhai Ambani
+Shiv Nadar
+Kumar Mangalam Birla
+Anand Mahindra
+Carlos Slim
+Stephen Schwarzman
+Lloyd Blankfein
+Jeff Yass
+David Tepper
+Deborah Meaden
+Alan Sugar
+Tobi Lutke
+Michael Bloomberg
+Ted Turner
+Jerry Jones
+Julian Robertson
+Paul Tudor Jones
+Seth Klarman
+David Swensen
+Jeremy Grantham
+Bill Gross
+Mohnish Pabrai
+Don Valentine
+Arthur Rock
+Eugene Kleiner
+Tom Perkins
+Bill Draper
+Mike Maples
+Marc Rowan
+Steve Case
+Jim Breyer
+Peter Fenton
+Joe Lonsdale
+Shervin Pishevar
+Ron Conway
+Chris Sacca
+Kevin Rose
+Ashton Kutcher
+Alfred Lin
+Brad Gerstner
+Bill Tai
+Sam Lessin
+Keith Teare
+Fred Wilson
+Brad Feld
+David Cohen
+Albert Wenger
+Hunter Walk
+Michael Milken
+Ivan Boesky
+Mary Meeker
+Jim Rogers
+Marc Faber
+John Templeton
+Joel Greenblatt
+Bill Miller
+Ken Fisher
+Jim Cramer
+Jesse Livermore
+Tom Steyer
+Eric Yuan
+David Velez
+Vlad Tenev
+Baiju Bhatt
+Jim Chanos
+Dan Loeb
+David Einhorn
+Chris Hohn
+Alexis Ohanian
+Steve Huffman
+Ben Silbermann
+Biz Stone
+Ev Williams
+Noah Glass
+Pierre Omidyar
+Jimmy Wales
+Larry Sanger
+Jeff Weiner
+Ryan Holmes
+Jason Fried
+David Heinemeier Hansson
+Brian Halligan
+Dharmesh Shah
+Justin Kan
+Emmett Shear
+Tony Xu
+Max Levchin
+Nick Woodman
+Chad Hurley
+Steve Chen
+Jawed Karim
+Scott Cook
+Brian Acton
+Jan Koum
+Pavel Durov
+Eduardo Saverin
+Chris Hughes
+Ryan Smith
+Garrett Camp
+Logan Green
+John Zimmer
+Ryan Graves
+Miguel McKelvey
+Adam Aron
+Ed Bastian
+Doug Parker
+Anders Holch Povlsen
+Lakshmi Mittal
+Ferdinand Piech
+Ferdinand Porsche
+Ferry Porsche
+Heinrich Nordhoff
+Carlos Ghosn
+Luca de Meo
+Herbert Diess
+Oliver Zipse
+Stephen Elop
+Jorma Ollila
+Niklas Zennstrom
+Janus Friis
+Martin Lorentzon
+Taavet Hinrikus
+Ahti Heinla
+Jaan Tallinn
+Frederic Mazzella
+Mathias Doepfner
+Gianni Agnelli
+Sergio Marchionne
+Ettore Bugatti
+Enzo Ferrari
+Domenico Dolce
+Stefano Gabbana
+Hubert de Givenchy
+Donna Karan
+James Dyson
+Terence Conran
+Simon Marks
+Martin Sorrell
+Stuart Rose
+Philip Green
+Jim Ratcliffe
+Anita Roddick
+Stelios Haji-Ioannou
+Freddie Laker
+Tony Hsieh
+Duncan Bannatyne
+Theo Paphitis
+Hilary Devey
+Piers Linney
+Sarah Willingham
+Peter Jones
+Reinhard Mohn
+Heinz Nixdorf
+Adolf Dassler
+Rudolf Dassler
+Klaus Zumwinkel
+Josef Ackermann
+Hasso Plattner
+Dietmar Hopp
+Michael Otto
+Werner von Siemens
+Ernst Abbe
+Carl Benz
+Gottlieb Daimler
+Wilhelm Maybach
+Ferdinand von Zeppelin
+Hans Riegel
+Karl Albrecht
+Theo Albrecht
+Max Grundig
+Carlos Tavares
+Patrick Pouyanne
+Francois Pinault
+Jean-Claude Decaux
+Antoine Riboud
+Franck Riboud
+Gustave Eiffel
+Xavier Niel
+Marc Simoncini
+Emmanuel Faber
+Gerard Heineken
+Anton Philips
+Gerard Philips
+Roman Abramovich
+Oleg Tinkov
+Vladimir Potanin
+Mikhail Khodorkovsky
+Oleg Deripaska
+Alisher Usmanov
+Vagit Alekperov
+Mohamed Alabbar
+Mohammed Al Fayed
+Aliko Dangote
+Patrice Motsepe
+Strive Masiyiwa
+Mo Ibrahim
+Tony Elumelu
+Mike Adenuga
+Nicky Oppenheimer
+Cyril Ramaphosa
+Eike Batista
+Jorge Paulo Lemann
+Marcel Telles
+Beto Sicupira
+Marcos Galperin
+Ricardo Salinas Pliego
+German Larrea
+Emilio Azcarraga
+Eduardo Eurnekian
+Yossi Vardi
+Dov Moran
+Gil Shwed
+Eyal Waldman
+Frank Lowy
+Gerry Harvey
+Alan Bond
+Kerry Packer
+James Packer
+Lang Walker
+Anthony Pratt
+Mike Cannon-Brookes
+Scott Farquhar
+Ruslan Kogan
+Jim Balsillie
+Mike Lazaridis
+Terry Matthews
+Frank Stronach
+Galen Weston
+Garth Drabinsky
+Michael Lee-Chin
+Jim Pattison
+Markus Persson
+Tim Sweeney
+Nolan Bushnell
+Ralph Baer
+Hiroshi Yamauchi
+Ken Kutaragi
+Strauss Zelnick
+Yves Guillemot
+Bobby Kotick
+Kazuo Hirai
+Shuhei Yoshida
+David Helgason
+Ilkka Paananen
+Dave Baszucki
+Jeff Dean
+Alex Karp
+John Schulman
+Jan Leike
+Nat Friedman
+Daniel Gross
+Joelle Pineau
+Jakub Pachocki
+Sebastian Thrun
+Daphne Koller
+Adam D'Angelo
+Mike Schroepfer
+Charlie Lee
+Hayden Adams
+Anatoly Yakovenko
+Arthur Hayes
+Erik Voorhees
+Jed McCaleb
+Chris Larsen
+Justin Sun
+Gavin Wood
+Charles Hoskinson
+Joseph Lubin
+Emin Gun Sirer
+Anthony Pompliano
+Cao Dewang
+Pan Shiyi
+Wang Jianlin
+Zhou Hongyi
+Wang Xing
+Yu Minhong
+Zhang Ruimin
+Liu Chuanzhi
+Zhou Qunfei
+Yang Huiyan
+Cheng Wei
+Kazuo Inamori
+Taiichi Ohno
+Eiji Toyoda
+Akio Toyoda
+Fujio Cho
+Chung Ju-yung
+Chung Eui-sun
+Lee Byung-chul
+Shin Dong-bin
+Kim Beom-su
+Peter Lim
+Robert Kuok
+Yeoh Tiong Lay
+Lim Goh Tong
+Anthony Tan
+Tan Hooi Ling
+Vincent Tan
+Anand Krishnan
+Dhanin Chearavanont
+Nadiem Makarim
+William Tanuwijaya
+JRD Tata
+Rahul Bajaj
+Kiran Mazumdar-Shaw
+Ajay Piramal
+Gautam Thapar
+Vineet Jain
+Sachin Bansal
+Binny Bansal
+Kunal Shah
+Falguni Nayar
+Sanjeev Bikhchandani
+Ashneer Grover
+Dilip Shanghvi
+Anil Ambani
+Uday Kotak
+Rajesh Gopinathan
+Dave Thomas
+Harland Sanders
+Tom Monaghan
+Jim Sinegal
+Charles Lazarus
+Kevin Johnson
+Brian Niccol
+Bob Nardelli
+Mike Ilitch
+Dan Schulman
+Dan Cathy
+Truett Cathy
+Doug McMillon
+Howard Hughes
+Henry Kaiser
+Milton Hershey
+Asa Candler
+Walter Chrysler
+Harvey Firestone
+Harley Earl
+Richard Sears
+Alvah Roebuck
+Aaron Montgomery Ward
+Jim Koch
+Chuck Feeney
+Jeff Smisek
+Richard Anderson
+Kelly Ortberg
+Harold Hamm
+Aubrey McClendon
+T. Boone Pickens
+Ray Irani
+Rex Tillerson
+Lee Raymond
+Ken Lay
+Jeff Skilling
+Andrew Liveris
+Ben van Beurden
+Darren Woods
+John Hess
+Bill Ford
+Henry Ford II
+Alfred Sloan
+William Durant
+Bob Lutz
+Alan Mulally
+Mark Fields
+Jim Hackett
+Ed Whitacre
+Rick Wagoner
+Dan Akerson
+Carl-Peter Forster
+Kenneth Frazier
+Albert Bourla
+Andrew Witty
+Paul Hudson
+Bill Anderson
+Alex Gorsky
+Joe Jimenez
+Leonard Schleifer
+George Yancopoulos
+Patrick Soon-Shiong
+Ugur Sahin
+Ozlem Tureci
+Brian Moynihan
+Charlie Scharf
+Michael Corbat
+Vikram Pandit
+Richard Fairbank
+Jane Fraser
+John Mack
+Dick Fuld
+Sandy Weill
+Ken Chenault
+Kenneth Lewis
+Hugh McColl
+Dick Kovacevich
+John Stumpf
+John Reed
+Walter Wriston
+Amadeo Giannini
+Jeff Sprecher
+Henry Kravis
+George Roberts
+Jerome Kohlberg
+Leon Black
+Pete Peterson
+Nelson Peltz
+Steve Cohen
+Richard Parsons
+Jeff Shell
+Brian Grazer
+Michael Eisner
+Jeffrey Katzenberg
+David Geffen
+Lew Wasserman
+Sumner Redstone
+Barry Diller
+Ben Silverman
+Kevin Mayer
+Dana Walden
+Peter Chernin
+Robert Pittman
+Mel Karmazin
+Cathy Hughes
+Herb Kelleher
+Michael O'Leary
+Tony Fernandes
+Scott Kirby
+Oscar Munoz
+Gerard Arpey
+Bob Crandall
+Glenn Tilton
+Frank Lorenzo
+Frederick W. Smith
+Jim Barksdale
+Jeff Gennette
+Brian Cornell
+Marvin Ellison
+Hubert Joly
+Richard Hayne
+Mickey Drexler
+Ron Johnson
+James Cash Penney
+Frank Woolworth
+Bernard Marcus
+Arthur Blank
+Sam Zell
+Carl Lindner
+Jerry Sanders
+Ken Olsen
+Jack Tramiel
+Trip Hawkins
+Gary Kildall
+Scott Forstall
+Andy Rubin
+Andy Bechtolsheim
+Ryan Petersen
+Jeff Lawson
+Dustin Moskovitz
+Mark Pincus
+Sean Parker
+Scott Heiferman
+Ruth Porat
+Tim Armstrong
+Nikesh Arora
+Joe Kaeser
+Adam Selipsky
+Thomas Kurian
+Matt Garman
+Frank Slootman
+Kevin Scott
+Ellen Pao
+Jay Chaudhry
+Parker Harris
+Aneel Bhusri
+Dave Duffield
+Jeff Jordan
+Andrew Mason
+Eric Lefkofsky
+Vishal Garg
+Chip Wilson
+Jeff Raikes
+Seth Priebatsch
+Julie Sweet
+Vishal Sikka
+Ajay Banga
+Larry Culp
+Mark Hurd
+Phil Libin
+Joel Spolsky
+Jeff Atwood
+Brad Garlinghouse
+Dennis Crowley
+Noah Kagan
+Scott Belsky
+Ben Lerer
+Stan Chudnovsky
+Elad Gil
+Steve Blank
+Matt Higgins
+Kevin Harrington
+Bethenny Frankel
+Emma Grede
+Jessica Simpson
+Ola Kallenius
+Christian Sewing
+Bob Chapek
+Christian Klein
+Jim McNerney
+Hans Vestberg
+Anne Mulcahy
+John Donahoe
+Ivan Glasenberg
+Marc Rich
+Ryan Breslow
+Ben Milne
+Nik Storonsky
+David Marcus
+Adam Draper
+Sebastian Siemiatkowski
+Tyler Winklevoss
+Cameron Winklevoss
+Dan Gilbert
+Kevin Hartz
+Andrew Mellon
+John Jacob Astor
+Leland Stanford
+Collis Huntington
+Joseph Pulitzer
+William Randolph Hearst
+Edwin Land
+Charles Goodyear
+Thomas J. Watson
+Alexander Graham Bell
+George Eastman
+Gustavus Swift
+Philip Armour
+Cyrus McCormick
+Will Keith Kellogg
+Clarence Birdseye
+Adolphus Busch
+Frederick Pabst
+Robert Woodruff
+John Pemberton
+Henry John Heinz
+Henry Steinway
+Juan Trippe
+Howard Head
+Robert Owen
+Eli Whitney
+Samuel Colt
+Elias Howe
+Isaac Singer
+Richard Gatling
+George Pullman
+Oliver Evans
+John Patterson
+Thomas Lipton
+Mikhail Fridman
+Guo Guangchang
+Zhang Xin
+Li Ka-shing
+Richard Li
+Lee Shau-kee
+Henry Fok
+Stanley Ho
+Jimmy Lai
+Joseph Lau
+Walter Kwok
+Thomas Kwok
+Victor Fung
+William Fung
+Robert Ng
+Rosalind Brewer
+Roger Penske
+Hock Tan
+Chuck Robbins
+Brian Krzanich
+Steve Mollenkopf
+Gary Dickerson
+David Zaslav
+Bob Bakish
+Lowell McAdam
+Ryan Lance
+Mike Wirth
+Lynn Elsenhans
+Vicki Hollub
+Karen Lynch
+Tim Ryan
+Bill McDermott
+Hugh Grant
+Jeff Fettig
+Paul English
+Steve Ells
+Aaron Patzer
+Sean Rad
+Justin Mateen
+Josh Miller
+Matt Mullenweg
+Jack Conte
+Richard Blevins
+Simon Cowell
+Simon Fuller
+Scooter Braun
+Irving Azoff
+Clive Davis
+Berry Gordy
+Russell Simmons
+Jimmy Iovine
+Jeremy Allaire
+Robert Kraft
+Stephen Ross
+Mark Walter
+Joe Tsai
+Jerry Reinsdorf
+Tilman Fertitta
+Ron Burkle
+Jeanie Buss
+Dan Snyder
+Ding Lei
+Terry Gou
+Stan Shih
+Cher Wang
+Robert Tsao
+Chang Yung-fa
+Marc Lore
+Jeremy Stoppelman
+Dan Bricklin
+Mitch Kapor
+Bill Joy
+Scott McNealy
+Ed Catmull
+John Lasseter
+Robert Metcalfe
+Eli Broad
+Don Fisher
+Doris Fisher
+Charles Koch
+David Koch
+Sheldon Adelson
+Steve Wynn
+Kirk Kerkorian
+Jay Pritzker
+Penny Pritzker
+John Willard Marriott
+Bill Marriott
+Conrad Hilton
+Barron Hilton
+Bill Rasmussen
+Lachlan Murdoch
+James Murdoch
+Chase Carey
+Lowell Paxson
+Ray Dolby
+Allen Questrom
+David Crane
+Tim Westergren
+Carlo Messina
+Andrea Orcel
+Antonio Horta-Osorio
+Ana Botin
+Vittorio Colao
+Massimo Moratti
+Florentino Perez
+Joan Laporta
+Isak Andic
+Pablo Isla
+Rafael del Pino
+Martin Winterkorn
+Matthias Mueller
+Rupert Stadler
+Juergen Schrempp
+Dieter Zetsche
+Edzard Reuter
+Frank Thelen
+Carsten Maschmeyer
+Ralf Duemmel
+Stefan Persson
+Karl-Johan Persson
+Kjeld Kirk Kristiansen
+Ole Kirk Christiansen
+Martin Lewis
+Simon Wolfson
+Archie Norman
+Justin King
+Richard Caring
+Richard Desmond
+Ken Morrison
+Julian Metcalfe
+Dave Lewis
+Terry Leahy
+Brian Souter
+Ann Gloag
+Vincent Tchenguiz
+James Goldsmith
+Jacob Rothschild
+Nathaniel Rothschild
+Michael Spencer
+Carlos Hank Gonzalez
+Carlos Hank Rhon
+Roberto Gonzalez Barrera
+Jorge Gerdau
+Abilio Diniz
+Luiza Trajano
+Jorge Vergara
+Nassef Sawiris
+Naguib Sawiris
+Hussein Sajwani
+Mohamed Mansour
+Ahmed Bin Sulayem
+Shai Agassi
+Nir Zuk
+Stef Wertheimer
+Yehuda Zisapel
+Dan Gertler
+Lu Qi
+Li Xiang
+William Li
+He Xiaopeng
+Wang Xiaochuan
+Ma Mingzhe
+Wang Shi
+Kevin Weil
+Fidji Simo
+Brad Lightcap
+Jason Kwon
+Bret Taylor
+Pieter Levels
+Stephen Wolfram
+Liang Wenfeng
+Yang Zhilin
+Oren Etzioni
+Peter Norvig
+Jeremy Howard
+Clement Delangue
+Julien Chaumond
+Aidan Gomez
+Ben Mann
+Jack Clark
+Matthew Prince
+Michelle Zatlyn
+Chris Malachowsky
+Dave House
+Mark Papermaster
+Ann Livermore
+Raja Koduri
+Ed Zander
+Greg Brown
+Lew Platt
+Kathleen Kennedy
+Jerry Bruckheimer
+Thomas Tull
+Mark Burnett
+Vince McMahon
+Ari Emanuel
+Jerry Weintraub
+Arnold Weinstock
+Jonah Peretti
+Arianna Huffington
+Ray Ozzie
+Tom Anderson
+Chris DeWolfe
+Rich Barton
+Josh Kushner
+Aileen Lee
+Frank Quattrone
+Jim Goetz
+Dave Morin
+Jeff Clavier
+Mark Suster
+Charles Hudson
+Chris Dixon
+Fred Ehrsam
+Tim O'Reilly
+Patrick O'Shaughnessy
+Neil Shen
+Yuri Milner
+Sergey Frank
+Victor Koo
+Deep Kalra
+Nithin Kamath
+Mohandas Pai
+Kris Gopalakrishnan
+Ajay Chowdhry
+Rahul Bhatia
+Akash Ambani
+Dave Calhoun
+Jim Umpleby
+Tsai Eng-meng
+Ong Beng Seng
+Philip Yeo
+Lee Kong Chian
+Ho Kwon Ping
+Lim Kok Thay
+Charoen Sirivadhanabhakdi
+Sarath Ratanavadi
+Eka Tjipta Widjaja
+Budi Hartono
+Michael Hartono
+Chairul Tanjung
+William Soeryadjaya
+Manny Pangilinan
+Enrique Razon
+Lucio Tan
+Henry Sy
+Andrew Tan
+Ramon Ang
+Jose Concepcion
+Les Moonves
+David Ellison
+Jeff Bewkes
+Ron Meyer
+Brian Robbins
+Michael Lynton
+Calvin McDonald
+Elliott Hill
+Kasper Rorsted
+Bob Ulrich
+Stefano Pessina
+Larry Merlo
+Craig Jelinek
+Ron Vachris
+Chris Kempczinski
+Steve Easterbrook
+David Novak
+Patrick Doyle
+Brad Smith
+Amy Hood
+Scott Guthrie
+Urs Holzle
+Sridhar Ramaswamy
+Luca Maestri
+Lisa Jackson
+Greg Peters
+David Risher
+Zachary Kirkhorn
+Drew Baglino
+JB Straubel
+Martin Eberhard
+Marc Tarpenning
+RJ Scaringe
+Peter Rawlinson
+Dennis Muilenburg
+Cristiano Amon
+Paul Jacobs
+Clay Magouyrk
+Colette Kress
+Shantanu Narayen
+Bruce Chizen
+Sasan Goodarzi
+Enrique Lores
+Carl Eschenbach
+Alex Chriss
+Ryan McInerney
+Al Kelly
+Michael Miebach
+Stephen Squeri
+Ted Pick
+James Gorman
+Todd Combs
+Ted Weschler
+Jon Gray
+Kewsong Lee
+David Rubenstein
+George H. W. Bush
+Herbert Hoover
+Calvin Coolidge
+William McKinley
+Grover Cleveland
+James Monroe
+John Quincy Adams
+Martin Van Buren
+William Henry Harrison
+John Tyler
+James K. Polk
+Zachary Taylor
+Millard Fillmore
+Franklin Pierce
+James Buchanan
+Andrew Johnson
+Rutherford B. Hayes
+James A. Garfield
+Chester A. Arthur
+Benjamin Harrison
+William Howard Taft
+Warren G. Harding
+John Kerry
+Hakeem Jeffries
+Chris Christie
+Ron Paul
+Rand Paul
+Donald Rumsfeld
+Ben Carson
+Joe Manchin
+Kyrsten Sinema
+Josh Hawley
+Lisa Murkowski
+Susan Collins
+Mike Pompeo
+William Barr
+Pam Bondi
+Kristi Noem
+Sean Spicer
+Kellyanne Conway
+Sarah Huckabee Sanders
+Karine Jean-Pierre
+Jen Psaki
+Karl Rove
+Newt Gingrich
+Dan Quayle
+Sarah Palin
+Ross Perot
+Ralph Nader
+Jesse Jackson
+Al Sharpton
+Jim Clyburn
+Stacey Abrams
+Eric Holder
+Sheldon Whitehouse
+Eugene Debs
+Strom Thurmond
+Huey Long
+Ted Kennedy
+Joe Lieberman
+Dianne Feinstein
+Harry Reid
+Tip O'Neill
+Lamar Alexander
+Joni Ernst
+Marjorie Taylor Greene
+Matt Gaetz
+Lauren Boebert
+Jim Jordan
+Adam Schiff
+Jerry Nadler
+Eric Adams
+Andrew Cuomo
+Rudy Giuliani
+Jared Kushner
+Chuck Hagel
+John Bolton
+Robert Gates
+Ash Carter
+Mark Esper
+Jim Mattis
+Michael Flynn
+Lloyd Bentsen
+Robert Rubin
+Timothy Geithner
+Steven Mnuchin
+Nancy Reagan
+Rosalynn Carter
+Pat Nixon
+Mamie Eisenhower
+Betty Ford
+Hillary Rodham Clinton
+John Major
+Jeremy Corbyn
+Ed Miliband
+Nick Clegg
+Ed Davey
+Kemi Badenoch
+Sadiq Khan
+Angela Rayner
+Priti Patel
+Suella Braverman
+Jacob Rees-Mogg
+Michael Gove
+Sajid Javid
+Dominic Raab
+Rachel Reeves
+David Lammy
+Yvette Cooper
+John Prescott
+Michael Heseltine
+Harold Wilson
+Edward Heath
+James Callaghan
+Clement Attlee
+Neville Chamberlain
+Ramsay MacDonald
+David Lloyd George
+Herbert Asquith
+Iain Duncan Smith
+William Hague
+Michael Howard
+Nicola Sturgeon
+Humza Yousaf
+John Swinney
+Alex Salmond
+Mark Drakeford
+Eluned Morgan
+Carwyn Jones
+Arlene Foster
+Michelle O'Neill
+Mary Lou McDonald
+Leo Varadkar
+Micheal Martin
+Enda Kenny
+Bertie Ahern
+Stephen Harper
+Paul Martin
+Jean Chretien
+Brian Mulroney
+Pierre Trudeau
+Jagmeet Singh
+Chrystia Freeland
+Malcolm Turnbull
+Tony Abbott
+Kevin Rudd
+Julia Gillard
+John Howard
+Paul Keating
+Bob Hawke
+Peter Dutton
+John Key
+Helen Clark
+Chris Hipkins
+Winston Peters
+Francois Hollande
+Nicolas Sarkozy
+Jacques Chirac
+Francois Mitterrand
+Jean-Marc Ayrault
+Edouard Philippe
+Gabriel Attal
+Michel Barnier
+Francois Bayrou
+Jordan Bardella
+Jean-Luc Melenchon
+Dominique de Villepin
+Gerhard Schroder
+Helmut Schmidt
+Willy Brandt
+Annalena Baerbock
+Robert Habeck
+Christian Lindner
+Konrad Adenauer
+Ludwig Erhard
+Frank-Walter Steinmeier
+Joachim Gauck
+Horst Kohler
+Matteo Renzi
+Enrico Letta
+Paolo Gentiloni
+Giuseppe Conte
+Matteo Salvini
+Romano Prodi
+Pedro Sanchez
+Mariano Rajoy
+Jose Luis Rodriguez Zapatero
+Felipe Gonzalez
+Alberto Nunez Feijoo
+Santiago Abascal
+Pablo Iglesias
+Yolanda Diaz
+Geert Wilders
+Dick Schoof
+Viktor Orban
+Peter Magyar
+Robert Fico
+Andrej Babis
+Petr Fiala
+Donald Tusk
+Andrzej Duda
+Karol Nawrocki
+Mateusz Morawiecki
+Lech Kaczynski
+Jaroslaw Kaczynski
+Alexander Lukashenko
+Zoran Milanovic
+Aleksandar Vucic
+Milos Zeman
+Petr Pavel
+Kyriakos Mitsotakis
+Alexis Tsipras
+Recep Tayyip Erdogan
+Nicos Anastasiades
+Sebastian Kurz
+Karl Nehammer
+Alexander Van der Bellen
+Mette Frederiksen
+Ulf Kristersson
+Magdalena Andersson
+Stefan Lofven
+Jonas Gahr Store
+Petteri Orpo
+Sanna Marin
+Alexander Stubb
+Sauli Niinisto
+Guy Verhofstadt
+Charles Michel
+Josep Borrell
+Kaja Kallas
+Antonio Costa
+Marcelo Rebelo de Sousa
+Luis Montenegro
+Ivan Duque
+Gustavo Petro
+Jiang Zemin
+Zhou Enlai
+Li Keqiang
+Wen Jiabao
+Zhu Rongji
+Leonid Brezhnev
+Nikita Khrushchev
+Mikhail Mishustin
+Sergei Shoigu
+Manmohan Singh
+Atal Bihari Vajpayee
+Rajiv Gandhi
+Sonia Gandhi
+Amit Shah
+Arvind Kejriwal
+Yoshihide Suga
+Junichiro Koizumi
+Yukio Hatoyama
+Naoto Kan
+Yoshihiko Noda
+Park Geun-hye
+Lee Myung-bak
+Roh Moo-hyun
+Kim Dae-jung
+Ma Ying-jeou
+Ko Wen-je
+Benigno Aquino III
+Gloria Macapagal Arroyo
+Susilo Bambang Yudhoyono
+Najib Razak
+Muhyiddin Yassin
+Tharman Shanmugaratnam
+Yingluck Shinawatra
+Min Aung Hlaing
+Sheikh Hasina
+Muhammad Yunus
+Khaleda Zia
+Prachanda
+Nawaz Sharif
+Benazir Bhutto
+Asif Ali Zardari
+Shehbaz Sharif
+Pervez Musharraf
+Ashraf Ghani
+Hamid Karzai
+Hassan Rouhani
+Mahmoud Ahmadinejad
+Mohammad Khatami
+Ali Khamenei
+Masoud Pezeshkian
+Ebrahim Raisi
+Mohammed bin Zayed
+Yair Lapid
+Naftali Bennett
+Ehud Barak
+Ehud Olmert
+Ariel Sharon
+Shimon Peres
+Itamar Ben-Gvir
+Bezalel Smotrich
+Ismail Haniyeh
+Yahya Sinwar
+Hassan Nasrallah
+Bashar al-Assad
+Hafez al-Assad
+Ahmed al-Sharaa
+Michel Aoun
+Najib Mikati
+Saad Hariri
+Abdel Fattah el-Sisi
+Hosni Mubarak
+Mohamed Morsi
+Anwar Sadat
+Gamal Abdel Nasser
+Mohammed VI
+Abdelmadjid Tebboune
+Kais Saied
+Muammar Gaddafi
+Saddam Hussein
+Nouri al-Maliki
+Haider al-Abadi
+Mustafa al-Kadhimi
+Mohammed Shia al-Sudani
+Masrour Barzani
+Nechirvan Barzani
+Jalal Talabani
+Tamim bin Hamad Al Thani
+Hamad bin Khalifa Al Thani
+Abdullah II
+Sultan Haitham bin Tariq
+Qaboos bin Said
+Ilham Aliyev
+Nursultan Nazarbayev
+Kassym-Jomart Tokayev
+Shavkat Mirziyoyev
+Emomali Rahmon
+Gurbanguly Berdimuhamedow
+Serdar Berdimuhamedow
+Almazbek Atambayev
+Sadyr Japarov
+Askar Akayev
+Nikol Pashinyan
+Robert Kocharyan
+Serzh Sargsyan
+Irakli Kobakhidze
+Salome Zourabichvili
+Mikheil Saakashvili
+Petro Poroshenko
+Viktor Yanukovych
+Yulia Tymoshenko
+Viktor Yushchenko
+Denys Shmyhal
+Yulia Svyrydenko
+Jean-Claude Juncker
+Jose Manuel Barroso
+Herman Van Rompuy
+Federica Mogherini
+Frans Timmermans
+Margrethe Vestager
+Thierry Breton
+Valdis Dombrovskis
+Maros Sefcovic
+Antonio Tajani
+Mario Monti
+Lamberto Dini
+Massimo D'Alema
+Walter Veltroni
+Pier Luigi Bersani
+Gianfranco Fini
+Umberto Bossi
+Beppe Grillo
+Luigi Di Maio
+Giuseppe Pisanu
+Dimitris Avramopoulos
+Costas Simitis
+Andreas Papandreou
+Konstantinos Karamanlis
+George Papandreou
+Antonis Samaras
+Vaclav Havel
+Vaclav Klaus
+Jiri Paroubek
+Miroslav Lajcak
+Eduard Heger
+Ludovit Odor
+Lubomir Harman
+Rumen Radev
+Boyko Borisov
+Kiril Petkov
+Bojko Borisov
+Ion Iliescu
+Traian Basescu
+Klaus Iohannis
+Nicolae Ceausescu
+Marcel Ciolacu
+Ilie Bolojan
+Igor Dodon
+Maia Sandu
+Vlad Filat
+Ilan Shor
+Valeriy Zaluzhnyi
+Oleksiy Arestovych
+Svitlana Vovk
+Mykhailo Podolyak
+Andriy Yermak
+Vladimir Zhirinovsky
+Gennady Zyuganov
+Boris Nemtsov
+Anatoly Chubais
+Yevgeny Primakov
+Viktor Chernomyrdin
+Sergei Kiriyenko
+Alexei Kudrin
+Yuri Andropov
+Konstantin Chernenko
+Georgy Malenkov
+Lavrentiy Beria
+Alexander Kerensky
+Nicholas II
+Pol Pot
+Nguyen Xuan Phuc
+Tran Dai Quang
+Nguyen Tan Dung
+Nguyen Minh Triet
+Truong Tan Sang
+Nong Duc Manh
+Le Kha Phieu
+Vo Van Kiet
+Pham Van Dong
+Le Duan
+Nguyen Van Thieu
+Bao Dai
+Ton Duc Thang
+Tran Duc Luong
+Phan Van Khai
+Vo Chi Cong
+Nguyen Thi Kim Ngan
+Vo Thi Anh Xuan
+Tran Thanh Man
+Cao Dinh Doan
+Tran Quoc Vuong
+Dang Thi Ngoc Thinh
+Nguyen Sinh Hung
+Pham Quang Nghi
+Phan Dinh Trac
+Sukarno
+Suharto
+B. J. Habibie
+Megawati Sukarnoputri
+Abdurrahman Wahid
+Tun Abdul Razak
+Tunku Abdul Rahman
+Tun Hussein Onn
+Tengku Razaleigh
+Ismail Sabri Yaakob
+Goh Chok Tong
+Tony Tan
+Halimah Yacob
+Ong Teng Cheong
+Yusof Ishak
+Lim Hwee Hua
+Ferdinand Marcos
+Corazon Aquino
+Joseph Estrada
+Fidel Ramos
+Benigno Aquino Jr.
+Diosdado Macapagal
+Sara Duterte
+Leni Robredo
+Bongbong Marcos
+Mahinda Rajapaksa
+Gotabaya Rajapaksa
+Ranil Wickremesinghe
+Maithripala Sirisena
+Chandrika Kumaratunga
+Anura Kumara Dissanayake
+Sushil Koirala
+KP Sharma Oli
+Sher Bahadur Deuba
+Baburam Bhattarai
+Girija Prasad Koirala
+Pranab Mukherjee
+Ram Nath Kovind
+Droupadi Murmu
+Pratibha Patil
+Abdul Kalam
+Pratap Singh Kairon
+Chandrababu Naidu
+Mamata Banerjee
+Nitish Kumar
+Lalu Prasad Yadav
+Mayawati
+Akhilesh Yadav
+Yogi Adityanath
+Sharad Pawar
+Uddhav Thackeray
+Eknath Shinde
+Devendra Fadnavis
+Bal Thackeray
+Naveen Patnaik
+Jagan Mohan Reddy
+Sheikh Mujibur Rahman
+Ziaur Rahman
+Hussein Muhammad Ershad
+Begum Khaleda Zia
+Tarique Rahman
+Pakistan Muslim League
+Ghulam Ishaq Khan
+Zia-ul-Haq
+Muhammad Zia-ul-Haq
+Ayub Khan
+Yahya Khan
+Ghulam Mohammad
+Liaquat Ali Khan
+Muhammad Ali Jinnah
+Fatima Jinnah
+Maryam Nawaz
+Bilawal Bhutto Zardari
+Shah Mahmood Qureshi
+Asad Umar
+Sheikh Rashid
+Abdullah Abdullah
+Mohammad Mohaqiq
+Gulbuddin Hekmatyar
+Mullah Omar
+Hibatullah Akhundzada
+Abdul Ghani Baradar
+Ahmad Shah Massoud
+Sardar Daud Khan
+Mohammad Daoud Khan
+Nur Muhammad Taraki
+Hafizullah Amin
+Babrak Karmal
+Mohammad Najibullah
+Ali Abdullah Saleh
+Abdrabbuh Mansur Hadi
+Rashad al-Alimi
+Mohammed al-Houthi
+Abdul-Malik al-Houthi
+Hassan Diab
+Fouad Siniora
+Tammam Salam
+Gebran Bassil
+Samir Geagea
+Walid Jumblatt
+Nabih Berri
+Moshe Dayan
+Menachem Begin
+Yitzhak Shamir
+Gideon Saar
+Avigdor Lieberman
+Benny Gantz
+Gadi Eisenkot
+Tzipi Livni
+Ayelet Shaked
+Yoav Gallant
+Israel Katz
+Mahmoud al-Zahar
+Khaled Mashal
+Ziad al-Nakhalah
+Marwan Barghouti
+Salam Fayyad
+Mohammad Shtayyeh
+Hussein al-Sheikh
+Saeb Erekat
+Thabo Mbeki
+Jacob Zuma
+FW de Klerk
+Julius Malema
+John Steenhuisen
+Helen Zille
+Kgalema Motlanthe
+Robert Mugabe
+Emmerson Mnangagwa
+Morgan Tsvangirai
+Yoweri Museveni
+Milton Obote
+Idi Amin
+Uhuru Kenyatta
+William Ruto
+Raila Odinga
+Mwai Kibaki
+Daniel arap Moi
+Jomo Kenyatta
+Hailemariam Desalegn
+Abiy Ahmed
+Meles Zenawi
+Isaias Afwerki
+Hassan Sheikh Mohamud
+Omar al-Bashir
+Salva Kiir
+Paul Kagame
+Felix Tshisekedi
+Laurent Kabila
+Denis Sassou Nguesso
+Teodoro Obiang
+Paul Biya
+Faustin-Archange Touadera
+Patrice Talon
+Mohamed Bazoum
+Mahamadou Issoufou
+Ibrahim Traore
+Assimi Goita
+Mahamat Deby
+Idriss Deby
+Alassane Ouattara
+Laurent Gbagbo
+Macky Sall
+Bassirou Diomaye Faye
+Adama Barrow
+Nana Akufo-Addo
+John Dramani Mahama
+Muhammadu Buhari
+Bola Tinubu
+Olusegun Obasanjo
+Goodluck Jonathan
+Yakubu Gowon
+Ellen Johnson Sirleaf
+George Weah
+Joseph Boakai
+Julius Maada Bio
+Samia Suluhu Hassan
+John Magufuli
+Jakaya Kikwete
+Edgar Lungu
+Hakainde Hichilema
+Lazarus Chakwera
+Peter Mutharika
+Bingu wa Mutharika
+Ali Hassan Mwinyi
+Nangolo Mbumba
+Hage Geingob
+Netumbo Nandi-Ndaitwah
+Hifikepunye Pohamba
+Sam Nujoma
+Hastings Banda
+Joaquim Chissano
+Armando Guebuza
+Filipe Nyusi
+Daniel Chapo
+Ian Khama
+Mokgweetsi Masisi
+Duma Boko
+Pakalitha Mosisili
+Andry Rajoelina
+Marc Ravalomanana
+Ali Bongo
+Kenneth Kaunda
+Seretse Khama
+Faure Gnassingbe
+Ahmed Tejan Kabbah
+Ernest Bai Koroma
+Jerry Rawlings
+John Atta Mills
+Raul Castro
+Miguel Diaz-Canel
+Hugo Chavez
+Juan Guaido
+Edmundo Gonzalez Urrutia
+Delcy Rodriguez
+Henrique Capriles
+Luiz Inacio Lula da Silva
+Dilma Rousseff
+Fernando Henrique Cardoso
+Michel Temer
+Fernando Collor de Mello
+Itamar Franco
+Jose Sarney
+Cristina Fernandez de Kirchner
+Mauricio Macri
+Alberto Fernandez
+Nestor Kirchner
+Juan Peron
+Eva Peron
+Isabel Peron
+Sebastian Pinera
+Michelle Bachelet
+Gabriel Boric
+Ricardo Lagos
+Jose Antonio Kast
+Juan Manuel Santos
+Alvaro Uribe
+Andres Pastrana
+Andres Manuel Lopez Obrador
+Enrique Pena Nieto
+Felipe Calderon
+Vicente Fox
+Ernesto Zedillo
+Carlos Salinas de Gortari
+Miguel de la Madrid
+Nayib Bukele
+Daniel Ortega
+Rosario Murillo
+Juan Orlando Hernandez
+Xiomara Castro
+Manuel Zelaya
+Mauricio Funes
+Alejandro Giammattei
+Bernardo Arevalo
+Rafael Correa
+Lenin Moreno
+Guillermo Lasso
+Daniel Noboa
+Evo Morales
+Luis Arce
+Rodrigo Paz
+Jeanine Anez
+Carlos Mesa
+Mario Abdo Benitez
+Santiago Pena
+Horacio Cartes
+Fernando Lugo
+Tabare Vazquez
+Luis Lacalle Pou
+Yamandu Orsi
+Jose Mujica
+Dina Boluarte
+Pedro Castillo
+Martin Vizcarra
+Pedro Pablo Kuczynski
+Alan Garcia
+Alberto Fujimori
+Keiko Fujimori
+Ollanta Humala
+Laura Chinchilla
+Oscar Arias
+Luis Guillermo Solis
+Carlos Alvarado Quesada
+Rodrigo Chaves
+Laurentino Cortizo
+Jose Raul Mulino
+Mireya Moscoso
+Boutros Boutros-Ghali
+Javier Perez de Cuellar
+Dag Hammarskjold
+Kurt Waldheim
+Volker Turk
+Mia Mottley
+Ralph Gonsalves
+Keith Rowley
+~Lula
+Jorge Batlle
+Julio Maria Sanguinetti
+Thongloun Sisoulith
+Bounnhang Vorachith
+Phankham Viphavanh
+Tongsing Thammavong
+Kaysone Phomvihane
+Souphanouvong
+Ibrahim Boubacar Keita
+Alpha Conde
+Blaise Compaore
+Thomas Sankara
+Modibo Keita
+Yahya Jammeh
+Ousmane Sonko
+United Nations Security Council
+United Nations General Assembly
+United Nations Human Rights Council
+United Nations Development Programme
+United Nations Secretary-General
+United Nations High Commissioner for Human Rights
+United Nations High Commissioner for Refugees
+United Nations Children's Fund
+United Nations Office on Drugs and Crime
+United Nations Environment Programme
+United Nations Population Fund
+United Nations Relief and Works Agency
+United Nations Women
+UNDP
+UNEP
+UNRWA
+World Food Programme
+International Labour Organization
+Food and Agriculture Organization
+International Atomic Energy Agency
+International Criminal Court
+International Court of Justice
+International Committee of the Red Cross
+International Maritime Organization
+International Civil Aviation Organization
+International Telecommunication Union
+Universal Postal Union
+World Intellectual Property Organization
+Permanent Court of Arbitration
+Europol
+Frontex
+European Council
+Council of the European Union
+European Court of Justice
+European Court of Human Rights
+European Investment Bank
+European Stability Mechanism
+European Free Trade Association
+European Economic Area
+European Defence Agency
+European External Action Service
+European Anti-Fraud Office
+Council of Europe
+Organisation for Economic Co-operation and Development
+Organization for Economic Co-operation and Development
+North Atlantic Treaty Organization
+Western European Union
+Organization for Security and Co-operation in Europe
+Organization of American States
+Inter-American Development Bank
+African Union
+African Development Bank
+Economic Community of West African States
+East African Community
+Southern African Development Community
+Intergovernmental Authority on Development
+Arab League
+Gulf Cooperation Council
+Organization of Islamic Cooperation
+Organization of the Petroleum Exporting Countries
+Association of Southeast Asian Nations
+ASEAN
+Asia-Pacific Economic Cooperation
+Asian Development Bank
+Asian Infrastructure Investment Bank
+New Development Bank
+Shanghai Cooperation Organization
+Eurasian Economic Union
+Commonwealth of Nations
+Pacific Islands Forum
+Caribbean Community
+Mercosur
+G8
+AUKUS
+Five Eyes
+Group of Seven
+Group of Twenty
+Central Intelligence Agency
+Federal Bureau of Investigation
+National Security Agency
+National Security Council
+Defense Intelligence Agency
+Office of the Director of National Intelligence
+Environmental Protection Agency
+Federal Emergency Management Agency
+Department of State
+Department of the Treasury
+Department of Agriculture
+Department of Commerce
+Department of Energy
+Department of Labor
+Department of Veterans Affairs
+Department of Housing and Urban Development
+Department of Transportation
+Department of the Interior
+Office of Management and Budget
+Federal Reserve System
+Federal Communications Commission
+Federal Election Commission
+United States Congress
+US Congress
+House Freedom Caucus
+Congressional Black Caucus
+Senate Democrats
+Senate Republicans
+House Democrats
+House Republicans
+Democratic National Committee
+Republican National Committee
+Democratic Congressional Campaign Committee
+National Republican Senatorial Committee
+Democratic Governors Association
+Republican Governors Association
+Chairman of the Joint Chiefs of Staff
+State Duma
+Federation Council
+Security Council of Russia
+Federal Security Service
+Foreign Intelligence Service
+Russian Ministry of Foreign Affairs
+Elysee Palace
+National Assembly of France
+Senate of France
+Quai d'Orsay
+Foreign Office
+Cabinet Office
+Ministry of Defence
+Ministry of Justice
+Ministry of Health
+Ministry of Foreign Affairs
+Ministry of Finance
+Ministry of Commerce
+Ministry of Public Security
+Ministry of State Security
+Ministry of National Defense
+Ministry of Economy and Finance
+Ministry of Interior
+Ministry of Health and Welfare
+Ministry of Defense
+Scotland Office
+Northern Ireland Office
+Crown Prosecution Service
+Metropolitan Police
+Scotland Yard
+MI5
+MI6
+Reserve Bank of India
+Central Bank of Russia
+Deutsche Bundesbank
+Banque de France
+Privy Council
+Prime Minister's Office
+State Council
+National People's Congress
+Chinese Communist Party
+Communist Party of China
+Central Committee of the Communist Party of China
+Central Military Commission
+~Politburo
+Politburo Standing Committee
+Central Political and Legal Affairs Commission
+National Assembly
+National Congress
+Supreme People's Assembly
+Workers' Party of Korea
+Korean Workers' Party
+Central Committee of the Workers' Party of Korea
+Lao People's Revolutionary Party
+Communist Party of Vietnam
+Communist Party of Cuba
+Sandinista National Liberation Front
+Cuban Communist Party
+Communist Party of the Soviet Union
+Supreme Soviet
+Central Committee of the Communist Party of the Soviet Union
+Cabinet of Ministers
+Council of Ministers
+Prime Minister's Questions
+Liberal Democrats
+Liberal Democrat Party
+Scottish National Party
+Plaid Cymru
+Democratic Unionist Party
+Ulster Unionist Party
+Social Democratic and Labour Party
+Sinn Fein
+Alliance Party of Northern Ireland
+Green Party of England and Wales
+Reform UK
+UK Independence Party
+Brexit Party
+Social Democratic Party
+Liberal Party of Canada
+Conservative Party of Canada
+New Democratic Party
+Bloc Quebecois
+Progressive Conservative Party
+Liberal Party of Australia
+Australian Labor Party
+Labor Party
+Australian Greens
+National Party of Australia
+One Nation
+New Zealand First
+Labour Party of New Zealand
+New Zealand National Party
+ACT New Zealand
+Green Party of Aotearoa New Zealand
+Fianna Fail
+Fine Gael
+Libertarian Party
+Green Party
+Democratic Socialists of America
+Tea Party
+Reform Party
+Constitution Party
+Know Nothing Party
+Whig Party
+Federalist Party
+Democratic-Republican Party
+Progressive Party
+Socialist Party of America
+Christian Democratic Union
+Christian Social Union
+Social Democratic Party of Germany
+Free Democratic Party
+Alternative for Germany
+Alliance 90 The Greens
+The Left
+Die Linke
+National Rally
+Rally for the Republic
+La France Insoumise
+Socialist Party
+National Front
+Les Republicains
+Union for a Popular Movement
+Five Star Movement
+Forza Italia
+Brothers of Italy
+Democratic Party of Italy
+Northern League
+Podemos
+People's Party
+Spanish Socialist Workers' Party
+Ciudadanos
+Freedom Party of Austria
+Party for Freedom
+Christian Democratic Appeal
+Law and Justice
+Civic Platform
+Fidesz
+Jobbik
+New Democracy
+PASOK
+Social Democrats
+Socialist People's Party
+Danish People's Party
+Sweden Democrats
+Moderate Party
+Social Democratic Party of Sweden
+Centre Party
+Finns Party
+National Coalition Party
+Social Democrats of Finland
+Labour Party of Norway
+Progress Party
+Christian Democratic Party
+Bulgarian Socialist Party
+Slovenian Democratic Party
+African National Congress
+Democratic Alliance
+Economic Freedom Fighters
+Inkatha Freedom Party
+Chama Cha Mapinduzi
+Zimbabwe African National Union Patriotic Front
+Movement for Democratic Change
+Awami League
+Bangladesh Nationalist Party
+Jatiya Party
+Bharatiya Janata Party
+Indian National Congress
+Aam Aadmi Party
+Samajwadi Party
+Bahujan Samaj Party
+Trinamool Congress
+Janata Dal
+Rashtriya Janata Dal
+Shiv Sena
+Nationalist Congress Party
+Communist Party of India
+Liberal Democratic Party
+Constitutional Democratic Party of Japan
+Komeito
+Democratic Party of Japan
+Japan Communist Party
+Japan Innovation Party
+~Kuomintang
+Democratic Progressive Party
+New Power Party
+People First Party
+Democratic Party of Korea
+People Power Party
+Justice Party of Korea
+Future Korea Party
+Uri Party
+Grand National Party
+Pakistan Tehreek-e-Insaf
+Pakistan Peoples Party
+Muttahida Qaumi Movement
+Jamaat-e-Islami
+Hezbollah
+Hamas
+Fatah
+Islamic Jihad
+Likud
+Yesh Atid
+Shas
+Meretz
+Yisrael Beiteinu
+Blue and White
+Muslim Brotherhood
+Justice and Development Party
+Republican People's Party
+Peoples' Democratic Party
+Peronist Party
+Justicialist Party
+Radical Civic Union
+Workers' Party
+Brazilian Democratic Movement
+Brazilian Social Democracy Party
+Liberal Party
+Democratic Action Party
+Institutional Revolutionary Party
+National Action Party
+Broad Front
+Colorado Party
+National Party
+Republican Party of Chile
+Nationalist Republican Alliance
+Frente Amplio
+Revolutionary Armed Forces of Colombia
+Party of the Brazilian Democratic Movement
+Liberal Democratic Party of Russia
+United Russia
+A Just Russia
+Communist Party of the Russian Federation
+Fatherland-All Russia
+Nur Otan
+Socialist Party of Albania
+Democratic Party of Albania
+Nicolas Maduro
+Erwin Schrodinger
+Ernest Rutherford
+Joseph John Thomson
+Hans Christian Oersted
+Andre-Marie Ampere
+Georg Ohm
+Alessandro Volta
+Charles Coulomb
+Robert Hooke
+Christiaan Huygens
+Subrahmanyan Chandrasekhar
+Arthur Eddington
+Georges Lemaitre
+Fred Hoyle
+Vera Rubin
+Bernhard Riemann
+Pierre-Simon Laplace
+Joseph-Louis Lagrange
+Joseph Fourier
+Simeon Poisson
+Augustin-Jean Fresnel
+Thomas Young
+Christian Doppler
+Ludwig Boltzmann
+Rudolf Clausius
+James Prescott Joule
+William Thomson
+Sadi Carnot
+Hermann von Helmholtz
+Gustav Kirchhoff
+Robert Bunsen
+Dmitri Mendeleev
+John Dalton
+Antoine Lavoisier
+Joseph Priestley
+Humphry Davy
+Amedeo Avogadro
+Jons Jacob Berzelius
+Svante Arrhenius
+Linus Pauling
+Gilbert Newton Lewis
+Fritz Haber
+Carl Bosch
+Otto Hahn
+Lise Meitner
+Hans Bethe
+Julian Schwinger
+Sin-Itiro Tomonaga
+Murray Gell-Mann
+Francois Englert
+Steven Weinberg
+Abdus Salam
+Sheldon Glashow
+Chien-Shiung Wu
+Leo Szilard
+Eugene Wigner
+Alonzo Church
+Kurt Godel
+Vint Cerf
+William Herschel
+Caroline Herschel
+Henrietta Leavitt
+Cecilia Payne-Gaposchkin
+Annie Jump Cannon
+Clyde Tombaugh
+Harlow Shapley
+Jocelyn Bell Burnell
+Antony Hewish
+Rainer Weiss
+Barry Barish
+Lisa Randall
+Max Born
+Lev Landau
+Igor Tamm
+Pyotr Kapitsa
+Andrei Sakharov
+Ernest Lawrence
+Robert Millikan
+Arthur Compton
+Max von Laue
+Walther Nernst
+Philipp Lenard
+Wilhelm Roentgen
+Henri Becquerel
+John William Strutt
+Guglielmo Marconi
+Heinrich Hertz
+Louis de Broglie
+Ettore Majorana
+Emilio Segre
+Owen Chamberlain
+Maria Goeppert Mayer
+Donna Strickland
+Ahmed Zewail
+Hideki Yukawa
+Yoichiro Nambu
+Makoto Kobayashi
+Toshihide Maskawa
+Saul Perlmutter
+Brian Schmidt
+Adam Riess
+Wendy Freedman
+James Peebles
+Reinhard Genzel
+Andrea Ghez
+Martin Rees
+Joseph Taylor
+Russell Hulse
+Edward Witten
+Frank Wilczek
+David Gross
+David Politzer
+Gerard Hooft
+Martinus Veltman
+Carlo Rubbia
+Simon van der Meer
+Samuel Ting
+Burton Richter
+Leon Lederman
+Melvin Schwartz
+Jack Steinberger
+Hans Dehmelt
+Wolfgang Ketterle
+Eric Cornell
+Carl Wieman
+Arno Penzias
+Robert Wilson
+George Gamow
+Vesto Slipher
+Milutin Milankovic
+Johannes Stark
+Pieter Zeeman
+Hendrik Lorentz
+Heike Kamerlingh Onnes
+Johannes van der Waals
+Willem Einthoven
+Max Delbruck
+Erwin Chargaff
+Alfred Wegener
+Lynn Margulis
+Ernst Mayr
+Ronald Fisher
+Karl Pearson
+Francis Galton
+Dorothy Hodgkin
+Max Perutz
+Jerome Lejeune
+Alfred Hershey
+Thomas Hunt Morgan
+Maurice Wilkins
+Barbara McClintock
+Oswald Avery
+Frederick Sanger
+Kary Mullis
+Craig Venter
+Francis Collins
+Paul Berg
+Herbert Boyer
+Stanley Cohen
+Arthur Kornberg
+Har Gobind Khorana
+Marshall Nirenberg
+Robert Holley
+Sydney Brenner
+Francois Jacob
+Jacques Monod
+Joseph Lister
+Ignaz Semmelweis
+Louis Braille
+Howard Florey
+Ernst Chain
+Selman Waksman
+Gerhard Domagk
+Paul Ehrlich
+Emil von Behring
+Shibasaburo Kitasato
+Albert Sabin
+Walter Reed
+Carlos Finlay
+Ronald Ross
+William Harvey
+Andreas Vesalius
+Avicenna
+Al-Razi
+Ibn al-Nafis
+Santiago Ramon y Cajal
+Camillo Golgi
+Rudolf Virchow
+Claude Bernard
+Ivan Pavlov
+William Osler
+Harvey Cushing
+Charles Best
+Frederick Banting
+John Macleod
+Hans Selye
+Walter Cannon
+Ernest Starling
+William Bayliss
+Charles Sherrington
+Edgar Adrian
+Alan Hodgkin
+Andrew Huxley
+John Eccles
+Otto Loewi
+Henry Dale
+Joseph Erlanger
+Herbert Gasser
+George Beadle
+Edward Tatum
+Hermann Muller
+Rita Levi-Montalcini
+Stanley Prusiner
+Harold Varmus
+Michael Bishop
+Richard Roberts
+Phillip Sharp
+Eric Kandel
+Christian Anfinsen
+Stanford Moore
+William Stein
+Robert Huber
+Hartmut Michel
+Johann Deisenhofer
+Peter Mitchell
+Paul Boyer
+John Walker
+Jens Skou
+Kurt Wuthrich
+Lewis Thomas
+Virginia Apgar
+Elizabeth Blackburn
+Carol Greider
+Jack Szostak
+Gregg Semenza
+William Kaelin
+Peter Ratcliffe
+Shinya Yamanaka
+John Gurdon
+Richard Axel
+Linda Buck
+Robert Lefkowitz
+Brian Kobilka
+Arvid Carlsson
+Paul Greengard
+Eric Wieschaus
+Christiane Nusslein-Volhard
+Edward Lewis
+Gerald Edelman
+Rodney Porter
+Julius Axelrod
+Konrad Lorenz
+Karl von Frisch
+Nikolaas Tinbergen
+Dian Fossey
+Richard Leakey
+Louis Leakey
+Mary Leakey
+Donald Johanson
+Tim White
+Svante Paabo
+George Cuvier
+Carl Linnaeus
+Ernst Haeckel
+Jean-Baptiste Lamarck
+Georges Buffon
+Alexander von Humboldt
+Thomas Henry Huxley
+Richard Owen
+Mary Anning
+Edward Wilson
+Richard Lewontin
+Robert Trivers
+William Hamilton
+John Maynard Smith
+George Williams
+Carl Woese
+Theodosius Dobzhansky
+Sewall Wright
+John Haldane
+Julian Huxley
+Ilya Mechnikov
+Karl Landsteiner
+Jules Bordet
+Peyton Rous
+Max Theiler
+Frank Macfarlane Burnet
+Wendell Stanley
+John Enders
+Thomas Weller
+Frederick Robbins
+Hilary Koprowski
+Robert Edwards
+Patrick Steptoe
+Christiaan Barnard
+Michael DeBakey
+Denton Cooley
+Alexis Carrel
+Charles Drew
+Daniel Hale Williams
+Paul Farmer
+Samuel Hahnemann
+~Paracelsus
+Giovanni Battista Morgagni
+Marcello Malpighi
+Thomas Sydenham
+Thomas Willis
+Jan Swammerdam
+Hans Asperger
+Leo Kanner
+Emil Kraepelin
+Eugen Bleuler
+Jean-Martin Charcot
+Josef Breuer
+Karen Horney
+Erich Fromm
+Donald Winnicott
+Wilfred Bion
+Rudolf Jaenisch
+Jerome Kagan
+Michael Rutter
+Roger Sperry
+Michael Gazzaniga
+Brenda Milner
+Alan Baddeley
+Endel Tulving
+Daniel Schacter
+Elizabeth Spelke
+Eleanor Gibson
+Roger Shepard
+Nathaniel Kleitman
+William Dement
+Rosalind Picard
+Robert Rescorla
+Elliot Aronson
+Irving Janis
+Stanley Schachter
+Lawrence Kohlberg
+Carol Gilligan
+Harry Stack Sullivan
+Pierre Janet
+Hippolyte Bernheim
+Wilhelm Reich
+Otto Rank
+Eugene Aserinsky
+Hans Berger
+Ernst Mach
+Ludwig Prandtl
+Theodore von Karman
+Vladimir Bekhterev
+Alexander Luria
+Sergei Rubinstein
+Anna Freud
+Melanie Klein
+Burrhus Skinner
+John Watson
+Edward Thorndike
+William James
+Wilhelm Wundt
+Hermann Ebbinghaus
+Gustav Fechner
+Ernst Weber
+Herbert Simon
+Allen Newell
+George Miller
+Gerd Gigerenzer
+Leon Festinger
+Stanley Milgram
+Solomon Asch
+Philip Zimbardo
+Albert Bandura
+Fritz Perls
+Rollo May
+Aaron Beck
+Albert Ellis
+Mary Ainsworth
+John Bowlby
+Harry Harlow
+Hans Eysenck
+Gordon Allport
+Raymond Cattell
+Lewis Terman
+Alfred Binet
+Charles Spearman
+Howard Gardner
+Robert Sternberg
+Elizabeth Loftus
+Paul Ekman
+Robert Zajonc
+Kurt Lewin
+Muzafer Sherif
+Walter Mischel
+Jerome Bruner
+George Kelly
+Donald Hebb
+Edward Tolman
+Clark Hull
+Wolfgang Kohler
+Max Wertheimer
+Kurt Koffka
+Ulric Neisser
+Jerry Fodor
+John Searle
+Hilary Putnam
+Willard Quine
+Gottlob Frege
+Gilbert Ryle
+Alfred Ayer
+John Langshaw Austin
+Karl Popper
+Thomas Kuhn
+Paul Feyerabend
+Imre Lakatos
+Rudolf Carnap
+Moritz Schlick
+Otto Neurath
+George Berkeley
+Georg Hegel
+Soren Kierkegaard
+Maurice Merleau-Ponty
+Jacques Derrida
+Roland Barthes
+Jurgen Habermas
+Theodor Adorno
+Max Horkheimer
+Walter Benjamin
+David Ricardo
+Thomas Malthus
+Ludwig von Mises
+Joseph Schumpeter
+Irving Fisher
+Paul Samuelson
+Robert Solow
+Kenneth Arrow
+Gary Becker
+Ronald Coase
+Douglass North
+Amartya Sen
+Daron Acemoglu
+Esther Duflo
+Abhijit Banerjee
+Michael Kremer
+Vilfredo Pareto
+Alfred Marshall
+William Stanley Jevons
+Carl Menger
+Eugen Bohm-Bawerk
+Wassily Leontief
+Simon Kuznets
+Arthur Pigou
+Ragnar Frisch
+Jan Tinbergen
+Lawrence Klein
+James Tobin
+Franco Modigliani
+Robert Merton
+Myron Scholes
+Eugene Fama
+Robert Shiller
+Lars Peter Hansen
+Thomas Sargent
+Christopher Sims
+Edmund Phelps
+Oliver Williamson
+Elinor Ostrom
+George Akerlof
+Michael Spence
+Harry Markowitz
+William Sharpe
+Gottfried Leibniz
+Rene Descartes
+Francis Bacon
+Epicurus
+Democritus
+Thales of Miletus
+Zhu Xi
+Wang Yangming
+Averroes
+Maimonides
+Al-Ghazali
+Boethius
+Al-Farabi
+Ibn Khaldun
+Hypatia
+Peter Abelard
+William of Ockham
+Duns Scotus
+Roger Bacon
+Anselm of Canterbury
+Giordano Bruno
+Erasmus of Rotterdam
+Thomas More
+Giambattista Vico
+Montesquieu
+Denis Diderot
+Marquis de Condorcet
+Edmund Burke
+Thomas Paine
+Thomas Reid
+Dugald Stewart
+Franz Brentano
+Ernst Cassirer
+Karl Jaspers
+Rudolf Steiner
+Henri Bergson
+Emile Durkheim
+Max Weber
+Georg Simmel
+Ferdinand de Saussure
+Claude Levi-Strauss
+Jacques Lacan
+Louis Althusser
+Gilles Deleuze
+Julia Kristeva
+Isaiah Berlin
+Hans-Georg Gadamer
+Paul Ricoeur
+Charles Taylor
+Alasdair MacIntyre
+Richard Rorty
+Donald Davidson
+Saul Kripke
+David Lewis
+Alvin Plantinga
+William Lane Craig
+Bernard Williams
+Elizabeth Anscombe
+Philippa Foot
+Iris Murdoch
+Mary Midgley
+Susanne Langer
+John Dewey
+Charles Sanders Peirce
+George Herbert Mead
+Charles Horton Cooley
+William Graham Sumner
+Herbert Spencer
+Auguste Comte
+Adam Ferguson
+Francis Hutcheson
+Bernard Mandeville
+Friedrich List
+Frederic Bastiat
+Henry George
+Thorstein Veblen
+John Kenneth Galbraith
+Hyman Minsky
+Gunnar Myrdal
+Knut Wicksell
+Eli Heckscher
+Bertil Ohlin
+Samuel Morse
+Elisha Gray
+Charles Kettering
+George Stephenson
+Robert Stephenson
+James Watt
+Thomas Newcomen
+Richard Trevithick
+Isambard Kingdom Brunel
+Nikolaus Otto
+Rudolf Diesel
+Karl Benz
+Henry Bessemer
+Abraham Darby
+Joseph Whitworth
+Hiram Maxim
+Alfred Nobel
+Christopher Sholes
+Philo Farnsworth
+Vladimir Zworykin
+John Logie Baird
+Lee de Forest
+Edwin Armstrong
+Reginald Fessenden
+Charles Steinmetz
+George Westinghouse
+Ernst Alexanderson
+Igor Sikorsky
+Glenn Curtiss
+Alberto Santos-Dumont
+Otto Lilienthal
+Frank Whittle
+Hans von Ohain
+Robert Goddard
+Konstantin Tsiolkovsky
+Hermann Oberth
+Wernher von Braun
+Sergei Korolev
+Jack Kilby
+Douglas Engelbart
+Ted Hoff
+Federico Faggin
+William Shockley
+John Bardeen
+Walter Brattain
+Ferdinand Braun
+Herbert Kroemer
+Shuji Nakamura
+Isamu Akasaki
+Hiroshi Amano
+Dennis Gabor
+Willis Carrier
+Chester Carlson
+Louis Daguerre
+Joseph Niepce
+William Fox Talbot
+Auguste Lumiere
+Louis Lumiere
+Eadweard Muybridge
+Lewis Latimer
+Garrett Morgan
+Hedy Lamarr
+Marie Van Brittan Brown
+Stephanie Kwolek
+Ruth Wakefield
+Melitta Bentz
+Martin Cooper
+John Harrison
+Gerhard Mercator
+Johannes Gutenberg
+William Caxton
+Ottmar Mergenthaler
+Josiah Wedgwood
+Henry Cort
+Joseph Henry
+Hertha Ayrton
+Emily Roebling
+Lillian Gilbreth
+Frank Gilbreth
+Frederick Winslow Taylor
+Henry Gantt
+Ray Tomlinson
+Vannevar Bush
+Dean Kamen
+Earl Tupper
+Ruth Handler
+Wilson Greatbatch
+Charles Richter
+Beno Gutenberg
+Inge Lehmann
+Harry Hess
+Walter Sutton
+Theodore Maiman
+Charles Townes
+Arthur Schawlow
+Nick Holonyak
+Gordon Gould
+Leo Esaki
+Ivar Giaever
+Brian Josephson
+Ernst Ruska
+Gerd Binnig
+Heinrich Rohrer
+Alex Muller
+Georg Bednorz
+Carl Zeiss
+Otto Schott
+Rudolf Kompfner
+Antonie van Leeuwenhoek
+Lazzaro Spallanzani
+Francesco Redi
+William Gilbert
+Otto von Guericke
+Evangelista Torricelli
+Robert Boyle
+Edme Mariotte
+Jacques Charles
+Joseph Gay-Lussac
+Robert Brown
+Matthias Schleiden
+Theodor Schwann
+Hugo de Vries
+Carl Correns
+George Washington Carver
+Luther Burbank
+Norman Borlaug
+Fritz Pregl
+Richard Willstatter
+Emil Fischer
+Paul Karrer
+Robert Robinson
+Robert Burns Woodward
+Elias James Corey
+Alexander Todd
+Hermann Staudinger
+Karl Ziegler
+Giulio Natta
+Wallace Carothers
+Roy Plunkett
+Leo Baekeland
+Charles Friedel
+James Crafts
+Adolf von Baeyer
+August Kekule
+Friedrich Wohler
+Justus von Liebig
+Jean-Baptiste Dumas
+Henry Moseley
+Frederick Soddy
+Francis Aston
+Ernest Walton
+John Cockcroft
+James Chadwick
+Patrick Blackett
+Cecil Powell
+Carl Anderson
+Victor Hess
+Frederick Reines
+Clifford Shull
+Bertram Brockhouse
+James Hutton
+Charles Lyell
+Abraham Werner
+Nicolas Steno
+James Lovelock
+Wangari Maathai
+Edward Lorenz
+Syukuro Manabe
+Klaus Hasselmann
+Gilbert Plass
+Roger Revelle
+Charles Keeling
+Wallace Broecker
+James Hansen
+Michael Mann
+Paul Crutzen
+Mario Molina
+Sherwood Rowland
+Jane Lubchenco
+Sylvia Earle
+Robert Ballard
+Jacques Cousteau
+Auguste Piccard
+Jacques Piccard
+Marie Tharp
+Bradford Washburn
+Mary Somerville
+Maria Mitchell
+Emmy Noether
+Sophie Germain
+Maria Agnesi
+Sofia Kovalevskaya
+Irene Joliot-Curie
+Frederic Joliot-Curie
+Gerty Cori
+Carl Cori
+Barbara Liskov
+Frances Arnold
+May-Britt Moser
+Edvard Moser
+John O'Keefe
+Emilie du Chatelet
+Agnes Pockels
+Helen Taussig
+Mary Putnam Jacobi
+Elizabeth Garrett Anderson
+Elizabeth Blackwell
+Esther Lederberg
+Joshua Lederberg
+Salvador Luria
+Renato Dulbecco
+Howard Temin
+David Baltimore
+Tomas Lindahl
+Paul Modrich
+Aziz Sancar
+Venkatraman Ramakrishnan
+Thomas Steitz
+Ada Yonath
+Stefan Hell
+Eric Betzig
+William Moerner
+Jacques Dubochet
+Joachim Frank
+Richard Henderson
+Richard Heck
+Ei-ichi Negishi
+Ryoji Noyori
+Barry Sharpless
+Benjamin List
+David MacMillan
+Bernard Feringa
+Jean-Marie Lehn
+Donald Cram
+Charles Pedersen
+Fraser Stoddart
+Alan Heeger
+Alan MacDiarmid
+Hideki Shirakawa
+Robert Curl
+Richard Smalley
+Harold Kroto
+Mario Capecchi
+Oliver Smithies
+Martin Evans
+Andrew Fire
+Craig Mello
+Gary Ruvkun
+Victor Ambros
+Hans Krebs
+Fritz Lipmann
+Edwin Krebs
+Edmond Fischer
+Earl Sutherland
+Bernardo Houssay
+Luis Federico Leloir
+Albert Szent-Gyorgyi
+Severo Ochoa
+Vladimir Prelog
+Leopold Ruzicka
+George Wald
+Ragnar Granit
+Haldan Keffer Hartline
+Louis Ignarro
+Ferid Murad
+Robert Furchgott
+Sune Bergstrom
+Bengt Samuelsson
+John Vane
+Ulf von Euler
+Julius Wagner-Jauregg
+Egas Moniz
+Walter Hess
+Georg von Bekesy
+Gerhard Herzberg
+William Lipscomb
+Robert Mulliken
+Harold Urey
+Willard Libby
+Melvin Calvin
+Glenn Seaborg
+Edwin McMillan
+Chandrasekhara Venkata Raman
+Homi Bhabha
+Vikram Sarabhai
+Satyendra Nath Bose
+Meghnad Saha
+Jagadish Chandra Bose
+Ibn al-Haytham
+Al-Khwarizmi
+Omar Khayyam
+Al-Biruni
+Jabir ibn Hayyan
+Ulugh Beg
+Zhang Heng
+Shen Kuo
+Zu Chongzhi
+Cai Lun
+Qian Xuesen
+Yang Chen-Ning
+Tsung-Dao Lee
+Shing-Tung Yau
+Chen Jingrun
+Hua Luogeng
+Masatoshi Koshiba
+Takaaki Kajita
+Arthur McDonald
+Apollonius of Perga
+Eratosthenes
+Hipparchus
+~Ptolemy
+Diophantus
+Leonardo Fibonacci
+Al-Kindi
+Pierre de Fermat
+Girolamo Cardano
+Niccolo Tartaglia
+Rafael Bombelli
+Francois Viete
+John Napier
+Henry Briggs
+Abraham de Moivre
+Brook Taylor
+Colin Maclaurin
+Jacob Bernoulli
+Johann Bernoulli
+Daniel Bernoulli
+Jean d'Alembert
+Gaspard Monge
+Adrien-Marie Legendre
+Evariste Galois
+Niels Henrik Abel
+Carl Jacobi
+Peter Dirichlet
+Ferdinand von Lindemann
+Georg Cantor
+Richard Dedekind
+Karl Weierstrass
+Augustin Cauchy
+Sophus Lie
+Felix Klein
+David Hilbert
+Henri Poincare
+Hermann Weyl
+Emil Artin
+Andrey Kolmogorov
+Nikolai Lobachevsky
+Janos Bolyai
+Henri Lebesgue
+Stefan Banach
+Paul Erdos
+Alexander Grothendieck
+Jean-Pierre Serre
+Michael Atiyah
+Maryam Mirzakhani
+Ingrid Daubechies
+John Horton Conway
+Benoit Mandelbrot
+George Dantzig
+Norbert Wiener
+Andrei Markov
+Pafnuty Chebyshev
+Leonid Kantorovich
+Thomas Bayes
+Seymour Papert
+Frank Rosenblatt
+Judea Pearl
+Alex Krizhevsky
+Edward Feigenbaum
+Terrence Sejnowski
+David Rumelhart
+Andrew Barto
+Richard Sutton
+Joseph Weizenbaum
+Tony Hoare
+Niklaus Wirth
+James Gosling
+Leslie Lamport
+Edgar Codd
+Jim Gray
+Michael Stonebraker
+Tom Kilburn
+Maurice Wilkes
+Konrad Zuse
+John Atanasoff
+Clifford Berry
+J. Presper Eckert
+John Mauchly
+Gene Amdahl
+Seymour Cray
+Wesley Clark
+Douglas Hartree
+Hermann Hollerith
+Richard Stallman
+Ward Christensen
+Brian Kernighan
+Doug McIlroy
+Richard Hamming
+Claude Berge
+Stanislaw Ulam
+Nicholas Metropolis
+John Kemeny
+Thomas Kurtz
+Ole-Johan Dahl
+Kristen Nygaard
+Alan Perlis
+Robert Tarjan
+Richard Karp
+Stephen Cook
+Leslie Valiant
+Manuel Blum
+Shafi Goldwasser
+Silvio Micali
+Whitfield Diffie
+Martin Hellman
+Ron Rivest
+Adi Shamir
+Leonard Adleman
+Dan Boneh
+Ralph Merkle
+Taher Elgamal
+Isaac Barrow
+Christopher Wren
+Robert Recorde
+Thomas Harriot
+John Wallis
+Edmond Halley
+Gerolamo Saccheri
+Isaac Milner
+Ole Romer
+Jean Richer
+Giovanni Cassini
+Jean-Dominique Cassini
+Pierre Bouguer
+Alexis Clairaut
+Charles Wheatstone
+William Cooke
+Samuel Cunliffe Lister
+Oliver Heaviside
+Michael Pupin
+Hippolyte Fizeau
+Leon Foucault
+Anders Celsius
+Daniel Fahrenheit
+Rene Reaumur
+Anders Jonas Angstrom
+Gabriel Lippmann
+Jean Perrin
+Paul Langevin
+Jean-Antoine Chaptal
+Claude Louis Berthollet
+Joseph Proust
+Eilhard Mitscherlich
+Jean-Baptiste Biot
+Felix Savart
+Alexandre Yersin
+Emile Roux
+Charles Laveran
+Albert Calmette
+Camille Guerin
+Patrick Manson
+Casimir Funk
+Christiaan Eijkman
+Frederick Hopkins
+Edward Mellanby
+Harold Hartley
+Carl von Linde
+William Ramsay
+Frederick Lindemann
+Henry Tizard
+Robert Watson-Watt
+Edward Appleton
+Ernest Marsden
+William Bragg
+Lawrence Bragg
+Charles Barkla
+Peter Debye
+Arnold Sommerfeld
+Friedrich Hund
+Pascual Jordan
+Max Dehn
+Otto Stern
+Walther Gerlach
+Gustav Hertz
+James Franck
+Lothar Meyer
+Wolfgang Paul
+Hans Jensen
+Wilhelm Lenz
+Gregor Wentzel
+Oskar Klein
+Hendrik Kramers
+George Uhlenbeck
+Samuel Goudsmit
+Abraham Pais
+Freeman Dyson
+Joseph Rotblat
+Hans Geiger
+`);
+CST_GLOSSARY_EXTRA_ADD("places", null, `
+Bien Hoa
+Hai Duong
+Nam Dinh
+Thai Nguyen
+Vinh
+Rach Gia
+Long Xuyen
+My Tho
+Ben Tre
+Tra Vinh
+Soc Trang
+Bac Lieu
+Ca Mau
+Vinh Long
+Dong Hoi
+Tam Ky
+Pleiku
+Kon Tum
+Son La
+Lang Son
+Cao Bang
+Bac Giang
+Bac Ninh
+Thanh Hoa
+Ha Tinh
+Tuyen Quang
+Yen Bai
+Phu Tho
+Viet Tri
+Hung Yen
+Thai Binh
+Ha Nam
+Battambang
+Sihanoukville
+Kampong Cham
+Pakse
+Savannakhet
+Naypyidaw
+Mawlamyine
+Hat Yai
+Khon Kaen
+Udon Thani
+Nakhon Ratchasima
+Kanchanaburi
+Surat Thani
+George Town
+Ipoh
+Johor Bahru
+Kuching
+Shah Alam
+Petaling Jaya
+Seremban
+Surabaya
+Medan
+Semarang
+~Makassar
+Palembang
+Denpasar
+Malang
+Balikpapan
+Quezon City
+Cebu City
+Davao City
+Zamboanga City
+Iloilo City
+Bacolod
+Baguio
+Cagayan de Oro
+Bandar Seri Begawan
+Dili
+Hsinchu
+Keelung
+Kowloon
+Dongguan
+Foshan
+Zhuhai
+Shenyang
+Dalian
+Qingdao
+Jinan
+Zhengzhou
+Changsha
+Guiyang
+Nanning
+Fuzhou
+Xiamen
+Hefei
+Nanchang
+Lanzhou
+Urumqi
+Hohhot
+Taiyuan
+Shijiazhuang
+Kaifeng
+Luoyang
+Naha
+Daejeon
+Gwangju
+Ulsan
+Sichuan
+Guangdong
+Hunan
+Hubei
+Jiangsu
+Zhejiang
+Anhui
+Fujian
+Jiangxi
+Shandong
+Henan
+Hebei
+Shanxi
+Shaanxi
+Gansu
+Qinghai
+Guizhou
+Guangxi
+Heilongjiang
+Jilin
+Liaoning
+Ningxia
+Chennai
+Kolkata
+Hyderabad
+Ahmedabad
+Pune
+~Surat
+~Lucknow
+Kanpur
+Nagpur
+Indore
+Bhopal
+Patna
+Ludhiana
+~Amritsar
+Chandigarh
+Coimbatore
+Kochi
+Thiruvananthapuram
+Mysuru
+Mangaluru
+Madurai
+Visakhapatnam
+Vijayawada
+Guwahati
+Bhubaneswar
+Ranchi
+Raipur
+Dehradun
+Shimla
+Srinagar
+Jammu
+Gwalior
+Jodhpur
+Udaipur
+Rajkot
+Vadodara
+Nashik
+Aurangabad
+Howrah
+Siliguri
+Faisalabad
+Rawalpindi
+Multan
+Peshawar
+Quetta
+Islamabad
+Sialkot
+Gujranwala
+Chattogram
+Khulna
+Rajshahi
+Sylhet
+Barisal
+Lalitpur
+Kandy
+Galle
+Jaffna
+~Male
+Thimphu
+~Herat
+Kandahar
+Mazar-i-Sharif
+Mashhad
+~Isfahan
+~Tabriz
+Karaj
+Ahvaz
+Qom
+~Kermanshah
+Basra
+~Mosul
+Erbil
+Kirkuk
+Najaf
+Karbala
+~Aleppo
+Homs
+~Latakia
+~Tripoli
+Sidon
+~Tyre
+Zarqa
+Irbid
+Aqaba
+Haifa
+Be'er Sheva
+Ramallah
+Nablus
+Hebron
+Jeddah
+~Medina
+Dammam
+Taif
+Abha
+Tabuk
+Sharjah
+Ajman
+Ras al-Khaimah
+Al Ain
+Manama
+Salalah
+Sohar
+Kuwait City
+Sanaa
+Aden
+Hodeidah
+Taiz
+~Samarkand
+Bukhara
+Namangan
+Shymkent
+Bishkek
+Osh
+Dushanbe
+Khujand
+Ashgabat
+Turkmenabat
+~Ganja
+Batumi
+Kutaisi
+Gyumri
+Ankara
+Izmir
+~Bursa
+Antalya
+Adana
+Konya
+Gaziantep
+Mersin
+Kayseri
+Eskisehir
+Trabzon
+Diyarbakir
+Samsun
+~Van
+Sindh
+Punjab
+Balochistan
+Khyber Pakhtunkhwa
+Gujarat
+Maharashtra
+Rajasthan
+Karnataka
+Tamil Nadu
+Uttar Pradesh
+Bihar
+West Bengal
+Odisha
+~Assam
+Haryana
+Telangana
+Sikkim
+Meghalaya
+Manipur
+~Kurdistan
+Khuzestan
+Anatolia
+Golan Heights
+Negev
+~Galilee
+Judea
+~Samaria
+Bekaa Valley
+Hadhramaut
+Dhofar
+Khorasan
+Mazandaran
+Gilan
+Fars
+Kerman
+Sistan and Baluchestan
+Hormozgan
+Yazd
+Ardabil
+West Azerbaijan
+East Azerbaijan
+Kordestan
+Lorestan
+~Hamadan
+Markazi
+Qazvin
+Semnan
+Zanjan
+Golestan
+~Sheffield
+Newcastle upon Tyne
+Nottingham
+~Leicester
+~Coventry
+~Bradford
+~Plymouth
+Norwich
+Exeter
+~Gloucester
+Swindon
+Ipswich
+Peterborough
+Luton
+Milton Keynes
+Stoke-on-Trent
+Wolverhampton
+~Hull
+~Derby
+Bolton
+Oldham
+~Wigan
+Warrington
+Dundee
+~Inverness
+Stirling
+Swansea
+~Newport
+~Derry
+~Limerick
+Waterford
+Kilkenny
+Sligo
+Armagh
+Lisburn
+Newry
+Bangor
+Harrogate
+Scarborough
+Whitby
+~Carlisle
+~Lancaster
+Kendal
+Keswick
+Windermere
+Ambleside
+Penrith
+~Chester
+Shrewsbury
+~Worcester
+Stratford-upon-Avon
+~Warwick
+Leamington Spa
+Northampton
+~Bedford
+Hertford
+Chelmsford
+Colchester
+Southend-on-Sea
+~Canterbury
+Maidstone
+~Dover
+Folkestone
+~Hastings
+Eastbourne
+Lewes
+Chichester
+~Winchester
+Salisbury
+Poole
+Weymouth
+Dorchester
+~Taunton
+Bridgwater
+Barnstaple
+Truro
+Penzance
+Falmouth
+Newquay
+Torquay
+Paignton
+~Cheltenham
+Wrexham
+Aberystwyth
+Llandudno
+Holyhead
+Fishguard
+~Pembroke
+Caernarfon
+Merthyr Tydfil
+Pontypridd
+~Paisley
+~Kilmarnock
+Ayr
+~Oban
+Fort William
+Thurso
+~Wick
+Kirkwall
+Lerwick
+Stornoway
+Falkirk
+Livingston
+Kirkcaldy
+Dunfermline
+Motherwell
+Greenock
+Dumfries
+Peebles
+Melrose
+Kelso
+Jedburgh
+Hawick
+Berwick-upon-Tweed
+Morpeth
+Hexham
+Darlington
+Stockton-on-Tees
+Hartlepool
+Redcar
+Ripon
+Wetherby
+Skipton
+Huddersfield
+Wakefield
+Doncaster
+Rotherham
+Mansfield
+Worksop
+Grantham
+Wisbech
+King's Lynn
+~Cromer
+Great Yarmouth
+Lowestoft
+Bury St Edmunds
+Huntingdon
+Kettering
+Corby
+Wellingborough
+Daventry
+Nuneaton
+Burton upon Trent
+Lichfield
+~Telford
+~Shropshire
+Staffordshire
+~Cheshire
+Lancashire
+Cumbria
+Northumberland
+Derbyshire
+Leicestershire
+~Norfolk
+~Suffolk
+~Essex
+~Kent
+~Sussex
+~Surrey
+~Hampshire
+~Wiltshire
+Dorset
+~Somerset
+~Devon
+Gloucestershire
+Oxfordshire
+~Berkshire
+Buckinghamshire
+Hertfordshire
+Bedfordshire
+Cambridgeshire
+Lincolnshire
+Rutland
+Northamptonshire
+Warwickshire
+Worcestershire
+Herefordshire
+Anglesey
+Gwynedd
+Powys
+Ceredigion
+Pembrokeshire
+Carmarthenshire
+~Ulster
+Antrim
+~Down
+~Tyrone
+Fermanagh
+Donegal
+~Kerry
+~Clare
+~Mayo
+Wexford
+Wicklow
+Kildare
+Meath
+Tipperary
+Cavan
+Monaghan
+Leitrim
+Roscommon
+Westmeath
+Longford
+Laois
+Offaly
+Carlow
+Louth
+Greater London
+Westminster
+Islington
+~Hackney
+Lambeth
+Southwark
+~Greenwich
+Lewisham
+~Croydon
+Ealing
+Hounslow
+Richmond upon Thames
+Kingston upon Thames
+Wandsworth
+~Hammersmith
+~Belgravia
+Knightsbridge
+Canary Wharf
+Brixton
+Peckham
+Stratford
+Woolwich
+~Barking
+Romford
+Enfield
+~Harrow
+Hendon
+Stanmore
+Uxbridge
+Rennes
+Toulon
+Grenoble
+Dijon
+~Angers
+Nimes
+Clermont-Ferrand
+Brest
+~Tours
+Limoges
+Metz
+Besancon
+Perpignan
+~Orleans
+~Calais
+Amiens
+Rouen
+Caen
+~Valence
+~Pau
+Bayonne
+Biarritz
+Ajaccio
+Bastia
+Chambery
+~Nancy
+Mulhouse
+~Colmar
+Saint-Malo
+Saint-Tropez
+Cherbourg
+Lorient
+Vannes
+~Quimper
+Saint-Etienne
+Poitiers
+La Rochelle
+Chartres
+Beauvais
+Compiegne
+~Arles
+Aix-en-Provence
+~Albi
+Montauban
+~Agen
+Brive-la-Gaillarde
+Troyes
+Charleville-Mezieres
+Epernay
+Chalons-en-Champagne
+Fontainebleau
+Auxerre
+Nevers
+Bourges
+Vierzon
+Blois
+Vendome
+~Saumur
+Cholet
+Laval
+~Alencon
+Evreux
+Lisieux
+Bayeux
+Dieppe
+Boulogne-sur-Mer
+Saint-Omer
+~Arras
+~Valenciennes
+Douai
+~Lens
+Cambrai
+Maubeuge
+Roubaix
+Tourcoing
+Villeurbanne
+Corsica
+Occitanie
+Auvergne
+~Lorraine
+Picardy
+Aquitaine
+Limousin
+Languedoc
+Rhone-Alpes
+Ile-de-France
+Zaragoza
+~Malaga
+Murcia
+~Palma
+San Sebastian
+Alicante
+~Cordoba
+Valladolid
+Vigo
+Gijon
+Santa Cruz de Tenerife
+Oviedo
+Pamplona
+Logrono
+Salamanca
+~Toledo
+Segovia
+Avila
+Burgos
+~Leon
+Badajoz
+Caceres
+Huelva
+Cadiz
+Jerez de la Frontera
+Almeria
+Jaen
+Ciudad Real
+Albacete
+Cuenca
+Soria
+Teruel
+Huesca
+Lleida
+~Tarragona
+Reus
+Castellon de la Plana
+Benidorm
+Ronda
+Estepona
+Torremolinos
+Nerja
+Menorca
+Gran Canaria
+Tenerife
+Lanzarote
+Fuerteventura
+La Coruna
+Lugo
+Ourense
+Pontevedra
+Ferrol
+Santiago de Compostela
+Castellon
+Galicia
+Asturias
+Cantabria
+Basque Country
+Navarre
+Aragon
+Castile and Leon
+Castile-La Mancha
+Extremadura
+Valencian Community
+La Rioja
+Balearic Islands
+Canary Islands
+Coimbra
+~Faro
+Funchal
+Ponta Delgada
+Aveiro
+Setubal
+Sintra
+Cascais
+Evora
+Leiria
+Guimaraes
+Viseu
+Vila Real
+Braganca
+Albufeira
+Tavira
+Algarve
+Alentejo
+Douro
+~Beira
+Catania
+Padua
+Trieste
+~Modena
+Perugia
+Ravenna
+Brescia
+~Bergamo
+Messina
+Taranto
+Salerno
+Sassari
+Rimini
+~Ancona
+Pescara
+Lecco
+Varese
+~Pavia
+Cremona
+~Mantua
+Piacenza
+Livorno
+Lucca
+Arezzo
+Grosseto
+Pistoia
+Prato
+Viareggio
+Aosta
+Bolzano
+Trento
+Udine
+Pordenone
+Vicenza
+Treviso
+Rovigo
+Forli
+Cesena
+Foggia
+Matera
+Potenza
+Cosenza
+Catanzaro
+Reggio Calabria
+Syracuse
+Trapani
+Agrigento
+Ragusa
+Enna
+Olbia
+Nuoro
+Oristano
+Calabria
+Puglia
+Campania
+Basilicata
+Molise
+Abruzzo
+Marche
+Umbria
+Emilia-Romagna
+Liguria
+~Piedmont
+Veneto
+Friuli-Venezia Giulia
+Trentino-Alto Adige
+Valle d'Aosta
+Dusseldorf
+Essen
+Bremen
+Hanover
+Nuremberg
+Bonn
+Mannheim
+Karlsruhe
+Freiburg
+Augsburg
+Wiesbaden
+Munster
+~Kiel
+Rostock
+Jena
+Erfurt
+Magdeburg
+Potsdam
+Heidelberg
+Wurzburg
+Regensburg
+Ingolstadt
+Passau
+Bamberg
+Bayreuth
+~Coburg
+Rothenburg ob der Tauber
+Garmisch-Partenkirchen
+Konstanz
+Ulm
+~Tubingen
+Heilbronn
+Pforzheim
+Reutlingen
+Ludwigsburg
+Esslingen
+Aachen
+Bielefeld
+Bochum
+Gelsenkirchen
+Duisburg
+Wuppertal
+Koblenz
+~Trier
+Mainz
+Darmstadt
+Offenbach
+Hanau
+Kassel
+Gottingen
+Hildesheim
+Braunschweig
+Wolfsburg
+Hannover
+Osnabruck
+~Oldenburg
+Bremerhaven
+Lubeck
+Flensburg
+Wismar
+Schwerin
+Greifswald
+Stralsund
+Chemnitz
+Zwickau
+Gorlitz
+Cottbus
+Halle
+Dessau
+Weimar
+Eisenach
+Gera
+~Saxony
+Saxony-Anhalt
+Thuringia
+Hesse
+Lower Saxony
+~Brandenburg
+Mecklenburg-Vorpommern
+Baden-Wurttemberg
+North Rhine-Westphalia
+Rhineland-Palatinate
+Saarland
+Schleswig-Holstein
+Graz
+Linz
+Klagenfurt
+Villach
+~Wels
+St. Polten
+Bregenz
+Lausanne
+Lugano
+Winterthur
+St. Gallen
+Biel
+Thun
+Fribourg
+Neuchatel
+~Sion
+Chur
+Zug
+~Liege
+Namur
+Charleroi
+Mons
+Leuven
+Mechelen
+Hasselt
+Ostend
+Kortrijk
+~Utrecht
+Eindhoven
+Groningen
+Tilburg
+Almere
+Nijmegen
+Breda
+Maastricht
+Arnhem
+Haarlem
+Leiden
+~Delft
+Zwolle
+Enschede
+Luxembourg City
+Esch-sur-Alzette
+Odense
+Aalborg
+Esbjerg
+Roskilde
+Helsingor
+Trondheim
+Stavanger
+Drammen
+Tromso
+Kristiansand
+~Bodo
+Malmo
+Uppsala
+Vasteras
+Orebro
+Linkoping
+Lund
+Kiruna
+Visby
+Espoo
+Tampere
+Turku
+Oulu
+Vantaa
+Rovaniemi
+Akureyri
+Keflavik
+Lodz
+Wroclaw
+Poznan
+Gdansk
+Szczecin
+Lublin
+Bydgoszcz
+Torun
+Katowice
+Gliwice
+Czestochowa
+Bialystok
+Rzeszow
+Kielce
+Olsztyn
+Zakopane
+Ostrava
+Plzen
+Liberec
+Olomouc
+Ceske Budejovice
+Karlovy Vary
+Bratislava
+Kosice
+Zilina
+Banska Bystrica
+Presov
+Debrecen
+Szeged
+Gyor
+Miskolc
+Eger
+Cluj-Napoca
+Timisoara
+Iasi
+Constanta
+Brasov
+Sibiu
+Oradea
+Craiova
+Galati
+Plovdiv
+~Varna
+Burgas
+~Ruse
+Stara Zagora
+Novi Sad
+Nis
+Kragujevac
+~Split
+Rijeka
+Zadar
+Osijek
+Pula
+Maribor
+Koper
+~Bled
+Mostar
+Banja Luka
+~Tuzla
+Podgorica
+Budva
+Kotor
+Skopje
+Ohrid
+Bitola
+Tirana
+Durres
+Shkoder
+Vlore
+Pristina
+Thessaloniki
+Patras
+Heraklion
+Larissa
+Chania
+Kalamata
+Volos
+Ioannina
+~Kos
+Naxos
+Nicosia
+Limassol
+Larnaca
+Paphos
+Valletta
+Chisinau
+~Balti
+Tiraspol
+Kharkiv
+Odesa
+Dnipro
+Lviv
+Zaporizhzhia
+Mykolaiv
+Chernihiv
+Poltava
+Vinnytsia
+Sumy
+Uzhhorod
+Ivano-Frankivsk
+Ternopil
+Lutsk
+Kherson
+Kryvyi Rih
+Donetsk
+Luhansk
+Crimea
+Simferopol
+~Sevastopol
+Yalta
+Grodno
+Gomel
+Mogilev
+Vitebsk
+Kaunas
+Klaipeda
+Siauliai
+Panevezys
+Daugavpils
+Liepaja
+Jelgava
+Tartu
+Parnu
+Narva
+Transylvania
+Bessarabia
+Bukovina
+Dalmatia
+Istria
+Bosnia
+Herzegovina
+Macedonia
+Vojvodina
+Moravia
+~Bohemia
+~Silesia
+Pomerania
+Masovia
+Lesser Poland
+Transdanubia
+~Washington
+~Omaha
+Tulsa
+~Wichita
+Arlington
+Santa Ana
+~Riverside
+Corpus Christi
+Lexington
+~Stockton
+Henderson
+Saint Paul
+Greensboro
+Plano
+Chula Vista
+Fort Wayne
+Laredo
+~Chandler
+Madison
+Lubbock
+~Buffalo
+~Gilbert
+Glendale
+Winston-Salem
+~Chesapeake
+~Garland
+~Irving
+Hialeah
+Fremont
+Baton Rouge
+Spokane
+Des Moines
+San Bernardino
+Modesto
+Fontana
+Santa Clarita
+Oxnard
+Fayetteville
+Moreno Valley
+Rochester
+Montgomery
+Yonkers
+Little Rock
+Akron
+Huntington Beach
+Grand Rapids
+Tallahassee
+Huntsville
+~Knoxville
+~Providence
+Brownsville
+~Amarillo
+~Mobile
+~Eugene
+~Albany
+Bakersfield
+Newport News
+Shreveport
+~Tempe
+Ann Arbor
+Lansing
+Provo
+Ogden
+Asheville
+~Boulder
+Santa Barbara
+~Hollywood
+Bellevue
+Redmond
+Santa Clara
+~Burbank
+~Bronx
+~Kitchener
+~Victoria
+Oshawa
+~Windsor
+~Saskatoon
+Regina
+Sherbrooke
+St. John's
+Kelowna
+Barrie
+Abbotsford
+Trois-Rivieres
+~Guelph
+Moncton
+Fredericton
+Charlottetown
+Whitehorse
+~Yellowknife
+Iqaluit
+Thunder Bay
+Sudbury
+Sault Ste. Marie
+Brampton
+Mississauga
+Markham
+Burnaby
+Gatineau
+Longueuil
+New Brunswick
+Newfoundland and Labrador
+Prince Edward Island
+Yukon
+Nunavut
+Tijuana
+~Merida
+Hermosillo
+Saltillo
+~Acapulco
+Veracruz
+Morelia
+Culiacan
+Aguascalientes
+Cuernavaca
+San Luis Potosi
+Mexicali
+Torreon
+~Durango
+Zacatecas
+Campeche
+Los Cabos
+Ensenada
+Guanajuato
+Yucatan
+Jalisco
+Chiapas
+Sonora
+~Sinaloa
+Baja California
+Nuevo Leon
+Alexandria
+Giza
+Luxor
+Aswan
+Port Said
+Suez
+Ismailia
+Mansoura
+Tanta
+Asyut
+Sharm el-Sheikh
+Hurghada
+Benghazi
+Misrata
+Sfax
+Sousse
+Kairouan
+Bizerte
+Algiers
+Oran
+~Constantine
+Annaba
+Blida
+Tlemcen
+~Rabat
+Marrakesh
+~Tangier
+Agadir
+Meknes
+Oujda
+Tetouan
+Nouakchott
+Dakar
+Thies
+Saint-Louis
+Banjul
+Bissau
+Bamako
+Timbuktu
+Segou
+Conakry
+Freetown
+Monrovia
+Kumasi
+~Tamale
+Lome
+Cotonou
+Porto-Novo
+Abidjan
+Yamoussoukro
+Bouake
+Ouagadougou
+Bobo-Dioulasso
+Niamey
+Maiduguri
+Abuja
+Kano
+Ibadan
+Port Harcourt
+Benin City
+Enugu
+Kaduna
+Ilorin
+~Calabar
+~Jos
+Yaounde
+Douala
+Garoua
+Bangui
+N'Djamena
+Libreville
+Port-Gentil
+Malabo
+Brazzaville
+Pointe-Noire
+Kinshasa
+Lubumbashi
+Mbuji-Mayi
+~Goma
+Bukavu
+Kisangani
+Huambo
+Lobito
+Windhoek
+Walvis Bay
+Gaborone
+Francistown
+~Maun
+Harare
+Bulawayo
+Mutare
+Gweru
+Lusaka
+Ndola
+Kitwe
+Livingstone
+Lilongwe
+Blantyre
+Maputo
+Nampula
+Quelimane
+Antananarivo
+Toamasina
+Mahajanga
+Port Louis
+Moroni
+Dire Dawa
+Mekele
+Gondar
+Bahir Dar
+Hawassa
+Asmara
+Massawa
+Hargeisa
+Mogadishu
+Kismayo
+Berbera
+Mombasa
+Kisumu
+Nakuru
+Eldoret
+Thika
+Malindi
+Entebbe
+Gulu
+Mbarara
+~Jinja
+Bujumbura
+Gitega
+Dodoma
+~Arusha
+Mwanza
+~Tanga
+Mbeya
+Morogoro
+Pretoria
+Port Elizabeth
+Gqeberha
+Bloemfontein
+East London
+Pietermaritzburg
+Soweto
+Kimberley
+Polokwane
+Mbombela
+Rustenburg
+Stellenbosch
+Paarl
+Sun City
+Upington
+~Sahara
+Kalahari
+Ogaden
+Darfur
+Khartoum
+Omdurman
+Port Sudan
+~Juba
+Wau
+Kassala
+Sennar
+El Obeid
+Nile Delta
+~Canberra
+Hobart
+Wollongong
+Geelong
+Townsville
+Toowoomba
+Ballarat
+Bendigo
+Launceston
+Alice Springs
+Mackay
+Rockhampton
+Bunbury
+Albury
+Wagga Wagga
+~Tauranga
+Dunedin
+Napier
+Palmerston North
+~Nelson
+Rotorua
+Port Moresby
+Lae
+Suva
+Nadi
+Apia
+Nuku'alofa
+Port Vila
+Honiara
+Noumea
+Papeete
+Tamuning
+Hagatna
+Majuro
+Tarawa
+Funafuti
+Palikir
+Yaren
+Koror
+Northern Territory
+Waikato
+Otago
+Bay of Plenty
+Salvador
+Fortaleza
+Belo Horizonte
+Manaus
+Curitiba
+Recife
+Porto Alegre
+Belem
+Goiania
+Campinas
+Sao Luis
+Maceio
+~Natal
+~Teresina
+Florianopolis
+Vitoria
+Cuiaba
+Campo Grande
+Joao Pessoa
+Aracaju
+Ribeirao Preto
+Sorocaba
+Londrina
+Uberlandia
+Niteroi
+Guarulhos
+Ouro Preto
+Foz do Iguacu
+Porto Velho
+Macapa
+Boa Vista
+Palmas
+Rio Branco
+Brasilia
+Amazonas
+~Para
+Bahia
+Parana
+Minas Gerais
+Rio Grande do Sul
+Santa Catarina
+Ceara
+Pernambuco
+~Maracaibo
+Barquisimeto
+Maracay
+~Medellin
+Cali
+Barranquilla
+Cucuta
+Bucaramanga
+~Pereira
+Santa Marta
+Guayaquil
+Arequipa
+Trujillo
+Iquitos
+Piura
+Chiclayo
+El Alto
+Cochabamba
+~Sucre
+Potosi
+Asuncion
+Ciudad del Este
+Punta del Este
+~Rosario
+Mendoza
+La Plata
+Mar del Plata
+~Salta
+~Tucuman
+Valparaiso
+Vina del Mar
+Concepcion
+Antofagasta
+Temuco
+Puerto Montt
+Punta Arenas
+Iquique
+Georgetown
+Paramaribo
+Guatemala City
+Antigua
+Quetzaltenango
+Tegucigalpa
+San Pedro Sula
+Managua
+San Salvador
+Belize City
+Belmopan
+Santo Domingo
+Port-au-Prince
+Cap-Haitien
+Santiago de Cuba
+Camaguey
+Holguin
+Montego Bay
+Port of Spain
+Bridgetown
+~Ponce
+Musee d'Orsay
+Guggenheim Museum
+Solomon R. Guggenheim Museum
+Whitney Museum of American Art
+National Air and Space Museum
+Science Museum
+Tate Britain
+National Portrait Gallery
+Uffizi Gallery
+Galleria dell'Accademia
+Prado Museum
+Reina Sofia Museum
+Hermitage Museum
+Pushkin Museum
+Tretyakov Gallery
+Acropolis Museum
+National Archaeological Museum
+Egyptian Museum
+Museum of Islamic Art
+Pergamon Museum
+Neues Museum
+Alte Pinakothek
+Kunsthistorisches Museum
+~Belvedere
+Mauritshuis
+Stedelijk Museum
+Kroller-Muller Museum
+Ny Carlsberg Glyptotek
+Louisiana Museum of Modern Art
+National Museum of Denmark
+Vasa Museum
+Moderna Museet
+Munch Museum
+Gulbenkian Museum
+National Museum of Ancient Art
+Thyssen-Bornemisza Museum
+Borghese Gallery
+Brera Gallery
+Palazzo Pitti
+Palazzo Vecchio
+Doge's Palace
+Capitoline Museums
+Museum of Fine Arts Boston
+Art Institute of Chicago
+Getty Villa
+Los Angeles County Museum of Art
+Museum of Contemporary Art Chicago
+Field Museum
+Shedd Aquarium
+Franklin Institute
+Carnegie Museum of Natural History
+Museum of Science and Industry
+Exploratorium
+California Academy of Sciences
+American Museum of Natural History
+Museum of the City of New York
+Brooklyn Museum
+Frick Collection
+The Cloisters
+Intrepid Sea Air and Space Museum
+National World War II Museum
+National Museum of African American History and Culture
+National Gallery of Art
+Freer Gallery of Art
+Hirshhorn Museum
+National Museum of the American Indian
+Museum of Anthropology
+Smithsonian Institution
+Peabody Museum
+Hearst Museum
+Museum of Flight
+Boeing Museum of Flight
+Imperial War Museum
+Royal Armouries
+Design Museum
+Wallace Collection
+Sir John Soane's Museum
+Ashmolean Museum
+Fitzwilliam Museum
+Pitt Rivers Museum
+Hunterian Museum
+Kelvingrove Art Gallery and Museum
+National Museum of Scotland
+National Museum Cardiff
+Ulster Museum
+Museum of Liverpool
+Manchester Art Gallery
+Walker Art Gallery
+Baltic Centre for Contemporary Art
+Royal Ontario Museum
+Musee des Beaux-Arts
+Musee du Quai Branly
+Musee Rodin
+Musee de l'Orangerie
+Musee Picasso
+Musee Carnavalet
+Musee Marmottan Monet
+Musee de Cluny
+Musee national Picasso-Paris
+Palais de Tokyo
+Fondation Louis Vuitton
+Musee des Arts et Metiers
+Musee Guimet
+Musee Matisse
+Musee Fabre
+Musee Massena
+Musee Unterlinden
+Musee Gustave Moreau
+Musee Pompidou-Metz
+Musee d'Art Moderne de Paris
+Muzeum Narodowe w Krakowie
+National Museum in Warsaw
+Museum of the History of Polish Jews
+Wawel Castle Museum
+Czech National Museum
+National Gallery Prague
+Museum Kampa
+Hungarian National Museum
+Museum of Fine Arts Budapest
+Budapest History Museum
+Hungarian National Gallery
+National Museum of Serbia
+National Museum of Belgrade
+National Museum of Bulgaria
+National Historical Museum Sofia
+Romanian National Museum of Art
+Museum of the Romanian Peasant
+National Museum of Finland
+Ateneum Art Museum
+Amos Anderson Art Museum
+Kiasma Museum of Contemporary Art
+Estonian History Museum
+Museum of Occupations
+Latvian National Museum of Art
+Lithuanian National Museum
+Museum of Genocide Victims
+Ukrainian National Art Museum
+National Museum of the History of Ukraine
+Hermitage Amsterdam
+Anne Frank House
+Dutch Resistance Museum
+Maritime Museum Amsterdam
+Scheepvaartmuseum
+Museum Boijmans Van Beuningen
+Museum Ludwig
+Wallraf-Richartz Museum
+Museum Folkwang
+Zeppelin Museum
+Deutsches Historisches Museum
+Deutsches Museum
+Jewish Museum Berlin
+Museum fur Naturkunde
+Hamburger Kunsthalle
+Bavarian National Museum
+City Museum Munich
+Germanisches Nationalmuseum
+Dresden State Art Collections
+Gemaldegalerie Alte Meister
+Green Vault
+Albertinum
+Senckenberg Natural History Museum
+Stadel Museum
+Ludwig Museum
+Museum of Modern Art Frankfurt
+Schirn Kunsthalle
+Haus der Kunst
+Lenbachhaus
+Museum Brandhorst
+Pinakothek der Moderne
+Champs-Elysees
+Notre-Dame de Paris
+Sacre-Coeur Basilica
+Hall of Mirrors
+Les Invalides
+Pantheon Paris
+Sainte-Chapelle
+Pont du Gard
+Palace of the Popes
+Chateau de Chambord
+Chateau de Chenonceau
+Chateau de Fontainebleau
+Chateau de Villandry
+Mont Sainte-Victoire
+Pont Neuf
+Pont Alexandre III
+Place de la Concorde
+Place Vendome
+Opera Garnier
+Palais Garnier
+Opera Bastille
+Palais Royal
+Arc de Triomphe du Carrousel
+Grande Arche de la Defense
+Elizabeth Tower
+Houses of Parliament
+Kensington Palace
+Windsor Castle
+Holyrood Palace
+Balmoral Castle
+Hadrian's Wall
+Shard London
+Cutty Sark
+Royal Observatory Greenwich
+Greenwich Park
+St Paul's Cathedral
+Westminster Cathedral
+Westminster Bridge
+Millennium Bridge
+Trafalgar Square
+Piccadilly Circus
+Hyde Park
+Kew Gardens
+Royal Albert Hall
+Royal Opera House
+Barbican Centre
+Southbank Centre
+Old Royal Naval College
+Blenheim Palace
+Bath Abbey
+Roman Baths
+Eden Project
+Giant's Causeway
+Blarney Castle
+Trinity College Dublin
+Book of Kells
+Cliffs of Moher
+Newgrange
+Rock of Cashel
+Kilkenny Castle
+Killarney National Park
+Pisa Cathedral
+Palatine Hill
+Spanish Steps
+Castel Sant'Angelo
+Circus Maximus
+Baths of Caracalla
+Trajan's Column
+Ponte Vecchio
+Duomo Florence
+Florence Cathedral
+Piazza del Campo
+Rialto Bridge
+St Mark's Basilica
+Bridge of Sighs
+Grand Canal Venice
+Doge's Palace Venice
+Piazza San Marco
+Villa d'Este
+Villa Borghese
+Villa Medici
+Castello Sforzesco
+Milan Cathedral
+Galleria Vittorio Emanuele II
+Park Guell
+Casa Batllo
+Casa Mila
+Generalife
+Mezquita of Cordoba
+Great Mosque of Cordoba
+Alcazar of Seville
+Seville Cathedral
+Giralda
+Plaza de Espana
+Royal Palace of Madrid
+Plaza Mayor Madrid
+Plaza Mayor Salamanca
+Santiago de Compostela Cathedral
+Valley of the Fallen
+Torre de Belem
+Belem Tower
+Castle of Sao Jorge
+Pena Palace
+Ribeira Porto
+Clerigos Tower
+Lisbon Cathedral
+Santa Justa Lift
+Sagres Fortress
+Alcobaca Monastery
+Dubrovnik Old Town
+Diocletian's Palace
+Plitvice Lakes
+Hagia Sophia
+Blue Mosque
+Topkapi Palace
+Basilica Cistern
+Galata Tower
+Dolmabahce Palace
+Grand Bazaar Istanbul
+Spice Bazaar
+Ephesus
+Library of Celsus
+Pamukkale
+Hierapolis
+Troy Ruins
+Acropolis of Athens
+Erechtheion
+Temple of Olympian Zeus
+Ancient Agora of Athens
+Temple of Poseidon Sounion
+Knossos
+Palace of Knossos
+Delphi
+Oracle of Delphi
+Meteora Monasteries
+Mycenae
+Lion Gate Mycenae
+Epidaurus Theatre
+Olympia Greece
+Rhodes Old Town
+Lindos Acropolis
+Santorini Oia
+White Tower Thessaloniki
+Saint Basil's Cathedral
+Lenin Mausoleum
+Bolshoi Theatre
+Mariinsky Theatre
+Peter and Paul Fortress
+Winter Palace
+Catherine Palace
+Peterhof Palace
+Church of the Savior on Spilled Blood
+Kizhi Pogost
+Lake Baikal
+Trans-Siberian Railway
+Moscow State University
+Sophia Cathedral Kyiv
+Lavra Kyiv Pechersk
+St. Isaac's Cathedral
+Sphinx of Giza
+Valley of the Kings
+Karnak Temple
+Luxor Temple
+Temple of Karnak
+Abu Simbel
+Philae Temple
+Egyptian Museum Cairo
+Grand Egyptian Museum
+Saladin Citadel
+Cairo Tower
+Al-Azhar Mosque
+Mosque of Muhammad Ali
+Khan el-Khalili
+Alexandria Library
+Qaitbay Citadel
+Treasury Petra
+Wadi Rum
+Jerash
+Krak des Chevaliers
+~Palmyra
+Umayyad Mosque
+Damascus Citadel
+Western Wall
+Church of the Holy Sepulchre
+Dome of the Rock
+Al-Aqsa Mosque
+Masada
+Yad Vashem
+Tower of David
+Temple Mount
+Bahai Gardens Haifa
+Baha'i Shrine
+Mount of Olives
+Garden Tomb
+Basilica of the Nativity
+Church of the Nativity
+Mosque of Omar
+Ancient City of Jericho
+Hala Sultan Tekke
+Dubai Fountain
+Dubai Frame
+Atlantis The Palm
+Sheikh Zayed Grand Mosque
+Louvre Abu Dhabi
+Qasr Al Watan
+Emirates Palace
+Ferrari World
+Yas Marina Circuit
+Jebel Hafeet
+Mall of the Emirates
+Museum of the Future
+Kuwait Towers
+Grand Mosque Kuwait
+Bahrain Fort
+Qal'at al-Bahrain
+Sheikh Isa Bin Ali Fort
+Muttrah Corniche
+Sultan Qaboos Grand Mosque
+Nizwa Fort
+Bait al Zubair Museum
+Red Fort
+Qutb Minar
+Qutub Minar
+Humayun's Tomb
+India Gate
+Lotus Temple
+Akshardham Temple
+Jama Masjid Delhi
+Hawa Mahal
+Amber Fort
+City Palace Jaipur
+Jantar Mantar
+Golden Temple
+Harmandir Sahib
+Victoria Memorial
+Howrah Bridge
+Gateway of India
+Chhatrapati Shivaji Terminus
+Elephanta Caves
+Ajanta Caves
+Ellora Caves
+Hampi
+Mysore Palace
+Meenakshi Temple
+Brihadisvara Temple
+Konark Sun Temple
+Jagannath Temple
+Mahabodhi Temple
+Kailasa Temple
+Sanchi Stupa
+Khajuraho Temples
+Mehrangarh Fort
+Umaid Bhawan Palace
+Sun Temple Modhera
+Rock Garden of Chandigarh
+Sagarmatha National Park
+Boudhanath Stupa
+Swayambhunath Stupa
+Pashupatinath Temple
+Kathmandu Durbar Square
+Bhaktapur Durbar Square
+Patan Durbar Square
+Lumbini
+Potala Palace
+Jokhang Temple
+Norbulingka
+Barkhor Square
+Drepung Monastery
+Sera Monastery
+Tiger's Nest Monastery
+Paro Taktsang
+Punakha Dzong
+Thimphu Dzong
+Kek Lok Si Temple
+Penang Hill
+Petronas Twin Towers
+KL Tower
+Batu Caves
+Sultan Abdul Samad Building
+Malacca Stadthuys
+Angkor Thom
+Bayon Temple
+Ta Prohm
+Preah Vihear
+Royal Palace Phnom Penh
+Silver Pagoda
+Wat Arun
+Wat Pho
+Wat Phra Kaew
+Temple of the Emerald Buddha
+Grand Palace Bangkok
+Wat Saket
+Wat Traimit
+Chatuchak Weekend Market
+Ayutthaya Historical Park
+Sukhothai Historical Park
+Wat Chedi Luang
+Doi Suthep
+Wat Phra That Doi Suthep
+Temple of Literature
+Imperial Citadel Thang Long
+Notre-Dame Cathedral Saigon
+Saigon Central Post Office
+Reunification Palace
+War Remnants Museum
+Hue Imperial City
+Thien Mu Pagoda
+Golden Bridge Da Nang
+Vinh Moc Tunnels
+Chua Mot Cot
+Shwedagon Pagoda
+Bagan Archaeological Zone
+Inle Lake
+Mandalay Palace
+U Bein Bridge
+Kyaiktiyo Pagoda
+Golden Rock
+Ananda Temple
+Sule Pagoda
+Merlion Park
+Supertree Grove
+Sentosa Island
+Universal Studios Singapore
+Singapore Flyer
+Raffles Hotel
+Sultan Mosque
+Sri Mariamman Temple
+Jurong Bird Park
+Temple of Heaven
+Summer Palace
+Badaling Great Wall
+Mutianyu Great Wall
+Jinshanling Great Wall
+Mausoleum of the First Qin Emperor
+Oriental Pearl Tower
+Yu Garden
+Jade Buddha Temple
+Shanghai Museum
+Tianzi Mountain
+Zhangjiajie National Forest Park
+Huangshan Mountain
+Li River
+Yangtze River Three Gorges Dam
+Jiuzhaigou Valley
+Leshan Giant Buddha
+Mogao Caves
+Dunhuang
+Potala
+National Stadium Beijing
+Bird's Nest Stadium
+National Centre for the Performing Arts
+Beijing Capital Museum
+Tian Tan Buddha
+Ngong Ping 360
+Hong Kong Disneyland
+Hong Kong Palace Museum
+Star Ferry
+Kowloon Walled City Park
+Macau Ruins of St. Paul's
+Ruins of St. Paul's
+Senado Square Macau
+National Palace Museum Taipei
+Chiang Kai-shek Memorial Hall
+Longshan Temple
+Sun Moon Lake
+Taroko Gorge
+Senso-ji Temple
+Meiji Shrine
+Imperial Palace Tokyo
+Shinjuku Gyoen
+Ueno Park
+Tsukiji Outer Market
+Odaiba
+Ryogoku Kokugikan
+Yasukuni Shrine
+Todai-ji Temple
+Nara Park
+Golden Pavilion
+Ginkaku-ji
+Silver Pavilion
+Kiyomizu-dera
+Fushimi Inari Taisha
+Nijo Castle
+Arashiyama Bamboo Grove
+Philosopher's Path
+Gion District
+Osaka Castle
+Himeji Castle
+Hiroshima Peace Memorial Park
+Atomic Bomb Dome
+Itsukushima Shrine
+Miyajima
+Matsumoto Castle
+Hakone Shrine
+Kenrokuen Garden
+Okinawa Churaumi Aquarium
+Shuri Castle
+Kumamoto Castle
+Sapporo Clock Tower
+Hokkaido Shrine
+Blue Pond Biei
+Changdeokgung Palace
+Changgyeonggung Palace
+Jongmyo Shrine
+Dongdaemun Design Plaza
+Lotte World Tower
+Lotte World
+Seoul Olympic Stadium
+Haeundae Beach
+Bulguksa Temple
+Seokguram Grotto
+Gyeongju Historic Areas
+Haeinsa Temple
+Hallasan
+Jeonju Hanok Village
+Ulaanbaatar Gandan Monastery
+Gandan Monastery
+Genghis Khan Statue
+Erdene Zuu Monastery
+Kharkhorin
+Nadaam Stadium
+Sukhbaatar Square
+Chrysler Building
+Rockefeller Center
+Grand Central Terminal
+Grand Central Station
+Flatiron Building
+One World Trade Center
+Ellis Island
+Washington Square Park
+High Line
+Carnegie Hall
+Lincoln Center
+Apollo Theater
+Flushing Meadows Corona Park
+Empire State Plaza
+Cathedral of St. John the Divine
+St. Patrick's Cathedral
+Trinity Church
+Woolworth Building
+Washington Monument
+Jefferson Memorial
+Thomas Jefferson Memorial
+Vietnam Veterans Memorial
+Korean War Veterans Memorial
+Capitol Building
+United States Capitol
+Smithsonian Castle
+Arlington National Cemetery
+Mount Vernon
+Monticello
+Biltmore Estate
+Colonial Williamsburg
+Independence Hall
+Liberty Bell
+Philadelphia Museum of Art
+Rocky Steps
+Gettysburg National Military Park
+Crazy Horse Memorial
+Alamo Mission
+Gateway Arch
+Space Needle
+Pike Place Market
+Griffith Observatory
+Santa Monica Pier
+Disneyland Park
+Disney California Adventure
+Universal Studios Hollywood
+Balboa Park
+San Diego Zoo
+Alcatraz Island
+Fisherman's Wharf
+Lombard Street
+Painted Ladies
+Coit Tower
+Sather Tower
+Hearst Castle
+Yosemite Valley
+Half Dome
+El Capitan
+Sequoia National Park
+General Sherman Tree
+Death Valley National Park
+Delicate Arch
+Canyonlands National Park
+Bryce Canyon National Park
+Old Faithful
+Grand Teton National Park
+Mount Rainier National Park
+Crater Lake National Park
+Redwood National Park
+Everglades National Park
+Great Smoky Mountains National Park
+Shenandoah National Park
+Denali National Park
+Kenai Fjords National Park
+Hawaii Volcanoes National Park
+Haleakala National Park
+USS Arizona Memorial
+Waikiki Beach
+Diamond Head
+Hanauma Bay
+Iolani Palace
+Red Rocks Amphitheatre
+Royal Gorge Bridge
+Bellagio Fountains
+Caesars Palace
+Venetian Resort Las Vegas
+Fremont Street Experience
+Sphere Las Vegas
+Mackinac Island
+Millennium Park
+Cloud Gate
+Willis Tower
+Sears Tower
+Navy Pier
+Boston Common
+Freedom Trail
+Faneuil Hall
+Quincy Market
+USS Constitution
+Bunker Hill Monument
+Harvard Yard
+Harvard Square
+Boston Public Library
+Trinity Church Boston
+Old North Church
+Walden Pond
+Plymouth Rock
+Mystic Seaport
+Newport Mansions
+The Breakers
+Hershey Park
+Hershey's Chocolate World
+Biltmore House
+Graceland
+Ryman Auditorium
+Grand Ole Opry
+Country Music Hall of Fame
+Parthenon Nashville
+Kentucky Derby Museum
+Mammoth Cave National Park
+Cape Canaveral
+Kennedy Space Center
+Disney's Animal Kingdom
+Universal Orlando Resort
+Busch Gardens Tampa
+Ringling Museum
+~Everglades
+Fort Lauderdale Beach
+South Beach Miami
+Vizcaya Museum and Gardens
+Coral Castle
+Castillo San Marcos
+Fort Jefferson
+Dry Tortugas National Park
+Hemingway House Key West
+Bourbon Street
+French Quarter
+Jackson Square
+St. Louis Cathedral
+Garden District New Orleans
+Oak Alley Plantation
+Mardi Gras World
+Superdome
+Mercedes-Benz Superdome
+Cotton Bowl
+Alamodome
+Texas State Capitol
+Space Center Houston
+NASA Johnson Space Center
+Galveston Pier
+Petroleum Museum
+El Castillo Chichen Itza
+Tulum Ruins
+Coba Ruins
+~Palenque
+Pyramid of the Sun
+Pyramid of the Moon
+Temple of Quetzalcoatl
+Monte Alban
+Uxmal
+Calakmul
+Cancun Hotel Zone
+Cozumel
+Xcaret Park
+Xel-Ha Park
+Cenote Ik Kil
+Basilica of Our Lady of Guadalupe
+Palacio de Bellas Artes
+Zocalo Mexico City
+Metropolitan Cathedral Mexico City
+Chapultepec Castle
+Templo Mayor
+Frida Kahlo Museum
+Museo Soumaya
+Guanajuato Callejon del Beso
+Santa Prisca Church
+Tlaquepaque
+Chapala Lake
+Copper Canyon
+Cabo San Lucas Arch
+Christ the Redeemer Statue
+Sugarloaf Mountain
+Copacabana Beach
+Ipanema Beach
+Maracana Stadium
+Estadio do Maracana
+Selaron Steps
+Escadaria Selaron
+Sambadrome
+Municipal Theatre Rio
+Museu do Amanha
+Pelourinho
+Mercado Modelo
+Iguacu National Park
+Sao Paulo Cathedral
+Ibirapuera Park
+Paulista Avenue
+Museu de Arte de Sao Paulo
+Brasilia Cathedral
+Planalto Palace
+Alvorada Palace
+Teatro Amazonas
+Amazon Theatre
+Manaus Opera House
+Church of Sao Francisco de Assis
+Fernando de Noronha
+Lencois Maranhenses
+Chapada Diamantina
+Sacsayhuaman
+Ollantaytambo
+Huayna Picchu
+Cusco Cathedral
+Plaza de Armas Cusco
+Qorikancha
+Temple of the Sun Cusco
+Sillustani
+Puno Lake Titicaca
+Lake Titicaca
+Uros Floating Islands
+Nazca Lines
+Colca Canyon
+Rainbow Mountain
+Plaza de Armas Lima
+Larco Museum
+Huaca Pucllana
+Miraflores Lima
+Larcomar
+Cathedral of Lima
+Basilica Cathedral of Lima
+Monastery of San Francisco Lima
+Chan Chan
+Huacachina
+Caral Pyramids
+Chavin de Huantar
+Ica Desert
+Perito Moreno Glacier
+Torres del Paine
+Torres del Paine National Park
+Cerro Fitz Roy
+Mount Fitz Roy
+Moreno Glacier
+Tierra del Fuego National Park
+Ushuaia
+Lake Nahuel Huapi
+Bariloche
+Casa Rosada
+Obelisco de Buenos Aires
+Obelisk of Buenos Aires
+Teatro Colon
+Recoleta Cemetery
+La Boca
+Caminito
+Puerto Madero
+Floralis Generica
+Museo Nacional de Bellas Artes
+Plaza de Mayo
+Metropolitan Cathedral Buenos Aires
+Cerro San Cristobal
+Santiago Cathedral
+La Moneda Palace
+Palacio de La Moneda
+Cerro Santa Lucia
+Easter Island
+Moai
+Ahu Tongariki
+Rano Kau
+Atacama Desert
+San Pedro de Atacama
+Valle de la Luna
+Cathedral of Quito
+Basilica del Voto Nacional
+Church of La Compania Quito
+Mitad del Mundo
+Galapagos Islands
+Charles Darwin Research Station
+Cuenca Ecuador
+Cartagena Walled City
+Castillo San Felipe de Barajas
+Castillo de San Felipe de Barajas
+Gold Museum Bogota
+Museo del Oro
+Monserrate
+Salt Cathedral of Zipaquira
+Zipaquira Salt Cathedral
+Lost City Colombia
+Ciudad Perdida
+Plaza Bolivar Bogota
+Caracas Teresa Carreno Theatre
+Angel Falls
+Salto Angel
+Miraflores Locks
+Casco Viejo
+Panama Canal Gatun Locks
+Gatun Locks
+San Blas Islands
+Costa Rica Arenal Volcano
+Arenal Volcano
+Manuel Antonio National Park
+Monteverde Cloud Forest
+Corcovado National Park
+Teatro Nacional Costa Rica
+Palacio Nacional Guatemala
+Tikal
+Tikal National Park
+Antigua Guatemala
+Iglesia de San Francisco Antigua
+Copan Ruins
+Joya de Ceren
+Belize Barrier Reef
+Great Blue Hole
+Caye Caulker
+Altun Ha
+Lamanai
+Havana Capitol
+El Capitolio Havana
+Old Havana
+Plaza de la Revolucion
+Morro Castle
+Castillo del Morro
+Malecon Havana
+Trinidad Cuba
+Vinales Valley
+Varadero Beach
+Hotel Nacional de Cuba
+Santo Domingo Colonial Zone
+Alcazar de Colon
+Fortaleza Ozama
+Juan Dolio
+Port Royal Jamaica
+Dunn's River Falls
+Blue Mountains Jamaica
+Bob Marley Museum
+Half Moon Jamaica
+Trinidad Queen's Park Savannah
+Bridgetown Barbados
+Harrison's Cave
+Hamilton Bermuda
+St. George Bermuda
+Aruba Natural Bridge
+Eagle Beach Aruba
+Curacao Willemstad
+Floating Market Willemstad
+Pitons St Lucia
+Gros Piton
+Petit Piton
+Fort Christiansted
+San Juan El Morro
+El Morro Puerto Rico
+Old San Juan
+El Yunque National Forest
+Bioluminescent Bay Puerto Rico
+Mosquito Bay
+Christiansted Boardwalk
+Cape of Good Hope
+Robben Island
+V&A Waterfront
+Boulders Beach
+Kruger National Park
+Blyde River Canyon
+Drakensberg Mountains
+Sun City Resort
+Victoria Falls Bridge
+Chobe National Park
+Okavango Delta
+Etosha National Park
+Namib Desert
+Sossusvlei
+Fish River Canyon
+Sabi Sand Game Reserve
+Serengeti National Park
+Ngorongoro Crater
+Kilimanjaro National Park
+Zanzibar Stone Town
+Stone Town
+Mount Meru
+Lake Manyara National Park
+Tarangire National Park
+Mount Kenya
+Maasai Mara National Reserve
+Amboseli National Park
+Nairobi National Park
+Lamu Old Town
+Lake Nakuru National Park
+Gorilla Trekking Bwindi
+Bwindi Impenetrable National Park
+Murchison Falls National Park
+Queen Elizabeth National Park
+Rwenzori Mountains
+Kasubi Tombs
+Lake Victoria
+Lalibela Rock-Hewn Churches
+Rock-Hewn Churches of Lalibela
+Gondar Castles
+Fasil Ghebbi
+Axum Obelisks
+Aksum Stelae
+Simien Mountains
+Omo Valley
+Blue Nile Falls
+Sankore Mosque
+Djinguereber Mosque
+Great Mosque of Djenne
+Dogon Country
+Bandiagara Escarpment
+Erg Chebbi
+Ait Benhaddou
+Hassan II Mosque
+Koutoubia Mosque
+Bahia Palace
+Jemaa el-Fnaa
+Medina of Marrakech
+Majorelle Garden
+Medina of Fez
+Volubilis
+Rabat Hassan Tower
+Mohammed VI Mosque
+Tunis Medina
+Carthage Ruins
+Sidi Bou Said
+Bardo National Museum
+El Djem Amphitheatre
+Sousse Medina
+Tozeur
+Djerba
+Algiers Casbah
+Kasbah of Algiers
+Timgad Ruins
+Tipasa Ruins
+Djemila
+Tassili n'Ajjer
+Hoggar Mountains
+Ghardaia
+Tripoli Old Town
+Leptis Magna
+Sabratha
+Cyrene Libya
+Ruins of Leptis Magna
+Lahore Fort
+Badshahi Mosque
+Shalimar Gardens
+Minar-e-Pakistan
+Faisal Mosque
+Karakoram Highway
+Hunza Valley
+Baltit Fort
+Ranikot Fort
+Mohenjo-daro
+Taxila
+Lake Saiful Muluk
+Kabul Blue Mosque
+Blue Mosque Mazar-i-Sharif
+Bamiyan Valley
+Herat Citadel
+Ark of Kabul
+Tehran Azadi Tower
+Azadi Tower
+Golestan Palace
+Milad Tower
+Naqsh-e Jahan Square
+Imam Mosque Isfahan
+Sheikh Lotfollah Mosque
+Si-o-se-pol Bridge
+Khaju Bridge
+Vank Cathedral
+Chehel Sotoun
+Persepolis
+Naqsh-e Rustam
+Shiraz Arg
+Vakil Mosque
+Nasir al-Mulk Mosque
+Pink Mosque
+Bam Citadel
+Arg-e Bam
+Golestan Palace Tehran
+Yazd Amir Chakhmaq Complex
+Tabriz Bazaar
+Ruins of Pasargadae
+Tomb of Cyrus the Great
+Hafez Tomb
+Saadi Tomb
+Ali Qapu Palace
+Chogha Zanbil
+Qeshm Island
+Kish Island
+Ararat Mountain
+Mount Ararat
+Yerevan Cascade
+Cascade Complex Yerevan
+Matenadaran
+Echmiadzin Cathedral
+Etchmiadzin Cathedral
+Geghard Monastery
+Tbilisi Old Town
+Narikala Fortress
+Holy Trinity Cathedral of Tbilisi
+Tsminda Sameba Cathedral
+Mtskheta
+Svetitskhoveli Cathedral
+Uplistsikhe
+Gergeti Trinity Church
+Stalin Museum Gori
+Batumi Alphabet Tower
+Vardzia Cave Monastery
+Baku Flame Towers
+Flame Towers
+Maiden Tower
+Maiden Tower Baku
+Palace of the Shirvanshahs
+Icherisheher
+Ateshgah Fire Temple
+Gobustan Rock Art
+Harbour Bridge Sydney
+Circular Quay
+Royal Botanic Garden Sydney
+Taronga Zoo
+Darling Harbour
+Sydney Tower
+Queen Victoria Building
+Blue Mountains Australia
+Three Sisters Blue Mountains
+Great Ocean Road
+Twelve Apostles
+Ayers Rock
+Kata Tjuta
+Kings Canyon
+Whitsunday Islands
+Whitehaven Beach
+Daintree Rainforest
+Cape Tribulation
+Kakadu National Park
+Nitmiluk National Park
+Purnululu National Park
+Bungle Bungles
+Shark Bay
+Pinnacles Desert
+Rottnest Island
+Kangaroo Island
+Federation Square
+Flinders Street Station
+Royal Exhibition Building
+Melbourne Museum
+Great Ocean Walk
+Crown Casino
+Eureka Tower
+Parliament House Canberra
+Australian War Memorial
+National Gallery of Australia
+Questacon
+Lake Burley Griffin
+Museum of Old and New Art
+Port Arthur Historic Site
+Cradle Mountain
+Adelaide Botanic Garden
+Barossa Valley
+Kangaroo Island Admirals Arch
+Gold Coast Surfers Paradise
+Sea World Gold Coast
+Warner Bros. Movie World
+Fraser Island
+K'gari
+Lord Howe Island
+Mount Cook National Park
+Aoraki Mount Cook
+Fiordland National Park
+Franz Josef Glacier
+Fox Glacier
+Lake Tekapo
+Church of the Good Shepherd Tekapo
+Sky Tower Auckland
+Auckland Harbour Bridge
+Waitomo Glowworm Caves
+Te Papa Museum
+Te Papa Tongarewa
+Hobbiton Movie Set
+Rotorua Geothermal
+Pohutu Geyser
+Te Puia
+Queenstown Skyline
+Bay of Islands
+Cathedral Cove
+Hot Water Beach
+Tongariro National Park
+Mount Ruapehu
+Mount Taranaki
+Abel Tasman National Park
+Wellington Cable Car
+Parliament Buildings Wellington
+Christchurch Cathedral
+Port Chalmers
+Stewart Island
+Lake Wakatipu
+Rangitoto Island
+Mount Eden
+Lake Taupo
+Mount Victoria Wellington
+Waimea Canyon
+Na Pali Coast
+Polynesian Cultural Center
+Pu'uhonua o Honaunau
+Kilauea Volcano
+Mauna Kea
+Mauna Loa
+Hana Highway
+Road to Hana
+Iao Valley
+Lahaina Banyan Tree
+Ala Moana Center
+Ka'ena Point
+Fiji Sigatoka Sand Dunes
+Mamanuca Islands
+Yasawa Islands
+Moorea
+Palau Rock Islands
+Micronesia Nan Madol
+Nan Madol
+Pitcairn Island
+Mount Yasur
+Solomon Islands
+Kokoda Track
+Kokoda Trail
+Ross Ice Shelf
+Mount Erebus
+Ross Sea
+Antarctic Peninsula
+Stanford Stadium
+University of California Berkeley
+University of California Los Angeles
+University of Southern California
+University of Virginia
+University of North Carolina at Chapel Hill
+University of Wisconsin-Madison
+University of Illinois Urbana-Champaign
+Ohio State University
+Pennsylvania State University
+California Institute of Technology
+Georgia Institute of Technology
+Massachusetts Institute of Technology MIT
+Bodleian Library
+Christ Church College Oxford
+Radcliffe Camera
+King's College Chapel
+Trinity College Cambridge
+University of St Andrews
+University of Manchester
+Shanghai Jiao Tong University
+University of Hong Kong
+Chinese University of Hong Kong
+Korea Advanced Institute of Science and Technology
+Hanoi University of Science and Technology
+Vietnam National University Hanoi
+Vietnam National University Ho Chi Minh City
+Ho Chi Minh City University of Technology
+University of Malaya
+Chulalongkorn University
+Mahidol University
+Indian Institute of Technology Delhi
+Indian Institute of Science
+University of Cape Town
+University of the Witwatersrand
+Cairo University
+Al-Azhar University
+American University in Cairo
+Sorbonne University
+Humboldt University of Berlin
+Technical University of Munich
+University of Zurich
+University of Bologna
+University of Salamanca
+University of Coimbra
+Charles University
+Jagiellonian University
+Uppsala University
+Karolinska Institute
+University of Helsinki
+Trinity College Dublin University
+University of Vienna
+Leiden University
+University of Amsterdam
+Delft University of Technology
+Ronald Reagan UCLA Medical Center
+Walter Reed National Military Medical Center
+Cedars-Sinai Medical Center
+Barts Hospital
+St Thomas' Hospital
+Guy's Hospital
+King's College Hospital
+Charite Hospital
+Charite Berlin
+Assistance Publique Hopitaux de Paris
+Hopital Necker
+Rigshospitalet
+Vienna General Hospital
+Bumrungrad International Hospital
+Bangkok Hospital
+Samitivej Hospital
+Singapore General Hospital
+Tan Tock Seng Hospital
+Mount Elizabeth Hospital
+Chinese PLA General Hospital
+Ruijin Hospital
+Tokyo University Hospital
+Jikei University Hospital
+Hospital Israelita Albert Einstein
+Sao Paulo Hospital Sirio-Libanes
+King Faisal Specialist Hospital
+Saudi German Hospital
+Narayana Health City
+Apollo Hospitals
+Christian Medical College Vellore
+Aga Khan University Hospital
+Groote Schuur Hospital
+Chris Hani Baragwanath Hospital
+Hospital Clinic Barcelona
+Hospital Universitario La Paz
+Hospital Gregorio Maranon
+Hospital Italiano Buenos Aires
+Hospital Sirio Libanes
+Heathrow Airport
+London Gatwick Airport
+London Stansted Airport
+London City Airport
+Luton Airport
+Manchester Airport
+Edinburgh Airport
+Dublin Airport
+Charles de Gaulle Airport
+Paris Orly Airport
+Nice Cote d'Azur Airport
+Munich Airport
+Berlin Brandenburg Airport
+Schiphol Airport
+Brussels Airport
+Zurich Airport
+Geneva Airport
+Vienna International Airport
+Copenhagen Airport
+Arlanda Airport
+Helsinki Airport
+Leonardo da Vinci Fiumicino Airport
+Fiumicino Airport
+Malpensa Airport
+Marco Polo Airport
+Barajas Airport
+Adolfo Suarez Madrid-Barajas Airport
+El Prat Airport
+Lisbon Portela Airport
+Athens International Airport
+Istanbul Airport
+Sabiha Gokcen Airport
+Ben Gurion Airport
+Dubai International Airport
+Abu Dhabi International Airport
+Hamad International Airport
+King Khalid International Airport
+King Abdulaziz International Airport
+Kuwait International Airport
+Muscat International Airport
+Indira Gandhi International Airport
+Chhatrapati Shivaji Maharaj International Airport
+Kempegowda International Airport
+Suvarnabhumi Airport
+Don Mueang International Airport
+Kuala Lumpur International Airport
+Soekarno-Hatta International Airport
+Ngurah Rai International Airport
+Beijing Capital International Airport
+Beijing Daxing International Airport
+Shanghai Pudong International Airport
+Guangzhou Baiyun International Airport
+Shenzhen Bao'an International Airport
+Chiang Kai-shek International Airport
+Taoyuan International Airport
+Tokyo Narita Airport
+Narita International Airport
+Haneda Airport
+Kansai International Airport
+Incheon International Airport
+Gimpo International Airport
+Ninoy Aquino International Airport
+Noi Bai International Airport
+Tan Son Nhat International Airport
+Da Nang International Airport
+Cam Ranh International Airport
+Phu Quoc International Airport
+Hartsfield-Jackson Atlanta International Airport
+O'Hare International Airport
+Los Angeles International Airport
+San Francisco International Airport
+John F. Kennedy International Airport
+LaGuardia Airport
+Newark Liberty International Airport
+Dallas Fort Worth International Airport
+George Bush Intercontinental Airport
+Denver International Airport
+Seattle-Tacoma International Airport
+Miami International Airport
+Logan International Airport
+Toronto Pearson International Airport
+Vancouver International Airport
+Mexico City International Airport
+Jorge Chavez International Airport
+Guarulhos International Airport
+Galeao International Airport
+Ezeiza International Airport
+Jorge Newbery Airport
+El Dorado International Airport
+Sydney Kingsford Smith Airport
+Melbourne Airport
+Auckland Airport
+Changi Airport Terminal 4
+Jewel Changi Airport
+Hong Kong Airport Skytrain
+Tallinn Airport
+Warsaw Chopin Airport
+Prague Vaclav Havel Airport
+Budapest Ferenc Liszt International Airport
+Bucharest Henri Coanda International Airport
+Sofia Airport
+Kyiv Boryspil International Airport
+Sheremetyevo International Airport
+Domodedovo International Airport
+Vnukovo International Airport
+Pulkovo Airport
+Haneda Airport Terminal 3
+Kansai Airport Terminal 1
+`);
+CST_GLOSSARY_EXTRA_ADD("travel", null, `
+Etihad Airways
+Jeju Air
+Jin Air
+T'way Air
+Air Busan
+Air Seoul
+Thai Lion Air
+Thai VietJet Air
+Thai Smile Airways
+AirAsia X
+Malindo Air
+Batik Air
+Lion Air
+Wings Air
+Citilink
+Sriwijaya Air
+AirAsia Philippines
+PAL Express
+Jetstar Asia
+Jetstar Japan
+Jetstar Pacific
+Air Mekong
+Lao Airlines
+Royal Air Cambodia
+Myanmar National Airlines
+Myanmar Airways International
+Bangkok Airways
+Nok Air
+Nok Scoot
+Thai Vietjet
+Air India
+Air India Express
+~IndiGo
+SpiceJet
+Akasa Air
+Vistara
+Alliance Air
+Air China
+China Eastern Airlines
+China Southern Airlines
+Hainan Airlines
+Xiamen Airlines
+Shenzhen Airlines
+Shandong Airlines
+Sichuan Airlines
+Spring Airlines
+Juneyao Airlines
+Tibet Airlines
+Capital Airlines
+Chengdu Airlines
+Loong Air
+West Air
+Lucky Air
+Okay Airways
+China Express Airlines
+China United Airlines
+Greater Bay Airlines
+Hong Kong Airlines
+Hong Kong Express Airways
+Starlux Airlines
+Tigerair Taiwan
+Uni Air
+Mandarin Airlines
+Tigerair
+Peach Aviation
+Zipair Tokyo
+Skymark Airlines
+Air Do
+Solaseed Air
+Fuji Dream Airlines
+Ibex Airlines
+Hokkaido Air System
+Air Nippon
+Air Japan
+Vanilla Air
+Eastar Jet
+Air Premia
+Aero K
+Air Macau
+Macau Airlines
+Virgin Australia
+Rex Regional Express
+Jetstar Australia
+Tigerair Australia
+Air Vanuatu
+Solomon Airlines
+Air Niugini
+Air Calin
+Fiji Airways
+Air Tahiti Nui
+Air Tahiti
+Samoa Airways
+Cook Islands Airlines
+Air Rarotonga
+Hawaiian Airlines
+Pakistan International Airlines
+~PIA
+Serene Air
+Biman Bangladesh Airlines
+US-Bangla Airlines
+Novoair
+Sri Lankan Airlines
+~Maldivian
+Turkmenistan Airlines
+Silk Way Airlines
+Qazaq Air
+Air Astana
+Uzbekistan Airways
+Somon Air
+Tajik Air
+Kyrgyzstan Airlines
+Cambodia Angkor Air
+Nepal Airlines
+Buddha Air
+Yeti Airlines
+Shree Airlines
+Druk Air
+Royal Bhutan Airlines
+Mongolia Airlines
+MIAT Mongolian Airlines
+Air Koryo
+Allegiant Air
+Sun Country Airlines
+Breeze Airways
+Avelo Airlines
+Silver Airways
+Contour Airlines
+Mesa Airlines
+SkyWest Airlines
+Republic Airways
+Envoy Air
+PSA Airlines
+Horizon Air
+Endeavor Air
+Piedmont Airlines
+Air Wisconsin
+Cape Air
+Porter Airlines
+Air Transat
+Flair Airlines
+Canadian North
+Pascan Aviation
+Aeromexico
+Volaris
+Viva Aerobus
+Copa Airlines
+Avianca
+LATAM Airlines
+LATAM Brasil
+GOL Linhas Aereas
+Azul Brazilian Airlines
+Aerolineas Argentinas
+Flybondi
+Sky Airline
+JetSMART
+Wingo
+Avianca Costa Rica
+Arajet
+Air Century
+Bahamasair
+Caribbean Airlines
+Cayman Airways
+Winair
+Seaborne Airlines
+Jet2
+TUI Airways
+TUI fly
+Aer Lingus
+Loganair
+Eastern Airways
+Blue Islands
+Eurowings
+Discover Airlines
+Austrian Airlines
+Swiss International Air Lines
+Brussels Airlines
+KLM Royal Dutch Airlines
+Transavia
+HOP Air France
+Corsair International
+Air Caraibes
+French Bee
+~Iberia
+Iberia Express
+Vueling
+Air Europa
+Volotea
+Binter Canarias
+Air Nostrum
+Aegean Airlines
+Olympic Air
+Sky Express
+AnadoluJet
+Pegasus Airlines
+SunExpress
+AJet
+Finnair
+SAS Scandinavian Airlines
+Norwegian Air Shuttle
+Icelandair
+Wideroe
+LOT Polish Airlines
+Czech Airlines
+TAP Air Portugal
+ITA Airways
+Air Dolomiti
+Neos
+Tarom
+Bulgaria Air
+Air Serbia
+Croatia Airlines
+Air Montenegro
+Ukraine International Airlines
+SkyUp
+Belavia
+Aeroflot
+S7 Airlines
+Ural Airlines
+Pobeda
+Rossiya Airlines
+Nordwind Airlines
+UTair
+Azur Air
+Red Wings Airlines
+Yakutia Airlines
+Aurora Airlines
+Azerbaijan Airlines
+Royal Jordanian
+Middle East Airlines
+Saudia
+Flynas
+Flyadeal
+Kuwait Airways
+Jazeera Airways
+Gulf Air
+Oman Air
+SalamAir
+Air Arabia
+Air Arabia Abu Dhabi
+=flydubai
+Air Peace
+Air Algerie
+Tunisair
+Royal Air Maroc
+EgyptAir
+Libyan Airlines
+Sudan Airways
+Ethiopian Airlines
+Kenya Airways
+Uganda Airlines
+RwandAir
+Air Tanzania
+Precision Air
+South African Airways
+~Airlink
+FlySafair
+Air Mauritius
+Air Madagascar
+TAAG Angola Airlines
+LAM Mozambique Airlines
+Air Namibia
+Air Zimbabwe
+Air Botswana
+Air Seychelles
+Air Burkina
+Air Cote d'Ivoire
+Asky Airlines
+Condor Airlines
+Gatwick Airport
+Stansted Airport
+Birmingham Airport
+Glasgow Airport
+Bristol Airport
+Orly Airport
+Lyon Saint-Exupery Airport
+Hamburg Airport
+Dusseldorf Airport
+Cologne Bonn Airport
+Stockholm Arlanda Airport
+Oslo Gardermoen Airport
+Bergen Airport
+Helsinki-Vantaa Airport
+Keflavik International Airport
+Madrid-Barajas Airport
+Barcelona-El Prat Airport
+Malaga Airport
+Porto Francisco Sa Carneiro Airport
+Rome Fiumicino Airport
+Milan Malpensa Airport
+Milan Linate Airport
+Venice Marco Polo Airport
+Naples International Airport
+Thessaloniki Airport
+Sabiha Gokcen International Airport
+Antalya Airport
+Belgrade Nikola Tesla Airport
+Queen Alia International Airport
+Al Maktoum International Airport
+Abu Dhabi Zayed International Airport
+Sharjah International Airport
+Bahrain International Airport
+Imam Khomeini International Airport
+Cairo International Airport
+Hurghada International Airport
+Mohammed V International Airport
+Houari Boumediene Airport
+Tunis Carthage International Airport
+Addis Ababa Bole International Airport
+Jomo Kenyatta International Airport
+Entebbe International Airport
+Kigali International Airport
+Murtala Muhammed International Airport
+Kotoka International Airport
+Dakar Blaise Diagne International Airport
+O.R. Tambo International Airport
+Cape Town International Airport
+King Shaka International Airport
+Mauritius Sir Seewoosagur Ramgoolam International Airport
+Seychelles International Airport
+Zanzibar Airport
+Kuala Lumpur Sultan Abdul Aziz Shah Airport
+Penang International Airport
+Langkawi International Airport
+Kota Kinabalu International Airport
+Kuching International Airport
+Juanda International Airport
+Sultan Hasanuddin International Airport
+Chiang Mai International Airport
+Phuket International Airport
+Samui Airport
+Krabi International Airport
+Hat Yai International Airport
+Mactan-Cebu International Airport
+Clark International Airport
+Francisco Bangoy International Airport
+Can Tho International Airport
+Lien Khuong Airport
+Vinh International Airport
+Hue Phu Bai International Airport
+Cat Bi International Airport
+Pleiku Airport
+Macau International Airport
+Taiwan Taoyuan International Airport
+Taipei Songshan Airport
+Kaohsiung International Airport
+Chubu Centrair International Airport
+Fukuoka Airport
+New Chitose Airport
+Osaka Itami Airport
+Kobe Airport
+Okinawa Naha Airport
+Jeju International Airport
+Busan Gimhae International Airport
+Shanghai Hongqiao International Airport
+Chengdu Tianfu International Airport
+Chengdu Shuangliu International Airport
+Xiamen Gaoqi International Airport
+Kunming Changshui International Airport
+Xi'an Xianyang International Airport
+Hangzhou Xiaoshan International Airport
+Nanjing Lukou International Airport
+Wuhan Tianhe International Airport
+Chongqing Jiangbei International Airport
+Sanya Phoenix International Airport
+Delhi Indira Gandhi International Airport
+Mumbai Chhatrapati Shivaji Maharaj International Airport
+Chennai International Airport
+Rajiv Gandhi International Airport
+Netaji Subhas Chandra Bose International Airport
+Cochin International Airport
+Tribhuvan International Airport
+Bandaranaike International Airport
+Hazrat Shahjalal International Airport
+Jinnah International Airport
+Allama Iqbal International Airport
+Hamid Karzai International Airport
+Paro International Airport
+Boston Logan International Airport
+Midway International Airport
+San Jose Mineta International Airport
+Oakland International Airport
+Dallas Love Field
+William P. Hobby Airport
+Phoenix Sky Harbor International Airport
+Harry Reid International Airport
+Fort Lauderdale-Hollywood International Airport
+Orlando International Airport
+Tampa International Airport
+Charlotte Douglas International Airport
+Ronald Reagan Washington National Airport
+Washington Dulles International Airport
+Philadelphia International Airport
+Pittsburgh International Airport
+Detroit Metropolitan Wayne County Airport
+Minneapolis-Saint Paul International Airport
+Lambert-St. Louis International Airport
+Kansas City International Airport
+Salt Lake City International Airport
+Daniel K. Inouye International Airport
+Ted Stevens Anchorage International Airport
+San Diego International Airport
+Austin-Bergstrom International Airport
+Nashville International Airport
+Raleigh-Durham International Airport
+Reno-Tahoe International Airport
+Montreal Trudeau International Airport
+Calgary International Airport
+Edmonton International Airport
+Ottawa Macdonald-Cartier International Airport
+Benito Juarez International Airport
+Cancun International Airport
+Guadalajara International Airport
+Tocumen International Airport
+Arturo Merino Benitez International Airport
+Ministro Pistarini International Airport
+Sao Paulo-Guarulhos International Airport
+Congonhas Airport
+Rio de Janeiro-Galeao International Airport
+Santos Dumont Airport
+Carlos A. Villanueva International Airport
+Melbourne Tullamarine Airport
+Brisbane Airport
+Perth Airport
+Adelaide Airport
+Christchurch Airport
+Wellington Airport
+Nadi International Airport
+Faleolo International Airport
+Hosea Kutako International Airport
+Marriott Hotels
+JW Marriott
+Renaissance Hotels
+Autograph Collection Hotels
+Courtyard by Marriott
+Residence Inn by Marriott
+Fairfield by Marriott
+SpringHill Suites
+TownePlace Suites
+Moxy Hotels
+Aloft Hotels
+Element Hotels
+Four Points by Sheraton
+Sheraton Hotels & Resorts
+Westin Hotels & Resorts
+St. Regis Hotels
+Le Meridien
+Edition Hotels
+Hilton Hotels & Resorts
+Hilton Garden Inn
+Hampton by Hilton
+Embassy Suites by Hilton
+Homewood Suites by Hilton
+Home2 Suites by Hilton
+Tru by Hilton
+Conrad Hotels & Resorts
+DoubleTree by Hilton
+Waldorf Astoria Hotels & Resorts
+Canopy by Hilton
+Curio Collection by Hilton
+Tapestry Collection by Hilton
+Motto by Hilton
+Spark by Hilton
+LXR Hotels & Resorts
+Signia by Hilton
+Hyatt Regency
+Hyatt Place
+Hyatt House
+Hyatt Centric
+Grand Hyatt
+Andaz Hotels
+Alila Hotels and Resorts
+Thompson Hotels
+Hotel Indigo
+Kimpton Hotels & Restaurants
+InterContinental Hotels
+Crowne Plaza
+Holiday Inn Express
+Holiday Inn Resort
+Staybridge Suites
+Candlewood Suites
+Voco Hotels
+Regent Hotels & Resorts
+Six Senses Resorts & Spas
+Banyan Tree Hotels & Resorts
+Anantara Hotels
+Angsana Hotels
+Dhawa Hotels
+Cassia Hotels
+Mandarin Oriental Hotel Group
+The Peninsula Hotels
+Shangri-La Hotels and Resorts
+Kerry Hotels
+Oberoi Hotels & Resorts
+Taj Hotels
+ITC Hotels
+The Leela Palaces
+Four Seasons Hotels and Resorts
+Rosewood Hotels & Resorts
+Raffles Hotels & Resorts
+Swissotel Hotels & Resorts
+Fairmont Hotels & Resorts
+Pullman Hotels & Resorts
+Novotel Hotels
+Mercure Hotels
+Sofitel Hotels & Resorts
+Ibis Hotels
+Ibis Styles
+=ibis budget
+MGallery Hotels
+Movenpick Hotels & Resorts
+Hotel Okura
+Dusit Thani Hotels
+Dusit Devarana
+Centara Hotels & Resorts
+Minor Hotels
+Eastin Hotels
+Lotte Hotels & Resorts
+Shilla Stay
+Hotel Nikko
+Prince Hotels
+Hoshino Resorts
+Vinpearl Resort
+Vinpearl Luxury
+Melia Hotels International
+Barcelo Hotels & Resorts
+Iberostar Hotels & Resorts
+RIU Hotels & Resorts
+NH Hotel Group
+Radisson Blu
+Radisson Hotel Group
+Radisson Collection
+Park Plaza Hotels
+Premier Inn
+~Travelodge
+Best Western Hotels & Resorts
+Comfort Inn
+Quality Inn
+Clarion Hotels
+Sleep Inn
+Ascend Hotel Collection
+Cambria Hotels
+Wyndham Hotels & Resorts
+Ramada Hotels
+Days Inn
+Super 8
+Howard Johnson
+Baymont Inn & Suites
+La Quinta Inn & Suites
+Red Roof Inn
+Extended Stay America
+Nobu Hotels
+Hard Rock Hotels
+Margaritaville Resorts
+Sandals Resorts
+Beaches Resorts
+Atlantis Paradise Island
+Ascott Limited
+Citadines Apartment Hotels
+Lodges by Ascott
+Pan Pacific Hotels
+Millennium Hotels and Resorts
+Oakwood Apartments
+Corinthia Hotels
+Loews Hotels
+Omni Hotels & Resorts
+Gaylord Hotels
+Autograph Collection
+Tribute Portfolio
+Vignette Collection
+Lanesborough Hotel
+Claridge's
+The Savoy
+The Dorchester
+The Connaught
+Gleneagles Hotel
+Rocco Forte Hotels
+Belmond Hotels
+One&Only Resorts
+Jumeirah Group
+Jumeirah Beach Hotel
+Burj Al Arab Jumeirah
+Address Hotels
+Armani Hotel Dubai
+Kempinski Hotels
+Hotel Adlon Kempinski
+Hotel Sacher Wien
+The Plaza Hotel
+The Pierre
+The Carlyle
+Chelsea Hotel
+Le Bristol Paris
+The Ritz Paris
+The Ritz London
+Hotel Negresco
+Hotel du Cap-Eden-Roc
+Gritti Palace
+Hotel Danieli
+Hotel Arts Barcelona
+Dorchester Collection
+Hotel Monaco
+Mama Shelter
+Generator Hostels
+St Christopher's Inns
+Yotel
+Hotel Jen
+Hilton Head Marriott Resort
+Sunway Hotels
+Sofitel Legend Metropole Hanoi
+InterContinental Hanoi Westlake
+JW Marriott Hanoi
+Hanoi Metropole Hotel
+Hotel de l'Opera Hanoi
+Lotte Hotel Hanoi
+Pullman Danang Beach Resort
+Hyatt Regency Danang Resort and Spa
+Furama Resort Danang
+Fusion Resorts
+Intercontinental Danang Sun Peninsula Resort
+Park Hyatt Saigon
+Caravelle Hotel
+Rex Hotel Saigon
+Majestic Hotel Saigon
+Sheraton Saigon Hotel
+Renaissance Riverside Hotel Saigon
+Six Senses Ninh Van Bay
+Ana Mandara Villas Dalat
+Victoria Hoi An Beach Resort
+Nam Hai Hoi An
+Four Seasons The Nam Hai
+Vinpearl Phu Quoc
+Movenpick Resort Cam Ranh
+Sheraton Nha Trang Hotel and Spa
+Sofitel Plaza Hanoi
+Hotel Nikko Saigon
+Mandarin Oriental Bangkok
+The Oriental Bangkok
+Anantara Riverside Bangkok Resort
+Centara Grand
+Amari Hotels
+Chatrium Hotels
+Hilton Pattaya
+Pullman Phuket Panwa Beach Resort
+Banyan Tree Phuket
+Hyatt Regency Phuket
+Hyatt Regency Chiang Mai
+Dusit Princess Chiang Mai
+Four Seasons Resort Chiang Mai
+The Shore Hotel Chiang Mai
+Four Seasons Hotel Singapore
+Resorts World Sentosa
+Hotel Fort Canning
+Capella Singapore
+The St. Regis Singapore
+Raffles Singapore
+Fullerton Hotel Singapore
+Pan Pacific Singapore
+Parkroyal Collection
+Hotel Jen Orchardgateway
+Mandarin Oriental Kuala Lumpur
+Shangri-La Kuala Lumpur
+Four Seasons Kuala Lumpur
+Traders Hotel Kuala Lumpur
+Renaissance Kuala Lumpur Hotel
+Eastin Hotel Kuala Lumpur
+Ritz-Carlton Kuala Lumpur
+Shangri-La Hong Kong
+Mandarin Oriental Hong Kong
+The Peninsula Hong Kong
+The Ritz-Carlton Hong Kong
+Island Shangri-La Hong Kong
+Rosewood Hong Kong
+Four Seasons Hong Kong
+Regal Hotels
+Langham Hotels
+Hotel ICON
+The Ritz-Carlton Shanghai
+The Peninsula Shanghai
+The Puli Hotel and Spa
+Waldorf Astoria Beijing
+Aman Summer Palace
+Aman Tokyo
+Park Hyatt Tokyo
+Mandarin Oriental Tokyo
+The Ritz-Carlton Tokyo
+The Peninsula Tokyo
+Conrad Tokyo
+Hotel Gracery
+Tokyo Disney Resort Hotels
+Hotel Okura Tokyo
+Hilton Tokyo Bay
+Keio Plaza Hotel
+Shinagawa Prince Hotel
+Hotel New Otani
+Imperial Hotel Tokyo
+Hotel Nikko Osaka
+Hankyu Hotel
+Oriental Hotel Kobe
+Ritz-Carlton Osaka
+Four Seasons Hotel Tokyo at Marunouchi
+Mandarin Oriental Macau
+Sands Macao
+Galaxy Macau
+Wynn Macau
+MGM Cotai
+Grand Lisboa
+Parisian Macao
+Venetian Macao
+Conrad Macau
+Taipei Grand Hotel
+Regent Taipei
+Shangri-La's Far Eastern Plaza Hotel
+Grand Hyatt Taipei
+W Taipei
+The Westin Taipei
+Mandarin Oriental Taipei
+Grand Hyatt Seoul
+Park Hyatt Seoul
+Grand Walkerhill Seoul
+The Shilla Seoul
+Signiel Seoul
+Lotte Hotel Seoul
+Hotel Shilla Jeju
+Lotte Hotel Jeju
+Sheraton Hanoi Hotel
+Hotel Monaco Seattle
+The Ritz Madrid
+Hotel Villa Magna
+Palacio de Seteais
+Pestana Hotels & Resorts
+Vila Gale Hotels
+Hotel Imperial Vienna
+Hotel Sacher Salzburg
+Hotel de Rome Berlin
+Hotel Vier Jahreszeiten Hamburg
+Hotel Bayerischer Hof
+Schloss Elmau
+Badrutt's Palace
+Carlton Hotel St Moritz
+Chedi Andermatt
+Beau-Rivage Palace
+Hotel de la Paix Geneva
+Dolder Grand
+Park Hyatt Zurich
+Baur au Lac Zurich
+The Ritz-Carlton Berlin
+Excelsior Hotel Ernst
+Hotel Principe di Savoia
+Four Seasons Hotel Milano
+Bulgari Hotels & Resorts
+Portrait Milano
+Villa d'Este Como
+Belmond Hotel Cipriani
+Aman Venice
+Hotel Excelsior Venice
+Splendido Portofino
+Hotel Quirinale Rome
+Hotel Hassler Roma
+Hotel de Russie
+Hotel Eden Rome
+Hotel Savoy Florence
+Hotel Caruso Amalfi
+Le Sirenuse Positano
+Grand Hotel Tremezzo
+Grand Hotel Villa Serbelloni
+Ritz-Carlton Amelia Island
+Ritz-Carlton Naples
+The Breakers Palm Beach
+The Greenbrier
+The Broadmoor
+The Homestead
+The Cloister Sea Island
+The Balsams
+Grand Wailea
+Fairmont Banff Springs
+Fairmont Chateau Lake Louise
+Fairmont Royal York
+Fairmont Empress
+Fairmont San Francisco
+Fairmont Miramar Hotel & Bungalows
+Fairmont Mayakoba
+Fairmont Pacific Rim
+Hotel del Coronado
+Hotel Hershey
+The Peabody Memphis
+The Drake Chicago
+The Langham Huntington
+Hotel Bel-Air
+Beverly Wilshire
+Beverly Hills Hotel
+Chateau Marmont
+Soho House
+Standard Hotels
+The Ned London
+Clarion Collection
+OYO Hotels
+Treebo Hotels
+FabHotels
+Zostel
+Hostel One
+Jumeirah Emirates Towers
+Caesars Palace Dubai
+Waldorf Astoria Dubai Palm Jumeirah
+Anantara Dubai The Palm
+One&Only The Palm
+Rixos Premium Dubai
+Raffles The Palm Dubai
+Bulgari Resort Dubai
+Park Hyatt Dubai
+Kempinski Hotel Mall of the Emirates
+Hilton Abu Dhabi Yas Island
+Emirates Palace Mandarin Oriental
+Rotana Hotels
+Four Seasons Hotel Cairo at Nile Plaza
+Mena House Oberoi
+Sofitel Marrakech Palais Imperial
+La Mamounia
+Royal Mansour Marrakech
+Four Seasons Resort Marrakech
+Eko Hotels & Suites
+Serena Hotels
+Sandton Sun
+Table Bay Hotel
+Belmond Mount Nelson
+One&Only Cape Town
+Sabi Sabi Private Game Reserve
+Singita Lebombo
+Tswalu Kalahari
+Royal Caribbean International
+Princess Cruises
+Celebrity Cruises
+Holland America Line
+Cunard Line
+Oceania Cruises
+Regent Seven Seas Cruises
+Seabourn Cruise Line
+Silversea Cruises
+Viking Ocean Cruises
+Viking River Cruises
+MSC Cruises
+Costa Cruises
+AIDA Cruises
+TUI Cruises
+Hurtigruten
+P&O Cruises
+Fred. Olsen Cruise Lines
+Virgin Voyages
+Paul Gauguin Cruises
+Azamara Cruises
+Explora Journeys
+Crystal Cruises
+Windstar Cruises
+Lindblad Expeditions
+American Cruise Lines
+Star Cruises
+Resorts World Cruises
+Dream Cruises
+Star Clippers
+Swan Hellenic
+Ponant
+Hapag-Lloyd Cruises
+Uniworld Boutique River Cruises
+Avalon Waterways
+Emerald Cruises
+Saga Cruises
+Ambassador Cruise Line
+Lindblad Expeditions-National Geographic
+Chandris Cruises
+Oceanwide Expeditions
+Quark Expeditions
+Scenic Cruises
+Aroya Cruises
+Symphony of the Seas
+Oasis of the Seas
+Allure of the Seas
+Harmony of the Seas
+Utopia of the Seas
+Queen Mary 2
+Queen Anne
+Norwegian Prima
+Norwegian Encore
+Norwegian Epic
+Carnival Celebration
+Carnival Mardi Gras
+Sun Princess
+Diamond Princess
+Ovation of the Seas
+Spectrum of the Seas
+Odyssey of the Seas
+Mein Schiff
+Costa Smeralda
+MSC Meraviglia
+MSC World Europa
+Azura
+Iona
+Arvia
+Tohoku Shinkansen
+Hokuriku Shinkansen
+Kyushu Shinkansen
+Hokkaido Shinkansen
+Joetsu Shinkansen
+Nozomi
+Hikari
+Kodama
+JR East
+JR West
+JR Central
+JR Kyushu
+JR Hokkaido
+JR Shikoku
+Keisei Electric Railway
+Keikyu Corporation
+Odakyu Electric Railway
+Tokyu Corporation
+Hankyu Railway
+Hanshin Electric Railway
+Kintetsu Railway
+Nankai Electric Railway
+Meitetsu
+Seibu Railway
+Tobu Railway
+Keio Corporation
+Tokyo Metro
+Toei Subway
+Osaka Metro
+Yamanote Line
+Narita Express
+Haruka Limited Express
+Tokyo Monorail
+Yurikamome
+Keihin-Tohoku Line
+Kansai Airport Line
+Thalys
+Deutsche Bahn
+Intercity-Express
+Renfe
+~AVE
+Trenitalia
+Italo
+Frecciarossa
+Frecciargento
+SNCF
+SNCB Belgian Railways
+NS Dutch Railways
+Swiss Federal Railways
+SBB CFF FFS
+SJ AB
+DSB
+VR Group
+NSB Norwegian State Railways
+Czech Railways
+PKP Intercity
+Ukrzaliznytsia
+Russian Railways
+RZD
+Acela
+Brightline
+VIA Rail
+Caltrain
+~BART
+Bay Area Rapid Transit
+Metro-North Railroad
+Long Island Rail Road
+NJ Transit
+~SEPTA
+MBTA
+Chicago Transit Authority
+Metrolink
+~Sounder
+Gatwick Express
+Heathrow Express
+Elizabeth line
+Thameslink
+Avanti West Coast
+LNER
+Transport for London
+Ouigo
+Lyria
+Leo Express
+RegioJet
+Flixtrain
+MRT Singapore
+SMRT Corporation
+Bangkok BTS Skytrain
+MRT Bangkok
+Taipei Metro
+Shanghai Metro
+Beijing Subway
+Seoul Metro
+Korail
+KTX
+Metro de Madrid
+RATP
+RER
+New York City Subway
+Metropolitan Transportation Authority
+Vietnam Railways
+Reunification Express
+Thailand State Railway
+KTM Berhad
+KTM Komuter
+ETS Electric Train Service
+KTM Intercity
+Indian Railways
+Vande Bharat Express
+Gautrain
+Dubai Metro
+Etihad Rail
+Rovos Rail
+Venice Simplon-Orient-Express
+Ffestiniog Railway
+Glacier Express
+Bernina Express
+Rocky Mountaineer
+~Ghan
+Indian Pacific
+Puffing Billy Railway
+Ctrip
+Priceline
+Orbitz
+Travelocity
+~Hotwire
+Kiwi.com
+Momondo
+HomeAway
+Hostelbookers
+Omio
+Despegar
+Wotif
+Lastminute.com
+Opodo
+eDreams
+Travelport
+~Sabre
+Hotelbeds
+Qunar
+Fliggy
+Mafengwo
+Tuniu
+Hipmunk
+Travelzoo
+Cheapflights
+Busbud
+Hotels Combined
+Hotel Tonight
+Kkday
+Didi Chuxing
+Ola Cabs
+Cabify
+FreeNow
+Gett
+Yandex Go
+Via Transportation
+Megabus
+National Express
+Eurolines
+ALSA
+Monbus
+OuiBus
+BlaBlaCar
+Coach USA
+Peter Pan Bus Lines
+Kumho Express
+Willer Express
+Futa Bus Lines
+Phuong Trang Bus
+~Hertz
+~Avis
+Enterprise Rent-A-Car
+~Budget
+Sixt
+Europcar
+Alamo Rent a Car
+National Car Rental
+Thrifty Car Rental
+Dollar Rent A Car
+Zipcar
+Getaround
+Rent A Car
+Hertz Global Holdings
+Avis Budget Group
+Emirates Skywards
+Singapore Airlines KrisFlyer
+KrisFlyer
+Asia Miles
+AAdvantage
+SkyMiles
+MileagePlus
+Flying Blue
+Miles&More
+Avios
+Velocity Frequent Flyer
+~Enrich
+Qantas Frequent Flyer
+Air Miles
+Etihad Guest
+Qatar Privilege Club
+Cathay Pacific Asia Miles
+IHG One Rewards
+Accor Live Limitless
+Wyndham Rewards
+Choice Privileges
+Best Western Rewards
+Radisson Rewards
+`);

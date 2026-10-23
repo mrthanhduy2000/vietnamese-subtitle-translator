@@ -1,9 +1,9 @@
-# Handoff (2026-10-23, 2.9.1)
+# Handoff (2026-10-23, 2.9.2)
 
 ## State
-- 2.9.1: +4,758 names from 5 agent drafts (`scratchpad/cands`, sports, athletes, tech products,
-  software, music/film). UNVERIFIED names from model memory: "50 Cen" typo seen. Terms now 34,313.
-- 2.8.9 +55, 2.9.0 +16 (see history). Kept-English names ~18,700 (`glossary-pron.js` read Vietnamese 0).
+- 2.9.2: +21,000 names from 20 agent drafts (`scratchpad/cands2`, 20 topics). Glossary 55,276 terms,
+  39,163 kept English. 14 still read Vietnamese by VieNeu (Temodar, Nissan Teana, Ram 1500 ...).
+  Names are from model memory, not checked against a source: expect some errors.
 - Audit regression fixed: 14 names had no reading ("CI/CD", "async/await", "AC/DC"...). Hand
   readings in `MANUAL_SAY` now go first; letter-led names are kept before `cleanText` ("/" -> "hoặc").
 - Bare "4K"/"8K" are NOT read in English on purpose: in Vietnamese they are money (8K = 8 nghìn). The
