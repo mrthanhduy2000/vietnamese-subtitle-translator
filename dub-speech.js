@@ -3521,16 +3521,22 @@
         for (let i = 1; i < cores.length; i++) if (viet[i] && viet[i - 1] && capitalised(cores[i]) && capitalised(cores[i - 1])) return false;
         return true;
     }
+    const WIDE_SPACE = /\s\s|[^\S ]/;
     function loadGlossaryNames() {
         const groups = root && root.CST_GLOSSARY_GROUPS;
         if (!groups) return;
         for (const g of Object.values(groups)) {
             const vi = g.vi || {};
             for (const t of g.terms || []) {
-                const key = String(t).trim().toLowerCase().replace(/\s+/g, " ");
+                const surface = String(t).trim();
+                // (only collapse whitespace when there is something to collapse: ~all terms are single-spaced)
+                let key = surface.toLowerCase();
+                if (WIDE_SPACE.test(key)) key = key.replace(/\s+/g, " ");
                 if (!key || vi[key] || LEX.has(key) || !glossaryName(t)) continue;
-                LEX.set(key, { surface: String(t).trim(), cat: "glossary", say: GLOSSARY_SAY[key] || null });
-                LEX_MAX = Math.max(LEX_MAX, key.split(" ").length);
+                LEX.set(key, { surface, cat: "glossary", say: GLOSSARY_SAY[key] || null });
+                let n = 1;
+                for (let i = key.indexOf(" "); i !== -1; i = key.indexOf(" ", i + 1)) n++;
+                if (n > LEX_MAX) LEX_MAX = n;
             }
         }
         memo.clear(); renderMemo.clear();
