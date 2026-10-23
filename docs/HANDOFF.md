@@ -19,7 +19,6 @@
   blank-track videos found the class above; last 5 (id it ms ur) still running in the driver tab.
 - Track choice checked, kept: 7 of 23 non-English saved videos use the spoken language's ASR over a
   human English track; those ASR read well, the one word-salad source (6QULfp2wdZI ru) is a manual track.
-- `yt-driver` skips a video with an uploaded vi track up front (they were 5 of a 12 long-vlog batch).
 - `npm test` 761 pass, 0 fail; regress saved at 2.8.5, 2.8.6 moved 0.
 
 ## Unfinished
