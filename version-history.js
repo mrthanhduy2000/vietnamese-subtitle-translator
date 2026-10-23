@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "2.9.3", luc: "23/10/2026", ten: "Phụ đề trống hoặc hỏng: thử hết các phụ đề còn lại",
+            y: [
+                "Khi phụ đề được chọn trống hoặc phụ đề tự động không đọc được, tiện ích từng chỉ thử thêm một phụ đề khác. Nếu phụ đề đó cũng trống thì dừng, dù video còn phụ đề dùng được. Nay tiện ích thử lần lượt tối đa 4 phụ đề khác.",
+                "Phụ đề trống mà YouTube trả về dạng XML từng bị báo \"YouTube chưa trả nội dung, hãy F5\" và thử lại mãi. Nay tiện ích báo rõ phụ đề trống, giống dạng JSON."
+            ]
+        },
+        {
             v: "2.9.2", luc: "23/10/2026", ten: "Từ điển gần 55.000 mục: thêm hơn 21.000 tên từ 20 nhóm chủ đề",
             y: [
                 "Thêm hơn 21.000 tên tiếng Anh giữ nguyên trong phụ đề: thành phố và địa danh, đại học và sân bay, thương hiệu tiêu dùng, nhà hàng và món ăn, thời trang và làm đẹp, xe hơi, công ty tài chính, tiền điện tử, doanh nhân, nhà khoa học, chính trị gia, lịch sử, sách, trò chơi, anime, K-pop, kênh YouTube, hãng bay và khách sạn, thương hiệu y tế.",

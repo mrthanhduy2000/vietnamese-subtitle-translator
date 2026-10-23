@@ -323,6 +323,31 @@ function ytChonTrack(tracks, skipSameLang = true, ctx = {}) {
     };
 }
 
+// (2.7.9, 2.8.8, 2.9.3) A first-choice track that is blank (cues.blank), or a machine transcript that
+// heard nothing usable (ctx.broken), gives way to the other tracks, tried one by one in ytChonTrack's
+// order. Before 2.9.3 only the next one was tried: when it was blank or broken too, a usable third
+// track was never reached. Returns { track, cues } to switch to, or null to keep the first choice.
+// An alternative that is itself broken is taken only when the first choice had no text at all
+const YT_ALT_TRACK_TRIES = 4;
+async function ytFindUsableTrack(first, firstCues, tracks, ctx) {
+    const unusable = (t, c) => !!c.blank || (t.kind === "asr" && c.length > 0 && ctx.broken(t, c));
+    if (!unusable(first, firstCues)) return null;
+    let rest = tracks.filter(t => t !== first);
+    let fallback = null;
+    for (let tries = 0; rest.length && tries < YT_ALT_TRACK_TRIES; tries++) {
+        const pick = ytChonTrack(rest, false, { audio: ctx.audio });
+        const alt = pick && pick.track;
+        if (!alt) break;
+        rest = rest.filter(t => t !== alt);
+        const altCues = await ctx.load(alt).catch(() => []);
+        if (ctx.stale()) return null;
+        if (!altCues.length) continue;
+        if (!unusable(alt, altCues)) return { track: alt, cues: altCues };
+        if (!fallback) fallback = { track: alt, cues: altCues };
+    }
+    return firstCues.length ? null : fallback;
+}
+
 // ---------- Tai va doc ban chep loi ----------
 // Nội dung phụ đề lấy qua cầu nối trong trang (yt-bridge.js): YouTube chỉ trả nội dung
 // khi yêu cầu mang mã "pot" của trình phát. Cầu nối chưa sẵn sàng thì tải thẳng như cũ.
@@ -404,6 +429,10 @@ function ytDocNoiDungPhuDe(rawText) {
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(rawText, "text/xml");
             const nodes = xmlDoc.querySelectorAll("p, text");
+            // (2.9.3) only a real caption document (srv3 <timedtext>, srv1 <transcript>) can be a blank
+            // track: an error page parsed as XML has no such root
+            const root = xmlDoc.documentElement ? String(xmlDoc.documentElement.nodeName).toLowerCase() : "";
+            if (root === "timedtext" || root === "transcript") parsedEvents = nodes.length;
             for (const node of nodes) {
                 const start = parseFloat(node.getAttribute("t") || node.getAttribute("start") || "0") / (node.getAttribute("t") ? 1000 : 1);
                 const dur = parseFloat(node.getAttribute("d") || node.getAttribute("dur") || "0") / (node.getAttribute("d") ? 1000 : 1);
@@ -446,7 +475,8 @@ function ytDocNoiDungPhuDe(rawText) {
     }
 
     // (2.8.8) The body came and holds events, but not a word: the track itself is blank (an uploaded
-    // "en" track of one " " event on two Bengali vlogs). Not the missing pot of an empty body
+    // "en" track of one " " event on two Bengali vlogs). Not the missing pot of an empty body.
+    // 2.9.3: an XML body counts too; before, a blank one was told as a missing pot and retried
     if (!cues.length && parsedEvents > 0) cues.blank = true;
     return cues;
 }
@@ -1537,19 +1567,18 @@ async function ytBatDauDich(opts = {}) {
         // or not in its own language's script) gives way to the best other track. yt.srcTrack stays the
         // first choice's, so the saved copy is found again on the next visit, which chooses the same way
         const LD = window.CST_LANG;
-        const others = info.tracks.filter(t => t !== track);
-        // (2.8.8) ... and so does a blank track (cues.blank: events with no text)
-        if (others.length && (cues.blank || (track.kind === "asr" && cues.length && LD && LD.brokenTranscript &&
-            LD.brokenTranscript(track.languageCode, cues.slice(0, 120).map(c => c.text).join(" ")).broken))) {
-            const alt = ytChonTrack(others, false, { audio: info.audio }).track;
-            const altCues = alt ? await ytTaiBanChepLoi(alt.baseUrl).catch(() => []) : [];
-            if (stale()) return false;
-            if (altCues.length) {
-                console.log(`Ban chep loi tu dong ${track.languageCode} khong doc duoc, dung ${alt.languageCode}${alt.kind === "asr" ? " (tu dong)" : ""}`);
-                track = alt;
-                cues = altCues;
-                yt.trackInfo = { languageCode: track.languageCode, kind: track.kind || "", viSan: false };
-            }
+        const better = await ytFindUsableTrack(track, cues, info.tracks, {
+            audio: info.audio,
+            load: t => ytTaiBanChepLoi(t.baseUrl),
+            broken: (t, c) => !!(LD && LD.brokenTranscript && LD.brokenTranscript(t.languageCode, c.slice(0, 120).map(x => x.text).join(" ")).broken),
+            stale
+        });
+        if (stale()) return false;
+        if (better) {
+            console.log(`Ban chep loi ${track.languageCode}${track.kind === "asr" ? " (tu dong)" : ""} khong doc duoc, dung ${better.track.languageCode}${better.track.kind === "asr" ? " (tu dong)" : ""}`);
+            track = better.track;
+            cues = better.cues;
+            yt.trackInfo = { languageCode: track.languageCode, kind: track.kind || "", viSan: false };
         }
         if (cues.length === 0 && cues.blank) {
             // nothing to wait for: playing, reloading or trying again gives the same blank track

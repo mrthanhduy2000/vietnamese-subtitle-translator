@@ -1,6 +1,10 @@
-# Handoff (2026-10-23, 2.9.2)
+# Handoff (2026-10-23, 2.9.3)
 
 ## State
+- 2.9.3 (lane A, youtube.js): `ytFindUsableTrack` walks up to 4 other tracks when the first is blank
+  or a broken ASR (was: only the next one); a blank XML body is blank too (was retried as no pot).
+  The 2 bn vlogs themselves stay untranslatable: their only track is one " " event. Done in a cloud
+  session with no YouTube access and no `review-archive`: `regress.js` NOT run, run it on the Mac.
 - 2.9.2: +21,000 names from 20 agent drafts (`scratchpad/cands2`, 20 topics). Glossary 55,276 terms,
   39,163 kept English. 14 still read Vietnamese by VieNeu (Temodar, Nissan Teana, Ram 1500 ...).
   Names are from model memory, not checked against a source: expect some errors.
@@ -23,6 +27,7 @@
   `curl` the results page (node fetch ignores the proxy), parse `ytInitialData`.
 
 ## Unfinished
+- Run `node tools/regress.js` for 2.9.3 on the Mac, then `--save`.
 - Not heard: 2.6.9-2.8.9 by ear (tôi/mình mixing at video start).
 - Uploaded Vietnamese tracks (shown as is, never saved by design, driver logs "NOT SAVED"):
   jFZksJqL1Vc XnQ7Py8D6v0 MebK9iEUzQA JwBuHx_3GOU rm_9cPXrv4A gN07gbipMoY nBN9zG1JNPg O_MQr4lHm0c
@@ -34,12 +39,3 @@
   test; BACKLOG 43-47; 2.5.7 shortcuts on YouTube; joint-takes branches; 2.5.0 Coursera start hold;
   CI gaps; voice items "có nghĩa là", DN, NHNN; `ban-giao.md` lacks the share repo. Never ask about Chrome's Apple Events setting.
 
-## Traps
-- Open a driver page in a window of its own: one opened with `open_url` lands in the user's window
-  and dies when they close it, leaving dubbing off (open `yt-driver.html` without ids to put it back).
-- Reloading the extension closes every extension page: a driver run in progress dies with it.
-- `playback-sim.js` `run(..., { keepStarted: true })` returns every start; hook
-  `DubEngine.prototype.note` for drop reasons. An old engine must sit in the repo dir to load.
-- Scenario `seekWhileSlow` gives 15/7 or 16/6 run to run; the two analysis timing tests fail while
-  Chrome runs a driver batch: rerun before blaming a change.
-- New YouTube ids: `curl` the results page (node fetch ignores the proxy), parse `ytInitialData`.

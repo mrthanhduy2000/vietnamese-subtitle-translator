@@ -292,6 +292,10 @@ first choice's id so the saved copy is found again. Found on a Tamil-English int
 0 of 100 saved videos' tracks flagged. 2.8.8: so does a **blank** track (`cues.blank`: the body came
 with events but no text, as two Bengali vlogs' only "en" track, one " " event); with no other track it
 is told as blank ("Phụ đề của video này trống") and never retried as a missing pot.
+2.9.3: the give-way is `ytFindUsableTrack`: it walks the other tracks in `ytChonTrack` order (up to
+`YT_ALT_TRACK_TRIES` 4) until one is neither blank nor a broken ASR, where before only the next one was
+tried; a broken alternative is taken only over a first choice with no text. An XML body (root
+`timedtext` or `transcript`) of empty paragraphs is blank too; before, it was retried as a missing pot.
 An auto start whose caption body came back empty (`yt.emptyCaptionsFor`; the player's pot not seen
 yet, typical of a background or covered tab) is tried again by `ytRetryEmptyCaptions` (2.7.2): when
 the tab is shown, else after 4, 12 and 30 s; turning translation off (`ytTatDich` bumps `yt.offSeq`)
