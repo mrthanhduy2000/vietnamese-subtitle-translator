@@ -1407,6 +1407,28 @@ async function ytTuDongDich() {
     }
 }
 
+// An embedded player (TEDx pages) loads nothing until the viewer starts it: the track list is empty
+// at boot and stays empty for the 8 s the auto start waits. Ask again when the video really starts
+// (up to 3 times per video), by clearing autoTried so ytTuDongDich runs once more.
+function ytThuLaiKhiPhat(ma) {
+    yt.playRetry = yt.playRetry || {};
+    if ((yt.playRetry[ma] || 0) >= 3 || yt.playRetryArmed === ma) return;
+    yt.playRetryArmed = ma;
+    const events = ["loadedmetadata", "playing"];
+    const go = () => {
+        events.forEach(e => document.removeEventListener(e, go, true));
+        yt.playRetryArmed = null;
+        if (yt.dead || yt.active || ytLayMaVideo() !== ma) return;
+        yt.playRetry[ma] = (yt.playRetry[ma] || 0) + 1;
+        yt.autoTried = null;
+        ytChanDoan("Auto", `retry${yt.playRetry[ma]}-on-play`);
+        // the player needs a moment after the event before it can answer
+        setTimeout(ytTuDongDich, 600);
+    };
+    // media events do not bubble: a capturing listener on the document still sees them
+    events.forEach(e => document.addEventListener(e, go, true));
+}
+
 async function ytTuDongDichSau(ma) {
     // Trình phát chưa nạp xong dữ liệu video mới (danh sách phụ đề trống / còn của video cũ):
     // hỏi lại mỗi 0,4 giây, tối đa ~8 giây, thay vì chờ cố định rồi bỏ cuộc
@@ -1419,7 +1441,11 @@ async function ytTuDongDichSau(ma) {
         info = null;
         await new Promise(r => setTimeout(r, 400));
     }
-    if (!info || yt.active || yt.busy) { ytChanDoan("Auto", "no-tracks"); return null; }
+    if (!info || yt.active || yt.busy) {
+        ytChanDoan("Auto", "no-tracks");
+        if (!info && !yt.active && !yt.busy) ytThuLaiKhiPhat(ma);
+        return null;
+    }
     const q = await ytNhanDienNgonNgu(info);
     ytChanDoan("Auto", `decision=${q.action};lang=${q.lang}`);
     yt.langDecision = q;
@@ -1571,6 +1597,8 @@ async function ytBatDauDich(opts = {}) {
             }));
             ytRepairCachedLeaks();
             yt.daDichXong = true;
+            // the menu names the source captions; the cache branch used to leave this unset
+            yt.trackInfo = { languageCode: chon.track.languageCode, kind: chon.track.kind || "", viSan: !!chon.daCoTiengViet };
             ytKichHoatHienThi();
             ytBaoNguonThua(chon.track, yt.cues);      // a saved copy of a source that heard almost nothing
             console.log("Lay ban dich tu bo nho dem, khong can dich lai");

@@ -10,6 +10,9 @@
 - Trap: the player's caption body needs its pot; to read a transcript, open YouTube's own "Bản chép
   lời" panel (ytd-transcript-segment-renderer) instead of fetching timedtext.
 
+## Embed retry on play (docs/changes/youtube-embed-retry-on-play.md)
+- Mac read of the marks on the real embed: script runs, floating button shows, but `cstYtAuto=no-tracks`, `cstBridge=no-response;player=true;getPlayerResponse=function;global=false`: the embed loads nothing until the viewer starts it. `ytThuLaiKhiPhat` re-runs the auto start on `loadedmetadata`/`playing` (3 tries per video). Cache branch of `ytBatDauDich` now sets `yt.trackInfo`. Not seen live after the fix.
+
 ## Embed frame fallbacks (docs/changes/youtube-embed-fallbacks.md)
 - PR #66 did not start on the real embed (Mac: 0 cst elements). Added DOM marks, readable without DevTools: `<html data-cst-yt-loaded|boot|player|button|auto>` (youtube.js) and `data-cst-bridge` (yt-bridge.js, MAIN world: player present, getPlayerResponse type, track count). `ytPlayerEl()` replaces the `#movie_player` lookups (falls back to `.html5-video-player`, then the video's parent); the button floats top-right when `.ytp-right-controls` is missing. If marks show no tracks (`no-response`), the next step is reading tracks without `getPlayerResponse` (tracklist + a pot capture).
 - Read the marks via Control_Chrome execute_javascript: `JSON.stringify(document.documentElement.dataset)`; they sit in the embed frame, so open the embed URL itself.
