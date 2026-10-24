@@ -1571,6 +1571,8 @@ async function ytBatDauDich(opts = {}) {
             }));
             ytRepairCachedLeaks();
             yt.daDichXong = true;
+            // the menu names the source captions; the cache branch used to leave this unset
+            yt.trackInfo = { languageCode: chon.track.languageCode, kind: chon.track.kind || "", viSan: !!chon.daCoTiengViet };
             ytKichHoatHienThi();
             ytBaoNguonThua(chon.track, yt.cues);      // a saved copy of a source that heard almost nothing
             console.log("Lay ban dich tu bo nho dem, khong can dich lai");

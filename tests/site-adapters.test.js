@@ -229,3 +229,9 @@ test("embed frames: start-up leaves DOM marks, the button floats without .ytp-ri
     assert.match(br, /dataset\.cstBridge/);
     assert.doesNotMatch(br, /function trinhPhat\(\) \{ return trinhPhat\(\)/, "no self-recursion");
 });
+
+test("a cached copy names its source captions in the menu", () => {
+    const yt = fs.readFileSync(path.join(__dirname, "..", "youtube.js"), "utf8");
+    const cache = yt.slice(yt.indexOf("yt.daDichXong = true;"), yt.indexOf("Lay ban dich tu bo nho dem"));
+    assert.match(cache, /yt\.trackInfo = \{ languageCode: chon\.track\.languageCode/);
+});
