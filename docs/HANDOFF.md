@@ -1,5 +1,9 @@
 # Handoff (2026-10-24, 3.0.8)
 
+## YouTube embed frames (lane A/D, docs/changes/youtube-embed-frames.md)
+- TEDx talks embed YouTube in a youtube-nocookie.com/embed/<id> iframe (TED page data: `external={service:"YouTube"}`, empty hlsUrl). Two new manifest groups (bridge MAIN + the full script list, `all_frames` true) match `www.youtube(-nocookie).com/embed/*`; hostname checks in content.js/youtube.js/dubbing.js/yt-bridge.js accept `-nocookie`; `ytLayMaVideo` reads the id from `/embed/<id>`; `reinjectOpenTabs` skips `all_frames` groups. Offline tests only. TRY ON CHROME: monica_fay (6Cq4UGibpQY), shuli_steele (JNVjPM1cIbg), michelle_zhang (1mCfjO2f2dI). Unknown: the embed's small player may lack room for the control-bar button/overlay.
+- Trap: `getCurrentSite` is run by tests with a fake `location` that has only `href`; keep it reading `location.href`.
+
 ## TED hold (lane A, docs/changes/ted-hold-and-faster-captions.md)
 - TED fetched ~100 HLS segments one by one, longer than the 5 s first-play hold, so the talk played before captions/voice. Now `loadHlsVtt` fetches 8 in parallel (order kept), `prepare` loads en+vi together, and an adapter site holds the first play up to `CS_ADAPTER_HOLD_MS` 15 s (`courseraHoldFirstPlay`). Offline tests only; root cause of "does not auto-start" not seen live (Chrome was closed on the Mac). TRY ON CHROME: open a TED talk, watch for the "Đang chuẩn bị" card and auto subtitles/voice; console shows `[Lồng tiếng] Chờ chuẩn bị`.
 

@@ -201,3 +201,20 @@ test("an adapter site's first play is held longer than the standard 5 s", () => 
     assert.match(cs, /const CS_ADAPTER_HOLD_MS = 15000/);
     assert.match(cs, /maxMs: csAdapterSite\(\) \? CS_ADAPTER_HOLD_MS : undefined/);
 });
+
+// TEDx talks embed YouTube in a youtube-nocookie.com iframe; the YouTube pipeline must run in that frame
+test("YouTube embed frames get the bridge and the shared pipeline, and are treated as YouTube", () => {
+    const root = path.join(__dirname, "..");
+    const m = JSON.parse(fs.readFileSync(path.join(root, "manifest.json"), "utf8"));
+    const embedGroups = m.content_scripts.filter(g => (g.matches || []).includes("*://www.youtube-nocookie.com/embed/*"));
+    assert.equal(embedGroups.length, 2);
+    for (const g of embedGroups) assert.equal(g.all_frames, true);
+    const full = m.content_scripts.find(g => (g.js || []).includes("youtube.js") && g.matches.includes("*://*.ted.com/*"));
+    const embedMain = embedGroups.find(g => g.js.includes("youtube.js"));
+    assert.deepEqual(embedMain.js, full.js, "same scripts, same order as the top-level group");
+    assert.equal(embedGroups.find(g => g.world === "MAIN").js[0], "yt-bridge.js");
+    const read = f => fs.readFileSync(path.join(root, f), "utf8");
+    assert.match(read("content.js"), /youtube\(-nocookie\)\?\\.com/);
+    assert.match(read("youtube.js"), /\/embed\//);
+    assert.match(read("yt-bridge.js"), /youtube\(-nocookie\)\?/);
+});

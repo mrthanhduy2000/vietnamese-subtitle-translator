@@ -2212,7 +2212,8 @@ function ytGhiLongTieng(on) {
 function ytLayMaVideo() {
     try {
         const u = new URL(location.href);
-        return u.searchParams.get("v") || "";
+        // an embedded player (youtube-nocookie.com/embed/<id>) carries the id in the path
+        return u.searchParams.get("v") || (/^\/embed\/([\w-]{6,20})/.exec(u.pathname) || [])[1] || "";
     } catch (e) {
         return "";
     }
@@ -2290,7 +2291,7 @@ function ytTuTatKhiMatKetNoi() {
 }
 
 async function ytKhoiDong() {
-    if (!location.hostname.includes("youtube.com")) return;
+    if (!/(^|\.)youtube(-nocookie)?\.com$/.test(location.hostname)) return;
     ytTuTatKhiMatKetNoi();
     await ytNapCaiDatKieu();
 
