@@ -1,4 +1,7 @@
-# Handoff (2026-10-24, 3.0.7)
+# Handoff (2026-10-24, 3.0.8)
+
+## TED hold (lane A, docs/changes/ted-hold-and-faster-captions.md)
+- TED fetched ~100 HLS segments one by one, longer than the 5 s first-play hold, so the talk played before captions/voice. Now `loadHlsVtt` fetches 8 in parallel (order kept), `prepare` loads en+vi together, and an adapter site holds the first play up to `CS_ADAPTER_HOLD_MS` 15 s (`courseraHoldFirstPlay`). Offline tests only; root cause of "does not auto-start" not seen live (Chrome was closed on the Mac). TRY ON CHROME: open a TED talk, watch for the "Đang chuẩn bị" card and auto subtitles/voice; console shows `[Lồng tiếng] Chờ chuẩn bị`.
 
 ## Security pass (2026-10-24, lane D, tools only)
 - Audited install scripts, manifest, messaging, localhost VieNeu, key storage, innerHTML: only two real gaps. Fixed: voice server refuses non-loopback Host and non-extension Origin (`_LoopbackOnly` in the patched `openai_speech.py`, patch regenerated against the pinned commit); Windows installer checks the Microsoft signature of vc_redist before the elevated run.

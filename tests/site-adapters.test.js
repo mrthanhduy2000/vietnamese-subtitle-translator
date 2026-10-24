@@ -175,3 +175,29 @@ test("auto translate tells the viewer when an adapter site already has Vietnames
     const cs = fs.readFileSync(path.join(__dirname, "..", "content.js"), "utf8");
     assert.match(cs, /decision\.action === "skip" && picked\.alreadyVietnamese && csAdapterSite\(\)\) \{\s*cstToast\("Video này đã có phụ đề tiếng Việt/);
 });
+
+test("HLS segments are fetched in parallel and the cues keep playlist order", async () => {
+    const S = load();
+    const base = "https://hls.ted.com/talks/9/subtitles/en/index.m3u8";
+    const n = 30;
+    const playlist = "#EXTM3U\n" + Array.from({ length: n }, (_, i) => `#EXTINF:10,\ns${i}.vtt`).join("\n");
+    let inFlight = 0, peak = 0;
+    const ft = async u => {
+        if (u === base) return playlist;
+        const i = +/s(\d+)\.vtt/.exec(u)[1];
+        inFlight++; peak = Math.max(peak, inFlight);
+        await new Promise(r => setTimeout(r, i % 2 ? 1 : 5));   // later segments can finish first
+        inFlight--;
+        return `WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nline ${i}\n`;
+    };
+    const cues = await S.loadHlsVtt(base, ft);
+    assert.equal(cues.length, n);
+    assert.deepEqual(Array.from(cues.map(c => c.text)), Array.from({ length: n }, (_, i) => `line ${i}`));
+    assert.ok(peak > 1 && peak <= 8, "parallel but bounded, peak " + peak);
+});
+
+test("an adapter site's first play is held longer than the standard 5 s", () => {
+    const cs = fs.readFileSync(path.join(__dirname, "..", "content.js"), "utf8");
+    assert.match(cs, /const CS_ADAPTER_HOLD_MS = 15000/);
+    assert.match(cs, /maxMs: csAdapterSite\(\) \? CS_ADAPTER_HOLD_MS : undefined/);
+});
