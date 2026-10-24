@@ -20,6 +20,23 @@ const YT_BORN = Date.now() + Math.random();
 const YT_OVERLAY = `.cst-yt-overlay[data-cst-gen="${YT_GEN}"]`;
 const YT_BTN = `.cst-ytp-btn[data-cst-gen="${YT_GEN}"]`;
 
+// Diagnostics readable from the DOM (data-cst-yt-* on <html>): which step of the start-up this frame
+// reached. The YouTube embed player (TEDx pages) cannot be inspected live, so each step leaves a mark.
+function ytChanDoan(key, value) {
+    try { document.documentElement.dataset["cstYt" + key] = String(value).slice(0, 200); } catch (e) { /* bỏ qua */ }
+}
+
+ytChanDoan("Loaded", String(location.hostname) + String(location.pathname || "").slice(0, 20));
+
+// The player box: the watch page's #movie_player, or any HTML5 player wrapper, or (embeds with a
+// different player skin) the parent of the <video>
+function ytPlayerEl() {
+    const p = document.querySelector("#movie_player") || document.querySelector(".html5-video-player");
+    if (p) return p;
+    const v = document.querySelector("video");
+    return v && v.parentElement && v.parentElement !== document.body ? v.parentElement : null;
+}
+
 const yt = {
     cues: [],           // cue tieng Anh: [{ start, end, text, words? }]
     groups: [],         // nhom dich: [{ text, cueIndexes, srcCues, start, end, translated, viCues }]
@@ -500,8 +517,7 @@ function ytAnCuaMaKhac(root, selector) {
 }
 
 function ytTaoLopPhuDe() {
-    const player = document.querySelector("#movie_player") ||
-                   document.querySelector(".html5-video-player");
+    const player = ytPlayerEl();
     if (!player) return null;
 
     if (yt.dead) return null;
@@ -1005,7 +1021,7 @@ function ytDichKhanCap(cueIdx) {
 // The player marks an ad with a class on itself. Found once, looked up again if YouTube replaced it
 function ytAdShowing() {
     let p = yt.adPlayer;
-    if (!p || !p.isConnected) p = yt.adPlayer = document.querySelector("#movie_player") || document.querySelector(".html5-video-player");
+    if (!p || !p.isConnected) p = yt.adPlayer = ytPlayerEl();
     return !!(p && p.classList && (p.classList.contains("ad-showing") || p.classList.contains("ad-interrupting")));
 }
 
@@ -1368,6 +1384,7 @@ async function ytNhanDienNgonNgu(info) {
 
 async function ytTuDongDich() {
     const ma = ytLayMaVideo();
+    ytChanDoan("Auto", `start;id=${ma};auto=${ytSettings.autoTranslate};active=${yt.active};tried=${yt.autoTried === ma}`);
     if (yt.dead || !ytSettings.autoTranslate || !ma || yt.active || yt.autoTried === ma) return null;
     // The video just left may still be loading (ytBatDauDich stops at its next wait): wait for it
     // rather than skip this video for good, which is what returning on `busy` did
@@ -1398,11 +1415,13 @@ async function ytTuDongDichSau(ma) {
         try { info = await ytHoiDanhSachPhuDe(); } catch (e) { info = null; }
         if (ytLayMaVideo() !== ma) return null;
         if (info && info.videoId === ma && info.tracks && info.tracks.length) break;
+        ytChanDoan("Auto", `tracks;try=${i};got=${info ? (info.error || (info.tracks ? info.tracks.length : "?") + "/" + info.videoId) : "null"}`);
         info = null;
         await new Promise(r => setTimeout(r, 400));
     }
-    if (!info || yt.active || yt.busy) return null;
+    if (!info || yt.active || yt.busy) { ytChanDoan("Auto", "no-tracks"); return null; }
     const q = await ytNhanDienNgonNgu(info);
+    ytChanDoan("Auto", `decision=${q.action};lang=${q.lang}`);
     yt.langDecision = q;
     console.log(`[AI Subtitle] Ngôn ngữ video: ${q.lang} (${Math.round(q.confidence * 100)}%, theo ${q.source}) -> ${q.action === "translate" ? "tự động dịch" : q.action === "skip" ? "đã là tiếng Việt, không dịch" : "chưa chắc chắn, không tự dịch"}`);
     if (q.action !== "translate") return q;
@@ -1449,7 +1468,7 @@ async function ytTuBatLongTieng() {
     if (!ytSettings.dubEnabled || !api || api.dub.enabled || api.dub.starting || yt.dubStarting || !yt.active || !yt.videoEl) return false;
     yt.dubStarting = true;
     try {
-        const player = document.querySelector("#movie_player") || document.querySelector(".html5-video-player");
+        const player = ytPlayerEl();
         const ok = await api.start({ video: yt.videoEl, container: player, getGroups: ytNhomLongTieng, quiet: true });
         ytDatTrangThaiNutLongTieng(ok);
         return ok;
@@ -1806,12 +1825,14 @@ function ytDatTrangThaiNutLongTieng(on) {
 }
 
 function ytTaoNutThanhDieuKhien() {
-    const player = document.querySelector("#movie_player") ||
-                   document.querySelector(".html5-video-player");
+    const player = ytPlayerEl();
     if (!player) return;
 
-    const rightControls = player.querySelector(".ytp-right-controls");
-    if (!rightControls) return;
+    // The embed player's newer control bar has no .ytp-right-controls: the button then floats in the
+    // player's top-right corner instead of staying missing
+    const bar = player.querySelector(".ytp-right-controls");
+    const rightControls = bar || player;
+    ytChanDoan("Button", bar ? "bar" : "float");
 
     if (yt.dead) return;
     // Nút của mã cũ (bấm không còn tác dụng): ẨN, không xóa (xem ytAnCuaMaKhac)
@@ -1847,6 +1868,10 @@ function ytTaoNutThanhDieuKhien() {
     btn.style.verticalAlign = "top";
     btn.style.marginLeft = "2px";
 
+    if (!bar) {
+        btn.style.cssText += ";position:absolute;top:8px;right:8px;width:34px;height:34px;margin:0;z-index:2147483000;" +
+            "border-radius:8px;background:rgba(0,0,0,.55);opacity:.85";
+    }
     // Thêm vào vị trí cuối thanh điều khiển (cạnh nút phóng to toàn màn hình)
     rightControls.appendChild(btn);
     ytCapNhatTrangThaiNutThanhDieuKhien();
@@ -2128,7 +2153,7 @@ function ytNhomLongTieng() {
 // draws from, so the panel costs no extra work and fills in as the translation arrives.
 function ytTranscriptAdapter() {
     return {
-        box: () => document.querySelector("#movie_player") || document.querySelector(".html5-video-player"),
+        box: () => ytPlayerEl(),
         videoEl: () => yt.videoEl || document.querySelector("video"),
         lines: () => (window.CST_TRANSCRIPT ? window.CST_TRANSCRIPT.mergeLines(yt.viCues, yt.cues) : []),
         title: () => pageVideoTitle(),
@@ -2136,7 +2161,7 @@ function ytTranscriptAdapter() {
         theme: () => ytSettings.uiTheme || "auto",
         onPanel: on => {
             yt.panelOpen = !!on;
-            const player = document.querySelector("#movie_player") || document.querySelector(".html5-video-player");
+            const player = ytPlayerEl();
             const overlay = document.querySelector(YT_OVERLAY);
             if (player && overlay) ytCapNhatViTri(player, overlay);
             yt.renderKey = "";
@@ -2291,6 +2316,7 @@ function ytTuTatKhiMatKetNoi() {
 }
 
 async function ytKhoiDong() {
+    ytChanDoan("Boot", String(location.hostname) + String(location.pathname || "").slice(0, 20) + "|" + document.readyState);
     if (!/(^|\.)youtube(-nocookie)?\.com$/.test(location.hostname)) return;
     ytTuTatKhiMatKetNoi();
     await ytNapCaiDatKieu();
@@ -2303,7 +2329,7 @@ async function ytKhoiDong() {
                     ytSubStyle = ytChuanHoaKieu({ ...ytSubStyle, ...changes.subStyle.newValue });
                     // a stale mirror must not override dualMode (popup writes dualMode alone)
                     ytSubStyle.mode = state.dualMode ? "dual" : "single";
-                    const player = document.querySelector("#movie_player") || document.querySelector(".html5-video-player");
+                    const player = ytPlayerEl();
                     const overlay = document.querySelector(YT_OVERLAY);
                     if (player && overlay) {
                         ytApDungKieuPhuDe(overlay);
@@ -2341,6 +2367,7 @@ async function ytKhoiDong() {
         });
     } catch (e) {}
 
+    ytChanDoan("Player", ytPlayerEl() ? "found" : "none");
     ytTaoNutThanhDieuKhien();
     ytTheoDoi();
     // Tự dịch sớm; ytTuDongDich tự chờ trình phát có danh sách phụ đề
