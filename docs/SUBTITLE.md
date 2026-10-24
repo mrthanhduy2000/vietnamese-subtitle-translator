@@ -327,6 +327,12 @@ is told as blank ("Phụ đề của video này trống") and never retried as a
 `YT_ALT_TRACK_TRIES` 4) until one is neither blank nor a broken ASR, where before only the next one was
 tried; a broken alternative is taken only over a first choice with no text. An XML body (root
 `timedtext` or `transcript`) of empty paragraphs is blank too; before, it was retried as a missing pot.
+A source that heard almost nothing (`CST_LANG.sparseTranscript`, `docs/changes/sparse-caption-notice.md`):
+letters of speech (notes, `(...)`, music signs, `>>` out) per minute of the video under `SPARSE.perMinute`
+30, from `minMinutes` 2. `ytBaoNguonThua` toasts why (also on an auto start and from a saved copy, naming
+the language for an ASR track via `Intl.DisplayNames`), sets `yt.trackInfo.sparse` for the menu, and the
+translation goes on. Found on a Pashto/Dari documentary whose only track was "ar (auto)": 35 lines, 21
+"[موسيقى]", ~19 words in 14.5 min. 133 saved videos: 6 flagged, all music-only or misheard; median 775.
 An auto start whose caption body came back empty (`yt.emptyCaptionsFor`; the player's pot not seen
 yet, typical of a background or covered tab) is tried again by `ytRetryEmptyCaptions` (2.7.2): when
 the tab is shown, else after 4, 12 and 30 s; turning translation off (`ytTatDich` bumps `yt.offSeq`)

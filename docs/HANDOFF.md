@@ -1,5 +1,15 @@
 # Handoff (2026-10-24, 3.0.8)
 
+
+## Sparse caption notice (2026-10-24, lane A, docs/changes/sparse-caption-notice.md)
+- Class: the only source heard almost nothing (music-only, or an ASR in the wrong language): the button
+  showed on, the menu "x/y translated", the screen nothing, no notice. `CST_LANG.sparseTranscript`
+  (< 30 letters of speech a minute, >= 2 min) -> `ytBaoNguonThua` toast + menu flag; translation goes on.
+  Measured on 133 saved videos: 6 flagged, all right (music-only or misheard), lowest unflagged 46/min.
+  Not seen live yet: open iYL-UuNE_9w (Taliban courtroom, only "ar (auto)") after Reload.
+- Trap: the player's caption body needs its pot; to read a transcript, open YouTube's own "Bản chép
+  lời" panel (ytd-transcript-segment-renderer) instead of fetching timedtext.
+
 ## Embed frame fallbacks (docs/changes/youtube-embed-fallbacks.md)
 - PR #66 did not start on the real embed (Mac: 0 cst elements). Added DOM marks, readable without DevTools: `<html data-cst-yt-loaded|boot|player|button|auto>` (youtube.js) and `data-cst-bridge` (yt-bridge.js, MAIN world: player present, getPlayerResponse type, track count). `ytPlayerEl()` replaces the `#movie_player` lookups (falls back to `.html5-video-player`, then the video's parent); the button floats top-right when `.ytp-right-controls` is missing. If marks show no tracks (`no-response`), the next step is reading tracks without `getPlayerResponse` (tracklist + a pot capture).
 - Read the marks via Control_Chrome execute_javascript: `JSON.stringify(document.documentElement.dataset)`; they sit in the embed frame, so open the embed URL itself.

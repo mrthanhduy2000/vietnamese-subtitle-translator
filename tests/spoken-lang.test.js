@@ -126,3 +126,27 @@ test("YouTube: a broken machine transcript gives way to the best other track, th
     const block = yt.slice(at - 600, at + 900);
     assert.doesNotMatch(block, /yt\.srcTrack\s*=/, "yt.srcTrack stays the first choice's");
 });
+
+// A machine transcript that heard almost nothing: YouTube's Arabic transcript of a Pashto/Dari
+// documentary (14.5 min, 35 lines, 21 of them "[موسيقى]"). The viewer saw the button on, the menu
+// "6/29 translated" and an empty screen, with nothing saying why
+test("a transcript that heard almost nothing over minutes of video is told apart, a quiet short or a real one is not", () => {
+    const heard = ["[موسيقى]", "هذا", "[موسيقى]", "الله لا اله الا", "الله", "طياره", "بدر", "مع ندى", "شادي امر", "شريعه",
+        "فزوره ورد نظام", "يا رب", "كتاب", "سالي", "ن", "السلام", ...Array(19).fill("[موسيقى]")];
+    const r = L.sparseTranscript(heard, 869);
+    assert.equal(r.sparse, true);
+    assert.ok(r.perMinute < L.SPARSE.perMinute, String(r.perMinute));
+    assert.equal(L.sparseTranscript(["[Music]", "[Applause]", "[Music]"], 366).sparse, true, "music only");
+    assert.equal(L.sparseTranscript(["[Music]", "oh", "all", "m"], 60).sparse, false, "under minMinutes: too short to judge");
+    const talk = Array.from({ length: 60 }, () => "so today we are going to look at how this works in practice");
+    assert.equal(L.sparseTranscript(talk, 600).sparse, false, "a real transcript");
+    assert.equal(L.sparseTranscript(["ห่วงคนดังมาใหม่ไขว้ไปไล่ทีมแดนเอ็มกัน สักเอ็มด้วยขอบทางการลอยตึงฟู้ดใส่ชาใส่".repeat(8)], 400).sparse, false, "a thin but real machine transcript stays");
+});
+
+test("YouTube: a source that heard almost nothing is told to the viewer, also on an auto start and from a saved copy", () => {
+    const yt = read("youtube.js");
+    assert.match(yt, /ytBaoNguonThua\(track, cues\);/);
+    assert.match(yt, /ytBaoNguonThua\(chon\.track, yt\.cues\);/);
+    assert.match(yt, /ytBao\(msg, \{ warn: true \}\);/);
+    assert.match(yt, /gần như không có lời/);
+});
