@@ -305,7 +305,7 @@
                 }, 0);
             },
             log: (...a) => console.warn("[Lồng tiếng]", ...a)
-        }, { duck: level(s.dubDuck, 0.2), volume: level(s.dubVolume, 1), playerOwnsVolume: /(^|\.)youtube\.com$/.test(location.hostname), secondVoice: s.dubSpeakers !== "one", maxRate: Number(s.dubMaxRate) || null, prefetchMax: smartPrefetch(mode, opts.video) });
+        }, { duck: level(s.dubDuck, 0.2), volume: level(s.dubVolume, 1), playerOwnsVolume: /(^|\.)youtube(-nocookie)?\.com$/.test(location.hostname), secondVoice: s.dubSpeakers !== "one", maxRate: Number(s.dubMaxRate) || null, prefetchMax: smartPrefetch(mode, opts.video) });
         dub.engine = engine;
         dub.enabled = true;
         dub.starting = false;
@@ -337,7 +337,7 @@
         // what the reading did, for the debug snapshot (startDebug): skipped and why, asking, read
         const note = x => { dub.speakerRead = { ...x, at: Date.now() }; };
         if (!PLAN || !PLAN.speakerLines || s.dubSpeakers === "one" || s.dubSpeakerAi === false || !(s.useAi && s.geminiApiKey)) return note({ state: "skip", why: "off" });
-        if (!/(^|\.)youtube\.com$/.test(location.hostname)) return note({ state: "skip", why: "site" });
+        if (!/(^|\.)youtube(-nocookie)?\.com$/.test(location.hostname)) return note({ state: "skip", why: "site" });
         const groups = (opts.getGroups && opts.getGroups()) || [];
         const lines = PLAN.speakerLines(groups);
         if (lines.length < 8) return note({ state: "skip", why: "lines", lines: lines.length, groups: groups.length });

@@ -2111,6 +2111,7 @@ async function reinjectOpenTabs() {
         const kind = pageKind(tab.url || "");
         if (!kind || tab.discarded) continue;
         for (const g of groups) {
+            if (g.all_frames) continue;                  // embed-frame groups: the tab-level injection cannot reach a frame
             if (!(g.matches || []).some(m => m.includes(kind === "youtube" ? "youtube.com" : "coursera.org"))) continue;
             try {
                 await chrome.scripting.executeScript({ target: { tabId: tab.id }, world: g.world === "MAIN" ? "MAIN" : "ISOLATED", files: g.js });

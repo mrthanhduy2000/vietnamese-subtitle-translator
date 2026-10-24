@@ -157,7 +157,8 @@ function getCurrentSite() {
     const url = location.href;
     if (url.includes("coursera.org")) return "coursera";
     // YouTube do youtube.js lo, vi phu de o do hoat dong theo co che khac han
-    if (url.includes("youtube.com")) return "youtube";
+    // incl. the embed frames (youtube-nocookie.com) TED/TEDx pages use
+    if (/^https?:\/\/([^/?#]*\.)?youtube(-nocookie)?\.com([/?#:]|$)/.test(url)) return "youtube";
     // Any other page: the scripts only get here when the viewer asked for it (popup button or a
     // shortcut injects them through activeTab), and the page is served by the shared <video> path
     return "generic";
