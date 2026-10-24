@@ -1572,6 +1572,7 @@ async function ytBatDauDich(opts = {}) {
             ytRepairCachedLeaks();
             yt.daDichXong = true;
             ytKichHoatHienThi();
+            ytBaoNguonThua(chon.track, yt.cues);      // a saved copy of a source that heard almost nothing
             console.log("Lay ban dich tu bo nho dem, khong can dich lai");
             return true;
         }
@@ -1611,6 +1612,10 @@ async function ytBatDauDich(opts = {}) {
             baoLoi("YouTube chưa trả nội dung phụ đề. Hãy phát video vài giây rồi bấm dịch lại; nếu vẫn lỗi, tải lại trang (F5).");
             return false;
         }
+        // A source that heard almost nothing (CST_LANG.sparseTranscript: sound notes and a handful of
+        // words over minutes of video) looked "on" and translated, while the screen stayed empty and
+        // nothing said why. Tell the viewer, also on an auto start; what there is still gets translated
+        ytBaoNguonThua(track, cues);
         // Phụ đề nguồn đã là tiếng Việt (theo mã track hoặc nội dung): hiển thị nguyên,
         // không gửi Gemini dịch Việt sang Việt
         const LANG = window.CST_LANG;
@@ -2169,12 +2174,38 @@ function ytTranscriptAdapter() {
     };
 }
 
+// (sparse source) The notice for captions that heard almost nothing, and the flag the menu shows.
+// The language is named only for a machine transcript: there it is what YouTube thought it heard
+function ytBaoNguonThua(track, cues) {
+    const LD = window.CST_LANG;
+    if (!LD || !LD.sparseTranscript || !cues.length) return null;
+    const v = document.querySelector("#movie_player video") || document.querySelector("video");
+    const lastEnd = Math.max(...cues.map(c => c.end || 0));
+    const seconds = v && Number.isFinite(v.duration) && v.duration > 0 ? v.duration : lastEnd;
+    const r = LD.sparseTranscript(cues.map(c => c.text), seconds);
+    if (!r.sparse) return r;
+    if (yt.trackInfo) yt.trackInfo.sparse = true;
+    const words = cues.map(c => String(c.text || "").replace(/\[[^\]]*\]|\([^)]*\)|[♪♫]|>>/g, " "))
+        .join(" ").split(/\s+/).filter(w => /\p{L}/u.test(w)).length;
+    const asr = track && track.kind === "asr";
+    let lang = "";
+    try { lang = asr ? new Intl.DisplayNames(["vi"], { type: "language" }).of(track.languageCode) || "" : ""; } catch (e) { /* unknown code */ }
+    const minutes = Math.max(1, Math.round(seconds / 60));
+    const msg = (asr ? "Phụ đề tự động" : "Phụ đề") + ` của video này gần như không có lời: chỉ có khoảng ${words} chữ trong ${minutes} phút` +
+        (lang ? ` (YouTube nhận là ${lang.charAt(0).toLowerCase() + lang.slice(1)}, có thể đã nghe nhầm)` : "") +
+        ". Tiện ích vẫn dịch phần có chữ, nhưng gần như sẽ không có phụ đề và giọng Việt.";
+    console.log(`[AI Subtitle] Nguồn phụ đề gần như trống: ${r.letters} chữ cái, ${r.perMinute}/phút (${track && track.languageCode}${asr ? ", tự động" : ""})`);
+    ytBao(msg, { warn: true });
+    return r;
+}
+
 // How trustworthy the source captions are: the one thing that decides translation quality and the
 // user could not see before. Machine-heard captions have no punctuation and mishear names.
 function ytNguonPhuDe() {
     const info = yt.trackInfo;
     if (!info) return null;
     if (info.kind === "screen") return { nhan: "Chữ in trên hình (Gemini đọc)", canhBao: false };
+    if (info.sparse) return { nhan: (info.kind === "asr" ? "Phụ đề máy nghe tự động" : "Phụ đề") + " gần như không có lời", canhBao: true };
     if (info.kind === "asr") return { nhan: "Phụ đề máy nghe tự động", canhBao: true };
     return { nhan: info.viSan ? "Phụ đề tiếng Việt có sẵn" : "Phụ đề tác giả tải lên", canhBao: false };
 }
