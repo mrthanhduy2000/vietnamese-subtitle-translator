@@ -218,3 +218,14 @@ test("YouTube embed frames get the bridge and the shared pipeline, and are treat
     assert.match(read("youtube.js"), /\/embed\//);
     assert.match(read("yt-bridge.js"), /youtube\(-nocookie\)\?/);
 });
+
+test("embed frames: start-up leaves DOM marks, the button floats without .ytp-right-controls", () => {
+    const root = path.join(__dirname, "..");
+    const yt = fs.readFileSync(path.join(root, "youtube.js"), "utf8");
+    const br = fs.readFileSync(path.join(root, "yt-bridge.js"), "utf8");
+    for (const k of ["Loaded", "Boot", "Player", "Button", "Auto"]) assert.match(yt, new RegExp(`ytChanDoan\\("${k}"`), k);
+    assert.match(yt, /dataset\["cstYt" \+ key\]/);
+    assert.match(yt, /const rightControls = bar \|\| player/);
+    assert.match(br, /dataset\.cstBridge/);
+    assert.doesNotMatch(br, /function trinhPhat\(\) \{ return trinhPhat\(\)/, "no self-recursion");
+});

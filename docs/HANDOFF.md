@@ -1,5 +1,9 @@
 # Handoff (2026-10-24, 3.0.8)
 
+## Embed frame fallbacks (docs/changes/youtube-embed-fallbacks.md)
+- PR #66 did not start on the real embed (Mac: 0 cst elements). Added DOM marks, readable without DevTools: `<html data-cst-yt-loaded|boot|player|button|auto>` (youtube.js) and `data-cst-bridge` (yt-bridge.js, MAIN world: player present, getPlayerResponse type, track count). `ytPlayerEl()` replaces the `#movie_player` lookups (falls back to `.html5-video-player`, then the video's parent); the button floats top-right when `.ytp-right-controls` is missing. If marks show no tracks (`no-response`), the next step is reading tracks without `getPlayerResponse` (tracklist + a pot capture).
+- Read the marks via Control_Chrome execute_javascript: `JSON.stringify(document.documentElement.dataset)`; they sit in the embed frame, so open the embed URL itself.
+
 ## YouTube embed frames (lane A/D, docs/changes/youtube-embed-frames.md)
 - TEDx talks embed YouTube in a youtube-nocookie.com/embed/<id> iframe (TED page data: `external={service:"YouTube"}`, empty hlsUrl). Two new manifest groups (bridge MAIN + the full script list, `all_frames` true) match `www.youtube(-nocookie).com/embed/*`; hostname checks in content.js/youtube.js/dubbing.js/yt-bridge.js accept `-nocookie`; `ytLayMaVideo` reads the id from `/embed/<id>`; `reinjectOpenTabs` skips `all_frames` groups. Offline tests only. TRY ON CHROME: monica_fay (6Cq4UGibpQY), shuli_steele (JNVjPM1cIbg), michelle_zhang (1mCfjO2f2dI). Unknown: the embed's small player may lack room for the control-bar button/overlay.
 - Trap: `getCurrentSite` is run by tests with a fake `location` that has only `href`; keep it reading `location.href`.
