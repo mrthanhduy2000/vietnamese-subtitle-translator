@@ -2071,7 +2071,7 @@ function courseraHoldEnv({ dubEnabled = true, prepareWait = true, playing = fals
         state: { dubEnabled, prepareWait }, location: { href: "https://www.coursera.org/learn/x/lecture/a" },
         window: { CST_DUB: api }, HTMLVideoElement,
         document: { addEventListener: (t, f) => listeners.set(t, f), removeEventListener: (t, f) => { if (listeners.get(t) === f) listeners.delete(t); } },
-        csVideo: () => video, csPlayerBox: () => ({ box: true }),
+        csVideo: () => video, csPlayerBox: () => ({ box: true }), csAdapterSite: () => null, CS_ADAPTER_HOLD_MS: 15000,
     };
     vm.createContext(ctx);
     vm.runInContext(fn, ctx);

@@ -2807,6 +2807,9 @@ async function courseraAutoTranslate() {
 // held its start since "Chờ chuẩn bị" (dubPrepareWait); Coursera never did. The lecture's first play
 // (its own autoplay or the viewer's click) now waits, up to 5 s, for the voice of the line it starts
 // on, then plays from 0 (prepareHold initial). Returns a function that drops the hold.
+// An adapter site fetches its captions first (master playlist + every segment), so the first play is
+// held longer than the 5 s the other sites get; the hold still ends the moment the voice is ready.
+const CS_ADAPTER_HOLD_MS = 15000;
 function courseraHoldFirstPlay(url) {
     const api = window.CST_DUB;
     if (!state.dubEnabled || !state.prepareWait || !api || !api.prepareHold) return () => {};
@@ -2817,7 +2820,7 @@ function courseraHoldFirstPlay(url) {
         document.removeEventListener("play", onPlay, true);
         if (location.href !== url) return;
         api.prepareHold(v, () => { const e = api.dub.engine; return !!(e && e.isReadyAt(v.currentTime)); },
-            { initial: true, container: csPlayerBox() || v.parentElement });
+            { initial: true, container: csPlayerBox() || v.parentElement, maxMs: csAdapterSite() ? CS_ADAPTER_HOLD_MS : undefined });
     };
     // Media events do not bubble, but a capturing listener on the document still sees them
     const onPlay = e => { if (e.target instanceof HTMLVideoElement) hold(e.target); };
@@ -2840,7 +2843,7 @@ async function courseraAutoTranslateNow() {
     // adapter sites: the captions come from the site, not the player. Added before the player's own
     // track can be picked, and again for every talk (the page may have moved on without a reload)
     if (csAdapterSite()) {
-        for (let i = 0; i < 20 && location.href === url; i++) {
+        for (let i = 0; i < 40 && location.href === url; i++) {
             if (csVideo() && await window.CST_SITES.prepare(csVideo())) break;
             await sleep(500);
         }
