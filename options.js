@@ -596,6 +596,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             aiKeyStatus.innerHTML = `<em>⏳ Đang gửi yêu cầu dịch thử thật tới Gemini API (${COST.modelLabel(model)})...</em>`;
             // Kiểm tra qua service worker: dùng đúng chuỗi model sẽ dùng khi dịch và ghi nhận
             // model nào key này gọi được (nguồn sự thật là kết quả gọi generateContent thật)
+            setGemTrack("testing");
             const r = await bgSend({ action: "testKey", key, model });
             geminiTest = { key, ok: !!(r && r.ok) };
             renderReadiness();
@@ -919,12 +920,27 @@ document.addEventListener("DOMContentLoaded", async () => {
         chip.dataset.state = state;
         chip.querySelector(".ready-text").textContent = text;
     }
+    // Four-step track under the key field: no key, key entered, testing, connected (a failed test stays on "Đang kiểm tra" in red)
+    const gemTrack = document.getElementById("gemTrack");
+    function setGemTrack(state, failed) {
+        if (!gemTrack) return;
+        const steps = ["off", "warn", "testing", "ok"];
+        const current = state === "err" ? "testing" : state;
+        gemTrack.dataset.state = state;
+        const at = steps.indexOf(current);
+        gemTrack.querySelectorAll("li").forEach((li, i) => {
+            li.classList.toggle("done", i < at || (i === at && state === "ok"));
+            li.classList.toggle("now", i === at);
+            li.classList.toggle("err", i === at && !!failed);
+        });
+    }
     function renderReadiness() {
         const key = (geminiKeyInput?.value || "").trim();
-        if (!key) setReadyChip("readyGemini", "off", "Chưa có API key");
+        if (!key) { setReadyChip("readyGemini", "off", "Chưa có API key"); setGemTrack("off"); }
         else if (geminiTest && geminiTest.key === key) {
             setReadyChip("readyGemini", geminiTest.ok ? "ok" : "err", geminiTest.ok ? "Gọi được Gemini" : "Chưa gọi được Gemini");
-        } else setReadyChip("readyGemini", "warn", "Có key, chưa kiểm tra");
+            setGemTrack(geminiTest.ok ? "ok" : "err", !geminiTest.ok);
+        } else { setReadyChip("readyGemini", "warn", "Có key, chưa kiểm tra"); setGemTrack("warn"); }
         if (vieneuRunning === null) setReadyChip("readyVieneu", "pending", "Đang kiểm tra máy chủ");
         else setReadyChip("readyVieneu", vieneuRunning ? "ok" : "err", vieneuRunning ? "Đang chạy trên máy này" : "Chưa sẵn sàng");
     }

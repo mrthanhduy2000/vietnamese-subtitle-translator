@@ -764,6 +764,18 @@
         .pos-pick-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
         .pos-screen { position: relative; width: 34px; height: 20px; border-radius: 3px; background: #1d1b18; flex: none; }
         .pos-screen i { position: absolute; left: 20%; right: 20%; height: 3px; border-radius: 2px; background: #fff; }
+        .gem-track { list-style: none; margin: 10px 0 6px; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; font-size: 12px; color: var(--text-sub); }
+        .gem-track li { position: relative; padding-top: 14px; min-width: 0; }
+        .gem-track li::before { content: ""; position: absolute; top: 5px; left: 0; right: 0; height: 2px; border-radius: 2px; background: var(--border); }
+        .gem-track .gem-dot { position: absolute; top: 0; left: 0; width: 12px; height: 12px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--border); }
+        .gem-track li.done::before { background: var(--primary); }
+        .gem-track li.done .gem-dot { background: var(--primary); border-color: var(--primary); }
+        .gem-track li.now { color: var(--text-main); font-weight: 600; }
+        .gem-track li.now .gem-dot { border-color: var(--primary); }
+        .gem-track[data-state="ok"] li[data-step="ok"] .gem-dot { background: var(--tc-success); border-color: var(--tc-success); }
+        .gem-track[data-state="err"] li[data-step="testing"] .gem-dot { background: var(--tc-danger); border-color: var(--tc-danger); }
+        .gem-track[data-state="err"] li[data-step="testing"] { color: var(--tc-danger); }
+        .gem-track li.now.err { color: var(--tc-danger); }
         .cost-trend { display: inline-block; font-size: 11.5px; font-weight: 600; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
         .cost-trend.up { color: var(--tc-warning); }
         .cost-trend.down { color: var(--tc-success); }
@@ -1318,6 +1330,12 @@
                                 <button type="button" class="btn btn-secondary" id="testAiKeyBtn">Kiểm tra</button>
                             </div>
                             <div class="field-hint">Lấy miễn phí tại <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>. Khóa chỉ lưu trong trình duyệt này.</div>
+                            <ol class="gem-track" id="gemTrack" data-state="off" aria-label="Trạng thái kết nối Gemini">
+                                <li data-step="off"><span class="gem-dot"></span>Chưa có key</li>
+                                <li data-step="warn"><span class="gem-dot"></span>Có key</li>
+                                <li data-step="testing"><span class="gem-dot"></span>Đang kiểm tra</li>
+                                <li data-step="ok"><span class="gem-dot"></span>Kết nối được</li>
+                            </ol>
                             <div id="aiKeyStatus" class="field-hint"></div>
                         </div>
                         <div class="form-group">
