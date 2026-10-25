@@ -666,14 +666,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         return { pct: (usd - prev) / prev * 100, against: `ngày ${ddmm(earlier)}` };
     }
     // trend: { pct } compares today with the previous saved day; shown as one coloured chip, never a claim without data
-    const kpi = (label, usd, sub, trend) => {
+    const kpi = (label, usd, sub, trend, share) => {
         const m = usd == null ? null : COST.money(usd, moneyO);
         const value = !m ? "Chưa đủ dữ liệu" : m.vnd;
         const second = m ? `<div class="cost-kpi-sub">${m.usd}</div>` : "";
         const chip = trend && trend.pct != null
             ? `<span class="cost-trend ${trend.pct > 0 ? "up" : "down"}">${trend.pct > 0 ? "▲" : "▼"} ${Math.abs(Math.round(trend.pct))}% so với ${esc(trend.against)}</span>`
             : "";
-        return `<div class="cost-kpi"><div class="cost-kpi-label">${label}</div><div class="cost-kpi-value">${value}</div>${second}${chip}${sub ? `<div class="cost-kpi-sub">${sub}</div>` : ""}</div>`;
+        // share: 0 to 1, how far the month has got toward the projection (drawn as a thin bar, never a claim beyond the data)
+        const bar = share != null ? `<div class="cost-kpi-bar" role="img" aria-label="${Math.round(Math.min(1, share) * 100)}% dự kiến"><i style="width:${(Math.min(1, Math.max(0, share)) * 100).toFixed(1)}%"></i></div>` : "";
+        return `<div class="cost-kpi"><div class="cost-kpi-label">${label}</div><div class="cost-kpi-value">${value}</div>${second}${chip}${bar}${sub ? `<div class="cost-kpi-sub">${sub}</div>` : ""}</div>`;
     };
     // This month by the machine's calendar, from the days the ledger has recorded. The projection is
     // only an extrapolation of the average so far, shown from 3 days of records.
@@ -702,7 +704,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (kpiEl) kpiEl.innerHTML = [
             kpi(`Hôm nay (${ddmm(d.day)})`, dayUsd, `${d.trCalls || 0} lượt · ${toks((d.inTok || 0) + (d.outTok || 0))} token`, trendVsPrevious(r.history, d.day, dayUsd)),
             mon ? kpi(`Tháng ${mon.month}`, mon.total, mon.first.endsWith("-01") ? "" : `ghi từ ${ddmm(mon.first)}`) : "",
-            mon ? kpi("Dự kiến cả tháng", mon.projected, mon.projected == null ? "cần ít nhất 3 ngày số liệu" : `nếu dùng đều như ${mon.span} ngày qua`) : "",
+            mon ? kpi("Dự kiến cả tháng", mon.projected, mon.projected == null ? "cần ít nhất 3 ngày số liệu" : `nếu dùng đều như ${mon.span} ngày qua`, null, mon.projected > 0 ? mon.total / mon.projected : null) : "",
             d.trCalls ? kpi("Trung bình mỗi lượt dịch", d.trUsd / d.trCalls, m ? esc(m.label) : "") : ""
         ].join("");
         if (meter) {
