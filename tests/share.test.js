@@ -653,8 +653,8 @@ test("--promote moves main only to the staged commit whose install test passed",
         assert.throws(() => promote("/share", { exec: w.exec, log: () => {} }), re);
         assert.deepEqual(pushes(w.calls), [], String(re));
     }
-    // the workflow runs on staging, and friends' updaters read main only
-    assert.match(R("tools/share/.github/workflows/install-test.yml"), /branches: \[main, staging\]/);
+    // the workflow runs on share-staging, and friends' updaters read share only
+    assert.match(R("tools/share/.github/workflows/install-test.yml"), /branches: \[share, share-staging\]/);
     assert.match(R("tools/dichphude-update.py"), /REF or "share"/);
 });
 
