@@ -9,9 +9,11 @@
 - Cost tab: `dailyCostChart` draws one bar per saved day from `r.history` (last 14 days). Same data
   as the 7-day table; no new storage. Not yet seen with real data on screen.
 - VieNeu status line shortened to one sentence.
-- Uncommitted, from a Haiku agent still working when this was written: `ui-tokens.css` (token values)
-  and `popup.html` / `popup.css` (popup layout). Check `git status` before committing. Do not commit a
-  half-edited token file.
+- Popup (`popup.css`, `popup.html`): rewritten below the token block. Duplicate and dead rules gone,
+  no nested borders, 360px wide, 44px primary button. Checked dark only in headless Chrome (light not captured).
+- Colours: `theme-colors.css` holds the semantic status and focus tokens (`--tc-*`), light default, dark
+  on the OS setting or `data-theme`. Linked by popup and options. `ui-tokens.css` stays colour-free.
+- `ui-tokens.css`: added spacing, radius, shadow and motion aliases (values unchanged).
 - Tests: `npm test` 986 pass, 0 fail, 1 skip. New tests: `tests/options-redesign.test.js`. The old
   test `options tabs` now expects four `role="tab"` buttons.
 
