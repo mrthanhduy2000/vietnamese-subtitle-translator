@@ -1014,4 +1014,17 @@ input:focus-visible,
 .ready-hint { margin: 0; padding: 8px 10px; border-radius: var(--claude-radius-sm); font-size: 12px; line-height: 1.45;
     background: var(--claude-card-subtle); border: 1px solid var(--claude-border); color: var(--claude-text-secondary); }
 .ready-hint[hidden] { display: none; }
+/* Readiness chips: one per requirement (key, voice), so the state reads before any text */
+.ready-steps { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; animation: ready-in var(--cst-dur-base, 0.25s) var(--cst-ease-out, ease) both; }
+.ready-steps[hidden] { display: none; }
+.ready-step { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px;
+    font-size: 12px; line-height: 1.4; border: 1px solid var(--claude-border); background: var(--claude-card);
+    color: var(--claude-text-secondary); }
+.ready-step::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--claude-border-hover); }
+.ready-step.ok { color: var(--claude-success); background: var(--claude-success-subtle); border-color: var(--claude-success-border); }
+.ready-step.ok::before { background: var(--claude-success); }
+.ready-step.todo { color: var(--claude-warning); background: var(--claude-warning-subtle); border-color: var(--claude-warning-border); }
+.ready-step.todo::before { background: var(--claude-warning); }
+@keyframes ready-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+
 .ready-hint .link-btn { padding: 0 2px; font-size: inherit; color: var(--claude-text); }
