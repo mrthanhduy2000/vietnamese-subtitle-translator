@@ -757,6 +757,13 @@
         .cost-kpi-label { font-size: 12px; color: var(--text-sub); }
         .cost-kpi-value { font-family: var(--font-serif); font-size: 21px; color: var(--text-main); margin-top: 4px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
         .cost-kpi-note { margin: 8px 0 12px; }
+        .pos-pick { display: flex; gap: 8px; }
+        .pos-pick-btn { flex: 1; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-card); color: var(--text-main); font: inherit; font-size: 13px; cursor: pointer; transition: border-color var(--motion-fast), background var(--motion-fast); }
+        .pos-pick-btn:hover { border-color: var(--primary); }
+        .pos-pick-btn[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-light); font-weight: 600; }
+        .pos-pick-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+        .pos-screen { position: relative; width: 34px; height: 20px; border-radius: 3px; background: #1d1b18; flex: none; }
+        .pos-screen i { position: absolute; left: 20%; right: 20%; height: 3px; border-radius: 2px; background: #fff; }
         .cost-trend { display: inline-block; font-size: 11.5px; font-weight: 600; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
         .cost-trend.up { color: var(--tc-warning); }
         .cost-trend.down { color: var(--tc-success); }
@@ -1157,8 +1164,12 @@
                     <h2 class="card-title">Vị trí và nền</h2>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label class="form-label" for="subPosition">Vị trí</label>
-                            <select id="subPosition" class="form-select">
+                            <span class="form-label" id="subPositionLabel">Vị trí</span>
+                            <div class="pos-pick" role="group" aria-labelledby="subPositionLabel">
+                                <button type="button" class="pos-pick-btn" data-pos="top" aria-pressed="false"><span class="pos-screen" aria-hidden="true"><i style="top:14%"></i></span>Trên</button>
+                                <button type="button" class="pos-pick-btn" data-pos="bottom" aria-pressed="true"><span class="pos-screen" aria-hidden="true"><i style="bottom:14%"></i></span>Dưới (mặc định)</button>
+                            </div>
+                            <select id="subPosition" class="form-select" hidden aria-hidden="true" tabindex="-1">
                                 <option value="bottom" selected>Dưới (Mặc định)</option>
                                 <option value="top">Trên</option>
                             </select>

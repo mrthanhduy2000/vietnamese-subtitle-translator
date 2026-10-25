@@ -50,6 +50,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const previewViLine = $("previewViLine");
 
     const subPosition = $("subPosition");
+    // Position picker: two visual buttons drive the same select that the saved settings use
+    const posPicks = document.querySelectorAll(".pos-pick-btn");
+    const syncPosPick = () => posPicks.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.pos === subPosition.value)));
+    posPicks.forEach(b => b.addEventListener("click", () => {
+        subPosition.value = b.dataset.pos;
+        subPosition.dispatchEvent(new Event("change"));
+        syncPosPick();
+    }));
+    subPosition.addEventListener("change", syncPosPick);
     const subOffset = $("subOffset");
     const subOffsetVal = $("subOffsetVal");
     const subPinBottom = $("subPinBottom");
@@ -234,6 +243,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     function populateStyleInputs() {
         const s = currentStyle;
         if (subPosition) subPosition.value = s.position;
+        syncPosPick();
         if (subOffset) subOffset.value = s.offset;
         if (subPinBottom) subPinBottom.checked = !!s.pinBottom;
         if (subFontFamily) subFontFamily.value = s.fontFamily;
