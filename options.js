@@ -582,6 +582,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             // Kiểm tra qua service worker: dùng đúng chuỗi model sẽ dùng khi dịch và ghi nhận
             // model nào key này gọi được (nguồn sự thật là kết quả gọi generateContent thật)
             const r = await bgSend({ action: "testKey", key, model });
+            geminiTest = { key, ok: !!(r && r.ok) };
+            renderReadiness();
             const skipped = r && r.skipped && r.skipped.length
                 ? `<br>• Không khả dụng với key này nên đã bỏ qua: <b>${r.skipped.map(x => esc(COST.modelLabel(x))).join(", ")}</b>` : "";
             if (r && r.ok) {
@@ -850,6 +852,30 @@ document.addEventListener("DOMContentLoaded", async () => {
         dubLocalVoice: "", dubLocalVoice2: ""
     });
 
+    // ---- Readiness strip: the two chips on top. Gemini is "ready" only for the key that passed the last
+    // check in this page visit (nothing is stored); VieNeu follows the server check below ----
+    let geminiTest = null; // { key, ok } of the last "Kiểm tra" click
+    let vieneuRunning = null; // null until the first server check answers
+    const readyChips = document.querySelectorAll(".ready-chip[data-goto]");
+    function setReadyChip(id, state, text) {
+        const chip = document.getElementById(id);
+        if (!chip) return;
+        chip.dataset.state = state;
+        chip.querySelector(".ready-text").textContent = text;
+    }
+    function renderReadiness() {
+        const key = (geminiKeyInput?.value || "").trim();
+        if (!key) setReadyChip("readyGemini", "off", "Chưa có API key");
+        else if (geminiTest && geminiTest.key === key) {
+            setReadyChip("readyGemini", geminiTest.ok ? "ok" : "err", geminiTest.ok ? "Gọi được Gemini" : "Chưa gọi được Gemini");
+        } else setReadyChip("readyGemini", "warn", "Có key, chưa kiểm tra");
+        if (vieneuRunning === null) setReadyChip("readyVieneu", "pending", "Đang kiểm tra máy chủ");
+        else setReadyChip("readyVieneu", vieneuRunning ? "ok" : "err", vieneuRunning ? "Đang chạy trên máy này" : "Chưa sẵn sàng");
+    }
+    readyChips.forEach(chip => chip.addEventListener("click", () => selectTab(document.getElementById(chip.dataset.goto), false)));
+    geminiKeyInput?.addEventListener("input", renderReadiness);
+    renderReadiness();
+
     // ---- Giọng Việt trên máy (VieNeu): danh sách giọng theo vùng + trạng thái máy chủ ----
     const LOCAL = COST.LOCAL_TTS;
     function fillLocalVoices(sel, current, fallback) {
@@ -874,6 +900,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!localStatusEl) return false;
         const r = await bgSend({ action: "localTtsStatus" });
         const running = !!(r && r.running);
+        vieneuRunning = running;
+        renderReadiness();
         localStatusEl.className = "cst-note " + (running ? "ok" : "err");
         // Tốc độ tạo giọng thật: dưới 0,4 là thoải mái; gần 1 thì giọng sẽ trễ dần
         const rtf = Number(r && r.rtf) || 0;

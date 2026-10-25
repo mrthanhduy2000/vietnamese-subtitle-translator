@@ -113,7 +113,30 @@
 
         .tab-panel.active {
             display: block;
+            animation: panel-in .22s ease both;
         }
+        @keyframes panel-in {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: none; }
+        }
+
+        /* Readiness strip: Gemini and VieNeu state at a glance, each chip jumps to its tab */
+        .readiness { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 18px; }
+        .ready-chip { display: inline-flex; align-items: center; gap: 10px; min-height: 36px; padding: 6px 14px 6px 12px;
+            border: 1px solid var(--border); border-radius: 999px; background: var(--bg-card); color: var(--text-main);
+            font: inherit; font-size: 13px; text-align: left; cursor: pointer;
+            transition: border-color .2s ease, background-color .2s ease; }
+        .ready-chip:hover { border-color: var(--primary-border); background: var(--bg-soft); }
+        .ready-chip:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+        .ready-name { font-weight: 600; }
+        .ready-text { color: var(--text-sub); }
+        .ready-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-sub); flex-shrink: 0;
+            transition: background-color .2s ease, box-shadow .2s ease; }
+        .ready-chip[data-state="ok"] .ready-dot { background: var(--success); box-shadow: 0 0 0 3px rgba(79, 122, 58, .18); }
+        .ready-chip[data-state="warn"] .ready-dot { background: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+        .ready-chip[data-state="err"] .ready-dot { background: #b3281a; box-shadow: 0 0 0 3px rgba(179, 40, 26, .16); }
+        .ready-chip[data-state="pending"] .ready-dot { animation: ready-pulse 1.4s ease-in-out infinite; }
+        @keyframes ready-pulse { 50% { opacity: .3; } }
 
         /* Section Cards */
         .card {
@@ -911,6 +934,20 @@
 
         <!-- Content Area -->
         <section class="content-area">
+
+            <!-- Readiness: label text is Vietnamese; state is also in the text, not only the dot colour -->
+            <div class="readiness" aria-live="polite">
+                <button type="button" class="ready-chip" id="readyGemini" data-goto="navtab-tab-gemini" data-state="off" title="Mở mục Dịch &amp; AI">
+                    <span class="ready-dot" aria-hidden="true"></span>
+                    <span class="ready-name">Gemini AI</span>
+                    <span class="ready-text">Chưa có API key</span>
+                </button>
+                <button type="button" class="ready-chip" id="readyVieneu" data-goto="navtab-tab-dubbing" data-state="pending" title="Mở mục Lồng tiếng">
+                    <span class="ready-dot" aria-hidden="true"></span>
+                    <span class="ready-name">Giọng VieNeu</span>
+                    <span class="ready-text">Đang kiểm tra máy chủ</span>
+                </button>
+            </div>
 
             <!-- PHỤ ĐỀ -->
             <div id="tab-subtitle" class="tab-panel active" role="tabpanel" aria-labelledby="navtab-tab-subtitle">
