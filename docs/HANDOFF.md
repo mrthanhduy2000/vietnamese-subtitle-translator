@@ -1,26 +1,39 @@
-# Handoff (2026-10-25, lane A, thread "Sửa song ngữ hiện hai dòng tiếng Việt")
+# Handoff (2026-10-25, lane C, thread "Redesign giao diện Dịch Phụ Đề & Lồng Tiếng AI")
 
 ## Current state
-- Bilingual fix (docs/changes/youtube-source-not-vietnamese.md): `ytChonTrack` (youtube.js) no longer
-  takes a Vietnamese caption track as the source when the spoken language is known and another
-  language. The speech's own track (or any other non-Vietnamese track) is used. A Vietnamese-only
-  video, Vietnamese speech and unknown speech keep the old shortcut.
-- Tests: tests/source-track-not-vietnamese.test.js (6 cases). `npm test`: 974 pass, 0 fail.
-- Not checked live on the Study Buddhism video (Roger Kunsang). Check on Chrome after Reload.
+- Branch `redesign-ui-ia`, local only, not pushed. Commits on top of `0944420`: `1520a1a`, `f5c0f5f`, `81f1c0d`.
+- Options page (`options.html`, `options.js`): the tab row is four work tabs in a `role="tablist"`
+  wrapper (`.nav-tabs`, `display: contents`). "Giới thiệu & lịch sử phiên bản" (`.nav-about`,
+  `data-tab="tab-history"`) sits under it and is a plain button, not a tab. `selectPanel(panelId)`
+  is the single switch; keyboard arrows still move between the four tabs.
+- Cost tab: `dailyCostChart` draws one bar per saved day from `r.history` (last 14 days). Same data
+  as the 7-day table; no new storage. Not yet seen with real data on screen.
+- VieNeu status line shortened to one sentence.
+- Uncommitted, from a Haiku agent still working when this was written: `ui-tokens.css` (token values)
+  and `popup.html` / `popup.css` (popup layout). Check `git status` before committing. Do not commit a
+  half-edited token file.
+- Tests: `npm test` 986 pass, 0 fail, 1 skip. New tests: `tests/options-redesign.test.js`. The old
+  test `options tabs` now expects four `role="tab"` buttons.
 
-## Unfinished (carried over from the 2026-10-25 handover by the thread "Làm đẹp phụ đề trên video", still open)
-- Overlay line fade: not checked on a real YouTube page or Coursera lecture (headless Chrome on the Mac).
-- Sparse caption notice: open iYL-UuNE_9w (Taliban courtroom, only "ar (auto)") after Reload.
-- YouTube embed frames (TEDx): try monica_fay (6Cq4UGibpQY), shuli_steele (JNVjPM1cIbg),
-  michelle_zhang (1mCfjO2f2dI) on Chrome. Open: does the embed's small player fit the control-bar button and the overlay?
-- TED hold: confirm on Chrome that a TED talk shows "Đang chuẩn bị" and starts with subtitles.
-- Mac only: `node tools/git-autoupdate.js --install`, then check the log once git auth works from launchd.
+## Unfinished
+- Redesign brief still open: Gemini status block (`options.js` ~line 598) is still the long
+  "API Key hoạt động" box; dubbing and Gemini progressive disclosure not done; cost KPI cards
+  unchanged; video workspace unchanged.
+- Chart: verify with real history in a Chrome profile that has the extension loaded and sample
+  cost history seeded (sample only).
+- Screenshots: `options-before.png` (main) vs `options-after.png` (branch) were taken with
+  `file://` headless Chrome; they show the nav change only. The banner "nạp lại tiện ích" in the
+  after shot is an artefact of running without the extension.
+- Carried over from the 2026-10-25 handover by "Sửa song ngữ hiện hai dòng tiếng Việt" (still open,
+  not this thread's work): Overlay line fade not checked on a real YouTube or Coursera page; sparse
+  caption notice on iYL-UuNE_9w after Reload; YouTube embed frames (TEDx: monica_fay, shuli_steele,
+  michelle_zhang); TED hold on Chrome; Mac auto-update install.
 
 ## Traps
-- Coursera (`content.js`, ~line 1083) has the same Vietnamese shortcut (`skipSameLang`). It has no
-  spoken-language signal there, so it is not changed. A Coursera video with English speech and a
-  Vietnamese track can still show Vietnamese on both lines. Open defect for lane A.
-- `spokenLanguage` (lang-detect.js) falls back to the page title when no audio track is known. A
-  localized title in Vietnamese can then make English speech look Vietnamese. Not verified live.
-- `docs/MAP.md` and `docs/TESTING.md` counts change on every test or file added: run
-  `node tools/doc-sizes.js` and commit its output with the change.
+- `git push` is held: the user's coordinator asked for local-first work. `0944420` (not this thread's)
+  is still unpushed on `main`; the Stop hook keeps reporting it until Đàm decides.
+- `bump-version.js` was NOT run: feature PRs do not bump the version (CLAUDE.md rule 2). The hook's
+  "run bump-version if runtime changed" line conflicts with that rule; CLAUDE.md wins.
+- `tests/ui.test.js` asserts `role="tablist"` exists; keep the wrapper when editing the sidebar.
+- Headless Chrome needs `--no-sandbox` and a `--user-data-dir` under the scratchpad; the sandbox
+  blocks it otherwise. The user allowed all commands in this thread.
