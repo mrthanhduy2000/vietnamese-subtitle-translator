@@ -2,7 +2,7 @@
   "note": "VieNeu files the voice server needs, pinned and hashed (2026-10-10: 0 mismatches against the Hugging Face LFS hashes). Check, install or rebuild with tools/vieneu-pin.py; see docs/DUBBING.md 'Pinned model'.",
   "license": "apache-2.0",
   "release": {
-    "repo": "mrthanhduy2000/vietnamese-subtitle-translator",
+    "repo": "mrthanhduy2000/dich-phu-de-long-tieng",
     "tag": "vieneu-model-61b85e3-ceff0d0",
     "note": "Every file below is mirrored, unchanged, as an asset of this GitHub release of the public share repo (asset name: <repo name>__<path with / as __>). tools/vieneu-pin.py --install downloads from here first, else from Hugging Face at the pinned revision. Publish with: node tools/publish-share.js --release-model."
   },

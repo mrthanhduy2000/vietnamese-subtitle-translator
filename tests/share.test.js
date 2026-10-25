@@ -121,7 +121,7 @@ const py = (args, opts = {}) => spawnSync(PY, args, {
 
 test("the pin names a release whose flat asset names are unique and derived from repo + path", () => {
     const pin = JSON.parse(R("tools/share/vieneu-model.json"));
-    assert.equal(pin.release.repo, "mrthanhduy2000/vietnamese-subtitle-translator");
+    assert.equal(pin.release.repo, "mrthanhduy2000/dich-phu-de-long-tieng");
     // Both revisions in the tag: a change to either repo alone never overwrites older assets
     assert.equal(pin.release.tag, releaseTag(pin));
     assert.match(pin.release.tag, /^vieneu-model-[0-9a-f]{7}-[0-9a-f]{7}$/);

@@ -7,3 +7,7 @@ the installers and `dichphude-update.py` read that branch by default. `publish-s
 
 Friends on the old build still update from `dich-phu-de-long-tieng`: a bridge build there carries the
 new updater, which then reads this repo's `share` branch. That repo is deleted only after they moved.
+
+The VieNeu model release (`vieneu-model-61b85e3-ceff0d0`, about 560 MB of assets) stays on
+`dich-phu-de-long-tieng` for now. `tools/share/vieneu-model.json` keeps pointing there, so that repo
+cannot be deleted until the release is copied here.
