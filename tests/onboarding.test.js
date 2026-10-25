@@ -12,7 +12,7 @@ function fakeDom(ids) {
     for (const id of ids) {
         const listeners = {};
         els[id] = {
-            id, value: "", textContent: "", className: "", hidden: false, disabled: false,
+            id, value: "", textContent: "", className: "", hidden: false, disabled: false, dataset: {},
             classList: { _s: new Set(), add(c) { this._s.add(c); }, remove(c) { this._s.delete(c); }, contains(c) { return this._s.has(c); } },
             addEventListener(t, fn) { listeners[t] = fn; }, focus() {}, listeners
         };
@@ -21,7 +21,7 @@ function fakeDom(ids) {
 }
 
 function run({ reply, stored = {} }) {
-    const els = fakeDom(["apiKey", "btnTest", "keyStatus", "stepKey", "voiceStatus", "voiceHelp", "voiceCmd", "stepVoice", "btnVoice"]);
+    const els = fakeDom(["apiKey", "btnTest", "keyStatus", "stepKey", "voiceStatus", "voiceHelp", "voiceCmd", "stepVoice", "btnVoice", "stepper", "dotKey", "dotVoice"]);
     const saved = {};
     const sandbox = {
         document: { getElementById: id => els[id] },
@@ -87,6 +87,25 @@ test("onboarding: voice server running marks the step done; not running shows ho
     assert.doesNotMatch(down.els.voiceStatus.className, /err/, "no voice is not an error");
 });
 
+test("onboarding: the stepper dot and the line follow the set-up steps", async () => {
+    const { els } = run({ reply: () => ({ ok: true, running: true }), stored: { geminiApiKey: "AIzaSECRET" } });
+    await tick();
+    assert.ok(els.dotKey.classList.contains("done"));
+    assert.ok(els.dotVoice.classList.contains("done"));
+    assert.equal(els.stepper.dataset.done, "2");
+});
+
+test("onboarding: a rejected key after a saved one clears the done state on card and dot", async () => {
+    const { els } = run({ reply: m => (m.action === "testKey" ? { ok: false, errorType: "auth" } : { ok: true, running: false }), stored: { geminiApiKey: "AIzaOLD" } });
+    await tick();
+    els.apiKey.value = "bad";
+    els.btnTest.listeners.click();
+    await tick();
+    assert.equal(els.stepKey.classList.contains("done"), false);
+    assert.equal(els.dotKey.classList.contains("done"), false);
+    assert.equal(els.stepper.dataset.done, "0");
+});
+
 test("onboarding: an existing saved key shows the step as done without echoing the key", async () => {
     const { els } = run({ reply: () => ({ ok: true, running: false }), stored: { geminiApiKey: "AIzaSECRET" } });
     await tick();
@@ -114,5 +133,6 @@ test("onboarding: text and button colours reach 4.5:1 in light and dark", () => 
         assert.ok(ratio("#FFFFFF", t["accent-fill"]) >= 4.5 && ratio("#FFFFFF", t["accent-fill-hover"]) >= 4.5, `${name}: white on primary button`);
         assert.ok(ratio(t.ok, t["ok-bg"]) >= 4.5, `${name}: ok status`);
         assert.ok(ratio(t.err, t["err-bg"]) >= 4.5, `${name}: error status`);
+        assert.ok(ratio(t["on-ok"], t.ok) >= 4.5, `${name}: text on the done check`);
     }
 });
