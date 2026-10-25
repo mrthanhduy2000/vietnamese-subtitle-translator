@@ -756,6 +756,7 @@
         .cost-kpi { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; background: var(--bg-card); min-width: 0; }
         .cost-kpi-label { font-size: 12px; color: var(--text-sub); }
         .cost-kpi-value { font-family: var(--font-serif); font-size: 21px; color: var(--text-main); margin-top: 4px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+        .cost-kpi-note { margin: 8px 0 12px; }
         .cost-kpi-sub { font-size: 11.5px; color: var(--text-sub); margin-top: 2px; font-variant-numeric: tabular-nums; }
         .cost-meter { height: 6px; border-radius: 3px; background: var(--bg-soft); overflow: hidden; margin-top: 12px; }
         .cost-meter i { display: block; height: 100%; background: var(--success); border-radius: 3px; }
@@ -973,12 +974,6 @@
 
             <!-- PHỤ ĐỀ -->
             <div id="tab-subtitle" class="tab-panel active" role="tabpanel" aria-labelledby="navtab-tab-subtitle">
-                <!-- Segmented Mode Control -->
-                <div class="segmented-control">
-                    <button type="button" id="subModeSingle" class="mode-btn active">Chỉ bản dịch</button>
-                    <button type="button" id="subModeDual" class="mode-btn">Song ngữ</button>
-                </div>
-
                 <!-- Live Interactive Subtitle Preview Box (100% YouTube Authentic Mockup) -->
                 <div class="field-hint warn" id="legibilityHint" role="status" hidden></div>
                 <div class="preview-container" id="previewContainer">
@@ -1037,6 +1032,13 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- The mode switch sits under the preview it changes, not above it -->
+                <div class="segmented-control">
+                    <button type="button" id="subModeSingle" class="mode-btn active">Chỉ bản dịch</button>
+                    <button type="button" id="subModeDual" class="mode-btn">Song ngữ</button>
+                </div>
+
 
                 <div class="card">
                     <h2 class="card-title">Chữ</h2>
@@ -1384,6 +1386,7 @@
                         <p class="card-desc">Đếm token Google tính tiền cho từng lượt, kể cả lượt hỏng. Hóa đơn thật xem ở Google AI Studio.</p>
                     </div>
                     <div id="costKpis" class="cost-kpis"></div>
+                    <p class="field-hint cost-kpi-note">Đây là ước tính từ số token tiện ích đếm được. Hóa đơn thật xem ở Google AI Studio.</p>
                     <div id="costMeter" class="cost-meter" hidden><i></i></div>
                     <div class="field-hint" id="costSummary" style="margin-top: 10px;">Đang đọc...</div>
                     <div id="costTables"></div>
