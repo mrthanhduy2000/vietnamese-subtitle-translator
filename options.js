@@ -646,11 +646,23 @@ document.addEventListener("DOMContentLoaded", async () => {
         }).join("");
         return `<div class="cost-cap">Chi phí mỗi ngày (ước tính)</div><svg class="cost-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Biểu đồ chi phí ${points.length} ngày gần nhất">${bars}</svg>`;
     };
-    const kpi = (label, usd, sub) => {
+    // Today against the previous saved day in the history; null when there is no earlier day to compare
+    function trendVsPrevious(history, today, usd) {
+        const earlier = Object.keys(history || {}).filter(k => k < today).sort().pop();
+        if (!earlier) return null;
+        const prev = (history[earlier].trUsd || 0) + (history[earlier].ttsUsd || 0);
+        if (!(prev > 0)) return null;
+        return { pct: (usd - prev) / prev * 100, against: `ngày ${ddmm(earlier)}` };
+    }
+    // trend: { pct } compares today with the previous saved day; shown as one coloured chip, never a claim without data
+    const kpi = (label, usd, sub, trend) => {
         const m = usd == null ? null : COST.money(usd, moneyO);
         const value = !m ? "Chưa đủ dữ liệu" : m.vnd;
         const second = m ? `<div class="cost-kpi-sub">${m.usd}</div>` : "";
-        return `<div class="cost-kpi"><div class="cost-kpi-label">${label}</div><div class="cost-kpi-value">${value}</div>${second}${sub ? `<div class="cost-kpi-sub">${sub}</div>` : ""}</div>`;
+        const chip = trend && trend.pct != null
+            ? `<span class="cost-trend ${trend.pct > 0 ? "up" : "down"}">${trend.pct > 0 ? "▲" : "▼"} ${Math.abs(Math.round(trend.pct))}% so với ${esc(trend.against)}</span>`
+            : "";
+        return `<div class="cost-kpi"><div class="cost-kpi-label">${label}</div><div class="cost-kpi-value">${value}</div>${second}${chip}${sub ? `<div class="cost-kpi-sub">${sub}</div>` : ""}</div>`;
     };
     // This month by the machine's calendar, from the days the ledger has recorded. The projection is
     // only an extrapolation of the average so far, shown from 3 days of records.
@@ -677,7 +689,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const dayUsd = (d.trUsd || 0) + (d.ttsUsd || 0);
         const mon = monthOf(r.history, r.today);
         if (kpiEl) kpiEl.innerHTML = [
-            kpi(`Hôm nay (${ddmm(d.day)})`, dayUsd, `${d.trCalls || 0} lượt · ${toks((d.inTok || 0) + (d.outTok || 0))} token`),
+            kpi(`Hôm nay (${ddmm(d.day)})`, dayUsd, `${d.trCalls || 0} lượt · ${toks((d.inTok || 0) + (d.outTok || 0))} token`, trendVsPrevious(r.history, d.day, dayUsd)),
             mon ? kpi(`Tháng ${mon.month}`, mon.total, mon.first.endsWith("-01") ? "" : `ghi từ ${ddmm(mon.first)}`) : "",
             mon ? kpi("Dự kiến cả tháng", mon.projected, mon.projected == null ? "cần ít nhất 3 ngày số liệu" : `nếu dùng đều như ${mon.span} ngày qua`) : "",
             d.trCalls ? kpi("Trung bình mỗi lượt dịch", d.trUsd / d.trCalls, m ? esc(m.label) : "") : ""
