@@ -6,6 +6,7 @@
     <title>Chào mừng - Vietnamese Subtitle Translator</title>
     <script src="chrome-shim.js"></script>
     <script src="theme.js"></script>
+    <link href="ui-tokens.css" rel="stylesheet">
     <style>
         :root {
             --bg: #FAF9F5; --card: #FFFFFF; --subtle: #F6F4EE; --text: #262420; --text-2: #57524A;
@@ -30,26 +31,26 @@
         h1 { font: 600 30px/1.25 Georgia, "Iowan Old Style", serif; margin: 0 0 8px; }
         .lead { color: var(--text-2); margin: 0 0 32px; }
         ol { list-style: none; margin: 0; padding: 0; counter-reset: step; }
-        li.step { counter-increment: step; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 20px 20px 64px; margin-bottom: 14px; position: relative; animation: rise .5s cubic-bezier(.2, .7, .2, 1) both; }
+        li.step { counter-increment: step; background: var(--card); border: 1px solid var(--border); border-radius: var(--cst-radius-md); padding: 20px 20px 20px 64px; margin-bottom: 14px; position: relative; animation: rise var(--cst-dur-slow) var(--cst-ease-out) both; }
         li.step:nth-child(2) { animation-delay: .08s; }
         li.step:nth-child(3) { animation-delay: .16s; }
-        li.step::before { content: counter(step); position: absolute; left: 20px; top: 20px; width: 28px; height: 28px; border-radius: 50%; background: var(--accent-fill); color: #fff; font-weight: 600; text-align: center; line-height: 28px; font-size: 14px; transition: background-color .3s; }
-        li.step.done::before { content: "\2713"; background: var(--ok); color: var(--on-ok); animation: pop .4s cubic-bezier(.2, .7, .2, 1); }
+        li.step::before { content: counter(step); position: absolute; left: 20px; top: 20px; width: 28px; height: 28px; border-radius: 50%; background: var(--accent-fill); color: #fff; font-weight: 600; text-align: center; line-height: 28px; font-size: 14px; transition: background-color var(--cst-dur-base); }
+        li.step.done::before { content: "\2713"; background: var(--ok); color: var(--on-ok); animation: pop var(--cst-dur-slow) var(--cst-ease-spring); }
         h2 { font-size: 17px; margin: 0 0 6px; }
         p { margin: 0 0 10px; }
         .muted { color: var(--text-2); font-size: 14px; }
         a { color: var(--link); }
         .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-        input[type="password"], input[type="text"] { flex: 1 1 240px; min-width: 0; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--subtle); color: var(--text); font: inherit; transition: border-color .15s; }
+        input[type="password"], input[type="text"] { flex: 1 1 240px; min-width: 0; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--cst-radius-sm); background: var(--subtle); color: var(--text); font: inherit; transition: border-color var(--cst-dur-fast); }
         input[type="password"]:focus, input[type="text"]:focus { border-color: var(--focus); }
-        .btn { padding: 9px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; transition: background-color .15s, transform .1s; }
+        .btn { padding: 9px 16px; border: 1px solid var(--border); border-radius: var(--cst-radius-sm); background: var(--card); color: var(--text); font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; transition: background-color var(--cst-dur-fast), transform var(--cst-dur-fast); }
         .btn:hover { background: var(--subtle); }
         .btn:active { transform: scale(.98); }
         .btn-primary { background: var(--accent-fill); border-color: var(--accent-fill); color: #fff; }
         .btn-primary:hover { background: var(--accent-fill-hover); }
         .btn[disabled] { opacity: .6; cursor: default; }
         input:focus-visible, .btn:focus-visible, a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-        .status { margin-top: 10px; padding: 8px 12px; border-radius: 8px; font-size: 14px; background: var(--subtle); color: var(--text); }
+        .status { margin-top: 10px; padding: 8px 12px; border-radius: var(--cst-radius-sm); font-size: 14px; background: var(--subtle); color: var(--text); }
         .status:empty { display: none; }
         .status.ok { background: var(--ok-bg); color: var(--ok); }
         .status.err { background: var(--err-bg); color: var(--err); }
@@ -59,16 +60,16 @@
         footer { margin-top: 24px; display: flex; gap: 16px; flex-wrap: wrap; }
 
         /* Progress: three stops, the line fills to the stop the user has reached */
-        .stepper { position: relative; display: flex; justify-content: space-between; margin: 0 0 40px; padding-bottom: 30px; animation: rise .5s cubic-bezier(.2, .7, .2, 1) both; }
+        .stepper { position: relative; display: flex; justify-content: space-between; margin: 0 0 40px; padding-bottom: 30px; animation: rise var(--cst-dur-slow) var(--cst-ease-out) both; }
         .stepper::before, .stepper-fill { content: ""; position: absolute; left: 14px; top: 13px; height: 2px; border-radius: 2px; }
         .stepper::before { right: 14px; background: var(--border); }
-        .stepper-fill { width: 0; background: var(--ok); transition: width .5s cubic-bezier(.2, .7, .2, 1); }
+        .stepper-fill { width: 0; background: var(--ok); transition: width var(--cst-dur-slow) var(--cst-ease-out); }
         .stepper[data-done="1"] .stepper-fill { width: calc((100% - 28px) / 2); }
         .stepper[data-done="2"] .stepper-fill { width: calc(100% - 28px); }
         .stepper-node { position: relative; width: 28px; }
-        .dot { position: relative; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); background: var(--card); color: var(--text-2); font-size: 13px; font-weight: 600; transition: background-color .3s, border-color .3s, color .3s; }
+        .dot { position: relative; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); background: var(--card); color: var(--text-2); font-size: 13px; font-weight: 600; transition: background-color var(--cst-dur-base), border-color var(--cst-dur-base), color var(--cst-dur-base); }
         .dot.done { background: var(--ok); border-color: var(--ok); color: var(--on-ok); font-size: 0; }
-        .dot.done::after { content: "\2713"; font-size: 13px; animation: pop .4s cubic-bezier(.2, .7, .2, 1); }
+        .dot.done::after { content: "\2713"; font-size: 13px; animation: pop var(--cst-dur-slow) var(--cst-ease-spring); }
         .stepper-label { position: absolute; top: 36px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 13px; color: var(--text-2); }
         .stepper-node:first-child .stepper-label { left: 0; transform: none; }
         .stepper-node:last-child .stepper-label { left: auto; right: 0; transform: none; }

@@ -46,6 +46,12 @@ test("onboarding: page is wired to its script, theme, shim and the shared cost p
     assert.match(html, /youtube\.com\/watch\?v=[\w-]{11}/, "sample video link");
 });
 
+test("onboarding: loads the shared motion and radius tokens before its own stylesheet", () => {
+    const html = R("onboarding.html");
+    assert.ok(html.indexOf('href="ui-tokens.css"') > 0, "tokens linked");
+    assert.ok(html.indexOf('href="ui-tokens.css"') < html.indexOf("<style>"), "tokens load first");
+});
+
 test("onboarding: a good key is saved only after the test passes, and the step turns done", async () => {
     const { els, saved } = run({ reply: m => (m.action === "testKey" ? { ok: true, model: "gemini-x" } : { ok: true, running: false }) });
     els.apiKey.value = "  AIzaTest  ";
