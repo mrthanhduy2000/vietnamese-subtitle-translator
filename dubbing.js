@@ -700,7 +700,11 @@
             card.el.style.top = (r.top + r.height / 2) + "px";
         };
         place();
-        try { (document.fullscreenElement || document.body).appendChild(card.el); } catch (e) { /* bỏ qua */ }
+        // In fullscreen only the fullscreen element is painted, so the card moves into it (and back out)
+        const mountCard = () => { try { (document.fullscreenElement || document.body).appendChild(card.el); } catch (e) { /* bỏ qua */ } };
+        mountCard();
+        const canListen = typeof document.addEventListener === "function";
+        if (canListen) document.addEventListener("fullscreenchange", mountCard);
         const iv = setInterval(() => {
             place();
             const counts = readyCounts(video.currentTime);
@@ -713,6 +717,7 @@
             clearInterval(iv);
             video.removeEventListener("play", onPlay);
             card.el.remove();
+            if (canListen) document.removeEventListener("fullscreenchange", mountCard);
             hold.lastWaitMs = Math.round(performance.now() - t0);
             console.log(`[Lồng tiếng] Chờ chuẩn bị ${hold.lastWaitMs} ms${resume ? "" : " (người xem tự phát)"}`);
             // Video MỚI mở: YouTube thường tự phát 0,2 đến 0,4 giây trước khi kịp tạm dừng (đo thật) -> câu
