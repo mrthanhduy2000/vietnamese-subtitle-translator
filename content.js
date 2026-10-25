@@ -2198,6 +2198,8 @@ function csPaint(ov, vi, origText) {
         }
     }
     ov.replaceChildren(...blocks);
+    // Fade a changed line in (CST_STYLE.fadeInCue); the key is the text on screen, not the cue object
+    if (S) S.fadeInCue(ov, blocks.length ? `${vi ? vi.text : ""}\n${origText || ""}` : "");
     ov.style.opacity = blocks.length ? "1" : "0";
 }
 
