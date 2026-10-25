@@ -627,6 +627,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     const table = (caption, head, rows) => `<div class="cost-cap">${caption}</div><div class="cost-scroll"><table class="ver-table">` +
         `<tr>${head.map((h, i) => `<th${i ? ' class="num"' : ""}>${h}</th>`).join("")}</tr>` +
         rows.map(r => `<tr>${r.map((c, i) => `<td${i ? ' class="num"' : ""}>${c}</td>`).join("")}</tr>`).join("") + "</table></div>";
+    // One bar per saved day, height = estimated USD from the same per-day history the table reads.
+    // No extra data is stored for the chart, and days with no spend still get a slot.
+    const dailyCostChart = (points, today) => {
+        const W = 640, H = 150, pad = 8, gap = 6;
+        const max = Math.max(...points.map(p => p.usd), 1e-9);
+        const bw = (W - pad * 2 - gap * (points.length - 1)) / points.length;
+        const bars = points.map((p, i) => {
+            const h = Math.max(2, (p.usd / max) * (H - 36));
+            const x = pad + i * (bw + gap);
+            const label = ddmm(p.k);
+            return `<g><title>${label}: ${esc(fm(p.usd))}</title>` +
+                `<rect class="cost-bar${p.k === today ? " cost-bar-today" : ""}" x="${x.toFixed(1)}" y="${(H - 20 - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="4"></rect>` +
+                `<text class="cost-bar-label" x="${(x + bw / 2).toFixed(1)}" y="${H - 4}" text-anchor="middle">${label}</text></g>`;
+        }).join("");
+        return `<div class="cost-cap">Chi phí mỗi ngày (ước tính)</div><svg class="cost-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Biểu đồ chi phí ${points.length} ngày gần nhất">${bars}</svg>`;
+    };
     const kpi = (label, usd, sub) => {
         const m = usd == null ? null : COST.money(usd, moneyO);
         const value = !m ? "Chưa đủ dữ liệu" : m.vnd;
@@ -719,6 +735,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             rows.push(['Token "suy nghĩ" của model (giá như token ra)', toks(thought), cell(thought * p.out / 1e6)]);
             html += table("Hôm nay theo loại token", ["Loại", "Token", "Chi phí"], rows);
         }
+        const chartDays = Object.keys(r.history || {}).sort().slice(-14);
+        if (chartDays.length > 1) html += dailyCostChart(chartDays.map(k => ({ k, usd: (r.history[k].trUsd || 0) + (r.history[k].ttsUsd || 0) })), r.today);
         const days = Object.keys(r.history || {}).sort().reverse().slice(0, 7);
         if (days.length) html += table("7 ngày gần nhất",
             ["Ngày", "Lượt", "Token vào", "Token ra", "Chi phí"],
@@ -917,7 +935,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const tocChamLai = HW && HW.sustainableRate(rtf) ? ` Phát video ở tốc độ ${String(HW.sustainableRate(rtf)).replace(".", ",")}× thì giọng theo kịp.` : "";
         const tocDo = rtf ? `<br>Tốc độ tạo giọng đo được: <b>${rtf.toFixed(2)}</b> (tạo 1 giây lời nói mất ${rtf.toFixed(2)} giây).${mayTa} ${rtf < 0.4 ? "Tốt." : rtf < 0.8 ? "Hơi chậm, giọng vẫn kịp." : "Quá chậm, giọng sẽ trễ dần: kiểm tra mục ProcessType trong tệp tự khởi động, phải là Interactive." + tocChamLai}` : "";
         localStatusEl.innerHTML = running
-            ? `<div class="cst-note-title">✓ Máy chủ VieNeu đang chạy trên máy này (${r.model === LOCAL.model ? LOCAL.modelLabel : esc(r.model || "không rõ model")})</div><div class="cst-note-body">Lồng tiếng dùng giọng Việt miễn phí, không gửi lời thoại ra ngoài. Nhịp nói tự đều theo từng giọng (giọng chậm được tăng tốc nhẹ, giữ cao độ).${tocDo}</div>`
+            ? `<div class="cst-note-title">✓ Máy chủ VieNeu đang chạy trên máy này (${r.model === LOCAL.model ? LOCAL.modelLabel : esc(r.model || "không rõ model")})</div><div class="cst-note-body">Miễn phí, chạy trên máy này, lời thoại không gửi ra ngoài.${tocDo}</div>`
             : `<div class="cst-note-title">Máy chủ VieNeu chưa sẵn sàng</div><div class="cst-note-body">${autostartSteps()}</div>`;
         return running;
     }
