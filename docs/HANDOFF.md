@@ -21,8 +21,8 @@
 - Redesign brief still open: Gemini status block (`options.js` ~line 598) is still the long
   "API Key hoạt động" box; dubbing and Gemini progressive disclosure not done; cost KPI cards
   unchanged; video workspace unchanged.
-- Chart: verify with real history in a Chrome profile that has the extension loaded and sample
-  cost history seeded (sample only).
+- Chart: a sample-data harness outside the repo (scratchpad `harness/stub.js`) did not render the
+  cost tab: `showCostStats` waits on storage calls the stub never answers. Verify on the real extension.
 - Screenshots: `options-before.png` (main) vs `options-after.png` (branch) were taken with
   `file://` headless Chrome; they show the nav change only. The banner "nạp lại tiện ích" in the
   after shot is an artefact of running without the extension.

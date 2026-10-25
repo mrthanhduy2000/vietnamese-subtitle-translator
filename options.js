@@ -593,14 +593,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                 ? `<br>• Không khả dụng với key này nên đã bỏ qua: <b>${r.skipped.map(x => esc(COST.modelLabel(x))).join(", ")}</b>` : "";
             if (r && r.ok) {
                 aiKeyStatus.style.color = "";
+                // One line for the result; the model id, latency and sample sit behind "Chi tiết"
                 aiKeyStatus.innerHTML = `
                     <div class="cst-note ok">
-                        <div class="cst-note-title">✓ API Key hoạt động</div>
-                        <div class="cst-note-body">
-                            • Model trả lời: <b>${esc(COST.modelLabel(r.model))}</b> (${esc(r.model)})<br>
-                            • Tốc độ phản hồi: <b>${esc(r.latency)} ms</b>${skipped}<br>
-                            • Kết quả dịch mẫu: <i>"${esc(r.sample || "")}"</i>
-                        </div>
+                        <div class="cst-note-title">✓ Gemini đang hoạt động · ${esc(COST.modelLabel(r.model))} · ${esc(r.latency)} ms</div>
+                        <details class="key-details">
+                            <summary>Chi tiết</summary>
+                            <div class="cst-note-body">
+                                Model: <b>${esc(r.model)}</b>${skipped}<br>
+                                Kết quả dịch mẫu: <i>"${esc(r.sample || "")}"</i>
+                            </div>
+                        </details>
                     </div>`;
             } else {
                 aiKeyStatus.style.color = "";

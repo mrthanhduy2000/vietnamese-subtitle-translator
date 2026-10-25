@@ -24,3 +24,10 @@ test("VieNeu status shows one short line, not the rhythm paragraph", () => {
     assert.ok(js.includes("Miễn phí, chạy trên máy này, lời thoại không gửi ra ngoài."));
     assert.ok(!js.includes("Nhịp nói tự đều theo từng giọng"), "long technical paragraph removed");
 });
+
+test("Gemini key test: success shows one line, details hide behind a disclosure", () => {
+    const js = R("options.js");
+    assert.ok(js.includes('<details class="key-details">'), "details element wraps the extra facts");
+    assert.ok(js.includes("✓ Gemini đang hoạt động"), "one-line success title");
+    assert.ok(!js.includes("• Tốc độ phản hồi"), "bullet list removed from the success state");
+});
