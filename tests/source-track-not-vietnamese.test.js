@@ -1,7 +1,8 @@
 // A Vietnamese caption track on a video whose speech is another language (an English talk with a
 // Vietnamese track on the page) must not become the source of the original line: the bilingual view
-// then showed Vietnamese on both lines. The speech's own track is the source; the Vietnamese track is
-// only used when the speech is Vietnamese or no other track exists.
+// then showed Vietnamese on both lines. The speech's own track is the source, and the Vietnamese track
+// comes back as viTrack: the caller shows it as the translation line, with no Gemini call. The
+// Vietnamese track is the source only when the speech is Vietnamese or no other track exists.
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const vm = require("node:vm");
@@ -24,6 +25,7 @@ test("English speech with a Vietnamese manual track: the English ASR is the sour
     const r = pick(tracks, true, { spoken: "en", audio: ENGLISH_AUDIO });
     assert.equal(r.track.languageCode, "en");
     assert.equal(r.daCoTiengViet, false);
+    assert.equal(r.viTrack, tracks[0]);
 });
 
 test("English speech with a Vietnamese ASR and an English manual track: the English manual track wins", () => {
@@ -48,6 +50,7 @@ test("a video with only Vietnamese tracks keeps the old shortcut (there is no ot
     const r = pick([{ kind: "", languageCode: "vi" }], true, { spoken: "en", audio: ENGLISH_AUDIO });
     assert.equal(r.track.languageCode, "vi");
     assert.equal(r.daCoTiengViet, true);
+    assert.equal(r.viTrack, null);
 });
 
 test("Vietnamese speech still uses the Vietnamese track as it did", () => {
@@ -64,4 +67,16 @@ test("unknown speech (no context) keeps the old behaviour", () => {
     const r = pick(tracks, true);
     assert.equal(r.track.languageCode, "vi");
     assert.equal(r.daCoTiengViet, true);
+});
+
+test("wiring: a Vietnamese track of another-language speech is the translation line, the speech's track the original", () => {
+    const yt = read("youtube.js");
+    assert.match(yt, /function ytHienThiNguyenTiengViet\(viCues, originalCues = viCues\)/);
+    const at = yt.indexOf("if (chon.viTrack && ytSettings.skipSameLang)");
+    assert.ok(at > 0, "branch must exist");
+    const block = yt.slice(at, at + 800);
+    assert.match(block, /ytTaiBanChepLoi\(chon\.viTrack\.baseUrl\)/);
+    assert.match(block, /ytTaiBanChepLoi\(chon\.track\.baseUrl\)/);
+    assert.match(block, /ytHienThiNguyenTiengViet\(viCues, goc\)/);
+    assert.ok(at < yt.indexOf("let cache = await ytDocCache(yt.currentVideoId);"), "runs before the cache");
 });

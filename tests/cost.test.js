@@ -839,7 +839,13 @@ for (const [mode, expect] of [["economy", "system"], ["balanced", "gemini"], ["p
         for (let i = 0; i < 30; i++) { video.currentTime += 0.5; eng.tick(); await new Promise(r => setImmediate(r)); }
         const tts = msgs.filter(m => m.action === "synthesizeSpeech" || m.action === "condenseSpeech");
         if (expect === "system") assert.equal(tts.length, 0, "Tiết kiệm không được gọi Gemini TTS / rút gọn");
-        else assert.ok(msgs.some(m => m.action === "audioCacheGet" || m.action === "synthesizeSpeech"));
+        else {
+            // The engine answers through timers and promises: under a slow runner the 30 ticks above can
+            // end before its first cache lookup is posted. Wait for it, up to 2 s, instead of a fixed count
+            const asked = () => msgs.some(m => m.action === "audioCacheGet" || m.action === "synthesizeSpeech");
+            for (let i = 0; i < 200 && !asked(); i++) await new Promise(r => setTimeout(r, 10));
+            assert.ok(asked());
+        }
         env.CST_DUB.stop();
     });
 }

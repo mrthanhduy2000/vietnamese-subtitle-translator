@@ -1,2 +1,2 @@
 # Sửa song ngữ hiện hai dòng tiếng Việt
-- Video YouTube nói tiếng Anh nhưng trang có phụ đề tiếng Việt: dòng gốc giờ lấy từ phụ đề tiếng Anh (hoặc ngôn ngữ đang nói), không còn lấy từ bản tiếng Việt nên hai dòng không bị trùng tiếng Việt.
+- Video YouTube nói tiếng Anh nhưng trang có phụ đề tiếng Việt: dòng gốc giờ là phụ đề tiếng Anh, dòng dịch là phụ đề tiếng Việt có sẵn. Không còn hai dòng tiếng Việt, và không tốn lượt Gemini cho video này.
