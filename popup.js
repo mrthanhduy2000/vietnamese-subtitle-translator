@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
     // Chrome chưa nạp lại tiện ích sau khi cập nhật file: báo rõ + nút nạp lại
-    if (window.CST_VERSION_CHECK) window.CST_VERSION_CHECK.check(document, chrome, ".brand-badge", "body > *:first-child");
+    if (window.CST_VERSION_CHECK) window.CST_VERSION_CHECK.checkBuild(document, chrome, ".brand-badge", "body > *:first-child");
 
     const translateBtn = document.getElementById("translateBtn");
     const btnLabel = document.getElementById("btnLabel");

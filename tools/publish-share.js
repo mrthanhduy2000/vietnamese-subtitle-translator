@@ -23,6 +23,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const { execFileSync } = require("node:child_process");
+const { stampSource } = require("./git-autoupdate.js");
 
 const ROOT = path.join(__dirname, "..");
 const SHARE = path.join(__dirname, "share");
@@ -102,6 +103,8 @@ function build(out) {
             copy(path.join(ROOT, d, f), path.join(ext, d, f));
         }
     }
+    // Friends' installs have no git checkout: an empty stamp leaves only the version rule (version-check.js)
+    fs.writeFileSync(path.join(ext, "build-stamp.js"), stampSource({ commit: "", committedAt: "" }));
     for (const f of EXT_TOOLS) {
         const to = path.join(ext, "tools", f);
         copy(path.join(ROOT, "tools", EXT_TOOL_SRC[f] || f), to);

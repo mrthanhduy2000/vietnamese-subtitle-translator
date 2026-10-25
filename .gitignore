@@ -4,3 +4,4 @@ node_modules/
 review-archive/
 tests/harness/lab-data/
 dist/
+build-stamp.js

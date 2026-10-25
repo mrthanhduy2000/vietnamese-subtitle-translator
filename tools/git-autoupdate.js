@@ -18,6 +18,7 @@ const LABEL = "com.damduy.dichphude.gitupdate";
 const PLIST = path.join(os.homedir(), "Library", "LaunchAgents", LABEL + ".plist");
 const LOG = path.join(os.homedir(), "Library", "Logs", "dichphude-gitupdate.log");
 const BROWSERS = ["Google Chrome", "Chromium", "Microsoft Edge", "Brave Browser", "Arc", "Vivaldi", "Opera", "Coc Coc"];
+const STAMP = path.join(ROOT, "build-stamp.js");
 
 function chromeRunning(exec = execFileSync) {
     try {
@@ -49,6 +50,30 @@ function update({ root = ROOT, exec = execFileSync, running = () => chromeRunnin
     }
 }
 
+// Writes build-stamp.js: the commit on disk right now. Chrome loads it once at start (background.js),
+// and the settings page reads the file on disk when it opens; when the two differ, the extension asks
+// for a Reload. Feature PRs do not bump the version, so the commit is the only thing that moves.
+// Git-less installs have no such file, and then the version rule alone applies.
+function stampSource(info) {
+    return "// Tạo bởi tools/git-autoupdate.js, không sửa tay\n" +
+        "(function (root) {\n    const info = " + JSON.stringify(info) + ";\n" +
+        "    if (typeof module === \"object\" && module.exports) module.exports = info;\n" +
+        "    if (root) root.CST_STAMP = info;\n" +
+        "})(typeof globalThis !== \"undefined\" ? globalThis : this);\n";
+}
+
+function writeStamp({ root = ROOT, exec = execFileSync, file = STAMP } = {}) {
+    const git = (...a) => String(exec("git", ["-C", root, ...a], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] })).trim();
+    try {
+        const info = { commit: git("rev-parse", "--short", "HEAD"), committedAt: git("log", "-1", "--format=%cI", "HEAD") };
+        const text = stampSource(info);
+        if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== text) fs.writeFileSync(file, text);
+        return info;
+    } catch (e) {
+        return null;
+    }
+}
+
 const plist = () => `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
@@ -71,7 +96,7 @@ function logLine(msg) {
     console.log(line);
 }
 
-module.exports = { update, chromeRunning, plist, BROWSERS };
+module.exports = { update, writeStamp, stampSource, chromeRunning, plist, BROWSERS };
 
 if (require.main === module) {
     const arg = process.argv[2];
@@ -88,5 +113,6 @@ if (require.main === module) {
         console.log("Removed " + PLIST);
     } else {
         update({ log: logLine });
+        writeStamp();
     }
 }
