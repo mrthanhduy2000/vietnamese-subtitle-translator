@@ -692,12 +692,17 @@
         const card = buildPrepareCard();
         const first = readyCounts(video.currentTime);
         if (first) card.paint(first);
-        // Centred over the video's box, re-read each tick so it follows a resize or a scroll
+        // Centred over the player frame (the video element itself can sit off-screen inside an embed),
+        // kept inside the viewport, and re-read each tick so it follows a resize or a scroll.
         const place = () => {
-            const r = video.getBoundingClientRect ? video.getBoundingClientRect() : null;
+            const frame = (video.closest && (video.closest("#movie_player") || video.closest(".html5-video-player"))) || video;
+            const r = frame.getBoundingClientRect ? frame.getBoundingClientRect() : null;
             if (!r || !r.width) return;
-            card.el.style.left = (r.left + r.width / 2) + "px";
-            card.el.style.top = (r.top + r.height / 2) + "px";
+            const vw = window.innerWidth || r.width, vh = window.innerHeight || r.height;
+            const cx = Math.min(Math.max(r.left + r.width / 2, 0), vw);
+            const cy = Math.min(Math.max(r.top + r.height / 2, 56), Math.max(vh - 56, 56));
+            card.el.style.left = cx + "px";
+            card.el.style.top = cy + "px";
         };
         place();
         // In fullscreen only the fullscreen element is painted, so the card moves into it (and back out)
