@@ -47,3 +47,10 @@ interpreter (`.venv\Scripts\python.exe`) and a temp folder. Overrides: `CHROME_U
 `VIENEU_PY`, `--dir=`. `review.js`, `ext-storage.js`, `glossary-pron.js`, `pron-eval.js`,
 `subtitle-pron.js` use it. The macOS-only parts of `tests/share.test.js` (plist, `stat -f`, zsh) skip on
 other systems; `tests/vieneu.live.js` still assumes a started server.
+
+The publish guard compares native real paths before reading the published Git commit. Windows
+temp directories can use an 8.3 alias such as `RUNNER~1` while Git returns the long name; plain
+`fs.realpathSync` can leave them different and incorrectly fall back to rebuilt files on disk.
+`tests/publish-paths.test.js` covers directory aliases, spaces, Unicode and real Windows short
+paths (the last case skips when the volume has no 8.3 names). Keep `fs.realpathSync.native` on
+both sides of the comparison in `tools/publish-share.js`.

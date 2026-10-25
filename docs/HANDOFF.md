@@ -1,114 +1,25 @@
-# Handoff (2026-10-24, 3.0.8)
-
-
-## Sparse caption notice (2026-10-24, lane A, docs/changes/sparse-caption-notice.md)
-- Class: the only source heard almost nothing (music-only, or an ASR in the wrong language): the button
-  showed on, the menu "x/y translated", the screen nothing, no notice. `CST_LANG.sparseTranscript`
-  (< 30 letters of speech a minute, >= 2 min) -> `ytBaoNguonThua` toast + menu flag; translation goes on.
-  Measured on 133 saved videos: 6 flagged, all right (music-only or misheard), lowest unflagged 46/min.
-  Not seen live yet: open iYL-UuNE_9w (Taliban courtroom, only "ar (auto)") after Reload.
-- Trap: the player's caption body needs its pot; to read a transcript, open YouTube's own "Bản chép
-  lời" panel (ytd-transcript-segment-renderer) instead of fetching timedtext.
-
-## Embed check (2026-10-24)
-- Real TEDx page (monica_fay) works on main: tracks=1, auto-translate, preparing card, VieNeu dubbing. Opening the embed URL directly gives `no-tracks` (the player loads nothing); not a bug on the TED page. Cache branch of `ytBatDauDich` now sets `yt.trackInfo`.
-
-## Embed frame fallbacks (docs/changes/youtube-embed-fallbacks.md)
-- PR #66 did not start on the real embed (Mac: 0 cst elements). Added DOM marks, readable without DevTools: `<html data-cst-yt-loaded|boot|player|button|auto>` (youtube.js) and `data-cst-bridge` (yt-bridge.js, MAIN world: player present, getPlayerResponse type, track count). `ytPlayerEl()` replaces the `#movie_player` lookups (falls back to `.html5-video-player`, then the video's parent); the button floats top-right when `.ytp-right-controls` is missing. If marks show no tracks (`no-response`), the next step is reading tracks without `getPlayerResponse` (tracklist + a pot capture).
-- Read the marks via Control_Chrome execute_javascript: `JSON.stringify(document.documentElement.dataset)`; they sit in the embed frame, so open the embed URL itself.
-
-## YouTube embed frames (lane A/D, docs/changes/youtube-embed-frames.md)
-- TEDx talks embed YouTube in a youtube-nocookie.com/embed/<id> iframe (TED page data: `external={service:"YouTube"}`, empty hlsUrl). Two new manifest groups (bridge MAIN + the full script list, `all_frames` true) match `www.youtube(-nocookie).com/embed/*`; hostname checks in content.js/youtube.js/dubbing.js/yt-bridge.js accept `-nocookie`; `ytLayMaVideo` reads the id from `/embed/<id>`; `reinjectOpenTabs` skips `all_frames` groups. Offline tests only. TRY ON CHROME: monica_fay (6Cq4UGibpQY), shuli_steele (JNVjPM1cIbg), michelle_zhang (1mCfjO2f2dI). Unknown: the embed's small player may lack room for the control-bar button/overlay.
-- Trap: `getCurrentSite` is run by tests with a fake `location` that has only `href`; keep it reading `location.href`.
-
-## TED hold (lane A, docs/changes/ted-hold-and-faster-captions.md)
-- TED fetched ~100 HLS segments one by one, longer than the 5 s first-play hold, so the talk played before captions/voice. Now `loadHlsVtt` fetches 8 in parallel (order kept), `prepare` loads en+vi together, and an adapter site holds the first play up to `CS_ADAPTER_HOLD_MS` 15 s (`courseraHoldFirstPlay`). Offline tests only; root cause of "does not auto-start" not seen live (Chrome was closed on the Mac). TRY ON CHROME: open a TED talk, watch for the "Đang chuẩn bị" card and auto subtitles/voice; console shows `[Lồng tiếng] Chờ chuẩn bị`.
-
-## Security pass (2026-10-24, lane D, tools only)
-- Audited install scripts, manifest, messaging, localhost VieNeu, key storage, innerHTML: only two real gaps. Fixed: voice server refuses non-loopback Host and non-extension Origin (`_LoopbackOnly` in the patched `openai_speech.py`, patch regenerated against the pinned commit); Windows installer checks the Microsoft signature of vc_redist before the elevated run.
-- Accepted, not changed: uv installed via vendor `curl | sh` (unpinned), key lives in storage.sync (syncs to the Google account, by design), share zip comes from public `main`. Reaches users only after `publish-share.js --stage/--promote` on the Mac.
-
-Audit 2026-10-24: `npm test` 934 pass, 0 fail; BACKLOG holds only items that need the Mac, an ear or paid calls. LaunchAgent install below is still not done (auto mode blocked it from the remote session).
-
-## UX/UI review fixes (2026-10-23, lanes A/C, docs/changes/ux-review-fixes.md)
-- Done: toast length + warn mark, popup contrast, popup Tắt button + readiness line, welcome card removed, VieNeu box per OS, sidebar fade. `tests/ux-review.test.js`.
-- NOT done (BACKLOG candidate): the on-player menu is written twice (`youtube.js` ~1892-2090, `content.js` ~2300-2480); merge into `player-ui.js` only when next editing the menu.
-
-## Auto-update of the author's git checkout (2026-10-23, lane D, tools only)
-- `tools/git-autoupdate.js`: ff-only to origin/main when on main, tree clean, no browser running (Chrome reads the folder at start, so no Reload). `--install` adds LaunchAgent `com.damduy.dichphude.gitupdate` (login + 30 min, log `~/Library/Logs/dichphude-gitupdate.log`). Tests: `tests/git-autoupdate.test.js`.
-- TO DO ON THE MAC (cloud cannot): `node tools/git-autoupdate.js --install`, check the log once git auth works from launchd. The share package never carried `tests/harness` (`share.test.js` now pins it); the Mac checkout does load it, since Chrome takes the whole folder.
-
-## Why Windows installs got 2.5.7 (2026-10-23)
-- This repo is private. Friends and AIs install from the PUBLIC share repo `dich-phu-de-long-tieng`, whose main still holds 2.5.7 (never promoted since). Fix = `node tools/publish-share.js --stage`, install test green, `--promote` (needs gh + both clones, run on the Mac). Not done: outward-facing, waiting for the user's go.
-- Added `.github/workflows/release.yml` (tag vX.Y.Z + zip release when manifest version is new on main) and an update section in `docs/HUONG-DAN.md`. The private repo's releases are only visible when signed in.
-
-## Site adapters thread (TED)
-- `site-adapters.js` + `site-ted.js` (docs/changes/site-adapters-ted.md). Offline tests pass. TRY ON CHROME:
-  open a ted.com/talks page, click Translate in the popup. Unknown until then: whether the
-  `fetch` to hls.ted.com from the content script passes CORS (if not, route through background.js and add
-  the host permission) and whether `__NEXT_DATA__` still carries `playerData.resources.hls.stream`.
-- Udemy, edX, Vimeo embeds still open (BACKLOG 9).
-
-## TED auto (PR #46)
-- ted.com auto-translates on arrival; verify on the Mac: button/menu on TED's player, voice, SPA move to the next talk. Vietnamese track from TED is not shown by us (notice only).
+# Handoff (2026-10-25, 3.0.8)
 
 ## State
-- unreleased (lane A/D): bent glossary codes (`[[T0]]`, `[__T0__]`...) are restored and a window whose model wrote
-  the terms itself is kept (`docs/changes/bent-glossary-codes.md`). Check the Mac console warning count.
-- Voice from existing Vietnamese captions (docs/changes/dub-from-vietnamese-captions.md, SUBTITLE.md last section): Coursera/TED/generic only; YouTube already did it. TRY ON CHROME: a TED talk with en+vi tracks, click the toast button or Giọng đọc. Offline tests only (`tests/vi-voice.test.js`).
-- Weak machines (lane B/D, no bump, `docs/changes/weak-machines.md`): `dub-hardware.js` toast offers the video
-  speed a slow voice keeps up with (0.8/rtf); `SYNC` untouched (look-ahead made no difference in the sim);
-  `install-mac.sh` reads the chip via `hw.optional.arm64`, Intel voice opt-in `DPD_INTEL_VOICE=1`,
-  `.github/workflows/intel-voice.yml` times it on macos-15-intel. Details: `DUBBING.md` "A weak machine".
-- Unreleased (lane B, BACKLOG 48, `docs/changes/loose-line-pauses.md`, DUBBING.md "Loose lines hand
-  spare time"): a line that would end 1 s+ early at its floor pace asks for longer punctuation pauses
-  (`looseSlack`, `pauseSlack`, `shapePauses opts.slack`, key `slack<step>`). 101 videos: silences
-  >= 1.5 s while the source talks 1,439 -> 1,260, late > 0.5 s 1,603 -> 1,580. Not heard by ear.
-- unreleased (lane A, loose brand match): inner-capital brands match in lower case, minus 49 English-word
-  collisions (`docs/changes/loose-brand-match.md`). Regenerate the skip list after big glossary releases.
-- unreleased (lane A/D, glossary protection): the window cache key no longer holds protected terms or codes
-  (`SUBTITLE.md` "Protected glossary terms and the window cache"); matcher buckets warm up in idle slices
-  (first `protectGlossary` 50-80 ms -> ~2 ms). `tests/glossary-cache.test.js`. `regress.js` not run.
-  Lowercase-brand gap, not loosened: `BACKLOG.md`.
-- 3.0.2 (glossary, cloud): `tools/glossary-filter.py <first-line> --names=<nltk names> --write` dropped ~660
-  everyday words and history names that hid Vietnamese renderings from the 2.9.2 and 2.9.5 batches
-  (~2,300 false hits gone on 3.2M words). Run it on every new batch before merging. 14 VieNeu names
-  (Temodar, Nissan Teana, Ram 1500...) still need `MANUAL_SAY` + `glossary-pron.js --write` on the Mac.
-- 3.0.1 (lane A/C, notices): `CST_UI.explainError` (content.js) maps a raw failure to one Vietnamese
-  sentence plus an optional action button (reload / open Settings); Coursera "Dịch thất bại" and
-  YouTube "Không dịch được" use it (YouTube auto mode still only logs). Progress "Đang dịch x/y đoạn"
-  now shows in the popup and both on-player menus. Toasts replace each other, so no stacking.
-  Not done: dubbing.js toasts and VieNeu messages were not reworded; "Thread Rà lỗi tiềm ẩn" owns error handling.
-- 3.0.0 (lane A/C): `CST_STYLE.legibilityIssue` + `#legibilityHint` in Settings preview warns on same-colour
-  box or no box and no outline. Warning only. Not seen live.
-- 2.9.9 (lane A, overlay UX): `CST_STYLE.overlayFontPx` (12 px floor, one size formula for YouTube and
-  Coursera), `overlayTransition` (honours prefers-reduced-motion; Coursera now animates `top` too).
-  Not seen on a live page; click Reload and check a narrow/mini player.
-- 2.9.8 (UI contrast) and 2.9.7 (`stripAddedFormatting`, `sanitizeModelOutput`): see git log.
-- 2.9.5 (lane B/D, glossary): +34,700 names from 50 topic drafts (`scratchpad/cands3`), 73,270
-  candidates in total, mostly unverified. About 181 still read Vietnamese by VieNeu. Spot-check short
-  source files: esports 86 lines, fitness 125, board games 352, supplements 515.
-- 2.9.4 (other session, lane A, content.js): Coursera and generic pages keep each translated lecture
-  whole (`cscache1_<host><path>`, index `cscacheIdx`, newest 200). Google-fallback windows are healed
-  like YouTube (`csHealFallbacks`). `SUBTITLE.md` item 11.
-- 2.9.3 (other session, youtube.js): `ytFindUsableTrack` walks up to 4 other tracks when the first is
-  blank or a broken ASR. The 2 bn vlogs stay untranslatable.
-- Bare "4K"/"8K" stay Vietnamese on purpose (in Vietnamese they are money). "401k" stays English.
-- 2.9.4 (glossary) and 2.9.5 were done in a cloud session: `regress.js` NOT run here.
+- Lane D: Windows CI reliability and Actions minute savings; no runtime/version change.
+- The original Windows failure (runs 39981846482 and 39987644390) was already fixed by
+  ae53ddf, merged in #11: `tools/publish-share.js` compares `fs.realpathSync.native` paths.
+- `tests/publish-paths.test.js` adds real Git fixtures for rebuilt output reached through
+  directory aliases, spaces, Unicode and Windows 8.3 names. The last case skips off Windows
+  or when short names are disabled. Existing full publish/CLI tests remain in share.test.js.
+- `.github/workflows/test.yml`: Node 24 actions (`checkout@v7`, `setup-node@v7`), Node 22 tests,
+  Ubuntu 24.04, cancellation of superseded checks, one Linux suite run with coverage.
+  The summary reads the saved log; test failures survive `tee` via explicit Bash pipefail.
+- Validation: Node 22.23.4 `npm test` passed (950 pass, 0 fail, 2 skip); coverage and workflow
+  validation are recorded in the PR. No extension Reload is needed for these tooling changes.
 
 ## Traps
-- `regress.js` has no SYNC override: for an off/on diff, set the value off in a scratch worktree,
-  `--save` there (its own copy of `review-archive/`), restore, rerun. Never `--save` main's copy from a branch.
-- A synthetic lecture repeats its sentences: a key that depends on the measured pace re-renders the
-  repeat. Memoise such a decision by words, not by start (`looseSlack`).
-- A plan object re-made by a refresh has `slackPauses`/`tightPauses` unset until it re-enters the
-  window: the simulator asks `eng.looseSlack` for the key it was made under.
-- VieNeu at 127.0.0.1:8000 is unreachable from the sandbox: hand the user a command that writes files.
-- A name the writer cannot respell gets no reading: check `GLOSSARY_SAY` after `--write`.
-- Write `glossary-data.js` with Bash `cat >>`, never Read/Write. A capitalised English word needs `~`.
-- `pageEnv` (audit.test.js) objects come from another vm realm: spread before `deepEqual`.
-- Driver pages: `yt-driver.html` in its own window; reloading the extension kills a run.
-- `seekWhileSlow` gives 15/7 or 16/6; timing tests fail during a driver batch: rerun first.
+- Rerunning an old run still uses the old commit. Use the checks for the fixed revision.
+- Windows 8.3 aliases (`RUNNER~1`) can differ from Git's long path under non-native realpath;
+  falling back to rebuilt disk bytes hides changes from the published HEAD.
+- Carried live checks: sparse-caption notice, TED captions/hold and embed layouts need real-browser
+  checks (docs/changes/sparse-caption-notice.md, ted-hold-and-faster-captions.md,
+  youtube-embed-fallbacks.md). Do not replace these with offline-test claims.
 
 ## Unfinished
 - Intel voice works in CI with `onnxruntime<1.24` (rtf 1.5-1.8, 4-core runner). Hear it on a real Intel Mac

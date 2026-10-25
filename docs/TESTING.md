@@ -8,9 +8,14 @@ npm test          # ~25 s (hardening.test.js sets the pace). The bar is 0 fail; 
                   # 442 tests / 441 pass as of 2026-09-27, and the count keeps growing
 ```
 
-`.github/workflows/test.yml` runs `npm test` on Node 22 for every push to main and every pull request
-(added 2026-10-23), so a PR shows red before it is merged.
-Coverage: `npm run coverage` prints the table (also in the CI job summary, informational, not a gate).
+`.github/workflows/test.yml` checks Node 22 on every push to main and every pull request.
+Windows runs `npm test`; Ubuntu 24.04 runs the same test glob once with `npm run coverage`.
+The coverage summary reads that run's saved log rather than executing the suite a second time.
+Test failures fail the job (Bash pipefail preserves the exit status through `tee`); coverage
+percentages are informational, with no threshold. A newer commit cancels older checks for the
+same PR or branch. The action runtime is Node 24 (`checkout@v7`, `setup-node@v7`), separate from
+the project's Node 22 test runtime.
+Coverage: `npm run coverage` prints the table (also in the CI job summary).
 `tests/vm-coverage-preload.js` names the repo's files when tests run them through `vm`, so
 `content.js`, `youtube.js`, `background.js` are counted too. Lowest at the time of writing (lines):
 `content.js` 76%, `dubbing.js` 87%, `youtube.js` 77% (the caption parser, bridge handshakes and
@@ -21,10 +26,11 @@ The one skip is intentional (see `reload-fight.test.js` below). **A fail is a re
 The per-file counts below were taken on 2026-09-23 and drift as tests are added; treat them as a
 sense of weight, not an assertion.
 
-## The files in `npm test` (the list lives in `package.json`: add a new file there)
+## The files in `npm test` (`package.json` uses `tests/*.test.js`, so new test files are included)
 
 | File | ~Tests | Covers |
 |---|---|---|
+| `publish-paths.test.js` | 2 | The publish guard reads committed bytes after a rebuild through directory aliases, spaces, Unicode and Windows 8.3 short paths. The 8.3 case skips outside Windows or when short names are disabled. |
 | `segmenter.test.js` | 44 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
 | `context.test.js` | 18 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |
 | `integration.test.js` | 25 | Runs the **real** `content.js` and `background.js` in a `vm` with a fake `chrome`, fake DOM and fake Gemini |
