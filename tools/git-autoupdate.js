@@ -4,7 +4,7 @@
 //   node tools/git-autoupdate.js             one check: fast-forward to origin/main when it is safe
 //   node tools/git-autoupdate.js --install   macOS: run it at login and every 30 min (LaunchAgent)
 //   node tools/git-autoupdate.js --uninstall remove that LaunchAgent
-// "Safe" means: on branch main, nothing uncommitted, local history is an ancestor of origin/main
+// "Safe" means: on branch main, no changes to tracked files, local history is an ancestor of origin/main
 // (never a merge, never a force), and Chrome is not running. Chrome reads an unpacked extension
 // from disk when it starts, so the next start runs the new version with no Reload; a running
 // Chrome would mix old and new files. Settings and the API key are untouched (the folder keeps its path).
@@ -34,7 +34,9 @@ function update({ root = ROOT, exec = execFileSync, running = () => chromeRunnin
     const done = (status, detail = "") => { log(`${status} ${detail}`.trim()); return { status, detail }; };
     try {
         if (git("rev-parse", "--abbrev-ref", "HEAD") !== "main") return done("skip", "not on main");
-        if (git("status", "--porcelain")) return done("skip", "uncommitted changes");
+        // Untracked files (notes or folders another tool left in the checkout) do not block the update:
+        // git merge --ff-only still refuses if one of them sits where main would put a file.
+        if (git("status", "--porcelain", "--untracked-files=no")) return done("skip", "uncommitted changes");
         git("fetch", "-q", "origin", "main");
         const head = git("rev-parse", "HEAD"), remote = git("rev-parse", "origin/main");
         if (head === remote) return done("current", head.slice(0, 7));
