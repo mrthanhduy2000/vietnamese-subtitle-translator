@@ -723,6 +723,8 @@ function ytVePhuDe(overlay, viCue, enText, opts = {}) {
         }
     }
     overlay.replaceChildren(...blocks);
+    // Fade a changed line in (CST_STYLE.fadeInCue); the key is the text on screen, not the cue object
+    if (window.CST_STYLE) window.CST_STYLE.fadeInCue(overlay, blocks.length ? `${viCue ? viCue.text : ""}\n${enText || ""}` : "");
     overlay.style.opacity = blocks.length ? (opts.dim ? "0.85" : "1") : "0";
 }
 
