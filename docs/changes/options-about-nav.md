@@ -1,2 +1,3 @@
-# Đổi tên mục Phiên bản thành Giới thiệu trong cài đặt
-- Mục cuối thanh bên của trang cài đặt đổi tên từ "Phiên bản" thành "Giới thiệu". Nội dung vẫn là lịch sử phiên bản đầy đủ, không mất bản ghi nào.
+# Trang cài đặt còn bốn tab, Giới thiệu nằm dưới thanh bên
+- Thanh bên chỉ còn bốn mục công việc: Phụ đề, Lồng tiếng, Dịch & AI, Chi phí & dữ liệu.
+- "Giới thiệu & lịch sử phiên bản" nằm dưới bốn mục đó, mở toàn bộ lịch sử phiên bản như trước. Không mất bản ghi nào.

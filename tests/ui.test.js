@@ -1035,7 +1035,8 @@ test("legibility: same-colour box, or no box and no outline, is flagged; the def
 test("options tabs: tablist, tab and tabpanel roles linked by id, arrow keys wired", () => {
     const html = R("options.html"), js = R("options.js");
     const tabs = [...html.matchAll(/<button class="nav-tab[^"]*" id="navtab-(tab-\w+)" role="tab" aria-selected="(true|false)" aria-controls="(tab-\w+)"/g)];
-    assert.equal(tabs.length, 5, "every nav tab carries role=tab");
+    assert.equal(tabs.length, 4, "every work tab carries role=tab; About is a plain link to the history panel");
+    assert.ok(html.includes('class="nav-about" id="navtab-tab-history"') && html.includes('data-tab="tab-history"'), "About link opens the history panel");
     assert.equal(tabs.filter(t => t[2] === "true").length, 1, "exactly one selected tab");
     for (const t of tabs) {
         assert.equal(t[1], t[3]);

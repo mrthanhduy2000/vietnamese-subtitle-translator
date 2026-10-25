@@ -8,26 +8,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     const navTabs = document.querySelectorAll(".nav-tab");
     const tabPanels = document.querySelectorAll(".tab-panel");
 
-    // WAI-ARIA tabs: the active tab is the only one in the Tab order, arrow keys / Home / End move between tabs
-    const selectTab = (tab, focus) => {
+    // WAI-ARIA tabs: the active tab is the only one in the Tab order, arrow keys / Home / End move between tabs.
+    // Shown by panel id, so the About link (outside the tab row) can open the same panel.
+    const selectPanel = (panelId, focusTab) => {
         navTabs.forEach(t => {
-            const on = t === tab;
+            const on = t.dataset.tab === panelId;
             t.classList.toggle("active", on);
             t.setAttribute("aria-selected", on ? "true" : "false");
             t.tabIndex = on ? 0 : -1;
+            if (on && focusTab) t.focus();
         });
-        tabPanels.forEach(p => p.classList.toggle("active", p.id === tab.dataset.tab));
-        if (focus) tab.focus();
+        document.querySelectorAll(".nav-about").forEach(a => a.classList.toggle("active", a.dataset.tab === panelId));
+        tabPanels.forEach(p => p.classList.toggle("active", p.id === panelId));
     };
     navTabs.forEach((tab, i) => {
-        tab.addEventListener("click", () => selectTab(tab, false));
+        tab.addEventListener("click", () => selectPanel(tab.dataset.tab, false));
         tab.addEventListener("keydown", e => {
             const last = navTabs.length - 1;
             const to = { ArrowRight: i === last ? 0 : i + 1, ArrowLeft: i === 0 ? last : i - 1, Home: 0, End: last }[e.key];
             if (to === undefined) return;
             e.preventDefault();
-            selectTab(navTabs[to], true);
+            selectPanel(navTabs[to].dataset.tab, true);
         });
+    });
+    document.querySelectorAll(".nav-about").forEach(link => {
+        link.addEventListener("click", () => selectPanel(link.dataset.tab, false));
     });
 
     // ========================================================
