@@ -314,6 +314,14 @@ function ytChonTrack(tracks, skipSameLang = true, ctx = {}) {
         const real = tracks.filter(t => !dubs.has(t));
         if (real.length) tracks = real;
     }
+    const sp = ctx.spoken && ctx.spoken !== "vi" ? ctx.spoken : "";
+    // The speech is known to be another language: a Vietnamese track is then a translation of it, not
+    // the speech, so it must not become the source of the original line (the bilingual view showed
+    // Vietnamese on both lines for an English video). Other tracks are used whenever there are any.
+    if (sp) {
+        const speechTracks = tracks.filter(t => !t.languageCode.startsWith("vi"));
+        if (speechTracks.length) tracks = speechTracks;
+    }
 
     // Neu video da co phu de tieng Viet
     const viTrack = tracks.find(t => t.languageCode.startsWith("vi"));
@@ -327,7 +335,6 @@ function ytChonTrack(tracks, skipSameLang = true, ctx = {}) {
     }
 
     // Uu tien: ngon ngu dang noi (thu cong > tu dong) > tieng Anh thu cong > tieng Anh tu dong > bat ky thu cong > bat ky
-    const sp = ctx.spoken && ctx.spoken !== "vi" ? ctx.spoken : "";
     return {
         track:
             (sp && tracks.find(t => norm(t.languageCode) === sp && t.kind !== "asr")) ||
