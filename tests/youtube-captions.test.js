@@ -195,6 +195,11 @@ test("ytVePhuDe: Vietnamese only, dual with the source below, dual with the sour
     o = draw("state.dualMode = true; state.originalFirst = true", cue, "Hello everyone");
     assert.deepEqual(o.children.map(c => c.className), ["cst-orig", "cst-vi"], "the source goes above");
     assert.equal(o.children[0].style.marginTop, "0");
+    // English on top: English is the full-size line, Vietnamese drops to origScale
+    assert.match(o.children[0].style.cssText, /font-size:1\.00em/, "English is the full-size line");
+    assert.match(o.children[1].style.cssText, /font-size:0\.80em/, "Vietnamese is the small line");
+    o = draw("state.dualMode = false; state.originalFirst = true", cue, "Hello everyone");
+    assert.doesNotMatch(String(o.children[0].style.cssText || ""), /font-size/, "single view: Vietnamese keeps the base size");
     o = draw("state.dualMode = false", null, "Only source");
     assert.deepEqual(o.children.map(c => c.className), ["cst-orig"], "a line with no translation yet shows the source");
     assert.match(o.children[0].style.cssText, /opacity:0\.85/);

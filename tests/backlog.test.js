@@ -32,6 +32,18 @@ test("dualMode decides bilingual display; subStyle.mode is only a fallback", () 
     assert.equal(S.resolveDual(null), false);
 });
 
+test("lineScales: the line read first is full size; the other shrinks to origScale", () => {
+    const S = require("../subtitle-style.js");
+    // default: Vietnamese big, English at origScale (80%)
+    assert.deepEqual(S.lineScales({ origScale: 80 }, true, false), { vi: 1, orig: 0.8 });
+    // English on top, bilingual: English big, Vietnamese drops to origScale
+    assert.deepEqual(S.lineScales({ origScale: 80 }, true, true), { vi: 0.8, orig: 1 });
+    // English on top but single view: no English line, Vietnamese stays full size
+    assert.deepEqual(S.lineScales({ origScale: 80 }, false, true), { vi: 1, orig: 0.8 });
+    // a missing origScale falls back to the default
+    assert.deepEqual(S.lineScales({}, true, true), { vi: S.DEFAULT_STYLE.origScale / 100, orig: 1 });
+});
+
 test("the storage listeners never read dualMode back from subStyle.mode", () => {
     assert.doesNotMatch(R("content.js"), /state\.dualMode = [^;\n]*subStyle[^;\n]*mode/);
     assert.match(R("youtube.js"), /ytSubStyle\.mode = state\.dualMode \? "dual" : "single"/);

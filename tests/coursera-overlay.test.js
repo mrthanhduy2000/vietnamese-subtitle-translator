@@ -104,6 +104,12 @@ test("csPaint: Vietnamese alone, dual below, dual with the source first, source 
     ov = paint("state.dualMode = true; state.originalFirst = true", vi, "Hello everyone");
     assert.equal(ov.children[0].textContent, "Hello everyone", "the source goes first");
     assert.equal(ov.children[0].style.marginTop, "0");
+    // English on top: English is the full-size line, Vietnamese drops to origScale
+    assert.match(ov.children[1].style.cssText, /font-size:0\.80em/, "Vietnamese is the small line");
+    assert.match(ov.children[0].style.cssText, /font-size:1\.00em/, "English is the full-size line");
+    ov = paint("state.dualMode = false; state.originalFirst = true", vi, "Hello everyone");
+    assert.equal(ov.children.length, 1);
+    assert.doesNotMatch(String(ov.children[0].style.cssText || ""), /font-size/, "single view: Vietnamese keeps the base size");
     ov = paint("state.dualMode = false", null, "Only source");
     assert.equal(ov.children.length, 1);
     assert.match(ov.children[0].style.cssText, /opacity:0\.85/);

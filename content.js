@@ -2182,12 +2182,16 @@ function csPaint(ov, vi, origText) {
     const vua = (lines, text, scale) => (S && S.fitLines
         ? S.fitLines(lines, text, ov, { scale, box, widthRatio: rong })
         : lines);
+    // The line read first is the big one: English on top makes English full size, Vietnamese small
+    const showOrig = !!origText && (state.dualMode || !vi);
+    const sc = S ? S.lineScales(s, showOrig && !!vi, state.originalFirst) : { vi: 1, orig: (s.origScale || 80) / 100 };
     if (vi) {
         const lines = vi.lines && vi.lines.length ? vi.lines : [vi.text];
-        blocks.push(block(vua(lines, vi.text || lines.join(" "), 1)));
+        const viCss = sc.vi === 1 ? "" : `font-size:${sc.vi.toFixed(2)}em;`;
+        blocks.push(block(vua(lines, vi.text || lines.join(" "), sc.vi), viCss));
     }
-    if (origText && (state.dualMode || !vi)) {
-        const scale = vi ? (s.origScale || 80) / 100 : 1;
+    if (showOrig) {
+        const scale = vi ? sc.orig : 1;
         const css = vi
             ? `font-size:${scale.toFixed(2)}em;color:${s.origColor};font-weight:400;margin-top:0.12em;`
             : "opacity:0.85;";

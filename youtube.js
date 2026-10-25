@@ -717,12 +717,16 @@ function ytVePhuDe(overlay, viCue, enText, opts = {}) {
     const s = ytChuanHoaKieu(ytSubStyle);
     const isDual = s.mode === "dual" || state.dualMode;
     const blocks = [];
+    const showEn = !!enText && (isDual || !viCue);
+    // The line read first is the big one: English on top makes English full size, Vietnamese small
+    const sc = window.CST_STYLE ? CST_STYLE.lineScales(s, showEn && !!viCue, state.originalFirst) : { vi: 1, orig: s.origScale / 100 };
     if (viCue) {
-        const lines = ytVuaKhung(viCue.lines && viCue.lines.length ? viCue.lines : [viCue.text], viCue.text, overlay, 1);
-        blocks.push(ytTaoKhoiChu(lines, "cst-vi"));
+        const lines = ytVuaKhung(viCue.lines && viCue.lines.length ? viCue.lines : [viCue.text], viCue.text, overlay, sc.vi);
+        const viCss = sc.vi === 1 ? "" : `font-size:${sc.vi.toFixed(2)}em;`;
+        blocks.push(ytTaoKhoiChu(lines, "cst-vi", viCss));
     }
-    if (enText && (isDual || !viCue)) {
-        const scale = viCue ? s.origScale / 100 : 1;
+    if (showEn) {
+        const scale = viCue ? sc.orig : 1;
         const seg = window.CST_VI_SEG;
         const enLines = seg ? ytVuaKhung([enText], enText, overlay, scale) : [enText];
         const css = viCue

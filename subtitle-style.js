@@ -258,6 +258,15 @@
         return !!(saved.subStyle && saved.subStyle.mode === "dual");
     }
 
+    // Font scale of each line in a bilingual view. The line read first is the main one: with the
+    // English line on top (originalFirst) English is full size and Vietnamese drops to origScale.
+    // Otherwise Vietnamese is full size and English is origScale. Single view: Vietnamese only.
+    function lineScales(s, dual, originalFirst) {
+        const secondary = (s.origScale || DEFAULT_STYLE.origScale) / 100;
+        if (dual && originalFirst) return { vi: secondary, orig: 1 };
+        return { vi: 1, orig: secondary };
+    }
+
     // Reading time (1.7.0): a line stays on screen into the silence after it, up to maxLinger
     // seconds, never closer than `gap` to the next line, unless that leaves a blink (`bridge`). Measured on the 22 fixture sentences: 5 of
     // 32 lines ran faster than 20 characters per second and one showed for under a second. Display
@@ -363,7 +372,7 @@
 
     const api = {
         legibilityIssue, contrastRatio,
-        FONTS, STROKES, DEFAULT_STYLE, resolveDual, SIZE_UNIT, sizeFactor, lingerCues,
+        FONTS, STROKES, DEFAULT_STYLE, resolveDual, lineScales, SIZE_UNIT, sizeFactor, lingerCues,
         MIN_FONT_PX, overlayFontPx, overlayTransition, prefersReducedMotion, fadeInCue,
         getFont, normalizeStyle, fontStack, ensureFont, isLocalFontAvailable,
         textShadow, backgroundColor, hexToRgba, googleFontsUrl,

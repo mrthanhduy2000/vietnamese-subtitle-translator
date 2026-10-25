@@ -1,41 +1,31 @@
-# Handoff (2026-10-25, lane C, thread "Redesign giao diện Dịch Phụ Đề & Lồng Tiếng AI")
+# Handoff (2026-10-26, lane A, thread "Song ngữ: tiếng Anh ở trên thì chữ chính là tiếng Anh")
 
 ## Current state
-- Branch `redesign-ui-ia`, local only, not pushed. Commits on top of `0944420`: `1520a1a`, `f5c0f5f`, `81f1c0d`.
-- Options page (`options.html`, `options.js`): the tab row is four work tabs in a `role="tablist"`
-  wrapper (`.nav-tabs`, `display: contents`). "Giới thiệu & lịch sử phiên bản" (`.nav-about`,
-  `data-tab="tab-history"`) sits under it and is a plain button, not a tab. `selectPanel(panelId)`
-  is the single switch; keyboard arrows still move between the four tabs.
-- Cost tab: `dailyCostChart` draws one bar per saved day from `r.history` (last 14 days). Same data
-  as the 7-day table; no new storage. Not yet seen with real data on screen.
-- VieNeu status line shortened to one sentence.
-- Popup (`popup.css`, `popup.html`): rewritten below the token block. Duplicate and dead rules gone,
-  no nested borders, 360px wide, 44px primary button. Checked dark only in headless Chrome (light not captured).
-- Colours: `theme-colors.css` holds the semantic status and focus tokens (`--tc-*`), light default, dark
-  on the OS setting or `data-theme`. Linked by popup and options. `ui-tokens.css` stays colour-free.
-- `ui-tokens.css`: added spacing, radius, shadow and motion aliases (values unchanged).
-- Tests: `npm test` 986 pass, 0 fail, 1 skip. New tests: `tests/options-redesign.test.js`. The old
-  test `options tabs` now expects four `role="tab"` buttons.
+- Branch `main`. Fix: `lineScales(s, dual, originalFirst)` in `subtitle-style.js` decides the font
+  scale of each line in a bilingual view. With "Tiếng Anh ở trên" on, English is full size and
+  Vietnamese drops to `origScale`; otherwise the old rule (Vietnamese full, English `origScale`).
+- Used by `ytVePhuDe` (`youtube.js`) and `csPaint` (`content.js`, the Coursera overlay).
+- Change note: `docs/changes/bilingual-line-size.md`. No version bump (feature PR rule).
+- Tests: `npm test` 0 fail. New asserts in `tests/youtube-captions.test.js`,
+  `tests/coursera-overlay.test.js`, and `lineScales` in `tests/backlog.test.js`.
 
 ## Unfinished
-- Redesign brief still open: Gemini status block (`options.js` ~line 598) is still the long
-  "API Key hoạt động" box; dubbing and Gemini progressive disclosure not done; cost KPI cards
-  unchanged; video workspace unchanged.
-- Real extension: loading the unpacked repo in headless Chrome gave "content verify job failed" for
-  options.html. The repo's own harness (`tests/harness/headless.js` with a PRELOAD shim) works.
-- Screenshots: `options-before.png` (main) vs `options-after.png` (branch) were taken with
-  `file://` headless Chrome; they show the nav change only. The banner "nạp lại tiện ích" in the
-  after shot is an artefact of running without the extension.
-- Carried over from the 2026-10-25 handover by "Sửa song ngữ hiện hai dòng tiếng Việt" (still open,
-  not this thread's work): Overlay line fade not checked on a real YouTube or Coursera page; sparse
-  caption notice on iYL-UuNE_9w after Reload; YouTube embed frames (TEDx: monica_fay, shuli_steele,
-  michelle_zhang); TED hold on Chrome; Mac auto-update install.
+- Native fullscreen path not changed: `content.js` `placeCue` / cue CSS (`video::cue(.cst-orig)`) still
+  shows the old sizes when the browser draws the cues itself. The `video::cue` rule is `!important`,
+  so `.cst-orig` size may not apply at all there. Check in a real fullscreen before changing.
+- Settings preview (`options.js` ~line 209) still uses `origScale` for the English line. It reads
+  `s.originalFirst` from the sub-style, which the popup never writes, so the preview ignores the switch.
+- Not verified in a real Chrome page (the change is only covered by unit-style tests).
+- Carried over from the 2026-10-25 handover (still open): overlay line fade on a real YouTube or
+  Coursera page; sparse caption notice on iYL-UuNE_9w after Reload; YouTube embed frames (TEDx:
+  monica_fay, shuli_steele, michelle_zhang); TED hold on Chrome; Mac auto-update install.
+- Carried over from the same handover, from the redesign thread (branch `redesign-ui-ia`, never
+  pushed): Gemini status block in `options.js` (~line 598) is still the long "API Key hoạt động"
+  box; dubbing and Gemini progressive disclosure not done; cost KPI cards and video workspace
+  unchanged.
 
 ## Traps
-- `git push` is held: the user's coordinator asked for local-first work. `0944420` (not this thread's)
-  is still unpushed on `main`; the Stop hook keeps reporting it until Đàm decides.
-- `bump-version.js` was NOT run: feature PRs do not bump the version (CLAUDE.md rule 2). The hook's
-  "run bump-version if runtime changed" line conflicts with that rule; CLAUDE.md wins.
-- `tests/ui.test.js` asserts `role="tablist"` exists; keep the wrapper when editing the sidebar.
-- Headless Chrome needs `--no-sandbox` and a `--user-data-dir` under the scratchpad; the sandbox
-  blocks it otherwise. The user allowed all commands in this thread.
+- `bump-version.js` was NOT run: feature PRs do not bump the version (CLAUDE.md rule 2).
+- Tests check `style.cssText` through a fake DOM that can return `undefined`: wrap it in
+  `String(... || "")` before a `doesNotMatch`.
+- Tell the user to click Reload at `chrome://extensions` after any runtime change.
