@@ -317,20 +317,27 @@ function ytChonTrack(tracks, skipSameLang = true, ctx = {}) {
     const sp = ctx.spoken && ctx.spoken !== "vi" ? ctx.spoken : "";
     // The speech is known to be another language: a Vietnamese track is then a translation of it, not
     // the speech, so it must not become the source of the original line (the bilingual view showed
-    // Vietnamese on both lines for an English video). Other tracks are used whenever there are any.
+    // Vietnamese on both lines for an English video). It is handed back as viTrack: the caller reads
+    // it as the translation line, and the speech's own track as the original line.
+    let viTrack = null;
     if (sp) {
         const speechTracks = tracks.filter(t => !t.languageCode.startsWith("vi"));
-        if (speechTracks.length) tracks = speechTracks;
+        if (speechTracks.length) {
+            viTrack = tracks.find(t => t.languageCode.startsWith("vi") && t.kind !== "asr") ||
+                tracks.find(t => t.languageCode.startsWith("vi")) || null;
+            tracks = speechTracks;
+        }
     }
 
     // Neu video da co phu de tieng Viet
-    const viTrack = tracks.find(t => t.languageCode.startsWith("vi"));
+    const viSan = tracks.find(t => t.languageCode.startsWith("vi"));
     const viThuCong = tracks.find(t => t.languageCode.startsWith("vi") && t.kind !== "asr");
 
-    if (viTrack && skipSameLang) {
+    if (viSan && skipSameLang) {
         return {
-            track: viThuCong || viTrack,
-            daCoTiengViet: true
+            track: viThuCong || viSan,
+            daCoTiengViet: true,
+            viTrack: null
         };
     }
 
@@ -343,6 +350,7 @@ function ytChonTrack(tracks, skipSameLang = true, ctx = {}) {
             tracks.find(t => t.languageCode.startsWith("en")) ||
             tracks.find(t => t.kind !== "asr") ||
             tracks[0],
+        viTrack,
         daCoTiengViet: false
     };
 }
@@ -1290,10 +1298,11 @@ function ytKichHoatHienThi() {
 }
 
 // Phụ đề tiếng Việt có sẵn: hiển thị nguyên (0 lượt gọi Gemini); lồng tiếng đọc thẳng
-// phụ đề tiếng Việt, nhịp theo chính nó
-function ytHienThiNguyenTiengViet(viCues) {
+// phụ đề tiếng Việt, nhịp theo chính nó. originalCues: the speech's own captions, for the original
+// line of a bilingual view (the Vietnamese captions are the translation then); default: the same cues
+function ytHienThiNguyenTiengViet(viCues, originalCues = viCues) {
     const seg = window.CST_VI_SEG;
-    yt.cues = viCues;
+    yt.cues = originalCues;
     yt.groups = [];
     yt.viCues = viCues.map(c => ({
         start: c.start, end: c.end, text: c.text,
@@ -1539,6 +1548,22 @@ async function ytBatDauDich(opts = {}) {
             if (stale()) return false;
             if (viCues.length > 0) {
                 ytHienThiNguyenTiengViet(viCues);
+                return true;
+            }
+        }
+
+        // The speech is another language and the page has Vietnamese captions (chon.viTrack): they
+        // are the translation, the speech's own captions the original line. No Gemini call; a pair
+        // without both sides falls through to the normal translation
+        if (chon.viTrack && ytSettings.skipSameLang) {
+            const viCues = await ytTaiBanChepLoi(chon.viTrack.baseUrl);
+            if (stale()) return false;
+            const goc = viCues.length > 0 ? await ytTaiBanChepLoi(chon.track.baseUrl) : [];
+            if (stale()) return false;
+            if (viCues.length > 0 && goc.length > 0) {
+                console.log(`Phụ đề tiếng Việt có sẵn làm dòng dịch, dòng gốc lấy từ ${chon.track.languageCode}`);
+                yt.trackInfo = { languageCode: chon.track.languageCode, kind: chon.track.kind || "", viSan: true };
+                ytHienThiNguyenTiengViet(viCues, goc);
                 return true;
             }
         }
