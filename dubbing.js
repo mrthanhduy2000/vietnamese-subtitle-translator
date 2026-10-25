@@ -627,7 +627,9 @@
         el.className = "cst-prepare-note";
         el.setAttribute("role", "status");
         el.setAttribute("aria-live", "polite");
-        el.style.cssText = "position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);min-width:260px;padding:12px 16px 13px;" +
+        // Fixed on the page, not inside the player: YouTube's own controls sit above the player's
+        // stacking context, so a card inside it is painted under them. place() moves it over the video.
+        el.style.cssText = "position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:260px;padding:12px 16px 13px;" +
             "border-radius:14px;background:rgba(40,38,34,.94);color:#ECE8E1;border:1px solid #3A3732;" +
             "box-shadow:0 18px 46px rgba(0,0,0,.5);font:500 13px/1.4 -apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;" +
             (still ? "" : "animation:cst-prep-in .22s cubic-bezier(.16,1,.3,1) both;") +
@@ -690,9 +692,17 @@
         const card = buildPrepareCard();
         const first = readyCounts(video.currentTime);
         if (first) card.paint(first);
-        const box = opts.container || video.parentElement;
-        try { box && box.appendChild(card.el); } catch (e) { /* bỏ qua */ }
+        // Centred over the video's box, re-read each tick so it follows a resize or a scroll
+        const place = () => {
+            const r = video.getBoundingClientRect ? video.getBoundingClientRect() : null;
+            if (!r || !r.width) return;
+            card.el.style.left = (r.left + r.width / 2) + "px";
+            card.el.style.top = (r.top + r.height / 2) + "px";
+        };
+        place();
+        try { (document.fullscreenElement || document.body).appendChild(card.el); } catch (e) { /* bỏ qua */ }
         const iv = setInterval(() => {
+            place();
             const counts = readyCounts(video.currentTime);
             if (counts) card.paint(counts);
             if (ready() || performance.now() - t0 >= maxMs) end(true);
