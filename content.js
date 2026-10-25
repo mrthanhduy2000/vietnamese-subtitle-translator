@@ -73,12 +73,15 @@ function cstToast(message, opts = {}) {
         const inPlayer = host !== document.body;
         // Same palette as the popup, the Settings page and the on-player menu. It stays dark in both
         // themes because it sits on top of a video, where a cream panel would glare.
-        box.style.cssText = `position:${inPlayer ? "absolute" : "fixed"};top:${inPlayer ? "58px" : "16px"};left:50%;transform:translateX(-50%);
+        // Slides up 8 px while it fades in; a viewer with "reduce motion" gets the fade only
+        const still = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+        box.style.cssText = `position:${inPlayer ? "absolute" : "fixed"};top:${inPlayer ? "58px" : "16px"};left:50%;transform:${still ? "translateX(-50%)" : "translate(-50%,-8px)"};
             max-width:min(620px,84%);display:flex;align-items:center;gap:12px;z-index:2147483001;
             padding:11px 14px;border-radius:12px;background:rgba(40,38,34,.965);color:#ECE8E1;
             font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
             box-shadow:0 18px 46px rgba(0,0,0,.5);
-            border:1px solid ${opts.warn ? "rgba(232,184,75,.55)" : "#3A3732"};opacity:0;transition:opacity .25s`;
+            border:1px solid ${opts.warn ? "rgba(232,184,75,.55)" : "#3A3732"};opacity:0;
+            transition:${still ? "opacity .25s" : "opacity .25s ease,transform .3s ease-out"}`;
         if (opts.warn) {
             // A warning is told apart by a mark as well as the amber border (colour alone is lost on some eyes)
             const mark = document.createElement("span");
@@ -107,7 +110,7 @@ function cstToast(message, opts = {}) {
         close.addEventListener("click", () => box.remove());
         box.appendChild(close);
         host.appendChild(box);
-        requestAnimationFrame(() => { box.style.opacity = "1"; });
+        requestAnimationFrame(() => { box.style.opacity = "1"; box.style.transform = "translateX(-50%)"; });
         // a toast with a button stays long enough to be read and clicked (12 s was gone before the viewer reached it)
         // and one without a button stays as long as it takes to read: ~70 ms a character, 6 s at least
         // (a 120 character quota message was gone in 6 s)

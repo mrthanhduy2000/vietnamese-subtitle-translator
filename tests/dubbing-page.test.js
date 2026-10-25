@@ -177,3 +177,18 @@ test("prepareHold: gives up after maxMs", async () => {
     assert.ok(E.API.hold.lastWaitMs >= 50);
     assert.equal(v.plays, 1, "playback resumed after the wait ran out");
 });
+
+test("prepareHold card: the two bars show the engine's real counts, and the card goes when the hold ends", () => {
+    const E = env({ realTimers: true });
+    E.API.dub.engine = { readyCounts: () => ({ subs: { done: 2, total: 4 }, voice: { done: 0, total: 0 } }), isReadyAt: () => false };
+    const box = { children: [], appendChild(c) { this.children.push(c); return c; } };
+    const v = video({ currentTime: 1 });
+    assert.equal(E.API.prepareHold(v, () => false, { container: box }), true);
+    const card = box.children[0];
+    assert.equal(card.className, "cst-prepare-note");
+    assert.equal(card.children[1].children[1].children[0].style.width, "50%", "2 of 4 subtitles translated");
+    assert.equal(card.children[1].children[2].textContent, "2/4");
+    assert.equal(card.children[2].children[1].children[0].style.width, "0%", "no speech plans yet: the bar stays empty");
+    assert.equal(card.children[2].children[2].textContent, "–", "no plans yet: no count to show");
+    E.API.hold.cancel();
+});

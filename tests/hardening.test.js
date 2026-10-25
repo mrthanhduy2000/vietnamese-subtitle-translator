@@ -2153,7 +2153,7 @@ function holdEnv() {
     const msgs = [];
     const env = dubbingEnvFor("balanced", "vieneu", msgs, () => ({ ok: false }));
     env.setInterval = setInterval; env.clearInterval = clearInterval;
-    env.document.createElement = () => ({ style: {}, remove() {}, set textContent(v) { this.text = v; } });
+    env.document.createElement = () => ({ style: {}, remove() {}, setAttribute() {}, appendChild(c) { return c; }, set textContent(v) { this.text = v; } });
     const video = { paused: true, listeners: {}, parentElement: { appendChild() {} },
         addEventListener(n, f) { (this.listeners[n] = this.listeners[n] || []).push(f); },
         removeEventListener(n, f) { this.listeners[n] = (this.listeners[n] || []).filter(x => x !== f); },
