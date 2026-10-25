@@ -290,8 +290,9 @@ function releaseModel({ vieneu = path.join(os.homedir(), "VieNeu-TTS"), dryRun =
 // main moves to the staged commit only when the install test on that very commit passed. exec is
 // for tests (git and gh stubbed).
 function promote(out, { exec = execFileSync, log = console.log } = {}) {
-    const repo = readPin().release.repo;
     const git = (...a) => String(exec("git", ["-C", out, ...a], { encoding: "utf8" })).trim();
+    // The install test runs on the share repo, the one `out` is a checkout of; the VieNeu model release lives elsewhere
+    const repo = git("remote", "get-url", "origin").replace(/^.*github\.com[:/]/, "").replace(/\.git$/, "");
     const head = git("rev-parse", "HEAD");
     git("fetch", "-q", "origin", "share-staging");
     const staged = git("rev-parse", "FETCH_HEAD");

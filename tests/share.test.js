@@ -634,6 +634,7 @@ test("--promote moves main only to the staged commit whose install test passed",
             if (cmd === "git" && args.includes("fetch")) return "";
             if (cmd === "gh") return JSON.stringify(runs);
             if (cmd === "git" && args.includes("push")) return "";
+            if (cmd === "git" && args.includes("remote")) return "https://github.com/mrthanhduy2000/vietnamese-subtitle-translator.git\n";
             throw new Error("unexpected " + cmd);
         };
         return { calls, exec };
@@ -643,6 +644,8 @@ test("--promote moves main only to the staged commit whose install test passed",
     let w = world({ runs: [run({ status: "completed", conclusion: "success" })] });
     promote("/share", { exec: w.exec, log: () => {} });
     assert.deepEqual(pushes(w.calls), ["git -C /share push origin HEAD:refs/heads/share"]);
+    // the install-test run is looked up on the share repo (origin of the checkout), not the VieNeu model release repo
+    assert.ok(w.calls.some(c => c.startsWith("gh run list -R mrthanhduy2000/vietnamese-subtitle-translator ")), w.calls.join(" | "));
     for (const [o, re] of [
         [{ runs: [run({ status: "in_progress", conclusion: "" })] }, /still in_progress/],
         [{ runs: [run({ status: "completed", conclusion: "failure" })] }, /ended "failure"/],
