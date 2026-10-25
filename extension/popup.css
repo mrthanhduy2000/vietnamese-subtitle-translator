@@ -1,0 +1,868 @@
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap');
+
+:root {
+    /* Claude Color Palette */
+    --claude-bg: #FAF9F5;
+    --claude-card: #FFFFFF;
+    --claude-card-subtle: #F6F4EE;
+    --claude-card-hover: #F2EFE8;
+    --claude-text: #262420;
+    --claude-text-secondary: #57524A;
+    --claude-text-muted: #6D685F;
+    --claude-border: #E8E4DC;
+    --claude-border-hover: #DDD8CE;
+    --claude-accent: #D97757;
+    --claude-accent-hover: #C56646;
+    /* Fill behind white text: the brand orange gives only 3.1:1, this gives 4.8:1 (WCAG AA) */
+    --claude-accent-fill: #B4573A;
+    --claude-accent-fill-hover: #A24C31;
+    --claude-accent-fill-active: #92432A;
+    --claude-accent-active: #B55839;
+    --claude-accent-subtle: #FAF1EC;
+    --claude-accent-border: #EED6CA;
+    --claude-accent-shadow: rgba(217, 119, 87, 0.22);
+    --claude-success: #2E7D32;
+    --claude-success-fill: #2E7D32;
+    --claude-success-subtle: #E8F5E9;
+    --claude-success-border: #C8E6C9;
+    --claude-warning: #B3281A;
+    --claude-warning-subtle: #FDF2F2;
+    --claude-warning-border: #F8D7DA;
+
+    /* Radii */
+    --claude-radius-sm: 8px;
+    --claude-radius-md: 12px;
+    --claude-radius-lg: 16px;
+
+    /* Typography */
+    --claude-font-serif: "Newsreader", "Tiempos Headline", "Iowan Old Style", "Charter", Georgia, serif;
+    --claude-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+    /* Shadows */
+    --claude-shadow-subtle: 0 1px 3px rgba(38, 36, 32, 0.04);
+    --claude-shadow-card: 0 2px 8px rgba(38, 36, 32, 0.05), 0 1px 2px rgba(38, 36, 32, 0.03);
+    --claude-shadow-glow: 0 4px 14px rgba(217, 119, 87, 0.25);
+}
+
+/* MÀU TỐI: theo cài đặt của máy, HOẶC do người dùng tự chọn trong trang Cài đặt
+   (data-theme="dark"). Chọn "Sáng" thì máy có đang ở chế độ tối cũng vẫn sáng. */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --claude-bg: #1F1E1B;
+        --claude-card: #282622;
+        --claude-card-subtle: #23211E;
+        --claude-card-hover: #312E2A;
+        --claude-text: #ECE8E1;
+        --claude-text-secondary: #A8A39A;
+        --claude-text-muted: #9E998E;
+        --claude-border: #3A3732;
+        --claude-border-hover: #48453F;
+        --claude-accent: #D97757;
+        --claude-accent-hover: #E08567;
+        --claude-accent-active: #C56646;
+        --claude-accent-subtle: #33241F;
+        --claude-accent-border: #52382E;
+        --claude-accent-shadow: rgba(217, 119, 87, 0.35);
+        --claude-success: #81C784;
+        --claude-success-fill: #2E7D32;
+        --claude-success-subtle: #1B2E1D;
+        --claude-success-border: #2E5A33;
+        --claude-warning: #F28B8B;
+        --claude-warning-subtle: #3A1D1D;
+        --claude-warning-border: #662E2E;
+        --claude-shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.2);
+        --claude-shadow-card: 0 3px 12px rgba(0, 0, 0, 0.28);
+    }
+}
+:root[data-theme="dark"] {
+        --claude-bg: #1F1E1B;
+        --claude-card: #282622;
+        --claude-card-subtle: #23211E;
+        --claude-card-hover: #312E2A;
+        --claude-text: #ECE8E1;
+        --claude-text-secondary: #A8A39A;
+        --claude-text-muted: #9E998E;
+        --claude-border: #3A3732;
+        --claude-border-hover: #48453F;
+        --claude-accent: #D97757;
+        --claude-accent-hover: #E08567;
+        --claude-accent-active: #C56646;
+        --claude-accent-subtle: #33241F;
+        --claude-accent-border: #52382E;
+        --claude-accent-shadow: rgba(217, 119, 87, 0.35);
+        --claude-success: #81C784;
+        --claude-success-fill: #2E7D32;
+        --claude-success-subtle: #1B2E1D;
+        --claude-success-border: #2E5A33;
+        --claude-warning: #F28B8B;
+        --claude-warning-subtle: #3A1D1D;
+        --claude-warning-border: #662E2E;
+        --claude-shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.2);
+        --claude-shadow-card: 0 3px 12px rgba(0, 0, 0, 0.28);
+    }
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* hidden must win over any display set by a class below */
+[hidden] {
+    display: none !important;
+}
+
+body {
+    width: 360px;
+    background-color: var(--claude-bg);
+    color: var(--claude-text);
+    font-family: var(--claude-font-sans);
+    font-size: 13px;
+    line-height: 1.5;
+    padding: var(--space-2);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Spacing: 16px between sections, 8px inside a section */
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+/* Entrance motion: one short slide per block, staggered by --delay */
+.anim-entry {
+    opacity: 0;
+    transform: translateY(8px);
+    animation: claudeSlideUp var(--cst-dur-base) var(--cst-ease-out) forwards;
+    animation-delay: var(--delay, 0s);
+}
+
+@keyframes claudeSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 1. Header */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-1);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.brand-wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-width: 0;
+}
+
+.sparkle-wrap {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--claude-radius-sm);
+    background-color: var(--claude-accent-subtle);
+    border: 1px solid var(--claude-accent-border);
+    cursor: default;
+}
+
+.claude-sparkle {
+    width: 17px;
+    height: 17px;
+    color: var(--claude-accent);
+    flex-shrink: 0;
+}
+
+.brand-text-block {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.brand-title {
+    font-family: var(--claude-font-serif);
+    font-size: 17.5px;
+    font-weight: 500;
+    letter-spacing: -0.2px;
+    color: var(--claude-text);
+    line-height: 1.15;
+}
+
+/* Live connection indicator */
+.live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.live-dot {
+    position: relative;
+    display: inline-flex;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #22C55E;
+}
+
+.live-ping {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #22C55E;
+    animation: livePulse 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes livePulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    70%, 100% {
+        transform: scale(2.6);
+        opacity: 0;
+    }
+}
+
+.live-text {
+    font-size: 12px;
+    color: var(--claude-text-muted);
+    font-weight: 400;
+}
+
+.brand-badge {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--claude-text-muted);
+    background-color: var(--claude-card-subtle);
+    padding: 2px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.header-settings-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: var(--claude-radius-sm);
+    border: none;
+    background: var(--claude-card);
+    box-shadow: var(--claude-shadow-subtle);
+    color: var(--claude-text-secondary);
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color var(--cst-dur-fast) ease, color var(--cst-dur-fast) ease;
+}
+
+.header-settings-btn:hover {
+    background: var(--claude-card-hover);
+    color: var(--claude-text);
+}
+
+/* 2. "Đang xem": the page in front of you */
+.now-card {
+    padding: 14px 16px;
+    border: 1px solid var(--claude-border);
+    border-radius: var(--claude-radius-md);
+    background: var(--claude-card);
+}
+
+.now-kicker {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-1);
+    font-size: 12px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--claude-text-muted);
+}
+
+.now-site {
+    font-size: 12px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--claude-accent-fill);
+    font-weight: 600;
+}
+
+.now-title {
+    margin: 6px 0 0;
+    font-family: var(--claude-font-serif);
+    font-size: 15px;
+    line-height: 1.35;
+    color: var(--claude-text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.now-progress {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-top: 12px;
+}
+
+.now-bar {
+    flex: 1;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--claude-border);
+    overflow: hidden;
+}
+
+.now-bar > i {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: 999px;
+    background: var(--claude-accent);
+    transition: width var(--cst-dur-base) var(--cst-ease-out);
+}
+
+.now-count {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: var(--claude-text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+
+.now-voice {
+    margin: 8px 0 0;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--claude-text-secondary);
+}
+.now-voice.warn { color: #8A5A0C; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .now-voice.warn { color: #E8B84B; } }
+:root[data-theme="dark"] .now-voice.warn { color: #E8B84B; }
+/* "Đang xem" site name: the dark brand fill reads on light cards; dark cards keep the bright accent */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .now-site { color: var(--claude-accent); } }
+:root[data-theme="dark"] .now-site { color: var(--claude-accent); }
+
+/* Cost of today: one quiet row, coloured only when the budget is close or over */
+.cost-today {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-1);
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: var(--claude-radius-sm);
+    border: 1px solid transparent;
+    background: var(--claude-card-subtle);
+    color: var(--claude-text-secondary);
+    font: inherit;
+    font-size: 12px;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color var(--cst-dur-fast) ease;
+}
+.cost-today:hover { background: var(--claude-card-hover); }
+.cost-today strong { color: var(--claude-text); font-weight: 600; }
+.cost-today.warn { border-color: #d97706; }
+.cost-today.over { border-color: #c0392b; }
+.cost-today .cost-bar { flex: 0 0 56px; height: 4px; border-radius: 2px; background: var(--claude-border); overflow: hidden; }
+.cost-today .cost-bar > i { display: block; height: 100%; background: var(--claude-accent, #c96442); }
+
+/* 3. Settings: one card, hairline dividers, no nested borders */
+.settings-group {
+    background-color: var(--claude-card);
+    border: 1px solid var(--claude-border);
+    border-radius: var(--claude-radius-md);
+    overflow: hidden;
+}
+
+.setting-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color var(--cst-dur-fast) ease;
+    border-bottom: 1px solid var(--claude-border);
+}
+
+.settings-group > .setting-row:last-child {
+    border-bottom: none;
+}
+
+.setting-row:hover {
+    background-color: var(--claude-card-subtle);
+}
+
+.setting-icon-box {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--claude-text-muted);
+    flex-shrink: 0;
+    margin-right: var(--space-1);
+    transition: color var(--cst-dur-fast) ease;
+}
+
+.setting-icon-box svg {
+    width: 16px;
+    height: 16px;
+}
+
+.setting-row:hover .setting-icon-box {
+    color: var(--claude-accent-fill);
+}
+
+.setting-label-wrap {
+    display: flex;
+    flex-direction: column;
+    padding-right: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.setting-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--claude-text);
+    line-height: 1.35;
+}
+
+.setting-desc {
+    font-size: 12px;
+    color: var(--claude-text-muted);
+    line-height: 1.35;
+    margin-top: 2px;
+}
+
+/* Sub-option group: slides open under its parent, tinted, no border of its own */
+.sub-options-wrapper {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(-4px);
+    transition: max-height var(--cst-dur-base) var(--cst-ease-out),
+                opacity var(--cst-dur-fast) ease,
+                transform var(--cst-dur-base) var(--cst-ease-out);
+    background-color: var(--claude-card-subtle);
+}
+
+.sub-options-wrapper.expanded {
+    max-height: 100px;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.sub-option {
+    padding-left: 16px;
+    background: transparent;
+    border-bottom: 1px solid var(--claude-border);
+}
+
+.sub-tree-indicator {
+    width: 8px;
+    height: 14px;
+    border-left: 1.5px solid var(--claude-border-hover);
+    border-bottom: 1.5px solid var(--claude-border-hover);
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.sub-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+}
+
+.sub-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+.sub-option .setting-title {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--claude-text-secondary);
+}
+
+/* Toggle switch */
+.switch-box {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.switch-box input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.switch-track {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--claude-border-hover);
+    transition: background-color var(--cst-dur-base) var(--cst-ease-out);
+    border-radius: 999px;
+}
+
+.switch-track::before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: #FFFFFF;
+    transition: transform var(--cst-dur-base) var(--cst-ease-spring),
+                width var(--cst-dur-fast) ease;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+
+.switch-box:active .switch-track::before {
+    width: 19px;
+}
+
+.switch-box input:checked + .switch-track {
+    background-color: var(--claude-accent);
+}
+
+.switch-box input:checked + .switch-track::before {
+    transform: translateX(16px);
+}
+
+.switch-box input:focus-visible + .switch-track {
+    outline: 2px solid var(--claude-accent);
+    outline-offset: 2px;
+}
+
+/* 4. Actions: one clear primary button, one secondary, status below */
+.actions-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.button-primary {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 44px;
+    padding: 12px 16px;
+    background-color: var(--claude-accent-fill);
+    color: #FFFFFF;
+    font-family: var(--claude-font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: var(--claude-radius-sm);
+    border: none;
+    cursor: pointer;
+    transition: background-color var(--cst-dur-fast) ease, transform var(--cst-dur-fast) ease, box-shadow var(--cst-dur-base) ease;
+    overflow: hidden;
+    outline: none;
+}
+
+.button-primary:hover {
+    background-color: var(--claude-accent-fill-hover);
+    box-shadow: 0 4px 12px var(--claude-accent-shadow);
+}
+
+.button-primary:active {
+    transform: scale(0.99);
+    background-color: var(--claude-accent-fill-active);
+    box-shadow: none;
+}
+
+.btn-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+}
+
+.btn-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+/* The idle sheen was a constant animation; it is gone to keep the button calm */
+.btn-shimmer {
+    display: none;
+}
+
+/* Translating: the icon spins, the button stays in its hover colour */
+.button-primary.is-translating {
+    background-color: var(--claude-accent-fill-hover);
+    cursor: wait;
+}
+
+.button-primary.is-translating .btn-icon {
+    animation: btnSpin 1s linear infinite;
+}
+
+@keyframes btnSpin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Success: green fill with one short pulse */
+.button-primary.is-success {
+    background-color: var(--claude-success-fill);
+    box-shadow: none;
+    animation: successPulse var(--cst-dur-base) var(--cst-ease-out);
+}
+
+@keyframes successPulse {
+    0% {
+        transform: scale(0.98);
+    }
+    50% {
+        transform: scale(1.01);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Secondary button: outlined, quieter than the primary one */
+.button-secondary {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: var(--claude-radius-sm);
+    border: 1px solid var(--claude-border);
+    background: var(--claude-card);
+    color: var(--claude-text);
+    font-family: var(--claude-font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color var(--cst-dur-fast) ease, border-color var(--cst-dur-fast) ease;
+}
+
+.button-secondary:hover {
+    background: var(--claude-card-hover);
+    border-color: var(--claude-border-hover);
+}
+
+/* Status line: a tinted strip, only when there is something to say */
+.status-container {
+    display: none;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 8px 12px;
+    border-radius: var(--claude-radius-sm);
+    border: 1px solid transparent;
+    animation: statusSlideDown var(--cst-dur-base) var(--cst-ease-out);
+}
+
+.status-container.visible {
+    display: flex;
+}
+
+@keyframes statusSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.status-icon-wrap {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-icon-wrap svg {
+    width: 15px;
+    height: 15px;
+}
+
+.status-text {
+    flex: 1;
+    font-size: 12px;
+}
+
+.status-container.is-info {
+    background-color: var(--claude-accent-subtle);
+    border-color: var(--claude-accent-border);
+    color: var(--claude-accent-fill);
+}
+
+.status-container.is-success {
+    background-color: var(--claude-success-subtle);
+    border-color: var(--claude-success-border);
+    color: var(--claude-success);
+}
+
+.status-container.is-error {
+    background-color: var(--claude-warning-subtle);
+    border-color: var(--claude-warning-border);
+    color: var(--claude-warning);
+}
+
+/* Readiness chips: one per requirement (key, voice), so the state reads before any text */
+.ready-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    animation: ready-in var(--cst-dur-base) var(--cst-ease-out) both;
+}
+
+.ready-step {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 1.4;
+    background: var(--claude-card-subtle);
+    color: var(--claude-text-secondary);
+}
+
+.ready-step::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--claude-border-hover);
+}
+
+.ready-step.ok { color: var(--claude-success); background: var(--claude-success-subtle); }
+.ready-step.ok::before { background: var(--claude-success); }
+.ready-step.todo { color: var(--claude-warning); background: var(--claude-warning-subtle); }
+.ready-step.todo::before { background: var(--claude-warning); }
+
+@keyframes ready-in {
+    from { opacity: 0; transform: translateY(-3px); }
+    to { opacity: 1; transform: none; }
+}
+
+.ready-hint {
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: var(--claude-radius-sm);
+    font-size: 12px;
+    line-height: 1.45;
+    background: var(--claude-card-subtle);
+    color: var(--claude-text-secondary);
+}
+
+.ready-hint .link-btn {
+    padding: 0 2px;
+    font-size: inherit;
+    color: var(--claude-text);
+}
+
+/* Secondary text links: quiet, but still 12px and AA on the card */
+.link-btn {
+    align-self: center;
+    background: none;
+    border: none;
+    padding: 6px 8px;
+    color: var(--claude-text-secondary);
+    font-family: var(--claude-font-sans);
+    font-size: 12px;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+
+.link-btn:hover { color: var(--claude-text); }
+
+/* Shortcut hint and page status: centred, 12px, one line each when possible */
+.hint-row {
+    margin: 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--claude-text-muted);
+}
+
+.hint-row kbd {
+    font-family: var(--claude-font-sans);
+    font-size: 12px;
+    padding: 0 6px;
+    border-radius: 4px;
+    border: 1px solid var(--claude-border);
+    background: var(--claude-card);
+    color: var(--claude-text-secondary);
+}
+
+.page-status {
+    margin: 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--claude-text-secondary);
+}
+
+/* Keyboard: the focused element is always visible, on light and dark backgrounds */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+.setting-row:focus-within {
+    outline: 2px solid var(--claude-accent, #c96442);
+    outline-offset: 2px;
+    border-radius: var(--claude-radius-sm, 8px);
+}
+
+/* Respect the operating system's "reduce motion" setting */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+    }
+}
