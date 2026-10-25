@@ -4,6 +4,18 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.1.0", luc: "25/10/2026", ten: "Trang cài đặt: biểu đồ thay bảng, vị trí và trạng thái Gemini trực quan và 1 cải tiến khác",
+            y: [
+                "Tab Chi phí: tỷ lệ token hôm nay hiện là một thanh màu có chú giải phần trăm. Bảng chi tiết nằm trong mục thu gọn \"Bảng chi tiết theo loại token\".",
+                "Thẻ Hôm nay có một chip so sánh với ngày trước đó trong lịch sử đã lưu (tăng hoặc giảm bao nhiêu phần trăm). Không hiện khi chưa có ngày trước để so sánh.",
+                "Tab Phụ đề: chọn Trên hoặc Dưới bằng hình màn hình 16:9 thay cho ô chọn. Bản xem trước đổi vị trí ngay khi chọn.",
+                "Tab Dịch & AI: dưới ô API key có thanh bốn bước (chưa có key, có key, đang kiểm tra, kết nối được). Kiểm tra thất bại hiện màu đỏ ở bước đang kiểm tra.",
+                "The share repo `dich-phu-de-long-tieng` is folded into `vietnamese-subtitle-translator`, which is now public. The friends' build lives on the `share` branch (`share-staging` for the install test), and the installers and `dichphude-update.py` read that branch by default. `publish-share.js` builds into `../vietnamese-subtitle-translator-share` and pushes `share`/`share-staging` instead of `main`/`staging`.",
+                "Friends on the old build still update from `dich-phu-de-long-tieng`: a bridge build there carries the new updater, which then reads this repo's `share` branch. That repo is deleted only after they moved.",
+                "The VieNeu model release (`vieneu-model-61b85e3-ceff0d0`, about 560 MB of assets) stays on `dich-phu-de-long-tieng` for now. `tools/share/vieneu-model.json` keeps pointing there, so that repo cannot be deleted until the release is copied here."
+            ]
+        },
+        {
             v: "3.0.9", luc: "25/10/2026", ten: "Trang Cài đặt hiện đúng commit và giờ cập nhật mới nhất và 13 cải tiến khác",
             y: [
                 "Trang Cài đặt và popup hiện commit đang có trên máy và giờ commit, thay cho số phiên bản chỉ đổi khi phát hành.",
