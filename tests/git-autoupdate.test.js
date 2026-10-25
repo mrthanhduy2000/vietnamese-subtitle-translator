@@ -45,6 +45,16 @@ test("waits while a browser is running, then updates on a later run", () => {
     fs.rmSync(tmp, { recursive: true, force: true });
 });
 
+test("untracked files left in the checkout do not block the update", () => {
+    const { tmp, work, publish } = setup();
+    publish("2");
+    fs.writeFileSync(path.join(work, "notes.md"), "made by another tool");
+    fs.mkdirSync(path.join(work, ".agents"));
+    assert.equal(update({ root: work, running: () => false }).status, "updated");
+    assert.equal(fs.readFileSync(path.join(work, "notes.md"), "utf8"), "made by another tool");
+    fs.rmSync(tmp, { recursive: true, force: true });
+});
+
 test("never touches uncommitted work, another branch, or local commits main lacks", () => {
     const { tmp, work, publish } = setup();
     publish("2");
