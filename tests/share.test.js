@@ -195,12 +195,12 @@ test("every start script goes offline only behind the pinned-model marker", () =
 });
 
 test("DPD_REF makes the installers and the updater fetch the commit under test", () => {
-    assert.match(R("tools/share/install-mac.sh"), /REF="\$\{DPD_REF:-refs\/heads\/main\}"[\s\S]*codeload\.github\.com\/\$REPO\/zip\/\$REF/);
+    assert.match(R("tools/share/install-mac.sh"), /REF="\$\{DPD_REF:-refs\/heads\/share\}"[\s\S]*codeload\.github\.com\/\$REPO\/zip\/\$REF/);
     assert.match(R("tools/share/install-windows.ps1"), /\$env:DPD_REF[\s\S]*codeload\.github\.com\/\$Repo\/zip\/\$ref/);
     const upd = R("tools/dichphude-update.py");
-    assert.match(upd, /REF = os\.environ\.get\("DPD_REF", ""\)/);
-    assert.match(upd, /zip\/%s" % \(REPO, REF or "refs\/heads\/main"\)/);
-    assert.match(upd, /%s\/%s\/extension\/manifest\.json" % \(REPO, REF or "main"\)/);
+    assert.match(upd, /REF = os\.environ\.get\("DPD_REF", "refs\/heads\/share"\)/);
+    assert.match(upd, /zip\/%s" % \(REPO, REF or "refs\/heads\/share"\)/);
+    assert.match(upd, /%s\/%s\/extension\/manifest\.json" % \(REPO, REF or "share"\)/);
     const ci = R("tools/share/.github/workflows/install-test.yml");
     assert.equal((ci.match(/DPD_REF: \$\{\{ github\.sha \}\}/g) || []).length, 2, "both install jobs");
     assert.match(ci, /vieneu-pin\.py" --vieneu \$vn/);                 // Windows: every byte
@@ -642,7 +642,7 @@ test("--promote moves main only to the staged commit whose install test passed",
     const pushes = calls => calls.filter(c => / push /.test(c));
     let w = world({ runs: [run({ status: "completed", conclusion: "success" })] });
     promote("/share", { exec: w.exec, log: () => {} });
-    assert.deepEqual(pushes(w.calls), ["git -C /share push origin HEAD:refs/heads/main"]);
+    assert.deepEqual(pushes(w.calls), ["git -C /share push origin HEAD:refs/heads/share"]);
     for (const [o, re] of [
         [{ runs: [run({ status: "in_progress", conclusion: "" })] }, /still in_progress/],
         [{ runs: [run({ status: "completed", conclusion: "failure" })] }, /ended "failure"/],
@@ -655,7 +655,7 @@ test("--promote moves main only to the staged commit whose install test passed",
     }
     // the workflow runs on staging, and friends' updaters read main only
     assert.match(R("tools/share/.github/workflows/install-test.yml"), /branches: \[main, staging\]/);
-    assert.match(R("tools/dichphude-update.py"), /REF or "main"/);
+    assert.match(R("tools/dichphude-update.py"), /REF or "share"/);
 });
 
 test("the updater LaunchAgent carries DPD_REF only under the install test",{ skip: !fs.existsSync("/bin/bash") && "needs /bin/bash" }, () => {

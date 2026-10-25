@@ -122,7 +122,7 @@ the `vieneu-pin.py` download, whose lock goes with them), then the server; only 
 whose command line holds that VieNeu folder are touched. ASCII only (5.1 reads BOM-less as ANSI).
 
 **Share build.** Friends install from a separate **public** repo,
-`github.com/mrthanhduy2000/dich-phu-de-long-tieng`, cloned next to this one as
+`github.com/mrthanhduy2000/vietnamese-subtitle-translator`, cloned next to this one as
 `../dich-phu-de-long-tieng`. `node tools/publish-share.js --stage` rebuilds it from here and pushes the
 build to the repo's `staging` branch, where the install test runs; `--promote` then pushes that same
 commit to `main` only when the test passed on it (it refuses a commit not on `staging`, a run still
@@ -152,7 +152,7 @@ own environment via `ps eww` on macOS, nothing in `~/.cache`), a spoken line, re
 update (downloads 0 MB of model), uninstall; a sixth job downloads every release asset with no
 fallback and **fails when the release is missing**. So the order is: publish the model release first
 (`--release-model`), then push. Check it after publishing
-(`gh run list -R mrthanhduy2000/dich-phu-de-long-tieng`). **Friends' installs update themselves**:
+(`gh run list -R mrthanhduy2000/vietnamese-subtitle-translator`). **Friends' installs update themselves**:
 `tools/dichphude-update.py` (copied to `<VieNeu>/dichphude-update.py`, the extension path in
 `<VieNeu>/.dichphude-ext`) asks GitHub every 6 h, stages a newer version in `<VieNeu>/.dpd-staged`,
 and lays it over the extension folder only while the browser holding it is closed (a browser reads an

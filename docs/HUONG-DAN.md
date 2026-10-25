@@ -30,13 +30,13 @@ Hai cách. Chọn cách 1 nếu bạn muốn có cả giọng lồng tiếng.
 **Cách 1 (Mac, Terminal):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mrthanhduy2000/dich-phu-de-long-tieng/main/install-mac.sh | bash
+curl -fsSL https://raw.githubusercontent.com/mrthanhduy2000/vietnamese-subtitle-translator/share/install-mac.sh | bash
 ```
 
 **Cách 1 (Windows, PowerShell):**
 
 ```powershell
-irm https://raw.githubusercontent.com/mrthanhduy2000/dich-phu-de-long-tieng/main/install-windows.ps1 | iex
+irm https://raw.githubusercontent.com/mrthanhduy2000/vietnamese-subtitle-translator/share/install-windows.ps1 | iex
 ```
 
 Xong, trình duyệt tự mở một trang hướng dẫn. Còn đúng một việc bạn phải làm tay, vì trình duyệt

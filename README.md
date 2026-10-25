@@ -12,7 +12,7 @@ Chạy trên Chrome, Cốc Cốc, Edge, Brave, Opera, Vivaldi, Arc và Chromium.
 Safari. Không có bước build, không có thư viện ngoài: mã nguồn trong thư mục này chính là tiện ích.
 
 Bạn bè cài bằng một lệnh từ kho công khai
-[dich-phu-de-long-tieng](https://github.com/mrthanhduy2000/dich-phu-de-long-tieng) (bản dựng từ kho
+[dich-phu-de-long-tieng](https://github.com/mrthanhduy2000/vietnamese-subtitle-translator) (bản dựng từ kho
 này, có bộ cài cho Mac và Windows, tự cập nhật).
 
 ## Tính năng
@@ -69,18 +69,18 @@ này, có bộ cài cho Mac và Windows, tự cập nhật).
 ### Cách 1: một lệnh (khuyên dùng)
 
 Cài cả tiện ích lẫn giọng VieNeu, cho VieNeu tự chạy cùng máy và tự cập nhật. Chi tiết, bảng lỗi, cách
-gỡ: [dich-phu-de-long-tieng](https://github.com/mrthanhduy2000/dich-phu-de-long-tieng).
+gỡ: [dich-phu-de-long-tieng](https://github.com/mrthanhduy2000/vietnamese-subtitle-translator).
 
 **Mac** (Terminal):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mrthanhduy2000/dich-phu-de-long-tieng/main/install-mac.sh | bash
+curl -fsSL https://raw.githubusercontent.com/mrthanhduy2000/vietnamese-subtitle-translator/share/install-mac.sh | bash
 ```
 
 **Windows** (Windows PowerShell):
 
 ```powershell
-irm https://raw.githubusercontent.com/mrthanhduy2000/dich-phu-de-long-tieng/main/install-windows.ps1 | iex
+irm https://raw.githubusercontent.com/mrthanhduy2000/vietnamese-subtitle-translator/share/install-windows.ps1 | iex
 ```
 
 Xong, một trang hướng dẫn tự mở trong trình duyệt nhân Chromium của bạn, chỉ đúng địa chỉ và tên nút

@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-// Builds the public share repo (github.com/mrthanhduy2000/dich-phu-de-long-tieng) that friends
+// Builds the public share repo (github.com/mrthanhduy2000/vietnamese-subtitle-translator) that friends
 // install from: the extension's runtime files under extension/, the two installers and the patched
 // VieNeu server file. Nothing else of this private repo (docs, tests, tools, review data) goes out.
-//   node tools/publish-share.js                  build into ../dich-phu-de-long-tieng
+//   node tools/publish-share.js                  build into ../vietnamese-subtitle-translator-share
 //   node tools/publish-share.js --stage          build, commit and push it to the share repo's branch
-//       `staging` only: the install test runs there, and friends' updaters (main only) never see it
+//       `share-staging` only: the install test runs there, and friends' updaters (share only) never see it
 //   node tools/publish-share.js --promote        once that test is green on the staged commit, move
-//       main to it (refused while it runs, failed, or staging is not this checkout's commit)
-//   node tools/publish-share.js --push           build, commit and push straight to main (no test
+//       share to it (refused while it runs, failed, or share-staging is not this checkout's commit)
+//   node tools/publish-share.js --push           build, commit and push straight to share (no test
 //       first). Every way in is refused while a shipped file differs from the share repo's last
 //       commit and the version is not higher than the one it holds (friends' updaters only take a
 //       higher version: bump first)
@@ -293,17 +293,17 @@ function promote(out, { exec = execFileSync, log = console.log } = {}) {
     const repo = readPin().release.repo;
     const git = (...a) => String(exec("git", ["-C", out, ...a], { encoding: "utf8" })).trim();
     const head = git("rev-parse", "HEAD");
-    git("fetch", "-q", "origin", "staging");
+    git("fetch", "-q", "origin", "share-staging");
     const staged = git("rev-parse", "FETCH_HEAD");
-    if (staged !== head) throw new Error(`staging is at ${staged.slice(0, 7)}, this checkout at ${head.slice(0, 7)}: stage this commit first (--stage)`);
-    const runs = JSON.parse(String(exec("gh", ["run", "list", "-R", repo, "--branch", "staging", "-L", "20",
+    if (staged !== head) throw new Error(`share-staging is at ${staged.slice(0, 7)}, this checkout at ${head.slice(0, 7)}: stage this commit first (--stage)`);
+    const runs = JSON.parse(String(exec("gh", ["run", "list", "-R", repo, "--branch", "share-staging", "-L", "20",
         "--json", "headSha,status,conclusion,url,workflowName"], { encoding: "utf8" })));
     const run = runs.find(r => r.headSha === head && r.workflowName === "Install test");
     if (!run) throw new Error(`no install test on staging for ${head.slice(0, 7)} yet`);
     if (run.status !== "completed") throw new Error(`the install test on ${head.slice(0, 7)} is still ${run.status}: ${run.url}`);
     if (run.conclusion !== "success") throw new Error(`the install test on ${head.slice(0, 7)} ended "${run.conclusion}": ${run.url}`);
-    exec("git", ["-C", out, "push", "origin", "HEAD:refs/heads/main"], { stdio: "inherit" });
-    log(`main is now ${head.slice(0, 7)}, green on staging (${run.url}): friends' updaters take it within 6 h`);
+    exec("git", ["-C", out, "push", "origin", "HEAD:refs/heads/share"], { stdio: "inherit" });
+    log(`share is now ${head.slice(0, 7)}, green on staging (${run.url}): friends' updaters take it within 6 h`);
 }
 
 module.exports = { build, runtimeFiles, EXT_TOOLS, notice, releaseAssets, releaseNotes, releaseTag, assetName,
@@ -316,7 +316,7 @@ if (require.main === module) {
         releaseModel({ vieneu: opt("--vieneu"), dryRun: args.includes("--dry-run") });
         process.exit(0);
     }
-    const out = path.resolve(opt("--out") || path.join(ROOT, "..", "dich-phu-de-long-tieng"));
+    const out = path.resolve(opt("--out") || path.join(ROOT, "..", "vietnamese-subtitle-translator-share"));
     if (args.includes("--promote")) {
         try { promote(out); } catch (e) { console.error(`Refusing to promote: ${e.message}`); process.exit(1); }
         process.exit(0);
@@ -339,8 +339,8 @@ if (require.main === module) {
         try { git("commit", "-q", "-m", `Version ${version}`); }
         catch (e) { console.log("Nothing to commit."); }
         if (args.includes("--stage")) {
-            git("push", "origin", "HEAD:refs/heads/staging");
-            console.log("Staged: the install test runs on staging (gh run list -R mrthanhduy2000/dich-phu-de-long-tieng). " +
+            git("push", "origin", "HEAD:refs/heads/share-staging");
+            console.log("Staged: the install test runs on staging (gh run list -R mrthanhduy2000/vietnamese-subtitle-translator). " +
                 "When it is green: node tools/publish-share.js --promote");
         } else git("push");
     }
