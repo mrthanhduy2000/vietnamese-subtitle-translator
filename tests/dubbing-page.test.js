@@ -177,3 +177,37 @@ test("prepareHold: gives up after maxMs", async () => {
     assert.ok(E.API.hold.lastWaitMs >= 50);
     assert.equal(v.plays, 1, "playback resumed after the wait ran out");
 });
+
+test("prepareHold card: the two bars show the engine's real counts, and the card goes when the hold ends", () => {
+    const E = env({ realTimers: true });
+    E.API.dub.engine = { readyCounts: () => ({ subs: { done: 2, total: 4 }, voice: { done: 0, total: 0 } }), isReadyAt: () => false };
+    const v = video({ currentTime: 1 });
+    assert.equal(E.API.prepareHold(v, () => false), true);
+    const card = E.S.document.body.children[0];
+    assert.equal(card.className, "cst-prepare-note");
+    assert.equal(card.children[1].children[1].children[0].style.width, "50%", "2 of 4 subtitles translated");
+    assert.equal(card.children[1].children[2].textContent, "2/4");
+    assert.equal(card.children[2].children[1].children[0].style.width, "0%", "no speech plans yet: the bar stays empty");
+    assert.equal(card.children[2].children[2].textContent, "–", "no plans yet: no count to show");
+    E.API.hold.cancel();
+});
+
+test("prepareHold card: follows the page into fullscreen and back out, and the listener goes when the hold ends", () => {
+    const E = env({ realTimers: true });
+    E.API.dub.engine = { readyCounts: () => ({ subs: { done: 0, total: 1 }, voice: { done: 0, total: 0 } }), isReadyAt: () => false };
+    const fsListeners = {};
+    const fsPlayer = { children: [], appendChild(c) { this.children.push(c); return c; } };
+    E.S.document.addEventListener = (n, f) => { fsListeners[n] = f; };
+    E.S.document.removeEventListener = n => { delete fsListeners[n]; };
+    const v = video({ currentTime: 1 });
+    assert.equal(E.API.prepareHold(v, () => false), true);
+    const card = E.S.document.body.children[0];
+    E.S.document.fullscreenElement = fsPlayer;
+    fsListeners.fullscreenchange();
+    assert.equal(fsPlayer.children[0], card, "in fullscreen the card moves into the fullscreen element");
+    E.S.document.fullscreenElement = null;
+    fsListeners.fullscreenchange();
+    assert.equal(E.S.document.body.children[1], card, "back on the page when fullscreen ends");
+    E.API.hold.cancel();
+    assert.equal(fsListeners.fullscreenchange, undefined, "listener removed with the hold");
+});
