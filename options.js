@@ -736,7 +736,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (cached) rows.push(["Token vào Google lấy từ bộ nhớ đệm (giá rẻ hơn)", toks(cached), cell(cached * (p.cache ?? p.in) / 1e6)]);
             rows.push(["Token ra: bản dịch", toks(d.outTok - thought), cell((d.outTok - thought) * p.out / 1e6)]);
             rows.push(['Token "suy nghĩ" của model (giá như token ra)', toks(thought), cell(thought * p.out / 1e6)]);
-            html += table("Hôm nay theo loại token", ["Loại", "Token", "Chi phí"], rows);
+            // Visual first: one bar of today's tokens by kind; the exact table sits behind a disclosure
+            const parts = [["Lời nhắc và ngữ cảnh", d.inTok - cached, "var(--primary)"], ["Bộ nhớ đệm", cached, "var(--tc-success)"],
+                ["Bản dịch", d.outTok - thought, "var(--tc-warning)"], ["Suy nghĩ của model", thought, "var(--text-sub)"]].filter(x => x[1] > 0);
+            const all = parts.reduce((a, x) => a + x[1], 0) || 1;
+            html += `<div class="tok-split" role="img" aria-label="Tỷ lệ token hôm nay">` + parts.map(([name, n, col]) =>
+                `<i style="width:${(n / all * 100).toFixed(2)}%;background:${col}" title="${esc(name)}: ${toks(n)}"></i>`).join("") + `</div>` +
+                `<div class="tok-legend">` + parts.map(([name, n, col]) =>
+                `<span><b style="background:${col}"></b>${esc(name)} <em>${Math.round(n / all * 100)}%</em></span>`).join("") + `</div>` +
+                `<details class="adv"><summary>Bảng chi tiết theo loại token</summary>${table("Hôm nay theo loại token", ["Loại", "Token", "Chi phí"], rows)}</details>`;
         }
         const chartDays = Object.keys(r.history || {}).sort().slice(-14);
         if (chartDays.length > 1) html += dailyCostChart(chartDays.map(k => ({ k, usd: (r.history[k].trUsd || 0) + (r.history[k].ttsUsd || 0) })), r.today);

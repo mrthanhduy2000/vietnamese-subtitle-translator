@@ -762,6 +762,12 @@
         .cost-meter i { display: block; height: 100%; background: var(--success); border-radius: 3px; }
         .cost-meter.warn i, .cost-meter.over i { background: var(--primary); }
         .cost-money-sub { display: block; font-size: 11px; color: var(--text-sub); }
+        .tok-split { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: var(--bg-soft); margin: 10px 0 8px; gap: 2px; }
+        .tok-split i { display: block; min-width: 4px; border-radius: 3px; }
+        .tok-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--text-sub); }
+        .tok-legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .tok-legend b { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+        .tok-legend em { font-style: normal; color: var(--text-main); font-variant-numeric: tabular-nums; }
         .cost-chart { width: 100%; height: auto; display: block; margin: 8px 0 4px; }
         .cost-bar { fill: var(--primary); opacity: 0.45; }
         .cost-bar-today { opacity: 1; }
