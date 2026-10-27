@@ -2312,3 +2312,33 @@ test("speech text: fps is said in words; a spaced hyphen between a larger and a 
     assert.equal(say("bước 3 - 4 và 10 - 15 phút"), "bước 3 - 4 và 10 - 15 phút", "a rising pair is a range, left to the server");
     assert.equal(say("Dự án A - 5 người"), "Dự án A - 5 người");
 });
+
+
+test("worker timing separates another tab's queue from throughput and ignores cold or suspended takes", async () => {
+    for (const timing of [
+        { queueMs: 9000, generationMs: 1000, processingMs: 30, cold: false },
+        { queueMs: 0, generationMs: 14000, processingMs: 30, cold: true },
+        { queueMs: 0, generationMs: 70000, processingMs: 30, cold: false }
+    ]) {
+        let finish;
+        const { clock, video, eng } = freeVoiceEngine(batch => new Promise(resolve => {
+            finish = () => resolve(batch.map(p => ({ planId: p.id, wav: new Uint8Array(8), duration: 5, timing })));
+        }));
+        eng.start();
+        for (let i = 0; i < 40 && !finish; i++) { clock.advance(50, st => video.step(st)); await new Promise(r => setImmediate(r)); }
+        assert.ok(finish);
+        clock.ms += timing.queueMs + timing.generationMs;
+        finish();
+        for (let i = 0; i < 6; i++) await new Promise(r => setImmediate(r));
+        const h = eng.health(video.currentTime);
+        if (timing.cold || timing.generationMs >= 60000) {
+            assert.equal(h.rtf, null, "cold/suspended work is not sustained throughput");
+            assert.equal(h.samples, 0);
+        } else {
+            assert.ok(h.rtf < 0.4, `queued time inflated throughput: ${h.rtf}`);
+            assert.equal(h.samples, 1);
+            assert.equal(h.timing.queueMs, 9000);
+        }
+        eng.stop();
+    }
+});

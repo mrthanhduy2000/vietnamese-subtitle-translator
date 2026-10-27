@@ -61,17 +61,18 @@
     // opts: { rtf, tier, playbackRate }. The text is shown to the viewer, so it is Vietnamese.
     function slowAdvice(opts) {
         const o = opts || {};
+        if (o.samples != null && o.samples < 4) return null;
         const state = classifyRtf(o.rtf);
         if (state !== "behind") return null;
         const rate = sustainableRate(o.rtf);
         const now = Number(o.playbackRate) || 1;
         const cur = `Máy chủ giọng đang chậm: tạo 1 giây lời nói mất ${fmtRtf(o.rtf)} giây`;
-        // Below 0.5 the video crawls: say the voice is not a fit for this machine instead
+        // Throughput alone cannot distinguish CPU load, paging, queues or a server problem.
         if (rate < 0.5) {
-            return { rate: null, level: "severe", text: `${cur}. Máy này quá yếu để lồng tiếng theo kịp hình: nên dùng giọng Gemini hoặc chỉ xem phụ đề.` };
+            return { rate: null, level: "severe", text: `${cur}. Các lượt tạo giọng vừa đo chưa theo kịp hình. Có thể tạm dừng để chuẩn bị thêm, chọn giọng khác hoặc chỉ xem phụ đề.` };
         }
         if (rate >= now) return { rate: null, level: "behind", text: `${cur}. Giọng Việt có thể trễ dần.` };
-        return { rate, level: "behind", text: `${cur}. Phát video ở tốc độ ${fmtRate(rate)}× thì giọng mới theo kịp.` };
+        return { rate, level: "behind", text: `${cur}. Có thể thử phát ${fmtRate(rate)}× hoặc tạm dừng để chuẩn bị thêm giọng.` };
     }
 
     function describeMachine(info) {

@@ -1350,7 +1350,7 @@ async function handleLocalTtsStatus() {
         if (running) {
             try { const m = await (await fetch(LOCAL.url + "/v1/models", { signal: controller.signal })).json(); model = ((m.data || [])[0] || {}).id || ""; } catch (e) { model = ""; }
         }
-        return { ok: true, running, backend: data.backend || "", model, busy: (data.active || 0) + (data.waiting || 0), rtf: Math.round(tocDoTaoGiong() * 100) / 100 };
+        return { ok: true, running, backend: data.backend || "", model, busy: (data.active || 0) + (data.waiting || 0), rtf: Math.round(tocDoTaoGiong() * 100) / 100, samples: localSpeed.gan.length };
     } catch (e) {
         return { ok: true, running: false, error: "Máy chủ VieNeu chưa chạy" };
     } finally {
@@ -1450,7 +1450,8 @@ async function synthesizeLocal(req, text, parts, signal) {
     let last = null;
     // Kẹt / audio bất thường: thử lại một lần (lấy mẫu ngẫu nhiên nên lần sau thường bình thường)
     for (let attempt = 0; attempt < 2; attempt++) {
-        last = await localSerial(() => synthesizeLocalOnce(req, text, parts, signal), signal);
+        const queuedAt = Date.now();
+        last = await localSerial(() => synthesizeLocalOnce(req, text, parts, signal, queuedAt), signal);
         // a dropped connection mid-body is as passing as a stuck take: free, so tried once more
         if (last.ok || !(last.errorType === "timeout" || last.errorType === "runaway" || last.errorType === "dropped")) return withStartHint(last);
         if (signal && signal.aborted) break;
@@ -1502,7 +1503,7 @@ function localHighPass(voice) {
 // seeked to, 3 to 5 s, for a take that needed ~1 s more. A finished take goes to the store.
 const LOCAL_KEEP_RUNNING_S = 4;
 
-async function synthesizeLocalOnce(req, text, parts, signal) {
+async function synthesizeLocalOnce(req, text, parts, signal, queuedAt = Date.now()) {
     const controller = new AbortController();
     let timedOut = false;
     // Cold: a long limit, so the page-in is not cut off and started again
@@ -1552,6 +1553,8 @@ async function synthesizeLocalOnce(req, text, parts, signal) {
         }
         stage = "body";
         const bytes = new Uint8Array(await res.arrayBuffer());
+        const generatedAt = Date.now();
+        const timing = { queueMs: Math.max(0, sentAt - queuedAt), generationMs: Math.max(0, generatedAt - sentAt), cold };
         stage = "process";
         if (bytes.length < 2000) return { ok: false, errorType: "no_audio", error: "VieNeu không trả audio" };
         const sr = LOCAL.sampleRate;
@@ -1559,14 +1562,16 @@ async function synthesizeLocalOnce(req, text, parts, signal) {
         // Audio dài bất thường so với lời thoại (mô hình lặp / kéo dài âm): không dùng
         const syl = String(text || "").split(/\s+/).filter(Boolean).length;
         if (syl >= 3 && audioSec > 2.5 + syl / 1.6) return { ok: false, errorType: "runaway", error: `audio dài bất thường (${audioSec.toFixed(1)} giây cho ${syl} âm tiết)` };
-        if (!cold) ghiTocDoTao((Date.now() - t0) / 1000, audioSec);
+        timing.rawAudioSeconds = audioSec;
+        if (!cold && timing.generationMs < 60000) ghiTocDoTao(timing.generationMs / 1000, audioSec);
         localMarkWarm();
         track(metaOf(req), { localSec: audioSec });
         const mime = `audio/L16;rate=${sr}`;
         if (!parts) {
             // Nghe thử trong Cài đặt: cùng cách xử lý như khi lồng tiếng (rút khoảng lặng dài)
             const one = splitTtsAudio(bytes, mime, sr, [{ key: "_", weight: 1 }], { maxPause: LOCAL.maxPause, text, clean: true, hpHz: localHighPass(req.voice) });
-            return { ok: true, audio: bytesToBase64(one[0].wav), mimeType: "audio/wav", sampleRate: sr, model: LOCAL.model };
+            timing.processingMs = Date.now() - generatedAt;
+            return { ok: true, audio: bytesToBase64(one[0].wav), mimeType: "audio/wav", sampleRate: sr, model: LOCAL.model, timing };
         }
         // Câu dày chữ: engine xin khoảng nghỉ ngắn hơn (không bỏ chữ); giới hạn trong [0,1 ; mặc định]
         const maxPause = req.maxPause ? Math.max(0.1, Math.min(LOCAL.maxPause, Number(req.maxPause) || LOCAL.maxPause)) : LOCAL.maxPause;
@@ -1579,7 +1584,8 @@ async function synthesizeLocalOnce(req, text, parts, signal) {
         if (!pieces) return { ok: false, errorType: "split", error: "Không cắt được audio theo từng đoạn" };
         // stored together; a write never throws and is capped (cst-cache WRITE_TIMEOUT_MS)
         await Promise.all(pieces.map(p => caches.audio.set(p.key, { wav: p.wav, duration: p.duration, sampleRate: p.sampleRate })));
-        return partsReply(pieces, { model: LOCAL.model });
+        timing.processingMs = Date.now() - generatedAt;
+        return partsReply(pieces, { model: LOCAL.model, timing });
     } catch (e) {
         if (timedOut) return { ok: false, errorType: "timeout", error: `VieNeu quá ${Math.round(limit / 1000)} giây chưa tạo xong` };
         if (signal && signal.aborted) return ttsAborted();

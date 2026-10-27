@@ -448,7 +448,7 @@
             if (dub.engine !== engine || dub.slowWarned || !v) { clearInterval(slowTimer); return; }
             let h = null;
             try { h = engine.health(v.currentTime); } catch (e) { return; }
-            const advice = h && !h.live ? HW.slowAdvice({ rtf: h.rtf, playbackRate: v.playbackRate }) : null;
+            const advice = h && !h.live ? HW.slowAdvice({ rtf: h.rtf, samples: h.samples, playbackRate: v.playbackRate }) : null;
             slowHits = advice ? slowHits + 1 : 0;
             if (slowHits < 2) return;                           // two checks in a row: one slow take is noise
             dub.slowWarned = true;
@@ -500,7 +500,10 @@
         try { h = e.health(e.d.video.currentTime); } catch (err) { return { text: voice, warn: false }; }
         if (h.live) return { text: `${voice} · đọc trực tiếp, không chuẩn bị trước`, warn: false };
         const skipped = h.dropped ? `, đã bỏ ${h.dropped} câu để bắt kịp` : "";
-        if (h.rtf != null && h.rtf >= 0.8) {
+        if (h.timing && h.timing.queueMs >= 1000 && h.ahead < 1) {
+            return { text: `${voice} · vừa chờ hàng đợi tạo giọng ${(h.timing.queueMs / 1000).toFixed(1).replace(".", ",")} giây${skipped}`, warn: true };
+        }
+        if (h.rtf != null && h.rtf >= 0.8 && (h.samples == null || h.samples >= 4)) {
             return { text: `${voice} · máy chủ giọng chậm (1 giây lời mất ${h.rtf.toFixed(1).replace(".", ",")} giây)${skipped}`, warn: true };
         }
         // The video speaks fast and the voice keeps up with it (dub-engine paceLimits): say so, or a
@@ -714,7 +717,12 @@
             place();
             const counts = readyCounts(video.currentTime);
             if (counts) card.paint(counts);
-            if (ready() || performance.now() - t0 >= maxMs) end(true);
+            const engine = dub.engine;
+            const firstLocalTake = opts.initial && !opts.maxMs && engine && engine.provider &&
+                engine.provider.id === "vieneu" && engine.jobs && engine.jobs.size > 0 &&
+                engine.rendered && engine.rendered.size === 0;
+            const limit = firstLocalTake ? Math.max(maxMs, window.CST_DUB_ENGINE.SYNC.prepareColdMaxMs) : maxMs;
+            if (ready() || performance.now() - t0 >= limit) end(true);
         }, 100);
         function end(resume) {
             if (!hold.active) return;

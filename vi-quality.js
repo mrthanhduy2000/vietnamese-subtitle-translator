@@ -276,6 +276,17 @@
             add("untranslated", leftovers.length >= 3 ? 3 : 2, `còn từ tiếng Anh chưa dịch: ${leftovers.slice(0, 5).join(", ")}`, "dịch hoặc giữ có chủ ý");
         }
 
+        // A translated institutional name followed by only part of its English name is an echo,
+        // not a proper name to preserve. Keep complete bilingual glosses and independent names.
+        for (const [english, vietnamese] of [["Red Army", "Hồng quân"], ["Soviet Union", "Liên Xô"], ["United Nations", "Liên Hợp Quốc"]]) {
+            const sourceTerm = new RegExp(`\\b${english}\\b`, "gi");
+            if (!sourceTerm.test(s)) continue;
+            const [head, ...tail] = english.split(" ");
+            if (new RegExp(`\\b${head}\\b`, "i").test(s.replace(sourceTerm, ""))) continue;
+            const echo = vre(new RegExp(`\\b${vietnamese}\\s+${head}\\b(?!\\s+${tail.join("\\s+")}\\b)`, "i"));
+            if (echo.test(v)) add("term", 3, `tên tổ chức bị trộn hai bản dịch: ${vietnamese} ${head}`, `dịch trọn cụm ${english}, không lặp phần tiếng Anh`);
+        }
+
         // Thuật ngữ đã thống nhất nhưng câu này dùng cách khác
         for (const t of opts.terms || []) {
             if (!t.en || !t.vi) continue;

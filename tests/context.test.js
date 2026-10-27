@@ -270,3 +270,29 @@ test("English leftovers: whole words only, never an ASCII piece of an accented V
     assert.deepEqual(got, ["the", "model", "training", "data"]);
     assert.ok(!got.includes("thu"), "'thu' cut out of 'thuật'");
 });
+
+
+test("military history gets contextual senses without changing everyday or marketing meanings", () => {
+    const source = "The army invaded during the war. Soldiers fought battles on the front. The Red Army pursued the military campaign during the occupation.";
+    const domain = C.detectDomain(source);
+    assert.equal(domain.primary, "history");
+    const hints = C.senseHintsFor(source, domain).join(" | ");
+    assert.match(hints, /red army: Hồng quân/);
+    assert.match(hints, /campaign: chiến dịch quân sự/);
+    assert.match(hints, /occupation: sự chiếm đóng/);
+    assert.doesNotMatch(C.senseHintsFor("Red Army", { primary: "general" }).join(" | "), /Hồng quân/);
+    assert.equal(C.detectDomain("We run a marketing campaign for the brand to improve conversion and audience engagement.").primary, "marketing");
+    assert.equal(C.detectDomain("We had a pillow battle and watched the red sunset with our friends.").primary, "general");
+});
+
+
+test("partial English name echoes are refined, complete bilingual names and independent names remain valid", () => {
+    const source = "That was clear when the Red Army invaded from the east.";
+    const echo = Q.assess(source, "Điều đó đã rõ ràng khi Hồng quân Red tiến quân từ phía đông.");
+    assert.ok(echo.issues.some(i => i.type === "term" && i.severity === 3));
+    assert.equal(echo.needsRefine, true);
+    for (const text of ["Hồng quân tiến quân từ phía đông.", "Hồng quân (Red Army) tiến quân từ phía đông.", "Hồng quân Red Army tiến quân từ phía đông."]) {
+        assert.ok(!Q.assess(source, text).issues.some(i => i.detail.includes("trộn hai bản dịch")), text);
+    }
+    assert.ok(!Q.assess("The Red Army met a man named Red.", "Hồng quân Red gặp người đàn ông đó.").issues.some(i => i.detail.includes("trộn hai bản dịch")));
+});

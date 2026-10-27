@@ -1643,3 +1643,32 @@ rate-limited the next one translates and saves under its own key.
 20-minute video simulates in milliseconds and deterministically. `tests/dub.test.js` and
 `tests/cost.test.js` use it. Real-audio checks use the WAV fixtures in `tests/audio/`. For a real
 `HTMLAudioElement`, open `tests/harness/dub.html` in Chrome. See `TESTING.md`.
+
+## Worker timing and initial local preparation (2026-10-27)
+
+VieNeu replies include `timing: { queueMs, generationMs, processingMs, rawAudioSeconds, cold }`.
+Queue time includes the global worker queue, server-idle wait and busy retries. Generation starts
+at the accepted POST attempt and ends when its PCM body is complete; processing covers shaping
+and cache writes. Cache hits have no new timing sample. The local provider forwards these fields.
+The scheduler uses generation plus processing for readiness estimates, excluding another tab's
+queue. Cold or >=60-second generation samples do not set steady throughput. Legacy providers and
+the simulator keep their existing estimator. Health includes sample count and last worker timing;
+the event ring includes the timing of completed renders. Slow advice needs at least four takes
+long enough to measure; a high latency alone must never be described as weak hardware.
+
+An initial preparation hold normally lasts at most five seconds. If the first VieNeu job is
+actively pending and no audio has been made, it can wait up to `SYNC.prepareColdMaxMs` (20 s).
+It releases as soon as ready. An explicit hold limit, a manual Play, seeks and non-local providers
+retain their behavior. This prevents cold-start autoplay from outrunning the first local take.
+
+Measured through the real worker pipeline: a queued take waited 1,258 ms, generated for 963 ms,
+then processed for 296 ms (2.58 s final speech). The earlier total-latency estimator could conflate
+that wait with synthesis. Server logs on Oct 26: 815 usable takes >=1.2 s and <60 s, median RTF
+0.25, 35 at RTF >=1; four additional requests lasted >=60 s. These are server-wide measurements,
+not proof that a specific video's every late line had the same cause. Live speed varies with load.
+
+Chrome live harness after the change (real worker, real VieNeu, real HTMLAudioElement, scripted
+pause/resume and seek, 32 wall seconds): 9 starts, 0 dropped, 0 errors, 0 overlap samples, 0 voices
+playing while paused; one start >0.5 s late, maximum 0.71 s; seek recovery 0.07 s. Measured prepared
+RTF 0.23. A separate old/new simulation over the 100 current Chrome-store videos had no changed
+or worse delivery metrics. Simulations do not reproduce all source/audio errors in the documentary.

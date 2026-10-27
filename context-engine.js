@@ -58,6 +58,12 @@
             kw: ["marketing", "brand", "campaign", "audience", "conversion", "funnel", "seo", "ads", "advertis*", "engagement",
                 "social media", "content", "lead", "ctr", "impression", "persona", "retention", "customer journey"]
         },
+        history: {
+            label: "Lịch sử, chiến tranh và quân sự",
+            kw: ["war", "army", "troops", "invasion", "battle", "military", "soldiers",
+                "regiment", "infantry", "artillery", "wehrmacht", "soviet", "nazi", "armistice",
+                "occupation", "front line", "encirclement", "war crimes", "red army"]
+        },
         science: {
             label: "Khoa học tự nhiên",
             kw: ["cell", "molecule", "energy", "physics", "chemistry", "biology", "experiment", "atom", "reaction",
@@ -68,6 +74,17 @@
     // Gợi ý nghĩa của từ đa nghĩa THEO LĨNH VỰC. Chỉ gửi mục nào có từ
     // xuất hiện trong đoạn đang dịch; mô hình vẫn phải tự chọn theo câu.
     const SENSES = {
+        campaign: { history: "chiến dịch quân sự", marketing: "chiến dịch tiếp thị" },
+        force: { history: "lực lượng, quân đội hoặc ép buộc tùy câu", science: "lực (vật lý)" },
+        "red army": { history: "Hồng quân (dịch trọn cụm, không lặp lại chữ Red)" },
+        "high command": { history: "bộ tư lệnh tối cao" },
+        "war crimes": { history: "tội ác chiến tranh" },
+        wehrmacht: { history: "quân đội Đức Quốc xã (Wehrmacht)" },
+        division: { history: "sư đoàn (đơn vị quân đội), không phải phép chia" },
+        front: { history: "mặt trận, tiền tuyến tùy câu" },
+        occupation: { history: "sự chiếm đóng, không phải nghề nghiệp" },
+        resistance: { history: "sự kháng cự, lực lượng kháng chiến tùy câu" },
+
         model: { ml: "mô hình (học máy)", business: "mô hình kinh doanh", science: "mô hình mô phỏng", general: "mẫu, kiểu mẫu, người mẫu tùy ngữ cảnh" },
         train: { ml: "huấn luyện (mô hình)", business: "đào tạo (nhân viên)", general: "tàu hỏa hoặc rèn luyện" },
         run: { programming: "chạy, thực thi (chương trình)", ml: "chạy; 'a run' là một lần chạy thí nghiệm", business: "điều hành, vận hành", general: "chạy, kéo dài, điều hành tùy câu" },
@@ -103,7 +120,7 @@
         cell: { science: "tế bào", programming: "ô (notebook, bảng tính)", data: "ô dữ liệu", general: "ô" },
         solution: { science: "dung dịch", math: "lời giải, nghiệm", general: "giải pháp" },
         matter: { science: "vật chất", general: "vấn đề; 'it doesn't matter' là không quan trọng" },
-        charge: { science: "điện tích", business: "phí, tính phí", general: "sạc, phụ trách, cáo buộc" },
+        charge: { history: "tiến công, xung phong hoặc cáo buộc tùy câu", science: "điện tích", business: "phí, tính phí", general: "sạc, phụ trách, cáo buộc" },
         current: { science: "dòng điện", general: "hiện tại" },
         table: { data: "bảng dữ liệu", general: "cái bàn hoặc bảng" },
         field: { data: "trường dữ liệu", science: "trường (vật lý)", general: "lĩnh vực" },
@@ -266,7 +283,7 @@
         const out = [];
         const seen = new Set();
         for (const [w, senses] of Object.entries(SENSES)) {
-            if (!words.has(w)) continue;
+            if (w.includes(" ") ? !keywordHits(t, w) : !words.has(w)) continue;
             // Only a sense the domain decides. The "general" entry is the everyday meaning the model
             // picks anyway, and it misled: "point: ý, luận điểm" was sent for "at this point".
             const pick = (domain.primary !== "general" && senses[domain.primary]) || (domain.secondary && senses[domain.secondary]);

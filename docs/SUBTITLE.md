@@ -589,3 +589,20 @@ track's cues into dub groups with `CST_DUB_PLAN.groupsFromViCues` (same function
 `ytHienThiNguyenTiengViet` uses) and starts the shared engine. No Gemini call. It is allowed only when
 `CST_LANG.viVoiceSource` sees a track in another language too (speech not Vietnamese); a Vietnamese-only page
 gets no voice. The notice offers a "Lồng tiếng từ phụ đề Việt" button; with the voice setting on it starts by itself.
+
+## Military-history context (2026-10-27)
+
+`context-engine.js` recognizes military history using multiple distinct terms and the normal
+text-length threshold. Its contextual senses distinguish military campaign/front/division/
+occupation/resistance/force from marketing or everyday meanings; multiword senses include
+Red Army and High Command. They guide Gemini only in the detected domain, without global
+replacement or a cache rewrite. The reported documentary's visible transcript included the
+mixed rendering "Hồng quân Red". Context-hint tests cover the source term and unrelated meanings;
+new hints are not evidence that every previously generated line was retranslated correctly.
+
+`vi-quality.js` flags a partial English name echoed immediately after its complete Vietnamese
+institutional name, gated by that full name in the English source. It requests refinement rather
+than deleting words. Complete bilingual glosses and independently named people/brands remain
+valid. Corpus check: no added echo flags over 145 deduplicated stored/archive videos / 16,786 groups; the reported
+"Hồng quân Red" example is flagged in a regression test. This is not a claim of zero semantic
+errors across those translations.

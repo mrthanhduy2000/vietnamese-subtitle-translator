@@ -151,6 +151,8 @@
                                   // marginal lines in that then started late: rapid seeks on a healthy
                                   // server (60 runs) late 25 -> 33; with 0.3 29, and slow servers 539
         rtfShortAudio: 1.2,       // a take shorter than this is mostly overhead: never the "latest" rtf
+        renderSampleMaxMs: 60000, // suspend/resume and cold stalls are not steady-state throughput
+        prepareColdMaxMs: 20000, // allow the first local take to finish before initial autoplay
         firstRtfCap: 1.0,         // first rtf sample of a run is capped: it carries the server's cold start
         dropLag: 4.0,             // giọng hệ thống trễ quá mức này mới bỏ phần còn lại của đoạn cũ (bớt mất lời)
         prefetchMax: 30,          // trần tạo trước audio (giây); chế độ sử dụng có thể hạ thấp hơn
@@ -521,7 +523,7 @@
                     const sp = res.parts[0];
                     let wav;
                     try { wav = AUDIO.base64ToBytes(sp.wav); } catch (e) { const err = new Error("Audio VieNeu hỏng (base64)"); err.type = "invalid"; throw err; }
-                    out.push({ planId: p.id, wav, duration: sp.duration, sampleRate: sp.sampleRate, cached: !!res.fromCache });
+                    out.push({ planId: p.id, wav, duration: sp.duration, sampleRate: sp.sampleRate, cached: !!res.fromCache, timing: res.timing || null });
                 }
                 return out;
             }
@@ -660,6 +662,8 @@
             this.jobs = new Map();          // jobId -> { planIds, t0, orphan }
             this.jobSeq = 0;
             this.renderLatency = null;      // EMA thời gian một lượt TTS (giây)
+            this.renderSamples = 0;
+            this.lastRenderTiming = null;
             this.renderRtf = null;          // EMA of generation speed (seconds spent / seconds of speech)
             this.lastRtf = null;            // latest rtf sample
             this.renderTakes = [];          // { audio, secs } of recent takes made while the server was free
@@ -2064,6 +2068,8 @@
                 live: !!this.provider.caps.live,
                 ahead: this.provider.caps.live ? 0 : this.bufferedAhead(t),
                 rtf: this.renderRtf == null ? null : this.renderRtf,
+                samples: this.renderSamples,
+                timing: this.lastRenderTiming,
                 dropped: this.stats.dropped || 0,
                 errors: (this.stats.errors || 0) + (this.stats.timeouts || 0),
                 pace: this.pace && this.pace.n >= 3 ? this.pace.mid : null,    // typical rate the video asks for
@@ -2271,28 +2277,24 @@
                     // it read as ~0.1 (min of EMA and last in dropRtf), and the next reach decision
                     // expected 1.7 s for a 9.4 s render on a server at RTF 0.9 (BACKLOG 33)
                     const audioSecs = out.reduce((a, o) => a + (o.cached ? 0 : o.duration || 0), 0);
-                    // A take queued behind another still gives a sample (dropping those left the
-                    // estimate stale after seeks: worst recovery 25 s in the simulated matrix), but
-                    // not a point for the overhead fit, whose intercept that wait would inflate
-                    if (audioSecs > 0.3) {
-                        // Overhead is taken out here because waitAudio adds it back per request;
-                        // counting it twice made short single-sentence jobs look 2x slower.
-                        // The overhead is fitted from recent takes (renderOver): with the 0.6 guess a
-                        // real VieNeu take of 0.6 s audio in 0.17 s read as RTF 0.08 (true 0.21).
-                        if (!job.queued) this.noteTake(audioSecs, secs);
-                        // queued behind another job on a serial server: that job's predicted rest is
-                        // not this take's time (after a burst of seeks RTF 0.3 read as 0.55, and
-                        // the next seek skipped a line it could reach: 5.9 s to voice, live harness)
+                    const timed = out.find(o => !o.cached && o.timing && Number.isFinite(o.timing.generationMs));
+                    const timing = timed && timed.timing;
+                    if (timing) {
+                        this.lastRenderTiming = { ...timing };
+                        this.note("render", { queueMs: timing.queueMs, generationMs: timing.generationMs,
+                            processingMs: timing.processingMs, cold: !!timing.cold });
+                    }
+                    // Worker timing separates the global queue and processing from synthesis.
+                    // Legacy providers and simulations retain their previous latency estimator.
+                    if (audioSecs > 0.3 && !(timing && (timing.cold || timing.generationMs >= SYNC.renderSampleMaxMs))) {
                         const own = Math.max(0, secs - (job.ahead || 0));
-                        let rtf = Math.max(0.05, own - this.renderOver()) / audioSecs;
-                        // The first job pays the server's cold start: VieNeu idle for days had its
-                        // model swapped out by macOS and the first render measured 3.5x real time
-                        // (0.23 warm), which then dropped 7 sentences. One sample never says "slow".
+                        const preparation = timing ? (timing.generationMs + (timing.processingMs || 0)) / 1000 : own;
+                        if (!job.queued && (!timing || timing.queueMs < 100)) this.noteTake(audioSecs, timing ? preparation : secs);
+                        let rtf = Math.max(0.05, preparation - this.renderOver()) / audioSecs;
                         if (this.renderRtf == null) rtf = Math.min(rtf, SYNC.firstRtfCap);
-                        // a short take is mostly overhead: an error there of 0.1 s moves its rtf by
-                        // 0.1 / audio, so it feeds the average but is never the "latest" sample
                         if (audioSecs >= SYNC.rtfShortAudio || this.lastRtf == null) this.lastRtf = rtf;
                         this.renderRtf = this.renderRtf == null ? rtf : this.renderRtf * 0.7 + rtf * 0.3;
+                        if (audioSecs >= SYNC.rtfShortAudio) this.renderSamples++;
                     }
                 }
                 for (const o of out) {

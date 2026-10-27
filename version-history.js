@@ -4,6 +4,15 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.1.2", luc: "27/10/2026", ten: "VieNeu đo đúng thời gian chờ và chuẩn bị giọng đầu video",
+            y: [
+                "Tách thời gian xếp hàng, sinh giọng và xử lý audio. Không dùng lượt khởi động lạnh hoặc chờ bất thường để kết luận tốc độ ổn định; cảnh báo chậm cần đủ mẫu đo và không còn khẳng định máy yếu từ độ trễ.",
+                "Khi lượt giọng VieNeu đầu tiên vẫn đang được tạo, chờ chuẩn bị có thể kéo dài đến 20 giây và kết thúc ngay khi sẵn sàng. Nút phát thủ công vẫn cho phép bỏ chờ.",
+                "Phân biệt thông báo hàng đợi với sinh giọng chậm; trang Cài đặt báo rõ khi chưa đủ lượt đo.",
+                "Bổ sung ngữ cảnh lịch sử/quân sự để phân biệt chiến dịch, mặt trận, sư đoàn và chiếm đóng với nghĩa thông thường; hướng dẫn dịch trọn cụm Red Army thành Hồng quân và yêu cầu sửa lại khi tên gọi bị trộn một phần tiếng Anh."
+            ]
+        },
+        {
             v: "3.1.1", luc: "27/10/2026", ten: "Song ngữ: bật Tiếng Anh ở trên thì Tiếng Anh thành chữ chính và 4 cải tiến khác",
             y: [
                 "Khi bật Song ngữ và Tiếng Anh ở trên, dòng tiếng Anh giờ là chữ to, còn tiếng Việt xuống cỡ chữ phụ (theo mục Cỡ dòng gốc trong Cài đặt). Trước đây tiếng Việt vẫn to và tiếng Anh luôn nhỏ, kể cả khi tiếng Anh đã đứng trên.",

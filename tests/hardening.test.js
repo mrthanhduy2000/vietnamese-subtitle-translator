@@ -572,7 +572,7 @@ test("render speed: first sample capped, overhead counted once, a recovered serv
     // the engine really uses these numbers
     const src = require("fs").readFileSync(require("path").join(__dirname, "..", "dub-engine.js"), "utf8");
     assert.match(src, /renderOverhead: 0\.6/);
-    assert.match(src, /own - this\.renderOver\(\)\) \/ audioSecs/);
+    assert.match(src, /preparation - this\.renderOver\(\)\) \/ audioSecs/, "only preparation time enters the throughput sample");
     assert.match(src, /if \(this\.renderRtf == null\) rtf = Math\.min\(rtf, SYNC\.firstRtfCap\)/);
     assert.match(src, /const rtf = this\.dropRtf\(\);/);
 });

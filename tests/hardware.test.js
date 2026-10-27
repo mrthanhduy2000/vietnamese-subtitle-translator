@@ -91,3 +91,12 @@ test("the Mac installer reads the chip, not the shell: Rosetta on an Apple chip 
     assert.match(R(".github/workflows/intel-voice.yml"), /macos-15-intel/);
     assert.match(R(".github/workflows/intel-voice.yml"), /DPD_INTEL_VOICE: "1"/);
 });
+
+
+test("slow advice needs enough measured takes and never infers weak hardware from latency", () => {
+    assert.equal(HW.slowAdvice({ rtf: 3, samples: 1 }), null);
+    assert.equal(HW.slowAdvice({ rtf: 3, samples: 3 }), null);
+    const advice = HW.slowAdvice({ rtf: 3, samples: 4 });
+    assert.ok(advice);
+    assert.doesNotMatch(advice.text, /máy.*yếu/i);
+});

@@ -211,3 +211,23 @@ test("prepareHold card: follows the page into fullscreen and back out, and the l
     E.API.hold.cancel();
     assert.equal(fsListeners.fullscreenchange, undefined, "listener removed with the hold");
 });
+
+
+test("initial preparation waits for an active first local take but respects explicit limits", () => {
+    for (const explicit of [false, true]) {
+        const E = env();
+        let now = 0, tick, ready = false;
+        E.S.performance.now = () => now;
+        E.S.setInterval = fn => { tick = fn; return 1; };
+        E.API.dub.engine = { provider: { id: "vieneu" }, jobs: new Map([["first", {}]]), rendered: new Map() };
+        const v = video({ currentTime: 0.3 });
+        E.API.prepareHold(v, () => ready, { initial: true, ...(explicit ? { maxMs: 5000 } : {}) });
+        now = 6000; tick();
+        assert.equal(E.API.hold.active, !explicit);
+        if (!explicit) {
+            now = 14000; ready = true; tick();
+            assert.equal(E.API.hold.active, false);
+        }
+        assert.equal(v.plays, 1);
+    }
+});

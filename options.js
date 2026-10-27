@@ -997,7 +997,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const may = HW ? await HW.readMachine() : null;
         const mayTa = may && HW.describeMachine(may) ? ` Máy: ${HW.describeMachine(may)}.` : "";
         const tocChamLai = HW && HW.sustainableRate(rtf) ? ` Phát video ở tốc độ ${String(HW.sustainableRate(rtf)).replace(".", ",")}× thì giọng theo kịp.` : "";
-        const tocDo = rtf ? `<br>Tốc độ tạo giọng đo được: <b>${rtf.toFixed(2)}</b> (tạo 1 giây lời nói mất ${rtf.toFixed(2)} giây).${mayTa} ${rtf < 0.4 ? "Tốt." : rtf < 0.8 ? "Hơi chậm, giọng vẫn kịp." : "Quá chậm, giọng sẽ trễ dần: kiểm tra mục ProcessType trong tệp tự khởi động, phải là Interactive." + tocChamLai}` : "";
+        const speedReliable = r.samples == null || r.samples >= 4;
+        const tocDo = rtf && !speedReliable ? `<br>Đang đo tốc độ tạo giọng ổn định (${r.samples}/4 lượt). Thời gian chờ hàng đợi không được tính là tốc độ sinh giọng.` : rtf ? `<br>Tốc độ tạo giọng đo được: <b>${rtf.toFixed(2)}</b> (tạo 1 giây lời nói mất ${rtf.toFixed(2)} giây).${mayTa} ${rtf < 0.4 ? "Tốt." : rtf < 0.8 ? "Hơi chậm, giọng vẫn kịp." : "Các lượt sinh giọng gần đây đang chậm. Cần kiểm tra tải máy chủ và hàng đợi trước khi kết luận nguyên nhân." + tocChamLai}` : "";
         localStatusEl.innerHTML = running
             ? `<div class="cst-note-title">✓ Máy chủ VieNeu đang chạy trên máy này (${r.model === LOCAL.model ? LOCAL.modelLabel : esc(r.model || "không rõ model")})</div><div class="cst-note-body">Miễn phí, chạy trên máy này, lời thoại không gửi ra ngoài.${tocDo}</div>`
             : `<div class="cst-note-title">Máy chủ VieNeu chưa sẵn sàng</div><div class="cst-note-body">${autostartSteps()}</div>`;
