@@ -192,14 +192,18 @@ test("ytVePhuDe: Vietnamese only, dual with the source below, dual with the sour
     o = draw("state.dualMode = true; state.originalFirst = false", cue, "Hello everyone");
     assert.deepEqual(o.children.map(c => c.className), ["cst-vi", "cst-orig"]);
     assert.match(o.children[1].style.cssText, /font-size:0\.80em/);
+    const mainStyle = o.children[0].style.cssText;
+    const secondaryStyle = o.children[1].style.cssText;
     o = draw("state.dualMode = true; state.originalFirst = true", cue, "Hello everyone");
     assert.deepEqual(o.children.map(c => c.className), ["cst-orig", "cst-vi"], "the source goes above");
     assert.equal(o.children[0].style.marginTop, "0");
+    assert.equal(o.children[0].style.cssText.replace("margin-top:0.12em;", ""), mainStyle, "English takes the complete primary style");
+    assert.equal(o.children[1].style.cssText, secondaryStyle.replace("margin-top:0.12em;", ""), "Vietnamese takes the complete secondary style");
     // English on top: English is the full-size line, Vietnamese drops to origScale
     assert.match(o.children[0].style.cssText, /font-size:1\.00em/, "English is the full-size line");
     assert.match(o.children[1].style.cssText, /font-size:0\.80em/, "Vietnamese is the small line");
     o = draw("state.dualMode = false; state.originalFirst = true", cue, "Hello everyone");
-    assert.doesNotMatch(String(o.children[0].style.cssText || ""), /font-size/, "single view: Vietnamese keeps the base size");
+    assert.match(String(o.children[0].style.cssText || ""), /font-size:1\.00em/, "single view: Vietnamese keeps the base size");
     o = draw("state.dualMode = false", null, "Only source");
     assert.deepEqual(o.children.map(c => c.className), ["cst-orig"], "a line with no translation yet shows the source");
     assert.match(o.children[0].style.cssText, /opacity:0\.85/);
@@ -284,4 +288,30 @@ test("ytCapNhatKichThuoc: font size follows the player width and clears the rend
     E.S.__p.clientWidth = 0;
     E.call("ytCapNhatKichThuoc(__p, __o)");
     assert.ok(parseFloat(overlay.style.fontSize) > 0 && parseFloat(overlay.style.fontSize) <= small, "no width falls back to 640");
+});
+
+test("saved video corpus: switching order swaps the complete visual roles", t => {
+    const archive = path.join(__dirname, "..", "review-archive");
+    if (!fs.existsSync(archive)) return t.skip("local review archive is unavailable");
+    const { listVideos } = require("../tools/batch-review.js");
+    const files = listVideos(fs.readdirSync(archive).map(f => path.join(archive, f)).filter(f => fs.statSync(f).isDirectory()));
+    const E = env(); const node = dom(E);
+    E.S.__o = node("div");
+    let checked = 0;
+    for (const file of files) {
+        const data = JSON.parse(fs.readFileSync(file, "utf8"));
+        const group = (data.g || []).find(g => g[2] && g[3] && g[3].length);
+        assert.ok(group, `paired subtitles: ${path.basename(file)}`);
+        E.S.__cue = { text: group[2], lines: [group[2]] };
+        E.S.__en = group[3].map(c => c[2]).join(" ");
+        for (const scale of [80, 100]) {
+            E.call(`ytSubStyle = CST_STYLE.normalizeStyle({origScale:${scale}, fontWeight:700, fontColor:'#ffe100', origColor:'#9ca3af'}); state.dualMode = true; state.originalFirst = false; ytVePhuDe(__o, __cue, __en)`);
+            const before = E.S.__o.children.map(c => c.style.cssText.replace("margin-top:0.12em;", ""));
+            E.call("state.originalFirst = true; ytVePhuDe(__o, __cue, __en)");
+            const after = E.S.__o.children.map(c => c.style.cssText.replace("margin-top:0.12em;", ""));
+            assert.deepEqual(after, before, path.basename(file));
+            checked++;
+        }
+    }
+    t.diagnostic(`${files.length} saved videos, ${checked} order swaps, no visual-role mismatches`);
 });

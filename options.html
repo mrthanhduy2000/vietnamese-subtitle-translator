@@ -283,6 +283,7 @@
             user-select: none;
             display: inline-flex;
             flex-direction: column;
+            gap: 0.12em;
             align-items: center;
             justify-content: center;
             box-sizing: border-box;
@@ -292,16 +293,15 @@
         .preview-subtitle-box .orig-line {
             font-size: 0.84em;
             color: #e2e8f0;
-            opacity: 0.9;
-            margin: 0 0 3px 0;
-            line-height: 1.32;
+            margin: 0;
+            line-height: inherit;
             display: block;
             text-shadow: inherit;
         }
 
         .preview-subtitle-box .vi-line {
             font-size: 1em;
-            line-height: 1.34;
+            line-height: inherit;
             display: block;
             text-shadow: inherit;
             margin: 0;
@@ -1152,23 +1152,23 @@
 
                 <!-- shown in Song ngữ mode only (updatePreview hides it otherwise) -->
                 <div class="card" id="origOptions">
-                    <h2 class="card-title">Dòng gốc</h2>
+                    <h2 class="card-title">Dòng phụ</h2>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label class="form-label" for="subOrigScale">Cỡ dòng gốc</label>
+                            <label class="form-label" for="subOrigScale">Cỡ dòng phụ</label>
                             <select id="subOrigScale" class="form-select">
                                 <option value="65">65%</option>
                                 <option value="72">72%</option>
                                 <option value="80" selected>80% (Khuyên dùng)</option>
                                 <option value="90">90%</option>
-                                <option value="100">100% (Bằng bản dịch)</option>
+                                <option value="100">100% (Bằng dòng chính)</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label" for="subOrigColor">Màu dòng gốc</label>
+                            <label class="form-label" for="subOrigColor">Màu dòng phụ</label>
                             <div class="inline-color">
                                 <input type="color" id="subOrigColor" value="#d4d4d8">
-                                <span class="field-hint">Nhạt hơn bản dịch để mắt đọc tiếng Việt trước.</span>
+                                <span class="field-hint">Áp dụng cho dòng dưới. Khi tiếng Anh ở trên, tiếng Việt là dòng phụ.</span>
                             </div>
                         </div>
                     </div>

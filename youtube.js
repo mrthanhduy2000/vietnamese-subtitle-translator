@@ -718,19 +718,20 @@ function ytVePhuDe(overlay, viCue, enText, opts = {}) {
     const isDual = s.mode === "dual" || state.dualMode;
     const blocks = [];
     const showEn = !!enText && (isDual || !viCue);
-    // The line read first is the big one: English on top makes English full size, Vietnamese small
-    const sc = window.CST_STYLE ? CST_STYLE.lineScales(s, showEn && !!viCue, state.originalFirst) : { vi: 1, orig: s.origScale / 100 };
+    const englishPrimary = showEn && !!viCue && !!state.originalFirst;
+    const viStyle = window.CST_STYLE.lineAppearance(s, englishPrimary);
+    const origStyle = window.CST_STYLE.lineAppearance(s, !!viCue && !englishPrimary);
     if (viCue) {
-        const lines = ytVuaKhung(viCue.lines && viCue.lines.length ? viCue.lines : [viCue.text], viCue.text, overlay, sc.vi);
-        const viCss = sc.vi === 1 ? "" : `font-size:${sc.vi.toFixed(2)}em;`;
+        const lines = ytVuaKhung(viCue.lines && viCue.lines.length ? viCue.lines : [viCue.text], viCue.text, overlay, viStyle.scale);
+        const viCss = viStyle.css;
         blocks.push(ytTaoKhoiChu(lines, "cst-vi", viCss));
     }
     if (showEn) {
-        const scale = viCue ? sc.orig : 1;
+        const scale = viCue ? origStyle.scale : 1;
         const seg = window.CST_VI_SEG;
         const enLines = seg ? ytVuaKhung([enText], enText, overlay, scale) : [enText];
         const css = viCue
-            ? `font-size:${scale.toFixed(2)}em;color:${s.origColor};font-weight:400;margin-top:0.12em;`
+            ? `${origStyle.css}margin-top:0.12em;`
             : "opacity:0.85;";
         const block = ytTaoKhoiChu(enLines, "cst-orig", css);
         if (viCue && state.originalFirst) {

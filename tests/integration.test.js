@@ -376,7 +376,7 @@ test("Coursera: cue tiếng Việt thay cue gốc, số cue không bị ép theo
         applyTranslation(__t, groups, ["Chúng ta hãy xem xét mạng nơ-ron tích chập hai lớp."]);
     `, env);
     assert.equal(track.cues.length, 1, track.cues.map(c => c.text).join(" | "));
-    assert.equal(track.cues[0].text, "Chúng ta hãy xem xét\nmạng nơ-ron tích chập hai lớp.");
+    assert.equal(track.cues[0].text, "<c.cst-vi>Chúng ta hãy xem xét\nmạng nơ-ron tích chập hai lớp.</c>");
     assert.ok(track.cues[0].id.startsWith("cst-vi"));
     // Coursera draws our own overlay now, so the browser's cue renderer must be silenced: its box
     // and Coursera's own caption box used to land on top of each other

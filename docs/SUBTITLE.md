@@ -265,6 +265,13 @@ talk, export `.srt` (bilingual when the display mode is bilingual). Both quick m
 source track is in use (`ytNguonPhuDe` / `csSubtitleSource`): machine-heard captions are the usual
 reason a translated line is wrong, and the label turns warning-coloured for them.
 
+**Bilingual visual roles.** `CST_STYLE.lineAppearance(style, secondary)` supplies size, color and
+weight together. The first displayed line is primary regardless of language; `originalFirst` swaps
+roles as well as order. Both overlays, native cue classes (`cst-vi` / `cst-orig`) and the Settings
+preview share this rule. `origScale` / `origColor` retain their storage names but now describe the
+secondary line. Settings reads the top-level `originalFirst` and follows live changes. A source-only
+fallback remains full-size; roles never depend on comparing sizes (both can be 100%).
+
 **Size scale and reading time (1.7.1).** `CST_STYLE.sizeFactor(fontSize)` = fontSize / 100 x 0.7: the
 user found the old 70% the right size and asked for it to be called 100%; every pixel conversion
 (YouTube and Coursera overlays, `video::cue`, the Settings preview) goes through it, and

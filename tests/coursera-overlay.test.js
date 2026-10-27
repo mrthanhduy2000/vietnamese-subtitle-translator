@@ -101,15 +101,19 @@ test("csPaint: Vietnamese alone, dual below, dual with the source first, source 
     ov = paint("state.dualMode = true; state.originalFirst = false", vi, "Hello everyone");
     assert.equal(ov.children.length, 2);
     assert.match(ov.children[1].style.cssText, /font-size:0\.80em/);
+    const mainStyle = ov.children[0].style.cssText;
+    const secondaryStyle = ov.children[1].style.cssText;
     ov = paint("state.dualMode = true; state.originalFirst = true", vi, "Hello everyone");
     assert.equal(ov.children[0].textContent, "Hello everyone", "the source goes first");
     assert.equal(ov.children[0].style.marginTop, "0");
+    assert.equal(ov.children[0].style.cssText.replace("margin-top:0.12em;", ""), mainStyle, "English takes the complete primary style");
+    assert.equal(ov.children[1].style.cssText, secondaryStyle.replace("margin-top:0.12em;", ""), "Vietnamese takes the complete secondary style");
     // English on top: English is the full-size line, Vietnamese drops to origScale
     assert.match(ov.children[1].style.cssText, /font-size:0\.80em/, "Vietnamese is the small line");
     assert.match(ov.children[0].style.cssText, /font-size:1\.00em/, "English is the full-size line");
     ov = paint("state.dualMode = false; state.originalFirst = true", vi, "Hello everyone");
     assert.equal(ov.children.length, 1);
-    assert.doesNotMatch(String(ov.children[0].style.cssText || ""), /font-size/, "single view: Vietnamese keeps the base size");
+    assert.match(String(ov.children[0].style.cssText || ""), /font-size:1\.00em/, "single view: Vietnamese keeps the base size");
     ov = paint("state.dualMode = false", null, "Only source");
     assert.equal(ov.children.length, 1);
     assert.match(ov.children[0].style.cssText, /opacity:0\.85/);
@@ -240,4 +244,19 @@ test("shortcut actions on YouTube: need a video, toggle subtitles and voice, ope
     E.S.document.querySelector = () => ({});
     r = plain(await E.call('xuLyPhimTat("mo-bang-dieu-khien", "youtube")'));
     assert.deepEqual([r.ok, log.at(-1)], [true, "ytMenu"]);
+});
+
+
+test("native fullscreen cue roles swap color, size and weight with the order", () => {
+    const E = env();
+    let css = "";
+    E.S.document.head.appendChild = el => { css = el.textContent; };
+    E.call('state.subStyle = { fontWeight: 700, fontColor: "#ffe100", origColor: "#9ca3af", origScale: 80 }; state.dualMode = true; state.originalFirst = false; injectCueStyle()');
+    const rule = name => css.match(new RegExp('video::cue\\(\\.' + name + '\\) \\{([^}]+)'))[1].trim();
+    const main = rule("cst-vi"), secondary = rule("cst-orig");
+    E.call('state.originalFirst = true; injectCueStyle()');
+    assert.equal(rule("cst-orig"), main);
+    assert.equal(rule("cst-vi"), secondary);
+    assert.match(main, /font-weight: 700 !important/);
+    assert.match(secondary, /font-size: 0\.80em !important/);
 });

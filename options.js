@@ -116,15 +116,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Load saved styles (tự chuyển giá trị cũ như "Helvetica Neue" sang mã phông mới)
     let currentStyle = { ...defaultSubStyle };
+    let originalFirst = false;
     try {
-        const res = await chrome.storage.sync.get(["subStyle", "dualMode"]);
+        const res = await chrome.storage.sync.get(["subStyle", "dualMode", "originalFirst"]);
         currentStyle = S.normalizeStyle(res.subStyle);
+        originalFirst = !!res.originalFirst;
         if (res.dualMode !== undefined) {
             currentStyle.mode = res.dualMode ? "dual" : "single";
         }
     } catch (e) {
         console.warn("Chưa đọc được cài đặt kiểu phụ đề:", e);
     }
+
+    chrome.storage.onChanged.addListener((changes, area) => {
+        if (area === "sync" && changes.originalFirst) {
+            originalFirst = !!changes.originalFirst.newValue;
+            updatePreview();
+        }
+    });
 
     const PREVIEW_VI = "Nhưng với cá nhân tôi, điều quan trọng nhất là sự nhất quán.";
 
@@ -203,11 +212,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         previewBox.style.fontSize = `${(15.5 * S.sizeFactor(s.fontSize)).toFixed(1)}px`;
         previewBox.style.lineHeight = String(s.lineHeight);
         previewBox.style.textShadow = S.textShadow(s);
-        previewViLine.style.color = s.fontColor;
+        const englishPrimary = dual && originalFirst;
+        for (const [line, secondary] of [[previewViLine, englishPrimary], [previewOrigLine, !englishPrimary]]) {
+            const appearance = S.lineAppearance(s, secondary);
+            line.style.fontSize = `${appearance.scale.toFixed(2)}em`;
+            line.style.color = secondary ? s.origColor : s.fontColor;
+            line.style.fontWeight = String(secondary ? 400 : s.fontWeight);
+        }
         previewViLine.style.lineHeight = String(s.lineHeight);
-        previewOrigLine.style.color = s.origColor;
-        previewOrigLine.style.fontSize = `${(s.origScale / 100).toFixed(2)}em`;
-        previewOrigLine.style.order = s.originalFirst ? "0" : "2";
+        previewOrigLine.style.order = originalFirst ? "0" : "2";
 
         // Ngắt dòng bằng chính thuật toán tiếng Việt của tiện ích; nếu khung xem
         // trước hẹp hơn dòng thì ngắt lại theo cú pháp (như trên YouTube), không

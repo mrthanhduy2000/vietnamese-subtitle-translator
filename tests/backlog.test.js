@@ -105,3 +105,11 @@ test("the body-wide button observers are throttled, not run on every mutation", 
         assert.match(R(f), /if \(now - lastCheck >= 150\)/, f);
     }
 });
+
+
+test("line appearance keeps primary color and weight even when both sizes are equal", () => {
+    const S = require("../subtitle-style.js");
+    const style = S.normalizeStyle({ origScale: 100, fontColor: "#ffe100", origColor: "#9ca3af", fontWeight: 700 });
+    assert.deepEqual(S.lineAppearance(style), { scale: 1, css: "font-size:1.00em;color:#ffe100;font-weight:700;" });
+    assert.deepEqual(S.lineAppearance(style, true), { scale: 1, css: "font-size:1.00em;color:#9ca3af;font-weight:400;" });
+});

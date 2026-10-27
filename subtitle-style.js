@@ -267,6 +267,14 @@
         return { vi: 1, orig: secondary };
     }
 
+    // Roles carry the entire visual hierarchy, independent of language and equal-size settings.
+    function lineAppearance(s, secondary = false) {
+        const scale = secondary ? s.origScale / 100 : 1;
+        const color = secondary ? s.origColor : s.fontColor;
+        const weight = secondary ? 400 : s.fontWeight;
+        return { scale, css: `font-size:${scale.toFixed(2)}em;color:${color};font-weight:${weight};` };
+    }
+
     // Reading time (1.7.0): a line stays on screen into the silence after it, up to maxLinger
     // seconds, never closer than `gap` to the next line, unless that leaves a blink (`bridge`). Measured on the 22 fixture sentences: 5 of
     // 32 lines ran faster than 20 characters per second and one showed for under a second. Display
@@ -372,7 +380,7 @@
 
     const api = {
         legibilityIssue, contrastRatio,
-        FONTS, STROKES, DEFAULT_STYLE, resolveDual, lineScales, SIZE_UNIT, sizeFactor, lingerCues,
+        FONTS, STROKES, DEFAULT_STYLE, resolveDual, lineScales, lineAppearance, SIZE_UNIT, sizeFactor, lingerCues,
         MIN_FONT_PX, overlayFontPx, overlayTransition, prefersReducedMotion, fadeInCue,
         getFont, normalizeStyle, fontStack, ensureFont, isLocalFontAvailable,
         textShadow, backgroundColor, hexToRgba, googleFontsUrl,

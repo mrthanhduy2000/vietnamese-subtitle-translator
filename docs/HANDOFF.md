@@ -1,31 +1,33 @@
-# Handoff (2026-10-26, lane A, thread "Song ngữ: tiếng Anh ở trên thì chữ chính là tiếng Anh")
+# Handoff (2026-10-27, lanes A + C, bilingual visual roles)
 
 ## Current state
-- Branch `main`. Fix: `lineScales(s, dual, originalFirst)` in `subtitle-style.js` decides the font
-  scale of each line in a bilingual view. With "Tiếng Anh ở trên" on, English is full size and
-  Vietnamese drops to `origScale`; otherwise the old rule (Vietnamese full, English `origScale`).
-- Used by `ytVePhuDe` (`youtube.js`) and `csPaint` (`content.js`, the Coursera overlay).
-- Change note: `docs/changes/bilingual-line-size.md`. No version bump (feature PR rule).
-- Tests: `npm test` 0 fail. New asserts in `tests/youtube-captions.test.js`,
-  `tests/coursera-overlay.test.js`, and `lineScales` in `tests/backlog.test.js`.
+- Branch `main`. `lineAppearance(style, secondary)` in `subtitle-style.js` assigns scale,
+  color and weight together; both overlays now swap complete primary/secondary styles.
+- Primary uses fontColor/fontWeight/full size. Secondary uses origColor/400/origScale.
+  Roles depend on order, never scale equality. Source-only fallback stays full size.
+- Native fullscreen Coursera cues have cst-vi/cst-orig classes and matching important CSS;
+  order and bilingual storage changes refresh native cue styling and positioning immediately.
+- Settings reads top-level originalFirst and follows live changes. Preview removes the
+  source-only opacity, shares line spacing, and swaps the complete visual roles.
+- UI labels now say secondary line; storage keys remain origScale/origColor.
+- Cross-lane work: options.js/options.html needed to match the subtitle renderer.
+- No version bump; change note: docs/changes/bilingual-role-appearance.md.
+- npm test: 1000 tests, 0 fail, 2 skips (including the corpus appearance test).
+- Corpus appearance check: 45 saved videos, 90 swaps (80% and equal 100% sizes), no mismatch.
+- node tools/regress.js: 45 videos, 24 scenarios, no changed/worse metrics; baseline saved.
+- Real headless Chrome checks Settings computed styles; this is harness evidence, not live playback.
 
 ## Unfinished
-- Native fullscreen path not changed: `content.js` `placeCue` / cue CSS (`video::cue(.cst-orig)`) still
-  shows the old sizes when the browser draws the cues itself. The `video::cue` rule is `!important`,
-  so `.cst-orig` size may not apply at all there. Check in a real fullscreen before changing.
-- Settings preview (`options.js` ~line 209) still uses `origScale` for the English line. It reads
-  `s.originalFirst` from the sub-style, which the popup never writes, so the preview ignores the switch.
-- Not verified in a real Chrome page (the change is only covered by unit-style tests).
-- Carried over from the 2026-10-25 handover (still open): overlay line fade on a real YouTube or
-  Coursera page; sparse caption notice on iYL-UuNE_9w after Reload; YouTube embed frames (TEDx:
-  monica_fay, shuli_steele, michelle_zhang); TED hold on Chrome; Mac auto-update install.
-- Carried over from the same handover, from the redesign thread (branch `redesign-ui-ia`, never
-  pushed): Gemini status block in `options.js` (~line 598) is still the long "API Key hoạt động"
-  box; dubbing and Gemini progressive disclosure not done; cost KPI cards and video workspace
-  unchanged.
+- Confirm on actual YouTube/Coursera playback, especially browser-native fullscreen cue rendering.
+- Carried forward: real-page overlay fade; sparse caption notice on iYL-UuNE_9w after Reload;
+  YouTube embed frames (TEDx: monica_fay, shuli_steele, michelle_zhang); TED hold on Chrome;
+  Mac auto-update install.
+- Earlier redesign handover listed pending Gemini status, dubbing/Gemini disclosure, cost KPIs,
+  video workspace on redesign-ui-ia; reconcile with later releases before resuming that work.
 
 ## Traps
-- `bump-version.js` was NOT run: feature PRs do not bump the version (CLAUDE.md rule 2).
-- Tests check `style.cssText` through a fake DOM that can return `undefined`: wrap it in
-  `String(... || "")` before a `doesNotMatch`.
-- Tell the user to click Reload at `chrome://extensions` after any runtime change.
+- Feature work adds a change note, not a version bump, despite the older ban-giao skill template.
+- Native cue text now includes WebVTT class markup; overlay/dubbing still consume plain groups.
+- Fake DOM does not normalize cssText after setting marginTop separately.
+- doc-sizes reports several older CLAUDE.md size estimates as stale; not rewritten here.
+- Click Reload at chrome://extensions after pulling runtime updates. Never remove/reinstall.

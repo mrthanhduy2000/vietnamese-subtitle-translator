@@ -193,6 +193,9 @@ function injectCueStyle() {
     style.id = "cst-cue-style";
     // 130% la co chuan cua trinh phat (giu nguyen quy uoc cu cua ban 1.0.4)
     const fontEm = (S.sizeFactor(s.fontSize) * 100 / 130).toFixed(2);
+    const englishPrimary = state.dualMode && state.originalFirst;
+    const viStyle = S.lineAppearance(s, englishPrimary);
+    const origStyle = S.lineAppearance(s, state.dualMode && !englishPrimary);
     style.textContent = `
         video::cue {
             font-family: ${S.fontStack(s.fontFamily)} !important;
@@ -204,9 +207,15 @@ function injectCueStyle() {
             text-shadow: ${S.textShadow(s)} !important;
             white-space: pre-line !important;
         }
+        video::cue(.cst-vi) {
+            font-size: ${viStyle.scale.toFixed(2)}em !important;
+            color: ${englishPrimary ? s.origColor : s.fontColor} !important;
+            font-weight: ${englishPrimary ? 400 : s.fontWeight} !important;
+        }
         video::cue(.cst-orig) {
-            font-size: ${(s.origScale / 100).toFixed(2)}em;
-            color: ${s.origColor};
+            font-size: ${origStyle.scale.toFixed(2)}em !important;
+            color: ${state.dualMode && !englishPrimary ? s.origColor : s.fontColor} !important;
+            font-weight: ${state.dualMode && !englishPrimary ? 400 : s.fontWeight} !important;
         }
     `;
     (document.head || document.documentElement).appendChild(style);
@@ -1492,7 +1501,7 @@ function applyTranslation(track, groups, translations) {
         // Nguồn cho lồng tiếng: nhóm câu + bản dịch có ngữ cảnh + mốc thời gian
         state.dubGroups.push({ start: group.start, end: group.end, srcCues: group.srcCues, viText: vi, viCues: segs });
         segs.forEach((s, k) => {
-            const cue = new CueCtor(s.start, s.end, s.lines.join("\n"));
+            const cue = new CueCtor(s.start, s.end, `<c.cst-vi>${s.lines.join("\n")}</c>`);
             cue.id = `cst-vi-${gi}-${k}`;
             placeCue(cue, "vi");
             track.addCue(cue);
@@ -2182,18 +2191,19 @@ function csPaint(ov, vi, origText) {
     const vua = (lines, text, scale) => (S && S.fitLines
         ? S.fitLines(lines, text, ov, { scale, box, widthRatio: rong })
         : lines);
-    // The line read first is the big one: English on top makes English full size, Vietnamese small
     const showOrig = !!origText && (state.dualMode || !vi);
-    const sc = S ? S.lineScales(s, showOrig && !!vi, state.originalFirst) : { vi: 1, orig: (s.origScale || 80) / 100 };
+    const englishPrimary = showOrig && !!vi && !!state.originalFirst;
+    const viStyle = window.CST_STYLE.lineAppearance(s, englishPrimary);
+    const origStyle = window.CST_STYLE.lineAppearance(s, !!vi && !englishPrimary);
     if (vi) {
         const lines = vi.lines && vi.lines.length ? vi.lines : [vi.text];
-        const viCss = sc.vi === 1 ? "" : `font-size:${sc.vi.toFixed(2)}em;`;
-        blocks.push(block(vua(lines, vi.text || lines.join(" "), sc.vi), viCss));
+        const viCss = viStyle.css;
+        blocks.push(block(vua(lines, vi.text || lines.join(" "), viStyle.scale), viCss));
     }
     if (showOrig) {
-        const scale = vi ? sc.orig : 1;
+        const scale = vi ? origStyle.scale : 1;
         const css = vi
-            ? `font-size:${scale.toFixed(2)}em;color:${s.origColor};font-weight:400;margin-top:0.12em;`
+            ? `${origStyle.css}margin-top:0.12em;`
             : "opacity:0.85;";
         const b = block(vua([origText], origText, scale), css);
         if (vi && state.originalFirst) {
@@ -2712,11 +2722,14 @@ async function init() {
                 }
                 if (changes.dualMode) {
                     state.dualMode = !!changes.dualMode.newValue;
+                    injectCueStyle();
+                    repositionCues();
                     cs.renderKey = "";            // repaint now, not at the next cue
                 }
                 // The popup's "Tiếng Anh ở trên" applied only after the next Translate click
                 if (changes.originalFirst) {
                     state.originalFirst = !!changes.originalFirst.newValue;
+                    injectCueStyle();
                     cs.renderKey = "";
                     repositionCues();
                     if (typeof yt !== "undefined") yt.renderKey = "";
