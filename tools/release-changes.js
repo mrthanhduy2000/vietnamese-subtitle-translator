@@ -66,7 +66,7 @@ function main() {
     fs.writeFileSync(hf, src.replace(marker, marker + renderEntry(entry)));
     execFileSync(process.execPath, [path.join(__dirname, "bump-version.js"), version], { stdio: "inherit" });
     for (const n of notes) fs.unlinkSync(path.join(DIR, n.file));
-    console.log(`Done: v${version}. Run npm test, then commit on release/${version}.`);
+    console.log(`Done: v${version}. Run npm test, commit the release, then node tools/local-build.js verify before pushing main. Feature branches integrate their notes before the main handover release.`);
     console.log("After the merge, CI tags v" + version + " and attaches the zip (.github/workflows/release.yml). Friends install from the public share repo: tell the user it is stale until `node tools/publish-share.js --stage` then `--promote` is run (docs/MAP.md, Share build).");
 }
 

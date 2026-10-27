@@ -32,9 +32,11 @@ counts across videos, never as "this video".
    shorter" either.
 2. **Feature PRs never bump the version or edit `version-history.js`.** Parallel PRs would conflict
    on every merge. Add one note `docs/changes/<slug>.md` instead (format: `docs/changes/README.md`).
-   A periodic release step runs `node tools/release-changes.js --apply`, which bumps once
+   On `main`, the handover release step runs `node tools/release-changes.js --apply`, which bumps once
    (`tools/bump-version.js`: +0.0.1, carry at 9, `1.2.9` -> `1.3.0`, `1.9.9` -> `2.0.0`), writes the
-   history entry and deletes the notes. The scripts own all five places the version appears; never
+   history entry and deletes the notes. Release pending main notes before final tests and push;
+   do not assume an external timer exists. Install lifecycle hooks once per checkout with
+   `node tools/local-build.js install`. The scripts own all five places the version appears; never
    hand-edit `build-info.js` or a version badge.
 3. **Tell the user to click Reload** at `chrome://extensions` after any change. Never tell them to
    remove it and Load unpacked again: Chrome then recreates the settings store and the Gemini API
@@ -76,11 +78,11 @@ Reading all source is ~500KB, roughly 145k tokens. Don't. A normal task should l
 - Never `Read` a file over ~400 lines whole. `grep -n <symbol>` first, then read with offset/limit.
 - Line numbers in `docs/` are anchors and they drift. Confirm with grep before editing.
 - **Grep only, never read whole:** `options.html` (~1600, ~850 of them inline CSS),
-  `youtube.js` (~2000), `content.js` (~2300), `dub-engine.js` (~2400), `background.js` (~2000),
-  `glossary.js` (~1340, pure data), `glossary-data.js` (~35,000, pure data, never read even partly without grep), `dub-speech.js` (~1300, half of it generated tables),
-  `tests/hardening.test.js` (~2100), `tests/cost.test.js` (~1000).
-- Safe to read whole when you need them: `cost-policy.js` (~370), `popup.js` (~360), `yt-bridge.js`
-  (~300), `subtitle-style.js` (~300), `vi-quality.js` (~690), `lang-detect.js` (~155), any `docs/` file.
+  `youtube.js` (~2458), `content.js` (~3064), `dub-engine.js` (~2400), `background.js` (~2000),
+  `glossary.js` (~1340, pure data), `glossary-data.js` (~129,765, pure data, never read even partly without grep), `dub-speech.js` (~4255, half of it generated tables),
+  `tests/hardening.test.js` (~2475), `tests/cost.test.js` (~1000).
+- Safe to read whole when you need them: `cost-policy.js` (~370), `popup.js` (~431), `yt-bridge.js`
+  (~300), `subtitle-style.js` (~391), `vi-quality.js` (~690), `lang-detect.js` (~203), any `docs/` file.
 - These sizes drift. `node tools/doc-sizes.js` rewrites the line and test counts in `docs/MAP.md`
   and `docs/TESTING.md`, and lists any size quoted here that is off by more than 15%.
 
@@ -170,7 +172,9 @@ By hand, `/ban-giao` is:
 5. `git add -A && git commit`, version number in the subject only on the release commit. **If another
    session is working in this folder at the same time, commit your own paths, not `-A`** - it has
    happened here, and you would be committing someone's half-finished feature.
-6. `git push` to `origin`. The repo lives at `github.com/mrthanhduy2000/vietnamese-subtitle-translator`
+6. Run `node tools/local-build.js verify` after committing. Git hooks refresh the ignored stamp
+   after commit/merge/checkout/rewrite and verify the stamp plus pending main releases before push.
+   Then `git push` to `origin`. The repo lives at `github.com/mrthanhduy2000/vietnamese-subtitle-translator`
    (**private**), and the user wants every update there. `gh` keeps the credentials in the macOS
    keychain, which the Bash sandbox cannot read: on an auth or keychain error, retry the push with
    the sandbox disabled. Never force-push.

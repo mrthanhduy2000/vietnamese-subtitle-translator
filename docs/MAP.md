@@ -23,7 +23,7 @@ syllable count and, 1.7.8, the English spans).
 it to `manifest.json` in dependency order (and to `importScripts`, `options.html`, the harness pages
 under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tests if it is a dubbing file).
 
-## Source (38 files, ~162,300 lines)
+## Source (38 files, ~162,400 lines)
 
 | File | Lines | Role | Global export |
 |---|---|---|---|
@@ -61,8 +61,8 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `site-ted.js` | 47 | TED adapter (HLS subtitles from `__NEXT_DATA__` playerData) | registers on `CST_SITES` |
 | `screen-text.js` | 224 | On-screen subtitles: watches the frame's caption band, sends one crop per new caption to `readScreenText` (2.6.4) | `CST_SCREEN` |
 | `lang-detect.js` | 203 | Source-language decision without an API call | `CST_LANG` |
-| `version-history.js` | 2240 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
-| `version-check.js` | 99 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
+| `version-history.js` | 2253 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
+| `version-check.js` | 142 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
 | `theme.js` | 42 | Light/Dark theme for the popup and settings page. Applies instantly from `localStorage` to avoid a flash, then syncs from `storage.sync`. Loaded by `popup.html` and `options.html` only, not a content script | `window.CST_THEME` |
 | `build-info.js` | 6 | **Generated** by `tools/bump-version.js`. Never edit | `CST_BUILD` |
 
@@ -97,7 +97,7 @@ Shared and settings pages:
 - `CST_CACHE` -> `background.js`, `dub-engine.js`
 - `CST_THEME`, `CST_HISTORY`, `CST_BACKUP` -> `options.js`; `CST_VERSION_CHECK` -> `options.js`, `popup.js`
 
-## Tests and tooling (`tests/*.js`: 73 files, ~18,700 lines)
+## Tests and tooling (`tests/*.js`: 73 files, ~18,800 lines)
 
 See `TESTING.md`. Short version: 0 files in `npm test` (listed in `package.json`: a new test file must be added there), all offline; 4 manual scripts;
 12 browser harness pages under `tests/harness/` (`live.html` has its own server, `live-server.js`; `headless.js` runs any of them in a headless Chrome); `tests/pin-cases.py` holds the Python scenarios `share.test.js` runs (`vieneu-pin.py` and the updater in-process, the network scripted, sleeps recorded); `tools/bump-version.js` owns the version number; `tools/git-autoupdate.js` keeps the author's git checkout on origin/main (LaunchAgent, `tests/git-autoupdate.test.js`);
@@ -260,3 +260,17 @@ the named transcripts. Extension pages that drive YouTube in the user's Chrome (
 `README.md` (~110 lines, Vietnamese, user-facing: features, install, VieNeu setup, limits; no changelog, that is `version-history.js`) ·
 `images/`, `icons/` · `tests/audio/*.wav` real voice fixtures · `.claude/launch.json` a static
 file server for the harness pages, plus `live` / `live-slow` for `live.html`.
+
+## Local build lifecycle
+
+`node tools/local-build.js install` installs managed post-commit, post-merge, post-checkout,
+post-rewrite and pre-push hooks in Git's effective hooks directory. It refuses existing foreign
+hooks. The first four refresh ignored `build-stamp.js`; pre-push refreshes it and refuses pushing
+main with pending release notes. `npm run local:verify` is the handover check. Each clone/worktree
+needs setup; hooks live locally and are not carried by Git. Main handovers collect release notes
+before their final tests and commit, without waiting for a hypothetical scheduled release.
+`version-check.js` watches disk metadata on focus and every 15 seconds while Settings/popup is
+open, deduplicates the Reload banner, and compares both disk version and commit with Chrome.
+
+The pre-push guard also compares committed runtime files and manifest versions with origin/main.
+A changed runtime with an unchanged version is rejected even if its author forgot the change note.

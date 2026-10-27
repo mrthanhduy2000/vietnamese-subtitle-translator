@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
     // Chrome chưa nạp lại tiện ích sau khi cập nhật file: báo rõ + nút nạp lại
-    if (window.CST_VERSION_CHECK) window.CST_VERSION_CHECK.checkBuild(document, chrome, ".header-badge", ".content-area");
+    if (window.CST_VERSION_CHECK) window.CST_VERSION_CHECK.watch(document, chrome, ".header-badge", ".content-area");
 
     // ========================================================
     // 1. CHUYỂN TAB ĐIỀU HƯỚNG

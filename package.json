@@ -1,6 +1,6 @@
 {
   "name": "vietnamese-subtitle-translator",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "private": true,
   "description": "Tiện ích Chrome dịch phụ đề YouTube/Coursera sang tiếng Việt (không cần cài gói nào để chạy test)",
   "scripts": {
@@ -8,6 +8,8 @@
     "coverage": "node --require ./tests/vm-coverage-preload.js --test --experimental-test-coverage --test-coverage-exclude=tests/** --test-coverage-exclude=glossary-data.js tests/*.test.js",
     "compare": "node tests/compare.js --verbose",
     "review": "node tools/review.js",
-    "regress": "node tools/regress.js"
+    "regress": "node tools/regress.js",
+    "local:setup": "node tools/local-build.js install",
+    "local:verify": "node tools/local-build.js verify"
   }
 }

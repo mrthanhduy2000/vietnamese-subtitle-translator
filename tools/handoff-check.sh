@@ -20,6 +20,10 @@ git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
 
 changed=$(git status --porcelain 2>/dev/null)
 if [ -z "$changed" ]; then
+    if ! node tools/local-build.js check >/dev/null 2>&1; then
+        printf '%s\n' '{"decision":"block","reason":"LOCAL BUILD STAMP REQUIRED: run node tools/local-build.js install, then node tools/local-build.js verify. The disk stamp must match HEAD before handover."}'
+        exit 0
+    fi
     # Nothing uncommitted. Committed but not on GitHub yet? The user wants every update pushed.
     # Compares with the local copy of origin/main, so it works offline and costs no network call.
     ahead=$(git rev-list --count '@{u}..HEAD' 2>/dev/null)
@@ -32,4 +36,4 @@ count=$(printf '%s\n' "$changed" | grep -c . | tr -d ' ')
 # Strip quotes and backslashes so a exotic filename cannot break the JSON below.
 files=$(printf '%s\n' "$changed" | awk '{print $NF}' | head -8 | tr -d '"\\' | tr '\n' ' ')
 
-printf '{"decision":"block","reason":"BAN GIAO / HANDOFF REQUIRED: %s uncommitted file(s) (%s). CLAUDE.md requires a handoff before you finish a turn that changed files. Run the /ban-giao command, which does it all: npm test (bar is 0 fail), node tools/bump-version.js if any runtime file changed, rewrite docs/HANDOFF.md, then git add -A, git commit and git push. If the user explicitly told you not to commit, say that in one line and stop."}\n' "$count" "$files"
+printf '{"decision":"block","reason":"BAN GIAO / HANDOFF REQUIRED: %s uncommitted file(s) (%s). CLAUDE.md requires a handoff before you finish a turn that changed files. Run the /ban-giao command, which does it all: npm test (bar is 0 fail), add a change note for runtime changes; on main collect notes with node tools/release-changes.js --apply; feature branches do not bump versions, rewrite docs/HANDOFF.md, then stage owned paths, git commit, node tools/local-build.js verify and git push. If the user explicitly told you not to commit, say that in one line and stop."}\n' "$count" "$files"

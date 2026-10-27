@@ -27,14 +27,20 @@
 
     // Shows the reload warning above the content. loadedText and diskText complete the sentence.
     function showStale(doc, chromeApi, mountSelector, loadedText, diskText) {
+        const message = `Trình duyệt vẫn đang chạy ${loadedText} của tiện ích, còn file trên máy đã là ${diskText}. ` +
+            "Các tab YouTube / Coursera vẫn dùng mã cũ cho tới khi nạp lại (ví dụ nút Cài đặt cũ bị trình duyệt chặn: ERR_BLOCKED_BY_CLIENT).";
+        const existing = doc.querySelector(".cst-stale-warning");
+        if (existing) {
+            if (existing.firstElementChild) existing.firstElementChild.textContent = message;
+            return;
+        }
         const mount = doc.querySelector(mountSelector) || doc.body;
         const box = doc.createElement("div");
         box.className = "cst-stale-warning";
         box.setAttribute("role", "alert");
         box.style.cssText = "margin:0 0 14px;padding:12px 14px;border-radius:8px;border:1px solid #d97706;background:rgba(217,119,6,.12);color:inherit;font-size:13px;line-height:1.5";
         const msg = doc.createElement("div");
-        msg.textContent = `Trình duyệt vẫn đang chạy ${loadedText} của tiện ích, còn file trên máy đã là ${diskText}. ` +
-            "Các tab YouTube / Coursera vẫn dùng mã cũ cho tới khi nạp lại (ví dụ nút Cài đặt cũ bị trình duyệt chặn: ERR_BLOCKED_BY_CLIENT).";
+        msg.textContent = message;
         const btn = doc.createElement("button");
         btn.type = "button";
         btn.textContent = "Nạp lại tiện ích ngay";
@@ -50,10 +56,10 @@
     }
 
     // Trả về { stale, loaded, disk } hoặc null khi không chạy trong tiện ích
-    function check(doc, chromeApi, badgeSelector, mountSelector) {
+    function check(doc, chromeApi, badgeSelector, mountSelector, diskOverride) {
         const loaded = loadedVersion(chromeApi);
         if (!loaded) return null;
-        const disk = diskVersion(doc, badgeSelector);
+        const disk = diskOverride || diskVersion(doc, badgeSelector);
         const stale = !!(disk && loaded !== disk);
         if (stale) showStale(doc, chromeApi, mountSelector, `bản ${loaded}`, `bản ${disk}`);
         return { stale, loaded, disk };
@@ -69,14 +75,15 @@
     // Commit trên đĩa so với commit mà Chrome đã nạp lúc khởi động. diskStamp mặc định là
     // build-stamp.js mà trang vừa nạp; không có (bản cài không dùng git) thì chỉ so phiên bản.
     async function checkBuild(doc, chromeApi, badgeSelector, mountSelector, diskStamp = root && root.CST_STAMP) {
-        if (!diskStamp || !diskStamp.commit) return check(doc, chromeApi, badgeSelector, mountSelector);
+        if (!diskStamp || !diskStamp.commit) return check(doc, chromeApi, badgeSelector, mountSelector, diskStamp && diskStamp.version);
         let loadedStamp = null;
         try {
             // Bản tiện ích cũ (chưa có route buildStamp) không trả lời: coi như chưa có dấu commit
             const reply = await chromeApi.runtime.sendMessage({ action: "buildStamp" });
             loadedStamp = (reply && reply.stamp) || null;
         } catch (e) { loadedStamp = null; }
-        const version = loadedVersion(chromeApi) || diskVersion(doc, badgeSelector);
+        const installed = loadedVersion(chromeApi);
+        const version = diskStamp.version || diskVersion(doc, badgeSelector) || installed;
         const badge = doc.querySelector(badgeSelector);
         if (badge) {
             const when = stampLabel(diskStamp.committedAt);
@@ -85,15 +92,51 @@
             badge.title = `Commit ${diskStamp.commit}, cập nhật ${when}`;
         }
         const loaded = loadedStamp ? loadedStamp.commit : "";
-        const stale = loaded !== diskStamp.commit;
+        const stale = loaded !== diskStamp.commit || !!(version && installed && version !== installed);
         if (stale) {
             const loadedText = loaded ? `commit ${loaded}` : "bản cũ (chưa có dấu commit)";
-            showStale(doc, chromeApi, mountSelector, loadedText, `commit ${diskStamp.commit}`);
+            showStale(doc, chromeApi, mountSelector, loadedText, `bản ${version}, commit ${diskStamp.commit}`);
         }
         return { stale, loaded, disk: diskStamp.commit };
     }
 
-    const api = { diskVersion, loadedVersion, check, checkBuild, stampLabel };
+    // Re-read files without evaluating JavaScript; an already-open settings page must see new commits.
+    function watch(doc, chromeApi, badgeSelector, mountSelector) {
+        if (!chromeApi.runtime.id || !root.fetch || !chromeApi.runtime.getURL) {
+            return checkBuild(doc, chromeApi, badgeSelector, mountSelector);
+        }
+        let busy = false;
+        const refresh = async () => {
+            if (busy) return;
+            busy = true;
+            try {
+                const [stampReply, manifestReply] = await Promise.all([
+                    root.fetch(chromeApi.runtime.getURL("build-stamp.js"), { cache: "no-store" }),
+                    root.fetch(chromeApi.runtime.getURL("manifest.json"), { cache: "no-store" })
+                ]);
+                const manifest = await manifestReply.json();
+                const match = (await stampReply.text()).match(/const info = (\{[^\n]+\});/);
+                if (stampReply.ok && manifestReply.ok && match) {
+                    const stamp = JSON.parse(match[1]);
+                    await checkBuild(doc, chromeApi, badgeSelector, mountSelector, { ...stamp, version: manifest.version });
+                } else {
+                    await checkBuild(doc, chromeApi, badgeSelector, mountSelector, { version: manifest.version });
+                }
+            } catch {
+                // Zip installs have no Git stamp. Preserve the version-only fallback.
+                await checkBuild(doc, chromeApi, badgeSelector, mountSelector);
+            } finally { busy = false; }
+        };
+        refresh();
+        const timer = root.setInterval(refresh, 15000);
+        root.addEventListener("focus", refresh);
+        root.addEventListener("pagehide", () => {
+            root.clearInterval(timer);
+            root.removeEventListener("focus", refresh);
+        }, { once: true });
+    }
+
+    const api = { diskVersion, loadedVersion, check, checkBuild, watch, stampLabel };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_VERSION_CHECK = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

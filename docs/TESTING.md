@@ -30,6 +30,7 @@ sense of weight, not an assertion.
 
 | File | ~Tests | Covers |
 |---|---|---|
+| `build-stamp.test.js` | 9 | Real Git lifecycle hooks: commit, amend, checkout, fast-forward merge, stamp repair before push, unreleased-main and missing-note runtime rejection, foreign hook preservation; live page polling/focus cleanup, Reload dispatch, commit and version comparison. |
 | `publish-paths.test.js` | 2 | The publish guard reads committed bytes after a rebuild through directory aliases, spaces, Unicode and Windows 8.3 short paths. The 8.3 case skips outside Windows or when short names are disabled. |
 | `segmenter.test.js` | 44 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
 | `context.test.js` | 18 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |

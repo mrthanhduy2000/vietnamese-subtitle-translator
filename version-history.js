@@ -4,6 +4,19 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.1.1", luc: "27/10/2026", ten: "Song ngữ: bật Tiếng Anh ở trên thì Tiếng Anh thành chữ chính và 4 cải tiến khác",
+            y: [
+                "Khi bật Song ngữ và Tiếng Anh ở trên, dòng tiếng Anh giờ là chữ to, còn tiếng Việt xuống cỡ chữ phụ (theo mục Cỡ dòng gốc trong Cài đặt). Trước đây tiếng Việt vẫn to và tiếng Anh luôn nhỏ, kể cả khi tiếng Anh đã đứng trên.",
+                "Áp dụng cho cả YouTube và Coursera khi phụ đề hiện trên video. Tắt Song ngữ hoặc tắt Tiếng Anh ở trên thì cỡ chữ như cũ.",
+                "Bật “Tiếng Anh ở trên”: tiếng Anh nhận đầy đủ phông, cỡ chữ, màu và độ đậm của dòng chính; tiếng Việt dùng định dạng dòng phụ. Đảo lại khôi phục đúng định dạng tương ứng.",
+                "Đồng bộ ảnh xem trước trong Cài đặt và phụ đề toàn màn hình Coursera. Mục cỡ và màu dòng phụ giải thích rõ dòng nào được áp dụng.",
+                "Thẻ \"Dự kiến cả tháng\" có một thanh mảnh cho biết tháng đã đi được bao nhiêu phần so với mức dự kiến. Số liệu lấy từ các ngày đã ghi trong lịch sử, không thêm dữ liệu mới.",
+                "Lệnh chuyển bản đang thử sang kho công khai giờ tìm kết quả bài kiểm tra cài đặt trên chính kho đó, không tìm ở kho mô hình giọng nói. Trước đây lệnh luôn báo \"chưa có bài kiểm tra\" dù bài đã xanh.",
+                "Cài đặt và popup kiểm tra bản mới khi bạn quay lại trang và mỗi 15 giây. Khi cần, nút “Nạp lại tiện ích ngay” xuất hiện, kể cả khi trang đã mở trước lúc cập nhật.",
+                "Quy trình local tự cập nhật dấu commit sau commit hoặc pull, kiểm tra trước khi push và chặn đẩy main khi còn ghi chú chưa phát hành. Số phiên bản và lịch sử được cập nhật trong bước bàn giao bản phát hành."
+            ]
+        },
+        {
             v: "3.1.0", luc: "25/10/2026", ten: "Trang cài đặt: biểu đồ thay bảng, vị trí và trạng thái Gemini trực quan và 1 cải tiến khác",
             y: [
                 "Tab Chi phí: tỷ lệ token hôm nay hiện là một thanh màu có chú giải phần trăm. Bảng chi tiết nằm trong mục thu gọn \"Bảng chi tiết theo loại token\".",
