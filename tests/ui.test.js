@@ -201,8 +201,8 @@ test("thực đơn trên video: dòng bật/tắt là công tắc thật, có ch
     assert.equal(menu.attrs["role"], "dialog");
     assert.equal(btn.attrs["aria-expanded"], "true");
     const rows = menu.querySelectorAll(".cst-row");
-    // 2.5.5: two switches, what is changed while watching; "use the Vietnamese captions a video has" is set in Settings
-    assert.equal(rows.length, 2, "two switches: subtitles, dubbing");
+    // Reading order shares the subtitle and dubbing switches' keyboard semantics.
+    assert.equal(rows.length, 3, "three switches: subtitles, reading order, dubbing");
     assert.ok(rows.every(r => r.attrs["role"] === "switch" && r.tagName === "button"), "mỗi dòng phải là công tắc bấm được bằng bàn phím");
     assert.ok(rows.every(r => r.attrs["aria-checked"] === "true" || r.attrs["aria-checked"] === "false"), "công tắc phải báo đang bật hay tắt");
     assert.ok(!/BẬT|TẮT/.test(menu.textContent), "không dùng nhãn chữ 'BẬT' trông như nút bấm");
@@ -723,6 +723,46 @@ test("the quick menu says what the voice is doing: ready ahead, slow server, ski
     dub.enabled = false;
     assert.equal(sb.CST_DUB.describeHealth(), null);
     dub.engine = null;
+});
+
+test("YouTube quick menu shares saved reading order and preserves it in single mode", async t => {
+    const dom = miniDom();
+    const sb = loadYouTube(dom);
+    t.after(() => sb.donTimers());
+    await new Promise(resolve => setImmediate(resolve));
+    const saved = [];
+    sb.chrome.storage.sync.set = async obj => { saved.push(obj); };
+    vm.runInContext('state.originalFirst = true; state.dualMode = true; ytSubStyle.mode = "dual";', sb);
+    const player = dom.doc.querySelector("#movie_player");
+    const btn = dom.doc.createElement("button");
+    player.appendChild(btn);
+    sb.ytMoMenuNhanh(player, btn);
+    const menu = player.querySelector(".cst-yt-menu");
+    const row = menu.querySelectorAll(".cst-row").find(r => /Tiếng Anh ở trên/.test(r.textContent));
+    const [single, dual] = menu.querySelector(".cst-seg").querySelectorAll("button");
+    assert.equal(row.getAttribute("aria-checked"), "true");
+    assert.equal(row.style.display, "flex");
+    vm.runInContext('yt.renderKey = "previous cue"', sb);
+    row.fire("click");
+    assert.equal(vm.runInContext("state.originalFirst", sb), false);
+    assert.equal(vm.runInContext("yt.renderKey", sb), "");
+    assert.equal(saved.at(-1).originalFirst, false);
+    assert.equal(row.getAttribute("aria-checked"), "false");
+    row.fire("click");
+    single.fire("click");
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(row.style.display, "none");
+    assert.equal(row.disabled, true);
+    assert.equal(vm.runInContext("state.originalFirst", sb), true);
+    dual.fire("click");
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(row.style.display, "flex");
+    assert.equal(row.disabled, false);
+    assert.equal(row.getAttribute("aria-checked"), "true");
+    // A popup/storage update is reflected while the menu is open.
+    vm.runInContext("state.originalFirst = false", sb);
+    await new Promise(r => setTimeout(r, 750));
+    assert.equal(row.getAttribute("aria-checked"), "false");
 });
 
 test("quick menu: subtitle size buttons and the two volume sliders, on both sites", async t => {

@@ -4,6 +4,12 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.1.3", luc: "28/10/2026", ten: "Đổi thứ tự song ngữ ngay trong video YouTube",
+            y: [
+                "Thêm công tắc “Tiếng Anh ở trên” dưới mục Song ngữ trong menu của trình phát. Cài đặt đồng bộ với popup Chrome và được giữ lại khi chuyển qua chế độ chỉ tiếng Việt."
+            ]
+        },
+        {
             v: "3.1.2", luc: "27/10/2026", ten: "VieNeu đo đúng thời gian chờ và chuẩn bị giọng đầu video",
             y: [
                 "Tách thời gian xếp hàng, sinh giọng và xử lý audio. Không dùng lượt khởi động lạnh hoặc chờ bất thường để kết luận tốc độ ổn định; cảnh báo chậm cần đủ mẫu đo và không còn khẳng định máy yếu từ độ trễ.",

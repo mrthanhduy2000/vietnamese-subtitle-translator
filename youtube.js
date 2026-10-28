@@ -2065,6 +2065,16 @@ function ytMoMenuNhanh(player, btn) {
     modeBox.appendChild(seg);
     menu.appendChild(modeBox);
 
+    // Share the popup's reading-order setting and keep the existing visual roles.
+    const originalFirstRow = congTac("Tiếng Anh ở trên", "", () => {
+        state.originalFirst = !state.originalFirst;
+        yt.renderKey = "";
+        chrome.storage.sync.set({ originalFirst: state.originalFirst });
+        capNhat();
+    });
+    originalFirstRow.cstSub.textContent = "Đảo thứ tự câu gốc lên trước tiếng Việt";
+    modeBox.appendChild(originalFirstRow);
+
     const size = CST_UI_KIT().buildStepper(document, {
         label: "Cỡ chữ", min: 50, max: 300, step: 10,
         get: () => ytChuanHoaKieu(ytSubStyle).fontSize,
@@ -2113,6 +2123,9 @@ function ytMoMenuNhanh(player, btn) {
         const dual = ytSubStyle.mode === "dual" || state.dualMode;
         btnSingle.setAttribute("aria-pressed", String(!dual));
         btnDual.setAttribute("aria-pressed", String(dual));
+        originalFirstRow.style.display = dual ? "flex" : "none";
+        originalFirstRow.disabled = !dual;
+        originalFirstRow.setAttribute("aria-checked", String(!!state.originalFirst));
         // Giọng đọc: chỉ hiện khi dùng giọng VieNeu trên máy (giọng Gemini / hệ thống chọn trong Cài đặt)
         const localProv = !st || st.provider === "vieneu";
         voiceBox.style.display = localProv ? "block" : "none";

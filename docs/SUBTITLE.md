@@ -494,8 +494,9 @@ changes (polled once a second, never for the first track seen); `ytKhiDoiAmThanh
 
 Subtitle: `subStyle` (nested object; defaults live in `subtitle-style.js`), `dualMode`,
 `perCueMode` (2.5.5: no control any more, every save writes false), `skipSameLang` (on: a video's own Vietnamese track is used as is; off: translate from
-the source track; YouTube, Coursera, generic), and `originalFirst`, which only the popup writes
-(`popup.js`), never `collectSettings`. `styleOriginal`, the popup's "Làm mờ dòng tiếng Anh", was never
+the source track; YouTube, Coursera, generic), and `originalFirst`, written by the popup (`popup.js`) and YouTube quick menu
+(`youtube.js`), never `collectSettings`. The quick-menu order switch appears only in bilingual mode
+and preserves its saved value when switching to Vietnamese only. `styleOriginal`, the popup's "Làm mờ dòng tiếng Anh", was never
 read by the page and was removed in 1.7.3; old stored values are ignored.
 
 AI and cost: `useAi`, `geminiApiKey`, `geminiModel`, `geminiStrongModel`, `costMode`,
