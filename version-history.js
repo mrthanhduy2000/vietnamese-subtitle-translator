@@ -4,6 +4,13 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.1.4", luc: "28/10/2026", ten: "Giữ đúng cài đặt và dung lượng bộ nhớ đệm",
+            y: [
+                "Cài đặt chỉ lưu mục vừa sửa, giữ lựa chọn mới từ popup hoặc cửa sổ khác. Đổi cỡ chữ và màu chữ cùng lúc không còn ghi đè nhau; các ô chưa chỉnh cập nhật theo thay đổi bên ngoài.",
+                "Sửa bộ nhớ đệm tính trùng dung lượng ở lần ghi đầu, tránh xóa bản dịch và giọng đọc sớm. Giữ số liệu nhất quán khi ghi, xóa hoặc kiểm tra dung lượng đồng thời."
+            ]
+        },
+        {
             v: "3.1.3", luc: "28/10/2026", ten: "Đổi thứ tự song ngữ ngay trong video YouTube",
             y: [
                 "Thêm công tắc “Tiếng Anh ở trên” dưới mục Song ngữ trong menu của trình phát. Cài đặt đồng bộ với popup Chrome và được giữ lại khi chuyển qua chế độ chỉ tiếng Việt."

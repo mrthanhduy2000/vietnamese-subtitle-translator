@@ -89,7 +89,7 @@
             return new Promise((resolve, reject) => {
                 const tx = d.transaction(stores, mode);
                 let out;
-                Promise.resolve(fn(tx)).then(v => { out = v; });
+                Promise.resolve(fn(tx)).then(v => { out = v; }, reject);
                 tx.oncomplete = () => resolve(out);
                 tx.onerror = () => reject(tx.error);
                 tx.onabort = () => reject(tx.error);
@@ -166,6 +166,7 @@
             this.stats = { l1: 0, l2: 0, miss: 0, writes: 0, evicted: 0, errors: 0 };
             this.totals = null;            // { bytes, count } (tính lười)
             this.touchQueue = new Map();
+            this.mutationChain = Promise.resolve();
         }
 
         l1Get(key) {
@@ -190,7 +191,14 @@
             if (!rec || !rec.meta || rec.meta.v !== this.version) {
                 this.stats.miss++;
                 // Bản ghi phiên bản cũ: xóa cho gọn (không bắt người gọi chờ)
-                if (rec && rec.meta) this.b.del(this.store, [key]).then(() => this.adjust(-rec.meta.size, -1), () => {});
+                if (rec && rec.meta) this.mutate(async () => {
+                    // A newer write may have replaced this stale record while the read waited.
+                    const current = await this.b.get(this.store, key);
+                    if (current && current.meta && current.meta.v !== this.version) {
+                        await this.b.del(this.store, [key]);
+                        this.totals = null;
+                    }
+                }).catch(() => {});
                 return null;
             }
             this.stats.l2++;
@@ -219,30 +227,36 @@
             this.totals.count = Math.max(0, this.totals.count + count);
         }
 
-        // Ghi: RAM trước (dùng được ngay), IndexedDB sau. Lỗi hay treo khi ghi không
-        // bao giờ ném ra ngoài và không giữ người gọi quá WRITE_TIMEOUT_MS.
+        // Serialize metadata mutations, including scans. A timeout bounds the caller's wait;
+        // it must not release the queue while an IndexedDB operation can still complete.
+        mutate(fn) {
+            const run = this.mutationChain.then(fn);
+            this.mutationChain = run.catch(() => { this.totals = null; });
+            return run;
+        }
+
         async set(key, value, extraMeta = {}) {
             const size = sizeOf(value);
-            if (size > this.maxBytes * 0.5) return false;       // một mục quá lớn: không lưu
-            this.l1Set(key, value);
+            if (size > this.maxBytes * 0.5) return false;
             try {
-                return await withTimeout(this.write(key, value, size, extraMeta), WRITE_TIMEOUT_MS);
+                return await withTimeout(this.mutate(() => this.write(key, value, size, extraMeta)), WRITE_TIMEOUT_MS);
             } catch (e) {
                 this.stats.errors++;
-                this.totals = null;
                 return false;
             }
         }
 
         async write(key, value, size, extraMeta) {
+            this.l1Set(key, value);
             const t = this.now();
-            let prev = null;
-            try { prev = await withTimeout(this.b.get(this.store, key), READ_TIMEOUT_MS); } catch (e) { prev = null; }
-            await this.b.put(this.store, key, value, { v: this.version, size, t, c: t, ...extraMeta });
-            this.stats.writes++;
+            // Count the old store before writing, then apply exactly one delta. A failed
+            // previous-record read cannot safely be treated as a new entry.
             await this.ensureTotals();
+            const prev = await this.b.get(this.store, key);
+            await this.b.put(this.store, key, value, { ...extraMeta, v: this.version, size, t, c: t });
+            this.stats.writes++;
             this.adjust(size - (prev && prev.meta ? prev.meta.size : 0), prev ? 0 : 1);
-            if (this.totals.bytes > this.maxBytes) await this.evict();
+            if (this.totals.bytes > this.maxBytes) await this.evictNow();
             return true;
         }
 
@@ -255,6 +269,10 @@
 
         // Xóa mục dùng lâu nhất (và mục khác phiên bản) tới khi còn 85% trần
         async evict() {
+            return this.mutate(() => this.evictNow());
+        }
+
+        async evictNow() {
             const list = await this.b.listMeta(this.store);
             const target = this.maxBytes * 0.85;
             let bytes = list.reduce((a, m) => a + (m.size || 0), 0);
@@ -277,21 +295,30 @@
         }
 
         async info() {
-            this.totals = null;
             let t = { bytes: 0, count: 0 };
-            try { t = await withTimeout(this.ensureTotals(), WRITE_TIMEOUT_MS); } catch (e) { this.stats.errors++; this.totals = null; }
+            try {
+                t = await withTimeout(this.mutate(() => {
+                    this.totals = null;
+                    return this.ensureTotals();
+                }), WRITE_TIMEOUT_MS);
+            } catch (e) { this.stats.errors++; }
             return { bytes: t.bytes, count: t.count, maxBytes: this.maxBytes, version: this.version, ...this.stats };
         }
 
         // Xóa đúng các khóa cho trước (ví dụ audio của MỘT video); trả về số mục đã xóa khỏi kho bền
         async remove(keys) {
+            try { return await withTimeout(this.mutate(() => this.removeNow(keys)), WRITE_TIMEOUT_MS); }
+            catch (e) { this.stats.errors++; return 0; }
+        }
+
+        async removeNow(keys) {
             const want = new Set(keys || []);
             for (const k of want) this.mem.delete(k);
             let n = 0;
             try {
-                const list = await withTimeout(this.b.listMeta(this.store), WRITE_TIMEOUT_MS);
+                const list = await this.b.listMeta(this.store);
                 const hit = list.filter(m => want.has(m.k));
-                if (hit.length) await withTimeout(this.b.del(this.store, hit.map(m => m.k)), WRITE_TIMEOUT_MS);
+                if (hit.length) await this.b.del(this.store, hit.map(m => m.k));
                 n = hit.length;
                 // the scan gave the whole store: totals without another one (BACKLOG 12, 1.9.4)
                 const left = list.filter(m => !want.has(m.k));
@@ -301,9 +328,13 @@
         }
 
         async clear() {
-            this.mem.clear();
-            try { await withTimeout(this.b.clear(this.store), WRITE_TIMEOUT_MS); } catch (e) { this.stats.errors++; }
-            this.totals = null;
+            try {
+                await withTimeout(this.mutate(async () => {
+                    this.mem.clear();
+                    await this.b.clear(this.store);
+                    this.totals = null;
+                }), WRITE_TIMEOUT_MS);
+            } catch (e) { this.stats.errors++; }
         }
     }
 

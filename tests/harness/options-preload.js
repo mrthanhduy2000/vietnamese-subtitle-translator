@@ -60,6 +60,7 @@
             sendMessage: (msg, cb) => {
                 msgs.push(msg && msg.action);
                 const p = (async () => {
+                    if (msg.action === "settingsPatch") return patchSettings(msg);
                     if (msg.action === "cacheStats") return handlers.handleCacheStats();
                     if (msg.action === "cacheClear") return handlers.handleCacheClear(msg);
                     return { ok: false, error: "harness" };
@@ -73,6 +74,9 @@
     const caches = { tr: { info: async () => ({ bytes: 2e6, count: 40, maxBytes: 5e8 }), clear: async () => {} }, audio: { info: async () => ({ bytes: 64e6, count: 300, maxBytes: 3e9 }), clear: async () => {} } };
     // background.js's saved-video section, run as it is
     const handlers = new Function("chrome", "caches", bg.slice(from, to) + "\nreturn { handleCacheStats, handleCacheClear, REVIEW_MARK };")(chromeStub, caches);
+    const patchSettings = new Function("chrome", "getSyncCfg",
+        bg.slice(bg.indexOf("let settingsWriteChain ="), bg.indexOf("const ROUTES =")) + "\nreturn handleSettingsPatch;"
+    )(chromeStub, defaults => new Promise(resolve => chromeStub.storage.sync.get(defaults, resolve)));
     window.chrome = chromeStub;
 
     const wait = ms => new Promise(r => setTimeout(r, ms));
@@ -93,5 +97,50 @@
         const left = Object.keys(local).filter(k => /^ytcache4_/.test(k)).sort();
         const status = [...document.querySelectorAll("[role=status], .status, #status")].map(e => e.textContent.trim()).filter(Boolean);
         return { done: true, reviewed: handlers.REVIEW_MARK.videos, before, after, buttonVisible: visible, left, status, msgs: [...new Set(msgs)], errors };
+    };
+    window.__runStorageCheck = async () => {
+        const checks = [];
+        const check = (name, pass, detail) => {
+            checks.push({ name, pass: !!pass, detail });
+            if (!pass) console.error(name + ": " + JSON.stringify(detail));
+        };
+        const store = chromeStub.storage.sync;
+        const style = window.CST_STYLE.normalizeStyle({ fontSize: 100 });
+        await store.set({ dualMode: true, dubEnabled: false, geminiApiKey: "test-only-key", subStyle: style });
+        await wait(50);
+        check("external toggle refreshes the Settings control", !document.getElementById("autoDub").checked);
+        const size = document.getElementById("subFontSize");
+        size.value = "150";
+        size.dispatchEvent(new Event("change", { bubbles: true }));
+        await patchSettings({ values: { subStyle: { fontColor: "#ffcc00" } } });
+        await wait(700);
+        const saved = await store.get(null);
+        check("local size and external color survive autosave", saved.subStyle.fontSize === 150 && saved.subStyle.fontColor === "#ffcc00", saved.subStyle);
+        check("unrelated settings and key survive autosave", saved.dualMode === true && saved.subStyle.mode === "dual" && saved.dubEnabled === false && saved.geminiApiKey === "test-only-key");
+        check("external color is reflected in the form", document.getElementById("subFontColorPicker").value === "#ffcc00");
+        await Promise.all([
+            patchSettings({ values: { subStyle: { fontSize: 180 } } }),
+            patchSettings({ values: { subStyle: { fontColor: "#ffffff" } } })
+        ]);
+        await wait(50);
+        check("two worker patches merge in real Chrome", (await store.get("subStyle")).subStyle.fontSize === 180 && size.value === "180");
+        await new Promise((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src = "/cst-cache.js";
+            script.onload = resolve; script.onerror = reject; document.head.appendChild(script);
+        });
+        const C = window.CST_CACHE;
+        const backend = C.idbBackend(["tr", "audio"]);
+        const cache = new C.TieredCache(backend, "tr", { maxBytes: 100 });
+        await cache.clear();
+        await Promise.all([cache.set("a", "x".repeat(15)), cache.set("b", "x".repeat(15)), cache.set("c", "x".repeat(15))]);
+        check("real IndexedDB keeps 90 bytes below a 100-byte cap", cache.totals.bytes === 90 && cache.totals.count === 3 && cache.stats.evicted === 0, cache.totals);
+        const restarted = new C.TieredCache(backend, "tr", { maxBytes: 100 });
+        await restarted.set("a", "xx");
+        check("real IndexedDB replacement after restart", restarted.totals.bytes === 64 && restarted.totals.count === 3, restarted.totals);
+        await Promise.all([restarted.remove(["b"]), restarted.set("d", "xxx"), restarted.info()]);
+        check("real IndexedDB remove/write/scan stay consistent", restarted.totals.bytes === 40 && restarted.totals.count === 3, restarted.totals);
+        await restarted.clear();
+        return { done: true, checks, errors };
     };
 })();

@@ -441,10 +441,10 @@ the next model of the chain instead of to Google (4 of 5 fallbacks of a 25-video
 
 ### Anything -> service worker: `chrome.runtime.sendMessage({ action })`
 
-17 actions in the `ROUTES` table at the end of `background.js`, plus `ttsAbort`, which is handled
+The actions in the `ROUTES` table at the end of `background.js`, plus `ttsAbort`, which is handled
 synchronously *before* routing (it must not wait on the queue):
 
-`ensureYtBridge` · `translateUnit` · `translateUnitStore` · `synthesizeSpeech` · `audioCacheGet` ·
+`settingsPatch` · `ensureYtBridge` · `translateUnit` · `translateUnitStore` · `synthesizeSpeech` · `audioCacheGet` ·
 `audioCacheDelete` · `cacheStats` · `cacheClear` · `modelStatus` · `testKey` · `analyzeSpeakers` · `readScreenText` (2.6.4: `{ image: jpeg data URL, before: [{ text, vi }] }` -> `{ ok, text, speaker, vi }`) · `openOptions` ·
 `costStats` · `costReset` · `localTtsStatus` · `localWarm` (`dubbing.js` asks it when dubbing starts:
 a tiny take pages a cold VieNeu model in, only when cold and the queue is empty) · `ttsAbort`
@@ -533,9 +533,14 @@ One-shot migration flags (do not reuse the names): `modelsVersion`, `costMigrati
 `localVoices1111`, `dubProvider1113`, `dubProvider181` (1.8.1: paid voice off, source forced to vieneu once), `styleDefaults118`, `fontScale170` (size / 0.7, chained after
 `styleDefaults118`), `voiceMyDuyen170`
 
-**`options.js` writes every key on every change**, so `storage.onChanged` fires for keys that did
-not actually change. `youtube.js` has a deliberate "only act on a real change" guard so this does
-not stack two dubbing voices. Keep it.
+`options.js` saves only fields changed from its last successful form snapshot. Nested style
+changes are sent as individual properties through `{ action: "settingsPatch", values }`, also used
+by YouTube and Coursera quick-menu style controls. The worker serializes read/merge/write operations;
+`dualMode` is authoritative over the nested mode mirror. Top-level keys such as API keys are not
+resent when unrelated fields change. Clean form controls follow storage updates; dirty fields stay
+local until saved. Failed writes retain their dirty snapshot for a retry. Backup import freezes
+queued saves and waits for an in-flight save before replacing settings. Keep consumer real-change
+guards for migrations and old pages. The worker never returns stored secret values in its reply.
 
 ### `chrome.storage.local` (not user-editable; written by `background.js`, `youtube.js`, `content.js`)
 

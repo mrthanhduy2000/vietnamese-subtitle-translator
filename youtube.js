@@ -2078,7 +2078,7 @@ function ytMoMenuNhanh(player, btn) {
     const size = CST_UI_KIT().buildStepper(document, {
         label: "Cỡ chữ", min: 50, max: 300, step: 10,
         get: () => ytChuanHoaKieu(ytSubStyle).fontSize,
-        set: n => { ytSubStyle = ytChuanHoaKieu({ ...ytSubStyle, fontSize: n }); return chrome.storage.sync.set({ subStyle: ytSubStyle }); },
+        set: n => { ytSubStyle = ytChuanHoaKieu({ ...ytSubStyle, fontSize: n }); return chrome.runtime.sendMessage({ action: "settingsPatch", values: { subStyle: { fontSize: n } } }); },
         format: n => `${n}%`
     });
     menu.appendChild(size.el);
@@ -2176,14 +2176,14 @@ function ytMoMenuNhanh(player, btn) {
     btnSingle.addEventListener("click", async () => {
         ytSubStyle.mode = "single";
         state.dualMode = false;
-        await chrome.storage.sync.set({ subStyle: ytSubStyle, dualMode: false });
+        await chrome.runtime.sendMessage({ action: "settingsPatch", values: { subStyle: { mode: "single" }, dualMode: false } });
         yt.renderKey = "";
         capNhat();
     });
     btnDual.addEventListener("click", async () => {
         ytSubStyle.mode = "dual";
         state.dualMode = true;
-        await chrome.storage.sync.set({ subStyle: ytSubStyle, dualMode: true });
+        await chrome.runtime.sendMessage({ action: "settingsPatch", values: { subStyle: { mode: "dual" }, dualMode: true } });
         yt.renderKey = "";
         capNhat();
     });

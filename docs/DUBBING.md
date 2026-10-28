@@ -1629,6 +1629,12 @@ is not stored. Reads time out at 1500ms and writes at 3000ms, degrading to a cac
 blocking playback. `dubbing.js` keeps a small page-side mirror; per-video purge goes through
 `audioKeysForVideo`.
 
+Cache accounting (2026-10-28): writes count the old store before applying a single replacement delta.
+Writes, removal, clear, eviction and statistics scans share a per-store mutation queue. A caller
+may time out while its transaction finishes, but the queue stays held until completion, preventing
+a late write from overtaking a clear. Failed operations invalidate totals; the next mutation rescans.
+A stale-version read rechecks the record before deleting, so a newer replacement survives.
+
 Lookups before paying (1.7.4). `schedule` looks up the segments a batch may take past the prefetch
 window (`SYNC.batchSpill`) before it builds the batch, and never puts a segment that was not looked
 up into a paid batch: a revisit used to pay again for a stored segment sitting right after an

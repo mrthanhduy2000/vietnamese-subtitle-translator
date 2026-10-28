@@ -771,6 +771,10 @@ test("quick menu: subtitle size buttons and the two volume sliders, on both site
     t.after(() => sb.donTimers());
     const saved = [];
     sb.chrome.storage.sync.set = async obj => { saved.push(obj); };
+    sb.chrome.runtime.sendMessage = async msg => {
+        if (msg.action === "settingsPatch") saved.push(msg.values);
+        return { ok: true };
+    };
     const player = dom.doc.querySelector("#movie_player");
     const btn = dom.doc.createElement("button");
     player.appendChild(btn);

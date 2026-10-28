@@ -135,11 +135,14 @@ Every one of them needs an explicit teardown in the disable path. Set the `dead`
 remove nodes, then disconnect. `content.js` keeps its polls in `state.intervals`; the dead path
 clears them all (1.7.3: the navigation poll used to survive and rebuild a dead button).
 
-## 8. `options.js` saves every key on every change
+## 8. Settings writes are patches, not form snapshots
 
-So `storage.onChanged` fires for keys that did not change. `youtube.js` has an explicit "only act on
-a real change" guard; without it, toggling any unrelated setting restarted dubbing and you heard two
-voices at once. Do not "simplify" that guard away.
+`options.js` diffs against its last successfully saved form snapshot. `settingsPatch` in the
+worker merges nested `subStyle` fields in a single queue shared by Settings and both players.
+Never restore whole-object style writes in the players: concurrent color/size edits would overwrite
+one another. `dualMode` remains authoritative over `subStyle.mode`. The form updates clean controls
+from storage events, preserves dirty fields, and drains an in-flight save before importing a backup.
+Keep the consumers' real-change guards: migrations and older loaded pages may still write snapshots.
 
 ## 9. Prefetch spend
 

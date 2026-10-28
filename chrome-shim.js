@@ -54,6 +54,7 @@
     saveStorage(merged);
 
     const listeners = [];
+    let settingsWrites = Promise.resolve();
 
     const storageSync = {
         get: function (keys) {
@@ -114,6 +115,17 @@
             }
         },
         sendMessage: function (message, callback) {
+            if (message.action === "settingsPatch") {
+                const task = settingsWrites.then(async () => {
+                    const values = { ...message.values };
+                    if (values.subStyle) values.subStyle = { ...(await storageSync.get("subStyle")).subStyle, ...values.subStyle };
+                    await storageSync.set(values);
+                    return { ok: true };
+                });
+                settingsWrites = task.catch(() => {});
+                if (callback) task.then(callback, error => callback({ ok: false, error: error.message }));
+                return task;
+            }
             // Route to in-page listeners
             let handled = false;
             listeners.forEach((fn) => {

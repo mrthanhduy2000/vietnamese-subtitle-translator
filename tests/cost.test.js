@@ -1077,8 +1077,9 @@ test("audio store: an eviction or a video delete scans the meta records once, an
     let scans = 0;
     const list = backend.listMeta.bind(backend);
     backend.listMeta = s => { scans++; return list(s); };
-    const au = new CACHE.TieredCache(backend, "audio", { version: 1, maxBytes: 100000 });
-    for (let i = 0; i < 12; i++) await au.set("a" + i, { wav: new Uint8Array(10000) });
+    // Ten records fit exactly, including the object/key overhead; the next must evict.
+    const au = new CACHE.TieredCache(backend, "audio", { version: 1, maxBytes: 100220 });
+    for (let i = 0; i < 10; i++) await au.set("a" + i, { wav: new Uint8Array(10000) });
     const truth = async () => { const l = await list("audio"); return { bytes: l.reduce((a, m) => a + m.size, 0), count: l.length }; };
     scans = 0;
     await au.set("a12", { wav: new Uint8Array(10000) });          // over the cap: evicts

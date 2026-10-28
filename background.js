@@ -2212,7 +2212,38 @@ async function handleEnsureYtBridge(req, sender) {
     return { ok: true };
 }
 
+// Merge style fields in one worker queue so concurrent Settings/player edits cannot
+// replace each other's unrelated fields. Ordinary top-level settings are patches too.
+let settingsWriteChain = Promise.resolve();
+async function handleSettingsPatch(req) {
+    const values = req.values;
+    if (!values || typeof values !== "object" || Array.isArray(values)) throw new Error("Cài đặt không hợp lệ");
+    const safe = key => /^[a-zA-Z][a-zA-Z0-9]*$/.test(key) && !["constructor", "prototype", "__proto__"].includes(key);
+    if (Object.keys(values).some(key => !safe(key))) throw new Error("Tên cài đặt không hợp lệ");
+    if (values.subStyle && (typeof values.subStyle !== "object" || Array.isArray(values.subStyle) || Object.keys(values.subStyle).some(key => !safe(key)))) throw new Error("Kiểu phụ đề không hợp lệ");
+    const run = settingsWriteChain.then(async () => {
+        const patch = { ...values };
+        if (patch.subStyle) {
+            const current = await new Promise((resolve, reject) => chrome.storage.sync.get({ subStyle: {}, dualMode: null }, value => {
+                const error = chrome.runtime.lastError;
+                if (error) reject(new Error(error.message)); else resolve(value);
+            }));
+            patch.subStyle = { ...current.subStyle, ...patch.subStyle };
+            const dual = typeof patch.dualMode === "boolean" ? patch.dualMode : current.dualMode;
+            if (typeof dual === "boolean") patch.subStyle.mode = dual ? "dual" : "single";
+        }
+        await new Promise((resolve, reject) => chrome.storage.sync.set(patch, () => {
+            const error = chrome.runtime.lastError;
+            if (error) reject(new Error(error.message)); else resolve();
+        }));
+        return { ok: true };
+    });
+    settingsWriteChain = run.catch(() => {});
+    return run;
+}
+
 const ROUTES = {
+    settingsPatch: handleSettingsPatch,
     ensureYtBridge: handleEnsureYtBridge,
     translateUnit: handleTranslateUnit,
     translateUnitStore: handleTranslateUnitStore,

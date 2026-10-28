@@ -1220,6 +1220,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // đang mở lắng nghe thay đổi và cập nhật phụ đề ngay, không cần tải lại.
     let saveTimer = null;
     let lastSaved = "";
+    let saveChain = Promise.resolve();
+    let savingSettings = false;
+    let pendingSettingsChanges = {};
     // Set once a backup is imported: the form on screen is stale until the page reloads, and any
     // save from it (a pending one, the pagehide flush) would write the old values over the import
     let saveFrozen = false;
@@ -1227,22 +1230,45 @@ document.addEventListener("DOMContentLoaded", async () => {
         clearTimeout(saveTimer);
         saveTimer = null;
         if (saveFrozen) return;
-        const data = collectSettings();
-        const sig = JSON.stringify(data);
-        if (sig === lastSaved) return;
-        if (statusEl) {
-            statusEl.textContent = "Đang lưu...";
-            statusEl.classList.add("show");
-        }
-        try {
-            await chrome.storage.sync.set(data);
-            lastSaved = sig;
-            const now = new Date();
-            const hhmmss = [now.getHours(), now.getMinutes(), now.getSeconds()].map(x => String(x).padStart(2, "0")).join(":");
-            if (statusEl) statusEl.textContent = `✓ Đã tự lưu và áp dụng lúc ${hhmmss}`;
-        } catch (e) {
-            if (statusEl) statusEl.textContent = `⚠ Chưa lưu được: ${e.message}`;
-        }
+        // Serialize this form's saves; compare against the last successful form snapshot,
+        // never against storage, where another surface may already have newer values.
+        const run = saveChain.then(async () => {
+            if (saveFrozen) return;
+            const data = collectSettings();
+            const before = JSON.parse(lastSaved || "{}");
+            const values = {};
+            for (const [key, value] of Object.entries(data)) {
+                if (JSON.stringify(value) === JSON.stringify(before[key])) continue;
+                if (key === "subStyle") {
+                    const fields = Object.fromEntries(Object.entries(value).filter(([field, v]) =>
+                        JSON.stringify(v) !== JSON.stringify((before.subStyle || {})[field])));
+                    if (Object.keys(fields).length) values.subStyle = fields;
+                } else values[key] = value;
+            }
+            if (!Object.keys(values).length) return;
+            if (statusEl) {
+                statusEl.textContent = "Đang lưu...";
+                statusEl.classList.add("show");
+            }
+            savingSettings = true;
+            try {
+                const result = await bgSend({ action: "settingsPatch", values });
+                if (!result || !result.ok) throw new Error(result?.error || "Chưa kết nối được tiện ích. Hãy Reload tiện ích rồi thử lại.");
+                lastSaved = JSON.stringify(data);
+                const now = new Date();
+                const hhmmss = [now.getHours(), now.getMinutes(), now.getSeconds()].map(x => String(x).padStart(2, "0")).join(":");
+                if (statusEl) statusEl.textContent = `✓ Đã tự lưu và áp dụng lúc ${hhmmss}`;
+            } catch (e) {
+                if (statusEl) statusEl.textContent = `⚠ Chưa lưu được: ${e.message}`;
+            } finally {
+                savingSettings = false;
+                const changes = pendingSettingsChanges;
+                pendingSettingsChanges = {};
+                if (Object.keys(changes).length) syncExternalSettings(changes);
+            }
+        });
+        saveChain = run.catch(() => {});
+        return run;
     }
     function scheduleSave() {
         clearTimeout(saveTimer);
@@ -1520,6 +1546,83 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Giá trị ban đầu coi như đã lưu (tránh ghi thừa khi vừa mở trang)
     lastSaved = JSON.stringify(collectSettings());
 
+    // Refresh clean controls without disturbing local edits awaiting autosave. The baseline
+    // follows only fields reflected into the form, so unrelated future saves remain patches.
+    function syncExternalSettings(changes) {
+        if (saveFrozen) return;
+        if (savingSettings) {
+            for (const [key, change] of Object.entries(changes)) {
+                pendingSettingsChanges[key] = { ...change, oldValue: pendingSettingsChanges[key]?.oldValue ?? change.oldValue };
+            }
+            return;
+        }
+        const before = JSON.parse(lastSaved || "{}");
+        const form = collectSettings();
+        const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+        const controls = {
+            useAi: optUseAiBox, geminiApiKey: geminiKeyInput, geminiStrongModel: strongSel,
+            costMode: costModeSel, autoTranslate: autoTranslateBox, dubEnabled: autoDubBox,
+            skipSameLang: skipSameLangBox, perCueMode: perCueBox, glossaryEnabled: enabledBox,
+            userKeep: keepBox, userNormalize: normBox, dubVoiceName: voiceSel,
+            dubProvider: providerSel, dubSpeakers: speakersSel, dubSpeakerAi: speakerAiBox,
+            dubGeminiVoice: gVoiceSel, dubGeminiVoice2: gVoice2Sel, dubTtsModel: ttsModelInput,
+            dubMaxRate: maxRateSel, dubLocalVoice: localVoiceSel, dubLocalVoice2: localVoice2Sel,
+            dubPrepareWait: byId("dubPrepareWait"), dubSystemFallback: byId("dubSystemFallback")
+        };
+        for (const [key, change] of Object.entries(changes)) {
+            const value = change.newValue;
+            if (value === undefined || !(key in before)) continue;
+            if (key === "subStyle") {
+                for (const [field, next] of Object.entries(value || {})) {
+                    // dualMode is authoritative; the nested mirror can be stale after a popup edit.
+                    if (field === "mode" || same(next, change.oldValue?.[field]) || !same(form.subStyle[field], before.subStyle?.[field])) continue;
+                    currentStyle[field] = next;
+                    before.subStyle[field] = next;
+                }
+                continue;
+            }
+            if (!same(form[key], before[key])) continue;
+            let applied = true;
+            if (controls[key]) {
+                const control = controls[key];
+                if (control.type === "checkbox") control.checked = !!value;
+                else control.value = String(value);
+            } else if (key === "dualMode") {
+                currentStyle.mode = value ? "dual" : "single";
+                before.subStyle.mode = currentStyle.mode;
+            } else if (key === "dubDuck" || key === "dubVolume") {
+                const slider = key === "dubDuck" ? duckSlider : volSlider;
+                if (slider) slider.value = Number(value) * 100;
+            } else if (key === "budgetDailyUsd" || key === "budgetVideoUsd") {
+                budgetUsd[key === "budgetDailyUsd" ? "daily" : "video"] = value;
+            } else if (key === "costUsdVnd" || key === "costExtraPct") {
+                moneyO[key === "costUsdVnd" ? "rate" : "extraPct"] = value;
+                const input = key === "costUsdVnd" ? rateInput : extraInput;
+                if (input) input.value = value;
+            } else if (key === "enabledGroups" && listEl) {
+                listEl.querySelectorAll("input").forEach(input => { input.checked = value.includes(input.dataset.group); });
+            } else if (key === "geminiModel" && geminiModelSelect) {
+                const custom = value !== COST.AUTO && !COST.findModel(value);
+                geminiModelSelect.value = custom ? "custom" : value;
+                if (customModelInput) customModelInput.value = custom ? value : "";
+                if (customModelRow) customModelRow.style.display = custom ? "flex" : "none";
+            } else applied = false;
+            if (applied) before[key] = value;
+        }
+        lastSaved = JSON.stringify(before);
+        populateStyleInputs();
+        renderMoneyControls();
+        showModeDesc();
+        capNhatHienThi();
+        veNhanLongTieng();
+        renderReadiness();
+        if (duckValue && duckSlider) duckValue.textContent = `${duckSlider.value}%`;
+        if (volValue && volSlider) volValue.textContent = `${volSlider.value}%`;
+    }
+    chrome.storage.onChanged.addListener((changes, area) => {
+        if (area === "sync") syncExternalSettings(changes);
+    });
+
     // ---- Backup / restore (settings-backup.js) ----
     const BK = window.CST_BACKUP;
     const backupStatus = document.getElementById("backupStatus");
@@ -1568,6 +1671,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 saveFrozen = true;                             // the form on screen is about to be stale
                 clearTimeout(saveTimer);
                 saveTimer = null;
+                await saveChain;
                 await chrome.storage.sync.set(parsed.sync);
                 wroteSync = true;
                 sayBackup("✓ Đã nhập. Đang tải lại trang Cài đặt…");

@@ -30,6 +30,7 @@ sense of weight, not an assertion.
 
 | File | ~Tests | Covers |
 |---|---|---|
+| `storage-consistency.test.js` | 13 | Settings delta saves, concurrent style patches, failed/queued saves, restore freeze, exact cache accounting, concurrent mutations, timeout completion and stale-version replacement. |
 | `vieneu-timing.test.js` | 2 | Worker queue/generation/processing timing with serial jobs; cache hits excluded; metadata reaches the local provider scheduler. |
 | `build-stamp.test.js` | 9 | Real Git lifecycle hooks: commit, amend, checkout, fast-forward merge, stamp repair before push, unreleased-main and missing-note runtime rejection, foreign hook preservation; live page polling/focus cleanup, Reload dispatch, commit and version comparison. |
 | `publish-paths.test.js` | 2 | The publish guard reads committed bytes after a rebuild through directory aliases, spaces, Unicode and Windows 8.3 short paths. The 8.3 case skips outside Windows or when short names are disabled. |
@@ -409,3 +410,14 @@ as it does for a viewer. Check first that the user is not watching a video in th
   late, words lost). Then read the flagged lines (`--show`) before changing anything. Since 2.4.7
   the text is judged as the user now sees it: `playback-sim.js` `realGroups` applies the repairs a
   cached video gets on load (sound notes, head repeats, slid runs, leaks) first.
+
+## Settings and cache consistency browser check
+
+`PAGE=options.html PRELOAD=tests/harness/options-preload.js
+EXPR='window.storageResult = null; __runStorageCheck().then(r => window.storageResult = r); "running"'
+POLL='window.storageResult' node tests/harness/headless.js`
+
+Runs the real Settings page and the worker's settings handler with a simulated Chrome storage API,
+then exercises real Chrome IndexedDB for cold totals, concurrent writes, restart, removal and scans.
+No user profile, credentials or paid API calls. Every check must report `pass: true`, with no errors.
+This is browser harness evidence, not a live extension/video playback check.

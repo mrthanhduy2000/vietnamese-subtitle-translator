@@ -2423,7 +2423,7 @@ function csOpenMenu(btn) {
             // keep the subStyle.mode mirror in step with dualMode, the real source
             state.subStyle = { ...(state.subStyle || {}), fontSize: n, mode: state.dualMode ? "dual" : "single" };
             csRestyle();
-            try { return chrome.storage.sync.set({ subStyle: state.subStyle }); } catch (e) { return null; }
+            try { return chrome.runtime.sendMessage({ action: "settingsPatch", values: { subStyle: { fontSize: n } } }); } catch (e) { return null; }
         },
         format: n => `${n}%`
     });
@@ -2447,7 +2447,7 @@ function csOpenMenu(btn) {
         state.dualMode = dual;
         cs.renderKey = "";
         if (state.subStyle) state.subStyle = { ...state.subStyle, mode: dual ? "dual" : "single" };
-        try { await chrome.storage.sync.set(state.subStyle ? { dualMode: dual, subStyle: state.subStyle } : { dualMode: dual }); } catch (e) { /* bỏ qua */ }
+        try { await chrome.runtime.sendMessage({ action: "settingsPatch", values: { dualMode: dual, subStyle: { mode: dual ? "dual" : "single" } } }); } catch (e) { /* bỏ qua */ }
         capNhat();
     };
     btnSingle.addEventListener("click", () => datKieuHienThi(false));
