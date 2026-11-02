@@ -107,7 +107,7 @@ test("screen text: wired into the page before the saved copy, loaded before yout
     const yt = R("youtube.js");
     const check = yt.indexOf("SCREEN.onlyDubTranscripts(");
     assert.ok(check > -1 && check < yt.indexOf("let cache = await ytDocCache("), "a copy saved from a dub transcript must not come back");
-    assert.match(yt.slice(yt.indexOf("function ytTatDich()"), yt.indexOf("function ytTatDich()") + 200), /ytDungDocChuTrenHinh\(\)/);
+    assert.match(yt.slice(yt.indexOf("function ytTatDich()"), yt.indexOf("function ytTatDich()") + 300), /ytDungDocChuTrenHinh\(\)/);
     assert.match(R("background.js"), /readScreenText: handleReadScreenText/);
 });
 

@@ -770,7 +770,8 @@ async function requestUnit(req, opts = {}) {
             const sub = await requestUnit({ ...req, sentences: keep.map(i => req.sentences[i]) }, opts);
             const out = notes.map(n => (n && n.vi ? n.vi : ""));
             keep.forEach((i, k) => { out[i] = (sub.translations || [])[k] || ""; });
-            return { ...sub, translations: out };
+            return { ...sub, translations: out,
+                ...(Array.isArray(sub.fallbackIndexes) ? { fallbackIndexes: sub.fallbackIndexes.map(k => keep[k]) } : {}) };
         }
     }
     const prot = protectMany(req.sentences);
@@ -903,7 +904,13 @@ async function translateWindow(session, idxs, opts = {}) {
     // The free fixes first (sound notes, a unit that opens with the one before it again), so the
     // quality check judges the mended text: a head repeat always left its first unit "abnormally
     // short", a severity-3 issue, and Balanced mode paid a refine for what is fixed for nothing (2.3.2)
+    const originalTranslations = first.translations;
     first.translations = localFixes(first.translations, req.sentences);
+    // Cross-item repairs can move words between providers. Keep a mixed window pending
+    // conservatively if a repair changed its alignment; never certify fallback text as Gemini.
+    if (first.fallbackIndexes?.length && first.translations.some((v, i) => v !== originalTranslations[i])) {
+        first.fallbackIndexes = first.translations.map((_, i) => i);
+    }
     if (first.fromCache) {
         session.record(idxs, first);
         return first;
@@ -984,7 +991,7 @@ function groupEndsSentence(g) {
 // opts.fallbacks: an array; each window that came back from Google or failed is pushed to it (the
 // group indexes), so the caller can ask Gemini for it again (csHealFallbacks).
 async function translateAllGroups(session, groups, onProgress, alive = () => true, opts = {}) {
-    const results = new Array(groups.length).fill("");
+    const results = groups.map((_, i) => (opts.initial || [])[i] || "");
     const windows = [];
     let cur = [];
     let chars = 0;
@@ -1017,7 +1024,11 @@ async function translateAllGroups(session, groups, onProgress, alive = () => tru
     // about, so window k+1 was always sent while window k was still in flight and no request ever
     // carried the previous window's translation (measured: 6 of 6 on a 49-group lecture). Now only
     // the first window of each half goes without it, and the total time stays about the same.
-    let done = 0;
+    let done = results.filter(Boolean).length;
+    for (let i = windows.length - 1; i >= 0; i--) {
+        windows[i] = windows[i].filter(gi => !results[gi]);
+        if (!windows[i].length) windows.splice(i, 1);
+    }
     const half = Math.ceil(windows.length / 2);
     const chains = [windows.slice(0, half), windows.slice(half)];
     const worker = async chain => {
@@ -1576,6 +1587,40 @@ function genericMeta() {
 // final Vietnamese of every group, checked against a fingerprint of the groups' source text, so a
 // changed track or a changed grouping is translated afresh. Saved only when no group came from Google
 // or failed (csHealFallbacks asks Gemini for those first), so a revisit never keeps a stand-in.
+// Partial translations are separate from completed-video caches. Only stable lines are
+// persisted; fallback and failed lines stay pending on the next visit. Exact source identity
+// avoids replaying translations after a track, timing, grouping or glossary change.
+const VIDEO_PROGRESS_PREFIX = "cstprogress1_";
+let videoProgressQueue = Promise.resolve();
+function progressSource(groups) {
+    return JSON.stringify(groups.map(g => [g.start, g.end, g.text]));
+}
+function queueVideoProgress(request) {
+    const next = videoProgressQueue.then(() => sendMessageAsync({ action: "videoProgress", ...request }));
+    videoProgressQueue = next.catch(() => {});
+    return next.then(r => !!r?.ok).catch(() => false);
+}
+async function readVideoProgress(key, groups, scope) {
+    try {
+        const data = (await chrome.storage.local.get(key))[key];
+        if (!data || data.version !== 1 || data.scope !== scope || data.source !== progressSource(groups) ||
+            (!Number.isFinite(data.luc) || Date.now() - data.luc > 30 * 864e5) || !Array.isArray(data.vi) || data.vi.length !== groups.length ||
+            data.vi.some(v => typeof v !== "string")) return null;
+        return data.vi;
+    } catch (_) { return null; }
+}
+function saveVideoProgress(key, groups, translations, scope) {
+    // Snapshot before queueing: SPA navigation may clear or replace these arrays immediately.
+    const record = { version: 1, luc: Date.now(), scope, source: progressSource(groups),
+        vi: groups.map((_, i) => typeof translations[i] === "string" ? translations[i] : "") };
+    if (!record.vi.some(Boolean)) return Promise.resolve(false);
+    return queueVideoProgress({ key, record });
+}
+function removeVideoProgress(key) {
+    return queueVideoProgress({ key, remove: true });
+}
+
+
 const CS_SAVE_PREFIX = "cscache1_";
 const CS_SAVE_INDEX = "cscacheIdx";          // [[key, luc]], oldest first: the sweep never reads all of storage
 const CS_SAVE_MAX = 200;
@@ -1765,6 +1810,20 @@ async function translateTrackSite(opts = {}) {
     };
     const v = csVideo();
     const fallbacks = [];
+    const progressKey = VIDEO_PROGRESS_PREFIX + saveKey;
+    const progressScope = state.glossaryFp || "";
+    const initial = await readVideoProgress(progressKey, groups, progressScope);
+    if (!alive()) return false;
+    if (initial) {
+        showSoFar(initial);
+        const idxs = initial.map((v, i) => v ? i : -1).filter(i => i >= 0);
+        session.record(idxs, { translations: idxs.map(i => initial[i]), terms: [] });
+    }
+    const checkpoint = results => {
+        showSoFar(results);
+        const weak = new Set(fallbacks.flat());
+        saveVideoProgress(progressKey, groups, results.map((v, i) => weak.has(i) ? "" : v), progressScope);
+    };
     const translations = await translateAllGroups(
         session,
         groups,
@@ -1773,7 +1832,7 @@ async function translateTrackSite(opts = {}) {
             if (btn) btn.setAttribute("title", `Đang dịch ${done}/${total} nhóm…`);
         },
         alive,
-        { startAt: v ? v.currentTime : 0, onWindow: showSoFar, fallbacks }
+        { startAt: v ? v.currentTime : 0, onWindow: checkpoint, fallbacks, initial }
     );
     if (!alive()) {
         console.log("[AI Subtitle] Đã chuyển trang trong lúc dịch: bỏ bản dịch của trang cũ");
@@ -1782,12 +1841,12 @@ async function translateTrackSite(opts = {}) {
 
     applyTranslation(trackEl.track, groups, translations);
     if (!fallbacks.length) {
-        csWriteSaved(saveKey, groups, translations);
+        csWriteSaved(saveKey, groups, translations).then(ok => { if (ok) removeVideoProgress(progressKey); });
     } else {
         // Not awaited: the lecture is on screen and `busy` is released; a page change or a switch-off stops it
         console.log(`[AI Subtitle] ${fallbacks.length} đoạn dịch tạm bằng Google: chưa lưu, sẽ hỏi lại Gemini`);
         csHealFallbacks(session, groups, translations, fallbacks, alive, () => applyTranslation(trackEl.track, groups, translations))
-            .then(ok => { if (ok && alive()) csWriteSaved(saveKey, groups, translations); })
+            .then(ok => { if (ok && alive()) csWriteSaved(saveKey, groups, translations).then(saved => { if (saved) removeVideoProgress(progressKey); }); })
             .catch(() => {});
     }
     return true;

@@ -612,3 +612,17 @@ than deleting words. Complete bilingual glosses and independently named people/b
 valid. Corpus check: no added echo flags over 145 deduplicated stored/archive videos / 16,786 groups; the reported
 "Hồng quân Red" example is flagged in a regression test. This is not a claim of zero semantic
 errors across those translations.
+
+### Partial video translations
+
+`cstprogress1_yt_<id>` and `cstprogress1_cscache1_<host><path>` hold only stable translated
+lines, separately from completed caches. `content.js` snapshots exact source text/timing/grouping
+and glossary scope; YouTube also includes track identity. Resume requests only missing groups.
+Fallback lines remain pending. `videoProgress` messages serialize writes/removals in the worker,
+merge complementary snapshots only for identical sources/scopes, and maintain `cstprogressIndex`.
+Bounds: 20 records, 16 MiB estimated total, 2 MiB per record, 30 days. Translation-cache clear
+includes checkpoints. Completion removes the checkpoint after the complete cache succeeds.
+Aligned Gemini answers with empty items retain their valid translations. After the existing model
+chain is exhausted, only missing positions use Google; `fallbackIndexes` marks those positions.
+Wrong-length/malformed answers never use positional salvage. Cross-item text repairs conservatively
+keep mixed windows pending. This is translation progress, not a saved playback timestamp.

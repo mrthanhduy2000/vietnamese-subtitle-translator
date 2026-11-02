@@ -603,7 +603,7 @@ function readUnitAnswer(data, req, allowed) {
         if (empty.length * 4 > translations.length || !empty.every(short)) {
             // which lines came back empty, for cstFallbackLog (content.js noteFallback): the class is
             // told by them, and the window's source is gone once the video is closed
-            throw new GeminiError("bad_output", "Có mục dịch rỗng", { detail: `${empty.length}/${translations.length} rỗng: ` + empty.slice(0, 4).map(i => JSON.stringify(String(req.sentences[i] || "").slice(0, 60))).join(" | ") });
+            throw new GeminiError("bad_output", "Có mục dịch rỗng", { partialTranslations: translations.slice(), detail: `${empty.length}/${translations.length} rỗng: ` + empty.slice(0, 4).map(i => JSON.stringify(String(req.sentences[i] || "").slice(0, 60))).join(" | ") });
         }
         for (const i of empty) translations[i] = String(req.sentences[i] || "").trim();
     }
@@ -1003,6 +1003,7 @@ async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
     // TÍNH LẠI chuỗi và dùng ngay model Gemini kế tiếp; chỉ khi không còn model Gemini
     // nào gọi được (hoặc lỗi khác) mới dùng Google dự phòng.
     let aiFailedReason = null, aiFailedDetail = "";
+    let partial = null;
     let firstTried = null;
     // Google by choice (Gemini off, no key) is the translation the viewer asked for: "google", kept
     // by the per-video cache. Google because Gemini failed or the budget ran out: "google_fallback",
@@ -1034,6 +1035,11 @@ async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
             } catch (e) {
                 aiFailedReason = e.message;
                 aiFailedDetail = e.detail || "";
+                // Keep a single aligned answer, never splice competing Gemini interpretations.
+                if (Array.isArray(e.partialTranslations) && e.partialTranslations.length === sentences.length &&
+                    (!partial || e.partialTranslations.filter(Boolean).length > partial.filter(Boolean).length)) {
+                    partial = e.partialTranslations;
+                }
                 if (e.type === "timeout" && late) late.expect();
                 // The next model of the chain is tried when this failure belongs to this model and
                 // passes: gone for this key (404), its own rate limit or daily quota, overloaded
@@ -1062,9 +1068,18 @@ async function translateUnitMiss(request, sentences, cfg, tier, meta, budget) {
     // and asks again later) instead of failing the window: one bad sentence used to blank all 16,
     // and Coursera then re-sent each line alone, a Gemini call apiece.
     const tStart = Date.now();
-    const translations = await googleTranslateAll(sentences);
+    const missing = sentences.map((_, i) => partial && partial[i] ? -1 : i).filter(i => i >= 0);
+    let repaired;
+    try { repaired = await googleTranslateAll(missing.map(i => sentences[i])); }
+    catch (error) {
+        if (!partial || !partial.some(Boolean)) throw error;
+        repaired = missing.map(() => "");
+    }
+    const translations = partial ? partial.slice() : sentences.map(() => "");
+    missing.forEach((i, k) => { translations[i] = repaired[k] || ""; });
     return {
         ok: true, translations, terms: [],
+        ...(!byChoice ? { fallbackIndexes: missing } : {}),
         engine: byChoice ? "google" : "google_fallback",
         fallbackReason: aiFailedReason,
         ...(aiFailedDetail ? { fallbackDetail: aiFailedDetail } : {}),
@@ -1636,7 +1651,7 @@ async function localCacheBytes() {
     let bytes = 0, count = 0;
     const videos = { count: 0, bytes: 0, fresh: 0, max: YT_SAVED_MAX, reviewed: REVIEW_MARK.videos, until: REVIEW_MARK.until };
     for (const [k, v] of Object.entries(all)) {
-        if (!/^ytcache|^cscache|^ctxterms_/.test(k)) continue;
+        if (!/^ytcache|^cscache|^ctxterms_|^cstprogress/.test(k)) continue;
         const chars = JSON.stringify(v).length;
         bytes += chars * 2;
         count++;
@@ -1645,7 +1660,7 @@ async function localCacheBytes() {
         videos.bytes += Math.round(chars * 1.15);              // UTF-8, as youtube.js ytCacheBytes
         if (((v && v.luc) || 0) > REVIEW_MARK.until) videos.fresh++;
     }
-    return { bytes, count, videos, keys: Object.keys(all).filter(k => /^ytcache|^cscache|^ctxterms_/.test(k)) };
+    return { bytes, count, videos, keys: Object.keys(all).filter(k => /^ytcache|^cscache|^ctxterms_|^cstprogress/.test(k)) };
 }
 
 async function handleCacheStats() {
@@ -1667,8 +1682,12 @@ async function handleCacheClear(req) {
     if (caches && (which === "tr" || which === "all")) await caches.tr.clear();
     if (caches && (which === "audio" || which === "all")) await caches.audio.clear();
     if (which === "tr" || which === "all") {
-        const local = await localCacheBytes();
-        if (local.keys.length) await new Promise(r => chrome.storage.local.remove(local.keys, r));
+        const clear = videoProgressWrites.then(async () => {
+            const local = await localCacheBytes();
+            if (local.keys.length) await progressStorage("remove", local.keys);
+        });
+        videoProgressWrites = clear.catch(() => {});
+        await clear;
     }
     return handleCacheStats();
 }
@@ -2212,6 +2231,57 @@ async function handleEnsureYtBridge(req, sender) {
     return { ok: true };
 }
 
+// One worker queue owns the shared checkpoint index across all sites and tabs.
+const VIDEO_PROGRESS_PREFIX = "cstprogress1_";
+const VIDEO_PROGRESS_INDEX = "cstprogressIndex";
+const VIDEO_PROGRESS_MAX_BYTES = 16 * 1024 * 1024;
+let videoProgressWrites = Promise.resolve();
+function progressStorage(method, value) {
+    return new Promise((resolve, reject) => chrome.storage.local[method](value, result => {
+        const error = chrome.runtime.lastError;
+        if (error) reject(new Error(error.message)); else resolve(result);
+    }));
+}
+async function handleVideoProgress(req) {
+    const key = req.key, record = req.record;
+    if (typeof key !== "string" || !key.startsWith(VIDEO_PROGRESS_PREFIX) || key.length > 500) throw new Error("Khóa tiến độ không hợp lệ");
+    if (!req.remove && (!record || record.version !== 1 || typeof record.source !== "string" ||
+        typeof record.scope !== "string" || !Array.isArray(record.vi) || !record.vi.length ||
+        record.vi.some(v => typeof v !== "string") || JSON.stringify(record).length * 2 > 2 * 1024 * 1024)) {
+        throw new Error("Tiến độ không hợp lệ hoặc quá lớn");
+    }
+    const run = videoProgressWrites.then(async () => {
+        const got = await progressStorage("get", [key, VIDEO_PROGRESS_INDEX]);
+        const index = (Array.isArray(got[VIDEO_PROGRESS_INDEX]) ? got[VIDEO_PROGRESS_INDEX] : [])
+            .filter(e => Array.isArray(e) && e[0] !== key && typeof e[0] === "string" && e[0].startsWith(VIDEO_PROGRESS_PREFIX));
+        if (req.remove) {
+            await progressStorage("remove", key);
+            await progressStorage("set", { [VIDEO_PROGRESS_INDEX]: index });
+            return { ok: true };
+        }
+        const old = got[key];
+        record.luc = Date.now();
+        if (old?.version === 1 && old.scope === record.scope && old.source === record.source &&
+            Array.isArray(old.vi) && old.vi.length === record.vi.length) {
+            record.vi = record.vi.map((v, i) => v || (typeof old.vi[i] === "string" ? old.vi[i] : ""));
+        }
+        const bytes = JSON.stringify(record).length * 2;
+        if (bytes > 2 * 1024 * 1024) return { ok: false, error: "Tiến độ quá lớn" };
+        index.push([key, record.luc, bytes]);
+        index.sort((a, b) => a[1] - b[1]);
+        let total = index.reduce((n, e) => n + (Number(e[2]) || 0), 0);
+        const drop = [];
+        while (index.length > 1 && (index.length > 20 || total > VIDEO_PROGRESS_MAX_BYTES || index[0][1] < Date.now() - 30 * 864e5)) {
+            const e = index.shift(); total -= Number(e[2]) || 0; drop.push(e[0]);
+        }
+        await progressStorage("set", { [key]: record, [VIDEO_PROGRESS_INDEX]: index });
+        if (drop.length) await progressStorage("remove", drop);
+        return { ok: true };
+    });
+    videoProgressWrites = run.catch(() => {});
+    return run;
+}
+
 // Merge style fields in one worker queue so concurrent Settings/player edits cannot
 // replace each other's unrelated fields. Ordinary top-level settings are patches too.
 let settingsWriteChain = Promise.resolve();
@@ -2243,6 +2313,7 @@ async function handleSettingsPatch(req) {
 }
 
 const ROUTES = {
+    videoProgress: handleVideoProgress,
     settingsPatch: handleSettingsPatch,
     ensureYtBridge: handleEnsureYtBridge,
     translateUnit: handleTranslateUnit,

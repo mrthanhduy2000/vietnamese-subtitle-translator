@@ -30,6 +30,7 @@ sense of weight, not an assertion.
 
 | File | ~Tests | Covers |
 |---|---|---|
+| `translation-progress.test.js` | 10 | Empty-answer salvage, selective fallback, partial checkpoint resume, source/track identity, completion cleanup, bounds and concurrent worker writes. |
 | `storage-consistency.test.js` | 13 | Settings delta saves, concurrent style patches, failed/queued saves, restore freeze, exact cache accounting, concurrent mutations, timeout completion and stale-version replacement. |
 | `vieneu-timing.test.js` | 2 | Worker queue/generation/processing timing with serial jobs; cache hits excluded; metadata reaches the local provider scheduler. |
 | `build-stamp.test.js` | 9 | Real Git lifecycle hooks: commit, amend, checkout, fast-forward merge, stamp repair before push, unreleased-main and missing-note runtime rejection, foreign hook preservation; live page polling/focus cleanup, Reload dispatch, commit and version comparison. |
@@ -421,3 +422,13 @@ Runs the real Settings page and the worker's settings handler with a simulated C
 then exercises real Chrome IndexedDB for cold totals, concurrent writes, restart, removal and scans.
 No user profile, credentials or paid API calls. Every check must report `pass: true`, with no errors.
 This is browser harness evidence, not a live extension/video playback check.
+
+### Partial-translation corpus check
+
+`node tools/progress-eval.js <saved-video-dump-dir> [more-dirs]` injects one blank at every
+saved group position into the real worker decoder, checks preservation of other translations,
+and round-trips alternating completed groups through real checkpoint handlers. It rejects changed
+source and track scope. `tests/progress-env.js` supplies a page/worker fixture with mocked Chrome
+storage; no network or paid model requests are made. This checks bookkeeping and fault handling,
+not fresh model semantics or live browser playback. On 2026-11-02 the archive plus read-only Chrome
+export contained 145 unique videos / 17,306 groups: zero lost good lines or incorrect restores.

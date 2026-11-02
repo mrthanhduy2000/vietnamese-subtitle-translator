@@ -152,6 +152,14 @@ const ytCacheBytes = v => Math.round(JSON.stringify(v).length * 1.15);
 // (ytSweepCacheDaily) catches the rest.
 const ytStoredVideos = new Set();
 
+function ytProgressKey() { return VIDEO_PROGRESS_PREFIX + "yt_" + yt.currentVideoId; }
+function ytProgressScope() { return JSON.stringify([yt.srcTrack || "", state.glossaryFp || ""]); }
+function ytSaveProgress() {
+    if (!yt.currentVideoId || !yt.groups.length || (yt.daDichXong && yt.groups.every(g => g.translated && !g.fallback))) return Promise.resolve(false);
+    return saveVideoProgress(ytProgressKey(), yt.groups,
+        yt.groups.map(g => g.translated && !g.fallback ? g.viText || "" : ""), ytProgressScope());
+}
+
 async function ytDocCache(videoId) {
     if (!videoId) return null;
     try {
@@ -191,6 +199,7 @@ async function ytGhiCache(videoId) {
                 ])
             }
         });
+        removeVideoProgress(VIDEO_PROGRESS_PREFIX + "yt_" + videoId);
         // only a save that adds a video sweeps (see ytStoredVideos)
         if (!ytStoredVideos.has(videoId)) {
             ytStoredVideos.add(videoId);
@@ -956,14 +965,14 @@ function ytRepairCachedLeaks() {
 // engine: who produced the translation. A context-free Google fallback (Gemini briefly failing) is
 // shown, but the video is then not saved to the per-video cache (ytGhiCache), or it would come back
 // on every later visit instead of the Gemini translation
-function ytGanBanDich(groups, idxs, translations, engine) {
+function ytGanBanDich(groups, idxs, translations, engine, fallbackIndexes) {
     idxs.forEach((gi, k) => {
         const vi = translations[k];
         if (!vi) return;
         const nextStart = groups[gi + 1] ? groups[gi + 1].start : undefined;
         const g = groups[gi];
         if (!g.translated) yt.soNhomDaDich++;
-        g.fallback = engine === "google_fallback";
+        g.fallback = engine === "google_fallback" && (!Array.isArray(fallbackIndexes) || fallbackIndexes.includes(k));
         g.viText = vi;                 // bản dịch có ngữ cảnh (còn dấu ngắt nghỉ ¦) cho lồng tiếng
         g.viCues = segmentGroupVi(g, vi, nextStart);
         g.translated = true;
@@ -971,6 +980,7 @@ function ytGanBanDich(groups, idxs, translations, engine) {
     ytTrimLeaks(groups, idxs);
     ytGhepViCues();
     yt.renderKey = "";
+    if (groups === yt.groups && !yt.huyDich) ytSaveProgress();
     // (2.7.2) Saved the moment the last group lands, not when the prefetch loop next wakes (it
     // sleeps 1 s between looks, longer in a hidden tab): a viewer who moves on to the next video
     // right at the end (autoplay) turned the run off first, and the whole video was never saved
@@ -1007,7 +1017,7 @@ async function ytDichNhom(gIdx, heal = false) {
             // Ban dich lai (sau khi phat hien dau hieu dich may) ve sau thi thay the
             onRefined: better => {
                 if (yt.huyDich || yt.groups !== groups) return;
-                ytGanBanDich(groups, idxs, better.translations, better.engine);
+                ytGanBanDich(groups, idxs, better.translations, better.engine, better.fallbackIndexes);
                 console.log(`[AI Subtitle] Đã dịch lại tự nhiên hơn cho nhóm ${idxs.join(", ")}`);
                 ytSaveAfterRefine(groups);
             }
@@ -1015,7 +1025,7 @@ async function ytDichNhom(gIdx, heal = false) {
         // Nguoi dung da tat dich hoac chuyen video trong luc cho
         if (yt.huyDich || yt.groups !== groups) return false;
         if (!r.translations || r.translations.every(t => !t)) return false;
-        ytGanBanDich(groups, idxs, r.translations, r.engine);
+        ytGanBanDich(groups, idxs, r.translations, r.engine, r.fallbackIndexes);
         return true;
     } catch (e) {
         console.warn(`Dịch nhóm ${idxs.join(",")} lỗi:`, e.message);
@@ -1690,6 +1700,15 @@ async function ytBatDauDich(opts = {}) {
         if (yt.session) yt.session.setUnits(groups.map(g => g.text));
         if (yt.groups !== groups || stale()) return false;
 
+        const progress = await readVideoProgress(ytProgressKey(), groups, ytProgressScope());
+        if (yt.groups !== groups || stale()) return false;
+        if (progress) {
+            const idxs = progress.map((v, i) => v ? i : -1).filter(i => i >= 0);
+            ytGanBanDich(groups, idxs, idxs.map(i => progress[i]), "progress");
+            if (yt.session) yt.session.record(idxs, { translations: idxs.map(i => progress[i]), terms: [] });
+            ytBao(`Đã khôi phục ${idxs.length}/${groups.length} nhóm phụ đề. Tiếp tục dịch phần còn lại.`);
+        }
+
         console.log(`Đã nạp ${cues.length} dòng thành ${groups.length} nhóm câu. Lĩnh vực: ${yt.session ? yt.session.domain.primary : "?"}. Kích hoạt phụ đề Real-time.`);
 
         // KÍCH HOẠT NGAY LẬP TỨC KHÔNG CẦN CHỜ ĐỢI
@@ -1714,6 +1733,7 @@ async function ytBatDauDich(opts = {}) {
 }
 
 function ytTatDich() {
+    ytSaveProgress();
     yt.active = false;
     yt.huyDich = true;
     yt.offSeq = (yt.offSeq || 0) + 1;      // a pending ytRetryEmptyCaptions gives up

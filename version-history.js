@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.1.5", luc: "02/11/2026", ten: "Giữ bản dịch tốt và tiếp tục phần video đang dịch dở",
+            y: [
+                "Khi Gemini trả về một số câu rỗng, giữ các câu hợp lệ và chỉ dùng dịch dự phòng cho phần còn thiếu.",
+                "Tự lưu phần phụ đề đã dịch ổn định trên YouTube và Coursera để tiếp tục khi quay lại, tránh dịch lại phần đã lưu. Không dùng lại khi nguồn phụ đề hoặc ngữ cảnh từ điển thay đổi.",
+                "Giới hạn dung lượng tiến độ, đồng bộ khi nhiều tab cùng lưu và dọn tiến độ cùng bộ nhớ đệm bản dịch."
+            ]
+        },
+        {
             v: "3.1.4", luc: "28/10/2026", ten: "Giữ đúng cài đặt và dung lượng bộ nhớ đệm",
             y: [
                 "Cài đặt chỉ lưu mục vừa sửa, giữ lựa chọn mới từ popup hoặc cửa sổ khác. Đổi cỡ chữ và màu chữ cùng lúc không còn ghi đè nhau; các ô chưa chỉnh cập nhật theo thay đổi bên ngoài.",
