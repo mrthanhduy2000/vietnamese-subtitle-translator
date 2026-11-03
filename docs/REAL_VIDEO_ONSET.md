@@ -1,5 +1,10 @@
 # Real-video onset validation (2026-11-03)
 
+Historical default-rate study at commit 11795ff. Its local recordings/index are preserved under
+ignored `smooth/real-video/history-3.1.5-3.1.6/`. Current real-onset.html tests the selected
+complete-speech policy at a 1x ceiling; see [COMPLETE_SPEECH.md](COMPLETE_SPEECH.md). To reproduce
+this earlier protocol, use the harness from commit 11795ff.
+
 This follow-up replaces synthetic sentences as the primary listening evidence. It validates the
 3.1.5/3.1.6 delivery comparison against downloaded original audio, not invented speech content.
 It does not establish a human listening judgment or full-video semantic alignment.

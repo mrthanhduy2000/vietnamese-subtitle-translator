@@ -67,7 +67,7 @@
       createObjectURL: b => URL.createObjectURL(new Blob([b], { type: "audio/wav" })), revokeObjectURL: u => URL.revokeObjectURL(u),
       createAudio: url => { const a = new Audio(url); a.preload = "auto"; voices.push(a); return a; },
       adShowing: () => ad, log: (...a) => H.events.push(["log", ...a.map(String)])
-    }, { duck: 1, volume: 1 });
+    }, { duck: 1, volume: 1, keepAllSpeech: true });
     H.engine = eng;
     // ?trace=1: every request sent and every take received, with the clock
     if (new URLSearchParams(location.search).get("trace")) {

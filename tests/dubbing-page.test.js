@@ -231,3 +231,11 @@ test("initial preparation waits for an active first local take but respects expl
         assert.equal(v.plays, 1);
     }
 });
+
+test('the extension enables complete speech independently of the engine compatibility default', async () => {
+    const E=env({onMessage:msg=>msg.action==='localTtsStatus'?{running:true}:null});
+    const video={duration:100,currentTime:0,paused:true,volume:1,playbackRate:1,closest:()=>null,addEventListener(){},removeEventListener(){}};
+    assert.equal(await E.API.start({video,getGroups:()=>[]}),true);
+    assert.equal(E.API.dub.engine.settings.keepAllSpeech,true);
+    E.API.stop();
+});

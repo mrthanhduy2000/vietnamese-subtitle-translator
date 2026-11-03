@@ -23,14 +23,14 @@ syllable count and, 1.7.8, the English spans).
 it to `manifest.json` in dependency order (and to `importScripts`, `options.html`, the harness pages
 under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tests if it is a dubbing file).
 
-## Source (38 files, ~162,800 lines)
+## Source (38 files, ~162,900 lines)
 
 | File | Lines | Role | Global export |
 |---|---|---|---|
 | `youtube.js` | 2491 | YouTube engine: bridge handshake, track pick, timedtext parse, self-drawn overlay, prefetch pool, controls + quick menu | none (same-world sibling of `content.js`, reads its `state`) |
 | `content.js` | 3123 | Coursera engine, also serving any other video page on demand ("generic", see `SUBTITLE.md`), **plus** the shared toast/messaging layer | `window.CST_UI`, `window.CST_LAST_AI_INFO` |
 | `options.html` | 1560 | Settings page, 5 tabs (2.5.5): Phụ đề, Lồng tiếng, Dịch & AI (with the glossary), Chi phí & dữ liệu (cost with the top videos by period, cache, backup), Phiên bản (folded, 15 at first). Switches, one-line hints, seldom-changed fields under a `details.more` fold. ~900 lines are inline `<style>`; markup is only the rest | n/a |
-| `dub-engine.js` | 2759 | TTS providers + scheduler + video-clock sync + audio ducking | `CST_DUB_ENGINE` |
+| `dub-engine.js` | 2846 | TTS providers + scheduler + video-clock sync + audio ducking | `CST_DUB_ENGINE` |
 | `background.js` | 2349 | Service worker: the only place that talks to Gemini, does TTS, owns cache + cost ledger + per-key model access; reads who speaks (`analyzeSpeakers`, 2.5.2); opens Settings at `#welcome` after a first install | n/a (message router) |
 | `popup.css` | 868 | Popup styling only | n/a |
 | `options.js` | 1689 | Settings logic. No Save button: debounced autosave every 350ms, flushed on `pagehide` | n/a |
@@ -40,7 +40,7 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `glossary.js` | 1380 | Pure data: 19 domain term groups, `GLOSSARY_VI` settled Vietnamese renderings, normalize rules, proper nouns never to translate, `resolveEnabledGroups` | `CST_GLOSSARY_GROUPS` and friends (globalThis + module.exports) |
 | `glossary-extra.js` | 90 | 2.5.9: the line format and `CST_GLOSSARY_EXTRA_ADD`, which merges a block of terms into a `glossary.js` group (or a new one); a term a group has is skipped, a rendering that contradicts another group's is dropped; `CST_GLOSSARY_EXTRA_REPORT` for the tests | `CST_GLOSSARY_EXTRA_ADD`, `CST_GLOSSARY_EXTRA_REPORT` |
 | `glossary-data.js` | 129765 | 2.5.9, 2.6.0: pure data, one `CST_GLOSSARY_EXTRA_ADD` block per domain: ~27,000 terms over 52 groups (2.6.1: 29,486 in all with `glossary.js`) (2.6.0 added people, brands, places, music, spirituality, outdoors, crafts, drinks, photography, engineering, agriculture, animals, philosophy, languages, military, weddings, accounting, plus product models, cars, schools, landmarks, creators and athletes). ~750 KB. Grep only, append with Bash | none (calls the merge) |
-| `dubbing.js` | 751 | Thin page-level dubbing controller: settings, provider pick, badge, hold-video-while-preparing, health line and diagnostics text (`describeHealth`, `diagnostics`), the Gemini reading of who speaks on YouTube (`readSpeakers`) | `window.CST_DUB` |
+| `dubbing.js` | 754 | Thin page-level dubbing controller: settings, provider pick, badge, hold-video-while-preparing, health line and diagnostics text (`describeHealth`, `diagnostics`), the Gemini reading of who speaks on YouTube (`readSpeakers`) | `window.CST_DUB` |
 | `context-engine.js` | 627 | Domain detection + per-video sliding-window context sent with each translation | `CST_CONTEXT` |
 | `cst-cache.js` | 353 | Two-tier LRU cache (RAM -> IndexedDB) for translations and audio | `CST_CACHE` |
 | `dub-audio.js` | 630 | Pure WAV/PCM work: decode, rumble cut, hiss removal, normalize, silence, split; pause shaping (`alignStops` places the voice's stops on the text, `shapePauses` applies the prosody model's decisions) | `CST_DUB_AUDIO` |
@@ -61,7 +61,7 @@ under `tests/harness/` and the vm file lists in `cost`, `hardening` and `ui` tes
 | `site-ted.js` | 47 | TED adapter (HLS subtitles from `__NEXT_DATA__` playerData) | registers on `CST_SITES` |
 | `screen-text.js` | 224 | On-screen subtitles: watches the frame's caption band, sends one crop per new caption to `readScreenText` (2.6.4) | `CST_SCREEN` |
 | `lang-detect.js` | 203 | Source-language decision without an API call | `CST_LANG` |
-| `version-history.js` | 2291 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
+| `version-history.js` | 2300 | Release history data (one entry per version, Vietnamese) for the Settings > Lịch sử phiên bản tab. Single source; `ui.test.js` pins entry 0 to `manifest.version` | `CST_HISTORY` |
 | `version-check.js` | 142 | Warns when the loaded extension version differs from the version on disk | `CST_VERSION_CHECK` |
 | `theme.js` | 42 | Light/Dark theme for the popup and settings page. Applies instantly from `localStorage` to avoid a flash, then syncs from `storage.sync`. Loaded by `popup.html` and `options.html` only, not a content script | `window.CST_THEME` |
 | `build-info.js` | 6 | **Generated** by `tools/bump-version.js`. Never edit | `CST_BUILD` |
@@ -97,7 +97,7 @@ Shared and settings pages:
 - `CST_CACHE` -> `background.js`, `dub-engine.js`
 - `CST_THEME`, `CST_HISTORY`, `CST_BACKUP` -> `options.js`; `CST_VERSION_CHECK` -> `options.js`, `popup.js`
 
-## Tests and tooling (`tests/*.js`: 78 files, ~19,500 lines)
+## Tests and tooling (`tests/*.js`: 79 files, ~19,600 lines)
 
 See `TESTING.md`. Short version: 0 files in `npm test` (listed in `package.json`: a new test file must be added there), all offline; 4 manual scripts;
 12 browser harness pages under `tests/harness/` (`live.html` has its own server, `live-server.js`; `headless.js` runs any of them in a headless Chrome); `tests/pin-cases.py` holds the Python scenarios `share.test.js` runs (`vieneu-pin.py` and the updater in-process, the network scripted, sleeps recorded); `tools/bump-version.js` owns the version number; `tools/git-autoupdate.js` keeps the author's git checkout on origin/main (LaunchAgent, `tests/git-autoupdate.test.js`);

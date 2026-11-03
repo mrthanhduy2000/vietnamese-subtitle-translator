@@ -1,0 +1,497 @@
+{
+  "baseline": "3.1.6",
+  "candidate": "3.1.7",
+  "changed": 141,
+  "worse": 61,
+  "selectedPolicy": "Continuous video, complete delayed speech",
+  "regressions": [
+    {
+      "where": "videos/AF6MSemog7Y",
+      "metric": "late",
+      "before": 3,
+      "now": 4,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "videos/AUMN9CWvIXU",
+      "metric": "spoken",
+      "before": 26,
+      "now": 24,
+      "worse": true,
+      "reason": "Retained plans can merge differently; word accounting verifies no missing or repeated text."
+    },
+    {
+      "where": "videos/wzHQg2V2I14",
+      "metric": "late",
+      "before": 1,
+      "now": 3,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "videos/zPSs9a0MYGw",
+      "metric": "late",
+      "before": 33,
+      "now": 35,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "videos/1t6JztkC0C0",
+      "metric": "late",
+      "before": 3,
+      "now": 4,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "videos/PsihkFWDt3Y",
+      "metric": "gapN",
+      "before": 1,
+      "now": 2,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "videos/PsihkFWDt3Y",
+      "metric": "gapSum",
+      "before": 0.13,
+      "now": 0.26,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "videos/Q4JWEtq23h8",
+      "metric": "late",
+      "before": 7,
+      "now": 9,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "videos/YbgvnJQU7gc",
+      "metric": "late",
+      "before": 11,
+      "now": 12,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "videos/_XonUIE0JDo",
+      "metric": "late",
+      "before": 2,
+      "now": 6,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "videos/rG04jsUh940",
+      "metric": "late",
+      "before": 1,
+      "now": 2,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "videos/sqsuJML2dkI",
+      "metric": "late",
+      "before": 10,
+      "now": 11,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "videos/Zq7IgleunHY",
+      "metric": "late",
+      "before": 34,
+      "now": 36,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/normal",
+      "metric": "late",
+      "before": 0,
+      "now": 1,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/slowTts",
+      "metric": "late",
+      "before": 4,
+      "now": 5,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/slowTts",
+      "metric": "gapN",
+      "before": 2,
+      "now": 3,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/slowTts",
+      "metric": "gapSum",
+      "before": 2.54,
+      "now": 4.01,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/fastSlowdown",
+      "metric": "late",
+      "before": 24,
+      "now": 26,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/seekForward",
+      "metric": "late",
+      "before": 0,
+      "now": 2,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/seekForward",
+      "metric": "maxUrls",
+      "before": 19,
+      "now": 20,
+      "worse": true,
+      "reason": "Unspoken takes are retained until heard; generation stays near the speech cursor."
+    },
+    {
+      "where": "scenarios/seekBackward",
+      "metric": "late",
+      "before": 0,
+      "now": 1,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/seekBackFar",
+      "metric": "late",
+      "before": 0,
+      "now": 1,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/rapidSeek",
+      "metric": "late",
+      "before": 0,
+      "now": 6,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/rapidSeek",
+      "metric": "seekRecover",
+      "before": 1.29,
+      "now": 1.67,
+      "worse": true,
+      "reason": "The original entry is preserved while its first take is generated."
+    },
+    {
+      "where": "scenarios/rapidSeek",
+      "metric": "seekRecoverMax",
+      "before": 2.9,
+      "now": 3.85,
+      "worse": true,
+      "reason": "The original entry is preserved while its first take is generated."
+    },
+    {
+      "where": "scenarios/rapidSeek",
+      "metric": "maxUrls",
+      "before": 26,
+      "now": 27,
+      "worse": true,
+      "reason": "Unspoken takes are retained until heard; generation stays near the speech cursor."
+    },
+    {
+      "where": "scenarios/pauseResume",
+      "metric": "late",
+      "before": 0,
+      "now": 1,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/rate15",
+      "metric": "late",
+      "before": 0,
+      "now": 2,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/rate2",
+      "metric": "late",
+      "before": 0,
+      "now": 3,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/rate2",
+      "metric": "gapN",
+      "before": 0,
+      "now": 1,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/rate2",
+      "metric": "gapSum",
+      "before": 0,
+      "now": 0.26,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/rate2",
+      "metric": "gapMax",
+      "before": 0,
+      "now": 0.26,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/seekWhileSlow",
+      "metric": "late",
+      "before": 4,
+      "now": 17,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/seekWhileSlow",
+      "metric": "gapN",
+      "before": 3,
+      "now": 10,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/seekWhileSlow",
+      "metric": "gapSum",
+      "before": 4.05,
+      "now": 13.38,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/seekWhileSlow",
+      "metric": "gapMax",
+      "before": 2.49,
+      "now": 2.74,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/seekWhileSlow",
+      "metric": "maxUrls",
+      "before": 16,
+      "now": 18,
+      "worse": true,
+      "reason": "Unspoken takes are retained until heard; generation stays near the speech cursor."
+    },
+    {
+      "where": "scenarios/normal@busy",
+      "metric": "late",
+      "before": 0,
+      "now": 1,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/fastSlowdown@busy",
+      "metric": "late",
+      "before": 28,
+      "now": 31,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/seekForward@busy",
+      "metric": "late",
+      "before": 0,
+      "now": 2,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/seekForward@busy",
+      "metric": "maxUrls",
+      "before": 19,
+      "now": 20,
+      "worse": true,
+      "reason": "Unspoken takes are retained until heard; generation stays near the speech cursor."
+    },
+    {
+      "where": "scenarios/seekBackward@busy",
+      "metric": "late",
+      "before": 0,
+      "now": 1,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/seekBackFar@busy",
+      "metric": "late",
+      "before": 0,
+      "now": 1,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/rapidSeek@busy",
+      "metric": "late",
+      "before": 1,
+      "now": 6,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/rapidSeek@busy",
+      "metric": "seekRecover",
+      "before": 1.29,
+      "now": 1.67,
+      "worse": true,
+      "reason": "The original entry is preserved while its first take is generated."
+    },
+    {
+      "where": "scenarios/rapidSeek@busy",
+      "metric": "seekRecoverMax",
+      "before": 2.9,
+      "now": 3.85,
+      "worse": true,
+      "reason": "The original entry is preserved while its first take is generated."
+    },
+    {
+      "where": "scenarios/rapidSeek@busy",
+      "metric": "maxUrls",
+      "before": 26,
+      "now": 27,
+      "worse": true,
+      "reason": "Unspoken takes are retained until heard; generation stays near the speech cursor."
+    },
+    {
+      "where": "scenarios/pauseResume@busy",
+      "metric": "late",
+      "before": 0,
+      "now": 1,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/rate15@busy",
+      "metric": "late",
+      "before": 0,
+      "now": 3,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/rate15@busy",
+      "metric": "gapN",
+      "before": 0,
+      "now": 1,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/rate15@busy",
+      "metric": "gapSum",
+      "before": 0,
+      "now": 1.03,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/rate15@busy",
+      "metric": "gapMax",
+      "before": 0,
+      "now": 1.03,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/rate2@busy",
+      "metric": "late",
+      "before": 1,
+      "now": 4,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/rate2@busy",
+      "metric": "gapN",
+      "before": 2,
+      "now": 4,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/rate2@busy",
+      "metric": "gapSum",
+      "before": 0.96,
+      "now": 1.51,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/rate2@busy",
+      "metric": "gapMax",
+      "before": 0.83,
+      "now": 0.93,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/seekWhileSlow@busy",
+      "metric": "late",
+      "before": 7,
+      "now": 17,
+      "worse": true,
+      "reason": "Read late instead of dropping valid speech."
+    },
+    {
+      "where": "scenarios/seekWhileSlow@busy",
+      "metric": "gapN",
+      "before": 3,
+      "now": 10,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/seekWhileSlow@busy",
+      "metric": "gapSum",
+      "before": 4.31,
+      "now": 13.49,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/seekWhileSlow@busy",
+      "metric": "gapMax",
+      "before": 2.49,
+      "now": 2.74,
+      "worse": true,
+      "reason": "FIFO waits for the required audio instead of skipping to a later ready line."
+    },
+    {
+      "where": "scenarios/seekWhileSlow@busy",
+      "metric": "maxUrls",
+      "before": 16,
+      "now": 18,
+      "worse": true,
+      "reason": "Unspoken takes are retained until heard; generation stays near the speech cursor."
+    }
+  ]
+}

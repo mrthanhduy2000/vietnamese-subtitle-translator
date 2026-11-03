@@ -305,7 +305,7 @@
                 }, 0);
             },
             log: (...a) => console.warn("[Lồng tiếng]", ...a)
-        }, { duck: level(s.dubDuck, 0.2), volume: level(s.dubVolume, 1), playerOwnsVolume: /(^|\.)youtube(-nocookie)?\.com$/.test(location.hostname), secondVoice: s.dubSpeakers !== "one", maxRate: Number(s.dubMaxRate) || null, prefetchMax: smartPrefetch(mode, opts.video) });
+        }, { keepAllSpeech: true, duck: level(s.dubDuck, 0.2), volume: level(s.dubVolume, 1), playerOwnsVolume: /(^|\.)youtube(-nocookie)?\.com$/.test(location.hostname), secondVoice: s.dubSpeakers !== "one", maxRate: Number(s.dubMaxRate) || null, prefetchMax: smartPrefetch(mode, opts.video) });
         dub.engine = engine;
         dub.enabled = true;
         dub.starting = false;
@@ -498,8 +498,11 @@
         const voice = st && st.voice ? `Giọng ${st.voice}` : "Đang bật";
         let h;
         try { h = e.health(e.d.video.currentTime); } catch (err) { return { text: voice, warn: false }; }
+        if (h.waitingTranslation) return { text: `${voice} · đang chờ bản dịch để đọc đúng thứ tự`, warn: false };
+        if (h.draining) return { text: `${voice} · video đã kết thúc, đang đọc nốt phần còn lại`, warn: false };
+        if (h.keepAllSpeech && h.lag > 0.5) return { text: `${voice} · đọc đủ lời, đang chậm ${h.lag.toFixed(1).replace(".", ",")} giây so với phụ đề`, warn: false };
         if (h.live) return { text: `${voice} · đọc trực tiếp, không chuẩn bị trước`, warn: false };
-        const skipped = h.dropped ? `, đã bỏ ${h.dropped} câu để bắt kịp` : "";
+        const skipped = h.dropped ? (h.keepAllSpeech ? `, có ${h.dropped} câu lỗi tạo giọng` : `, đã bỏ ${h.dropped} câu để bắt kịp`) : "";
         if (h.timing && h.timing.queueMs >= 1000 && h.ahead < 1) {
             return { text: `${voice} · vừa chờ hàng đợi tạo giọng ${(h.timing.queueMs / 1000).toFixed(1).replace(".", ",")} giây${skipped}`, warn: true };
         }
@@ -513,7 +516,7 @@
         // makes fewer seconds of audio for the same words (measured, 1.9.9: late starts 59 -> 3 with a
         // 5.3 syllables/s voice instead of 3.6 on a fast talk), so it is suggested by name
         const alts = h.paceHigh != null && h.paceHigh >= SLOW_VOICE_PACE && st ? fasterVoices(st.voice) : [];
-        const hint = alts.length ? ` · giọng này đọc chậm so với video, thử ${alts.join(" hoặc ")} để đỡ trễ và bỏ câu` : "";
+        const hint = alts.length ? ` · giọng này đọc chậm so với video, thử ${alts.join(" hoặc ")} ${h.keepAllSpeech ? "để giảm độ trễ" : "để đỡ trễ và bỏ câu"}` : "";
         if (h.ahead >= 1) return { text: `${voice} · đã chuẩn bị trước ${Math.round(h.ahead)} giây${hint || fast}${skipped}`, warn: !!h.dropped || !!hint };
         const v = e.d.video;
         if (v && !v.paused) return { text: `${voice} · đang tạo giọng…${skipped}`, warn: !!h.dropped };

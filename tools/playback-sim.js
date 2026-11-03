@@ -220,7 +220,7 @@ function run(engineMod, sc) {
             async get(keys) { const out = {}; for (const k of keys) if (store.has(k)) { const d = store.get(k); out[k] = { wav: AUDIO.base64ToBytes(wavFor(d)), duration: d }; m.storeHits++; } return out; },
             put() {}
         }
-    }, sc.settings);                    // sc.settings: the engine's settings ({ secondVoice: true }, 2.4.8)
+    }, { keepAllSpeech: true, ...sc.settings });                    // sc.settings: the engine's settings ({ secondVoice: true }, 2.4.8)
 
     // ---- measurements ----
     const pendingKeys = [];
@@ -269,7 +269,9 @@ function run(engineMod, sc) {
         video.play();
         seeks.push({ wall: t0, first: true });
         let si = 0;
-        while (clock.now() - t0 < endWall) {
+        const tailLimit = endWall + 30000 + groups.reduce((n, g) => n + String(g.viText || "").split(/\s+/).length * 500, 0);
+        const hasTail = () => !!eng.speech || eng.plans.some(p => eng.lastSpokenStart == null || p.start > eng.lastSpokenStart + 1e-6);
+        while (clock.now() - t0 < endWall || (sc.drain && clock.now() - t0 < tailLimit && hasTail())) {
             while (steps && si < steps.length && clock.now() - t0 >= steps[si].at * 1000) {
                 const s = steps[si++];
                 if (s.do === "seek") { video.seek(s.v); seeks.push({ wall: clock.now(), to: s.v, paused: video.paused }); }
@@ -323,6 +325,7 @@ function run(engineMod, sc) {
         }
         return {
             ...(sc.keepStarted ? { started: st } : {}),           // every line's start, for a caller's own breakdown
+            ...(sc.drain ? { tailSeconds: Math.max(0, (clock.now() - t0 - endWall) / 1000) } : {}),
             spoken: st.length, dropped: eng.stats.dropped, late, wordsLost, wordsTwice,
             gapN, gapSum: +gapSum.toFixed(2), gapMax: +gapMax.toFixed(2),
             firstAudio: first == null ? null : +first.toFixed(2),
@@ -411,7 +414,7 @@ async function realMain(dir, json) {
         const groups = realGroups(path.join(dir, f));
         if (!groups.length) continue;
         for (const [v, mod] of old ? [["old", old], ["new", cur]] : [["new", cur]]) {
-            const r = await run(mod, { groups, wall: groups[groups.length - 1].end + 5, sps, trAhead: 1e9, trLat: () => 0, bgAbort: "queued" });
+            const r = await run(mod, { groups, wall: groups[groups.length - 1].end + 5, sps, trAhead: 1e9, trLat: () => 0, bgAbort: "queued", drain: true });
             delete r.store;
             rows.push({ video: f.slice(9, 20) + (old ? " " + v : ""), groups: groups.length, minutes: +(groups[groups.length - 1].end / 60).toFixed(1), ...r });
         }

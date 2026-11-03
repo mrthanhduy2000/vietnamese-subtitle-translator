@@ -1,0 +1,35 @@
+{
+  "videos": 145,
+  "baseline": "3.1.6",
+  "candidate": "3.1.7",
+  "latency": "busy",
+  "drain": true,
+  "old": {
+    "spoken": 17952,
+    "dropped": 1,
+    "wordsLost": 16,
+    "wordsTwice": 0,
+    "late": 2243,
+    "gapN": 104,
+    "gapSum": 15.43,
+    "tailSeconds": 15.917,
+    "serverRuns": 17739,
+    "hardStarts": 0,
+    "cuts": 0
+  },
+  "new": {
+    "spoken": 17949,
+    "dropped": 0,
+    "wordsLost": 0,
+    "wordsTwice": 0,
+    "late": 2281,
+    "gapN": 93,
+    "gapSum": 13.58,
+    "tailSeconds": 17.117,
+    "serverRuns": 17725,
+    "hardStarts": 0,
+    "cuts": 0
+  },
+  "videosWithNewLostWords": 0,
+  "videosWithRepeatedWords": 0
+}

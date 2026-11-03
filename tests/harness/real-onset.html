@@ -7,7 +7,7 @@
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 system-ui}main{max-width:1000px;margin:auto;padding:40px var(--space)}h1,h2{font-family:Georgia,serif;line-height:1.2}h1{font-size:38px;max-width:700px}h2{font-size:24px}a{color:var(--accent)}section{border-top:1px solid var(--line);padding:var(--space) 0}audio{width:100%;margin:8px 0}button,select{font:inherit;padding:10px 14px;border:1px solid var(--accent);border-radius:var(--radius);background:var(--accent);color:white}select{background:var(--paper);color:var(--ink);max-width:100%}button:disabled{opacity:.5}small,.muted{font-size:14px}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}.controls{display:flex;gap:12px;flex-wrap:wrap}details{margin-top:16px}label{display:block;font-weight:600}footer{border-top:1px solid var(--line);padding-top:20px}
 </style>
 <main><p class="muted">KIỂM TRA LỜI ĐỌC · NGUỒN YOUTUBE THẬT</p><h1>Nghe đúng đoạn gốc, đối chiếu cùng một lời Việt.</h1>
-<p>Tiếng gốc được tải từ video nguồn và cắt đúng mốc. Lời Việt lấy từ bản dịch đã lưu; hai bản dùng cùng audio Kim Thanh. Bản thu kết hợp tiếng gốc với lời Việt để kiểm tra độ vào câu và nhịp đọc.</p>
+<p>Tiếng gốc được tải từ video nguồn và cắt đúng mốc. Lời Việt lấy từ bản dịch đã lưu; hai bản dùng cùng audio Kim Thanh, giới hạn nhịp đọc ở 1x để kiểm tra việc giữ đủ lời khi dồn trễ. Bản thu kết hợp tiếng gốc với lời Việt để kiểm tra độ vào câu và nhịp đọc.</p>
 <div class="controls"><select id="sample" aria-label="Chọn đoạn video thật"></select><button id="run">Chạy phép đo với đoạn đã chọn</button></div><p id="status" role="status"></p>
 <div id="samples"></div><section><h2>Kết quả lượt chạy</h2><pre id="out">Chưa chạy phép đo trong trang này.</pre><div id="recording"></div></section>
 <footer>Đo tín hiệu đầu ra không thay thế đánh giá nghe của con người. Bản thử này kiểm tra lúc audio đã tạo xong; số liệu tạo giọng được lưu riêng. Mẫu có dấu hiệu lệch nội dung phụ đề vẫn được giữ để kiểm tra giới hạn dữ liệu.</footer></main>
@@ -24,8 +24,8 @@ const ready = (async () => {
         const option=document.createElement('option'); option.value=item.id;option.textContent=item.title;document.getElementById('sample').appendChild(option);
         const section=document.createElement('section'), title=document.createElement('h2');title.textContent=item.title;section.appendChild(title);
         const source=document.createElement('a');source.href='https://www.youtube.com/watch?v='+encodeURIComponent(item.id)+'&t='+item.start;source.target='_blank';source.rel='noopener';source.textContent=`Video nguồn · ${item.start}–${item.end} giây`;section.appendChild(source);
-        if(item.results){const note=document.createElement('p');note.className='muted';note.textContent=`Hoàn tất lời đọc: ${item.results.before.completed}/${item.plans} → ${item.results.after.completed}/${item.plans}. Trễ lớn nhất so với mốc phụ đề: ${item.results.before.maxLag.toFixed(2)} → ${item.results.after.maxLag.toFixed(2)} giây. Đây là phép đo đoạn đã có audio sẵn.`;section.appendChild(note);}
-        for (const [label,file] of [['Tiếng gốc',item.id+'-original.wav'],['Trước · 3.1.5',item.id+'-before.webm'],['Sau · 3.1.6',item.id+'-after.webm']]) {
+        if(item.results){const note=document.createElement('p');note.className='muted';note.textContent=`Hoàn tất lời đọc: ${item.results.before.completed}/${item.plans} → ${item.results.after.completed}/${item.plans}. Trễ lớn nhất so với mốc phụ đề: ${item.results.before.maxLag.toFixed(2)} → ${item.results.after.maxLag.toFixed(2)} giây. Đọc tối đa 1x; giữ nguyên audio và kiểm tra cả phần đọc nốt sau khi đoạn nguồn kết thúc.`;section.appendChild(note);}
+        for (const [label,file] of [['Tiếng gốc',item.id+'-original.wav'],['Trước · 3.1.6',item.id+'-before.webm'],['Sau · 3.1.7',item.id+'-after.webm']]) {
             const block=document.createElement('div'), text=document.createElement('label'), audio=document.createElement('audio');text.textContent=label;audio.controls=true;audio.preload='none';audio.src=base+file;block.append(text,audio);section.appendChild(block);
             audio.addEventListener('play',()=>document.querySelectorAll('audio').forEach(other=>{if(other!==audio)other.pause()}));
         }
@@ -46,7 +46,7 @@ window.runReal = async () => {
     const fixture=await(await fetch(base+id+'-fixture.json')).json();
     for(const p of fixture.plans)p.wav=new Uint8Array(await(await fetch(base+p.file)).arrayBuffer());
     const pcm=CST_DUB_AUDIO.decodeWav(new Uint8Array(await(await fetch(base+id+'-original.wav')).arrayBuffer()));
-    const padded=new Float32Array(pcm.samples.length+pcm.sampleRate*25);padded.set(pcm.samples);
+    const padded=pcm.samples;
     const ctx=new AudioContext();await ctx.resume();
     const destination=ctx.createMediaStreamDestination(),chunks=[],recorder=new MediaRecorder(destination.stream);
     recorder.ondataavailable=e=>chunks.push(e.data);
@@ -67,20 +67,28 @@ window.runReal = async () => {
             const rec={a,analyser,data:new Float32Array(256),id:plan,heard:false,ended:false};
             a.addEventListener('ended',()=>{rec.ended=true});voices.push(rec);return a;
         }
-    },{duck:0.15,volume:1,secondVoice:false});
+    },{duck:0.15,volume:1,secondVoice:false,maxRate:1,keepAllSpeech:true});
     engine.headAt=0;engine.refresh(true);
     if(engine.plans.length!==fixture.plans.length)throw new Error('Planner count differs between A/B engines');
     for(const p of engine.plans){const take=fixture.plans.find(x=>x.id===p.id&&x.text===p.text);if(!take)throw new Error('Planner text differs: '+p.id);engine.addRendered(p,take.wav,take.duration);}
-    let overlap=0,pausedSound=0;
-    const poll=setInterval(()=>{let sounding=0;for(const v of voices){v.analyser.getFloatTimeDomainData(v.data);const peak=v.data.reduce((n,x)=>Math.max(n,Math.abs(x)),0);if(peak<0.003||v.a.paused)continue;sounding++;if(!v.heard){v.heard=true;const p=engine.planById.get(v.id);rows.push({id:v.id,due:p?.start,heardAt:clock.currentTime,lag:p?clock.currentTime-p.start:null,rate:v.a.playbackRate,offset:engine.speech?.offset});}}if(sounding>1)overlap++;if(sounding&&clock.paused)pausedSound++;},10);
+    let overlap=0,pausedSound=0,naturalEndSound=0,manualPausedSound=0;
+    const poll=setInterval(()=>{let sounding=0;for(const v of voices){v.analyser.getFloatTimeDomainData(v.data);const peak=v.data.reduce((n,x)=>Math.max(n,Math.abs(x)),0);if(peak<0.003||v.a.paused)continue;sounding++;if(!v.heard){v.heard=true;const p=engine.planById.get(v.id);rows.push({id:v.id,due:p?.start,heardAt:engine.timelineAt?engine.timelineAt():clock.currentTime,lag:p?(engine.timelineAt?engine.timelineAt():clock.currentTime)-p.start:null,rate:v.a.playbackRate,offset:engine.speech?.offset});}}if(sounding>1)overlap++;if(sounding&&clock.paused){pausedSound++;if(clock.ended)naturalEndSound++;else manualPausedSound++;}},10);
     engine.start();await wait(1500);recorder.start();await clock.play();
     document.getElementById('status').textContent='Đang phát và đo: '+fixture.source.title;
-    while(clock.currentTime<fixture.duration||engine.speech){await wait(100);if(clock.currentTime>=fixture.duration+22)break;}
+    const playWall=performance.now(),limit=fixture.duration+fixture.plans.reduce((n,p)=>n+p.duration,0)+10;
+    while((performance.now()-playWall)/1000<limit){
+        await wait(100);
+        if(clock.ended){
+            if(!engine.keepsSpeech?.())break;
+            const pending=engine.plans.some(p=>engine.lastSpokenStart==null||p.start>engine.lastSpokenStart+1e-6);
+            if(!engine.speech&&!pending)break;
+        }
+    }
     clock.pause();engine.stop();clearInterval(poll);await wait(100);
     const stopped=new Promise(resolve=>recorder.addEventListener('stop',resolve,{once:true}));recorder.stop();await stopped;
     const blob=new Blob(chunks,{type:recorder.mimeType});
-    result={done:false,id,mode:query.has('old')?'before':'after',source:fixture.source,voice:fixture.voice,plans:fixture.plans.length,
-        heard:rows.length,completed:voices.filter(v=>v.ended).length,rows,overlap,pausedSound,dropped:engine.stats.dropped,errors:engine.stats.errors,
+    result={done:false,id,mode:query.has('old')?'before':'after',source:fixture.source,voice:fixture.voice,maxRate:1,sourceEnded:clock.ended,tailSeconds:Math.max(0,(performance.now()-playWall)/1000-fixture.duration),plans:fixture.plans.length,
+        heard:rows.length,completed:voices.filter(v=>v.ended).length,rows,overlap,pausedSound,naturalEndSound,manualPausedSound,dropped:engine.stats.dropped,errors:engine.stats.errors,
         scheduled:engine.stats.started,events:engine.events,mimeType:recorder.mimeType};
     if(query.has('record'))result.recording=await new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.readAsDataURL(blob)});
     document.getElementById('out').textContent=JSON.stringify({...result,recording:undefined},null,2);

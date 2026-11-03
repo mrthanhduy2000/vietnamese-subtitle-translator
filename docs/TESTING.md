@@ -30,6 +30,7 @@ sense of weight, not an assertion.
 
 | File | ~Tests | Covers |
 |---|---|---|
+| `dub-full-speech.test.js` | 14 | FIFO beyond lag limits, late first takes, missing translations, planning/eviction/jobs, long source silences, manual seek/pause, natural EOF drain, speed changes, ads and live fallback. |
 | `dub-onset.test.js` | 4 | Initial/seek predecode, paused startup without a hold, redundant-zero-seek avoidance and playback-onset accounting across resume. |
 | `translation-progress.test.js` | 10 | Empty-answer salvage, selective fallback, partial checkpoint resume, source/track identity, completion cleanup, bounds and concurrent worker writes. |
 | `storage-consistency.test.js` | 13 | Settings delta saves, concurrent style patches, failed/queued saves, restore freeze, exact cache accounting, concurrent mutations, timeout completion and stale-version replacement. |
@@ -463,3 +464,13 @@ under ignored `smooth/real-video/`; it never supplies invented text. `real-onset
 original source plus actual engine playback of the same prepared speech takes for each version.
 It checks plan identity, acoustic onset, ended events, overlap and errors. See
 [REAL_VIDEO_ONSET.md](REAL_VIDEO_ONSET.md) for source intervals, reproduction and interpretation.
+
+### Complete-speech policy
+
+The extension and playback simulator enable `keepAllSpeech`; the engine compatibility default
+retains legacy skipping. Two legacy recovery-budget tests explicitly disable the new policy;
+new FIFO/EOF tests and real-source playback cover the shipped behavior. Real-corpus and batch
+review simulations drain the speech queue before word accounting, rather than stopping at an
+arbitrary five-second tail. This does not simulate the physical EOF clock; real Chrome and the
+unit tests cover EOF separately. Changed late/gap/recovery metrics require interpretation against
+the selected complete-speech policy, not a blanket claim of no worse metrics. See COMPLETE_SPEECH.md.

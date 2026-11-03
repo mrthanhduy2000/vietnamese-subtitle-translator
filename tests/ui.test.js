@@ -720,6 +720,10 @@ test("the quick menu says what the voice is doing: ready ahead, slow server, ski
     dub.engine = fake({ live: true, ahead: 0, rtf: null, dropped: 0 });
     assert.match(sb.CST_DUB.describeHealth().text, /đọc trực tiếp/);
 
+    dub.engine = fake({ live: false, keepAllSpeech: true, lag: 4.3, ahead: 0, dropped: 0 });
+    assert.match(sb.CST_DUB.describeHealth().text, /đọc đủ lời, đang chậm 4,3 giây/);
+    dub.engine = fake({ live: false, keepAllSpeech: true, draining: true, ahead: 0, dropped: 0 });
+    assert.match(sb.CST_DUB.describeHealth().text, /video đã kết thúc, đang đọc nốt/);
     dub.enabled = false;
     assert.equal(sb.CST_DUB.describeHealth(), null);
     dub.engine = null;

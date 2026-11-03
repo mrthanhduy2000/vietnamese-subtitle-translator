@@ -79,7 +79,7 @@ async function simulate(file, opts = {}) {
     const ENG = opts.engine || require(path.join(REPO, "dub-engine.js"));
     const groups = SIM.realGroups(file);
     if (!groups.length) return null;
-    return SIM.run(ENG, { groups, wall: groups[groups.length - 1].end + 5, sps: opts.sps || 3.8, trAhead: 1e9, trLat: () => 0, bgAbort: "queued", latency: opts.latency,
+    return SIM.run(ENG, { groups, wall: groups[groups.length - 1].end + 5, sps: opts.sps || 3.8, trAhead: 1e9, trLat: () => 0, bgAbort: "queued", latency: opts.latency, drain: true,
         settings: opts.oneVoice ? undefined : { secondVoice: true } });
 }
 

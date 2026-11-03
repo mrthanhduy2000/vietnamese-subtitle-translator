@@ -715,7 +715,7 @@
             };
             // an ad swapping into the element seeks it too: the ad gate resets once the ad is over
             this.onSeek = () => { if (!this.isAdShowing()) this.hardReset("seek"); };
-            this.onPauseLike = () => this.silence();
+            this.onPauseLike = () => { if (!(this.keepsSpeech() && v.ended)) this.silence(); };
             this.onWaiting = () => { this.waiting = true; this.silence(); };
             this.onPlaying = () => { this.waiting = false; };
             v.addEventListener("volumechange", this.onVolume);
@@ -728,6 +728,7 @@
             this.onTimeUpdate = () => { if (this.running) this.tick(); };
             v.addEventListener("timeupdate", this.onTimeUpdate);
             this.timer = this.d.setInterval(() => this.tick(), SYNC.tickMs);
+            this.entryAt = v.currentTime || 0;
             this.headAt = Math.round(v.currentTime || 0);   // đoạn đầu ngắn quanh chỗ bắt đầu xem
             this.resetWall = this.d.now();
             this.startedAt = this.resetWall;
@@ -770,6 +771,36 @@
             this.setVideoVolume(this.baseVolume == null ? v.volume : this.baseVolume, true);
         }
 
+        // Continuous playback keeps every queued line; seeks establish a new entry point.
+        keepsSpeech() { return !!this.settings?.keepAllSpeech; }
+        timelineAt() {
+            const v = this.d.video;
+            if (!(this.keepsSpeech() && v.ended)) return v.currentTime;
+            const now = this.d.now();
+            if (this.drainWall == null) { this.drainWall = now; this.drainAt = v.currentTime; }
+            this.drainAt += (now - this.drainWall) / 1000 * (v.playbackRate || 1);
+            this.drainWall = now;
+            return this.drainAt;
+        }
+        queueAt(t) {
+            if (!this.keepsSpeech()) return t;
+            const live = this.live && this.planById.get(this.live.planId);
+            return live ? live.start : this.lastSpokenStart != null ? this.lastSpokenStart : this.entryAt != null ? this.entryAt : t;
+        }
+        renderAt(t) {
+            if (!this.keepsSpeech()) return t;
+            const next = this.plans.find(p => this.queuedPlan(p));
+            return next ? Math.min(t, Math.max(this.queueAt(t), next.start)) : t;
+        }
+        pendingTranslationBefore(p) {
+            if (!this.keepsSpeech()) return false;
+            const from = this.lastSpokenStart != null ? this.lastSpokenStart : this.entryAt || 0;
+            return (this.d.getGroups() || []).some(g => g && g.translated === false && !g.viText && g.end > from && g.start < p.start - SYNC.startTolerance);
+        }
+        queuedPlan(p) {
+            return p && (this.lastSpokenStart == null ? p.end > (this.entryAt || 0) : p.start > this.lastSpokenStart + 1e-6);
+        }
+
         // ---------------- Dựng kịch bản & kế hoạch từ bản dịch có ngữ cảnh ----------------
         refresh(force) {
             const given = this.d.getGroups() || [];
@@ -780,7 +811,8 @@
             // planStep steps, so a rebuild happens at most once per step while nothing new arrives.
             const t = (this.d.video && this.d.video.currentTime) || 0;
             const step = Math.floor(t / SYNC.planStep);
-            const from = (step * SYNC.planStep) - SYNC.planBehind;
+            const from = Math.min((step * SYNC.planStep) - SYNC.planBehind,
+                Math.floor(this.queueAt(t) / SYNC.planStep) * SYNC.planStep);
             const to = (step + 1) * SYNC.planStep + SYNC.planAhead;
             const groups = [];
             let tail = null;
@@ -798,7 +830,7 @@
             for (const g of groups) {
                 if (seen.get(g) !== g.viText) { seen.set(g, g.viText); this.textRev = (this.textRev || 0) + 1; }
             }
-            const sig = step + "|" + groups.length + "|" + this.textRev + "|" + (this.provider && this.provider.id) + "|" + (this.provider && this.provider.caps && this.provider.caps.free ? this.headAt : "") + "|" + (this.hintsRev || 0);
+            const sig = step + "|" + from + "|" + groups.length + "|" + this.textRev + "|" + (this.provider && this.provider.id) + "|" + (this.provider && this.provider.caps && this.provider.caps.free ? this.headAt : "") + "|" + (this.hintsRev || 0);
             if (!force && sig === this.sourceSig) return false;
             this.sourceSig = sig;
             // Chỉ giọng MIỄN PHÍ (VieNeu) mới cắt đoạn đầu ngắn: đổi điểm cắt sau khi tua có thể phải
@@ -818,7 +850,7 @@
             const script = this.oneVoice(PLAN.buildDubScript(groups, { headAt: free ? this.headAt : null, speakerTurns, spoken, ...(free ? FREE_SEGMENTS : {}) }));
             const opts = { voiceModel: this.provider.voiceModel };
             const before = this.plans || [];
-            this.plans = this.keepMadeTakes(before, PLAN.planAll(script, opts), t);
+            this.plans = this.keepMadeTakes(before, PLAN.planAll(script, opts), this.queueAt(t));
             this.planById = new Map(this.plans.map(p => [p.id, p]));
             // who reads each line: a take made in another voice (a speaker found later, a new cast)
             // is made again, as one made for other words is. By the voice, not the speaker: two
@@ -903,8 +935,13 @@
             if (!this.ownsVolume()) { this.stats.superseded = (this.stats.superseded || 0) + 1; this.stop(); return; }
             if (this.adGate()) return;
             const v = this.d.video;
-            const t = v.currentTime;
+            this.lastSourceT = v.currentTime;
             const now = this.d.now();
+            // At natural EOF the source clock stops; let queued speech finish on a wall clock.
+            // An explicit seek/replay clears this anchor in hardReset.
+            const draining = this.keepsSpeech() && v.ended;
+            if (!draining) this.drainWall = null;
+            const t = this.timelineAt();
             if (this.lastT !== null && (t < this.lastT - 0.3 || t > this.lastT + 2.5)) {
                 // A forward jump that matches the wall clock since the last tick is this page's own
                 // timer running late (a long task, memory pressure, a throttled tab), not a seek: the
@@ -922,10 +959,10 @@
             this.lastT = t;
             // Chưa nói câu nào mà vị trí đã khác xa điểm bắt đầu (YouTube khôi phục vị trí xem sau
             // khi bật): dời điểm cắt đoạn ngắn tới vị trí thật
-            if (this.lastSpokenStart == null && !this.speech && !this.headPinned && Math.abs(t - (this.headAt || 0)) > 10) this.headAt = Math.round(t);
+            if (!this.keepsSpeech() && this.lastSpokenStart == null && !this.speech && !this.headPinned && Math.abs(t - (this.headAt || 0)) > 10) this.headAt = Math.round(t);
             this.refresh();
 
-            const playing = !v.paused && !v.ended && (v.readyState === undefined || v.readyState >= 3) && !this.waiting && !stalled;
+            const playing = draining || !v.paused && !v.ended && (v.readyState === undefined || v.readyState >= 3) && !this.waiting && !stalled;
             // Chẩn đoán: video đang chạy mà engine coi là chưa phát được (lý do + thời điểm media)
             if (!playing && !v.paused && !v.ended) {
                 const g = this.stats.gate || (this.stats.gate = { waiting: 0, ready: 0, stalled: 0, lastT: null });
@@ -968,15 +1005,16 @@
                 if (!this.inAd) {
                     this.inAd = true;
                     this.stats.ads = (this.stats.ads || 0) + 1;
+                    this.adSourceTime = this.lastSourceT != null ? this.lastSourceT : this.lastT;
                     // the line the ad cut, and how far the voice had got in it (BACKLOG 35)
                     const S = this.speech, r = S && this.rendered.get(S.id);
                     this.adCut = S && r && r.el && !r.el.ended && this.lastT != null
-                        ? { id: S.id, pos: r.el.currentTime || 0, at: this.lastT } : null;
+                        ? { id: S.id, pos: r.el.currentTime || 0, at: this.adSourceTime } : null;
                     // ... or, the voice resting between lines, the line it last finished: after the ad
                     // that line is not read again from the video's place (live harness, 2.0.0: the tail
                     // of a finished line was read twice because its subtitle was still up)
                     if (!this.adCut && this.lastSpokenId && this.lastT != null)
-                        this.adCut = { done: true, id: this.lastSpokenId, start: this.lastSpokenStart, at: this.lastT };
+                        this.adCut = { done: true, id: this.lastSpokenId, start: this.lastSpokenStart, at: this.adSourceTime };
                     this.silence();
                     this.speech = null;
                 }
@@ -999,7 +1037,7 @@
         takeAdResume(t) {
             const x = this.adResume;
             this.adResume = null;
-            if (!x || Math.abs(t - x.at) > SYNC.adResumeWithin) return null;    // the lecture moved: a seek
+            if (!x || Math.abs((this.keepsSpeech() && this.d.video.ended ? this.d.video.currentTime : t) - x.at) > SYNC.adResumeWithin) return null;    // the lecture moved: a seek
             if (x.done) {                       // go on after the line already heard
                 this.lastSpokenStart = x.start;
                 this.lastSpokenId = x.id;
@@ -1007,7 +1045,7 @@
                 return null;
             }
             const p = this.planById.get(x.id), r = this.rendered.get(x.id);
-            if (!p || !r || x.pos >= r.duration - 0.3) return null;
+            if (!p || !r || x.pos >= r.duration - (this.keepsSpeech() ? 0 : 0.3)) return null;
             let offset = x.pos;
             for (const e of r.stops || []) { if (e > x.pos + 0.05) break; if (x.pos - e <= SYNC.entryBack) { offset = e; break; } }
             this.stats.adResumed = (this.stats.adResumed || 0) + 1;
@@ -1031,27 +1069,44 @@
                 if (!stuck || L.k >= stuck.phrases.length - 1) L.finished = true;
             }
             let idx = this.planAt(t);
-            if (idx < 0) return;
-            let plan = this.plans[idx];
-            let k = 0;
-            if (L && L.planId === plan.id) {
-                k = L.k + 1;
-            } else if (L && L.planId && this.planById.has(L.planId) && !L.finished) {
-                // Còn cụm của đoạn trước chưa nói xong (do trễ): nói nốt nếu chưa trễ quá
-                const prev = this.planById.get(L.planId);
-                if (L.k + 1 < prev.phrases.length) {
-                    const due = prev.start + prev.phrases[L.k + 1].offset;
-                    if (t - due < SYNC.dropLag) { plan = prev; k = L.k + 1; }
-                    else this.stats.dropped++;
+            let plan, k = 0;
+            if (this.keepsSpeech()) {
+                const previous = L && this.planById.get(L.planId);
+                if (previous) {
+                    idx = this.plans.indexOf(previous); k = L.k + 1;
+                    if (k >= previous.phrases.length) { idx++; k = 0; }
+                } else {
+                    const entry = this.lastSpokenStart != null ? this.lastSpokenStart : this.entryAt != null ? this.entryAt : t;
+                    idx = this.planAt(entry);
+                    if (idx < 0 || this.plans[idx].end <= entry) idx++;
+                    const first = this.plans[idx];
+                    if (first) while (k < first.phrases.length && entry - first.start > first.phrases[k].offset + first.phrases[k].dur * 0.4) k++;
                 }
-            } else if (!L || t - plan.start > SYNC.dropLag) {
-                // Vào giữa đoạn (sau khi tua, hoặc trễ quá nhiều): bắt đầu ở cụm chưa trôi qua
-                while (k < plan.phrases.length && t - plan.start > plan.phrases[k].offset + plan.phrases[k].dur * 0.4) k++;
+                plan = this.plans[idx];
+                if (!plan) return;
+            } else {
+                if (idx < 0) return;
+                plan = this.plans[idx];
+                if (L && L.planId === plan.id) {
+                    k = L.k + 1;
+                } else if (L && L.planId && this.planById.has(L.planId) && !L.finished) {
+                    // Còn cụm của đoạn trước chưa nói xong (do trễ): nói nốt nếu chưa trễ quá
+                    const prev = this.planById.get(L.planId);
+                    if (L.k + 1 < prev.phrases.length) {
+                        const due = prev.start + prev.phrases[L.k + 1].offset;
+                        if (t - due < SYNC.dropLag) { plan = prev; k = L.k + 1; }
+                        else this.stats.dropped++;
+                    }
+                } else if (!L || t - plan.start > SYNC.dropLag) {
+                    // Vào giữa đoạn (sau khi tua, hoặc trễ quá nhiều): bắt đầu ở cụm chưa trôi qua
+                    while (k < plan.phrases.length && t - plan.start > plan.phrases[k].offset + plan.phrases[k].dur * 0.4) k++;
+                }
             }
             if (k >= plan.phrases.length) {
                 if (L && L.planId === plan.id) L.finished = true;
                 return;
             }
+            if (this.pendingTranslationBefore(plan)) return;
             const ph = plan.phrases[k];
             const due = plan.start + ph.offset;
             if (t < due - SYNC.startTolerance) return;   // chưa tới lúc: giữ khoảng ngừng
@@ -1522,6 +1577,7 @@
             for (const [id, r] of this.rendered) {
                 const p = this.planById.get(id);
                 if (this.speech && this.speech.id === id) continue;
+                if (this.keepsSpeech() && this.queuedPlan(p)) continue;
                 // no plan any more: outside the planning window (far from playback) or re-cut. Kept
                 // forever before, which leaked an object URL and its audio per plan that went away.
                 if (!p || p.start + (r.duration / (r.stretch || 1)) < t - SYNC.keepBehind || p.start > t + SYNC.keepAhead) {
@@ -1540,14 +1596,17 @@
             if (this.lastSpokenStart == null) {
                 // Vừa bắt đầu / vừa tua: chỉ xét câu tại vị trí hiện tại; đã vào giữa câu thì
                 // phát từ đúng đoạn tương ứng, câu đã trôi qua thì chờ câu sau
-                const idx = this.planAt(t + tol);
-                if (idx < 0) return null;
+                const entry = this.keepsSpeech() ? (this.entryAt != null ? this.entryAt : t) : t;
+                let idx = this.planAt(entry + tol);
+                if (this.keepsSpeech() && (idx < 0 || this.plans[idx].end <= entry)) idx++;
+                if (idx < 0 || !this.plans[idx]) return null;
                 const p = this.plans[idx];
+                if (t < p.start - tol || this.pendingTranslationBefore(p)) return null;
                 // A line waited on here with time left to say it, then passed without a word, was
                 // given up for a slow voice: it counts in stats.dropped ("đã bỏ N câu", BACKLOG 38).
                 // A line the viewer seeked into its last second is their skip, not ours.
                 const waited = this.entryWait;
-                if (waited && waited !== p.id) {
+                if (!this.keepsSpeech() && waited && waited !== p.id) {
                     this.entryWait = null;
                     const w = this.planById.get(waited);
                     if (w && w.start < p.start) {
@@ -1557,6 +1616,13 @@
                 }
                 const r = this.rendered.get(p.id);
                 if (!r) {
+                    if (this.keepsSpeech() && (this.failed.get(p.id) || 0) >= 2 && !this.pending.has(p.id)) {
+                        this.lastSpokenStart = p.start;
+                        this.entryWait = null;
+                        this.stats.dropped++;
+                        this.note("drop", { id: p.id, why: "failed" });
+                        return null;
+                    }
                     const g = this.stats.gate || (this.stats.gate = { waiting: 0, ready: 0, stalled: 0, lastT: null });
                     g.noAudio = (g.noAudio || 0) + 1;
                     g.noAudioT = Math.round(t * 100) / 100;
@@ -1565,7 +1631,7 @@
                 }
                 // Vào giữa đoạn: vị trí trong audio = phần khung đã trôi qua x (độ dài audio / khung).
                 // Trước đây nhân với nhịp nền 1,22 -> tưởng đoạn sắp xong, bỏ luôn, im ~6 giây
-                const into = Math.max(0, t - p.start);
+                const into = Math.max(0, entry - p.start);
                 const i = this.plans.indexOf(p);
                 const next = i >= 0 ? this.plans[i + 1] : null;
                 const span = Math.max(0.5, (next ? Math.min(next.start, p.end + 0.5) : p.end) - p.start);
@@ -1580,7 +1646,7 @@
                     this.note("drop", { id: p.id, why: lost ? "entry-no-audio" : "entered-too-late", into: Math.round(into * 100) / 100 });
                     return null;
                 }
-                return { p, r, offset, lag: 0 };
+                return { p, r, offset, lag: this.keepsSpeech() ? Math.max(0, t - Math.max(entry, p.start)) : 0 };
             }
             // Câu trước vừa nói xong (đang trễ, câu sau đã tới giờ): nghỉ một nhịp như người thật
             let restAfter = this.lastSpeechGap != null ? this.lastSpeechGap : (this.lastSpeechJoined ? SYNC.joinGap : SYNC.sentenceGap);
@@ -1614,8 +1680,9 @@
                     this.stats.chained = (this.stats.chained || 0) + 1;
                     return { p, r: this.rendered.get(p.id), offset: 0, lag: t - p.start };
                 }
+                if (this.pendingTranslationBefore(p)) return null;
                 const lag = t - p.start;
-                if (lag > SYNC.maxQueueLag && !this.readsLate(p, t)) {   // trễ quá xa: bỏ NGUYÊN câu
+                if (!this.keepsSpeech() && lag > SYNC.maxQueueLag && !this.readsLate(p, t)) {   // trễ quá xa: bỏ NGUYÊN câu
                     this.lastSpokenStart = p.start;
                     this.stats.dropped++;
                     this.note("drop", { id: p.id, why: this.rendered.has(p.id) ? "lag" : "lag-no-audio", lag: Math.round(lag * 100) / 100 });
@@ -1635,6 +1702,7 @@
                 // real time the audio lands long after the subtitle is gone; waiting 4.5s per
                 // sentence and dropping them one by one measured 12/61 sentences spoken and a
                 // 63s silence. Skipping to the first reachable sentence measured 30/61.
+                if (this.keepsSpeech()) return null;
                 const wait = this.waitAudio(p);
                 if (lag + wait <= SYNC.skipAfter) return null;        // still reachable: wait
                 this.skipAhead(t, wait);
@@ -1902,7 +1970,7 @@
                 S.watching = false;
                 const r = this.rendered.get(S.id);
                 if (!this.running || this.speech !== S || !r || r.el !== el || el.paused) return;
-                this.settleSpeech(S, el, this.d.video.currentTime);
+                this.settleSpeech(S, el, this.timelineAt());
                 if (!S.moving || S.fadeAt != null) { S.watching = true; this.d.setTimeout(step, SYNC.fadeStepMs); }
             };
             this.d.setTimeout(step, SYNC.fadeStepMs);
@@ -1986,14 +2054,14 @@
             // API từng báo vượt giới hạn tốc độ (hay gặp với key miễn phí): chỉ 1 lượt mỗi lúc
             const maxActive = !this.conservative && !this.provider.caps.serial && active && this.bufferedAhead(t) < (this.renderLatency != null ? this.renderLatency : 4) * SYNC.thinBuffer ? 2 : 1;
             if (active >= maxActive || this.jobs.size >= SYNC.maxJobs) return;
-            const to = t + this.prefetchAhead();
+            const to = this.renderAt(t) + this.prefetchAhead();
             // Vừa bật / vừa tua (chưa nói câu nào): đoạn đã hết phụ đề sẽ không bao giờ được đọc
             // -> không tạo audio cho nó (từng làm tiếng đầu tiên chậm thêm một lượt tạo giọng)
             const fresh = this.lastSpokenStart == null;
             // A segment at or behind the speech queue mark (spoken, or dropped for lag) will never
             // be spoken: rendering it steals a server slot from the segment that is about to play
             const spoken = this.lastSpokenStart;
-            const inWindow = p => p.start + p.estDuration >= t - 1 && (spoken == null || p.start > spoken) && !(fresh && p.end < t + 0.3) && p.start <= to && !this.rendered.has(p.id) && !this.pending.has(p.id) && (this.failed.get(p.id) || 0) < 2 && !(fresh && this.unreachable(p, t));
+            const inWindow = p => (this.keepsSpeech() || p.start + p.estDuration >= t - 1) && (spoken == null || p.start > spoken) && !(fresh && p.end < (this.keepsSpeech() ? this.entryAt || 0 : t) + 0.3) && p.start <= to && !this.rendered.has(p.id) && !this.pending.has(p.id) && (this.failed.get(p.id) || 0) < 2 && !(fresh && !this.keepsSpeech() && this.unreachable(p, t));
             let todo = this.plans.filter(inWindow).sort((a, b) => a.start - b.start);
             if (!todo.length) return;
 
@@ -2083,8 +2151,14 @@
         // What the viewer should know about the voice right now, for the quick menu: how much audio
         // is ready ahead, how fast the server makes it, how many sentences were skipped to catch up.
         health(t) {
+            const keepAllSpeech = !!this.settings?.keepAllSpeech;
+            const next = keepAllSpeech && this.plans.find(p => this.queuedPlan(p));
+            const unfinished = keepAllSpeech && (this.provider.caps.live ? (!this.live || !this.live.finished || this.plans.indexOf(this.planById.get(this.live.planId)) < this.plans.length - 1) : !!(this.speech || next));
+            const lag = this.speech?.startRecord?.playbackLag ?? (next ? Math.max(0, t - next.start) : 0);
             return {
                 live: !!this.provider.caps.live,
+                keepAllSpeech, draining: !!(keepAllSpeech && this.d.video.ended && unfinished),
+                lag, waitingTranslation: !!(next && this.pendingTranslationBefore(next)),
                 ahead: this.provider.caps.live ? 0 : this.bufferedAhead(t),
                 rtf: this.renderRtf == null ? null : this.renderRtf,
                 samples: this.renderSamples,
@@ -2441,7 +2515,7 @@
                 if (job.orphan) continue;
                 const relevant = job.planIds.some(id => {
                     const p = this.planById.get(id);
-                    return p && p.start + p.estDuration >= t - 1 && p.start <= to;
+                    return p && (this.keepsSpeech() ? this.queuedPlan(p) && (reach == null || p.start <= to) : p.start + p.estDuration >= t - 1 && p.start <= to);
                 });
                 if (relevant) continue;
                 job.orphan = true;
@@ -2537,6 +2611,9 @@
         }
 
         hardReset(reason) {
+            const resumeQueue = reason === "ad" && this.keepsSpeech() && this.adSourceTime != null &&
+                Math.abs(this.d.video.currentTime - this.adSourceTime) <= SYNC.adResumeWithin
+                ? { entryAt: this.entryAt, mark: this.lastSpokenStart, id: this.lastSpokenId, headAt: this.headAt, live: this.live } : null;
             this.note("reset", { why: reason });
             this.pace = null;                   // the pace of where we were says nothing about where we are
             this.silence();
@@ -2546,6 +2623,8 @@
             // a sounding one after the fade silence() began (a cut at once was a click on every seek)
             for (const r of this.rendered.values()) if (r.el) this.releaseAudio(r, true);
             this.lastSpokenStart = null;
+            this.entryAt = this.d.video.currentTime || 0;
+            this.drainWall = null;
             this.entryWait = null;              // a line waited on before the seek was the viewer's skip
             this.lastRate = null;               // vị trí mới: không nối nhịp với câu cũ
             this.lastSpeechEnd = null;
@@ -2564,6 +2643,14 @@
             if (!this.headPinned) this.headAt = Math.round(at);
             this.resetWall = this.d.now();
             this.live = null;
+            if (resumeQueue) {
+                this.entryAt = resumeQueue.entryAt;
+                this.lastSpokenStart = resumeQueue.mark;
+                this.lastSpokenId = resumeQueue.id;
+                this.headAt = resumeQueue.headAt;
+                this.headProbe = null;
+                this.live = resumeQueue.live;
+            }
             this.lastT = null;
             this.seekTimes.push(this.d.now());
             this.cancelObsoleteJobs(this.d.video.currentTime, SYNC.seekKeepAhead * Math.max(1, this.d.video.playbackRate || 1));

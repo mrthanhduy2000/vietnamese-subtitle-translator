@@ -1711,3 +1711,14 @@ Every per-video loss/late/gap metric was no worse. One pre-existing dense-speech
 in both versions: 16 words omitted after 10.19 s accumulated lag reached the existing hard limit.
 The archived 45-video regression does not contain this case; do not report the full corpus as
 zero lost words. This class requires separate listening-driven pacing work, not a higher speed cap.
+
+## Continuous playback and complete speech (3.1.7)
+
+The selected product policy is `keepAllSpeech: true`, passed by dubbing.js and current production
+harnesses/simulators. The engine's compatibility default can still exercise the older skip policy.
+The speech FIFO preserves late/missing audio and pins the original entry instead of advancing it
+while synthesis waits. Unspoken work survives planning/eviction/cleanup. Generation follows the
+next queued source span, including long source silences. Explicit seeks reset entry; ads returning
+to the same source position preserve it. Natural EOF drains on a continuous wall clock without
+restarting the video. Web Speech fallback preserves phrase order too. Real synthesis failures stay
+reported. See COMPLETE_SPEECH.md for input hashes, acoustic recordings and the accepted delay cost.

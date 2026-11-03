@@ -95,9 +95,10 @@ none
 
 The 145-video saved-corpus comparison at LATENCY=busy found one existing hard-lag drop in both
 3.1.5 and 3.1.6: 16 words lost after accumulated lag reached 10.19 seconds. Startup predecode
-reduces unnecessary gaps but cannot remove this dense-speech overload class. Scope a separate
-listening-based pacing/hold policy, preserving all speech text and the existing natural-rate cap.
-Do not fix it with a video ID exception or silently shorten the translation.
+alone did not remove this overload class. In 3.1.7 the user selected continuous video with complete
+speech: the queue no longer drops valid lines for lag and drains at natural EOF. Delay remains the
+accepted cost. The separate source-caption/content mismatch is still open. Never silently shorten
+translation or introduce a video-ID exception.
 
 ## Install and update
 

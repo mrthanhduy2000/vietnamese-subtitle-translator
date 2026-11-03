@@ -64,14 +64,15 @@ test("readMachine tells an Intel Mac from an Apple chip through the high-entropy
     assert.equal(HW.describeMachine({ os: "mac", arch: "x86", cores: 4 }), "Mac, chip Intel, 4 nhân");
 });
 
-test("the premise of the advice: at rtf 1.3 a video near the advised speed drops far fewer lines than at normal speed", async () => {
+test("a slower source reduces accumulated lag without dropping speech at either rate", async () => {
     const { run } = require("../tools/playback-sim.js");
     const eng = require("../dub-engine.js");
     const go = (rate, settings) => run(eng, { wall: 240, minutes: 6, rate, rtf: () => 1.3, bgAbort: "queued", settings });
     const advisedRate = 0.75;           // the advice (0.6) plus the margin the sim showed is already enough
     const normal = await go(1), advised = await go(advisedRate);
-    assert.ok(normal.dropped >= 5, `rate 1 drops ${normal.dropped}`);
-    assert.ok(advised.dropped <= 2, `rate ${advisedRate} drops ${advised.dropped}`);
+    assert.equal(normal.dropped, 0);
+    assert.equal(advised.dropped, 0);
+    assert.ok(advised.late < normal.late, `${advised.late} late at advised speed, ${normal.late} at normal speed`);
 });
 
 test("dub-hardware.js ships: loaded before the engine's page code and on the Settings page", () => {

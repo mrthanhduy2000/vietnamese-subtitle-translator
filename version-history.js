@@ -4,6 +4,15 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.1.7", luc: "03/11/2026", ten: "Đọc đủ lời khi video chạy liên tục",
+            y: [
+                "Giữ các câu chưa đọc trong hàng đợi, kể cả khi đã trễ hơn mốc phụ đề; không bỏ câu chỉ để đuổi kịp video.",
+                "Audio về muộn vẫn đọc từ vị trí bắt đầu đã chọn. Tua hoặc đổi video sẽ chuyển sang vị trí mới như thao tác của bạn.",
+                "Khi video kết thúc tự nhiên, đọc nốt phần lời còn lại. Tạm dừng trong lúc xem hoặc tắt lồng tiếng vẫn dừng giọng đọc.",
+                "Hiển thị trạng thái đang đọc đủ lời và độ trễ so với phụ đề; không tự tạm dừng video để chờ lời đọc."
+            ]
+        },
+        {
             v: "3.1.6", luc: "03/11/2026", ten: "Chuẩn bị lời đọc sớm hơn khi mở video và sau khi tua",
             y: [
                 "Chuẩn bị giải mã audio của câu đầu và câu tại vị trí tua ngay khi có dữ liệu, kể cả lúc video đang tạm dừng; tránh thao tác tua về đầu không cần thiết trước khi phát.",

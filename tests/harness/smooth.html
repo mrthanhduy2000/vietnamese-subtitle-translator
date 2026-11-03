@@ -62,7 +62,7 @@
       now: () => performance.now(), setInterval: (f, ms) => setInterval(() => { const n = performance.now(); H.ticks.push(n - last); last = n; f(); }, ms),
       setTimeout: (f, ms) => setTimeout(f, ms), clearInterval: id => clearInterval(id),
       createObjectURL: b => URL.createObjectURL(new Blob([b], { type: "audio/wav" })), revokeObjectURL: u => URL.revokeObjectURL(u),
-      createAudio, log: (...a) => H.log.push(a) }, { duck: 1, volume: 1 });
+      createAudio, log: (...a) => H.log.push(a) }, { duck: 1, volume: 1, keepAllSpeech: true });
     H.engine = eng;
     eng.start();
     await new Promise(r => setTimeout(r, 1500));
