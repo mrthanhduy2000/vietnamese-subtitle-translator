@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.1.6", luc: "03/11/2026", ten: "Chuẩn bị lời đọc sớm hơn khi mở video và sau khi tua",
+            y: [
+                "Chuẩn bị giải mã audio của câu đầu và câu tại vị trí tua ngay khi có dữ liệu, kể cả lúc video đang tạm dừng; tránh thao tác tua về đầu không cần thiết trước khi phát.",
+                "Chẩn đoán tách độ trễ lúc yêu cầu phát khỏi độ trễ khi audio thực sự bắt đầu chạy, giúp phân biệt thời gian chờ Chrome với thời gian tạo giọng.",
+                "Giữ nguyên toàn bộ lời đọc và giới hạn tốc độ, không tăng tốc thêm để che độ trễ."
+            ]
+        },
+        {
             v: "3.1.5", luc: "02/11/2026", ten: "Giữ bản dịch tốt và tiếp tục phần video đang dịch dở",
             y: [
                 "Khi Gemini trả về một số câu rỗng, giữ các câu hợp lệ và chỉ dùng dịch dự phòng cho phần còn thiếu.",

@@ -30,6 +30,7 @@ sense of weight, not an assertion.
 
 | File | ~Tests | Covers |
 |---|---|---|
+| `dub-onset.test.js` | 4 | Initial/seek predecode, paused startup without a hold, redundant-zero-seek avoidance and playback-onset accounting across resume. |
 | `translation-progress.test.js` | 10 | Empty-answer salvage, selective fallback, partial checkpoint resume, source/track identity, completion cleanup, bounds and concurrent worker writes. |
 | `storage-consistency.test.js` | 13 | Settings delta saves, concurrent style patches, failed/queued saves, restore freeze, exact cache accounting, concurrent mutations, timeout completion and stale-version replacement. |
 | `vieneu-timing.test.js` | 2 | Worker queue/generation/processing timing with serial jobs; cache hits excluded; metadata reaches the local provider scheduler. |
@@ -432,3 +433,25 @@ source and track scope. `tests/progress-env.js` supplies a page/worker fixture w
 storage; no network or paid model requests are made. This checks bookkeeping and fault handling,
 not fresh model semantics or live browser playback. On 2026-11-02 the archive plus read-only Chrome
 export contained 145 unique videos / 17,306 groups: zero lost good lines or incorrect restores.
+
+### Audible onset, with real local speech
+
+`node tests/harness/onset-prep.js` prepares four short VieNeu takes through the real worker;
+its network guard permits only 127.0.0.1:8000. Output is ignored under `tests/harness/smooth/`.
+`PAGE=tests/harness/onset.html EXPR='runOnset().catch(e=>{result={done:true,error:e.stack}}); "running"'
+POLL='result' node tests/harness/headless.js` plays those same takes in real Chrome, including pause,
+resume and seek. An analyser samples output every 10 ms; first peak above 0.003 is the acoustic
+onset proxy. Check four rows/completions, zero overlap/paused sound/drops/errors, zero entry offsets
+and unchanged rates. Inspect `error` explicitly, even if `done` is true. A threshold is not a
+human judgment of pronunciation or speaker alignment; this page supports manual listening too.
+
+For A/B, copy the older engine to `tests/harness/smooth/onset-old-engine.js`, then use `?old`.
+`?record` includes a base64 WebM recording in the JSON, so redirect output to a file instead of
+printing it. CPU=6 throttles Chrome. Use identical prepared takes for comparisons: regenerated TTS
+may have different durations. These short clips isolate delivery, not dense-speech catch-up.
+`DUB_ENGINE=/absolute/path/old-engine.js node --test tests/dub-onset.test.js` checks test sensitivity;
+all four cases fail on 3.1.5 (the older module must resolve its root dependencies).
+
+For live generation, start `node tests/harness/live-server.js 8768` and set
+`HARNESS_URL=http://127.0.0.1:8768/tests/harness/live.html` on the headless runner. PAGE is still
+required. This exercises the real worker and local server without accessing paid providers.

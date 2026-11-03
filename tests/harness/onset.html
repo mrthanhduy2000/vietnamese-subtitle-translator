@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="vi"><meta charset="utf-8"><title>Kiểm tra thời điểm lời đọc</title>
+<button onclick="runOnset()">Nghe và đo lời đọc</button><pre id="out"></pre>
+<script>
+// Real speech PCM through real Chrome media playback. Prepared takes isolate delivery from TTS.
+const wait = ms => new Promise(r => setTimeout(r, ms));
+window.result = null;
+window.runOnset = async () => {
+    if (window.running) return;
+    window.running = true;
+    const query = new URLSearchParams(location.search);
+    for (const f of ['vi-segmenter.js', 'cost-policy.js', 'dub-planner.js', 'dub-prosody.js', 'dub-speech.js', 'dub-audio.js', 'dub-engine.js']) {
+        await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = f === 'dub-engine.js' && query.has('old') ? 'smooth/onset-old-engine.js' : '../../' + f;
+            s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
+        });
+    }
+    const takes = await (await fetch('smooth/onset.json')).json();
+    for (const take of takes) take.wav = new Uint8Array(await (await fetch('smooth/' + take.file)).arrayBuffer());
+    const starts = [0.8, 6, 12, 18];
+    const groups = takes.map((take, i) => ({ start: starts[i], end: starts[i] + 3, viText: take.text,
+        srcCues: [{ start: starts[i], end: starts[i] + 3, text: take.text }],
+        viCues: [{ start: starts[i], end: starts[i] + 3, text: take.text }] }));
+    const E = CST_DUB_ENGINE, ctx = new AudioContext(); await ctx.resume();
+    const destination = ctx.createMediaStreamDestination();
+    const chunks = [], recorder = new MediaRecorder(destination.stream);
+    recorder.ondataavailable = e => chunks.push(e.data);
+    const clock = new Audio(); clock.volume = 0.01;
+    const clockUrl = URL.createObjectURL(new Blob([CST_DUB_AUDIO.encodeWav(new Float32Array(25 * 8000), 8000)], { type: 'audio/wav' }));
+    clock.src = clockUrl;
+    await new Promise(r => clock.addEventListener('loadedmetadata', r, { once: true }));
+    const rows = [], voices = [];
+    const provider = { id: 'onset-fixture', caps: { prerender: true }, voiceModel: CST_DUB_PLAN.DEFAULT_VOICE_MODEL,
+        init: async () => true, render: async plans => plans.map(p => {
+            const i = starts.findIndex(t => Math.abs(t - p.start) < 0.1);
+            if (i < 0) throw new Error('Unexpected plan ' + p.id);
+            return { planId: p.id, wav: takes[i].wav, duration: takes[i].duration };
+        }) };
+    const engine = new E.DubEngine({ video: clock, getGroups: () => groups, providers: { primary: provider },
+        now: () => performance.now(), setInterval: (f, ms) => setInterval(f, ms), clearInterval: id => clearInterval(id), setTimeout: (f, ms) => setTimeout(f, ms),
+        createObjectURL: wav => URL.createObjectURL(new Blob([wav], { type: 'audio/wav' })), revokeObjectURL: url => URL.revokeObjectURL(url),
+        createAudio: url => {
+            const a = new Audio(url); a.preload = 'auto';
+            const source = ctx.createMediaElementSource(a), analyser = ctx.createAnalyser(); analyser.fftSize = 256;
+            source.connect(analyser); analyser.connect(ctx.destination); analyser.connect(destination);
+            const entry = { a, analyser, data: new Float32Array(256), heard: false, ended: false };
+            a.addEventListener('ended', () => { entry.ended = true; });
+            voices.push(entry); return a;
+        }
+    }, { duck: 1, volume: 1 });
+    let overlap = 0, pausedSound = 0, pausedAt = 0;
+    const poll = setInterval(() => {
+        let sounding = 0;
+        for (const v of voices) {
+            v.analyser.getFloatTimeDomainData(v.data);
+            const peak = v.data.reduce((m, x) => Math.max(m, Math.abs(x)), 0);
+            if (peak < 0.003 || v.a.paused) continue;
+            sounding++;
+            if (!v.heard) {
+                v.heard = true;
+                const s = engine.speech, p = s && engine.planById.get(s.id);
+                rows.push({ id: s?.id, due: p?.start, heardAt: clock.currentTime, lag: p ? clock.currentTime - p.start : null,
+                    offset: s?.offset, rate: v.a.playbackRate });
+            }
+        }
+        if (sounding > 1) overlap++;
+        if (sounding && clock.paused && performance.now() - pausedAt > 100) pausedSound++;
+    }, 10);
+    engine.start();
+    await wait(1500); recorder.start(); await clock.play();
+    await wait(4000); clock.pause(); pausedAt = performance.now();
+    await wait(1500); await clock.play();
+    await wait(4000); clock.currentTime = 11;
+    await wait(10500); clock.pause(); engine.stop(); clearInterval(poll);
+    const stopped = new Promise(r => recorder.addEventListener('stop', r, { once: true })); recorder.stop(); await stopped;
+    const blob = new Blob(chunks, { type: recorder.mimeType });
+    const audio = document.createElement('audio'); audio.controls = true; audio.src = URL.createObjectURL(blob); document.body.appendChild(audio);
+    result = { done: true, rows, overlap, pausedSound, completed: voices.filter(v => v.ended).length, dropped: engine.stats.dropped, errors: engine.stats.errors, startup: engine.stats.startUp,
+        scheduled: engine.stats.started, mimeType: recorder.mimeType };
+    if (query.has('record')) result.recording = await new Promise(resolve => { const r = new FileReader(); r.onload = () => resolve(r.result); r.readAsDataURL(blob); });
+    document.getElementById('out').textContent = JSON.stringify({ ...result, recording: undefined }, null, 2);
+    await ctx.close(); URL.revokeObjectURL(clockUrl);
+};
+</script></html>

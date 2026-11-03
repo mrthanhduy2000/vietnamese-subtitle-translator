@@ -937,6 +937,8 @@
                 else this.tickBuffer(t, v.playbackRate || 1);
             } else {
                 this.silence();
+                // Decode the first/seek landing take while paused, even without a prepare hold.
+                if (!this.provider.caps.live && !this.speech && !v.ended) this.prewarm(t, false);
             }
             // Lượt TTS không còn liên quan (tua, nhảy vị trí): hủy, kiểm tra thưa để rẻ
             if (this.jobs.size && (!this.lastJobCheck || now - this.lastJobCheck > 500)) {
@@ -1173,7 +1175,8 @@
             this.speech = S = { id: p.id, mediaStart: t, offset, rate, end: t + (r.duration - offset) / rate, prevSpokenStart: this.lastSpokenStart, prevSpokenId: this.lastSpokenId };
             this.lastSpokenStart = p.start;
             this.lastSpokenId = p.id;
-            this.stats.started.push({ id: p.id, t, due: p.start, lag, rate, speechEnd: S.end, cueEnd: p.end });
+            S.startRecord = { id: p.id, t, due: p.start, lag, rate, speechEnd: S.end, cueEnd: p.end };
+            this.stats.started.push(S.startRecord);
             if (lag > SYNC.lateStart) this.note("late", { id: p.id, lag: Math.round(lag * 100) / 100, rate: Math.round(rate * 100) / 100 });
             for (const [id, x] of this.rendered) if (x.el && id !== p.id && !x.el.paused) this.quietPause(x.el);
             if (!r.el) this.makeEl(r);
@@ -1499,15 +1502,15 @@
         // start, or one Chrome suspended after ~15 s idle, took 0.25 to 0.75 s to start in the user's
         // Chrome while the server worked (the simulator's LATENCY=busy). One that is playing or fading
         // is never touched; one never played that sat longer than prewarmIdle is made again.
-        prewarm(t) {
-            if (this.lastSpokenStart == null) return;
-            const q = this.plans[this.planAt(this.lastSpokenStart + 1e-6) + 1];
+        prewarm(t, renewIdle = true) {
+            const entering = this.lastSpokenStart == null;
+            const q = entering ? this.plans.find(p => p.end > t + 0.2) : this.plans[this.planAt(this.lastSpokenStart + 1e-6) + 1];
             const r = q && this.rendered.get(q.id);
             if (!r || !r.url) return;
             const ahead = q.start - t;
-            if (ahead >= SYNC.prewarmAhead || ahead <= SYNC.prewarmMin) return;
+            if (ahead >= SYNC.prewarmAhead || (!entering && ahead <= SYNC.prewarmMin)) return;
             const el = r.el;
-            if (el && el.paused && !el.cstFade && !el.currentTime && r.madeAt != null && this.d.now() - r.madeAt > SYNC.prewarmIdle * 1000) this.releaseAudio(r);
+            if (renewIdle && el && el.paused && !el.cstFade && !el.currentTime && r.madeAt != null && this.d.now() - r.madeAt > SYNC.prewarmIdle * 1000) this.releaseAudio(r);
             if (!r.el) this.makeEl(r);
         }
 
@@ -1755,6 +1758,7 @@
                 delivery: { recoverMs: (this.stats.recoverMs || []).slice(-5), late: this.stats.late || 0, gaps: this.stats.gaps || 0, gapSec: r2(this.stats.gapSec || 0), requests: this.stats.requests, cacheHits: this.stats.cacheHits, aborted: this.stats.aborted, detached: this.stats.detached || 0, held: this.rendered.size, elements: [...this.rendered.values()].filter(x => x.el).length,
                     // what a "pop" heard while the voice plays can be (2.4.2): a re-seek of a sounding
                     // voice (each a jump), a rate nudge, the original coming back up between lines
+                    playbackLate: this.stats.playbackLate || 0, playbackLagMax: r2(this.stats.playbackLagMax || 0),
                     reseeks: this.stats.corrections || 0, nudges: this.stats.nudges || 0, duckUps: this.stats.duckUps || 0,
                     // (2.4.6) how long Chrome took to start a voice (play() or a seek until it moved)
                     startUp: this.stats.startUp ? { n: this.stats.startUp.n, slow: this.stats.startUp.slow, maxMs: this.stats.startUp.maxMs, avgMs: Math.round(this.stats.startUp.sumMs / Math.max(1, this.stats.startUp.n)) } : null },
@@ -1765,7 +1769,9 @@
                     st: this.rendered.has(p.id) ? "ok" : this.pending.has(p.id) ? "tao" : (this.failed.get(p.id) || 0) >= 2 ? "loi" : "chua",
                     dur: this.rendered.has(p.id) ? r2(this.rendered.get(p.id).duration) : null
                 })),
-                started: this.stats.started.slice(-25).map(x => ({ id: x.id, t: r2(x.t), due: r2(x.due), rate: r2(x.rate), end: r2(x.speechEnd), cueEnd: r2(x.cueEnd) })),
+                started: this.stats.started.slice(-25).map(x => ({ id: x.id, t: r2(x.t), due: r2(x.due), rate: r2(x.rate), end: r2(x.speechEnd), cueEnd: r2(x.cueEnd),
+                    playbackStart: x.playbackStart == null ? null : r2(x.playbackStart),
+                    playbackLag: x.playbackLag == null ? null : r2(x.playbackLag), startupMs: x.startupMs == null ? null : Math.round(x.startupMs) })),
                 rtf: this.renderRtf == null ? null : r2(this.renderRtf), rtfLast: this.lastRtf == null ? null : r2(this.lastRtf),
                 over: this.fittedOver == null ? null : r2(this.fittedOver), pace: this.pace ? { mid: r2(this.pace.mid), high: r2(this.pace.high) } : null,
                 lateTicks: this.stats.lateTicks || 0, errorTypes: this.stats.errorTypes || null, spoken: this.stats.started.length,
@@ -1784,7 +1790,10 @@
             if (el.paused || starting) {
                 if (el.paused && !starting && S.retryAt && this.d.now() < S.retryAt) return;
                 if (Math.abs(el.playbackRate - baseRate) > 0.001) el.playbackRate = baseRate;
-                el.currentTime = Math.max(0, S.offset + (t - S.mediaStart) * S.rate);
+                const position = Math.max(0, S.offset + (t - S.mediaStart) * S.rate);
+                // A redundant seek to zero can flush a predecoded element before its first play.
+                // Keep exact nonzero seeks/resumes; only an already-zero start needs no seek.
+                if (position !== 0 || el.currentTime !== 0) el.currentTime = position;
                 this.cueSpeech(S, el);
                 if (el.paused) {
                     const pr = el.play();
@@ -1852,6 +1861,16 @@
                     S.end += late / S.rate;
                 }
                 if (S.cueWall != null) this.noteStartUp(this.d.now() - S.cueWall);
+                // Scheduling is not playback. Record the element's first movement separately;
+                // resumes and drift corrections must not count the same line a second time.
+                const record = S.startRecord;
+                if (record && record.playbackStart == null) {
+                    record.playbackStart = S.mediaStart;
+                    record.playbackLag = record.lag + Math.max(0, S.mediaStart - record.t);
+                    record.startupMs = Math.max(0, this.d.now() - S.cueWall);
+                    this.stats.playbackLagMax = Math.max(this.stats.playbackLagMax || 0, record.playbackLag);
+                    if (record.playbackLag > SYNC.lateStart) this.stats.playbackLate = (this.stats.playbackLate || 0) + 1;
+                }
                 if (S.fadeHeld) { S.fadeHeld = false; S.fadeAt = this.d.now(); }
             }
             this.speechVolume(S, el);

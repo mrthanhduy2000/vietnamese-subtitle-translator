@@ -91,6 +91,14 @@ none
   stretch reached 11 but let segments grow past 13 s; cutting inside a line at its best phrase
   boundary made 49 more segments and more weak cuts. Not worth a change alone.
 
+## Dense speech delivery limit (2026-11-03)
+
+The 145-video saved-corpus comparison at LATENCY=busy found one existing hard-lag drop in both
+3.1.5 and 3.1.6: 16 words lost after accumulated lag reached 10.19 seconds. Startup predecode
+reduces unnecessary gaps but cannot remove this dense-speech overload class. Scope a separate
+listening-based pacing/hold policy, preserving all speech text and the existing natural-rate cap.
+Do not fix it with a video ID exception or silently shorten the translation.
+
 ## Install and update
 
 - **43. Edge's startup boost holds friends' updates** *(found 2.5.2, 2026-10-16)*. On Windows, Edge

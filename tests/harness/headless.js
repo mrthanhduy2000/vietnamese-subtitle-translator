@@ -3,6 +3,7 @@
 // POLL every 2 s until it returns an object with `done`, and prints that object. Real Chrome media
 // (start-up, time-stretch, volume steps) without the user's browser; see docs/TESTING.md.
 //   PAGE=tests/harness/smooth.html EXPR='runSmooth(60)' POLL='summary()' node tests/harness/headless.js
+//   HARNESS_URL=http://127.0.0.1:8766/tests/harness/live.html uses the real worker/server harness.
 //   CPU=6 ...            DevTools CPU throttling of the renderer (x6)
 //   PRELOAD=<file> ...   a script run before the page's own (2.4.7: options-preload.js stands in
 //                        for the extension under the real options.html)
@@ -63,7 +64,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
     await send("Runtime.enable");
     if (process.env.CPU) await send("Emulation.setCPUThrottlingRate", { rate: Number(process.env.CPU) });
     if (process.env.PRELOAD) await send("Page.addScriptToEvaluateOnNewDocument", { source: fs.readFileSync(path.resolve(ROOT, process.env.PRELOAD), "utf8") });
-    await send("Page.navigate", { url: `http://127.0.0.1:${srv.address().port}/${PAGE}` });
+    await send("Page.navigate", { url: process.env.HARNESS_URL || `http://127.0.0.1:${srv.address().port}/${PAGE}` });
     await wait(2000);
     console.log("start:", JSON.stringify(await evaluate(EXPR)));
     let result = null;

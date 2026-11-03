@@ -1678,3 +1678,36 @@ pause/resume and seek, 32 wall seconds): 9 starts, 0 dropped, 0 errors, 0 overla
 playing while paused; one start >0.5 s late, maximum 0.71 s; seek recovery 0.07 s. Measured prepared
 RTF 0.23. A separate old/new simulation over the 100 current Chrome-store videos had no changed
 or worse delivery metrics. Simulations do not reproduce all source/audio errors in the documentary.
+
+## First/seek onset and playback diagnostics (2026-11-03)
+
+`prewarm` now also selects the first eligible plan before anything has been spoken. A paused engine
+without an active speech handle predecodes the landing take, even without a `prepareHold` caller.
+It does not play early or create elements for every future plan. Existing lookahead/idle bounds
+remain; an active or fading element is never replaced. `driveSpeech` skips only an exact redundant
+zero-to-zero seek before play. Nonzero entry/resume positions remain exact. Pace ceilings, sentence
+rests, speech text, synthesis policy and cache identity are unchanged.
+
+`stats.started` retains scheduling `t`/`lag` for compatibility and gains `playbackStart`,
+`playbackLag`, `startupMs` after the element first moves. `playbackLate` and `playbackLagMax` count
+that later boundary once per line, never again on resume. This infers playback from media movement,
+not the speaker's first phoneme or hardware output latency. The onset harness measures actual PCM
+output separately; do not call scheduled starts audible starts.
+
+On this Mac, prepared real-voice clips were already prompt on 3.1.5. Four takes on both versions,
+including CPU=6, had no overlap, paused sound, drops or errors; all played at 1x from offset zero.
+A fresh live-worker/VieNeu/Chrome run (32 seconds, pause/resume/seek) started nine lines, zero drops,
+errors, overlap or paused voice; max inferred playback lag 74 ms, startup max 86 ms, RTF 0.29.
+This is bounded integration evidence, not a claim of perceptible improvement on every real video.
+Regression on 45 archived videos: delivery gaps 51 -> 41 (7.41 -> 5.11 seconds), late starts
+1482 -> 1481, zero lost words; all 24 scenarios unchanged. Dense-speech lag remains governed by
+natural speaking pace; this patch does not raise the speed ceiling to hide that limitation.
+
+The larger 145-video corpus (45 archived plus 100 current Chrome records, read-only export checked
+on Nov 3) contains 17,952 spoken plans and 2,181 minutes. Under LATENCY=busy, old/new totals:
+late starts >0.5 s 2,246 -> 2,243; delivery gaps 126 -> 104, 21.68 -> 15.43 seconds; server requests
+17,739 unchanged; zero new losses, repeated words, cuts, overlaps or playing-element seeks.
+Every per-video loss/late/gap metric was no worse. One pre-existing dense-speech lag drop remains
+in both versions: 16 words omitted after 10.19 s accumulated lag reached the existing hard limit.
+The archived 45-video regression does not contain this case; do not report the full corpus as
+zero lost words. This class requires separate listening-driven pacing work, not a higher speed cap.
