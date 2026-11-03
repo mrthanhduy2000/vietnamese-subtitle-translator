@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-03",
+  "baseline": "3.1.5",
+  "candidate": "3.1.6",
+  "preparedAudio": true,
+  "humanListeningVerified": false,
+  "samples": [
+    {
+      "id": "6QULfp2wdZI",
+      "title": "Мой День с 6:00 УТРА 🥰 мое утро, про деньги, психолог, наш новый сосед, уборка, музей",
+      "start": 465,
+      "end": 515,
+      "voice": "Kim Thanh",
+      "plans": 4,
+      "results": {
+        "before": {
+          "plans": 4,
+          "heard": 4,
+          "completed": 4,
+          "overlap": 0,
+          "pausedSound": 0,
+          "dropped": 0,
+          "errors": 0,
+          "maxLag": 4.9965630000000125,
+          "late": 2,
+          "maxRate": 1.55
+        },
+        "after": {
+          "plans": 4,
+          "heard": 4,
+          "completed": 4,
+          "overlap": 0,
+          "pausedSound": 0,
+          "dropped": 0,
+          "errors": 0,
+          "maxLag": 4.987778000000013,
+          "late": 2,
+          "maxRate": 1.55
+        }
+      },
+      "originalSha256": "46b480fbee3552a3540057a209e023280df71de9a0f1d859916a389454262cc2",
+      "takeHashes": {
+        "t16089": "47fc2b91b4bd82d825e102b8b6c634422e79074ddc71683a52478c65bb471ef1",
+        "t21439": "fd8317464ead9d201e7ece6c2b6baca2de262438fe17d55dae30135537225ce3",
+        "t29284": "49ef26e9a900d6443ccc43e2be25948bff324481c093b2a7aecde278ad747a57",
+        "t39350": "83273205aec57e7615032d78195ece6460447d33acd1d07e406fe4ae5336300e"
+      }
+    },
+    {
+      "id": "JBvcMfa7K6E",
+      "title": "Money Expert Reacts to Caleb Hammer's WILDEST Financial Audits",
+      "start": 90,
+      "end": 140,
+      "voice": "Kim Thanh",
+      "plans": 7,
+      "results": {
+        "before": {
+          "plans": 7,
+          "heard": 7,
+          "completed": 7,
+          "overlap": 0,
+          "pausedSound": 0,
+          "dropped": 0,
+          "errors": 0,
+          "maxLag": 0.25041899999999373,
+          "late": 0,
+          "maxRate": 1.4245547720368945
+        },
+        "after": {
+          "plans": 7,
+          "heard": 7,
+          "completed": 7,
+          "overlap": 0,
+          "pausedSound": 0,
+          "dropped": 0,
+          "errors": 0,
+          "maxLag": 0.24714900000000029,
+          "late": 0,
+          "maxRate": 1.4245547720368945
+        }
+      },
+      "originalSha256": "3f957f53c89038e69348815f474609b0e10b178dba86a708b60b79c5cc6a40f7",
+      "takeHashes": {
+        "t4320": "bcfaeb96188d1ac6a71e84d55ffbc6aa3de0c37fc35bb5398c40fac66af61e51",
+        "t6079": "879203ce8a1978407f1c35a6c0a2a54a5c7494778131b76fe0e4a1bc618f5ed6",
+        "t9040": "11a4019c700ec4c2634e505536dd02541d05d18fcd5712061f5fbb52dffe3b7d",
+        "t16479": "6f4793d7e0267000a2937237c2a126169bb82346031c9c9e7aa3603bee6c56bc",
+        "t23600": "8c1d659c32b0c6a1e1aedb6a8019b601ae85fa24a3fd264ebf5c76b563ca1508",
+        "t33119": "f5a51d2169889a8a2dde1e72e242958a7a7a9abb9eff4824f03d3bb17c52f762",
+        "t38959": "ed98e6a215aab011f8450be32bfe9b935a291c90dd92d7536f551a7a56ec339f"
+      }
+    },
+    {
+      "id": "yZfhCQwCWT4",
+      "title": "The Most Immature Couple EVER on Financial Audit | Caleb Hammer Clips",
+      "start": 120,
+      "end": 170,
+      "voice": "Kim Thanh",
+      "plans": 17,
+      "results": {
+        "before": {
+          "plans": 17,
+          "heard": 17,
+          "completed": 17,
+          "overlap": 0,
+          "pausedSound": 0,
+          "dropped": 0,
+          "errors": 0,
+          "maxLag": 4.2887019999999865,
+          "late": 11,
+          "maxRate": 1.6500000000000001
+        },
+        "after": {
+          "plans": 17,
+          "heard": 17,
+          "completed": 17,
+          "overlap": 0,
+          "pausedSound": 0,
+          "dropped": 0,
+          "errors": 0,
+          "maxLag": 4.2870129999999875,
+          "late": 11,
+          "maxRate": 1.6500000000000001
+        }
+      },
+      "originalSha256": "4ca04509e2347ff559b7815fdd24bd7b60296c3703a5d1c77e06734049cc2813",
+      "takeHashes": {
+        "t1160": "19ac479f9fbec5f41466171a6234227c4087365205af8ade74d071a8dc7991ff",
+        "t3640": "7e10ea1b66a08f37436ea4327a76d41be14fc862002e94cfa893c0530ab3e551",
+        "t6040": "bad2ec01d827dc91c6d43f6cac80dcba9891bbcdfe70cf1f35a46875b7433c48",
+        "t10640": "66cafd1ba6f3293666c8997973c9e5e96587f1c3dd9343b868970080f2d64ec5",
+        "t12040": "507ddf57c852f5f9ba4e979758f7fa162da0e653932c7ad424f478b080650e38",
+        "t18840": "94e1295bcd8faaaf065b4661c38f7bd2a426371bee17e658f3c46398e7c0c90b",
+        "t20360": "f1c65f7672eb3185229e059ed057d75035a005efc59868e9ec028d7d7bdac1f4",
+        "t25280": "e857116af67d551c79c6478e67ee3cfec264900f465d023756d5d0fb682b5ac9",
+        "t26120": "05be935148c1024651e4a7bd48cedf3a5e13635c8256e639446973e4832141fc",
+        "t28280": "60717d59853b87e284d13a2ab03b312e4b2992a94958639daafb32b149649c94",
+        "t30800": "675ee66acefcbc1bdc1f32fc0de54ed54df3d3d23e1f86aea7a1cb5bf5f0be0e",
+        "t38800": "55cae7345f15edbaf7247e5fdc2c7f1adceca38caa7cb96a53505f6e8da6c77f",
+        "t40840": "5d0a823d39cc73c3978271ebbde66e7ae3ba1b24abf24379d6090ed52a2fbde0",
+        "t41520": "87155a39250de9bf678c6da6f5212dc0815b8c53143f9111d51c884c1649fd13",
+        "t42000": "850a4e8096179936d3bee597b541c27683c718594ba9f40ab4a360701ae69e4d",
+        "t44480": "7e266e4472f3a296598504fa0c6398d524a1ed3c9d5fd3392b93846d8c45f7a9",
+        "t45000": "92acae3f1222c7397a1480fcbdecdec8906f9e78e0fc6a76c280763c39a09fb6"
+      }
+    }
+  ]
+}

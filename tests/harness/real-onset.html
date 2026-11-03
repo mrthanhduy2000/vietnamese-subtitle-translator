@@ -1,0 +1,91 @@
+<!doctype html>
+<!-- Design direction: calm editorial listening desk. Warm paper, forest-green controls,
+     Georgia headlines and system text. Flat stacked source/recording rows prioritize comparison. -->
+<html lang="vi"><meta charset="utf-8"><title>Đối chiếu lời đọc từ video thật</title>
+<style>
+:root{--paper:#f4f2e9;--ink:#20251f;--accent:#275439;--line:#d5d9ce;--space:24px;--radius:4px}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 system-ui}main{max-width:1000px;margin:auto;padding:40px var(--space)}h1,h2{font-family:Georgia,serif;line-height:1.2}h1{font-size:38px;max-width:700px}h2{font-size:24px}a{color:var(--accent)}section{border-top:1px solid var(--line);padding:var(--space) 0}audio{width:100%;margin:8px 0}button,select{font:inherit;padding:10px 14px;border:1px solid var(--accent);border-radius:var(--radius);background:var(--accent);color:white}select{background:var(--paper);color:var(--ink);max-width:100%}button:disabled{opacity:.5}small,.muted{font-size:14px}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}.controls{display:flex;gap:12px;flex-wrap:wrap}details{margin-top:16px}label{display:block;font-weight:600}footer{border-top:1px solid var(--line);padding-top:20px}
+</style>
+<main><p class="muted">KIỂM TRA LỜI ĐỌC · NGUỒN YOUTUBE THẬT</p><h1>Nghe đúng đoạn gốc, đối chiếu cùng một lời Việt.</h1>
+<p>Tiếng gốc được tải từ video nguồn và cắt đúng mốc. Lời Việt lấy từ bản dịch đã lưu; hai bản dùng cùng audio Kim Thanh. Bản thu kết hợp tiếng gốc với lời Việt để kiểm tra độ vào câu và nhịp đọc.</p>
+<div class="controls"><select id="sample" aria-label="Chọn đoạn video thật"></select><button id="run">Chạy phép đo với đoạn đã chọn</button></div><p id="status" role="status"></p>
+<div id="samples"></div><section><h2>Kết quả lượt chạy</h2><pre id="out">Chưa chạy phép đo trong trang này.</pre><div id="recording"></div></section>
+<footer>Đo tín hiệu đầu ra không thay thế đánh giá nghe của con người. Bản thử này kiểm tra lúc audio đã tạo xong; số liệu tạo giọng được lưu riêng. Mẫu có dấu hiệu lệch nội dung phụ đề vẫn được giữ để kiểm tra giới hạn dữ liệu.</footer></main>
+<script>
+const query = new URLSearchParams(location.search), base = 'smooth/real-video/';
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+window.result = null;
+const ready = (async () => {
+    for (const file of ['cst-cache.js','vi-segmenter.js','cost-policy.js','dub-planner.js','dub-prosody.js','dub-speech.js','dub-audio.js','dub-engine.js']) {
+        await new Promise((resolve,reject) => { const s=document.createElement('script'); s.src=file==='dub-engine.js'&&query.has('old')?'smooth/onset-old-engine.js':'../../'+file; s.onload=resolve;s.onerror=reject;document.head.appendChild(s); });
+    }
+    const samples = await (await fetch(base+'index.json')).json();
+    for (const item of samples) {
+        const option=document.createElement('option'); option.value=item.id;option.textContent=item.title;document.getElementById('sample').appendChild(option);
+        const section=document.createElement('section'), title=document.createElement('h2');title.textContent=item.title;section.appendChild(title);
+        const source=document.createElement('a');source.href='https://www.youtube.com/watch?v='+encodeURIComponent(item.id)+'&t='+item.start;source.target='_blank';source.rel='noopener';source.textContent=`Video nguồn · ${item.start}–${item.end} giây`;section.appendChild(source);
+        if(item.results){const note=document.createElement('p');note.className='muted';note.textContent=`Hoàn tất lời đọc: ${item.results.before.completed}/${item.plans} → ${item.results.after.completed}/${item.plans}. Trễ lớn nhất so với mốc phụ đề: ${item.results.before.maxLag.toFixed(2)} → ${item.results.after.maxLag.toFixed(2)} giây. Đây là phép đo đoạn đã có audio sẵn.`;section.appendChild(note);}
+        for (const [label,file] of [['Tiếng gốc',item.id+'-original.wav'],['Trước · 3.1.5',item.id+'-before.webm'],['Sau · 3.1.6',item.id+'-after.webm']]) {
+            const block=document.createElement('div'), text=document.createElement('label'), audio=document.createElement('audio');text.textContent=label;audio.controls=true;audio.preload='none';audio.src=base+file;block.append(text,audio);section.appendChild(block);
+            audio.addEventListener('play',()=>document.querySelectorAll('audio').forEach(other=>{if(other!==audio)other.pause()}));
+        }
+        const details=document.createElement('details'), summary=document.createElement('summary');summary.textContent='Xem phụ đề và mốc câu đã dùng';details.appendChild(summary);
+        const fixture=await (await fetch(base+item.id+'-fixture.json')).json();
+        const table=document.createElement('table');
+        for (const group of fixture.groups) { const row=table.insertRow();row.insertCell().textContent=(item.start+group.start).toFixed(2)+' s';row.insertCell().textContent=group.srcCues.map(c=>c.text).join(' ');row.insertCell().textContent=group.viText; }
+        details.appendChild(table);section.appendChild(details);
+        const asr=await(await fetch(base+item.id+'-asr.json')).json();const check=document.createElement('details'),label=document.createElement('summary'),body=document.createElement('p');label.textContent='Kiểm tra chéo tiếng gốc bằng nhận dạng tự động';body.textContent=asr.segments.map(s=>`${(item.start+s.start).toFixed(1)} s: ${s.text}`).join(' ');check.append(label,body);section.appendChild(check);document.getElementById('samples').appendChild(section);
+    }
+    if(query.has('case'))document.getElementById('sample').value=query.get('case');
+    return samples;
+})();
+window.runReal = async () => {
+    if(window.running)return;window.running=true;document.getElementById('run').disabled=true;
+    await ready;
+    const id=document.getElementById('sample').value;
+    const fixture=await(await fetch(base+id+'-fixture.json')).json();
+    for(const p of fixture.plans)p.wav=new Uint8Array(await(await fetch(base+p.file)).arrayBuffer());
+    const pcm=CST_DUB_AUDIO.decodeWav(new Uint8Array(await(await fetch(base+id+'-original.wav')).arrayBuffer()));
+    const padded=new Float32Array(pcm.samples.length+pcm.sampleRate*25);padded.set(pcm.samples);
+    const ctx=new AudioContext();await ctx.resume();
+    const destination=ctx.createMediaStreamDestination(),chunks=[],recorder=new MediaRecorder(destination.stream);
+    recorder.ondataavailable=e=>chunks.push(e.data);
+    const clock=new Audio();clock.volume=1;
+    clock.src=URL.createObjectURL(new Blob([CST_DUB_AUDIO.encodeWav(padded,pcm.sampleRate)],{type:'audio/wav'}));
+    await new Promise(resolve=>clock.addEventListener('loadedmetadata',resolve,{once:true}));
+    const src=ctx.createMediaElementSource(clock);src.connect(ctx.destination);src.connect(destination);
+    const E=CST_DUB_ENGINE, voices=[], rows=[];
+    const provider=E.createVieneuProvider({sendMessage:async()=>({running:true})},{localVoice:fixture.voice});
+    provider.render=async()=>{throw new Error('A/B fixture must not synthesize new speech')};
+    const engine=new E.DubEngine({video:clock,getGroups:()=>fixture.groups,providers:{primary:provider},now:()=>performance.now(),
+        setInterval:(f,ms)=>setInterval(f,ms),clearInterval:x=>clearInterval(x),setTimeout:(f,ms)=>setTimeout(f,ms),
+        createObjectURL:b=>URL.createObjectURL(new Blob([b],{type:'audio/wav'})),revokeObjectURL:u=>URL.revokeObjectURL(u),
+        createAudio:url=>{
+            const a=new Audio(url);a.preload='auto';const node=ctx.createMediaElementSource(a),analyser=ctx.createAnalyser();analyser.fftSize=256;
+            node.connect(analyser);analyser.connect(ctx.destination);analyser.connect(destination);
+            const plan=[...engine.rendered].find(([,r])=>r.url===url)?.[0];
+            const rec={a,analyser,data:new Float32Array(256),id:plan,heard:false,ended:false};
+            a.addEventListener('ended',()=>{rec.ended=true});voices.push(rec);return a;
+        }
+    },{duck:0.15,volume:1,secondVoice:false});
+    engine.headAt=0;engine.refresh(true);
+    if(engine.plans.length!==fixture.plans.length)throw new Error('Planner count differs between A/B engines');
+    for(const p of engine.plans){const take=fixture.plans.find(x=>x.id===p.id&&x.text===p.text);if(!take)throw new Error('Planner text differs: '+p.id);engine.addRendered(p,take.wav,take.duration);}
+    let overlap=0,pausedSound=0;
+    const poll=setInterval(()=>{let sounding=0;for(const v of voices){v.analyser.getFloatTimeDomainData(v.data);const peak=v.data.reduce((n,x)=>Math.max(n,Math.abs(x)),0);if(peak<0.003||v.a.paused)continue;sounding++;if(!v.heard){v.heard=true;const p=engine.planById.get(v.id);rows.push({id:v.id,due:p?.start,heardAt:clock.currentTime,lag:p?clock.currentTime-p.start:null,rate:v.a.playbackRate,offset:engine.speech?.offset});}}if(sounding>1)overlap++;if(sounding&&clock.paused)pausedSound++;},10);
+    engine.start();await wait(1500);recorder.start();await clock.play();
+    document.getElementById('status').textContent='Đang phát và đo: '+fixture.source.title;
+    while(clock.currentTime<fixture.duration||engine.speech){await wait(100);if(clock.currentTime>=fixture.duration+22)break;}
+    clock.pause();engine.stop();clearInterval(poll);await wait(100);
+    const stopped=new Promise(resolve=>recorder.addEventListener('stop',resolve,{once:true}));recorder.stop();await stopped;
+    const blob=new Blob(chunks,{type:recorder.mimeType});
+    result={done:false,id,mode:query.has('old')?'before':'after',source:fixture.source,voice:fixture.voice,plans:fixture.plans.length,
+        heard:rows.length,completed:voices.filter(v=>v.ended).length,rows,overlap,pausedSound,dropped:engine.stats.dropped,errors:engine.stats.errors,
+        scheduled:engine.stats.started,events:engine.events,mimeType:recorder.mimeType};
+    if(query.has('record'))result.recording=await new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.readAsDataURL(blob)});
+    document.getElementById('out').textContent=JSON.stringify({...result,recording:undefined},null,2);
+    const audio=document.createElement('audio');audio.controls=true;audio.src=URL.createObjectURL(blob);document.getElementById('recording').appendChild(audio);
+    document.getElementById('status').textContent='Đã đo xong. Có thể nghe bản thu bên dưới.';await ctx.close();result.done=true;
+};
+document.getElementById('run').onclick=()=>runReal().catch(e=>{result={done:true,error:e.stack};document.getElementById('status').textContent=e.message});
+</script></html>

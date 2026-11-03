@@ -455,3 +455,11 @@ all four cases fail on 3.1.5 (the older module must resolve its root dependencie
 For live generation, start `node tests/harness/live-server.js 8768` and set
 `HARNESS_URL=http://127.0.0.1:8768/tests/harness/live.html` on the headless runner. PAGE is still
 required. This exercises the real worker and local server without accessing paid providers.
+
+### Real source audio and saved translations
+
+`real-onset-prep.js <dump> [voice]` requires real downloaded source metadata and exact WAV clips
+under ignored `smooth/real-video/`; it never supplies invented text. `real-onset.html` records
+original source plus actual engine playback of the same prepared speech takes for each version.
+It checks plan identity, acoustic onset, ended events, overlap and errors. See
+[REAL_VIDEO_ONSET.md](REAL_VIDEO_ONSET.md) for source intervals, reproduction and interpretation.

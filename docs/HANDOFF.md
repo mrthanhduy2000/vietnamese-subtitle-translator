@@ -1,39 +1,41 @@
-# Handoff (2026-11-03, lane B with D tests/release integration)
+# Handoff (2026-11-03, lane D real-source validation)
 
 ## Current state
-- Release 3.1.6: predecode the first/seek landing take, including paused startup without a hold.
-  Do not repeatedly recreate idle elements while paused. Avoid an exact redundant seek to zero.
-- dub-engine.js keeps speech text, rate ceilings, sentence rests and synthesis/cache policy intact.
-- debugSnapshot adds playbackStart/playbackLag/startupMs and delivery playbackLate/playbackLagMax.
-  Scheduling time remains separate; resume/drift correction never counts a line twice.
-- npm test: 1039 total, 1037 pass, 0 fail, 2 conditional skips. Four new onset tests;
-  all four fail against 3.1.5. Existing startup/drift/click/seek scenarios remain covered.
-- 145 unique saved videos (45 archive + 100 current Chrome): 17,952 spoken plans, 2,181 minutes.
-  LATENCY=busy old/new: gaps 126 -> 104, 21.68 -> 15.43 s; late starts 2246 -> 2243.
-  No per-video loss/late/gap regression; requests unchanged. Existing loss: 1 drop / 16 words.
-- Standard regression: 45 videos + 24 scenarios, 15 metrics improved, zero worse.
-- Real-worker/local-VieNeu/Chrome 32 s: 9 starts, zero drops/errors/overlap/paused voice;
-  max inferred playback lag 74 ms, max startup 86 ms, RTF 0.29. No paid network requests.
-- Prepared PCM A/B, normal and CPU=6: no overlap/paused sound/drop/error; four lines at 1x,
-  offset zero. Final run heard and completed all four. Both versions were prompt on this Mac;
-  do not claim a perceptible speed improvement from these short clips alone.
-- tests/harness/onset-prep.js and onset.html reproduce acoustic-onset checks; headless HARNESS_URL
-  supports live-server.js. Local recordings/comparison page are ignored under harness/smooth/.
-- No full live-video/source-speaker alignment or human listening judgment was established.
+- Runtime remains 3.1.6. This follow-up replaces invented sentences as primary listening evidence
+  with three downloaded original-language YouTube clips and their saved Vietnamese translations.
+- Sources/intervals: 6QULfp2wdZI 465-515 s, JBvcMfa7K6E 90-140 s, yZfhCQwCWT4 120-170 s.
+  Each original is exactly 50.000 s after decoding the full track and sample-exact cropping.
+- tests/harness/real-onset-prep.js renders actual plans through the local worker/VieNeu,
+  Kim Thanh: 28 takes. real-onset.html compares 3.1.5/3.1.6 using identical WAVs and verifies plans.
+- All six real-Chrome runs: 56/56 planned takes heard and ended, zero drops/errors/overlap.
+  Max acoustic lag old/new: Russian 4.997/4.988 s; commentary 0.250/0.247 s;
+  dense conversation 4.289/4.287 s. Differences do not demonstrate perceptible improvement.
+- Fresh original-language captions and local Whisper base recognition cross-check the source.
+  Russian audio discusses card benefits while its current manual captions mix unrelated subjects.
+  This flags source-content mismatch; ASR is not human-verified ground truth.
+- docs/REAL_VIDEO_ONSET.md records methods/limits; docs/measurements/real-onset-2026-11-03.json
+  retains numeric results and source/take hashes. No copyrighted source media is committed.
+- Local originals, captions, ASR, fixtures and six mixed recordings live under ignored
+  tests/harness/smooth/real-video/. The listening page is served by live-server.js on port 8768.
+- npm test: 1039 total, 1037 pass, zero fail, two conditional skips.
+  Root runtime is unchanged, so no version bump or new runtime regression baseline was needed.
+- Prior 145-video simulation / 45-video+24-scenario regression remain the 3.1.6 evidence;
+  do not substitute those or the old four synthetic sentences for real-source listening evidence.
 
 ## Unfinished
-- Dense speech can still exceed the hard lag bound: one baseline/current corpus case dropped
-  16 words at 10.19 s lag. Track the defect class in BACKLOG; never shorten speech to hide it.
-- Next audit items: speaker attribution, then glossary loading/UI states.
-- Historical empty/timeout logs are bounded history, not a current failure rate.
-- Documentary 9T1Nvtn3QOk had no full ytcache4 record; earlier inspection covered 39-43 minutes,
-  not full semantics/timing. Earlier video was left paused with transcript; paid TTS stayed off.
-- Carry forward: native fullscreen, real-page overlay fade, sparse notice on iYL-UuNE_9w,
+- Asked user to choose the dense-speech tradeoff: short video waits for complete natural speech,
+  or continuous video with lag. No new pause policy implemented without that product preference.
+- Dense speech still lags ~4.3 s with prepared audio. Full-corpus baseline/current hard-lag drop
+  remains one case / 16 words at 10.19 s. Source-content mismatch is a separate defect class.
+- Speaker attribution, glossary loading/UI states; full live-page/source-meaning alignment and
+  subjective listening across full videos remain open. No claim of a completed listening fix.
+- Documentary 9T1Nvtn3QOk: earlier inspection only 39-43 minutes, no complete ytcache4 record.
+- Carry forward native fullscreen, real-page overlay fade, sparse notice on iYL-UuNE_9w,
   TED embed/hold issues, Mac auto-update install and reconciliation of old UI redesign notes.
 
 ## Traps
-- A play() call is not audible onset. Media movement is a proxy; the harness checks PCM peaks.
-- Keep prewarm bounded to the eligible take, never replace a playing/fading element.
-- Audio-context timers/URL methods need bound wrappers when supplied as engine dependencies.
-- Keep settingsPatch/delta saves, exact cache totals and partial checkpoint contracts from 3.1.4-5.
-- Reload at chrome://extensions, then refresh video tabs. Never remove/reinstall.
+- Compare identical prepared takes; never regenerate speech independently for A/B.
+- Multi-audio sources can select another dubbed language. Pin captions to downloaded audio language.
+- Partial stream-copy cuts can include preroll; decode full source then crop exactly.
+- Acoustic lag is measured against caption plans, not verified source-phoneme/meaning alignment.
+- Reload at chrome://extensions after runtime changes; never remove/reinstall. No reload needed here.
