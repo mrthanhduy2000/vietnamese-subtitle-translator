@@ -1722,3 +1722,38 @@ next queued source span, including long source silences. Explicit seeks reset en
 to the same source position preserve it. Natural EOF drains on a continuous wall clock without
 restarting the video. Web Speech fallback preserves phrase order too. Real synthesis failures stay
 reported. See COMPLETE_SPEECH.md for input hashes, acoustic recordings and the accepted delay cost.
+
+## Shared speech-session coordinator
+
+`dub-session.js` is loaded before `dub-engine.js` on both manifest pipelines, Settings and
+browser harnesses. It exports `CST_DUB_SESSION` / `SpeechSession` and owns the plan list/map,
+entry point, FIFO cursor, EOF drain clock and transport phase. Engine field aliases retain
+compatibility with adapters and diagnostics; they do not hold a second copy of this state.
+The engine retains DOM/audio/network effects and provider-specific synthesis/pacing.
+
+- `transition` handles start/stop/reset, pause, buffering, play, ads and frame observations.
+  Natural EOF drains; manual pause gates speech; an ad returning to the same source position
+  preserves the FIFO. Seek/replay establishes a new entry, without moving the source clock.
+- Synthesis eligibility uses the same queued-plan predicate as FIFO entry selection, including
+  seeks into the final fraction of an uncached line. Otherwise the queue waits on excluded audio.
+- `queueAt` retains unspoken work; `renderAt` advances to the next speech span across silence.
+  These are intentionally different clocks. `translationBefore` blocks out-of-order delivery.
+- A lifetime/source lease admits synthesized or cached audio only while the same session,
+  provider, plan timing, text and voice still match. Matching work may survive a same-source
+  seek to avoid needless synthesis; stopped/restarted sessions cannot accept it.
+- Playback callback tokens additionally carry the reset revision. A callback from before a
+  seek cannot complete, calibrate or fail the new playback. Live callbacks also check identity.
+- Cache timeout/failure bookkeeping checks current plan leases. A failed old render cannot
+  penalize a refined replacement or trigger fallback in a new provider/session.
+- `snapshot` exposes phase, queue count, cursor, next plan, input counts and wait reason.
+  EOF is not complete while translations are pending, even before a first plan exists.
+  Invalid group timing is reported and excluded from planning.
+
+Translation producers retain their existing navigation/start generation checks (DANGER §12).
+They must expose pending groups with `translated: false` and publish chronologically ordered
+source groups. The coordinator cannot recover a missing group that was never supplied.
+
+`tests/dub-session.test.js` checks the contract and stale async races; `dub-full-speech.test.js`
+covers full delivery/EOF/ad behavior. `tools/session-corpus.js <Chrome dump> <output> [revision]`
+compares every archived/current saved video with the committed engine at that revision,
+using busy media startup and full queue drain. The output records input hashes and deltas.

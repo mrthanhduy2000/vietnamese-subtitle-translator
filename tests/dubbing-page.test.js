@@ -33,7 +33,7 @@ function env({ sync = {}, voices = [], onMessage, hostname = "www.youtube.com", 
     };
     S.window = S; S.globalThis = S;
     vm.createContext(S);
-    for (const f of ["cst-cache.js", "cost-policy.js", "vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-speech.js", "dub-audio.js", "dub-engine.js", "dubbing.js"]) vm.runInContext(read(f), S);
+    for (const f of ["cst-cache.js", "cost-policy.js", "vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-speech.js", "dub-audio.js", "dub-session.js", "dub-engine.js", "dubbing.js"]) vm.runInContext(read(f), S);
     return { S, msgs, toasts, changed, els, API: S.CST_DUB };
 }
 

@@ -14,6 +14,7 @@
 (function (root) {
     "use strict";
 
+    const SESSION = (root && root.CST_DUB_SESSION) || (typeof require === "function" ? require("./dub-session.js") : null);
     const PLAN = (root && root.CST_DUB_PLAN) || (typeof require === "function" ? require("./dub-planner.js") : null);
     const AUDIO = (root && root.CST_DUB_AUDIO) || (typeof require === "function" ? require("./dub-audio.js") : null);
     const CACHE = (root && root.CST_CACHE) || (typeof require === "function" ? require("./cst-cache.js") : null);
@@ -650,6 +651,7 @@
         constructor(deps, settings = {}) {
             this.d = deps;
             this.settings = { duck: 0.2, volume: 1, ...settings };
+            SESSION.bind(this);
             this.provider = deps.providers.primary;
             this.fallback = deps.providers.fallback || null;
             this.plans = [];
@@ -693,6 +695,12 @@
             if (this.running) return;
             this.running = true;
             const v = this.d.video;
+            this.session().transition("start", { time: v.currentTime || 0, sourceId: this.d.sourceId || "", paused: v.paused });
+            this.speech = null; this.live = null; this.lastSpeechEnd = null; this.lastSpeechGap = null; this.lastRate = null;
+            this.inAd = false; this.adCut = null; this.adResume = null; this.waiting = false;
+            this.lastT = null; this.lastAdvance = null; this.lastTickAt = null; this.entryWait = null;
+            this.headProbe = null; this.headPinned = false; this.playBlocked = false;
+            this.sourceSig = ""; this.cacheChecked.clear(); this.pending.clear(); this.failed.clear(); this.jobs.clear();
             // A duck left by an engine in another script instance (the old one after a Reload) holds
             // the user's level in the element; the element's own volume is that level ducked
             // A held level below the element's own is stale (raised since): the element wins
@@ -715,9 +723,9 @@
             };
             // an ad swapping into the element seeks it too: the ad gate resets once the ad is over
             this.onSeek = () => { if (!this.isAdShowing()) this.hardReset("seek"); };
-            this.onPauseLike = () => { if (!(this.keepsSpeech() && v.ended)) this.silence(); };
-            this.onWaiting = () => { this.waiting = true; this.silence(); };
-            this.onPlaying = () => { this.waiting = false; };
+            this.onPauseLike = () => { this.session().transition("pause", { time: v.currentTime, ended: v.ended, paused: true }); if (this.session().phase !== "draining") this.silence(); };
+            this.onWaiting = () => { this.waiting = true; this.session().transition("waiting", { waiting: true, time: v.currentTime }); this.silence(); };
+            this.onPlaying = () => { this.waiting = false; this.session().transition("play", { time: v.currentTime, ended: v.ended, paused: v.paused }); };
             v.addEventListener("volumechange", this.onVolume);
             v.addEventListener("seeking", this.onSeek);
             v.addEventListener("pause", this.onPauseLike);
@@ -740,6 +748,8 @@
         stop() {
             if (!this.running) return;
             this.running = false;
+            this.session().transition("stop");
+            this.lookupSeq = (this.lookupSeq || 0) + 1; this.busyLookup = false;
             this.d.clearInterval(this.timer);
             // the wake-up for the next line: left pending, a restart before it fired could not set its own
             if (this.gapTimer != null && this.d.clearTimeout) this.d.clearTimeout(this.gapTimer);
@@ -771,40 +781,24 @@
             this.setVideoVolume(this.baseVolume == null ? v.volume : this.baseVolume, true);
         }
 
-        // Continuous playback keeps every queued line; seeks establish a new entry point.
-        keepsSpeech() { return !!this.settings?.keepAllSpeech; }
-        timelineAt() {
-            const v = this.d.video;
-            if (!(this.keepsSpeech() && v.ended)) return v.currentTime;
-            const now = this.d.now();
-            if (this.drainWall == null) { this.drainWall = now; this.drainAt = v.currentTime; }
-            this.drainAt += (now - this.drainWall) / 1000 * (v.playbackRate || 1);
-            this.drainWall = now;
-            return this.drainAt;
-        }
-        queueAt(t) {
-            if (!this.keepsSpeech()) return t;
-            const live = this.live && this.planById.get(this.live.planId);
-            return live ? live.start : this.lastSpokenStart != null ? this.lastSpokenStart : this.entryAt != null ? this.entryAt : t;
-        }
-        renderAt(t) {
-            if (!this.keepsSpeech()) return t;
-            const next = this.plans.find(p => this.queuedPlan(p));
-            return next ? Math.min(t, Math.max(this.queueAt(t), next.start)) : t;
-        }
-        pendingTranslationBefore(p) {
-            if (!this.keepsSpeech()) return false;
-            const from = this.lastSpokenStart != null ? this.lastSpokenStart : this.entryAt || 0;
-            return (this.d.getGroups() || []).some(g => g && g.translated === false && !g.viText && g.end > from && g.start < p.start - SYNC.startTolerance);
-        }
-        queuedPlan(p) {
-            return p && (this.lastSpokenStart == null ? p.end > (this.entryAt || 0) : p.start > this.lastSpokenStart + 1e-6);
+        // One session owns lifecycle, timeline and queue decisions for every provider/site.
+        session() { return SESSION.bind(this); }
+        keepsSpeech() { return this.session().completeSpeech; }
+        timelineAt() { return this.session().timeline(this.d.video, this.d.now()); }
+        queueAt(t) { return this.session().queueAt(t, this.live && this.live.planId); }
+        renderAt(t) { return this.session().renderAt(t, this.live && this.live.planId); }
+        pendingTranslationBefore(p) { const session = this.session(); session.observe(this.d.getGroups() || []); return session.translationBefore(p, SYNC.startTolerance); }
+        queuedPlan(p) { return this.session().queued(p); }
+        sessionSnapshot(t) {
+            return this.session().snapshot({ time: t, speech: this.speech, live: this.live, rendered: this.rendered,
+                pending: this.pending, failed: this.failed, tolerance: SYNC.startTolerance });
         }
 
         // ---------------- Dựng kịch bản & kế hoạch từ bản dịch có ngữ cảnh ----------------
         refresh(force) {
             const given = this.d.getGroups() || [];
-            const all = given.filter(g => g && g.viText && g.viCues && g.viCues.length);
+            this.session().observe(given);
+            const all = given.filter(g => g && Number.isFinite(g.start) && Number.isFinite(g.end) && g.end >= g.start && g.viText && g.viCues && g.viCues.length);
             // Only a window around playback is planned. Measured on a 60-minute lecture: planning the
             // whole video took ~90 ms on the page's main thread, and it ran again every time one more
             // group finished translating, i.e. hundreds of visible stutters. The window moves in
@@ -917,15 +911,7 @@
             return script;
         }
 
-        planAt(t) {
-            const ps = this.plans;
-            let lo = 0, hi = ps.length - 1, found = -1;
-            while (lo <= hi) {
-                const mid = (lo + hi) >> 1;
-                if (ps[mid].start <= t) { found = mid; lo = mid + 1; } else hi = mid - 1;
-            }
-            return found;
-        }
+        planAt(t) { return this.session().at(t); }
 
         // ---------------- Vòng lặp chính ----------------
         tick() {
@@ -940,7 +926,6 @@
             // At natural EOF the source clock stops; let queued speech finish on a wall clock.
             // An explicit seek/replay clears this anchor in hardReset.
             const draining = this.keepsSpeech() && v.ended;
-            if (!draining) this.drainWall = null;
             const t = this.timelineAt();
             if (this.lastT !== null && (t < this.lastT - 0.3 || t > this.lastT + 2.5)) {
                 // A forward jump that matches the wall clock since the last tick is this page's own
@@ -962,7 +947,9 @@
             if (!this.keepsSpeech() && this.lastSpokenStart == null && !this.speech && !this.headPinned && Math.abs(t - (this.headAt || 0)) > 10) this.headAt = Math.round(t);
             this.refresh();
 
-            const playing = draining || !v.paused && !v.ended && (v.readyState === undefined || v.readyState >= 3) && !this.waiting && !stalled;
+            this.session().transition("frame", { time: v.currentTime, ended: v.ended, paused: v.paused,
+                waiting: this.waiting || stalled || (v.readyState !== undefined && v.readyState < 3) });
+            const playing = this.session().phase === "playing" || this.session().phase === "draining";
             // Chẩn đoán: video đang chạy mà engine coi là chưa phát được (lý do + thời điểm media)
             if (!playing && !v.paused && !v.ended) {
                 const g = this.stats.gate || (this.stats.gate = { waiting: 0, ready: 0, stalled: 0, lastT: null });
@@ -1004,6 +991,7 @@
             if (this.isAdShowing()) {
                 if (!this.inAd) {
                     this.inAd = true;
+                    this.session().transition("ad-start");
                     this.stats.ads = (this.stats.ads || 0) + 1;
                     this.adSourceTime = this.lastSourceT != null ? this.lastSourceT : this.lastT;
                     // the line the ad cut, and how far the voice had got in it (BACKLOG 35)
@@ -1023,6 +1011,7 @@
             }
             if (this.inAd) {
                 this.inAd = false;
+                this.session().transition("ad-end", { time: this.d.video.currentTime, ended: this.d.video.ended, paused: this.d.video.paused });
                 this.lastT = null;                      // the ad's clock says nothing about a jump
                 this.hardReset("ad");
                 this.adResume = this.adCut;
@@ -1071,18 +1060,8 @@
             let idx = this.planAt(t);
             let plan, k = 0;
             if (this.keepsSpeech()) {
-                const previous = L && this.planById.get(L.planId);
-                if (previous) {
-                    idx = this.plans.indexOf(previous); k = L.k + 1;
-                    if (k >= previous.phrases.length) { idx++; k = 0; }
-                } else {
-                    const entry = this.lastSpokenStart != null ? this.lastSpokenStart : this.entryAt != null ? this.entryAt : t;
-                    idx = this.planAt(entry);
-                    if (idx < 0 || this.plans[idx].end <= entry) idx++;
-                    const first = this.plans[idx];
-                    if (first) while (k < first.phrases.length && entry - first.start > first.phrases[k].offset + first.phrases[k].dur * 0.4) k++;
-                }
-                plan = this.plans[idx];
+                const choice = this.session().liveNext(t, L);
+                plan = choice.plan; k = choice.phrase;
                 if (!plan) return;
             } else {
                 if (idx < 0) return;
@@ -1119,19 +1098,22 @@
             const baseSpeed = PLAN.speedMultiplier(plan.rate * ph.rateMul, m);
             const rate = PLAN.rateForSpeedup(baseSpeed * boost * videoRate, m);
             const state = { planId: plan.id, k, speaking: true, finished: false, rate, wallStart: null, sentAt: this.d.now(), predicted: ph.dur / boost, planCal: plan.calibration || 1 };
+            const lease = this.session().token(true);
             this.live = state;
             this.speakingUntilMedia = due + ph.dur + SYNC.duckHold;
             if (k === 0) this.stats.started.push({ id: plan.id, t, due: plan.start, lag });
             try {
                 state.handle = this.provider.speak(ph.text, { rate, pitch: plan.pitch * ph.pitchMul, volume: this.settings.volume, speaker: plan.speaker }, {
-                    onstart: () => { state.wallStart = this.d.now(); },
+                    onstart: () => { if (this.session().current(lease) && this.live === state) state.wallStart = this.d.now(); },
                     onend: () => {
+                        if (!this.session().current(lease) || this.live !== state) return;
                         state.speaking = false;
                         state.endMedia = this.d.video.currentTime;
                         if (state.wallStart !== null && !state.cancelled) this.calibrate(state, videoRate);
                         if (k === plan.phrases.length - 1) state.finished = true;
                     },
                     onerror: (e) => {
+                        if (!this.session().current(lease) || this.live !== state) return;
                         state.speaking = false;
                         // Bị hủy chủ động (tạm dừng, tua) không phải lỗi giọng
                         if (state.cancelled || (e && /interrupted|canceled|cancelled/i.test(e.error || ""))) return;
@@ -1228,6 +1210,7 @@
             const rate = this.chooseRate(p, r, t, offset, lag);
             // prev*: what was spoken before, given back if this take turns out unplayable (onPlayFailed)
             this.speech = S = { id: p.id, mediaStart: t, offset, rate, end: t + (r.duration - offset) / rate, prevSpokenStart: this.lastSpokenStart, prevSpokenId: this.lastSpokenId };
+            S.sessionToken = this.session().token(true);
             this.lastSpokenStart = p.start;
             this.lastSpokenId = p.id;
             S.startRecord = { id: p.id, t, due: p.start, lag, rate, speechEnd: S.end, cueEnd: p.end };
@@ -1255,6 +1238,7 @@
         //   anything else (NotSupportedError: a take the browser cannot decode): the take is dropped
         //     and made again like a failed render, instead of being fed to the element 20 times a second.
         onPlayFailed(S, el, e) {
+            if (S.sessionToken && (!this.session().current(S.sessionToken) || this.speech !== S)) return;
             const name = (e && e.name) || "";
             if (name === "AbortError") { this.countError("play_interrupted"); return; }
             this.onProviderError(e);
@@ -1596,11 +1580,8 @@
             if (this.lastSpokenStart == null) {
                 // Vừa bắt đầu / vừa tua: chỉ xét câu tại vị trí hiện tại; đã vào giữa câu thì
                 // phát từ đúng đoạn tương ứng, câu đã trôi qua thì chờ câu sau
-                const entry = this.keepsSpeech() ? (this.entryAt != null ? this.entryAt : t) : t;
-                let idx = this.planAt(entry + tol);
-                if (this.keepsSpeech() && (idx < 0 || this.plans[idx].end <= entry)) idx++;
-                if (idx < 0 || !this.plans[idx]) return null;
-                const p = this.plans[idx];
+                const { entry, index: idx, plan: p } = this.session().entryPlan(t, tol);
+                if (idx < 0 || !p) return null;
                 if (t < p.start - tol || this.pendingTranslationBefore(p)) return null;
                 // A line waited on here with time left to say it, then passed without a word, was
                 // given up for a slow voice: it counts in stats.dropped ("đã bỏ N câu", BACKLOG 38).
@@ -1822,6 +1803,7 @@
             return {
                 t: r2(t), provider: this.provider.id, gate: this.stats.gate || null, waiting: !!this.waiting, rs: this.d.video.readyState,
                 lastSpoken: this.lastSpokenStart, headAt: this.headAt, speech: this.speech ? { id: this.speech.id, end: r2(this.speech.end), rate: r2(this.speech.rate) } : null,
+                session: this.sessionSnapshot(this.timelineAt()),
                 ahead: r2(this.prefetchAhead()), jobs: this.jobs.size, dropped: this.stats.dropped, errors: this.stats.errors, chained: this.stats.chained || 0,
                 delivery: { recoverMs: (this.stats.recoverMs || []).slice(-5), late: this.stats.late || 0, gaps: this.stats.gaps || 0, gapSec: r2(this.stats.gapSec || 0), requests: this.stats.requests, cacheHits: this.stats.cacheHits, aborted: this.stats.aborted, detached: this.stats.detached || 0, held: this.rendered.size, elements: [...this.rendered.values()].filter(x => x.el).length,
                     // what a "pop" heard while the voice plays can be (2.4.2): a re-seek of a sounding
@@ -1865,7 +1847,7 @@
                 this.cueSpeech(S, el);
                 if (el.paused) {
                     const pr = el.play();
-                    if (pr && pr.then) pr.then(() => this.onPlayStarted(), e => this.onPlayFailed(S, el, e));
+                    if (pr && pr.then) pr.then(() => { if ((!S.sessionToken || this.session().current(S.sessionToken)) && this.speech === S) this.onPlayStarted(); }, e => this.onPlayFailed(S, el, e));
                 }
                 return;
             }
@@ -2061,7 +2043,7 @@
             // A segment at or behind the speech queue mark (spoken, or dropped for lag) will never
             // be spoken: rendering it steals a server slot from the segment that is about to play
             const spoken = this.lastSpokenStart;
-            const inWindow = p => (this.keepsSpeech() || p.start + p.estDuration >= t - 1) && (spoken == null || p.start > spoken) && !(fresh && p.end < (this.keepsSpeech() ? this.entryAt || 0 : t) + 0.3) && p.start <= to && !this.rendered.has(p.id) && !this.pending.has(p.id) && (this.failed.get(p.id) || 0) < 2 && !(fresh && !this.keepsSpeech() && this.unreachable(p, t));
+            const inWindow = p => (this.keepsSpeech() || p.start + p.estDuration >= t - 1) && (spoken == null || p.start > spoken) && !(fresh && (this.keepsSpeech() ? !this.queuedPlan(p) : p.end < t + 0.3)) && p.start <= to && !this.rendered.has(p.id) && !this.pending.has(p.id) && (this.failed.get(p.id) || 0) < 2 && !(fresh && !this.keepsSpeech() && this.unreachable(p, t));
             let todo = this.plans.filter(inWindow).sort((a, b) => a.start - b.start);
             if (!todo.length) return;
 
@@ -2151,6 +2133,7 @@
         // What the viewer should know about the voice right now, for the quick menu: how much audio
         // is ready ahead, how fast the server makes it, how many sentences were skipped to catch up.
         health(t) {
+            const session = this.sessionSnapshot ? this.sessionSnapshot(t) : null;
             const keepAllSpeech = !!this.settings?.keepAllSpeech;
             const next = keepAllSpeech && this.plans.find(p => this.queuedPlan(p));
             const unfinished = keepAllSpeech && (this.provider.caps.live ? (!this.live || !this.live.finished || this.plans.indexOf(this.planById.get(this.live.planId)) < this.plans.length - 1) : !!(this.speech || next));
@@ -2158,7 +2141,7 @@
             return {
                 live: !!this.provider.caps.live,
                 keepAllSpeech, draining: !!(keepAllSpeech && this.d.video.ended && unfinished),
-                lag, waitingTranslation: !!(next && this.pendingTranslationBefore(next)),
+                session, lag, waitingTranslation: session ? session.wait === "translation" : !!(next && this.pendingTranslationBefore(next)),
                 ahead: this.provider.caps.live ? 0 : this.bufferedAhead(t),
                 rtf: this.renderRtf == null ? null : this.renderRtf,
                 samples: this.renderSamples,
@@ -2237,21 +2220,24 @@
         // A hit is kept only while the engine runs and only for the plan now holding that id with the
         // same text (the line may have been re-cut or re-translated while the lookup was out).
         async lookupCache(plans) {
+            const session = this.session(), token = session.token(), provider = this.provider;
+            const leases = plans.map(p => session.lease(p, provider));
             const seq = this.lookupSeq = (this.lookupSeq || 0) + 1;
             this.busyLookup = true;
             let timer = null;
             const giveUp = () => {
-                if (this.lookupSeq !== seq || !this.busyLookup) return;
-                this.countError("lookup_timeout");
-                plans.forEach(p => this.cacheChecked.add(p.id));
+                if (this.lookupSeq !== seq || !this.busyLookup || !session.current(token)) return;
+                if (leases.some(l => session.accepts(l, this.provider))) this.countError("lookup_timeout");
+                plans.forEach((p, i) => { if (session.accepts(leases[i], this.provider)) this.cacheChecked.add(p.id); });
                 this.busyLookup = false;
             };
             if (this.d.setTimeout) timer = this.d.setTimeout(giveUp, SYNC.lookupTimeout);
             try {
-                const keys = await Promise.all(plans.map(p => this.provider.audioKey(p)));
+                const keys = await Promise.all(plans.map(p => provider.audioKey(p)));
                 const hits = await this.d.audioCache.get(keys);
-                if (!this.running) return;
+                if (!this.running || !session.current(token)) return;
                 plans.forEach((p, i) => {
+                    if (!session.accepts(leases[i], this.provider)) return;
                     this.cacheChecked.add(p.id);
                     p.audioKey = keys[i];
                     const h = hits && hits[keys[i]];
@@ -2265,8 +2251,9 @@
                     this.addRendered(cur, h.wav, duration);
                 });
             } catch (e) {
+                if (!session.current(token) || this.provider !== provider || !leases.some(l => session.accepts(l, provider))) return;
                 this.countError("lookup_failed");
-                plans.forEach(p => this.cacheChecked.add(p.id));
+                plans.forEach((p, i) => { if (session.accepts(leases[i], this.provider)) this.cacheChecked.add(p.id); });
             } finally {
                 if (timer != null && this.d.clearTimeout) this.d.clearTimeout(timer);
                 if (this.lookupSeq === seq) this.busyLookup = false;
@@ -2345,6 +2332,8 @@
         }
 
         async renderBatch(batch) {
+            const session = this.session(), token = session.token();
+            const leases = new Map(batch.map(p => [p.id, session.lease(p, this.provider)]));
             const jobId = `tts${++this.jobSeq}_${Date.now()}`;
             batch.forEach(p => this.pending.set(p.id, jobId));
             const job = { planIds: batch.map(p => p.id), t0: this.d.now(), orphan: false, queued: this.jobs.size > 0,
@@ -2361,7 +2350,7 @@
                 // sample froze the estimate exactly when the server could not keep up, because then
                 // nearly every job is left behind (1.9.9: the estimate stayed at 0.47 on a server at
                 // 1.0x, and the engine kept chasing lines it could not reach). Latency stays live-only.
-                {
+                if (session.current(token) && this.provider === provider) {
                     if (!job.orphan) this.renderLatency = this.renderLatency == null ? secs : this.renderLatency * 0.7 + secs * 0.3;
                     // Generation speed = seconds spent / seconds of speech. Predicts the remaining
                     // wait far better than per-job latency, because batch sizes differ by a lot.
@@ -2401,7 +2390,7 @@
                         const key = p.audioKey || await provider.audioKey(p);
                         this.d.audioCache.put(key, { wav: o.wav, duration: o.duration, sampleRate: o.sampleRate });
                     }
-                    if (!this.running || this.provider !== provider) continue;
+                    if (!this.running || !session.accepts(leases.get(o.planId), this.provider)) continue;
                     if (this.audioLength(o.wav, o.duration) === Number(o.duration)) {
                         this.measureVoice(p, o.duration);
                         // Hiệu chỉnh mô hình thời lượng theo thời lượng PHÁT (đã tính nhịp nền)
@@ -2413,36 +2402,38 @@
                     if (duration == null) { this.countError("bad_audio"); this.failed.set(p.id, (this.failed.get(p.id) || 0) + 1); continue; }
                     if (cur && cur.text === p.text && cur.voiceTag === p.voiceTag && !this.rendered.has(cur.id)) this.addRendered(cur, o.wav, duration);
                 }
-                this.consecutiveErrors = 0;
+                if (session.current(token) && this.provider === provider) this.consecutiveErrors = 0;
             } catch (e) {
+                const currentBatch = batch.filter(p => session.accepts(leases.get(p.id), this.provider));
+                if (!session.current(token) || this.provider !== provider || !currentBatch.length) return;
                 this.countError(e && e.aborted ? "aborted" : (e && e.type) || "unknown");
                 if (e && e.aborted) {
                     this.stats.aborted++;                       // hủy chủ động khi tua: không tính lỗi
                 } else if (e && e.splitFailed && batch.length > 1) {
                     // Cắt không chắc chắn: tạo lại từng đoạn riêng cho đúng nội dung
-                    batch.forEach(p => this.failed.set(p.id, 1));
+                    currentBatch.forEach(p => this.failed.set(p.id, 1));
                 } else if (e && e.type === "timeout" && provider.caps.free) {
                     // Giọng trên máy (miễn phí): hết giờ thì được tạo lại (tối đa 2 lần), không bỏ câu
-                    batch.forEach(p => this.failed.set(p.id, (this.failed.get(p.id) || 0) + 1));
+                    currentBatch.forEach(p => this.failed.set(p.id, (this.failed.get(p.id) || 0) + 1));
                     this.stats.timeouts = (this.stats.timeouts || 0) + 1;
                     this.onProviderError(e);
                 } else if (e && e.type === "timeout") {
                     // Quá thời gian chờ: máy chủ có thể ĐÃ tạo (và tính tiền) audio -> không gửi
                     // lại cho các đoạn này (tránh tạo trùng); chúng được bỏ qua trong hàng đợi lời nói
-                    batch.forEach(p => this.failed.set(p.id, 2));
+                    currentBatch.forEach(p => this.failed.set(p.id, 2));
                     this.stats.timeouts = (this.stats.timeouts || 0) + 1;
                     this.onProviderError(e);
                 } else if (e && (e.type === "rate_limit" || e.type === "quota")) {
                     // Vượt giới hạn tốc độ: từ giờ tạo audio dè dặt (1 lượt mỗi lúc, lượt lớn)
                     this.conservative = true;
-                    batch.forEach(p => this.failed.set(p.id, (this.failed.get(p.id) || 0) + 1));
+                    currentBatch.forEach(p => this.failed.set(p.id, (this.failed.get(p.id) || 0) + 1));
                     this.onProviderError(e);
                 } else if (e && e.type === "budget") {
                     // Chạm ngân sách: chuyển hẳn sang giọng hệ thống (nếu có), không tạo audio AI nữa
                     this.stats.budgetStops = (this.stats.budgetStops || 0) + 1;
                     this.switchToFallback("budget");
                 } else {
-                    batch.forEach(p => this.failed.set(p.id, (this.failed.get(p.id) || 0) + 1));
+                    currentBatch.forEach(p => this.failed.set(p.id, (this.failed.get(p.id) || 0) + 1));
                     this.onProviderError(e);
                 }
             } finally {
@@ -2611,9 +2602,9 @@
         }
 
         hardReset(reason) {
-            const resumeQueue = reason === "ad" && this.keepsSpeech() && this.adSourceTime != null &&
-                Math.abs(this.d.video.currentTime - this.adSourceTime) <= SYNC.adResumeWithin
-                ? { entryAt: this.entryAt, mark: this.lastSpokenStart, id: this.lastSpokenId, headAt: this.headAt, live: this.live } : null;
+            const resumeQueue = this.session().transition("reset", { reason, time: this.d.video.currentTime || 0,
+                ended: this.d.video.ended, paused: this.d.video.paused, adSourceTime: this.adSourceTime,
+                adResumeWithin: SYNC.adResumeWithin, live: this.live });
             this.note("reset", { why: reason });
             this.pace = null;                   // the pace of where we were says nothing about where we are
             this.silence();
@@ -2622,13 +2613,9 @@
             // elements made for where we were (the line cut off, the one prepared after it) go too,
             // a sounding one after the fade silence() began (a cut at once was a click on every seek)
             for (const r of this.rendered.values()) if (r.el) this.releaseAudio(r, true);
-            this.lastSpokenStart = null;
-            this.entryAt = this.d.video.currentTime || 0;
-            this.drainWall = null;
             this.entryWait = null;              // a line waited on before the seek was the viewer's skip
             this.lastRate = null;               // vị trí mới: không nối nhịp với câu cũ
             this.lastSpeechEnd = null;
-            this.lastSpokenId = null;
             this.warmup = true;                 // lượt TTS kế tiếp nhỏ để có tiếng ngay ở vị trí mới
             // A short head cut around the new position gets voice sooner when nothing is ready there.
             // When the audio at the landing point is already in the page (a rewind, a seek into what
@@ -2644,9 +2631,6 @@
             this.resetWall = this.d.now();
             this.live = null;
             if (resumeQueue) {
-                this.entryAt = resumeQueue.entryAt;
-                this.lastSpokenStart = resumeQueue.mark;
-                this.lastSpokenId = resumeQueue.id;
                 this.headAt = resumeQueue.headAt;
                 this.headProbe = null;
                 this.live = resumeQueue.live;

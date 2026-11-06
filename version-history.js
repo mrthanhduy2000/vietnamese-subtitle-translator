@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.1.8", luc: "07/11/2026", ten: "Hoàn thiện bộ điều phối phiên lồng tiếng dùng chung",
+            y: [
+                "Thống nhất quản lý phát, dừng, tua, quảng cáo, hàng đợi lời đọc và phần đọc nốt cuối video cho các nền tảng và giọng đọc.",
+                "Chặn callback và kết quả cũ ảnh hưởng phiên mới; lỗi từ yêu cầu cũ không làm hỏng câu đã dịch lại hoặc giọng vừa chuyển sang.",
+                "Giữ đúng thứ tự khi bản dịch về lệch thứ tự, báo đang chờ dịch ở cuối video và phát hiện dữ liệu thời gian không hợp lệ. Vẫn đọc đủ nội dung, giữ video chạy liên tục và chấp nhận trễ khi lời quá dày."
+            ]
+        },
+        {
             v: "3.1.7", luc: "03/11/2026", ten: "Đọc đủ lời khi video chạy liên tục",
             y: [
                 "Giữ các câu chưa đọc trong hàng đợi, kể cả khi đã trễ hơn mốc phụ đề; không bỏ câu chỉ để đuổi kịp video.",

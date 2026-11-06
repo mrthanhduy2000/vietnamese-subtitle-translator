@@ -1,29 +1,28 @@
-# Handoff (2026-11-03, lane B with D tests/release integration)
+# Handoff (2026-11-07, lane B with C/D loader, tests and release integration)
 
 ## Current state
-- Release 3.1.7 implements the user's selected policy: continuous video with complete delayed speech.
-- dubbing.js enables keepAllSpeech. The bare engine compatibility default keeps legacy skipping;
-  production simulator/live/listening harnesses explicitly enable the shipped complete-speech mode.
-- No lag-based skipping, no advancing the entry while synthesis waits. Unspoken plans/audio/jobs
-  survive window moves and eviction. Explicit pending translations block later speech.
-- Rendering follows the next speech span and advances across long source silences; it does not
-  generate an ever-growing WAV backlog near the distant source playhead.
-- Natural EOF drains speech on an incremental clock; rate changes remain continuous. Manual
-  pause silences speech; seeks/navigation/dubbing off reset the queue. Ads preserve source entry.
-- Health reports waiting translation, complete-speech delay, actual errors and final-tail playback.
-- npm test: 1054 total, 1052 pass, 0 fail, 2 conditional skips. Fourteen new FIFO/EOF/ads/live tests
-  plus production-policy integration; legacy recovery-budget tests explicitly select old policy.
-- 145 saved videos, LATENCY=busy with queue drained: missing words 16 -> 0, repeated words 0,
-  lag drops 1 -> 0. Late starts 2243 -> 2281 are accepted; no cuts or hard starts introduced.
-- Standard regression: 45 videos + 24 scenarios, 141 changed metrics / 61 worse tradeoff metrics.
-  Every worse metric is explained in docs/measurements/complete-speech-regression-2026-11-03.json.
-  Scenario drops 19 -> 0, late 76 -> 138, gaps 20.34 -> 39.62 s. Baseline 3.1.7 saved.
-- Real original-audio A/B: same 28 Kim Thanh takes, both capped at 1x, source ends at 50 s.
-  Whole takes completed: 20/28 -> 28/28; zero overlap/errors. New tails ~13.11/23.75 s on two
-  dense clips; increased lag is the selected policy. No subjective listening judgment claimed.
-- docs/COMPLETE_SPEECH.md and complete-speech*.json retain methods, hashes and exact results.
-  Local source/voice/mixed recordings: ignored tests/harness/smooth/real-video/, served on 8768.
-  Prior default-rate study preserved under history-3.1.5-3.1.6/. No paid calls in validation.
+- Release 3.1.8 completes the shared speech-session coordinator begun after 3.1.7.
+- dub-session.js owns lifecycle, FIFO entry/cursor, EOF clock, ad return and async leases.
+  dub-engine.js retains provider/audio effects, using aliases for existing adapter/test fields.
+- Production retains continuous video and complete FIFO speech; no condensing or lag-based drops.
+- Playback tokens include the reset revision. Matching synthesis may survive same-source seeks;
+  stop/restart or source/provider/text/voice/timing changes reject obsolete results.
+- Old cache failures/timeouts and render failures cannot poison refined replacement plans.
+  Old provider success cannot erase a new provider's errors. EOF reports pending translation.
+- Source groups with invalid outer timing are reported and excluded from planning.
+- Near-end uncached seeks use the same FIFO eligibility for synthesis and playback; the former
+  0.3-second scheduler exclusion could leave the entry permanently waiting for unscheduled audio.
+- Both manifest pipelines, Settings, VM loaders and browser harnesses load session before engine.
+- tests/dub-session.test.js adds 19 contracts/races; existing complete-speech tests stay enabled.
+- npm test: 1,073 total, 1,071 pass, 0 fail, 2 conditional skips.
+- Regression: 45 videos + 24 scenarios, zero changed/worse metrics versus 3.1.7.
+- Real Chrome/local worker: 150 s, 29 starts, zero errors/overlap/paused/ad sound.
+  Targeted near-end seek resumes in 0.55 s; previously silent for the 16 s observation.
+- Full archive + current Chrome: 145 videos, zero changed corpus metrics.
+- Three real-source clips: 28/28 takes complete, zero overlap/errors/manual-paused sound.
+- Validation results are recorded in docs/measurements/shared-session-2026-11-07.json.
+- tools/session-corpus.js reproduces baseline/current comparison over archive plus Chrome exports.
+  docs/DUBBING.md documents ownership, lease boundaries and pending-group producer obligations.
 
 ## Unfinished
 - Source-caption/content mismatch remains separate: Russian source/caption discrepancy flagged
@@ -34,9 +33,11 @@
   TED embed/hold issues, Mac auto-update install and old UI redesign-note reconciliation.
 
 ## Traps
-- Separate queue retention cursor from render horizon; a fixed cursor otherwise stalls after gaps.
-- Simulated fixed end+5 s is not full-word accounting: drain before counting; physical EOF is tested
-  separately in Chrome. Real recordings' raw paused counter includes intentional natural-EOF tails.
-- Do not compare the earlier automatic-rate clips with the new 1x stress protocol as speed gains.
-- Changing videos, including autoplay navigation, intentionally abandons the previous speech queue.
+- Queue retention and render horizon are different; the latter must cross long source silences.
+- Playback callbacks require revision tokens; synthesis leases intentionally allow matching seek reuse.
+- Chrome can expose audio.ended before dispatching its ended event. The real-source harness records
+  that flag before cleanup pause/load, so cleanup does not cancel evidence of a completed take.
+- Simulations use full queue drain for word accounting; they do not prove semantic/listening quality.
+- Seeks/change-video abandon the old queue; same-position ads preserve it. Translation producers
+  still own navigation guards and must expose pending groups for ordering to be enforceable.
 - Reload at chrome://extensions and refresh video tabs; never remove/reinstall or overwrite settings.

@@ -1321,7 +1321,7 @@ function dubbingEnvFor(mode, dubProvider, msgs, onMsg, paid = true, extra = {}) 
     };
     sandbox.window = sandbox; sandbox.globalThis = sandbox;
     vm.createContext(sandbox);
-    for (const f of ["cst-cache.js", "cost-policy.js", "vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-speech.js", "dub-audio.js", "dub-engine.js", "dubbing.js"]) vm.runInContext(read(f), sandbox);
+    for (const f of ["cst-cache.js", "cost-policy.js", "vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-speech.js", "dub-audio.js", "dub-session.js", "dub-engine.js", "dubbing.js"]) vm.runInContext(read(f), sandbox);
     sandbox.CST_COST.PAID_TTS = paid;   // 1.8.1: paid voice ships off; this suite tests its machinery
     return sandbox;
 }

@@ -30,6 +30,7 @@ sense of weight, not an assertion.
 
 | File | ~Tests | Covers |
 |---|---|---|
+| `dub-session.test.js` | 19 | Session transitions, playback versus synthesis leases, stale cache/render/live callbacks, replacement failures, EOF pending translations, invalid timings and every browser loader. |
 | `dub-full-speech.test.js` | 14 | FIFO beyond lag limits, late first takes, missing translations, planning/eviction/jobs, long source silences, manual seek/pause, natural EOF drain, speed changes, ads and live fallback. |
 | `dub-onset.test.js` | 4 | Initial/seek predecode, paused startup without a hold, redundant-zero-seek avoidance and playback-onset accounting across resume. |
 | `translation-progress.test.js` | 10 | Empty-answer salvage, selective fallback, partial checkpoint resume, source/track identity, completion cleanup, bounds and concurrent worker writes. |

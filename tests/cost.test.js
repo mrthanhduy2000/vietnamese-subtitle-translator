@@ -820,7 +820,7 @@ function dubbingEnv(mode, msgs) {
     // Báo bằng thẻ nhỏ trên trình phát (không dùng hộp thoại chặn trang)
     sandbox.CST_UI = { toast: m => msgs.push({ alert: m }) };
     vm.createContext(sandbox);
-    for (const f of ["cst-cache.js", "cost-policy.js", "vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-speech.js", "dub-audio.js", "dub-engine.js", "dubbing.js"]) vm.runInContext(read(f), sandbox);
+    for (const f of ["cst-cache.js", "cost-policy.js", "vi-segmenter.js", "dub-planner.js", "dub-prosody.js", "dub-speech.js", "dub-audio.js", "dub-session.js", "dub-engine.js", "dubbing.js"]) vm.runInContext(read(f), sandbox);
     sandbox.CST_COST.PAID_TTS = true;   // 1.8.1: paid voice ships off; this suite tests its machinery
     return sandbox;
 }
@@ -957,7 +957,7 @@ test("danh mục: 2.5 Flash-Lite có trong danh sách, rẻ nhất nhưng CHỈ 
 });
 
 test("danh mục tập trung: không file nào ngoài cost-policy.js ghi cứng tên model Gemini", () => {
-    const files = ["background.js", "content.js", "youtube.js", "dubbing.js", "dub-engine.js", "dub-planner.js", "context-engine.js", "options.js", "options.html", "popup.js", "popup.html"];
+    const files = ["background.js", "content.js", "youtube.js", "dubbing.js", "dub-session.js", "dub-engine.js", "dub-planner.js", "context-engine.js", "options.js", "options.html", "popup.js", "popup.html"];
     for (const f of files) {
         const hits = read(f).match(/gemini-\d[\w.-]*/g) || [];
         assert.deepEqual(hits, [], `${f} còn ghi cứng: ${hits.join(", ")}`);

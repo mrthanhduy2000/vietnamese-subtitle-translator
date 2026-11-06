@@ -9,7 +9,7 @@ window.runOnset = async () => {
     if (window.running) return;
     window.running = true;
     const query = new URLSearchParams(location.search);
-    for (const f of ['vi-segmenter.js', 'cost-policy.js', 'dub-planner.js', 'dub-prosody.js', 'dub-speech.js', 'dub-audio.js', 'dub-engine.js']) {
+    for (const f of ['vi-segmenter.js', 'cost-policy.js', 'dub-planner.js', 'dub-prosody.js', 'dub-speech.js', 'dub-audio.js', 'dub-session.js', 'dub-engine.js']) {
         await new Promise((resolve, reject) => {
             const s = document.createElement('script');
             s.src = f === 'dub-engine.js' && query.has('old') ? 'smooth/onset-old-engine.js' : '../../' + f;
