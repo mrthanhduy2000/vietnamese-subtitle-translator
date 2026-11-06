@@ -1,0 +1,2273 @@
+{
+  "baseline": "9aa0bba74031fdf1d662fddd62afffa125bc719d",
+  "latency": "busy",
+  "drain": true,
+  "videos": 145,
+  "totals": {
+    "before": {
+      "spoken": 17982,
+      "dropped": 0,
+      "wordsLost": 0,
+      "wordsTwice": 0,
+      "late": 2344,
+      "gapN": 95,
+      "gapSum": 13.83,
+      "cuts": 0,
+      "hardStarts": 0,
+      "serverRuns": 17758,
+      "lagP95": 89.386,
+      "lagSum": 3717.568,
+      "rateJumps": 1150
+    },
+    "after": {
+      "spoken": 17982,
+      "dropped": 0,
+      "wordsLost": 0,
+      "wordsTwice": 0,
+      "late": 2110,
+      "gapN": 65,
+      "gapSum": 10.06,
+      "cuts": 0,
+      "hardStarts": 0,
+      "serverRuns": 17758,
+      "lagP95": 85.591,
+      "lagSum": 3366.419,
+      "rateJumps": 964
+    }
+  },
+  "changed": [
+    {
+      "id": "ytcache4_1EciF6Vmr14.json",
+      "metric": "lagSum",
+      "before": 4.231,
+      "after": 4.176
+    },
+    {
+      "id": "ytcache4_7ReQFzSndj4.json",
+      "metric": "late",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_7ReQFzSndj4.json",
+      "metric": "lagP95",
+      "before": 0.129,
+      "after": 0.118
+    },
+    {
+      "id": "ytcache4_7ReQFzSndj4.json",
+      "metric": "lagSum",
+      "before": 2.622,
+      "after": 1.552
+    },
+    {
+      "id": "ytcache4_AF6MSemog7Y.json",
+      "metric": "lagSum",
+      "before": 6.505,
+      "after": 6.415
+    },
+    {
+      "id": "ytcache4_AF6MSemog7Y.json",
+      "metric": "rateJumps",
+      "before": 2,
+      "after": 1
+    },
+    {
+      "id": "ytcache4_H6k6I__93JM.json",
+      "metric": "late",
+      "before": 2,
+      "after": 1
+    },
+    {
+      "id": "ytcache4_H6k6I__93JM.json",
+      "metric": "lagP95",
+      "before": 0.11,
+      "after": 0.107
+    },
+    {
+      "id": "ytcache4_H6k6I__93JM.json",
+      "metric": "lagSum",
+      "before": 4.831,
+      "after": 3.056
+    },
+    {
+      "id": "ytcache4_KKbPoVtoKfA.json",
+      "metric": "lagSum",
+      "before": 2.928,
+      "after": 2.808
+    },
+    {
+      "id": "ytcache4_N0a1WmCYaLE.json",
+      "metric": "lagSum",
+      "before": 7.015,
+      "after": 5.703
+    },
+    {
+      "id": "ytcache4_N0a1WmCYaLE.json",
+      "metric": "rateJumps",
+      "before": 3,
+      "after": 2
+    },
+    {
+      "id": "ytcache4_NLLa91Pz-X8.json",
+      "metric": "lagSum",
+      "before": 4.368,
+      "after": 4.22
+    },
+    {
+      "id": "ytcache4_dSEZriz716g.json",
+      "metric": "late",
+      "before": 27,
+      "after": 26
+    },
+    {
+      "id": "ytcache4_dSEZriz716g.json",
+      "metric": "lagSum",
+      "before": 39.049,
+      "after": 37.286
+    },
+    {
+      "id": "ytcache4_krPKW8J6JSM.json",
+      "metric": "lagSum",
+      "before": 20.778,
+      "after": 20.383
+    },
+    {
+      "id": "ytcache4_rJ3cOKvcysU.json",
+      "metric": "lagSum",
+      "before": 8.547,
+      "after": 7.892
+    },
+    {
+      "id": "ytcache4_rJ3cOKvcysU.json",
+      "metric": "rateJumps",
+      "before": 8,
+      "after": 7
+    },
+    {
+      "id": "ytcache4_uziJltmdPx8.json",
+      "metric": "lagP95",
+      "before": 0.108,
+      "after": 0.101
+    },
+    {
+      "id": "ytcache4_uziJltmdPx8.json",
+      "metric": "lagSum",
+      "before": 1.517,
+      "after": 1.172
+    },
+    {
+      "id": "ytcache4_wzHQg2V2I14.json",
+      "metric": "gapN",
+      "before": 2,
+      "after": 1
+    },
+    {
+      "id": "ytcache4_wzHQg2V2I14.json",
+      "metric": "gapSum",
+      "before": 0.25,
+      "after": 0.12
+    },
+    {
+      "id": "ytcache4_wzHQg2V2I14.json",
+      "metric": "lagP95",
+      "before": 0.335,
+      "after": 0.36
+    },
+    {
+      "id": "ytcache4_wzHQg2V2I14.json",
+      "metric": "lagSum",
+      "before": 8.813,
+      "after": 8.588
+    },
+    {
+      "id": "ytcache4_yv6NxWa58nM.json",
+      "metric": "late",
+      "before": 3,
+      "after": 2
+    },
+    {
+      "id": "ytcache4_yv6NxWa58nM.json",
+      "metric": "lagP95",
+      "before": 0.305,
+      "after": 0.284
+    },
+    {
+      "id": "ytcache4_yv6NxWa58nM.json",
+      "metric": "lagSum",
+      "before": 7.223,
+      "after": 5.937
+    },
+    {
+      "id": "ytcache4_zPSs9a0MYGw.json",
+      "metric": "late",
+      "before": 35,
+      "after": 32
+    },
+    {
+      "id": "ytcache4_zPSs9a0MYGw.json",
+      "metric": "lagSum",
+      "before": 57.012,
+      "after": 54.736
+    },
+    {
+      "id": "ytcache4_zPSs9a0MYGw.json",
+      "metric": "rateJumps",
+      "before": 10,
+      "after": 8
+    },
+    {
+      "id": "ytcache4_1t6JztkC0C0.json",
+      "metric": "late",
+      "before": 4,
+      "after": 3
+    },
+    {
+      "id": "ytcache4_1t6JztkC0C0.json",
+      "metric": "lagP95",
+      "before": 0.52,
+      "after": 0.44
+    },
+    {
+      "id": "ytcache4_1t6JztkC0C0.json",
+      "metric": "lagSum",
+      "before": 6.75,
+      "after": 6.42
+    },
+    {
+      "id": "ytcache4_8KkKuTCFvzI.json",
+      "metric": "late",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_8KkKuTCFvzI.json",
+      "metric": "lagP95",
+      "before": 0.136,
+      "after": 0.114
+    },
+    {
+      "id": "ytcache4_8KkKuTCFvzI.json",
+      "metric": "lagSum",
+      "before": 2.646,
+      "after": 2.23
+    },
+    {
+      "id": "ytcache4_JBvcMfa7K6E.json",
+      "metric": "late",
+      "before": 42,
+      "after": 40
+    },
+    {
+      "id": "ytcache4_JBvcMfa7K6E.json",
+      "metric": "gapN",
+      "before": 2,
+      "after": 1
+    },
+    {
+      "id": "ytcache4_JBvcMfa7K6E.json",
+      "metric": "gapSum",
+      "before": 0.25,
+      "after": 0.12
+    },
+    {
+      "id": "ytcache4_JBvcMfa7K6E.json",
+      "metric": "lagP95",
+      "before": 1.411,
+      "after": 1.416
+    },
+    {
+      "id": "ytcache4_JBvcMfa7K6E.json",
+      "metric": "lagSum",
+      "before": 66.44,
+      "after": 63.652
+    },
+    {
+      "id": "ytcache4_JBvcMfa7K6E.json",
+      "metric": "rateJumps",
+      "before": 27,
+      "after": 24
+    },
+    {
+      "id": "ytcache4_PsihkFWDt3Y.json",
+      "metric": "late",
+      "before": 52,
+      "after": 49
+    },
+    {
+      "id": "ytcache4_PsihkFWDt3Y.json",
+      "metric": "gapN",
+      "before": 2,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_PsihkFWDt3Y.json",
+      "metric": "gapSum",
+      "before": 0.26,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_PsihkFWDt3Y.json",
+      "metric": "lagP95",
+      "before": 1.715,
+      "after": 1.595
+    },
+    {
+      "id": "ytcache4_PsihkFWDt3Y.json",
+      "metric": "lagSum",
+      "before": 69.144,
+      "after": 61.34
+    },
+    {
+      "id": "ytcache4_PsihkFWDt3Y.json",
+      "metric": "rateJumps",
+      "before": 7,
+      "after": 6
+    },
+    {
+      "id": "ytcache4_Q4JWEtq23h8.json",
+      "metric": "late",
+      "before": 9,
+      "after": 8
+    },
+    {
+      "id": "ytcache4_Q4JWEtq23h8.json",
+      "metric": "lagSum",
+      "before": 10.885,
+      "after": 10.543
+    },
+    {
+      "id": "ytcache4_Q4JWEtq23h8.json",
+      "metric": "rateJumps",
+      "before": 5,
+      "after": 4
+    },
+    {
+      "id": "ytcache4_UIy-WQCZd4M.json",
+      "metric": "late",
+      "before": 851,
+      "after": 761
+    },
+    {
+      "id": "ytcache4_UIy-WQCZd4M.json",
+      "metric": "gapN",
+      "before": 12,
+      "after": 5
+    },
+    {
+      "id": "ytcache4_UIy-WQCZd4M.json",
+      "metric": "gapSum",
+      "before": 1.49,
+      "after": 0.63
+    },
+    {
+      "id": "ytcache4_UIy-WQCZd4M.json",
+      "metric": "lagP95",
+      "before": 1.915,
+      "after": 1.81
+    },
+    {
+      "id": "ytcache4_UIy-WQCZd4M.json",
+      "metric": "lagSum",
+      "before": 1275.61,
+      "after": 1143.854
+    },
+    {
+      "id": "ytcache4_UIy-WQCZd4M.json",
+      "metric": "rateJumps",
+      "before": 282,
+      "after": 220
+    },
+    {
+      "id": "ytcache4_X4gL2OWg3V4.json",
+      "metric": "late",
+      "before": 21,
+      "after": 17
+    },
+    {
+      "id": "ytcache4_X4gL2OWg3V4.json",
+      "metric": "lagP95",
+      "before": 0.775,
+      "after": 0.715
+    },
+    {
+      "id": "ytcache4_X4gL2OWg3V4.json",
+      "metric": "lagSum",
+      "before": 26.638,
+      "after": 22.873
+    },
+    {
+      "id": "ytcache4_X4gL2OWg3V4.json",
+      "metric": "rateJumps",
+      "before": 20,
+      "after": 17
+    },
+    {
+      "id": "ytcache4_YbgvnJQU7gc.json",
+      "metric": "late",
+      "before": 12,
+      "after": 11
+    },
+    {
+      "id": "ytcache4_YbgvnJQU7gc.json",
+      "metric": "lagP95",
+      "before": 0.761,
+      "after": 0.721
+    },
+    {
+      "id": "ytcache4_YbgvnJQU7gc.json",
+      "metric": "lagSum",
+      "before": 14.591,
+      "after": 14.06
+    },
+    {
+      "id": "ytcache4_YbgvnJQU7gc.json",
+      "metric": "rateJumps",
+      "before": 13,
+      "after": 11
+    },
+    {
+      "id": "ytcache4_Zl3XqiRooJk.json",
+      "metric": "lagSum",
+      "before": 7.768,
+      "after": 7.258
+    },
+    {
+      "id": "ytcache4_Zl3XqiRooJk.json",
+      "metric": "rateJumps",
+      "before": 4,
+      "after": 2
+    },
+    {
+      "id": "ytcache4__XonUIE0JDo.json",
+      "metric": "late",
+      "before": 6,
+      "after": 5
+    },
+    {
+      "id": "ytcache4__XonUIE0JDo.json",
+      "metric": "lagP95",
+      "before": 0.997,
+      "after": 0.937
+    },
+    {
+      "id": "ytcache4__XonUIE0JDo.json",
+      "metric": "lagSum",
+      "before": 7.675,
+      "after": 7.299
+    },
+    {
+      "id": "ytcache4__XonUIE0JDo.json",
+      "metric": "rateJumps",
+      "before": 4,
+      "after": 3
+    },
+    {
+      "id": "ytcache4_efARiBoCSpc.json",
+      "metric": "gapSum",
+      "before": 0.13,
+      "after": 0.12
+    },
+    {
+      "id": "ytcache4_efARiBoCSpc.json",
+      "metric": "lagP95",
+      "before": 0.79,
+      "after": 0.741
+    },
+    {
+      "id": "ytcache4_efARiBoCSpc.json",
+      "metric": "lagSum",
+      "before": 27.431,
+      "after": 24.791
+    },
+    {
+      "id": "ytcache4_efARiBoCSpc.json",
+      "metric": "rateJumps",
+      "before": 21,
+      "after": 19
+    },
+    {
+      "id": "ytcache4_fLJsdqxnZb0.json",
+      "metric": "late",
+      "before": 39,
+      "after": 33
+    },
+    {
+      "id": "ytcache4_fLJsdqxnZb0.json",
+      "metric": "lagP95",
+      "before": 1.556,
+      "after": 1.42
+    },
+    {
+      "id": "ytcache4_fLJsdqxnZb0.json",
+      "metric": "lagSum",
+      "before": 52.393,
+      "after": 45.921
+    },
+    {
+      "id": "ytcache4_lzXgzP1Dayw.json",
+      "metric": "late",
+      "before": 9,
+      "after": 7
+    },
+    {
+      "id": "ytcache4_lzXgzP1Dayw.json",
+      "metric": "lagP95",
+      "before": 1.03,
+      "after": 1.005
+    },
+    {
+      "id": "ytcache4_lzXgzP1Dayw.json",
+      "metric": "lagSum",
+      "before": 17.17,
+      "after": 14.104
+    },
+    {
+      "id": "ytcache4_nm1TxQj9IsQ.json",
+      "metric": "late",
+      "before": 67,
+      "after": 62
+    },
+    {
+      "id": "ytcache4_nm1TxQj9IsQ.json",
+      "metric": "lagP95",
+      "before": 1.14,
+      "after": 1.105
+    },
+    {
+      "id": "ytcache4_nm1TxQj9IsQ.json",
+      "metric": "lagSum",
+      "before": 105.307,
+      "after": 90.736
+    },
+    {
+      "id": "ytcache4_nm1TxQj9IsQ.json",
+      "metric": "rateJumps",
+      "before": 76,
+      "after": 62
+    },
+    {
+      "id": "ytcache4_sqsuJML2dkI.json",
+      "metric": "late",
+      "before": 11,
+      "after": 7
+    },
+    {
+      "id": "ytcache4_sqsuJML2dkI.json",
+      "metric": "gapN",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_sqsuJML2dkI.json",
+      "metric": "gapSum",
+      "before": 0.12,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_sqsuJML2dkI.json",
+      "metric": "lagP95",
+      "before": 1.155,
+      "after": 1.065
+    },
+    {
+      "id": "ytcache4_sqsuJML2dkI.json",
+      "metric": "lagSum",
+      "before": 14.529,
+      "after": 10.504
+    },
+    {
+      "id": "ytcache4_yZfhCQwCWT4.json",
+      "metric": "late",
+      "before": 141,
+      "after": 137
+    },
+    {
+      "id": "ytcache4_yZfhCQwCWT4.json",
+      "metric": "lagP95",
+      "before": 4.215,
+      "after": 4.07
+    },
+    {
+      "id": "ytcache4_yZfhCQwCWT4.json",
+      "metric": "lagSum",
+      "before": 330.979,
+      "after": 308.404
+    },
+    {
+      "id": "ytcache4_z82GCNXdLAA.json",
+      "metric": "lagP95",
+      "before": 0.32,
+      "after": 0.485
+    },
+    {
+      "id": "ytcache4_z82GCNXdLAA.json",
+      "metric": "lagSum",
+      "before": 4.372,
+      "after": 4.018
+    },
+    {
+      "id": "ytcache4_679UtcE_k6c.json",
+      "metric": "lagSum",
+      "before": 3.25,
+      "after": 3.099
+    },
+    {
+      "id": "ytcache4_AF9Gnn2tVJw.json",
+      "metric": "late",
+      "before": 9,
+      "after": 8
+    },
+    {
+      "id": "ytcache4_AF9Gnn2tVJw.json",
+      "metric": "lagSum",
+      "before": 9.537,
+      "after": 9.417
+    },
+    {
+      "id": "ytcache4_AF9Gnn2tVJw.json",
+      "metric": "rateJumps",
+      "before": 5,
+      "after": 4
+    },
+    {
+      "id": "ytcache4_CECnIMoVxII.json",
+      "metric": "lagP95",
+      "before": 0.545,
+      "after": 0.525
+    },
+    {
+      "id": "ytcache4_CECnIMoVxII.json",
+      "metric": "lagSum",
+      "before": 11.55,
+      "after": 10.71
+    },
+    {
+      "id": "ytcache4_CECnIMoVxII.json",
+      "metric": "rateJumps",
+      "before": 9,
+      "after": 8
+    },
+    {
+      "id": "ytcache4_Zq7IgleunHY.json",
+      "metric": "late",
+      "before": 36,
+      "after": 32
+    },
+    {
+      "id": "ytcache4_Zq7IgleunHY.json",
+      "metric": "gapSum",
+      "before": 0.25,
+      "after": 0.24
+    },
+    {
+      "id": "ytcache4_Zq7IgleunHY.json",
+      "metric": "lagP95",
+      "before": 1.335,
+      "after": 1.305
+    },
+    {
+      "id": "ytcache4_Zq7IgleunHY.json",
+      "metric": "lagSum",
+      "before": 52.234,
+      "after": 47.71
+    },
+    {
+      "id": "ytcache4_rtAi3qa8UtQ.json",
+      "metric": "late",
+      "before": 44,
+      "after": 34
+    },
+    {
+      "id": "ytcache4_rtAi3qa8UtQ.json",
+      "metric": "lagP95",
+      "before": 1.158,
+      "after": 1.038
+    },
+    {
+      "id": "ytcache4_rtAi3qa8UtQ.json",
+      "metric": "lagSum",
+      "before": 56.917,
+      "after": 47.606
+    },
+    {
+      "id": "ytcache4_rtAi3qa8UtQ.json",
+      "metric": "rateJumps",
+      "before": 17,
+      "after": 11
+    },
+    {
+      "id": "ytcache4_-6RjSPiqRQs.json",
+      "metric": "late",
+      "before": 25,
+      "after": 23
+    },
+    {
+      "id": "ytcache4_-6RjSPiqRQs.json",
+      "metric": "gapN",
+      "before": 4,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_-6RjSPiqRQs.json",
+      "metric": "gapSum",
+      "before": 0.51,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_-6RjSPiqRQs.json",
+      "metric": "lagP95",
+      "before": 1.06,
+      "after": 0.94
+    },
+    {
+      "id": "ytcache4_-6RjSPiqRQs.json",
+      "metric": "lagSum",
+      "before": 34.386,
+      "after": 31.911
+    },
+    {
+      "id": "ytcache4_-6RjSPiqRQs.json",
+      "metric": "rateJumps",
+      "before": 17,
+      "after": 18
+    },
+    {
+      "id": "ytcache4_-9K1xRX1gk0.json",
+      "metric": "lagP95",
+      "before": 0.045,
+      "after": 0.041
+    },
+    {
+      "id": "ytcache4_-9K1xRX1gk0.json",
+      "metric": "lagSum",
+      "before": 1.314,
+      "after": 1.269
+    },
+    {
+      "id": "ytcache4_1m7fTsJzoao.json",
+      "metric": "lagSum",
+      "before": 0.748,
+      "after": 0.7
+    },
+    {
+      "id": "ytcache4_3HtWqxBINss.json",
+      "metric": "lagP95",
+      "before": 0.524,
+      "after": 0.525
+    },
+    {
+      "id": "ytcache4_3HtWqxBINss.json",
+      "metric": "lagSum",
+      "before": 12.695,
+      "after": 11.973
+    },
+    {
+      "id": "ytcache4_3HtWqxBINss.json",
+      "metric": "rateJumps",
+      "before": 5,
+      "after": 2
+    },
+    {
+      "id": "ytcache4_43BBA3bjy8M.json",
+      "metric": "lagSum",
+      "before": 0.562,
+      "after": 0.502
+    },
+    {
+      "id": "ytcache4_5jc1NGlnYQk.json",
+      "metric": "late",
+      "before": 7,
+      "after": 3
+    },
+    {
+      "id": "ytcache4_5jc1NGlnYQk.json",
+      "metric": "lagP95",
+      "before": 0.635,
+      "after": 0.445
+    },
+    {
+      "id": "ytcache4_5jc1NGlnYQk.json",
+      "metric": "lagSum",
+      "before": 11.256,
+      "after": 9.266
+    },
+    {
+      "id": "ytcache4_5jc1NGlnYQk.json",
+      "metric": "rateJumps",
+      "before": 7,
+      "after": 6
+    },
+    {
+      "id": "ytcache4_6QULfp2wdZI.json",
+      "metric": "rateJumps",
+      "before": 11,
+      "after": 10
+    },
+    {
+      "id": "ytcache4_6c64Evdgt5c.json",
+      "metric": "lagP95",
+      "before": 0.19,
+      "after": 0.18
+    },
+    {
+      "id": "ytcache4_6c64Evdgt5c.json",
+      "metric": "lagSum",
+      "before": 6.325,
+      "after": 5.605
+    },
+    {
+      "id": "ytcache4_6c64Evdgt5c.json",
+      "metric": "rateJumps",
+      "before": 9,
+      "after": 5
+    },
+    {
+      "id": "ytcache4_7agOsCw71b4.json",
+      "metric": "late",
+      "before": 3,
+      "after": 4
+    },
+    {
+      "id": "ytcache4_7agOsCw71b4.json",
+      "metric": "lagP95",
+      "before": 0.223,
+      "after": 0.375
+    },
+    {
+      "id": "ytcache4_7agOsCw71b4.json",
+      "metric": "lagSum",
+      "before": 4.274,
+      "after": 4.739
+    },
+    {
+      "id": "ytcache4_7agOsCw71b4.json",
+      "metric": "rateJumps",
+      "before": 5,
+      "after": 4
+    },
+    {
+      "id": "ytcache4_9NyYWLba5nw.json",
+      "metric": "lagP95",
+      "before": 1.06,
+      "after": 1.04
+    },
+    {
+      "id": "ytcache4_9NyYWLba5nw.json",
+      "metric": "lagSum",
+      "before": 25.511,
+      "after": 23.431
+    },
+    {
+      "id": "ytcache4_AJiGaXRsFNU.json",
+      "metric": "late",
+      "before": 60,
+      "after": 58
+    },
+    {
+      "id": "ytcache4_AJiGaXRsFNU.json",
+      "metric": "lagSum",
+      "before": 120.856,
+      "after": 117.633
+    },
+    {
+      "id": "ytcache4_BbxqKBOFW8c.json",
+      "metric": "lagSum",
+      "before": 11.735,
+      "after": 11.4
+    },
+    {
+      "id": "ytcache4_BdVF2h87Rng.json",
+      "metric": "lagSum",
+      "before": 0.746,
+      "after": 0.596
+    },
+    {
+      "id": "ytcache4_GId2jcjLZH8.json",
+      "metric": "lagP95",
+      "before": 1.08,
+      "after": 1.04
+    },
+    {
+      "id": "ytcache4_GId2jcjLZH8.json",
+      "metric": "lagSum",
+      "before": 22.09,
+      "after": 19.85
+    },
+    {
+      "id": "ytcache4_GId2jcjLZH8.json",
+      "metric": "rateJumps",
+      "before": 12,
+      "after": 10
+    },
+    {
+      "id": "ytcache4_HmntX1uDjKs.json",
+      "metric": "late",
+      "before": 15,
+      "after": 12
+    },
+    {
+      "id": "ytcache4_HmntX1uDjKs.json",
+      "metric": "gapN",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_HmntX1uDjKs.json",
+      "metric": "gapSum",
+      "before": 0.12,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_HmntX1uDjKs.json",
+      "metric": "lagSum",
+      "before": 27.176,
+      "after": 23.711
+    },
+    {
+      "id": "ytcache4_HmntX1uDjKs.json",
+      "metric": "rateJumps",
+      "before": 13,
+      "after": 7
+    },
+    {
+      "id": "ytcache4_IQ7axN5WOGk.json",
+      "metric": "late",
+      "before": 9,
+      "after": 6
+    },
+    {
+      "id": "ytcache4_IQ7axN5WOGk.json",
+      "metric": "lagP95",
+      "before": 0.744,
+      "after": 0.611
+    },
+    {
+      "id": "ytcache4_IQ7axN5WOGk.json",
+      "metric": "lagSum",
+      "before": 10.994,
+      "after": 10.039
+    },
+    {
+      "id": "ytcache4_IQ7axN5WOGk.json",
+      "metric": "rateJumps",
+      "before": 13,
+      "after": 12
+    },
+    {
+      "id": "ytcache4_IqWbNJCdznc.json",
+      "metric": "late",
+      "before": 9,
+      "after": 6
+    },
+    {
+      "id": "ytcache4_IqWbNJCdznc.json",
+      "metric": "gapN",
+      "before": 2,
+      "after": 1
+    },
+    {
+      "id": "ytcache4_IqWbNJCdznc.json",
+      "metric": "gapSum",
+      "before": 0.48,
+      "after": 0.35
+    },
+    {
+      "id": "ytcache4_IqWbNJCdznc.json",
+      "metric": "lagP95",
+      "before": 0.6,
+      "after": 0.5
+    },
+    {
+      "id": "ytcache4_IqWbNJCdznc.json",
+      "metric": "lagSum",
+      "before": 15.063,
+      "after": 13.878
+    },
+    {
+      "id": "ytcache4_Izw-xaVkO0g.json",
+      "metric": "late",
+      "before": 20,
+      "after": 16
+    },
+    {
+      "id": "ytcache4_Izw-xaVkO0g.json",
+      "metric": "lagP95",
+      "before": 1.495,
+      "after": 1.44
+    },
+    {
+      "id": "ytcache4_Izw-xaVkO0g.json",
+      "metric": "lagSum",
+      "before": 32.133,
+      "after": 29.184
+    },
+    {
+      "id": "ytcache4_Izw-xaVkO0g.json",
+      "metric": "rateJumps",
+      "before": 4,
+      "after": 3
+    },
+    {
+      "id": "ytcache4_JKW9_bw0oTY.json",
+      "metric": "lagSum",
+      "before": 0.591,
+      "after": 0.531
+    },
+    {
+      "id": "ytcache4_JxgQlsVvy30.json",
+      "metric": "gapN",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_JxgQlsVvy30.json",
+      "metric": "gapSum",
+      "before": 0.12,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_JxgQlsVvy30.json",
+      "metric": "lagP95",
+      "before": 0.96,
+      "after": 0.9
+    },
+    {
+      "id": "ytcache4_JxgQlsVvy30.json",
+      "metric": "lagSum",
+      "before": 7.672,
+      "after": 7.741
+    },
+    {
+      "id": "ytcache4_MY2pSvtbtAo.json",
+      "metric": "late",
+      "before": 9,
+      "after": 6
+    },
+    {
+      "id": "ytcache4_MY2pSvtbtAo.json",
+      "metric": "lagP95",
+      "before": 0.54,
+      "after": 0.46
+    },
+    {
+      "id": "ytcache4_MY2pSvtbtAo.json",
+      "metric": "lagSum",
+      "before": 11.751,
+      "after": 10.376
+    },
+    {
+      "id": "ytcache4_MY2pSvtbtAo.json",
+      "metric": "rateJumps",
+      "before": 10,
+      "after": 8
+    },
+    {
+      "id": "ytcache4_MlblZ3BsvsI.json",
+      "metric": "late",
+      "before": 27,
+      "after": 25
+    },
+    {
+      "id": "ytcache4_MlblZ3BsvsI.json",
+      "metric": "gapN",
+      "before": 2,
+      "after": 1
+    },
+    {
+      "id": "ytcache4_MlblZ3BsvsI.json",
+      "metric": "gapSum",
+      "before": 0.25,
+      "after": 0.13
+    },
+    {
+      "id": "ytcache4_MlblZ3BsvsI.json",
+      "metric": "lagP95",
+      "before": 1.087,
+      "after": 0.972
+    },
+    {
+      "id": "ytcache4_MlblZ3BsvsI.json",
+      "metric": "lagSum",
+      "before": 43.612,
+      "after": 38.935
+    },
+    {
+      "id": "ytcache4_MlblZ3BsvsI.json",
+      "metric": "rateJumps",
+      "before": 19,
+      "after": 17
+    },
+    {
+      "id": "ytcache4_MnYyAdatuSM.json",
+      "metric": "late",
+      "before": 10,
+      "after": 8
+    },
+    {
+      "id": "ytcache4_MnYyAdatuSM.json",
+      "metric": "lagP95",
+      "before": 0.665,
+      "after": 0.55
+    },
+    {
+      "id": "ytcache4_MnYyAdatuSM.json",
+      "metric": "lagSum",
+      "before": 12.791,
+      "after": 10.356
+    },
+    {
+      "id": "ytcache4_NU32_VY1LYU.json",
+      "metric": "gapN",
+      "before": 2,
+      "after": 1
+    },
+    {
+      "id": "ytcache4_NU32_VY1LYU.json",
+      "metric": "gapSum",
+      "before": 0.25,
+      "after": 0.13
+    },
+    {
+      "id": "ytcache4_NU32_VY1LYU.json",
+      "metric": "lagP95",
+      "before": 1.23,
+      "after": 1.28
+    },
+    {
+      "id": "ytcache4_NU32_VY1LYU.json",
+      "metric": "lagSum",
+      "before": 34.838,
+      "after": 33.271
+    },
+    {
+      "id": "ytcache4_NU32_VY1LYU.json",
+      "metric": "rateJumps",
+      "before": 8,
+      "after": 7
+    },
+    {
+      "id": "ytcache4_N_yinqgB7cY.json",
+      "metric": "late",
+      "before": 12,
+      "after": 11
+    },
+    {
+      "id": "ytcache4_N_yinqgB7cY.json",
+      "metric": "lagP95",
+      "before": 0.925,
+      "after": 0.891
+    },
+    {
+      "id": "ytcache4_N_yinqgB7cY.json",
+      "metric": "lagSum",
+      "before": 12.811,
+      "after": 12.616
+    },
+    {
+      "id": "ytcache4_NfDX8oe_O10.json",
+      "metric": "lagSum",
+      "before": 2.397,
+      "after": 2.337
+    },
+    {
+      "id": "ytcache4_OJe8O5xW4YQ.json",
+      "metric": "lagP95",
+      "before": 0.795,
+      "after": 0.73
+    },
+    {
+      "id": "ytcache4_OJe8O5xW4YQ.json",
+      "metric": "lagSum",
+      "before": 16.698,
+      "after": 15.237
+    },
+    {
+      "id": "ytcache4_OrElyY7MFVs.json",
+      "metric": "late",
+      "before": 33,
+      "after": 31
+    },
+    {
+      "id": "ytcache4_OrElyY7MFVs.json",
+      "metric": "lagP95",
+      "before": 2.889,
+      "after": 2.769
+    },
+    {
+      "id": "ytcache4_OrElyY7MFVs.json",
+      "metric": "lagSum",
+      "before": 68.235,
+      "after": 65.223
+    },
+    {
+      "id": "ytcache4_P5pp0jyJlZA.json",
+      "metric": "late",
+      "before": 0,
+      "after": 1
+    },
+    {
+      "id": "ytcache4_P5pp0jyJlZA.json",
+      "metric": "lagP95",
+      "before": 0.13,
+      "after": 0.11
+    },
+    {
+      "id": "ytcache4_P5pp0jyJlZA.json",
+      "metric": "lagSum",
+      "before": 1.964,
+      "after": 1.796
+    },
+    {
+      "id": "ytcache4_PrOrrItkYxk.json",
+      "metric": "late",
+      "before": 32,
+      "after": 27
+    },
+    {
+      "id": "ytcache4_PrOrrItkYxk.json",
+      "metric": "gapN",
+      "before": 4,
+      "after": 3
+    },
+    {
+      "id": "ytcache4_PrOrrItkYxk.json",
+      "metric": "gapSum",
+      "before": 1.04,
+      "after": 0.91
+    },
+    {
+      "id": "ytcache4_PrOrrItkYxk.json",
+      "metric": "lagP95",
+      "before": 1.147,
+      "after": 1.049
+    },
+    {
+      "id": "ytcache4_PrOrrItkYxk.json",
+      "metric": "lagSum",
+      "before": 44.874,
+      "after": 37.605
+    },
+    {
+      "id": "ytcache4_PrOrrItkYxk.json",
+      "metric": "rateJumps",
+      "before": 12,
+      "after": 7
+    },
+    {
+      "id": "ytcache4_T3MDRbgFWK4.json",
+      "metric": "late",
+      "before": 18,
+      "after": 15
+    },
+    {
+      "id": "ytcache4_T3MDRbgFWK4.json",
+      "metric": "gapN",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_T3MDRbgFWK4.json",
+      "metric": "gapSum",
+      "before": 0.12,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_T3MDRbgFWK4.json",
+      "metric": "lagP95",
+      "before": 1,
+      "after": 0.915
+    },
+    {
+      "id": "ytcache4_T3MDRbgFWK4.json",
+      "metric": "lagSum",
+      "before": 22.34,
+      "after": 16.654
+    },
+    {
+      "id": "ytcache4_T3MDRbgFWK4.json",
+      "metric": "rateJumps",
+      "before": 8,
+      "after": 5
+    },
+    {
+      "id": "ytcache4_TRX8efM_BdA.json",
+      "metric": "lagSum",
+      "before": 2.36,
+      "after": 2.322
+    },
+    {
+      "id": "ytcache4_TYVJbupG3Xg.json",
+      "metric": "late",
+      "before": 20,
+      "after": 19
+    },
+    {
+      "id": "ytcache4_TYVJbupG3Xg.json",
+      "metric": "lagP95",
+      "before": 1.365,
+      "after": 1.32
+    },
+    {
+      "id": "ytcache4_TYVJbupG3Xg.json",
+      "metric": "lagSum",
+      "before": 32.025,
+      "after": 28.705
+    },
+    {
+      "id": "ytcache4_TYVJbupG3Xg.json",
+      "metric": "rateJumps",
+      "before": 6,
+      "after": 5
+    },
+    {
+      "id": "ytcache4_VcCRQB8mVKM.json",
+      "metric": "lagP95",
+      "before": 1.825,
+      "after": 1.77
+    },
+    {
+      "id": "ytcache4_VcCRQB8mVKM.json",
+      "metric": "lagSum",
+      "before": 8.179,
+      "after": 7.844
+    },
+    {
+      "id": "ytcache4_VcCRQB8mVKM.json",
+      "metric": "rateJumps",
+      "before": 4,
+      "after": 1
+    },
+    {
+      "id": "ytcache4_XdUUPBdCWEI.json",
+      "metric": "late",
+      "before": 5,
+      "after": 4
+    },
+    {
+      "id": "ytcache4_XdUUPBdCWEI.json",
+      "metric": "lagP95",
+      "before": 0.145,
+      "after": 0.135
+    },
+    {
+      "id": "ytcache4_XdUUPBdCWEI.json",
+      "metric": "lagSum",
+      "before": 15.157,
+      "after": 14.177
+    },
+    {
+      "id": "ytcache4_XdUUPBdCWEI.json",
+      "metric": "rateJumps",
+      "before": 29,
+      "after": 24
+    },
+    {
+      "id": "ytcache4_a6hskj0RXIU.json",
+      "metric": "gapN",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_a6hskj0RXIU.json",
+      "metric": "gapSum",
+      "before": 0.12,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_a6hskj0RXIU.json",
+      "metric": "lagP95",
+      "before": 0.86,
+      "after": 0.745
+    },
+    {
+      "id": "ytcache4_a6hskj0RXIU.json",
+      "metric": "lagSum",
+      "before": 26.732,
+      "after": 24.592
+    },
+    {
+      "id": "ytcache4_a6hskj0RXIU.json",
+      "metric": "rateJumps",
+      "before": 8,
+      "after": 3
+    },
+    {
+      "id": "ytcache4_aisEx5T2jmg.json",
+      "metric": "lagSum",
+      "before": 15.529,
+      "after": 15.404
+    },
+    {
+      "id": "ytcache4_aisEx5T2jmg.json",
+      "metric": "rateJumps",
+      "before": 25,
+      "after": 22
+    },
+    {
+      "id": "ytcache4_aqJCYXGJ6_4.json",
+      "metric": "lagSum",
+      "before": 1.495,
+      "after": 1.235
+    },
+    {
+      "id": "ytcache4_bf52YqNgoJA.json",
+      "metric": "late",
+      "before": 10,
+      "after": 8
+    },
+    {
+      "id": "ytcache4_bf52YqNgoJA.json",
+      "metric": "gapN",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_bf52YqNgoJA.json",
+      "metric": "gapSum",
+      "before": 0.13,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_bf52YqNgoJA.json",
+      "metric": "lagP95",
+      "before": 0.749,
+      "after": 0.632
+    },
+    {
+      "id": "ytcache4_bf52YqNgoJA.json",
+      "metric": "lagSum",
+      "before": 9.989,
+      "after": 8.746
+    },
+    {
+      "id": "ytcache4_bmfnzkhZ6rY.json",
+      "metric": "lagP95",
+      "before": 0.461,
+      "after": 0.455
+    },
+    {
+      "id": "ytcache4_bmfnzkhZ6rY.json",
+      "metric": "lagSum",
+      "before": 7.415,
+      "after": 6.537
+    },
+    {
+      "id": "ytcache4_bmfnzkhZ6rY.json",
+      "metric": "rateJumps",
+      "before": 9,
+      "after": 8
+    },
+    {
+      "id": "ytcache4_ddeb9SNcqNU.json",
+      "metric": "late",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_ddeb9SNcqNU.json",
+      "metric": "lagSum",
+      "before": 1.32,
+      "after": 1.26
+    },
+    {
+      "id": "ytcache4_ddeb9SNcqNU.json",
+      "metric": "rateJumps",
+      "before": 3,
+      "after": 2
+    },
+    {
+      "id": "ytcache4_eBrMqTCp7NA.json",
+      "metric": "late",
+      "before": 55,
+      "after": 49
+    },
+    {
+      "id": "ytcache4_eBrMqTCp7NA.json",
+      "metric": "gapN",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_eBrMqTCp7NA.json",
+      "metric": "gapSum",
+      "before": 0.12,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_eBrMqTCp7NA.json",
+      "metric": "lagP95",
+      "before": 2.131,
+      "after": 2.076
+    },
+    {
+      "id": "ytcache4_eBrMqTCp7NA.json",
+      "metric": "lagSum",
+      "before": 75.804,
+      "after": 68.968
+    },
+    {
+      "id": "ytcache4_eBrMqTCp7NA.json",
+      "metric": "rateJumps",
+      "before": 3,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_f6XvKxCYpvo.json",
+      "metric": "lagP95",
+      "before": 0.165,
+      "after": 0.131
+    },
+    {
+      "id": "ytcache4_f6XvKxCYpvo.json",
+      "metric": "lagSum",
+      "before": 1.465,
+      "after": 1.227
+    },
+    {
+      "id": "ytcache4_fOUsR065was.json",
+      "metric": "late",
+      "before": 33,
+      "after": 31
+    },
+    {
+      "id": "ytcache4_fOUsR065was.json",
+      "metric": "gapN",
+      "before": 4,
+      "after": 3
+    },
+    {
+      "id": "ytcache4_fOUsR065was.json",
+      "metric": "gapSum",
+      "before": 0.9,
+      "after": 0.78
+    },
+    {
+      "id": "ytcache4_fOUsR065was.json",
+      "metric": "lagP95",
+      "before": 1.865,
+      "after": 1.8
+    },
+    {
+      "id": "ytcache4_fOUsR065was.json",
+      "metric": "lagSum",
+      "before": 44.346,
+      "after": 38.203
+    },
+    {
+      "id": "ytcache4_gBUmo1hzF34.json",
+      "metric": "lagP95",
+      "before": 0.09,
+      "after": 0.056
+    },
+    {
+      "id": "ytcache4_gBUmo1hzF34.json",
+      "metric": "lagSum",
+      "before": 0.291,
+      "after": 0.226
+    },
+    {
+      "id": "ytcache4_gH0iNMgFC7Q.json",
+      "metric": "lagSum",
+      "before": 30.061,
+      "after": 29.903
+    },
+    {
+      "id": "ytcache4_gH0iNMgFC7Q.json",
+      "metric": "rateJumps",
+      "before": 9,
+      "after": 7
+    },
+    {
+      "id": "ytcache4_gR_f-iwUGY4.json",
+      "metric": "late",
+      "before": 11,
+      "after": 7
+    },
+    {
+      "id": "ytcache4_gR_f-iwUGY4.json",
+      "metric": "lagP95",
+      "before": 1.202,
+      "after": 1.133
+    },
+    {
+      "id": "ytcache4_gR_f-iwUGY4.json",
+      "metric": "lagSum",
+      "before": 21.388,
+      "after": 18.175
+    },
+    {
+      "id": "ytcache4_h5FtEsJw5Bg.json",
+      "metric": "lagSum",
+      "before": 0.457,
+      "after": 0.417
+    },
+    {
+      "id": "ytcache4_iN2CkqVc0Rs.json",
+      "metric": "lagSum",
+      "before": 2.703,
+      "after": 2.508
+    },
+    {
+      "id": "ytcache4_iN2CkqVc0Rs.json",
+      "metric": "rateJumps",
+      "before": 4,
+      "after": 3
+    },
+    {
+      "id": "ytcache4_lN6qiIJoMk0.json",
+      "metric": "late",
+      "before": 2,
+      "after": 1
+    },
+    {
+      "id": "ytcache4_lN6qiIJoMk0.json",
+      "metric": "lagSum",
+      "before": 3.371,
+      "after": 3.137
+    },
+    {
+      "id": "ytcache4_mDT_xta3Vqo.json",
+      "metric": "lagSum",
+      "before": 5.89,
+      "after": 5.785
+    },
+    {
+      "id": "ytcache4_mDT_xta3Vqo.json",
+      "metric": "rateJumps",
+      "before": 9,
+      "after": 8
+    },
+    {
+      "id": "ytcache4_nC4cMvNfi1I.json",
+      "metric": "lagP95",
+      "before": 0.025,
+      "after": 0.022
+    },
+    {
+      "id": "ytcache4_nC4cMvNfi1I.json",
+      "metric": "lagSum",
+      "before": 0.274,
+      "after": 0.214
+    },
+    {
+      "id": "ytcache4_nzAmF9brAW0.json",
+      "metric": "lagSum",
+      "before": 1.587,
+      "after": 1.527
+    },
+    {
+      "id": "ytcache4_nzAmF9brAW0.json",
+      "metric": "rateJumps",
+      "before": 1,
+      "after": 0
+    },
+    {
+      "id": "ytcache4_oKYhWY4DyU8.json",
+      "metric": "lagP95",
+      "before": 0.342,
+      "after": 0.297
+    },
+    {
+      "id": "ytcache4_oKYhWY4DyU8.json",
+      "metric": "lagSum",
+      "before": 1.624,
+      "after": 1.484
+    },
+    {
+      "id": "ytcache4_oKYhWY4DyU8.json",
+      "metric": "rateJumps",
+      "before": 6,
+      "after": 5
+    },
+    {
+      "id": "ytcache4_osKHuSB8vYw.json",
+      "metric": "late",
+      "before": 3,
+      "after": 1
+    },
+    {
+      "id": "ytcache4_osKHuSB8vYw.json",
+      "metric": "lagP95",
+      "before": 0.242,
+      "after": 0.1
+    },
+    {
+      "id": "ytcache4_osKHuSB8vYw.json",
+      "metric": "lagSum",
+      "before": 4.287,
+      "after": 2.391
+    },
+    {
+      "id": "ytcache4_pvxNc7UDSbE.json",
+      "metric": "late",
+      "before": 13,
+      "after": 12
+    },
+    {
+      "id": "ytcache4_pvxNc7UDSbE.json",
+      "metric": "lagP95",
+      "before": 1.688,
+      "after": 1.698
+    },
+    {
+      "id": "ytcache4_pvxNc7UDSbE.json",
+      "metric": "lagSum",
+      "before": 31.151,
+      "after": 29.218
+    },
+    {
+      "id": "ytcache4_pvxNc7UDSbE.json",
+      "metric": "rateJumps",
+      "before": 6,
+      "after": 7
+    },
+    {
+      "id": "ytcache4_qcX-uGi7v7w.json",
+      "metric": "late",
+      "before": 14,
+      "after": 11
+    },
+    {
+      "id": "ytcache4_qcX-uGi7v7w.json",
+      "metric": "lagP95",
+      "before": 0.975,
+      "after": 0.915
+    },
+    {
+      "id": "ytcache4_qcX-uGi7v7w.json",
+      "metric": "lagSum",
+      "before": 18.819,
+      "after": 17.278
+    },
+    {
+      "id": "ytcache4_qcX-uGi7v7w.json",
+      "metric": "rateJumps",
+      "before": 6,
+      "after": 5
+    },
+    {
+      "id": "ytcache4_qhUAdMGsZ5k.json",
+      "metric": "late",
+      "before": 30,
+      "after": 28
+    },
+    {
+      "id": "ytcache4_qhUAdMGsZ5k.json",
+      "metric": "lagP95",
+      "before": 1.175,
+      "after": 1.14
+    },
+    {
+      "id": "ytcache4_qhUAdMGsZ5k.json",
+      "metric": "lagSum",
+      "before": 42.174,
+      "after": 38.299
+    },
+    {
+      "id": "ytcache4_qhUAdMGsZ5k.json",
+      "metric": "rateJumps",
+      "before": 9,
+      "after": 7
+    },
+    {
+      "id": "ytcache4_qv7lOM_HBEw.json",
+      "metric": "lagSum",
+      "before": 1.402,
+      "after": 1.36
+    },
+    {
+      "id": "ytcache4_tHJ0yZuA1GE.json",
+      "metric": "late",
+      "before": 11,
+      "after": 10
+    },
+    {
+      "id": "ytcache4_tHJ0yZuA1GE.json",
+      "metric": "lagP95",
+      "before": 0.942,
+      "after": 0.882
+    },
+    {
+      "id": "ytcache4_tHJ0yZuA1GE.json",
+      "metric": "lagSum",
+      "before": 14.751,
+      "after": 13.845
+    },
+    {
+      "id": "ytcache4_tHJ0yZuA1GE.json",
+      "metric": "rateJumps",
+      "before": 20,
+      "after": 21
+    },
+    {
+      "id": "ytcache4_uHzP1r8JGv8.json",
+      "metric": "late",
+      "before": 19,
+      "after": 17
+    },
+    {
+      "id": "ytcache4_uHzP1r8JGv8.json",
+      "metric": "gapN",
+      "before": 2,
+      "after": 1
+    },
+    {
+      "id": "ytcache4_uHzP1r8JGv8.json",
+      "metric": "gapSum",
+      "before": 0.25,
+      "after": 0.12
+    },
+    {
+      "id": "ytcache4_uHzP1r8JGv8.json",
+      "metric": "lagP95",
+      "before": 1.145,
+      "after": 1.085
+    },
+    {
+      "id": "ytcache4_uHzP1r8JGv8.json",
+      "metric": "lagSum",
+      "before": 25.547,
+      "after": 23.667
+    },
+    {
+      "id": "ytcache4_uHzP1r8JGv8.json",
+      "metric": "rateJumps",
+      "before": 18,
+      "after": 17
+    },
+    {
+      "id": "ytcache4_vDFjJxdtcUQ.json",
+      "metric": "lagP95",
+      "before": 0.04,
+      "after": 0.035
+    },
+    {
+      "id": "ytcache4_vDFjJxdtcUQ.json",
+      "metric": "lagSum",
+      "before": 0.518,
+      "after": 0.438
+    },
+    {
+      "id": "ytcache4_vYw9ibksThE.json",
+      "metric": "late",
+      "before": 64,
+      "after": 51
+    },
+    {
+      "id": "ytcache4_vYw9ibksThE.json",
+      "metric": "gapN",
+      "before": 8,
+      "after": 6
+    },
+    {
+      "id": "ytcache4_vYw9ibksThE.json",
+      "metric": "gapSum",
+      "before": 1.01,
+      "after": 0.75
+    },
+    {
+      "id": "ytcache4_vYw9ibksThE.json",
+      "metric": "lagP95",
+      "before": 1.228,
+      "after": 1.099
+    },
+    {
+      "id": "ytcache4_vYw9ibksThE.json",
+      "metric": "lagSum",
+      "before": 88.159,
+      "after": 75.444
+    },
+    {
+      "id": "ytcache4_vYw9ibksThE.json",
+      "metric": "rateJumps",
+      "before": 28,
+      "after": 15
+    },
+    {
+      "id": "ytcache4_vvFnjnVwhAE.json",
+      "metric": "lagP95",
+      "before": 0.99,
+      "after": 0.87
+    },
+    {
+      "id": "ytcache4_vvFnjnVwhAE.json",
+      "metric": "lagSum",
+      "before": 11.064,
+      "after": 10.519
+    },
+    {
+      "id": "ytcache4_vvFnjnVwhAE.json",
+      "metric": "rateJumps",
+      "before": 19,
+      "after": 17
+    },
+    {
+      "id": "ytcache4_wB-PeYv0h9o.json",
+      "metric": "lagP95",
+      "before": 0.457,
+      "after": 0.42
+    },
+    {
+      "id": "ytcache4_wB-PeYv0h9o.json",
+      "metric": "lagSum",
+      "before": 9.192,
+      "after": 8.763
+    },
+    {
+      "id": "ytcache4_xM7U36nQznk.json",
+      "metric": "late",
+      "before": 80,
+      "after": 75
+    },
+    {
+      "id": "ytcache4_xM7U36nQznk.json",
+      "metric": "lagP95",
+      "before": 1.685,
+      "after": 1.555
+    },
+    {
+      "id": "ytcache4_xM7U36nQznk.json",
+      "metric": "lagSum",
+      "before": 109.363,
+      "after": 95.303
+    },
+    {
+      "id": "ytcache4_xM7U36nQznk.json",
+      "metric": "rateJumps",
+      "before": 29,
+      "after": 25
+    },
+    {
+      "id": "ytcache4_xZRsET_MUEg.json",
+      "metric": "late",
+      "before": 13,
+      "after": 10
+    },
+    {
+      "id": "ytcache4_xZRsET_MUEg.json",
+      "metric": "lagP95",
+      "before": 0.987,
+      "after": 0.858
+    },
+    {
+      "id": "ytcache4_xZRsET_MUEg.json",
+      "metric": "lagSum",
+      "before": 20.502,
+      "after": 15.031
+    },
+    {
+      "id": "ytcache4_xZRsET_MUEg.json",
+      "metric": "rateJumps",
+      "before": 3,
+      "after": 2
+    },
+    {
+      "id": "ytcache4_ympT2rnB0BQ.json",
+      "metric": "lagSum",
+      "before": 7.517,
+      "after": 7.462
+    }
+  ],
+  "inputHashes": {
+    "ytcache4_1EciF6Vmr14.json": "215bf95d0f038a5236509e3f5e159a38febe01a95f216c9a62747e85a500a2c1",
+    "ytcache4_7ReQFzSndj4.json": "1ffea1249fca9c78bdbd8757117bd1d4198c1447a6a20f2d48cd2257f80d4859",
+    "ytcache4_AF6MSemog7Y.json": "6fbd656f0bba6dc3fdfc086b3c05f27713e51341de1e60b94c2dc5f105d1be38",
+    "ytcache4_AUMN9CWvIXU.json": "2f34494e7393b4cb33a9bf1b3c22ee6cabaa7527532878e96a436114388f3e85",
+    "ytcache4_FQZ2UgvuzW8.json": "05089b9c08a8fcaf02572b30daf797091a32f83bdcc9d0ea637183bda525fd39",
+    "ytcache4_FmFGaF9qyKU.json": "7aeabc660a7c1cde0137bab5243ffd4fd42ecdb842312ba08c399c2a162aa589",
+    "ytcache4_H6k6I__93JM.json": "8a950fca47d18bf314b145c1f72f9b8a0a47eebf9143dc72ad086eb45332f825",
+    "ytcache4_KKbPoVtoKfA.json": "4c4d7c94db731059c5b79747a2869d243348065709aeaca98ca57af5319a1bcf",
+    "ytcache4_N0a1WmCYaLE.json": "2d227e272856d7cb37af1e453f01f63c3fa9880188ede951441bf8f0569461c9",
+    "ytcache4_NLLa91Pz-X8.json": "6a37cb6d6b9b3cd024bf48bc561a9187f5832ebef05dd0092811db1d121225ab",
+    "ytcache4_YHL_-5QDHbM.json": "54ff5f8889dbd45d35e94bc56d5aba1934405a6bbb587319074b1e504d1e80e5",
+    "ytcache4_dSEZriz716g.json": "011e9af586d13f42f8c306c2570875c81c6d3ac9653646a9cac46d899d978888",
+    "ytcache4_g4L6AVGWrRM.json": "9288e12790672c6a49383bed71b338e404573533dd13c33bf445fce75277fe9c",
+    "ytcache4_krPKW8J6JSM.json": "eb1a1be29631a2fae9ff71aa271352ba1defa86a15b017c4e5f47409abddeb50",
+    "ytcache4_mppeOuaPftQ.json": "ad5735e44d8e49032394071de211fcb9a4eef6cb196364c5f4ea723ad4db7d0e",
+    "ytcache4_rJ3cOKvcysU.json": "c445ebf6df546b63f2c8514077344802105d620fb2e032330c3cf728a67f5f2c",
+    "ytcache4_uziJltmdPx8.json": "05ccad18bf55102ca19d45dfc8c83fce92e954100ab324d2b648dd74295df301",
+    "ytcache4_wzHQg2V2I14.json": "695a277e298bfc39cce69daf14e9eaa3bc2a14537804fdf9401762036b5aaf7c",
+    "ytcache4_xVueLvn0WYE.json": "b2da2e151382b9cb42efbe31c9cab3a9c29281a7c63fb5a466a7b9ca317c4c7e",
+    "ytcache4_yv6NxWa58nM.json": "891a2ab5d028eceabd0d8f6886c52d21811dba986bb9bad9b1af69340c0531fd",
+    "ytcache4_zPSs9a0MYGw.json": "841d6515b7acc0c4107ea1eed7a790c5d0f34f0d23a7110f0e068781e29c0086",
+    "ytcache4_1t6JztkC0C0.json": "6a2283564f155a492c827cea9d5bb01a5e9f9e7778b73df8f97fb2bb50f830c4",
+    "ytcache4_8KkKuTCFvzI.json": "68c12f0341d1869dba2f255dae7d7b5646cebd7e77e46633f3e35f44ced7eb5c",
+    "ytcache4_JBvcMfa7K6E.json": "bfe1d405ef2ed6b5a16bf11cdda36f0133dbf30ae77d0884a32dfffe53ccffff",
+    "ytcache4_PsihkFWDt3Y.json": "e1e9ca9dc6772d75b33c0ac233eeaf2236ba0b3c666bc8822fe715d5adb2c1db",
+    "ytcache4_Q4JWEtq23h8.json": "07ef435d85ea34f14e7d69bdebba9213861634189ac85508bf69a3b79a230cc8",
+    "ytcache4_UIy-WQCZd4M.json": "76c013b6a6dc07502229cc6d57ed36a12cca85741e7921e80087deef21567069",
+    "ytcache4_X4gL2OWg3V4.json": "6bc97c15360330a2c2577f0f02cfcf5862500665c8a84cc2301b049ba5c90eff",
+    "ytcache4_YbgvnJQU7gc.json": "f4c030c9dc61967f04fbfd6b53e4fd719bd9bf009dc629ffca3ac3951453829d",
+    "ytcache4_Zl3XqiRooJk.json": "c806e390f43b05685d706130495d6dba35345ae2fcb148e6dd3eab52e5bd538f",
+    "ytcache4__XonUIE0JDo.json": "d1aa2df5240273203249421ec911fbc1d4042544bbc098cf891b01074f6bdaf9",
+    "ytcache4_efARiBoCSpc.json": "f7c2c85c6dcbd8be5f481cdf55af1eb001436d6db741d22270d45f5d25baf1cb",
+    "ytcache4_fLJsdqxnZb0.json": "72e1b6a7b7d1e4990b16777874c428aee871c92bc98412f05a3d07357e466090",
+    "ytcache4_lzXgzP1Dayw.json": "ad656bc53e1d0c47ea78134c85a413efdf502839198add7eb6b180cb6d01fb9c",
+    "ytcache4_nm1TxQj9IsQ.json": "65a3ca41640f4775f5960c136575c12b61eab5082df35bbd14def1f5ff2e0012",
+    "ytcache4_rG04jsUh940.json": "88fd9b42f8c06cfeed29391a93e8ff4b6ccae324df8661c9c99df2e754a518c7",
+    "ytcache4_sqsuJML2dkI.json": "90b0fd5633a1c6cb7c6a60ec89c45233b2c31062e32789b5953e5514b30f82b8",
+    "ytcache4_yZfhCQwCWT4.json": "6121c377bec0dfef91747158701d46f0fa117be493d77394e50bcd3bb5ce141a",
+    "ytcache4_z82GCNXdLAA.json": "0a11e66e405093d693dbe00a590385693583326d11c7c87de0c74e78db2012fd",
+    "ytcache4_679UtcE_k6c.json": "65be5ad4793b151c9da6f213b68b8a6351a56fdafd67c2fb610317341d78a865",
+    "ytcache4_AF9Gnn2tVJw.json": "44fadda53dae118d4595777b2d7e9bab48bc2ee1bc4800351df07e84fa571415",
+    "ytcache4_CECnIMoVxII.json": "7749faa8e71284b8c34154858d2c957144864a8aa2d9ec4dccb9c8d472893abb",
+    "ytcache4_ZYtmXgPxNK0.json": "076f79e657e20b9dae0f762e3d7d518ae375808f3478e4b8536fb4c497f59c65",
+    "ytcache4_Zq7IgleunHY.json": "8171d31eac4c2e3ed571c603b4219291e21df429ddcfa8e04afe43c0997da93c",
+    "ytcache4_rtAi3qa8UtQ.json": "1c06c045181448a99d89ac9b18044fed367c8b6031a0b1ff34fdf9d212d9e573",
+    "ytcache4_-6RjSPiqRQs.json": "302e248b8959afd8407121fa75766cea8799cb54365675926f0256f179c78ae3",
+    "ytcache4_-9K1xRX1gk0.json": "19d96eb6131ffe6d36c9aa1242f49a2c19b9477306ab3d5acd997f0da1909296",
+    "ytcache4_0y-pfqEAPFY.json": "caf6ef418da6fc243a44eacf7f63b6e91c084288cd20d69249c6ba7e7a83f1cd",
+    "ytcache4_1m7fTsJzoao.json": "15b36a8430d00ecca8465cb4ee8b22a0ec6fd9f04a80e0068366932ef773c450",
+    "ytcache4_3HtWqxBINss.json": "479b4b1e5529eec7699a9a4dcef064aaf22bbd456e0763ed1eb140ca96e7417f",
+    "ytcache4_3wEvyhggM4E.json": "4e8be0b38de993df58b21b2e988a825ec397a4eab1b9340bba8e9b2bb80d1d29",
+    "ytcache4_43BBA3bjy8M.json": "b40ae08c93ea41940992f07c75591293ecb1f11b6cb3e5c7ae98709737526c39",
+    "ytcache4_4N33a-_OpJw.json": "c2872978d77344001f3ada64ed3025f8e05ee1f50c2f6ae7f57ad05138bb8f0b",
+    "ytcache4_5jc1NGlnYQk.json": "2af6597e96334d7ed7122be52dbbad3e5b7d8dda3990eab2fd07e513cc26d871",
+    "ytcache4_6QULfp2wdZI.json": "daf2ef415a70398d5be678a6b72059ddc87bd096db694ae416bfce544191d976",
+    "ytcache4_6bGZT3VzyzQ.json": "1bd0a09b96c59f5169a3e9d0446cb4f969990ac5e70919fbf7d8f5c8e0726060",
+    "ytcache4_6c64Evdgt5c.json": "bbd2c04fa1a12dc7a39b0ece257d5f7eeba7ceba153cc8fa3f8e49e21f28307c",
+    "ytcache4_7agOsCw71b4.json": "658bde0f02edfbee7a1f8756ecfce9704aba97ce3ca935fb5d7ce387fed6819a",
+    "ytcache4_8fWLwqftimQ.json": "33d72494bc79cd21edbdc9c01547a348d2b2176bc252c9b6222cfbe51a3870ba",
+    "ytcache4_8untGwjhtYQ.json": "41de891507884c31cca3b9683127b43f0200091aedabd288d364a41c032e8389",
+    "ytcache4_98ZEE14mSlU.json": "89a6016d50718c2979527f4d565835fa9fe558da891b6684c1609f6fe0f741e0",
+    "ytcache4_9NyYWLba5nw.json": "7f04981a0c8878be5c3efe56d36f93b937b4c0d9264c87afe0b147fd0ba5b286",
+    "ytcache4_AJiGaXRsFNU.json": "042256f5b6e175b14fbe0b6ad63cf599f84cb82b6fc4bc32cec147224b3323f1",
+    "ytcache4_ANAQ9IDwZvA.json": "802038486f95f0a8e69d5d428eaa73e26cfe8ade0721bffd4b06536a96d059f0",
+    "ytcache4_AaK6VGYDHME.json": "244378c09df1e3937ca08c59277509957b753b88846da3d317fbd2e21261ea72",
+    "ytcache4_BbxqKBOFW8c.json": "d5f3ec48f0148bd2fbcb4e4cc833f4c1f36739174ba9076dc90094d3b4e1e3f7",
+    "ytcache4_BdVF2h87Rng.json": "406b390b0e3fd5b40bd94394c7a98357adbe51b6e3a8626e49fd9921965b8239",
+    "ytcache4_DV8fKjuQu3A.json": "116617a3acf1a3bc61538290f8a1fca94d901e79e19ebb30a02b46ffe0b15f18",
+    "ytcache4_F2Swttbsy7k.json": "87f8f45f914d60afef61a582585b4a7511e607479168b78d11f27a5d558f32bc",
+    "ytcache4_Fx3l2wuj1gY.json": "b78cffc2a97da8193bb828301b5a666e1d0f3e21b9395d33130f55de73e3c0b7",
+    "ytcache4_G4E9eyhcAp4.json": "427d775d3d5814c23544b961c20939e7a159de071c6e1b3bf2a93cda869cab62",
+    "ytcache4_GId2jcjLZH8.json": "864b5f9ab835ef33726621bc4612f3cc9d9fe41486870e3716920de41161a99d",
+    "ytcache4_HmntX1uDjKs.json": "185922f4afc3c5646e0be517f7ae433aec59d34773edf4f0b05207eb72447d1e",
+    "ytcache4_IQ7axN5WOGk.json": "538da6136bcb8abc649df97d5cd3c8b7dc34e1137d09e916db226627d45b2092",
+    "ytcache4_IqWbNJCdznc.json": "b62449017226c394ca92de54834d0ac6c195c19c8d9ae6ee585c289ffc741922",
+    "ytcache4_Izw-xaVkO0g.json": "ec8889272260e8a7932a86d440eb7e79c3129b03f698b8b19b07607bdbd7c491",
+    "ytcache4_JKW9_bw0oTY.json": "b71b58114898bf71a7ed08ef70535f1d084337413fe730fc90e1300444a2c635",
+    "ytcache4_JxgQlsVvy30.json": "21ef7eda8ec36e50b37a1d0d4971eb746776d6cd9d410c4cdd68b4cc38d1f092",
+    "ytcache4_LIddLM0H5ho.json": "808f2540cf0934b9ac517db774940eb2037e232f990b84852924e22cd58ce8a1",
+    "ytcache4_MY2pSvtbtAo.json": "a30b7f5bfb827f22cd27cccee0d8e0567c2be4503f658c02525aecd71c7f2dc4",
+    "ytcache4_MlblZ3BsvsI.json": "96723390391a392be1ece372564f3e60dfcb318da728baa6d0ec25a88870b6c0",
+    "ytcache4_MnYyAdatuSM.json": "cb8940b4c14c6bfc782706156df58d4dc70ba98b5f2cfd23066d12499b93ab26",
+    "ytcache4_NU32_VY1LYU.json": "97940fbc3349eafd634bd16c1c4bf34911cef703af3ca06996f2d6c5f5a838c3",
+    "ytcache4_N_yinqgB7cY.json": "051987147a222a0e46a20cd906642724d490206f3c240ad5edf94d89e3e472cd",
+    "ytcache4_NfDX8oe_O10.json": "529ef0704e59fc44495021e0b137346b35a9f98d2c35271a67302d1b018cae80",
+    "ytcache4_OJe8O5xW4YQ.json": "a194c95d7d202594b0a527dbfee45f28ed97dd5ac90bf467ad2805151793d356",
+    "ytcache4_OrElyY7MFVs.json": "5d7129561d8fe1fb01bfe1cce3aedc18d4b5be2d150a3283bd97833136438f62",
+    "ytcache4_P5pp0jyJlZA.json": "ac57c24c67205fe5cce78a9c32ad06f0f16219553d14a697ab640c7fdb8f4b52",
+    "ytcache4_PBTO6lge-oA.json": "5cde6d3de3404f389cee106220a63576f7d3c7e3cb22216c0e25e489bd07e11f",
+    "ytcache4_PrOrrItkYxk.json": "84df6786cc1efaef07a03071c60dc356b6fe5fa6d5c9e7ab1228474a33376224",
+    "ytcache4_T3MDRbgFWK4.json": "211c2027666e021d76a1326a936d53aae31f9a76664167d417bb80962c251d22",
+    "ytcache4_TRX8efM_BdA.json": "7c12dadcd6d431546315ca8bd1b35cc4115d19d885a6b5ee26210fec0010ea0f",
+    "ytcache4_TYVJbupG3Xg.json": "5f49eb4de1206bdad27bd547e63a2a4e3b76a10888d00c8747211e76a327c213",
+    "ytcache4_TwS4GTnrbUc.json": "875a0fbd5dbb996769727488f447d33bd2f2b1adc40f67bbfce943874ce4065b",
+    "ytcache4_UsRtsZZDmBU.json": "253dc025ae2d2e0950b3927481fcc946ec6288ffd1bfc2c03f77be8baef99116",
+    "ytcache4_VcCRQB8mVKM.json": "7df84d9070df256a29bad48fdcd4f9eae12ddbf55e5b08ffc58b41da074e2efb",
+    "ytcache4_W2Bm9dfQjbk.json": "abce435c56fccf72a400c06dcb2e9c175b8f2af4c65211329e915b02f7b39d8a",
+    "ytcache4_XVhEm62Uqog.json": "8c272246b04ad216c617bbf8414bbf4b09e7c2c9358a2c7d7e5068db761a4ad6",
+    "ytcache4_XdUUPBdCWEI.json": "68dce252391440839e3f189b6b5dc1d9ca18a8bdaf5423f3fd9a1435f7f16bc9",
+    "ytcache4_YSHzlhozUCU.json": "20115f67d39b371e5a2e73d4ea23b0ba8e40c9251052c3cf94905a5c3c6352f4",
+    "ytcache4_a6hskj0RXIU.json": "33d73e109e3b47b30eff21735a1b1e627f5fd9fb0333a9ffeba16f67b782f1e5",
+    "ytcache4_aisEx5T2jmg.json": "105050dfbf2a992f176978a29024ee79a400ba73d6c63a7a0e472c296e7449b9",
+    "ytcache4_aqJCYXGJ6_4.json": "77f48713fefad16d3a53ac3a2a993fc575a777dcfbbe9ec3df7391afa50268a9",
+    "ytcache4_bf52YqNgoJA.json": "82810f5f565def9c928f03572ce9d155617140d9af4c1445d021d77107b8a6b9",
+    "ytcache4_bmfnzkhZ6rY.json": "60d4a857f451b3b4e38eac57c0ccffdd853a4dc671d73bc98a9592b2bca818e2",
+    "ytcache4_ddeb9SNcqNU.json": "068f552b0e9e3bacaa40617f5a54d3ad6d65882204d69a3d292ea745d34e0bb3",
+    "ytcache4_dr8ZDwhmP5Q.json": "823dc0c9b4f6253960cc0bc1d0133e49340bea28ac8d9dca6c89b060ad461ffa",
+    "ytcache4_eBrMqTCp7NA.json": "ce024227f45e61538931dd4f38b163ace8bc16432a219faa205a1116477cebe1",
+    "ytcache4_f6XvKxCYpvo.json": "b23520b3f043630b4f087433882cfd8eac8955dc82e1ef2e36f7484b95982bd5",
+    "ytcache4_fOUsR065was.json": "0e668b4b6a6c67a4e692549902d923fd37012695e0c44cd80d50a67c3b67c0d7",
+    "ytcache4_gBUmo1hzF34.json": "f1426a37081e4d6eb3c8490aa13c0a799f34a293ab9cca0c7a75690720f353b5",
+    "ytcache4_gH0iNMgFC7Q.json": "deceb1c880bf37f836aa982854ff2ccbedcabdd7d2e3a5985bbe9c0a476fcf7a",
+    "ytcache4_gR_f-iwUGY4.json": "e8af7af330fcb19517e42ccfb39b115ed49c0a2fdff7c87796a74849ec90601a",
+    "ytcache4_ga7sFqZJTGs.json": "a41ee9f80c372abc0d03af9443c37d534821ce2a3e1e011ca9021dbb1a348001",
+    "ytcache4_gh0glBfC1Fg.json": "d2f229bf27511ccb2ea5a889103f612933bca49deaffe809ff3357fc05961c12",
+    "ytcache4_h5FtEsJw5Bg.json": "a1841a203b6f34ddcba4c1de29327809334c6834bd00269fceb85cd3d49df017",
+    "ytcache4_iN2CkqVc0Rs.json": "121aa264533b351edd7993b54578f8f87b6fa94032259fa20b816ead25d35fa5",
+    "ytcache4_iYL-UuNE_9w.json": "be458327a06b9a6a7a68866749c5f05006071c4f75e9a5f21f0656c523f9d9f3",
+    "ytcache4_k6sGs-IN7K4.json": "8f2681d6b2121fa14872273cf484c62c89ac840ca59d91f92e84266cd9dffc71",
+    "ytcache4_lN6qiIJoMk0.json": "7464e2c14ed8ad2a7b2b9cceeaabdd083bec62b237e4ec19029bae192369d5a5",
+    "ytcache4_mDT_xta3Vqo.json": "51ca5789e81562b5fd80fca02e5f947049410cabe7607eeb51a88070b56e96e1",
+    "ytcache4_nAGWaC70hEc.json": "d4a64bdbcd11701987c2b3631110196363428cf5767b1ff511c1ced3826e1bec",
+    "ytcache4_nC4cMvNfi1I.json": "12723cc3657f7b307f1cd4bd9b6f252911e4aa09a75d1a15701892bb62ec36ca",
+    "ytcache4_nzAmF9brAW0.json": "e89fe5213de034d61ce734d01c0be63aec3ab77c1b027039a1f887d21283d26d",
+    "ytcache4_oKYhWY4DyU8.json": "2e0c8404097ac5d9a0478e090dba05742388f6895fa1cfbbca450c463e753845",
+    "ytcache4_osKHuSB8vYw.json": "5449fd55e9769c66fde2039a14b1b62a0b46dcca01a37167bd419940f33f90e9",
+    "ytcache4_pvxNc7UDSbE.json": "8ec845229662946c83090e1b506c2d54007f53750a57ff464a3b9b419302bb5a",
+    "ytcache4_qH5cweRGt4o.json": "1ec8fb38c68337c7c415f5bfae20bbb3845c92b3253bc8783bbb3296f786040c",
+    "ytcache4_qcX-uGi7v7w.json": "5a5b30a4c7f34dd4de4d8c4ec5e815740f69fbc7c70348765800c12fcd6cc51f",
+    "ytcache4_qhUAdMGsZ5k.json": "9f3aff48b3e1388f4105aa9f452921e77be32f946914978f0e8aa4ef7fab13e4",
+    "ytcache4_qv7lOM_HBEw.json": "15f87487fb4594411b45a42ea881395c3abe4fc2a0f462cefb5a713e457fdc86",
+    "ytcache4_r-rHc8tm5_c.json": "e162b28241f67689c513845906ea06d226d9c6ed9c3feee1840c197cff6d5194",
+    "ytcache4_rgQvqi6aYD8.json": "13e69e00eb1c4e755deaea616b3fbba80dae195ba3a3b4c578b1fbeeee5e58a8",
+    "ytcache4_tHJ0yZuA1GE.json": "3b7342faabaa17804d2c343c74880632dd16e05a2d8773c993172ab5350072f2",
+    "ytcache4_uHzP1r8JGv8.json": "47c8ebc6a9d62d95c1fc0879d94546eee6cbb9b8f2c030a4021ecd416a5d8e89",
+    "ytcache4_uOUyMzObRVQ.json": "e8829f716cd2756214d32a0078cd3455420cc9c417c5aca6b062b8268d55bd12",
+    "ytcache4_ukm2b9suHYk.json": "12de0ac49b9ec344654d255f289741036335a94832dc6f950fdede9860455e24",
+    "ytcache4_vDFjJxdtcUQ.json": "5bff7d36a334a95e0e326a67c4f691ae023bc777cade7399c2485cc22f61a920",
+    "ytcache4_vYw9ibksThE.json": "940d89c2949320d94407e92a55dd2e0ca174bd01bf5d19ce34864f90bca1735f",
+    "ytcache4_vvFnjnVwhAE.json": "646ebbb41d5b929c0e5dea1fb8c479c056b02bf10709e6e143dc9abb1e7cf232",
+    "ytcache4_wB-PeYv0h9o.json": "2a4f7db68b055fc052cfc6e189ebc1b9a9c5c99ffa08367d5e3cd79c6ad249de",
+    "ytcache4_xM7U36nQznk.json": "b35d0db8479d5a889cb76427ff761638dc89ed03a83cc4d16b5523e6f1f30a25",
+    "ytcache4_xZRsET_MUEg.json": "7effbe92a7175387af41ccf41e7e86bcbf555e1d91af22e364bf5a47962afce0",
+    "ytcache4_ympT2rnB0BQ.json": "47205a9865c763fe2bb8d585275030e911f5570140233223bd07eaa91f9b652f",
+    "ytcache4_z63s15c2-qQ.json": "0b8b54d8e624b55fabab471d34b3f47934df85c119a4bf42e66cac54c5ad7838"
+  },
+  "byMetric": {
+    "spoken": {
+      "better": 0,
+      "worse": 0
+    },
+    "dropped": {
+      "better": 0,
+      "worse": 0
+    },
+    "wordsLost": {
+      "better": 0,
+      "worse": 0
+    },
+    "wordsTwice": {
+      "better": 0,
+      "worse": 0
+    },
+    "late": {
+      "better": 53,
+      "worse": 2
+    },
+    "gapN": {
+      "better": 19,
+      "worse": 0
+    },
+    "gapSum": {
+      "better": 21,
+      "worse": 0
+    },
+    "cuts": {
+      "better": 0,
+      "worse": 0
+    },
+    "hardStarts": {
+      "better": 0,
+      "worse": 0
+    },
+    "serverRuns": {
+      "better": 0,
+      "worse": 0
+    },
+    "lagP95": {
+      "better": 63,
+      "worse": 7
+    },
+    "lagSum": {
+      "better": 101,
+      "worse": 2
+    },
+    "rateJumps": {
+      "better": 51,
+      "worse": 3
+    }
+  },
+  "acceptedRegressions": [
+    {
+      "id": "ytcache4_wzHQg2V2I14.json",
+      "metric": "lagP95",
+      "before": 0.335,
+      "after": 0.36,
+      "explanation": "Per-video P95 increases by 0.001 to 0.165 s in seven videos. Five increases are <=0.05 s; two are 0.152/0.165 s and must not be dismissed as clock quantization. Accepted bounded local tradeoffs; 63 videos improve. This is not a claim that every video improves."
+    },
+    {
+      "id": "ytcache4_JBvcMfa7K6E.json",
+      "metric": "lagP95",
+      "before": 1.411,
+      "after": 1.416,
+      "explanation": "Per-video P95 increases by 0.001 to 0.165 s in seven videos. Five increases are <=0.05 s; two are 0.152/0.165 s and must not be dismissed as clock quantization. Accepted bounded local tradeoffs; 63 videos improve. This is not a claim that every video improves."
+    },
+    {
+      "id": "ytcache4_z82GCNXdLAA.json",
+      "metric": "lagP95",
+      "before": 0.32,
+      "after": 0.485,
+      "explanation": "Per-video P95 increases by 0.001 to 0.165 s in seven videos. Five increases are <=0.05 s; two are 0.152/0.165 s and must not be dismissed as clock quantization. Accepted bounded local tradeoffs; 63 videos improve. This is not a claim that every video improves."
+    },
+    {
+      "id": "ytcache4_-6RjSPiqRQs.json",
+      "metric": "rateJumps",
+      "before": 17,
+      "after": 18,
+      "explanation": "One additional playbackRate transition above 15% in each of three videos. Total falls 1150 -> 964 and 51 videos improve. This threshold statistic is not subjective heard-pace quality; bounds/FIFO and loss checks remain enforced."
+    },
+    {
+      "id": "ytcache4_3HtWqxBINss.json",
+      "metric": "lagP95",
+      "before": 0.524,
+      "after": 0.525,
+      "explanation": "Per-video P95 increases by 0.001 to 0.165 s in seven videos. Five increases are <=0.05 s; two are 0.152/0.165 s and must not be dismissed as clock quantization. Accepted bounded local tradeoffs; 63 videos improve. This is not a claim that every video improves."
+    },
+    {
+      "id": "ytcache4_7agOsCw71b4.json",
+      "metric": "late",
+      "before": 3,
+      "after": 4,
+      "explanation": "One extra start above 0.5 s in each of two videos. The joint paragraph objective does not guarantee every local threshold count improves. Accepted against 2344 -> 2110 corpus late starts, with zero word loss/repetition/cuts."
+    },
+    {
+      "id": "ytcache4_7agOsCw71b4.json",
+      "metric": "lagP95",
+      "before": 0.223,
+      "after": 0.375,
+      "explanation": "Per-video P95 increases by 0.001 to 0.165 s in seven videos. Five increases are <=0.05 s; two are 0.152/0.165 s and must not be dismissed as clock quantization. Accepted bounded local tradeoffs; 63 videos improve. This is not a claim that every video improves."
+    },
+    {
+      "id": "ytcache4_7agOsCw71b4.json",
+      "metric": "lagSum",
+      "before": 4.274,
+      "after": 4.739,
+      "explanation": "Positive start-lag sum increases by 0.465 and 0.069 s in two videos, while 101 videos improve and the corpus sum falls by 351.149 s. The objective trades local outcomes for paragraph timing within existing safety bounds; no per-video exceptions were added."
+    },
+    {
+      "id": "ytcache4_JxgQlsVvy30.json",
+      "metric": "lagSum",
+      "before": 7.672,
+      "after": 7.741,
+      "explanation": "Positive start-lag sum increases by 0.465 and 0.069 s in two videos, while 101 videos improve and the corpus sum falls by 351.149 s. The objective trades local outcomes for paragraph timing within existing safety bounds; no per-video exceptions were added."
+    },
+    {
+      "id": "ytcache4_NU32_VY1LYU.json",
+      "metric": "lagP95",
+      "before": 1.23,
+      "after": 1.28,
+      "explanation": "Per-video P95 increases by 0.001 to 0.165 s in seven videos. Five increases are <=0.05 s; two are 0.152/0.165 s and must not be dismissed as clock quantization. Accepted bounded local tradeoffs; 63 videos improve. This is not a claim that every video improves."
+    },
+    {
+      "id": "ytcache4_P5pp0jyJlZA.json",
+      "metric": "late",
+      "before": 0,
+      "after": 1,
+      "explanation": "One extra start above 0.5 s in each of two videos. The joint paragraph objective does not guarantee every local threshold count improves. Accepted against 2344 -> 2110 corpus late starts, with zero word loss/repetition/cuts."
+    },
+    {
+      "id": "ytcache4_pvxNc7UDSbE.json",
+      "metric": "lagP95",
+      "before": 1.688,
+      "after": 1.698,
+      "explanation": "Per-video P95 increases by 0.001 to 0.165 s in seven videos. Five increases are <=0.05 s; two are 0.152/0.165 s and must not be dismissed as clock quantization. Accepted bounded local tradeoffs; 63 videos improve. This is not a claim that every video improves."
+    },
+    {
+      "id": "ytcache4_pvxNc7UDSbE.json",
+      "metric": "rateJumps",
+      "before": 6,
+      "after": 7,
+      "explanation": "One additional playbackRate transition above 15% in each of three videos. Total falls 1150 -> 964 and 51 videos improve. This threshold statistic is not subjective heard-pace quality; bounds/FIFO and loss checks remain enforced."
+    },
+    {
+      "id": "ytcache4_tHJ0yZuA1GE.json",
+      "metric": "rateJumps",
+      "before": 20,
+      "after": 21,
+      "explanation": "One additional playbackRate transition above 15% in each of three videos. Total falls 1150 -> 964 and 51 videos improve. This threshold statistic is not subjective heard-pace quality; bounds/FIFO and loss checks remain enforced."
+    }
+  ]
+}

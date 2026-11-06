@@ -1637,16 +1637,23 @@ test("a voice let go while sounding (a seek, dubbing off) fades out first, then 
 test("playback delivery: the original stays down through a short gap and a pause, is down when a line starts, and comes back in a long gap", async () => {
     let shortGaps = 0, pumps = 0, starts = 0, longTicks = 0, longBack = 0;
     const loud = [];
-    for (const name of ["normal", "pauseResume", "rate15"]) {
+    for (const name of ["normal", "pauseResume", "rate15", "longGap"]) {
         let prevVoice = false, gap = null, first = true;
-        await simRun(name, { trace: ({ wall, video, eng }) => {
+        const extra = name === "longGap" ? { wall: 150, groups: lectureGroups().map((g, i) => {
+            const shift = i >= 4 ? 8 : 0;
+            const move = cue => ({ ...cue, start: cue.start + shift, end: cue.end + shift });
+            return { ...g, start: g.start + shift, end: g.end + shift, srcCues: g.srcCues.map(move), viCues: g.viCues.map(move) };
+        }) } : {};
+        await simRun(name, { ...extra, trace: ({ wall, video, eng }) => {
             const S = eng.speech, r = S && eng.rendered.get(S.id);
             const f = video.volume / (eng.baseVolume != null ? eng.baseVolume : 0.8);
             if (video.paused) { prevVoice = false; gap = null; return; }   // a pause is not a gap
             const voice = !!(r && r.el && !r.el.paused);
             if (voice && !prevVoice) {
                 if (gap && wall - gap.at < 1500) { shortGaps++; if (gap.peak > 0.5) pumps++; }
-                if (gap && wall - gap.at >= 2500) { longTicks += gap.ticks; longBack += gap.back; }
+                // Leave room beyond the 2.5 s bridge and both ramps; pacing changes can
+                // move a gap across the bridge boundary without breaking volume restoration.
+                if (gap && wall - gap.at >= 3500) { longTicks += gap.ticks; longBack += gap.back; }
                 if (!first) { starts++; if (f > 0.3) loud.push(`${name} ${S.id} ${f.toFixed(2)}`); }
                 first = false;
                 gap = null;

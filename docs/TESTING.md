@@ -30,6 +30,7 @@ sense of weight, not an assertion.
 
 | File | ~Tests | Covers |
 |---|---|---|
+| `paragraph-pace.test.js` | 14 | Multi-sentence horizon, hard caps/FIFO, natural speed, phrase steps, pending translation/silence boundaries, per-voice robust duration learning and uncertainty. |
 | `dub-session.test.js` | 19 | Session transitions, playback versus synthesis leases, stale cache/render/live callbacks, replacement failures, EOF pending translations, invalid timings and every browser loader. |
 | `dub-full-speech.test.js` | 14 | FIFO beyond lag limits, late first takes, missing translations, planning/eviction/jobs, long source silences, manual seek/pause, natural EOF drain, speed changes, ads and live fallback. |
 | `dub-onset.test.js` | 4 | Initial/seek predecode, paused startup without a hold, redundant-zero-seek avoidance and playback-onset accounting across resume. |
@@ -475,3 +476,15 @@ review simulations drain the speech queue before word accounting, rather than st
 arbitrary five-second tail. This does not simulate the physical EOF clock; real Chrome and the
 unit tests cover EOF separately. Changed late/gap/recovery metrics require interpretation against
 the selected complete-speech policy, not a blanket claim of no worse metrics. See COMPLETE_SPEECH.md.
+
+### Paragraph pacing and duration forecasts
+
+`tools/session-corpus.js <Chrome dump> <output> [revision]` records per-video late-start P95,
+summed positive start lag and rate changes above 15%, alongside losses, gaps and request counts.
+P95 values are per-video; their sum is not a corpus P95. Rate jumps measure playbackRate,
+not subjective heard pace. `tools/paragraph-audio-eval.js [fixtures] [output]` predicts each real
+saved take before learning it, compared to the existing syllable/SPS EMA formula. It does not
+include engine base-tempo/slack shaping and is not a held-out multi-voice benchmark.
+`real-onset.html?auto` removes only the harness's fixed 1x cap; `&baseline` loads the ignored
+`smooth/paragraph-baseline-engine.js` copied from the baseline commit. Default capped runs remain
+unchanged. Compare identical prepared audio; generating new takes would confound pacing changes.

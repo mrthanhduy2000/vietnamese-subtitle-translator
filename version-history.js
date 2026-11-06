@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.1.9", luc: "07/11/2026", ten: "Cân đối nhịp đọc theo cả đoạn",
+            y: [
+                "Dự báo hàng đợi trên nhiều câu liên tiếp để chọn tốc độ và khoảng nghỉ trong các giới hạn hiện có; vẫn đọc đủ, đúng thứ tự và giữ video chạy liên tục.",
+                "Học thời lượng theo từng giọng và nhóm câu từ audio đã tạo, theo dõi độ bất định và hạn chế ảnh hưởng của mẫu bất thường.",
+                "Giữ các điểm ngắt câu và ngắt ý đã có; giới hạn tốc độ do người dùng chọn vẫn được ưu tiên."
+            ]
+        },
+        {
             v: "3.1.8", luc: "07/11/2026", ten: "Hoàn thiện bộ điều phối phiên lồng tiếng dùng chung",
             y: [
                 "Thống nhất quản lý phát, dừng, tua, quảng cáo, hàng đợi lời đọc và phần đọc nốt cuối video cho các nền tảng và giọng đọc.",

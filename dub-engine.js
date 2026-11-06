@@ -29,6 +29,9 @@
 
     const SYNC = {
         tickMs: 50,
+        paragraphHorizon: 6,      // bounded speech paragraph; long source silences end the horizon
+        paragraphGap: 2,
+        paragraphBeam: 8,
         startTolerance: 0.04,     // bắt đầu cụm sớm tối đa (giây media)
         driftCorrect: 0.15,       // lệch audio vượt ngưỡng này thì tua lại
         // Drift handling (1.6.8). Measured in real Chrome on 120 s of VieNeu dubbing: the old
@@ -673,6 +676,8 @@
             this.seekTimes = [];
             this.live = null;               // { planId, k, handle, speaking, phraseStartMedia, wallStart, rate }
             this.speech = null;             // lời đang phát (audio có sẵn): { id, mediaStart, offset, rate, end }
+            this.durationEstimator = new PLAN.DurationEstimator();
+            this.calibrationSamples = new Map();
             this.voiceSps = new Map();      // tốc độ nói thật của từng người nói (âm tiết/giây, đo từ audio)
             this.lastRate = null;
             this.lastHeard = null;          // heard pace of the last line (syllables/s) and its syllables (chooseRate)
@@ -1198,6 +1203,7 @@
                 this.lastSpeechEnd = t;
                 this.lastSpeechJoined = !!(done && done.continuesNext);
                 this.lastSpeechGap = gapAfter(done, done ? this.plans[this.plans.indexOf(done) + 1] : null);
+                if (r && r.paragraphRest != null) this.lastSpeechGap = r.paragraphRest;
                 this.speech = S = null;
             }
             const next = (this.adResume && this.takeAdResume(t)) || this.nextSpeech(t);
@@ -1397,6 +1403,43 @@
             return { ceiling, lagCeiling, floor };
         }
 
+        estimateDuration(p) {
+            const syl = p.phrases.reduce((sum, ph) => sum + ph.syl, 0);
+            const nominal = this.provider.naturalSps ? this.provider.naturalSps(p.speaker) : 4.5;
+            const prediction = this.durationEstimator.predict(p, syl / Math.max(1, nominal));
+            const tempo = this.baseTempo(p);
+            return { ...prediction, duration: (prediction.duration + this.slackTotal(p)) / tempo, uncertainty: prediction.uncertainty / tempo };
+        }
+
+        paragraphRate(p, r, t, offset, reference, bounds) {
+            const index = this.plans.indexOf(p), items = [];
+            for (let i = index; i >= 0 && i < this.plans.length && items.length < SYNC.paragraphHorizon; i++) {
+                const q = this.plans[i], prev = this.plans[i - 1], next = this.plans[i + 1];
+                if (i > index && q.start - prev.end > SYNC.paragraphGap) break;
+                if (i > index && this.pendingTranslationBefore(q)) break;
+                const audio = i === index ? r : this.rendered.get(q.id);
+                const prediction = audio ? { duration: audio.duration, uncertainty: 0, samples: 0 } : this.estimateDuration(q);
+                const limits = i === index ? bounds : this.paceLimits(q, t);
+                const rest = gapAfter(q, next);
+                items.push({ id: q.id, start: q.start, end: q.end + SYNC.fitSlack,
+                    earliest: q.start - (prev && prev.continuesNext ? SYNC.chainLead : SYNC.startTolerance),
+                    duration: Math.max(0.05, prediction.duration + (prediction.samples >= 5 ? Math.min(prediction.duration * 0.08, prediction.uncertainty * 0.25) : 0) - (i === index ? offset : 0)),
+                    minRate: i === index ? bounds.floor : Math.min(this.floorRate(q), limits.ceiling),
+                    maxRate: i === index ? bounds.ceiling : limits.ceiling,
+                    reference: i === index ? reference : null, rest,
+                    stepUp: prev && prev.continuesNext ? SYNC.rateStepInSentence : SYNC.rateStepUp,
+                    stepDown: prev && prev.continuesNext && !q.continuesNext ? SYNC.rateStepInSentence : SYNC.rateStepDown,
+                    // Clause/phrase boundaries keep their existing rests. Only full stops may borrow 60 ms.
+                    minRest: !q.continuesNext && next ? Math.min(rest, SYNC.lagRest) : rest });
+            }
+            if (items.length < 2) return reference;
+            const decision = PLAN.planParagraph(items, { time: t, previousRate: this.lastRate || reference,
+                stepUp: SYNC.rateStepUp, stepDown: SYNC.rateStepDown, beam: SYNC.paragraphBeam });
+            r.paragraphRest = decision.rest;
+            this.paragraph = { ...decision, id: p.id, predicted: items.filter(x => !this.rendered.has(x.id)).length };
+            return decision.rate;
+        }
+
         // A line due more than maxQueueLag ago is still read while its audio is ready and it is due
         // no more than maxQueueLagHard ago (SYNC: dropping it bought no sync back).
         readsLate(p, t) {
@@ -1513,6 +1556,11 @@
             }
             const cap = this.userMaxRate();
             if (cap) rate = Math.min(rate, cap);          // above even a slow voice's floor rate
+            if (this.keepsSpeech() && this.provider.caps?.prerender) {
+                const lower = Math.min(cap || Infinity, Math.max(floor, recent ? last - (down ?? stepDown) : floor));
+                const upper = Math.min(cap || Infinity, lim.lagCeiling, ceiling, recent ? last + (up ?? stepUp) : ceiling);
+                rate = this.paragraphRate(p, r, t, offset, rate, { floor: Math.min(upper, Math.max(lower, rate)), ceiling: upper });
+            }
             this.lastRate = rate;
             this.lastRateEnd = t + (r.duration - offset) / rate;
             if (SYNC.slackFreesPace && r.slack > 0) this.lastRateEnd = -Infinity;
@@ -1804,6 +1852,7 @@
                 t: r2(t), provider: this.provider.id, gate: this.stats.gate || null, waiting: !!this.waiting, rs: this.d.video.readyState,
                 lastSpoken: this.lastSpokenStart, headAt: this.headAt, speech: this.speech ? { id: this.speech.id, end: r2(this.speech.end), rate: r2(this.speech.rate) } : null,
                 session: this.sessionSnapshot(this.timelineAt()),
+                paragraph: this.paragraph || null,
                 ahead: r2(this.prefetchAhead()), jobs: this.jobs.size, dropped: this.stats.dropped, errors: this.stats.errors, chained: this.stats.chained || 0,
                 delivery: { recoverMs: (this.stats.recoverMs || []).slice(-5), late: this.stats.late || 0, gaps: this.stats.gaps || 0, gapSec: r2(this.stats.gapSec || 0), requests: this.stats.requests, cacheHits: this.stats.cacheHits, aborted: this.stats.aborted, detached: this.stats.detached || 0, held: this.rendered.size, elements: [...this.rendered.values()].filter(x => x.el).length,
                     // what a "pop" heard while the voice plays can be (2.4.2): a re-seek of a sounding
@@ -2452,6 +2501,10 @@
             const syl = p.phrases.reduce((a, ph) => a + ph.syl, 0);
             const sps = syl / duration;
             if (sps < 2 || sps > 9) return;
+            const nominal = this.provider.naturalSps ? this.provider.naturalSps(p.speaker) : 4.5;
+            const predicted = this.durationEstimator.predict(p, syl / Math.max(1, nominal));
+            this.durationEstimator.observe(p, duration, syl / Math.max(1, nominal));
+            if (predicted.samples >= 5 && Math.abs(duration - predicted.duration) > Math.max(0.3, predicted.uncertainty * 3)) return;
             const cur = this.voiceSps.get(p.speaker);
             this.voiceSps.set(p.speaker, cur ? cur + (sps - cur) * 0.25 : sps);
         }
@@ -2468,7 +2521,18 @@
                 if (k < p.phrases.length - 1) natural += PLAN.pauseSeconds(ph.pauseAfter, 1, base);
             });
             if (natural < 0.5) return;
-            const measured = duration / natural;
+            const sample = duration / natural;
+            if (!Number.isFinite(sample) || sample < 0.4 || sample > 2.5) return;
+            const voice = p.voiceTag || p.speaker || 'default';
+            const samples = this.calibrationSamples.get(voice) || [];
+            samples.push(sample);
+            if (samples.length > 21) samples.shift();
+            this.calibrationSamples.set(voice, samples);
+            const sorted = samples.slice().sort((a, b) => a - b);
+            const center = sorted[Math.floor(sorted.length / 2)];
+            const deviations = sorted.map(x => Math.abs(x - center)).sort((a, b) => a - b);
+            const radius = Math.max(0.15, deviations[Math.floor(deviations.length / 2)] * 4.4478);
+            const measured = sorted.length >= 5 ? Math.max(center - radius, Math.min(center + radius, sample)) : sample;
             if (measured < 0.4 || measured > 2.5) return;
             const cur = m.calibration || 1;
             m.calibration = Math.min(1.8, Math.max(0.55, cur + (measured - cur) * 0.3));
@@ -2606,6 +2670,7 @@
                 ended: this.d.video.ended, paused: this.d.video.paused, adSourceTime: this.adSourceTime,
                 adResumeWithin: SYNC.adResumeWithin, live: this.live });
             this.note("reset", { why: reason });
+            this.paragraph = null;
             this.pace = null;                   // the pace of where we were says nothing about where we are
             this.silence();
             this.speech = null;                 // lời đang nói không còn đúng vị trí: bỏ

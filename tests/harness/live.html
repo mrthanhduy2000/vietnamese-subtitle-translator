@@ -94,7 +94,7 @@
         (H.pausedVoice = H.pausedVoice || []).push([+wall().toFixed(2), +clock.currentTime.toFixed(2), Math.round(performance.now() - pausedAt),
           voices.indexOf(a), +a.currentTime.toFixed(2), eng.speech && eng.speech.id, a.src === (eng.speech && eng.rendered.get(eng.speech.id) || {}).url]);
       }
-      if (on && ad) H.voiceInAd++;
+      if (on && ad) { H.voiceInAd++; (H.adVoiceAt || (H.adVoiceAt = [])).push(+wall().toFixed(3)); }
     }, 50);
     let seen = 0;
     setInterval(() => {
@@ -156,7 +156,7 @@
       done: H.done, clock: window.CLOCK ? +window.CLOCK.currentTime.toFixed(1) : null,
       spoken: st.started.length, lateStarts: lags.filter(l => l > 0.5).length, lagMax: lags.length ? +Math.max(...lags).toFixed(2) : null,
       dropped: st.dropped, errors: st.errors, errorTypes: st.errorTypes || null, ads: st.ads || 0, adResumed: st.adResumed || 0,
-      overlapSamples: H.overlap, voiceWhilePaused: H.voiceWhilePaused, voiceInAd: H.voiceInAd, samples: H.samples,
+      overlapSamples: H.overlap, voiceWhilePaused: H.voiceWhilePaused, voiceInAd: H.voiceInAd, adVoiceAt: H.adVoiceAt || [], samples: H.samples,
       seeks: H.seeks, rtf: eng && eng.renderRtf != null ? +eng.renderRtf.toFixed(2) : null,
       fittedOver: eng && eng.fittedOver != null ? +eng.fittedOver.toFixed(2) : null,
       server: H.server || null

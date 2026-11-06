@@ -1543,7 +1543,88 @@
         return out;
     }
 
+    const median = values => {
+        const sorted = values.slice().sort((a, b) => a - b);
+        const i = Math.floor(sorted.length / 2);
+        return sorted.length ? (sorted.length % 2 ? sorted[i] : (sorted[i - 1] + sorted[i]) / 2) : 0;
+    };
+
+    // Recent residuals are kept per voice and text class; isolated bad takes cannot set the pace.
+    class DurationEstimator {
+        constructor() { this.voices = new Map(); }
+        features(plan) {
+            const text = plan.text || '';
+            return [countSyllables(text) >= 24 ? 'long' : 'short', /\d/.test(plan.subtitleText || text) ? 'number' : 'plain',
+                (text.match(/[A-Za-z]+/g) || []).some(word => word.length >= 2 && !SEG.isVietWord(word.toLowerCase())) ? 'latin' : 'vi', /[,;:!?]/.test(text) ? 'marked' : 'plain'].join('/');
+        }
+        observe(plan, actual, base) {
+            if (!(actual >= 1.2 && base > 0.3)) return false;
+            const ratio = actual / base;
+            if (!Number.isFinite(ratio) || ratio < 0.4 || ratio > 2.5) return false;
+            const key = plan.voiceTag || plan.speaker || 'default';
+            const rows = this.voices.get(key) || [];
+            rows.push({ ratio, feature: this.features(plan) });
+            if (rows.length > 31) rows.shift();
+            this.voices.set(key, rows);
+            return true;
+        }
+        predict(plan, base) {
+            const rows = this.voices.get(plan.voiceTag || plan.speaker || 'default') || [];
+            const same = rows.filter(x => x.feature === this.features(plan));
+            const sample = (same.length >= 5 ? same : rows).map(x => x.ratio);
+            const center = sample.length >= 3 ? median(sample) : 1;
+            let pace = null;
+            const accepted = [];
+            for (const ratio of sample) {
+                const previous = median(accepted);
+                const deviation = median(accepted.map(x => Math.abs(x - previous)));
+                const outlier = accepted.length >= 5 && Math.abs(ratio - previous) > Math.max(0.15, deviation * 4.4478);
+                // Keep the rolling raw history above so a sustained voice change eventually becomes typical.
+                accepted.push(ratio);
+                if (!outlier) pace = pace == null ? 1 / ratio : pace * 0.75 + 0.25 / ratio;
+            }
+            const spread = sample.length >= 3 ? median(sample.map(x => Math.abs(x - center))) * 1.4826 : 0.25;
+            return { duration: base * (pace == null ? 1 : 1 / pace), uncertainty: base * Math.max(0.04, spread), samples: sample.length };
+        }
+    }
+
+    // Receding-horizon beam search. Items contain immutable timing, measured/estimated duration,
+    // legal rate/rest bounds and the earliest source entry. Only the first decision is committed.
+    function planParagraph(items, { time = 0, previousRate = 1, stepUp = 0.1, stepDown = 0.04, beam = 8 } = {}) {
+        if (!items.length) return null;
+        let states = [{ cost: 0, end: time, rate: previousRate, rest: 0, first: null, path: [] }];
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i], next = items[i + 1], expanded = [];
+            for (const state of states) {
+                const start = i === 0 ? time : Math.max(item.earliest, state.end + state.rest);
+                const lo = Math.max(item.minRate, i ? state.rate - (item.stepDown ?? stepDown) : item.minRate);
+                const hi = Math.min(item.maxRate, i ? state.rate + (item.stepUp ?? stepUp) : item.maxRate);
+                const lower = Math.min(lo, hi);
+                const fit = item.duration / Math.max(0.5, item.end - start);
+                const candidates = [lower, hi, 1, state.rate, fit, item.reference, (lower + hi) / 2];
+                const rates = [...new Set(candidates.filter(Number.isFinite).map(x => Math.max(lower, Math.min(hi, x))))];
+                const rests = item.minRest < item.rest ? [item.rest, item.minRest] : [item.rest];
+                for (const rate of rates) for (const rest of rests) {
+                    const end = start + item.duration / rate;
+                    const lag = Math.max(0, start - item.start);
+                    const over = Math.max(0, end - item.end);
+                    const idle = next && next.start - item.end < 1 ? Math.max(0, next.earliest - end - rest) : 0;
+                    const change = rate - state.rate;
+                    const cost = state.cost + 0.7 * Math.min(100, lag * lag) + 0.35 * Math.min(100, over * over)
+                        + 18 * change * change + 0.8 * item.duration * (rate - 1) ** 2
+                        + 0.6 * idle * idle + 0.4 * (item.rest - rest);
+                    const choice = { rate, rest, start, end };
+                    expanded.push({ cost, end, rate, rest, first: state.first || choice, path: [...state.path, choice] });
+                }
+            }
+            expanded.sort((a, b) => a.cost - b.cost);
+            states = expanded.slice(0, beam);
+        }
+        return { ...states[0].first, cost: states[0].cost, path: states[0].path, horizon: items.length };
+    }
+
     const api = {
+        DurationEstimator, planParagraph,
         groupsFromViCues, numberToVietnamese, countSyllables, adaptForSpeech, numberRole, classifyIntent, buildPhrases, speakerTurns, speakerAt, NO_TURNS, MAX_VOICES, speakerLines, speakerHints, mergeSpeakerHints,
         buildDubScript, stripSoundNotes, notesOnly, speakerLabels, stripSpeakerLabels, stripLabelsAt, planSegment, planAll, smoothRates, speechSeconds, pauseSeconds, rateForSps, rateForSpeedup, speedMultiplier,
         DEFAULT_VOICE_MODEL, LIMITS, INTENT_PROSODY, PAUSE

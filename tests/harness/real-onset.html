@@ -17,7 +17,7 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 window.result = null;
 const ready = (async () => {
     for (const file of ['cst-cache.js','vi-segmenter.js','cost-policy.js','dub-planner.js','dub-prosody.js','dub-speech.js','dub-audio.js','dub-session.js', 'dub-engine.js']) {
-        await new Promise((resolve,reject) => { const s=document.createElement('script'); s.src=file==='dub-engine.js'&&query.has('old')?'smooth/onset-old-engine.js':'../../'+file; s.onload=resolve;s.onerror=reject;document.head.appendChild(s); });
+        await new Promise((resolve,reject) => { const s=document.createElement('script'); s.src=file==='dub-engine.js'&&query.has('baseline')?'smooth/paragraph-baseline-engine.js':file==='dub-engine.js'&&query.has('old')?'smooth/onset-old-engine.js':'../../'+file; s.onload=resolve;s.onerror=reject;document.head.appendChild(s); });
     }
     const samples = await (await fetch(base+'index.json')).json();
     for (const item of samples) {
@@ -69,7 +69,7 @@ window.runReal = async () => {
             const pause=a.pause.bind(a);a.pause=()=>{if(a.ended)rec.ended=true;return pause()};
             a.addEventListener('ended',()=>{rec.ended=true});voices.push(rec);return a;
         }
-    },{duck:0.15,volume:1,secondVoice:false,maxRate:1,keepAllSpeech:true});
+    },{duck:0.15,volume:1,secondVoice:false,maxRate:query.has('auto')?null:1,keepAllSpeech:true});
     engine.headAt=0;engine.refresh(true);
     if(engine.plans.length!==fixture.plans.length)throw new Error('Planner count differs between A/B engines');
     for(const p of engine.plans){const take=fixture.plans.find(x=>x.id===p.id&&x.text===p.text);if(!take)throw new Error('Planner text differs: '+p.id);engine.addRendered(p,take.wav,take.duration);}
@@ -89,7 +89,7 @@ window.runReal = async () => {
     clock.pause();engine.stop();clearInterval(poll);await wait(100);
     const stopped=new Promise(resolve=>recorder.addEventListener('stop',resolve,{once:true}));recorder.stop();await stopped;
     const blob=new Blob(chunks,{type:recorder.mimeType});
-    result={done:false,id,mode:query.has('old')?'before':'after',source:fixture.source,voice:fixture.voice,maxRate:1,sourceEnded:clock.ended,tailSeconds:Math.max(0,(performance.now()-playWall)/1000-fixture.duration),plans:fixture.plans.length,
+    result={done:false,id,mode:query.has('old')||query.has('baseline')?'before':'after',source:fixture.source,voice:fixture.voice,maxRate:query.has('auto')?'auto':1,sourceEnded:clock.ended,tailSeconds:Math.max(0,(performance.now()-playWall)/1000-fixture.duration),plans:fixture.plans.length,
         heard:rows.length,completed:voices.filter(v=>v.ended).length,rows,overlap,pausedSound,naturalEndSound,manualPausedSound,dropped:engine.stats.dropped,errors:engine.stats.errors,
         scheduled:engine.stats.started,events:engine.events,mimeType:recorder.mimeType};
     if(query.has('record'))result.recording=await new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.readAsDataURL(blob)});

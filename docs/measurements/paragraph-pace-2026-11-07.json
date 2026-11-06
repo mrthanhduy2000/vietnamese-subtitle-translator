@@ -1,0 +1,1735 @@
+{
+  "version": "3.1.9",
+  "baseline": "9aa0bba74031fdf1d662fddd62afffa125bc719d",
+  "runtimeHashes": {
+    "dub-planner.js": "cbe512ff39c8b605d4e99a4e678eda90c816d8a43ff4dbb7b70d19afdfb26ee7",
+    "dub-engine.js": "e58cdf7d27f1c59c9c528f95a4b279a1abf8ccd10edb75db967e5b295366ac9f"
+  },
+  "tests": {
+    "total": 1087,
+    "pass": 1085,
+    "fail": 0,
+    "conditionalSkips": 2,
+    "newParagraphTests": 14
+  },
+  "regression": {
+    "videos": 45,
+    "scenarios": 24,
+    "videoLateStarts": {
+      "before": 1486,
+      "after": 1339
+    },
+    "videoGapSeconds": {
+      "before": 4.5,
+      "after": 2.98
+    },
+    "scenarioLateStarts": {
+      "before": 138,
+      "after": 134
+    },
+    "changedMetrics": 55,
+    "worseMetrics": 1,
+    "explanation": "slowTts@busy gapSum 2.21 -> 2.23 s; 20 ms is within the simulator 25 ms advancement step. Gap counts, loss, overlap, seeks and hard starts remain unchanged. This is accepted measurement granularity, not a claim of no worse metric.",
+    "report": "\nvideos (45), baseline 3.1.8 -> now 3.1.9\n  refine                  11 ->        11\n  omission                10 ->        10\n  untranslated             4 ->         4\n  empty                    0 ->         0\n  leftover                92 ->        92\n  noteInside               0 ->         0\n  turns                    0 ->         0\n  labels                 324 ->       324\n  dup                      3 ->         3\n  spoken                7840 ->      7840\n  dropped                  0 ->         0\n  late                  1486 ->      1339   *\n  wordsLost                0 ->         0\n  wordsTwice               0 ->         0\n  gapN                    36 ->        24   *\n  gapSum                 4.5 ->      2.98   *\n  cuts                     0 ->         0\n  hardStarts               0 ->         0\n  elSeeks                  0 ->         0\n  skippedS                 0 ->         0\n\nscenarios (24), baseline 3.1.8 -> now 3.1.9\n  spoken                 728 ->       728\n  dropped                  0 ->         0\n  late                   138 ->       134   *\n  gapN                    36 ->        36\n  gapSum               39.62 ->     39.64   *\n  gapMax               14.11 ->     14.11\n  overlapTicks             0 ->         0\n  reseeks                  0 ->         0\n  elSeeks                  0 ->         0\n  skippedS                 0 ->         0\n  cuts                     0 ->         0\n  hardStarts               0 ->         0\n  cutRunning               0 ->         0\n  duplicateGen             0 ->         0\n  unplayedGen             64 ->        64\n  maxEls                  68 ->        68\n  maxUrls                630 ->       630\n  wordsLost                0 ->         0\n  wordsTwice               0 ->         0\n  seekRecover           19.6 ->      19.6\n  seekRecoverMax        26.5 ->      26.5\n\n55 numbers moved, 1 worse\n        videos/1EciF6Vmr14 rateMax: 1.31 -> 1.3\n        videos/7ReQFzSndj4 late: 1 -> 0\n        videos/7ReQFzSndj4 rateMax: 1.32 -> 1.3\n        videos/AF6MSemog7Y rateP50: 1.11 -> 1.12\n        videos/AF6MSemog7Y rateMax: 1.34 -> 1.31\n        videos/H6k6I__93JM late: 2 -> 1\n        videos/H6k6I__93JM rateMax: 1.34 -> 1.33\n        videos/dSEZriz716g late: 27 -> 26\n        videos/rJ3cOKvcysU rateMax: 1.34 -> 1.3\n        videos/uziJltmdPx8 rateP50: 1.06 -> 1.07\n        videos/wzHQg2V2I14 gapN: 2 -> 1\n        videos/wzHQg2V2I14 gapSum: 0.25 -> 0.12\n        videos/yv6NxWa58nM late: 3 -> 2\n        videos/zPSs9a0MYGw late: 35 -> 32\n        videos/1t6JztkC0C0 late: 4 -> 3\n        videos/8KkKuTCFvzI late: 1 -> 0\n        videos/8KkKuTCFvzI rateP50: 1.07 -> 1.08\n        videos/JBvcMfa7K6E late: 42 -> 40\n        videos/JBvcMfa7K6E gapN: 2 -> 1\n        videos/JBvcMfa7K6E gapSum: 0.25 -> 0.12\n        videos/PsihkFWDt3Y late: 52 -> 49\n        videos/PsihkFWDt3Y gapN: 2 -> 0\n        videos/PsihkFWDt3Y gapSum: 0.26 -> 0\n        videos/PsihkFWDt3Y rateMax: 1.63 -> 1.58\n        videos/Q4JWEtq23h8 late: 9 -> 8\n        videos/UIy-WQCZd4M late: 851 -> 761\n        videos/UIy-WQCZd4M gapN: 12 -> 5\n        videos/UIy-WQCZd4M gapSum: 1.49 -> 0.63\n        videos/X4gL2OWg3V4 late: 21 -> 17\n        videos/YbgvnJQU7gc late: 12 -> 11\n        videos/Zl3XqiRooJk rateP50: 1.21 -> 1.2\n        videos/_XonUIE0JDo late: 6 -> 5\n        videos/_XonUIE0JDo rateP50: 1.28 -> 1.27\n        videos/efARiBoCSpc gapSum: 0.13 -> 0.12\n        videos/fLJsdqxnZb0 late: 39 -> 33\n        videos/lzXgzP1Dayw late: 9 -> 7\n        videos/lzXgzP1Dayw rateP50: 1.22 -> 1.24\n        videos/nm1TxQj9IsQ late: 67 -> 62\n        videos/nm1TxQj9IsQ rateP50: 1.14 -> 1.15\n        videos/nm1TxQj9IsQ rateMax: 1.53 -> 1.6\n        videos/sqsuJML2dkI late: 11 -> 7\n        videos/sqsuJML2dkI gapN: 1 -> 0\n        videos/sqsuJML2dkI gapSum: 0.12 -> 0\n        videos/sqsuJML2dkI rateP50: 1.1 -> 1.11\n        videos/yZfhCQwCWT4 late: 141 -> 137\n        videos/z82GCNXdLAA rateP50: 1.04 -> 1.05\n        videos/z82GCNXdLAA rateMax: 1.3 -> 1.25\n        videos/AF9Gnn2tVJw late: 9 -> 8\n        videos/CECnIMoVxII rateMax: 1.4 -> 1.38\n        videos/Zq7IgleunHY late: 36 -> 32\n        videos/Zq7IgleunHY gapSum: 0.25 -> 0.24\n        videos/rtAi3qa8UtQ late: 44 -> 34\n        scenarios/fastSlowdown late: 26 -> 24\n  WORSE scenarios/slowTts@busy gapSum: 2.21 -> 2.23\n        scenarios/fastSlowdown@busy late: 31 -> 29\n"
+  },
+  "realAudioPrediction": {
+    "method": "Sequential prediction before observation; one fixed file order, no holdout quality claim. Previous is the syllable/SPS EMA duration formula, without engine tempo/slack shaping.",
+    "takes": 28,
+    "voices": [
+      "Kim Thanh"
+    ],
+    "previousMaeSeconds": 0.3508987016272802,
+    "predictedMaeSeconds": 0.3276648775089156,
+    "hashes": {
+      "6QULfp2wdZI-fixture.json": "0d4fd6493c1cc3a59cd863f3f02d62cd8816144c8d38eab0d7f24e5e68303792",
+      "JBvcMfa7K6E-fixture.json": "59a73093a143d7a2d5d6b564bb5a8d9b7405bc2e26057ae98839e640c64af33b",
+      "yZfhCQwCWT4-fixture.json": "07967eb27dfa7283ad5d4c8731a6363306cfe744027c6966895e6e012520a6c8"
+    },
+    "rows": [
+      {
+        "fixture": "6QULfp2wdZI-fixture.json",
+        "id": "t16089",
+        "voice": "Kim Thanh",
+        "actual": 15.78,
+        "previous": 12.444444444444445,
+        "predicted": 12.444444444444445,
+        "samples": 0,
+        "uncertainty": 3.111111111111111
+      },
+      {
+        "fixture": "6QULfp2wdZI-fixture.json",
+        "id": "t21439",
+        "voice": "Kim Thanh",
+        "actual": 4.736,
+        "previous": 4.508571428571428,
+        "predicted": 4.508571428571428,
+        "samples": 1,
+        "uncertainty": 0.8888888888888888
+      },
+      {
+        "fixture": "6QULfp2wdZI-fixture.json",
+        "id": "t29284",
+        "voice": "Kim Thanh",
+        "actual": 4.47,
+        "previous": 4.278146180619161,
+        "predicted": 4.27814618061916,
+        "samples": 2,
+        "uncertainty": 0.8333333333333334
+      },
+      {
+        "fixture": "6QULfp2wdZI-fixture.json",
+        "id": "t39350",
+        "voice": "Kim Thanh",
+        "actual": 2.588020833333333,
+        "previous": 2.0181228358571115,
+        "predicted": 2.0181228358571115,
+        "samples": 3,
+        "uncertainty": 0.06222222222222223
+      },
+      {
+        "fixture": "JBvcMfa7K6E-fixture.json",
+        "id": "t4320",
+        "voice": "Kim Thanh",
+        "actual": 2.060020833333333,
+        "previous": 2.1356961718069183,
+        "predicted": 2.1356961718069183,
+        "samples": 4,
+        "uncertainty": 0.08413755000000012
+      },
+      {
+        "fixture": "JBvcMfa7K6E-fixture.json",
+        "id": "t6079",
+        "voice": "Kim Thanh",
+        "actual": 3.750020833333333,
+        "previous": 3.9301987024852116,
+        "predicted": 3.930198702485212,
+        "samples": 5,
+        "uncertainty": 0.11555555555555555
+      },
+      {
+        "fixture": "JBvcMfa7K6E-fixture.json",
+        "id": "t9040",
+        "voice": "Kim Thanh",
+        "actual": 9.75,
+        "previous": 9.559508448094874,
+        "predicted": 9.559508448094874,
+        "samples": 6,
+        "uncertainty": 0.28444444444444444
+      },
+      {
+        "fixture": "JBvcMfa7K6E-fixture.json",
+        "id": "t16479",
+        "voice": "Kim Thanh",
+        "actual": 8.580020833333334,
+        "previous": 8.705827263033497,
+        "predicted": 8.705827263033497,
+        "samples": 7,
+        "uncertainty": 0.32405026634615436
+      },
+      {
+        "fixture": "JBvcMfa7K6E-fixture.json",
+        "id": "t23600",
+        "voice": "Kim Thanh",
+        "actual": 12.420020833333334,
+        "previous": 12.86149430705806,
+        "predicted": 12.86149430705806,
+        "samples": 8,
+        "uncertainty": 0.38222222222222224
+      },
+      {
+        "fixture": "JBvcMfa7K6E-fixture.json",
+        "id": "t33119",
+        "voice": "Kim Thanh",
+        "actual": 8.360020833333333,
+        "previous": 8.597629694052358,
+        "predicted": 8.597629694052358,
+        "samples": 9,
+        "uncertainty": 0.30204670755813945
+      },
+      {
+        "fixture": "JBvcMfa7K6E-fixture.json",
+        "id": "t38959",
+        "voice": "Kim Thanh",
+        "actual": 12.88,
+        "previous": 13.541400949098447,
+        "predicted": 13.541400949098447,
+        "samples": 10,
+        "uncertainty": 0.4382043564585756
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t1160",
+        "voice": "Kim Thanh",
+        "actual": 2.4,
+        "previous": 2.325176217907165,
+        "predicted": 2.325176217907165,
+        "samples": 11,
+        "uncertainty": 0.07111111111111111
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t3640",
+        "voice": "Kim Thanh",
+        "actual": 1.2100208333333333,
+        "previous": 1.1717206685344252,
+        "predicted": 1.1717206685344255,
+        "samples": 12,
+        "uncertainty": 0.03810472664857179
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t6040",
+        "voice": "Kim Thanh",
+        "actual": 5.340020833333333,
+        "previous": 5.610066308747209,
+        "predicted": 5.610066308747209,
+        "samples": 13,
+        "uncertainty": 0.19789267046912584
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t10640",
+        "voice": "Kim Thanh",
+        "actual": 2.020020833333333,
+        "previous": 1.7494820097307928,
+        "predicted": 1.8097442798340904,
+        "samples": 5,
+        "uncertainty": 0.05333333333333333
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t12040",
+        "voice": "Kim Thanh",
+        "actual": 6.919020833333334,
+        "previous": 7.240350784186552,
+        "predicted": 6.99792803892317,
+        "samples": 15,
+        "uncertainty": 0.26329717559681687
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t18840",
+        "voice": "Kim Thanh",
+        "actual": 4.17,
+        "previous": 4.1750638634065425,
+        "predicted": 4.0705192430772135,
+        "samples": 16,
+        "uncertainty": 0.1409604760596253
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t20360",
+        "voice": "Kim Thanh",
+        "actual": 9.640020833333333,
+        "previous": 10.732620201184725,
+        "predicted": 10.248700593600821,
+        "samples": 5,
+        "uncertainty": 0.32
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t25280",
+        "voice": "Kim Thanh",
+        "actual": 0.7000208333333333,
+        "previous": 0.579827280766015,
+        "predicted": 0.5717966515561108,
+        "samples": 18,
+        "uncertainty": 0.020137210865660757
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t26120",
+        "voice": "Kim Thanh",
+        "actual": 2.62,
+        "previous": 2.6092227634470673,
+        "predicted": 2.573084932002499,
+        "samples": 18,
+        "uncertainty": 0.09061744889547341
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t28280",
+        "voice": "Kim Thanh",
+        "actual": 4.31,
+        "previous": 4.353181253085026,
+        "predicted": 4.307759124480167,
+        "samples": 19,
+        "uncertainty": 0.13334850781249782
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t30800",
+        "voice": "Kim Thanh",
+        "actual": 17.06,
+        "previous": 16.500759094984375,
+        "predicted": 16.371612674536383,
+        "samples": 20,
+        "uncertainty": 0.5066666666666666
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t38800",
+        "voice": "Kim Thanh",
+        "actual": 2.9700208333333333,
+        "previous": 3.2106691153670055,
+        "predicted": 3.191630359717009,
+        "samples": 21,
+        "uncertainty": 0.09778890572916508
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t40840",
+        "voice": "Kim Thanh",
+        "actual": 1,
+        "previous": 0.8582518971340771,
+        "predicted": 0.8689248162629385,
+        "samples": 5,
+        "uncertainty": 0.026666666666666665
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t41520",
+        "voice": "Kim Thanh",
+        "actual": 0.35,
+        "previous": 0.286083965711359,
+        "predicted": 0.2848349406541501,
+        "samples": 22,
+        "uncertainty": 0.008888888888888889
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t42000",
+        "voice": "Kim Thanh",
+        "actual": 4.19,
+        "previous": 4.005175519959026,
+        "predicted": 4.054982475893714,
+        "samples": 5,
+        "uncertainty": 0.12444444444444445
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t44480",
+        "voice": "Kim Thanh",
+        "actual": 0.4000208333333333,
+        "previous": 0.28927399649848357,
+        "predicted": 0.28831520851688314,
+        "samples": 23,
+        "uncertainty": 0.008889900520833188
+      },
+      {
+        "fixture": "yZfhCQwCWT4-fixture.json",
+        "id": "t45000",
+        "voice": "Kim Thanh",
+        "actual": 4.010020833333333,
+        "previous": 4.04983595097877,
+        "predicted": 4.036412919236364,
+        "samples": 23,
+        "uncertainty": 0.12445860729166464
+      }
+    ]
+  },
+  "browserRuns": {
+    "automaticBefore": {
+      "done": true,
+      "id": "yZfhCQwCWT4",
+      "mode": "before",
+      "source": {
+        "id": "yZfhCQwCWT4",
+        "title": "The Most Immature Couple EVER on Financial Audit | Caleb Hammer Clips",
+        "duration": 646,
+        "webpage_url": "https://www.youtube.com/watch?v=yZfhCQwCWT4",
+        "language": "en-US",
+        "start": 120,
+        "end": 170,
+        "cut": "decoded full source; exact sample crop"
+      },
+      "voice": "Kim Thanh",
+      "maxRate": "auto",
+      "sourceEnded": true,
+      "tailSeconds": 1.6314000000059607,
+      "plans": 17,
+      "heard": 17,
+      "completed": 17,
+      "rows": [
+        {
+          "id": "t1160",
+          "due": 1.1599999999999966,
+          "heardAt": 1.157656,
+          "lag": -0.002343999999996571,
+          "rate": 1.55,
+          "offset": 0
+        },
+        {
+          "id": "t3640",
+          "due": 3.6400000000000006,
+          "heardAt": 3.668905,
+          "lag": 0.028904999999999514,
+          "rate": 1.55,
+          "offset": 0
+        },
+        {
+          "id": "t6040",
+          "due": 6.040000000000006,
+          "heardAt": 6.078333,
+          "lag": 0.03833299999999351,
+          "rate": 1.55,
+          "offset": 0
+        },
+        {
+          "id": "t10640",
+          "due": 10.639999999999986,
+          "heardAt": 10.64792,
+          "lag": 0.007920000000012806,
+          "rate": 1.55,
+          "offset": 0
+        },
+        {
+          "id": "t12040",
+          "due": 12.039999999999992,
+          "heardAt": 12.147519,
+          "lag": 0.1075190000000088,
+          "rate": 1.55,
+          "offset": 0
+        },
+        {
+          "id": "t18840",
+          "due": 18.840000000000003,
+          "heardAt": 18.868461,
+          "lag": 0.028460999999996517,
+          "rate": 1.55,
+          "offset": 0
+        },
+        {
+          "id": "t20360",
+          "due": 20.360000000000014,
+          "heardAt": 21.678266,
+          "lag": 1.318265999999987,
+          "rate": 1.6500000000000001,
+          "offset": 0
+        },
+        {
+          "id": "t25280",
+          "due": 25.28,
+          "heardAt": 27.638738,
+          "lag": 2.358737999999999,
+          "rate": 1.61,
+          "offset": 0
+        },
+        {
+          "id": "t26120",
+          "due": 26.120000000000005,
+          "heardAt": 28.197995,
+          "lag": 2.0779949999999943,
+          "rate": 1.6500000000000001,
+          "offset": 0
+        },
+        {
+          "id": "t28280",
+          "due": 28.28,
+          "heardAt": 29.908596,
+          "lag": 1.6285959999999982,
+          "rate": 1.6500000000000001,
+          "offset": 0
+        },
+        {
+          "id": "t30800",
+          "due": 30.80000000000001,
+          "heardAt": 32.637953,
+          "lag": 1.8379529999999917,
+          "rate": 1.6500000000000001,
+          "offset": 0
+        },
+        {
+          "id": "t38800",
+          "due": 38.80000000000001,
+          "heardAt": 43.078048,
+          "lag": 4.278047999999991,
+          "rate": 1.6500000000000001,
+          "offset": 0
+        },
+        {
+          "id": "t40840",
+          "due": 40.84,
+          "heardAt": 45.009153,
+          "lag": 4.169152999999994,
+          "rate": 1.6500000000000001,
+          "offset": 0
+        },
+        {
+          "id": "t41520",
+          "due": 41.52000000000001,
+          "heardAt": 45.738447,
+          "lag": 4.2184469999999905,
+          "rate": 1.61,
+          "offset": 0
+        },
+        {
+          "id": "t42000",
+          "due": 42,
+          "heardAt": 46.088028,
+          "lag": 4.088028000000001,
+          "rate": 1.6500000000000001,
+          "offset": 0
+        },
+        {
+          "id": "t44480",
+          "due": 44.47999999999999,
+          "heardAt": 48.738679,
+          "lag": 4.258679000000008,
+          "rate": 1.61,
+          "offset": 0
+        },
+        {
+          "id": "t45000",
+          "due": 45,
+          "heardAt": 49.108116,
+          "lag": 4.1081160000000025,
+          "rate": 1.6500000000000001,
+          "offset": 0
+        }
+      ],
+      "overlap": 0,
+      "pausedSound": 108,
+      "naturalEndSound": 108,
+      "manualPausedSound": 0,
+      "dropped": 0,
+      "errors": 0,
+      "scheduled": [
+        {
+          "id": "t1160",
+          "t": 1.13872,
+          "due": 1.1599999999999966,
+          "lag": 0,
+          "rate": 1.55,
+          "speechEnd": 2.6871070967741932,
+          "cueEnd": 3.6400000000000006,
+          "playbackStart": 1.1567720322580644,
+          "playbackLag": 0.0180520322580644,
+          "startupMs": 32
+        },
+        {
+          "id": "t3640",
+          "t": 3.637396,
+          "due": 3.6400000000000006,
+          "lag": -0.002604000000000717,
+          "rate": 1.55,
+          "speechEnd": 4.418054602150537,
+          "cueEnd": 6.040000000000006,
+          "playbackStart": 3.6550484838709676,
+          "playbackLag": 0.015048483870967022,
+          "startupMs": 31.399999976158142
+        },
+        {
+          "id": "t6040",
+          "t": 6.037918,
+          "due": 6.040000000000006,
+          "lag": -0.0020820000000059125,
+          "rate": 1.55,
+          "speechEnd": 9.483092731182795,
+          "cueEnd": 10.639999999999986,
+          "playbackStart": 6.054790483870968,
+          "playbackLag": 0.014790483870961602,
+          "startupMs": 30.600000023841858
+        },
+        {
+          "id": "t10640",
+          "t": 10.628778,
+          "due": 10.639999999999986,
+          "lag": -0.011221999999985854,
+          "rate": 1.55,
+          "speechEnd": 11.932017247311828,
+          "cueEnd": 12.039999999999992,
+          "playbackStart": 10.647158483870967,
+          "playbackLag": 0.007158483870981058,
+          "startupMs": 31.900000005960464
+        },
+        {
+          "id": "t12040",
+          "t": 12.108214,
+          "due": 12.039999999999992,
+          "lag": 0.06821400000000821,
+          "rate": 1.55,
+          "speechEnd": 16.57209840860215,
+          "cueEnd": 18.840000000000003,
+          "playbackStart": 12.123761483870968,
+          "playbackLag": 0.08376148387097615,
+          "startupMs": 29.30000001192093
+        },
+        {
+          "id": "t18840",
+          "t": 18.83828,
+          "due": 18.840000000000003,
+          "lag": -0.0017200000000023863,
+          "rate": 1.55,
+          "speechEnd": 21.528602580645163,
+          "cueEnd": 20.360000000000014,
+          "playbackStart": 18.85543277419355,
+          "playbackLag": 0.015432774193545384,
+          "startupMs": 31.19999998807907
+        },
+        {
+          "id": "t20360",
+          "t": 21.648139,
+          "due": 20.360000000000014,
+          "lag": 1.2881389999999868,
+          "rate": 1.6500000000000001,
+          "speechEnd": 27.490575868686868,
+          "cueEnd": 25.28,
+          "playbackStart": 21.664543787878788,
+          "playbackLag": 1.3045437878787745,
+          "startupMs": 30.900000005960464
+        },
+        {
+          "id": "t25280",
+          "t": 27.608033,
+          "due": 25.28,
+          "lag": 2.328032999999998,
+          "rate": 1.61,
+          "speechEnd": 28.042828548654242,
+          "cueEnd": 26.120000000000005,
+          "playbackStart": 27.624274875776397,
+          "playbackLag": 2.344274875776396,
+          "startupMs": 30.600000023841858
+        },
+        {
+          "id": "t26120",
+          "t": 28.158242,
+          "due": 26.120000000000005,
+          "lag": 2.038241999999997,
+          "rate": 1.6500000000000001,
+          "speechEnd": 29.746120787878787,
+          "cueEnd": 28.28,
+          "playbackStart": 28.17330578787879,
+          "playbackLag": 2.0533057878787844,
+          "startupMs": 29.899999976158142
+        },
+        {
+          "id": "t28280",
+          "t": 29.867912,
+          "due": 28.28,
+          "lag": 1.5879119999999993,
+          "rate": 1.6500000000000001,
+          "speechEnd": 32.480033212121214,
+          "cueEnd": 30.80000000000001,
+          "playbackStart": 29.883792363636363,
+          "playbackLag": 1.6037923636363622,
+          "startupMs": 31.5
+        },
+        {
+          "id": "t30800",
+          "t": 32.599573,
+          "due": 30.80000000000001,
+          "lag": 1.799572999999988,
+          "rate": 1.6500000000000001,
+          "speechEnd": 42.938966939393936,
+          "cueEnd": 38.80000000000001,
+          "playbackStart": 32.61446103030303,
+          "playbackLag": 1.814461030303022,
+          "startupMs": 32.20000001788139
+        },
+        {
+          "id": "t38800",
+          "t": 43.058752,
+          "due": 38.80000000000001,
+          "lag": 4.258751999999987,
+          "rate": 1.6500000000000001,
+          "speechEnd": 44.85876462626263,
+          "cueEnd": 40.84,
+          "playbackStart": 43.07344178787879,
+          "playbackLag": 4.273441787878781,
+          "startupMs": 29.5
+        },
+        {
+          "id": "t40840",
+          "t": 44.978283,
+          "due": 40.84,
+          "lag": 4.138282999999994,
+          "rate": 1.6500000000000001,
+          "speechEnd": 45.58434360606061,
+          "cueEnd": 41.52000000000001,
+          "playbackStart": 44.99314527272727,
+          "playbackLag": 4.153145272727265,
+          "startupMs": 30.69999998807907
+        },
+        {
+          "id": "t41520",
+          "t": 45.70834,
+          "due": 41.52000000000001,
+          "lag": 4.1883399999999895,
+          "rate": 1.61,
+          "speechEnd": 45.92573130434783,
+          "cueEnd": 42,
+          "playbackStart": 45.723987875776395,
+          "playbackLag": 4.203987875776384,
+          "startupMs": 30
+        },
+        {
+          "id": "t42000",
+          "t": 46.049883,
+          "due": 42,
+          "lag": 4.049883000000001,
+          "rate": 1.6500000000000001,
+          "speechEnd": 48.58927693939394,
+          "cueEnd": 44.47999999999999,
+          "playbackStart": 46.06512496969697,
+          "playbackLag": 4.065124969696967,
+          "startupMs": 31.69999998807907
+        },
+        {
+          "id": "t44480",
+          "t": 48.708333,
+          "due": 44.47999999999999,
+          "lag": 4.228333000000013,
+          "rate": 1.61,
+          "speechEnd": 48.95679314492754,
+          "cueEnd": 45,
+          "playbackStart": 48.72415517391305,
+          "playbackLag": 4.244155173913057,
+          "startupMs": 30.19999998807907
+        },
+        {
+          "id": "t45000",
+          "t": 49.069614,
+          "due": 45,
+          "lag": 4.069614000000001,
+          "rate": 1.6500000000000001,
+          "speechEnd": 51.499929656565655,
+          "cueEnd": 47.400000000000006,
+          "playbackStart": 49.086437787878786,
+          "playbackLag": 4.086437787878786,
+          "startupMs": 31.599999994039536
+        }
+      ],
+      "events": [
+        {
+          "at": 23.2,
+          "t": 21.65,
+          "k": "late",
+          "id": "t20360",
+          "lag": 1.29,
+          "rate": 1.65
+        },
+        {
+          "at": 29.1,
+          "t": 27.61,
+          "k": "late",
+          "id": "t25280",
+          "lag": 2.33,
+          "rate": 1.61
+        },
+        {
+          "at": 29.7,
+          "t": 28.16,
+          "k": "late",
+          "id": "t26120",
+          "lag": 2.04,
+          "rate": 1.65
+        },
+        {
+          "at": 31.4,
+          "t": 29.87,
+          "k": "late",
+          "id": "t28280",
+          "lag": 1.59,
+          "rate": 1.65
+        },
+        {
+          "at": 34.1,
+          "t": 32.6,
+          "k": "late",
+          "id": "t30800",
+          "lag": 1.8,
+          "rate": 1.65
+        },
+        {
+          "at": 44.6,
+          "t": 43.06,
+          "k": "late",
+          "id": "t38800",
+          "lag": 4.26,
+          "rate": 1.65
+        },
+        {
+          "at": 46.5,
+          "t": 44.98,
+          "k": "late",
+          "id": "t40840",
+          "lag": 4.14,
+          "rate": 1.65
+        },
+        {
+          "at": 47.2,
+          "t": 45.71,
+          "k": "late",
+          "id": "t41520",
+          "lag": 4.19,
+          "rate": 1.61
+        },
+        {
+          "at": 47.6,
+          "t": 46.05,
+          "k": "late",
+          "id": "t42000",
+          "lag": 4.05,
+          "rate": 1.65
+        },
+        {
+          "at": 50.2,
+          "t": 48.71,
+          "k": "late",
+          "id": "t44480",
+          "lag": 4.23,
+          "rate": 1.61
+        },
+        {
+          "at": 50.6,
+          "t": 49.07,
+          "k": "late",
+          "id": "t45000",
+          "lag": 4.07,
+          "rate": 1.65
+        }
+      ],
+      "mimeType": "audio/webm;codecs=opus"
+    },
+    "automaticAfter": {
+      "done": true,
+      "id": "yZfhCQwCWT4",
+      "mode": "after",
+      "source": {
+        "id": "yZfhCQwCWT4",
+        "title": "The Most Immature Couple EVER on Financial Audit | Caleb Hammer Clips",
+        "duration": 646,
+        "webpage_url": "https://www.youtube.com/watch?v=yZfhCQwCWT4",
+        "language": "en-US",
+        "start": 120,
+        "end": 170,
+        "cut": "decoded full source; exact sample crop"
+      },
+      "voice": "Kim Thanh",
+      "maxRate": "auto",
+      "sourceEnded": true,
+      "tailSeconds": 1.5937000000178827,
+      "plans": 17,
+      "heard": 17,
+      "completed": 17,
+      "rows": [
+        {
+          "id": "t1160",
+          "due": 1.1599999999999966,
+          "heardAt": 1.158304,
+          "lag": -0.0016959999999965891,
+          "rate": 1.55,
+          "offset": 0
+        },
+        {
+          "id": "t3640",
+          "due": 3.6400000000000006,
+          "heardAt": 3.668084,
+          "lag": 0.02808399999999933,
+          "rate": 1.55,
+          "offset": 0
+        },
+        {
+          "id": "t6040",
+          "due": 6.040000000000006,
+          "heardAt": 6.078315,
+          "lag": 0.03831499999999366,
+          "rate": 1.55,
+          "offset": 0
+        },
+        {
+          "id": "t10640",
+          "due": 10.639999999999986,
+          "heardAt": 10.648292,
+          "lag": 0.008292000000013289,
+          "rate": 1.55,
+          "offset": 0
+        },
+        {
+          "id": "t12040",
+          "due": 12.039999999999992,
+          "heardAt": 12.148409,
+          "lag": 0.10840900000000708,
+          "rate": 1.55,
+          "offset": 0
+        },
+        {
+          "id": "t18840",
+          "due": 18.840000000000003,
+          "heardAt": 18.868357,
+          "lag": 0.02835699999999619,
+          "rate": 1.55,
+          "offset": 0
+        },
+        {
+          "id": "t20360",
+          "due": 20.360000000000014,
+          "heardAt": 21.678075,
+          "lag": 1.3180749999999861,
+          "rate": 1.6500000000000001,
+          "offset": 0
+        },
+        {
+          "id": "t25280",
+          "due": 25.28,
+          "heardAt": 27.638852,
+          "lag": 2.358851999999999,
+          "rate": 1.6300000000000001,
+          "offset": 0
+        },
+        {
+          "id": "t26120",
+          "due": 26.120000000000005,
+          "heardAt": 28.198903,
+          "lag": 2.078902999999997,
+          "rate": 1.6500000000000001,
+          "offset": 0
+        },
+        {
+          "id": "t28280",
+          "due": 28.28,
+          "heardAt": 29.907645,
+          "lag": 1.6276449999999976,
+          "rate": 1.6500000000000001,
+          "offset": 0
+        },
+        {
+          "id": "t30800",
+          "due": 30.80000000000001,
+          "heardAt": 32.627832,
+          "lag": 1.8278319999999866,
+          "rate": 1.6500000000000001,
+          "offset": 0
+        },
+        {
+          "id": "t38800",
+          "due": 38.80000000000001,
+          "heardAt": 43.068182,
+          "lag": 4.268181999999989,
+          "rate": 1.6500000000000001,
+          "offset": 0
+        },
+        {
+          "id": "t40840",
+          "due": 40.84,
+          "heardAt": 44.998353,
+          "lag": 4.158352999999998,
+          "rate": 1.6500000000000001,
+          "offset": 0
+        },
+        {
+          "id": "t41520",
+          "due": 41.52000000000001,
+          "heardAt": 45.729219,
+          "lag": 4.20921899999999,
+          "rate": 1.6300000000000001,
+          "offset": 0
+        },
+        {
+          "id": "t42000",
+          "due": 42,
+          "heardAt": 46.068332,
+          "lag": 4.068331999999998,
+          "rate": 1.6500000000000001,
+          "offset": 0
+        },
+        {
+          "id": "t44480",
+          "due": 44.47999999999999,
+          "heardAt": 48.729408,
+          "lag": 4.24940800000001,
+          "rate": 1.61,
+          "offset": 0
+        },
+        {
+          "id": "t45000",
+          "due": 45,
+          "heardAt": 49.088479,
+          "lag": 4.0884789999999995,
+          "rate": 1.6500000000000001,
+          "offset": 0
+        }
+      ],
+      "overlap": 0,
+      "pausedSound": 111,
+      "naturalEndSound": 111,
+      "manualPausedSound": 0,
+      "dropped": 0,
+      "errors": 0,
+      "scheduled": [
+        {
+          "id": "t1160",
+          "t": 1.137678,
+          "due": 1.1599999999999966,
+          "lag": 0,
+          "rate": 1.55,
+          "speechEnd": 2.6860650967741933,
+          "cueEnd": 3.6400000000000006,
+          "playbackStart": 1.156784612903226,
+          "playbackLag": 0.019106612903226017,
+          "startupMs": 32.60000002384186
+        },
+        {
+          "id": "t3640",
+          "t": 3.637479,
+          "due": 3.6400000000000006,
+          "lag": -0.0025210000000006616,
+          "rate": 1.55,
+          "speechEnd": 4.418137602150537,
+          "cueEnd": 6.040000000000006,
+          "playbackStart": 3.6553844838709675,
+          "playbackLag": 0.015384483870966914,
+          "startupMs": 31.5
+        },
+        {
+          "id": "t6040",
+          "t": 6.037888,
+          "due": 6.040000000000006,
+          "lag": -0.002112000000006553,
+          "rate": 1.55,
+          "speechEnd": 9.483062731182795,
+          "cueEnd": 10.639999999999986,
+          "playbackStart": 6.054953483870968,
+          "playbackLag": 0.014953483870962181,
+          "startupMs": 30.69999998807907
+        },
+        {
+          "id": "t10640",
+          "t": 10.627947,
+          "due": 10.639999999999986,
+          "lag": -0.012052999999985659,
+          "rate": 1.55,
+          "speechEnd": 11.931186247311828,
+          "cueEnd": 12.039999999999992,
+          "playbackStart": 10.647157483870968,
+          "playbackLag": 0.007157483870981807,
+          "startupMs": 31.900000005960464
+        },
+        {
+          "id": "t12040",
+          "t": 12.108437,
+          "due": 12.039999999999992,
+          "lag": 0.0684370000000083,
+          "rate": 1.55,
+          "speechEnd": 16.57232140860215,
+          "cueEnd": 18.840000000000003,
+          "playbackStart": 12.124272483870968,
+          "playbackLag": 0.08427248387097563,
+          "startupMs": 29.5
+        },
+        {
+          "id": "t18840",
+          "t": 18.838177,
+          "due": 18.840000000000003,
+          "lag": -0.0018230000000016844,
+          "rate": 1.55,
+          "speechEnd": 21.528499580645164,
+          "cueEnd": 20.360000000000014,
+          "playbackStart": 18.855435,
+          "playbackLag": 0.015434999999996535,
+          "startupMs": 32.099999994039536
+        },
+        {
+          "id": "t20360",
+          "t": 21.64811,
+          "due": 20.360000000000014,
+          "lag": 1.2881099999999854,
+          "rate": 1.6500000000000001,
+          "speechEnd": 27.490546868686867,
+          "cueEnd": 25.28,
+          "playbackStart": 21.66437178787879,
+          "playbackLag": 1.3043717878787753,
+          "startupMs": 30.80000001192093
+        },
+        {
+          "id": "t25280",
+          "t": 27.607797,
+          "due": 25.28,
+          "lag": 2.3277970000000003,
+          "rate": 1.6300000000000001,
+          "speechEnd": 28.037257633946833,
+          "cueEnd": 26.120000000000005,
+          "playbackStart": 27.62418899386503,
+          "playbackLag": 2.3441889938650284,
+          "startupMs": 30.80000001192093
+        },
+        {
+          "id": "t26120",
+          "t": 28.158201,
+          "due": 26.120000000000005,
+          "lag": 2.0382009999999937,
+          "rate": 1.6500000000000001,
+          "speechEnd": 29.746079787878784,
+          "cueEnd": 28.28,
+          "playbackStart": 28.17403478787879,
+          "playbackLag": 2.054034787878784,
+          "startupMs": 30.5
+        },
+        {
+          "id": "t28280",
+          "t": 29.868258,
+          "due": 28.28,
+          "lag": 1.5882579999999997,
+          "rate": 1.6500000000000001,
+          "speechEnd": 32.480379212121214,
+          "cueEnd": 30.80000000000001,
+          "playbackStart": 29.883793272727274,
+          "playbackLag": 1.6037932727272732,
+          "startupMs": 31.299999982118607
+        },
+        {
+          "id": "t30800",
+          "t": 32.589515,
+          "due": 30.80000000000001,
+          "lag": 1.7895149999999873,
+          "rate": 1.6500000000000001,
+          "speechEnd": 42.928908939393935,
+          "cueEnd": 38.80000000000001,
+          "playbackStart": 32.60647627272727,
+          "playbackLag": 1.8064762727272594,
+          "startupMs": 32.900000005960464
+        },
+        {
+          "id": "t38800",
+          "t": 43.04848,
+          "due": 38.80000000000001,
+          "lag": 4.2484799999999865,
+          "rate": 1.6500000000000001,
+          "speechEnd": 44.848492626262626,
+          "cueEnd": 40.84,
+          "playbackStart": 43.065147,
+          "playbackLag": 4.265146999999992,
+          "startupMs": 31.400000005960464
+        },
+        {
+          "id": "t40840",
+          "t": 44.969187,
+          "due": 40.84,
+          "lag": 4.129186999999995,
+          "rate": 1.6500000000000001,
+          "speechEnd": 45.57524760606061,
+          "cueEnd": 41.52000000000001,
+          "playbackStart": 44.985122000000004,
+          "playbackLag": 4.145122000000001,
+          "startupMs": 31.400000005960464
+        },
+        {
+          "id": "t41520",
+          "t": 45.69846,
+          "due": 41.52000000000001,
+          "lag": 4.178459999999987,
+          "rate": 1.6300000000000001,
+          "speechEnd": 45.91318392638036,
+          "cueEnd": 42,
+          "playbackStart": 45.71558899386503,
+          "playbackLag": 4.195588993865023,
+          "startupMs": 31.69999998807907
+        },
+        {
+          "id": "t42000",
+          "t": 46.028852,
+          "due": 42,
+          "lag": 4.0288520000000005,
+          "rate": 1.6500000000000001,
+          "speechEnd": 48.56824593939394,
+          "cueEnd": 44.47999999999999,
+          "playbackStart": 46.04378824242424,
+          "playbackLag": 4.043788242424242,
+          "startupMs": 30.900000005960464
+        },
+        {
+          "id": "t44480",
+          "t": 48.688107,
+          "due": 44.47999999999999,
+          "lag": 4.2081070000000125,
+          "rate": 1.61,
+          "speechEnd": 48.93656714492754,
+          "cueEnd": 45,
+          "playbackStart": 48.7047838757764,
+          "playbackLag": 4.22478387577641,
+          "startupMs": 31.099999994039536
+        },
+        {
+          "id": "t45000",
+          "t": 49.058386,
+          "due": 45,
+          "lag": 4.058385999999999,
+          "rate": 1.6500000000000001,
+          "speechEnd": 51.48870165656565,
+          "cueEnd": 47.400000000000006,
+          "playbackStart": 49.065327787878786,
+          "playbackLag": 4.065327787878786,
+          "startupMs": 21.799999982118607
+        }
+      ],
+      "events": [
+        {
+          "at": 23.2,
+          "t": 21.65,
+          "k": "late",
+          "id": "t20360",
+          "lag": 1.29,
+          "rate": 1.65
+        },
+        {
+          "at": 29.1,
+          "t": 27.61,
+          "k": "late",
+          "id": "t25280",
+          "lag": 2.33,
+          "rate": 1.63
+        },
+        {
+          "at": 29.7,
+          "t": 28.16,
+          "k": "late",
+          "id": "t26120",
+          "lag": 2.04,
+          "rate": 1.65
+        },
+        {
+          "at": 31.4,
+          "t": 29.87,
+          "k": "late",
+          "id": "t28280",
+          "lag": 1.59,
+          "rate": 1.65
+        },
+        {
+          "at": 34.1,
+          "t": 32.59,
+          "k": "late",
+          "id": "t30800",
+          "lag": 1.79,
+          "rate": 1.65
+        },
+        {
+          "at": 44.6,
+          "t": 43.05,
+          "k": "late",
+          "id": "t38800",
+          "lag": 4.25,
+          "rate": 1.65
+        },
+        {
+          "at": 46.5,
+          "t": 44.97,
+          "k": "late",
+          "id": "t40840",
+          "lag": 4.13,
+          "rate": 1.65
+        },
+        {
+          "at": 47.2,
+          "t": 45.7,
+          "k": "late",
+          "id": "t41520",
+          "lag": 4.18,
+          "rate": 1.63
+        },
+        {
+          "at": 47.5,
+          "t": 46.03,
+          "k": "late",
+          "id": "t42000",
+          "lag": 4.03,
+          "rate": 1.65
+        },
+        {
+          "at": 50.2,
+          "t": 48.69,
+          "k": "late",
+          "id": "t44480",
+          "lag": 4.21,
+          "rate": 1.61
+        },
+        {
+          "at": 50.6,
+          "t": 49.06,
+          "k": "late",
+          "id": "t45000",
+          "lag": 4.06,
+          "rate": 1.65
+        }
+      ],
+      "mimeType": "audio/webm;codecs=opus"
+    },
+    "cappedAtOne": {
+      "done": true,
+      "id": "JBvcMfa7K6E",
+      "mode": "after",
+      "source": {
+        "id": "JBvcMfa7K6E",
+        "title": "Money Expert Reacts to Caleb Hammer's WILDEST Financial Audits",
+        "duration": 1787,
+        "webpage_url": "https://www.youtube.com/watch?v=JBvcMfa7K6E",
+        "language": "en-US",
+        "start": 90,
+        "end": 140,
+        "cut": "decoded full source; exact sample crop"
+      },
+      "voice": "Kim Thanh",
+      "maxRate": 1,
+      "sourceEnded": true,
+      "tailSeconds": 13.083400000005959,
+      "plans": 7,
+      "heard": 7,
+      "completed": 7,
+      "rows": [
+        {
+          "id": "t4320",
+          "due": 4.319999999999993,
+          "heardAt": 4.351858,
+          "lag": 0.031858000000006825,
+          "rate": 1,
+          "offset": 0
+        },
+        {
+          "id": "t6079",
+          "due": 6.0789999999999935,
+          "heardAt": 6.541036,
+          "lag": 0.46203600000000655,
+          "rate": 1,
+          "offset": 0
+        },
+        {
+          "id": "t9040",
+          "due": 9.040000000000006,
+          "heardAt": 10.431168,
+          "lag": 1.3911679999999933,
+          "rate": 1,
+          "offset": 0
+        },
+        {
+          "id": "t16479",
+          "due": 16.479,
+          "heardAt": 20.311477,
+          "lag": 3.832477000000001,
+          "rate": 1,
+          "offset": 0
+        },
+        {
+          "id": "t23600",
+          "due": 23.599999999999994,
+          "heardAt": 29.010667,
+          "lag": 5.410667000000007,
+          "rate": 1,
+          "offset": 0
+        },
+        {
+          "id": "t33119",
+          "due": 33.119,
+          "heardAt": 41.561367,
+          "lag": 8.442366999999997,
+          "rate": 1,
+          "offset": 0
+        },
+        {
+          "id": "t38959",
+          "due": 38.959,
+          "heardAt": 50.051599999994046,
+          "lag": 11.092599999994043,
+          "rate": 1,
+          "offset": 0
+        }
+      ],
+      "overlap": 0,
+      "pausedSound": 1098,
+      "naturalEndSound": 1098,
+      "manualPausedSound": 0,
+      "dropped": 0,
+      "errors": 0,
+      "scheduled": [
+        {
+          "id": "t4320",
+          "t": 4.320664,
+          "due": 4.319999999999993,
+          "lag": 0.0006640000000066593,
+          "rate": 1,
+          "speechEnd": 6.3806848333333335,
+          "cueEnd": 6.0789999999999935,
+          "playbackStart": 4.325334000000001,
+          "playbackLag": 0.005334000000007499,
+          "startupMs": 22.200000017881393
+        },
+        {
+          "id": "t6079",
+          "t": 6.512238,
+          "due": 6.0789999999999935,
+          "lag": 0.43323800000000645,
+          "rate": 1,
+          "speechEnd": 10.262258833333334,
+          "cueEnd": 9.040000000000006,
+          "playbackStart": 6.5146500000000005,
+          "playbackLag": 0.435650000000007,
+          "startupMs": 21.399999976158142
+        },
+        {
+          "id": "t9040",
+          "t": 10.39186,
+          "due": 9.040000000000006,
+          "lag": 1.3518599999999932,
+          "rate": 1,
+          "speechEnd": 20.14186,
+          "cueEnd": 16.479,
+          "playbackStart": 10.394658999999999,
+          "playbackLag": 1.3546589999999927,
+          "startupMs": 21
+        },
+        {
+          "id": "t16479",
+          "t": 20.271343,
+          "due": 16.479,
+          "lag": 3.7923430000000025,
+          "rate": 1,
+          "speechEnd": 28.851363833333338,
+          "cueEnd": 23.599999999999994,
+          "playbackStart": 20.272002,
+          "playbackLag": 3.7930020000000013,
+          "startupMs": 21.69999998807907
+        },
+        {
+          "id": "t23600",
+          "t": 28.980672,
+          "due": 23.599999999999994,
+          "lag": 5.380672000000004,
+          "rate": 1,
+          "speechEnd": 41.40069283333333,
+          "cueEnd": 33.119,
+          "playbackStart": 28.981338,
+          "playbackLag": 5.381338000000007,
+          "startupMs": 21.700000017881393
+        },
+        {
+          "id": "t33119",
+          "t": 41.533035,
+          "due": 33.119,
+          "lag": 8.414034999999998,
+          "rate": 1,
+          "speechEnd": 49.893055833333335,
+          "cueEnd": 38.959,
+          "playbackStart": 41.535978,
+          "playbackLag": 8.416978,
+          "startupMs": 21.900000005960464
+        },
+        {
+          "id": "t38959",
+          "t": 50.0215,
+          "due": 38.959,
+          "lag": 11.0625,
+          "rate": 1,
+          "speechEnd": 62.901500000000006,
+          "cueEnd": 48.72,
+          "playbackStart": 50.023833,
+          "playbackLag": 11.064833,
+          "startupMs": 20.900000005960464
+        }
+      ],
+      "events": [
+        {
+          "at": 12.5,
+          "t": 10.39,
+          "k": "late",
+          "id": "t9040",
+          "lag": 1.35,
+          "rate": 1
+        },
+        {
+          "at": 22.4,
+          "t": 20.27,
+          "k": "late",
+          "id": "t16479",
+          "lag": 3.79,
+          "rate": 1
+        },
+        {
+          "at": 31.1,
+          "t": 28.98,
+          "k": "late",
+          "id": "t23600",
+          "lag": 5.38,
+          "rate": 1
+        },
+        {
+          "at": 43.6,
+          "t": 41.53,
+          "k": "late",
+          "id": "t33119",
+          "lag": 8.41,
+          "rate": 1
+        },
+        {
+          "at": 52.1,
+          "t": 50,
+          "k": "late",
+          "id": "t38959",
+          "lag": 11.06,
+          "rate": 1
+        }
+      ],
+      "mimeType": "audio/webm;codecs=opus"
+    },
+    "liveWorker": {
+      "done": true,
+      "clock": 45.9,
+      "spoken": 9,
+      "lateStarts": 1,
+      "lagMax": 0.94,
+      "dropped": 0,
+      "errors": 0,
+      "errorTypes": {
+        "aborted": 1
+      },
+      "ads": 1,
+      "adResumed": 1,
+      "overlapSamples": 0,
+      "voiceWhilePaused": 0,
+      "voiceInAd": 1,
+      "adVoiceAt": [
+        20.002
+      ],
+      "samples": 639,
+      "seeks": [
+        {
+          "wall": 14.001700000017882,
+          "to": 30,
+          "paused": false,
+          "recovered": 0.07
+        },
+        {
+          "wall": 22.002900000005962,
+          "to": 35.940443,
+          "ad": true,
+          "recovered": 0.07
+        }
+      ],
+      "rtf": 0.66,
+      "fittedOver": 0.05,
+      "server": {
+        "local": 50,
+        "refused": []
+      },
+      "events": [
+        [
+          1.59,
+          0,
+          "play"
+        ],
+        [
+          2.68,
+          1.03,
+          "start",
+          "t1000",
+          0,
+          "from",
+          0
+        ],
+        [
+          4.25,
+          2.6,
+          "start",
+          "t2615",
+          -0.03,
+          "from",
+          0
+        ],
+        [
+          7,
+          5.36,
+          "pause"
+        ],
+        [
+          9,
+          5.44,
+          "play"
+        ],
+        [
+          9.03,
+          5.46,
+          "start",
+          "t5450",
+          -0.01,
+          "from",
+          0
+        ],
+        [
+          10.7,
+          7.09,
+          "start",
+          "t7367",
+          -0.3,
+          "from",
+          0
+        ],
+        [
+          14,
+          30,
+          "seek",
+          30
+        ],
+        [
+          14.08,
+          30.03,
+          "start",
+          "t29550",
+          0.48,
+          "from",
+          0
+        ],
+        [
+          17.15,
+          33.09,
+          "start",
+          "t33000",
+          0.06,
+          "from",
+          0
+        ],
+        [
+          20,
+          0,
+          "ad on"
+        ],
+        [
+          22,
+          35.94,
+          "ad off",
+          35.940443
+        ],
+        [
+          22.08,
+          35.98,
+          "start",
+          "t33000",
+          2.98,
+          "from",
+          2.04
+        ],
+        [
+          25.53,
+          39.4,
+          "start",
+          "t39400",
+          -0.02,
+          "from",
+          0
+        ],
+        [
+          30.33,
+          44.21,
+          "start",
+          "t44200",
+          -0.02,
+          "from",
+          0
+        ]
+      ]
+    }
+  },
+  "plannerCpu": {
+    "runs": 500,
+    "environment": "Node, six plans, beam eight; CPU cost only, not Chrome FPS",
+    "p50Ms": 0.07508299999999934,
+    "p95Ms": 0.11354100000000145,
+    "maxMs": 0.7860830000000014
+  },
+  "corpusReport": "paragraph-pace-2026-11-07-corpus.json",
+  "limitations": [
+    "Saved-video simulations do not prove semantic or subjective listening quality.",
+    "The real duration prediction set has only 28 Kim Thanh takes. Its sequential MAE is a bounded diagnostic, not a blind multi-voice benchmark.",
+    "The automatic real-source comparison uses identical audio and has only a small tail/lag difference; no perceptible improvement is claimed.",
+    "Live voiceInAd includes one sample 2 ms after ad onset, within the existing 50 ms tick and fade transition. No sustained ad speech was observed.",
+    "P95 is measured per video; the sum of P95 values is not corpus P95. Playback-rate jumps are not a subjective heard-pace score.",
+    "Small per-video regressions remain, quantified and accepted in the corpus report; no causal ablation was used to assign each local delta to a particular component."
+  ],
+  "corpusSummary": {
+    "videos": 145,
+    "totals": {
+      "before": {
+        "spoken": 17982,
+        "dropped": 0,
+        "wordsLost": 0,
+        "wordsTwice": 0,
+        "late": 2344,
+        "gapN": 95,
+        "gapSum": 13.83,
+        "cuts": 0,
+        "hardStarts": 0,
+        "serverRuns": 17758,
+        "lagP95": 89.386,
+        "lagSum": 3717.568,
+        "rateJumps": 1150
+      },
+      "after": {
+        "spoken": 17982,
+        "dropped": 0,
+        "wordsLost": 0,
+        "wordsTwice": 0,
+        "late": 2110,
+        "gapN": 65,
+        "gapSum": 10.06,
+        "cuts": 0,
+        "hardStarts": 0,
+        "serverRuns": 17758,
+        "lagP95": 85.591,
+        "lagSum": 3366.419,
+        "rateJumps": 964
+      }
+    },
+    "byMetric": {
+      "spoken": {
+        "better": 0,
+        "worse": 0
+      },
+      "dropped": {
+        "better": 0,
+        "worse": 0
+      },
+      "wordsLost": {
+        "better": 0,
+        "worse": 0
+      },
+      "wordsTwice": {
+        "better": 0,
+        "worse": 0
+      },
+      "late": {
+        "better": 53,
+        "worse": 2
+      },
+      "gapN": {
+        "better": 19,
+        "worse": 0
+      },
+      "gapSum": {
+        "better": 21,
+        "worse": 0
+      },
+      "cuts": {
+        "better": 0,
+        "worse": 0
+      },
+      "hardStarts": {
+        "better": 0,
+        "worse": 0
+      },
+      "serverRuns": {
+        "better": 0,
+        "worse": 0
+      },
+      "lagP95": {
+        "better": 63,
+        "worse": 7
+      },
+      "lagSum": {
+        "better": 101,
+        "worse": 2
+      },
+      "rateJumps": {
+        "better": 51,
+        "worse": 3
+      }
+    }
+  }
+}

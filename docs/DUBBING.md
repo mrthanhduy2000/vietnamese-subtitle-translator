@@ -1757,3 +1757,35 @@ source groups. The coordinator cannot recover a missing group that was never sup
 covers full delivery/EOF/ad behavior. `tools/session-corpus.js <Chrome dump> <output> [revision]`
 compares every archived/current saved video with the committed engine at that revision,
 using busy media startup and full queue drain. The output records input hashes and deltas.
+
+## Paragraph pacing and robust duration forecasts
+
+`dub-planner.js` exports pure `planParagraph` and `DurationEstimator`; no new browser loader is
+needed. `dub-engine.js` builds a maximum six-plan horizon (`SYNC.paragraphHorizon`), ending at a
+source silence longer than two seconds or a pending earlier translation. Beam width is eight.
+The forecast uses made audio durations first; unknown takes use the voice/text-class predictor,
+with a small bounded uncertainty reserve after five observations. Raw durations are converted
+through the existing base tempo and slack shaping exactly once.
+
+Each candidate propagates `start = max(source earliest, previous end + rest)` and
+`end = start + duration / rate`. Cost combines positive start lag (0.7), finish overflow (0.35),
+rate-change squared (18), stretch squared times duration (0.8), avoidable silence squared (0.6)
+and borrowed rest (0.4). Lag/overflow squared terms cap at 100 to bound overloaded predictions.
+Only the first decision is committed; subsequent decisions are recalculated when audio arrives.
+
+The incumbent sentence controller still establishes safe floors/ceilings and the first-rate lower
+bound. Paragraph planning may anticipate dense speech without lowering that incumbent rate.
+This conservative boundary followed a rejected model that reduced gaps but nearly doubled late
+starts on the archive. Automatic ceilings, heard-pace smoothing, in-sentence steps, user maxRate,
+FIFO/no-drop rules and source earliest-entry limits remain binding. Future phrase transitions use
+the tighter in-sentence step. The search never edits words, segmentation or audio-internal pauses.
+It can borrow only a full stop's existing 0.18-to-0.12 s rest; clause/phrase rests remain protected.
+
+Duration residuals use up to 31 real takes per voice, with text classes for length, numbers,
+non-Vietnamese Latin tokens and punctuation. A class needs five takes before specializing.
+The point estimate uses an EMA of inverse duration ratios, guarded by median/MAD outlier bounds;
+raw history remains available so sustained changes can become typical. Uncertainty is a robust
+MAD spread with a minimum floor. The existing voice-SPS and model calibration updates retain their
+normal EMA behavior, adding robust outlier guards; calibration histories are separate per voice.
+Unknown/short/invalid samples cannot assert confidence. No network, extra synthesis or paid call
+is required for learning. `debugSnapshot().paragraph` exposes the bounded forecast decisions.
