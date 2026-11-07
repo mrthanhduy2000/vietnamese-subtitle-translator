@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.2.2", luc: "07/11/2026", ten: "Ngữ cảnh và thuật ngữ theo từng đoạn",
+            y: [
+                "Nhận diện lĩnh vực theo đoạn hiện tại và phần lân cận, kèm mức bằng chứng; gợi ý nghĩa được gắn với từng mục thay vì áp chủ đề đầu video lên toàn bài.",
+                "Thuật ngữ học được lưu kèm phạm vi nghĩa và dấu vết nguồn. Lựa chọn mới hoặc mâu thuẫn chỉ là gợi ý; dịch lại cùng một câu không làm tăng mức nhất quán.",
+                "Từ đa nghĩa đã biết trong glossary tích hợp được để nguyên cho bộ dịch xét theo câu; quy tắc do người dùng tự đặt vẫn được ưu tiên. Giữ tên đã được xác nhận xuất hiện trong nguồn và cách xưng hô đã ổn định khi đổi chủ đề."
+            ]
+        },
+        {
             v: "3.2.1", luc: "07/11/2026", ten: "Đánh giá độ tin cậy của phụ đề nguồn",
             y: [
                 "Kiểm tra dấu hiệu lỗi thời gian, chữ viết, độ lặp và mật độ của phụ đề nguồn; phân biệt ít lời với nguồn có lỗi. Không coi phụ đề do tác giả tải lên hoặc phụ đề tự động là đã khớp tiếng nói.",

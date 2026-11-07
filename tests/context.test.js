@@ -100,7 +100,8 @@ test("ngữ cảnh: có chủ đề, lĩnh vực, câu trước, bản dịch c�
     const req = s.buildRequest([2]);
     assert.deepEqual(req.sentences, ["It then processes it through several layers."]);
     assert.match(req.context.topic, /Convolutional Neural Networks/);
-    assert.match(req.context.domain, /học máy/);
+    assert.equal(req.context.localDomain.confidence, "low");
+    assert.match(req.context.domain, /Tổng quát/);
     // Đại từ "It" chỉ hiểu được nhờ câu trước
     assert.match(req.context.prevSource, /The model receives the image\./);
     assert.match(req.context.prevTranslation, /Mô hình nhận vào bức ảnh\./);
@@ -124,26 +125,27 @@ test("ngữ cảnh: gói gọn trong ngân sách ký tự (không gửi cả vid
 
 test("thuật ngữ: giữ nhất quán, chỉ đổi khi cách mới áp đảo; chỉ gửi thuật ngữ có trong đoạn", () => {
     const s = lecture();
-    s.record([0], { translations: ["..."], terms: [{ en: "forward pass", vi: "lượt truyền xuôi" }, { en: "feature map", vi: "bản đồ đặc trưng" }] });
-    s.record([1], { translations: ["..."], terms: [{ en: "forward pass", vi: "lan truyền tiến" }] });
-    let t = s.buildRequest([0]).context.terms;
+    s.units.push("The neural model uses another forward pass with gradient loss.");
+    s.setUnits(s.units);
+    s.record([0], { translations: ["lượt truyền xuôi"], terms: [{ en: "forward pass", vi: "lượt truyền xuôi" }] });
+    s.record([5], { translations: ["lượt truyền xuôi"], terms: [{ en: "forward pass", vi: "lượt truyền xuôi" }] });
+    const t = s.buildRequest([0]).context.terms;
     assert.deepEqual(t.find(x => x.en === "forward pass"), { en: "forward pass", vi: "lượt truyền xuôi" });
-    // Câu 3 nói về feature maps (số nhiều) nhưng không có forward pass
-    t = s.buildRequest([3]).context.terms;
-    assert.ok(t.some(x => x.en === "feature map"), JSON.stringify(t));
-    assert.ok(!t.some(x => x.en === "forward pass"));
-    // Cách dịch mới được dùng liên tục nhiều hơn hẳn thì mới thay
-    for (let i = 0; i < 3; i++) s.record([1], { translations: ["..."], terms: [{ en: "forward pass", vi: "lan truyền tiến" }] });
-    assert.equal(s.terms.get("forward pass").vi, "lan truyền tiến");
+    assert.ok(!s.buildRequest([3]).context.terms.some(x => x.en === "forward pass"));
+    // Conflicting observed renderings become advisory; repeating a retry is not independent evidence.
+    for (let i = 0; i < 3; i++) s.record([5], { translations: ["lan truyền tiến"], terms: [{ en: "forward pass", vi: "lan truyền tiến" }] });
+    assert.equal(s.terms.get("ml:forward pass").conflict, true);
+    assert.equal(s.buildRequest([0]).context.terms.length, 0);
 });
 
 test("thuật ngữ: xuất / nhập để nhất quán giữa các bài của cùng khóa học", () => {
     const a = lecture();
-    a.record([0], { translations: ["x"], terms: [{ en: "forward pass", vi: "lượt truyền xuôi" }] });
+    a.record([0], { translations: ["lượt truyền xuôi"], terms: [{ en: "forward pass", vi: "lượt truyền xuôi" }] });
     const b = new C.ContextSession({});
     b.importTerms(a.exportTerms());
     b.setUnits(["Next we look at the backward pass after the forward pass."]);
-    assert.deepEqual(b.buildRequest([0]).context.terms, [{ en: "forward pass", vi: "lượt truyền xuôi" }]);
+    assert.deepEqual(b.buildRequest([0]).context.terms, []);
+    assert.equal(b.exportTerms()[0][3].scope, "ml");
 });
 
 // ---------- Phát hiện "dịch máy" ----------
@@ -247,7 +249,7 @@ test("thuật ngữ chỉ được xin khi đoạn có thuật ngữ MỚI, và 
     assert.equal(s2.wantsTerms({ sentences: ["Hello everyone, welcome back to the course."] }), false);
     // Thuật ngữ đã biết hết thì không xin nữa
     const s3 = lecture();
-    for (const k of ["gradient", "loss", "batch", "dataset", "model", "train"]) s3.terms.set(k, { en: k, vi: "x", count: 1, alt: {} });
+    for (const k of ["gradient", "loss", "batch", "dataset", "model", "train"]) s3.terms.set("ml:" + k, { en: k, vi: "x", count: 1, scope: "ml" });
     assert.equal(s3.wantsTerms({ sentences: ["We train the model with gradient descent and compute the loss on each batch of the dataset."] }), false);
 });
 

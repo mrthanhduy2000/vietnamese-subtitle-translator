@@ -260,6 +260,29 @@
         return { primary, secondary: second && second[1] >= top * 0.5 ? second[0] : null, scores };
     }
 
+    // Evidence tiers describe keyword support, not calibrated semantic probabilities.
+    function isAmbiguousTerm(text) {
+        const key = String(text || '').trim().toLowerCase();
+        return !!(SENSES[key] || (key.endsWith('ies') && SENSES[key.slice(0, -3) + 'y']) ||
+            (key.endsWith('es') && SENSES[key.slice(0, -2)]) || (key.endsWith('s') && SENSES[key.slice(0, -1)]));
+    }
+    function localDomain(text, nearby = '') {
+        const direct = detectDomain(text), near = detectDomain(nearby);
+        const candidate = direct.primary !== 'general' ? direct : near;
+        if (candidate.primary === 'general') return { ...direct, confidence: 'low', basis: 'insufficient-local-evidence' };
+        const keys = DOMAINS[candidate.primary].kw.filter(k => keywordHits(String(text).toLowerCase(), k));
+        const specific = keys.filter(k => !Object.hasOwn(SENSES, k));
+        if (direct.primary === 'general' && (keys.length < 2 && !specific.length)) return { ...direct, confidence: 'low', basis: 'insufficient-target-evidence' };
+        const ranked = Object.values(candidate.scores).sort((a, b) => b - a);
+        const clear = ranked[0] >= Math.max(3, (ranked[1] || 0) * 1.5);
+        if (!clear) return { ...direct, primary: 'general', secondary: null, confidence: 'low', basis: 'conflicting-keywords' };
+        return { ...candidate, secondary: null, confidence: direct.primary !== 'general' && clear ? 'high' : 'medium',
+            basis: direct.primary !== 'general' ? 'target-keywords' : 'nearby-keywords', keywords: keys.slice(0, 8) };
+    }
+    function termMatches(text, term) {
+        return new RegExp(`(?<![\\p{L}\\p{N}])${escapeRe(term)}(?:e?s)?(?![\\p{L}\\p{N}])`, 'iu').test(String(text));
+    }
+
     function domainLabel(key) {
         return key === "general" ? "Tổng quát / hội thoại" : (DOMAINS[key] ? DOMAINS[key].label : key);
     }
@@ -419,6 +442,21 @@
     const SELF_MIN = 4;         // uses before a form counts as chosen
     const SELF_LEAD = 3;        // ... and it leads the other form this many times over
 
+    function termExcerpt(source, term) {
+        const text = String(source || '');
+        const at = Math.max(0, text.toLowerCase().indexOf(term.toLowerCase()) - 48);
+        return text.slice(at, at + 160);
+    }
+    function refreshTerm(term) {
+        const counts = new Map();
+        for (const vi of term.votes.values()) counts.set(vi, (counts.get(vi) || 0) + 1);
+        const sorted = [...counts].sort((a, b) => b[1] - a[1]);
+        term.vi = sorted[0]?.[0] || term.vi;
+        term.count = sorted[0]?.[1] || 0;
+        term.conflict = sorted.length > 1 || !!term.importConflict;
+        term.evidence = [...term.votes.keys()].slice(0, 3).map(source => clip(source, 160));
+    }
+
     class ContextSession {
         constructor(meta = {}) {
             this.meta = {
@@ -431,7 +469,7 @@
             };
             this.units = [];                 // văn bản nguồn của từng nhóm (theo thứ tự thời gian)
             this.results = new Map();        // idx -> { vi, note }
-            this.terms = new Map();          // en (chữ thường) -> { en, vi, count, locked }
+            this.terms = new Map();          // scoped source term -> evidence and rendering
             this.domain = { primary: "general", secondary: null, scores: {} };
             this.self = { "tôi": 0, "mình": 0 };
         }
@@ -447,6 +485,8 @@
         setUnits(texts) {
             this.units = texts.map(t => String(t || ""));
             this.results.clear();
+            this.self = { "tôi": 0, "mình": 0 };
+            this.localDomains = this.units.map((text, i) => localDomain(text, this.units.slice(Math.max(0, i - 2), i + 3).join(' ').slice(0, 2400)));
             const sample = this.units.join(" ").slice(0, 6000);
             // the description without its links, handles and sponsor lines: a sponsor read is about the
             // sponsor, not the talk (its "brand", "content", "social media" pointed vlogs at marketing)
@@ -466,36 +506,36 @@
             return clip(parts.join(" | "), BUDGET.topic);
         }
 
-        // Có nên xin Gemini trả thuật ngữ cho cửa sổ này không (tiết kiệm token đầu ra):
-        // chỉ khi đoạn có từ khóa chuyên ngành CHƯA có trong danh sách đã thống nhất,
-        // và tối đa 1 lần mỗi 3 cửa sổ.
+        // Request at most five new terms in an existing translation call, once per three windows.
         wantsTerms(req) {
             this.windowCount = (this.windowCount || 0) + 1;
-            if (this.terms.size >= 80) return false;
             if (this.lastTermsAt && this.windowCount - this.lastTermsAt < 3) return false;
-            const d = DOMAINS[this.domain.primary];
-            if (!d) return false;
+            const scopes = new Set(req.context?.segmentDomains?.map(d => d.primary) || [req.context?.localDomain?.primary || this.domain.primary]);
             const text = " " + (req.sentences || []).join(" ").toLowerCase() + " ";
-            const known = [...this.terms.keys()].join(" | ");
-            const fresh = d.kw.filter(k => {
-                const w = k.replace(/\*$/, "").trim();
-                return w.length > 3 && keywordHits(text, k) > 0 && !known.includes(w);
-            });
-            if (fresh.length < 2) return false;
+            let fresh = 0;
+            for (const scope of scopes) {
+                const domain = DOMAINS[scope];
+                if (!domain) continue;
+                const known = [...this.terms.values()].filter(t => t.scope === scope && t.count > 0);
+                if (known.length >= 80) continue;
+                fresh += domain.kw.filter(k => {
+                    const word = k.replace(/\*$/, '').trim();
+                    return word.length > 3 && keywordHits(text, k) > 0 && !known.some(t => termMatches(word, t.en));
+                }).length;
+            }
+            if (fresh < 2) return false;
             this.lastTermsAt = this.windowCount;
             return true;
         }
 
-        relevantTerms(text) {
-            const t = String(text || "").toLowerCase();
-            const hits = [];
-            for (const term of this.terms.values()) {
-                if (!term.vi) continue;
-                const re = new RegExp(`(?<![a-z])${escapeRe(term.en.toLowerCase())}(?:e?s)?(?![a-z])`);
-                if (re.test(t)) hits.push(term);
-            }
-            hits.sort((a, b) => b.count - a.count);
-            return hits.slice(0, BUDGET.terms).map(x => ({ en: x.en, vi: x.vi }));
+        termEvidence(text, domains, stable) {
+            return [...this.terms.values()].filter(t => {
+                if (!termMatches(text, t.en) || (t.count === 0 && t.provenance !== 'legacy-unverified')) return false;
+                const allowed = typeof domains === 'function' ? domains(t.en) : domains;
+                if (t.scope !== 'entity' && (!t.scope || !allowed.has(t.scope))) return !stable && !t.scope && !isAmbiguousTerm(t.en);
+                return stable ? t.count >= 2 && !t.conflict : t.count < 2 || t.conflict;
+            }).sort((a, b) => b.count - a.count).slice(0, stable ? BUDGET.terms : 5)
+                .map(t => ({ en: t.en, vi: t.vi }));
         }
 
         // Sentences from before the previous two units that introduce who or what the window refers
@@ -553,19 +593,27 @@
             const selfRef = saysI(hintText, this.meta.lang) ? this.selfRef() : "";
             // (2.7.4) Everyday talk (no technical domain, not a course): written as Vietnamese people
             // talk, not as a lecturer speaks (the system prompt's default, right for Coursera)
-            const talk = this.domain.primary === "general" && !this.meta.course;
+            const local = idxs.map(i => this.localDomains[i] || localDomain(this.units[i]));
+            const domain = local.find(d => d.primary !== 'general') || local[0];
+            const scopesFor = term => new Set(idxs.filter(i => termMatches(this.units[i], term)).map(i => this.localDomains[i]?.primary || 'general'));
+            const eligible = stable => this.termEvidence(hintText, scopesFor, stable).filter(t =>
+                !isAmbiguousTerm(t.en) || scopesFor(t.en).size === 1);
+            const talk = domain.primary === "general" && !this.meta.course;
             return {
                 sentences,
                 context: {
                     topic: this.topicLine(),
-                    domain: domainLabel(this.domain.primary) + (this.domain.secondary ? `; liên quan: ${domainLabel(this.domain.secondary)}` : ""),
+                    domain: domainLabel(domain.primary),
+                    localDomain: { primary: domain.primary, confidence: domain.confidence, basis: domain.basis },
+                    segmentDomains: local.map((d, k) => ({ item: k + 1, primary: d.primary, confidence: d.confidence })),
                     refSource: this.refSourceFor(first, sentences),
                     prevSource,
                     prevTranslation,
                     nextSource,
                     // Chỉ thuật ngữ có trong phần CẦN DỊCH (không tốn token cho ngữ cảnh)
-                    terms: this.relevantTerms(hintText),
-                    senseHints: senseHintsFor(hintText, this.domain),
+                    terms: eligible(true),
+                    termCandidates: eligible(false),
+                    senseHints: sentences.flatMap((text, k) => senseHintsFor(text, local[k], Math.max(1, Math.floor(10 / sentences.length))).map(h => `${k + 1}. ${h}`)).slice(0, 10),
                     phraseHints: phraseHintsFor(hintText),
                     ...(selfRef ? { selfRef } : {}),
                     ...(talk ? { register: "talk" } : {})
@@ -573,55 +621,79 @@
             };
         }
 
-        // Ghi lại kết quả: bản dịch, tóm tắt, thuật ngữ mô hình đã chọn.
-        // Thuật ngữ đã thống nhất thì giữ nguyên (nhất quán), chỉ đổi khi
-        // thuật ngữ mới xuất hiện nhiều hơn hẳn.
+        // Learn only source-attested renderings from actual translated units. A retry is not a new vote.
         record(idxs, result) {
             idxs.forEach((i, k) => {
-                const vi = result.translations ? result.translations[k] : "";
-                if (vi) {
-                    this.results.set(i, { vi });
-                    this.self["tôi"] += (String(vi).match(SELF_TOI) || []).length;
-                    this.self["mình"] += (String(vi).match(SELF_MINH) || []).length;
+                const vi = result.translations?.[k];
+                if (!vi) return;
+                const old = this.results.get(i)?.vi || '';
+                for (const [form, re] of [['tôi', SELF_TOI], ['mình', SELF_MINH]]) {
+                    this.self[form] += (String(vi).match(re) || []).length - (old.match(re) || []).length;
+                }
+                this.results.set(i, { vi });
+                for (const term of this.terms.values()) {
+                    const observation = termExcerpt(this.units[i], term.en);
+                    const previous = term.votes.get(observation);
+                    if (previous && !String(vi).toLowerCase().includes(previous.toLowerCase())) {
+                        term.votes.delete(observation); refreshTerm(term);
+                    }
                 }
             });
-            for (const t of result.terms || []) {
-                if (!t || !t.en || !t.vi) continue;
-                const en = String(t.en).trim();
-                const vi = String(t.vi).trim();
-                // a glossary placeholder is no translation: "model context protocol = [[__T1__]]" was
-                // stored for a course and would name another term in a later request
-                if (en.length < 2 || en.length > 60 || vi.length > 80 || PLACEHOLDER.test(vi) || PLACEHOLDER.test(en)) continue;
-                const key = en.toLowerCase();
-                const cur = this.terms.get(key);
-                if (!cur) this.terms.set(key, { en, vi, count: 1, alt: {} });
-                else if (cur.vi.toLowerCase() === vi.toLowerCase()) cur.count++;
-                else {
-                    cur.alt[vi] = (cur.alt[vi] || 0) + 1;
-                    if (cur.alt[vi] >= cur.count + 2) { cur.vi = vi; cur.count = cur.alt[vi]; cur.alt = {}; }
+            if ((result.engine && result.engine !== 'gemini') || this.sourceQuality?.status === 'unusable') return;
+            for (const t of (result.terms || []).slice(0, 5)) {
+                const en = String(t?.en || '').trim(), vi = String(t?.vi || '').trim();
+                if (/^(?:i|me|my|mine|myself|you|your|he|him|his|she|her|it|its|we|us|our|they|them|their)$/i.test(en)) continue;
+                if (en.length < 2 || en.length > 60 || !vi || vi.length > 80 || PLACEHOLDER.test(vi) || PLACEHOLDER.test(en)) continue;
+                for (const [k, i] of idxs.entries()) {
+                    if (result.fallbackIndexes?.includes(k) || !termMatches(this.units[i], en) || !String(result.translations?.[k] || '').toLowerCase().includes(vi.toLowerCase())) continue;
+                    const domain = this.localDomains[i] || localDomain(this.units[i]);
+                    const entity = en === vi && /[A-Z]/.test(en) && /[a-z]/.test(en);
+                    if (!entity && domain.primary === 'general' && isAmbiguousTerm(en)) continue;
+                    const scope = entity ? 'entity' : domain.primary;
+                    const key = `${scope}:${en.toLowerCase()}`;
+                    let cur = this.terms.get(key);
+                    if (!cur) {
+                        cur = { en, vi, count: 0, scope, conflict: false, evidence: [], votes: new Map(), provenance: 'source-translation-pair' };
+                        this.terms.set(key, cur);
+                    }
+                    const observation = termExcerpt(this.units[i], en);
+                    // Updates replace this unit's vote, including a refined translation.
+                    cur.votes.set(observation, vi);
+                    // Bound observations per term as well as the total vocabulary.
+                    if (cur.votes.size > 12) cur.votes.delete(cur.votes.keys().next().value);
+                    refreshTerm(cur);
                 }
             }
-            if (this.terms.size > 250) {
-                const keep = [...this.terms.entries()].sort((a, b) => b[1].count - a[1].count).slice(0, 200);
-                this.terms = new Map(keep);
-            }
+            if (this.terms.size > 250) this.terms = new Map([...this.terms].sort((a, b) => b[1].count - a[1].count).slice(0, 200));
         }
 
         exportTerms() {
-            return [...this.terms.values()].sort((a, b) => b.count - a.count).slice(0, 200)
-                .map(t => [t.en, t.vi, t.count]);
+            return [...this.terms.values()].filter(t => t.count > 0 || t.provenance === 'legacy-unverified').sort((a, b) => b.count - a.count).slice(0, 200)
+                .map(t => [t.en, t.vi, t.count, { scope: t.scope || '', conflict: !!t.conflict, provenance: t.provenance || 'legacy-unverified', evidence: t.evidence || [] }]);
         }
 
         importTerms(list) {
-            for (const item of list || []) {
-                if (!Array.isArray(item) || !item[0] || !item[1] || PLACEHOLDER.test(item[1])) continue;
-                const key = String(item[0]).toLowerCase();
-                if (!this.terms.has(key)) this.terms.set(key, { en: item[0], vi: item[1], count: Number(item[2]) || 1, alt: {} });
+            for (const item of (list || []).slice(0, 200)) {
+                if (!Array.isArray(item)) continue;
+                const en = String(item[0] || '').trim(), vi = String(item[1] || '').trim(), meta = item[3];
+                if (en.length < 2 || en.length > 60 || !vi || vi.length > 80 || PLACEHOLDER.test(en) || PLACEHOLDER.test(vi)) continue;
+                const evidence = Array.isArray(meta?.evidence) ? [...new Set(meta.evidence.filter(source =>
+                    typeof source === 'string' && source.length <= 160 && termMatches(source, en)))].slice(0, 3) : [];
+                const entity = meta?.scope === 'entity' && en === vi && /[A-Z]/.test(en) && /[a-z]/.test(en);
+                const knownScope = entity || meta?.scope === 'general' || Object.hasOwn(DOMAINS, meta?.scope);
+                const trusted = meta?.provenance === 'source-translation-pair' && knownScope && evidence.length > 0;
+                const scope = trusted ? meta.scope : '';
+                const key = `${scope}:${en.toLowerCase()}`;
+                if (!this.terms.has(key)) this.terms.set(key, { en, vi, count: trusted ? evidence.length : 0,
+                    scope, conflict: trusted && !!meta.conflict, importConflict: trusted && !!meta.conflict,
+                    evidence: trusted ? evidence : [], votes: new Map(trusted ? evidence.map(source => [source, vi]) : []),
+                    provenance: trusted ? meta.provenance : 'legacy-unverified' });
             }
         }
+
     }
 
-    const api = { DOMAINS, SENSES, PHRASES, BUDGET, cleanDescription, detectDomain, domainLabel, senseHintsFor, phraseHintsFor, saysI, ContextSession };
+    const api = { DOMAINS, SENSES, PHRASES, BUDGET, cleanDescription, detectDomain, localDomain, isAmbiguousTerm, domainLabel, senseHintsFor, phraseHintsFor, saysI, ContextSession };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_CONTEXT = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

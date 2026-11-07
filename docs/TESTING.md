@@ -43,6 +43,7 @@ sense of weight, not an assertion.
 | `publish-paths.test.js` | 2 | The publish guard reads committed bytes after a rebuild through directory aliases, spaces, Unicode and Windows 8.3 short paths. The 8.3 case skips outside Windows or when short names are disabled. |
 | `segmenter.test.js` | 44 | Vietnamese segmentation and line breaking against `fixtures.js`, compared against the frozen `legacy/old-splitter.js` baseline |
 | `context.test.js` | 20 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |
+| `local-context.test.js` | 20 | Local topic shifts, scoped source/output evidence, uncertainty, name/pronoun continuity, deferred glossary rules and cache separation |
 | `integration.test.js` | 25 | Runs the **real** `content.js` and `background.js` in a `vm` with a fake `chrome`, fake DOM and fake Gemini |
 | `dub.test.js` | 115 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
 | `cost.test.js` | 61 | The full LOCAL -> CACHE -> cheap -> strong -> TTS chain, plus `cst-cache`, `cost-policy`, `dub-planner`, `dub-engine` |
@@ -511,3 +512,14 @@ An optional directory of prior *-asr.json / *-fixture.json pairs evaluates lexic
 intersecting time ranges. This run performs no audio recognition, network request or new ASR call;
 it cannot establish ASR accuracy, runtime cost or a whole-video verdict. The existing three saved
 real-source references are bounded reproduction evidence, not a reason to enable automatic ASR.
+
+## Local context audit
+
+`node tools/local-context-eval.js <caption export> <output JSON> [term export]` reads all archived
+videos plus the exported Chrome cache, deduplicates through `batch-review`, and compares current
+context with HEAD. Run before committing and retain the baseline SHA. Source groups are audited
+in four-item windows without network/model calls. It reports domain abstentions, hint counts,
+exact prompt characters and local setup time, plus explicitly authored technology/finance/everyday
+switches appended to each source excerpt. These controls have known labels; natural domain and
+sense changes do not. Legacy term import is inspected without modifying Chrome storage. Report
+character overhead separately from tokens/cost and preserve input hashes in the measurement file.

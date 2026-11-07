@@ -510,12 +510,14 @@ function buildUnitPrompt(req) {
 
     const parts = [];
     if (ctx.topic) parts.push(`[CHỦ ĐỀ] ${ctx.topic}`);
-    if (ctx.domain) parts.push(`[LĨNH VỰC] ${ctx.domain}`);
+    if (ctx.domain) parts.push(`[LĨNH VỰC] ${ctx.domain}${ctx.localDomain ? ` (bằng chứng từ khóa: ${ctx.localDomain.confidence}; chỉ gợi ý, xét theo câu thay vì ép nghĩa theo tiêu đề)` : ''}`);
+    if (new Set((ctx.segmentDomains || []).map(d => d.primary)).size > 1) parts.push(`[LĨNH VỰC TỪNG MỤC] ${ctx.segmentDomains.map(d => `${d.item}: ${d.primary} (${d.confidence})`).join('; ')}. Không ép nghĩa sang mục khác.`);
     if (ctx.selfRef === "tôi" || ctx.selfRef === "mình") parts.push(`[XƯNG HÔ] Người nói tự xưng "${ctx.selfRef}" ở các đoạn trước: giữ đúng cách xưng này.`);
     // (2.7.4) An everyday video is talk, not a lecture (ContextSession.buildRequest). Blind A/B over
     // 36 windows of 6 vlogs (tr-lab run reg1): more natural with this line in 30, without it in 2
     if (ctx.register === "talk") parts.push("[VĂN PHONG] Video đời thường: viết như người Việt nói chuyện tự nhiên, gần gũi, không trang trọng kiểu bài giảng hay 'quý vị'.");
     if (ctx.terms && ctx.terms.length) parts.push(`[THUẬT NGỮ ĐÃ THỐNG NHẤT] ${ctx.terms.map(t => `${t.en} = ${t.vi}`).join("; ")}`);
+    if (ctx.termCandidates?.length) parts.push(`[THUẬT NGỮ CHƯA CHẮC, chỉ tham khảo] ${ctx.termCandidates.map(t => `${t.en} = ${t.vi}`).join('; ')}. Chỉ dùng nếu cùng nghĩa trong câu; không coi là quy tắc bắt buộc.`);
     if (ctx.senseHints && ctx.senseHints.length) parts.push(`[GỢI Ý NGHĨA] ${ctx.senseHints.join("; ")}`);
     if (ctx.phraseHints && ctx.phraseHints.length) parts.push(`[CỤM TỪ, THÀNH NGỮ] ${ctx.phraseHints.join("; ")}`);
     // Who or what a pronoun / "the company" in the window points to, from further back (1.8.4)
@@ -893,12 +895,14 @@ async function unitCacheKey(req, model, legacy) {
         "tr", TR_PROMPT_VERSION, "en", "vi", model,
         (src || []).map(N),
         ...(legacy ? [(req.placeholders || []).map(p => p.term)] : (req.protectFp ? ["gl:" + req.protectFp] : [])),
+        ...(req.deferredGlossary?.length ? ['deferred:' + [...req.deferredGlossary].sort().join(',')] : []),
         N(c.domain), N(c.topic).slice(0, 120), N(c.prevSource).slice(-200), N(c.nextSource).slice(0, 120),
         // source text, so deterministic; only when present, so every key without it stays as it was
         ...(c.refSource ? [N(c.refSource).slice(0, 200)] : []),
         // the first person asked for (2.7.4): a line read with it is not the one read without
         ...(c.selfRef ? ["self:" + c.selfRef] : []),
-        ...(c.register ? ["reg:" + c.register] : [])
+        ...(c.register ? ["reg:" + c.register] : []),
+        ...(new Set((c.segmentDomains || []).map(d => d.primary)).size > 1 ? ["segments:" + c.segmentDomains.map(d => d.primary).join(',')] : [])
     ]);
 }
 

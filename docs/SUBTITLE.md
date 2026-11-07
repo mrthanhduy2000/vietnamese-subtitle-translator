@@ -706,3 +706,41 @@ Strongly unusable input does not pay for another refinement; limited/suspect inp
 mode/budget behavior. Suspect-source information accompanies the existing refine prompt, without
 adding a model action. No automatic ASR, capture permission, endpoint, default model or paid call
 was added. Supplied independent ASR artifacts can be evaluated offline with source-reliability-eval.
+
+## Local context and scoped terminology (2026-11-07)
+
+`ContextSession.setUnits` keeps the global domain for diagnostics, and computes deterministic
+`localDomains` per source group from its own text and at most two neighbours on either side
+(bounded to 2,400 characters). Title/channel metadata cannot force a local sense. A field still
+needs three distinct keyword matches; nearby evidence also needs support in the target group.
+Competing fields and unsupported text abstain. `confidence` is high/medium/low keyword evidence,
+not a calibrated probability of semantic correctness. The vocabulary is mainly English.
+
+`buildRequest` sends `localDomain` and numbered `segmentDomains`. Sense hints are numbered by
+item and capped at ten; known ambiguous words spanning multiple scopes are omitted from flat
+agreed terms. Mixed item domains join the window cache key in order. Previous source/translation,
+far referents and the settled self-reference remain available across topic changes. Recording a
+refined unit replaces its pronoun counts instead of counting both drafts. This is still a
+single-speaker heuristic, not speaker attribution or an independent pronoun judge.
+
+Learned term entries remain within `ctxterms_*` (existing outer storage stamp unchanged), with
+backward-readable tuples `[en, vi, count, {scope, conflict, provenance, evidence}]`.
+- Only terms present in source and in an actual Gemini output can gain evidence. Mixed-provider
+  fallback items, placeholders, standalone pronouns and structurally unusable input cannot seed it.
+- Two distinct source excerpts with the same rendering can supply scoped agreed hints. A retry or
+  duplicate text is not a new vote. Changed output removes stale evidence. Conflicts stay advisory.
+- Proper names preserved exactly as in the source may use entity scope across topics; arbitrary
+  translated names are not automatically classified as entities. Ordinary terms stay scope-bound.
+- Legacy tuples have unknown scope/provenance and cannot become agreed by their old count alone.
+  Non-polysemous legacy choices may be advisory. No storage purge or forced full-video retranslation.
+- Exports retain at most 200 terms and three source excerpts of 160 characters per term; live
+  observations are bounded to twelve per term. Excerpts establish usage history, not correctness.
+  Import validates scope, source presence and evidence bounds, and does not trust stored counts.
+
+Known polysemous words from `SENSES` are deferred by `protectGlossary` instead of fixed builtin
+replacement. Explicit user keep/rendering choices still win, including inflections. `deferredGlossary`
+records affected matches and joins only their window cache keys, including legacy lookup; unrelated
+keys retain the old shape. Existing completed-video caches remain intact. No glossary expansion,
+new model action or extra translation round was added. Term output still has a five-entry cap and
+one-in-three-window throttle, now evaluated against local scopes; old unscoped vocabulary cannot
+exhaust a new field's quota. Learned hints remain outside the cache key to avoid learning-history churn.

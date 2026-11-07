@@ -22,6 +22,7 @@ const state = {
     glossaryEnabled: true,
     glossaryMisses: 0,
     glossaryTranslateAs: new Map(),
+    glossaryUserTerms: new Map(),
     glossaryCanon: new Map(),    // lower-case form -> canonical spelling of the brands matched case-insensitively
     glossaryFp: "",             // the user's own glossary choices, part of the translation cache key
     reExact: null,
@@ -511,10 +512,14 @@ function protectGlossary(text) {
     }
 
     // Buoc 2: thay thuat ngu bang ma danh dau
-    const terms = [];
+    const terms = [], deferred = new Set();
     const replaceWithToken = (match) => {
         // Neu nguoi dung khai bao dang "tu goc => dang muon hien"
         // thi dien dang muon hien, nguoc lai giu nguyen ban goc
+        // Built-in polysemous words stay visible to the translator. Explicit user choices win.
+        const lower = match.toLowerCase();
+        const ambiguous = window.CST_CONTEXT?.isAmbiguousTerm?.(match);
+        if (ambiguous && !inflectedLookup(state.glossaryUserTerms, lower)) { deferred.add(lower); return match; }
         const custom = translateAsFor(match);
         const id = terms.length;
         terms.push(custom !== undefined ? custom : (canonicalFor(match) || match));
@@ -545,7 +550,7 @@ function protectGlossary(text) {
         out = out.replace(reContext, replaceWithToken);
     }
 
-    return { text: out, terms };
+    return { text: out, terms, deferred: [...deferred].sort() };
 }
 
 // Buoc loc cuoi cho MOI ban dich: xoa ma giu cho bi sot, markdown, ngoac kep
@@ -657,7 +662,7 @@ function protectMany(sentences) {
     const res = protectGlossary(joined);
     const texts = res.text.split("\n").map(t => t.replace(/[ \t]{2,}/g, " ").trim());
     if (texts.length !== sentences.length) return { texts: sentences, terms: [] };
-    return { texts, terms: res.terms };
+    return { texts, terms: res.terms, deferred: res.deferred || [] };
 }
 
 // The service worker is stopped by Chrome after ~30 s idle and can die mid-request. Sending wakes it,
@@ -781,6 +786,7 @@ async function requestUnit(req, opts = {}) {
         sentences: prot.texts,
         source: req.sentences,
         protectFp: state.glossaryFp,
+        deferredGlossary: prot.deferred || [],
         context: req.context,
         placeholders,
         tier: opts.tier || "cheap",
@@ -2752,6 +2758,7 @@ async function loadGlossary() {
                 state.glossaryTranslateAs.set(from.toLowerCase(), to);
             });
 
+        state.glossaryUserTerms = new Map([...userKeep, ...userTerms].map(t => [t.toLowerCase(), true]));
         state.glossaryKeep = [...new Set([...userKeep, ...userTerms, ...fromGroups])];
         // Thuat ngu nhieu tu (dang hien thi cuoi cung) de bo phan doan khong cat doi
         // (filter first, then dedupe: the same list without a second 90,000-entry Set)

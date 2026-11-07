@@ -467,8 +467,9 @@ test("channel terms: an unstamped YouTube list is not read, a stamped one and a 
     } });
     const terms = async key => JSON.parse(await E.run(`createContextSession({ title: "x" }, ${JSON.stringify(key)}).then(s => JSON.stringify(s.exportTerms()))`));
     assert.deepEqual(await terms("yt_old"), []);
-    assert.deepEqual(await terms("yt_new"), [["gradient descent", "hạ gradient", 2]]);
-    assert.deepEqual(await terms("course"), [["slash commands", "lệnh gạch chéo", 1]], "a placeholder is no translation");
+    assert.deepEqual((await terms("yt_new")).map(t => t.slice(0, 2)), [["gradient descent", "hạ gradient"]]);
+    assert.equal((await terms("yt_new"))[0][3].provenance, "legacy-unverified");
+    assert.deepEqual((await terms("course")).map(t => t.slice(0, 2)), [["slash commands", "lệnh gạch chéo"]], "a placeholder is no translation");
 });
 
 // 2.3.3: left open, Settings asked the local voice server twice every 5 s for hours (5,082 requests

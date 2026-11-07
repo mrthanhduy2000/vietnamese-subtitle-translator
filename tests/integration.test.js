@@ -120,7 +120,8 @@ test("ngữ cảnh: câu có đại từ 'It' được gửi kèm câu trước,
     assert.match(ctx.prevSource, /The model receives the image/);
     assert.match(ctx.prevTranslation, /Mô hình nhận vào bức ảnh/);
     assert.match(ctx.topic, /Convolutional Neural Networks/);
-    assert.match(ctx.domain, /học máy/);
+    assert.equal(ctx.localDomain.confidence, "low");
+    assert.match(ctx.domain, /Tổng quát/);
     assert.match(ctx.nextSource, /Each layer extracts features/);
 });
 
@@ -133,7 +134,8 @@ test("thuật ngữ mô hình chọn ở câu trước được gửi lại ở 
     env.__s = session(env, { title: "Deep Learning" }, ["Let's examine the forward pass.", "The forward pass computes the output of the network."]);
     await vm.runInContext("translateWindow(__s, [0])", env);
     await vm.runInContext("translateWindow(__s, [1])", env);
-    assert.deepEqual(gem.calls[1].context.terms, [{ en: "forward pass", vi: "lượt truyền xuôi" }]);
+    assert.deepEqual(gem.calls[1].context.terms, []);
+    assert.deepEqual(gem.calls[1].context.termCandidates, [{ en: "forward pass", vi: "lượt truyền xuôi" }]);
 });
 
 test("dịch máy bị phát hiện -> tự dịch lại kèm danh sách vấn đề, nhận bản tốt hơn", async () => {

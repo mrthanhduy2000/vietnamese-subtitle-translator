@@ -94,11 +94,12 @@ for (const c of CASES) {
 }
 
 test("context package, terminology: an agreed term comes back wherever it appears again, however far", () => {
-    const units = ["The model was trained on web pages.", ...Array.from({ length: 12 }, (_, i) => `Filler sentence ${i}.`), "We fine-tune the model on reviews."];
+    const units = ["The neural network model was trained on a dataset with gradient loss.", ...Array.from({ length: 12 }, (_, i) => `Filler sentence ${i}.`), "We fine-tune the neural model on a dataset with gradient loss."];
     const s = sessionOf(units, { title: "Training language models" });
     s.record([0], { translations: ["Mô hình được huấn luyện trên các trang web."], terms: [{ en: "model", vi: "mô hình" }] });
     const req = s.buildRequest([units.length - 1]);
-    assert.deepEqual(req.context.terms, [{ en: "model", vi: "mô hình" }]);
+    assert.deepEqual(req.context.terms, []);
+    assert.deepEqual(req.context.termCandidates, [{ en: "model", vi: "mô hình" }]);
     // a term that is not in the lines to translate is not sent
     assert.deepEqual(s.buildRequest([3]).context.terms, []);
 });
@@ -261,7 +262,7 @@ test("the speaker's pronoun: once the translations settle on tôi or mình, a wi
     m.record([0], { translations: ["Đồ của mình, chính mình làm. Mình thích cà phê."] });
     assert.equal(m.self["mình"], 1);
     m.record([0], { translations: ["Hôm nay mình đi chợ, và mình mua rau. Giờ mình nấu."] });
-    assert.equal(m.buildRequest([1]).context.selfRef, "mình");
+    assert.equal(m.buildRequest([1]).context.selfRef, undefined, "replacing one unit must not count the old wording again");
     // mixed, no clear lead: no hint
     const x = new C.ContextSession({});
     x.setUnits(["a", "I cook."]);
