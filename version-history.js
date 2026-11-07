@@ -4,6 +4,14 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.2.0", luc: "07/11/2026", ten: "Kiểm tra bản dịch theo nội dung được bảo toàn",
+            y: [
+                "Đối chiếu dữ kiện như số, đơn vị, ngày và mã sản phẩm; phát hiện một số trường hợp mất phủ định, đảo so sánh và hoán đổi dữ kiện giữa các mục.",
+                "Bản dịch lại phải vượt qua kiểm tra bảo toàn, không chỉ có văn phong tốt hơn. Không chấp nhận lỗi dữ kiện mới hoặc việc trộn các mục bị lệch.",
+                "Ưu tiên bằng chứng nội dung trong yêu cầu sửa và giữ nguyên giới hạn chi phí, chế độ dịch, số lần dịch lại. Các quan hệ ý nghĩa chưa xác minh được vẫn được ghi nhận là chưa kiểm chứng."
+            ]
+        },
+        {
             v: "3.1.9", luc: "07/11/2026", ten: "Cân đối nhịp đọc theo cả đoạn",
             y: [
                 "Dự báo hàng đợi trên nhiều câu liên tiếp để chọn tốc độ và khoảng nghỉ trong các giới hạn hiện có; vẫn đọc đủ, đúng thứ tự và giữ video chạy liên tục.",

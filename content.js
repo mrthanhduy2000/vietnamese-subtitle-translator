@@ -831,6 +831,7 @@ function qualityKeepSet() {
 function assessAll(req, translations) {
     const Q = window.CST_QUALITY;
     if (!Q) return translations.map(() => ({ score: 0, issues: [], needsRefine: false }));
+    if (Q.assessWindow) return Q.assessWindow(req.sentences, translations, { terms: req.context.terms, keep: qualityKeepSet() });
     const out = translations.map((vi, k) => Q.assess(req.sentences[k], vi, {
         terms: req.context.terms,
         keep: qualityKeepSet()
@@ -861,12 +862,13 @@ function refinePlan(first, quality) {
     return null;
 }
 
-// Dich lai co huong dan khi phat hien dau hieu "dich may". Chi nhan ban
-// dich lai neu diem chat luong tot hon (khong bao gio lam te di), va luu
-// ban cuoi vao cache de lan sau khong phai dich lai.
+// One bounded refinement prioritizes conservation evidence. The quality engine rejects new
+// critical errors before comparing fluency; only an accepted result is stored for reuse.
 async function refineUnit(req, first, quality, plan) {
     const issues = [];
-    quality.forEach((q, k) => q.issues.forEach(i => issues.push(`mục ${k + 1}: ${i.detail}${i.fix ? ` (${i.fix})` : ""}`)));
+    const ordered = quality.flatMap((q, k) => q.issues.map(issue => ({ ...issue, item: k + 1 })))
+        .sort((a, b) => Number(!!b.critical) - Number(!!a.critical) || b.severity - a.severity);
+    ordered.forEach(i => issues.push(`mục ${i.item}: ${i.detail}${i.fix ? ` (${i.fix})` : ""}`));
     try {
         const again = await requestUnit(req, {
             tier: plan.tier,
@@ -881,7 +883,7 @@ async function refineUnit(req, first, quality, plan) {
         if (first.cacheKey) {
             sendMessageAsync({ action: "translateUnitStore", cacheKey: first.cacheKey, translations: pick, terms: first.terms || [], model: again.model, tier: plan.tier }).catch(() => {});
         }
-        return { ...first, translations: pick, refined: true, tier: plan.tier };
+        return { ...first, translations: pick, quality: assessAll(req, pick), refined: true, tier: plan.tier };
     } catch (e) {
         console.warn("Dich lai that bai, giu ban dau:", e.message);
         return null;
@@ -911,11 +913,12 @@ async function translateWindow(session, idxs, opts = {}) {
     if (first.fallbackIndexes?.length && first.translations.some((v, i) => v !== originalTranslations[i])) {
         first.fallbackIndexes = first.translations.map((_, i) => i);
     }
+    first.quality = assessAll(req, first.translations);
     if (first.fromCache) {
         session.record(idxs, first);
         return first;
     }
-    const quality = assessAll(req, first.translations);
+    const quality = first.quality;
     const plan = refinePlan(first, quality);
 
     if (plan && !opts.realtime) {

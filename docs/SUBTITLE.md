@@ -626,3 +626,42 @@ Aligned Gemini answers with empty items retain their valid translations. After t
 chain is exhausted, only missing positions use Google; `fallbackIndexes` marks those positions.
 Wrong-length/malformed answers never use positional salvage. Cross-item text repairs conservatively
 keep mixed windows pending. This is translation progress, not a saved playback timestamp.
+
+## Translation conservation checks
+
+`vi-quality.js` exports `assessPreservation`, `factualAnchors` and `assessWindow` in the existing
+CST_QUALITY API. Both platform pipelines use the shared content.js assessAll/translateWindow.
+The result separates content, facts, relations, alignment and Vietnamese style. A dimension with
+no detected issue is `unchecked`, not a claim that meaning is correct. `semanticVerified` remains
+false; causal/conditional/clause inspection requirements are recorded without automatic charges.
+
+- Deterministic factual checks compare equal-count anchors of the same dimension: money/scales,
+  percentages, supported SI/time conversions, unambiguous dates and matching code/version families.
+  Bare integers are compared only when both items contain exactly one anchor. Missing digit
+  evidence is unknown because words, unit conversion or paraphrase may preserve the same fact.
+- Decimal/grouping conventions, leading decimals, negative Vietnamese “âm”, fractional denominators,
+  half-hours, shared range units and compressed monetary ranges are handled or explicitly skipped.
+  Unsupported source-unit/number forms never become an inferred omission by themselves.
+- Narrow English negative predicates are checked against a single matching Vietnamese clause;
+  ambiguous repeated predicates abstain. Numerical comparisons require the same factual anchor
+  and an explicitly opposite relation in the Vietnamese numerical clause.
+- Existing omission/addition/repetition/terminology checks remain. Adjacent reciprocal ownership
+  of unique typed anchors supplements existing alignment heuristics. It requests repair rather
+  than automatically moving words or rewriting saved translations.
+
+`pickRefined` rejects new critical facts/relations/omissions/additions/repetitions/alignment errors before fluency scores.
+An old factual mismatch needs a positively matching check in the replacement; a missing/unparseable
+anchor cannot erase that evidence. Alignment-changing windows are selected atomically, including
+new alignment errors introduced by the candidate. A repaired fact can win even if style still has
+warnings. Cardinality changes cannot replace a draft.
+
+The existing single-refinement/mode/tier/budget/cache policy is unchanged. Conservation issues lead
+the first ten prompt issues; the same refine request asks for a complete source-to-item check,
+including clauses, names, polarity, comparison, conditions and causes. No new judge/model action
+or default model is introduced. Cached answers receive local quality metadata but do not trigger
+paid refinement on revisit. Accepted mixtures are assessed again before returning/storing.
+
+Limits: deterministic anchors do not prove arbitrary clause completeness, named-entity identity,
+pronoun correctness or logical equivalence. The prompt checklist is not a measured AI verification
+verdict. A source/translation discrepancy does not establish which side matches original speech.
+See tools/preservation-eval.js, tests/preservation-corpus.js and the preservation measurement report.

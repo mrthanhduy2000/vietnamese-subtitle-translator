@@ -1,45 +1,44 @@
-# Handoff (2026-11-07, lane B with D tests/tools and harness integration)
+# Handoff (2026-11-07, lane A with D worker prompt, tests/tools and release integration)
 
 ## Current state
-- Release 3.1.9 adds bounded multi-sentence pacing in dub-planner.js / dub-engine.js.
-- planParagraph searches six plans with an eight-state beam, propagating speech completion and
-  legal rests. Only the first rate/rest is committed, then recalculated for the next take.
-- The existing controller supplies first-rate lower/upper bounds. The horizon cannot lower that
-  incumbent rate; it anticipates density without sacrificing prior delivery performance.
-- Long source silences and pending translations end the horizon. Clause/phrase rests and tighter
-  in-sentence rate steps remain protected; a full stop can borrow its existing 0.18 -> 0.12 s.
-- DurationEstimator learns per voice/text class (31 takes), robust inverse-ratio EMA and MAD
-  uncertainty. Stable real samples guard SPS/calibration updates against isolated abnormal takes.
-- Actual audio duration wins; forecasts convert base tempo/slack once. User caps, FIFO, full
-  speech and continuous video remain binding. No text, segmentation or internal pause changes.
-- debugSnapshot().paragraph exposes the horizon. No new loader or persisted setting is needed.
-- npm test: 1,087 total, 1,085 pass, 0 fail, 2 conditional skips; 14 new paragraph tests.
-- tools/session-corpus.js adds per-video lag P95/sum and playback-rate jumps above 15%.
-  Never interpret the sum of per-video P95 values as a corpus P95 or rate jumps as heard pace.
-- tools/paragraph-audio-eval.js predicts real saved takes before learning each one.
-  Kim Thanh 28 takes: duration MAE 0.351 -> 0.328 s; bounded one-voice evidence, not a blind corpus.
-- Real-source auto A/B: same 17 takes complete on both, zero overlap/errors/manual-paused sound;
-  tail 1.63 -> 1.59 s is too small to claim audible improvement. A capped 1x run completes 7/7.
-- Live worker/Chrome 32 s: zero errors/overlap/paused speech; one ad-boundary sample 2 ms after
-  the ad gate changed, inside the existing fade/50 ms tick window (no sustained ad speech).
-- Archived regression: 45 videos, late 1,486 -> 1,339, gaps 4.50 -> 2.98 s, zero word losses.
-  24 scenarios: late 138 -> 134; one worse metric, slowTts@busy gapSum 2.21 -> 2.23 s.
-  The 20 ms change is within the simulator's 25 ms advancement step; counts/safety unchanged.
-- Full 145-video corpus: late 2,344 -> 2,110; lag sum 3,717.568 -> 3,366.419 s; rate jumps 1,150 -> 964.
-- Full results, bounded local regressions and limitations: docs/measurements/paragraph-pace-2026-11-07*.json.
+- Release 3.2.0 adds conservation evidence in vi-quality.js and shared content.js assessment.
+- factualAnchors/assessPreservation compare supported numeric/unit/date/code facts, with explicit
+  abstention for word numbers, ambiguous formats/conversions, shared ranges and fractions.
+- Narrow negative predicates and numerical comparison inversions use local clause evidence.
+  assessWindow adds reciprocal adjacent fact ownership to existing alignment heuristics.
+- Five dimensions are exposed; no detected issue means unchecked, never a semantic pass.
+  Complex causal/conditional/clause review requirements do not independently trigger paid calls.
+- pickRefined vetoes new critical errors before fluency scoring. Existing bad facts require a
+  positively matching replacement check; unparseable evidence cannot silently count as a repair.
+  Alignment changes stay atomic; wrong cardinality and new shifted windows are rejected.
+- The same one-refinement request prioritizes conservation issues and asks Gemini to recheck all
+  content relations. No new API/model action, default model, budget policy or cache migration.
+- Cached text gets local quality metadata without paid refinement. Accepted mixtures are reassessed.
+- npm test: 1,140 total, 1,138 pass, 0 fail, 2 conditional skips. 53 new challenge/integration tests.
+- 145 videos / 17,157 groups: three literal source/translation discrepancies, locally inspected;
+  source truth is unverified. Potential refine flags 45 -> 48, not new measured API requests.
+- Controlled injected challenges on all 145 contexts: 2,610 corruptions, 2,599 caught, 11 missed;
+  2,610 correct controls, zero false flags. Misses are conservative ambiguous negation cases.
+- Natural semantic recall is unknown. The eighteen reused templates are not independent blind data.
+- Regression: 45 videos + 24 scenarios, zero changed/worse metrics; baseline saved for 3.2.0.
+- Real Chrome verifies factual veto, equivalent units, atomic alignment and unchecked semantic status.
+- docs/measurements/translation-preservation-2026-11-07.json stores methods, counts and limitations.
 
 ## Unfinished
+- Complex clause completeness, causality, conditions, arbitrary names and pronouns are not locally
+  verified; the refine checklist is not a measured live-Gemini judge verdict. No paid eval was run.
 - Source-caption/content mismatch remains separate: Russian source/caption discrepancy flagged
-  by independent ASR. Complete speech preserves supplied text; it does not repair bad captions.
+  by independent ASR. Conservation compares supplied text; it does not repair bad captions.
 - Speaker attribution, glossary loading/UI states and full-video/source-meaning listening remain.
 - Documentary 9T1Nvtn3QOk: earlier inspection only 39-43 minutes, no complete ytcache4 record.
 - Carry forward native fullscreen, real-page overlay fade, sparse notice on iYL-UuNE_9w,
   TED embed/hold issues, Mac auto-update install and old UI redesign-note reconciliation.
 
 ## Traps
-- An unconstrained natural-speed objective nearly doubled archived late starts; retain incumbent bounds.
-- The audio evaluator excludes tempo/slack shaping; it measures the predictor, not total playback fit.
-- Real-source harness defaults to 1x; ?auto tests automatic rates, &baseline uses the ignored
-  smooth/paragraph-baseline-engine.js copied from the baseline commit. Compare identical takes.
-- The long-gap duck test now includes an explicit eight-second source gap, outside bridge/ramp edges.
+- Preserve uncertainty: equality of some anchors does not prove whole-sentence meaning.
+- Negation/comparison evidence must be local; unrelated earlier negatives or comparisons mislead.
+- “ngâm 20” is not “âm 20”; regex boundaries around Vietnamese words must be Unicode-aware.
+- Digits in fraction denominators, phone formatting, shorthand ranges and half-hours are not
+  independent facts. Avoid paying for format differences or forcing a suspect ASR fact into text.
+- The older multi-sentence pacing/session contracts are unchanged; retain full FIFO speech and caps.
 - Reload at chrome://extensions and refresh video tabs; never remove/reinstall or overwrite settings.

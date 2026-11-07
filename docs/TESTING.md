@@ -30,6 +30,7 @@ sense of weight, not an assertion.
 
 | File | ~Tests | Covers |
 |---|---|---|
+| `preservation.test.js` | 12 | Numeric/unit/date/code conservation, narrow polarity/comparison contradictions, format/idiom abstention, candidate veto/atomic alignment, uncertainty and real refine prompt. |
 | `paragraph-pace.test.js` | 14 | Multi-sentence horizon, hard caps/FIFO, natural speed, phrase steps, pending translation/silence boundaries, per-voice robust duration learning and uncertainty. |
 | `dub-session.test.js` | 19 | Session transitions, playback versus synthesis leases, stale cache/render/live callbacks, replacement failures, EOF pending translations, invalid timings and every browser loader. |
 | `dub-full-speech.test.js` | 14 | FIFO beyond lag limits, late first takes, missing translations, planning/eviction/jobs, long source silences, manual seek/pause, natural EOF drain, speed changes, ads and live fallback. |
@@ -43,7 +44,7 @@ sense of weight, not an assertion.
 | `context.test.js` | 20 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |
 | `integration.test.js` | 25 | Runs the **real** `content.js` and `background.js` in a `vm` with a fake `chrome`, fake DOM and fake Gemini |
 | `dub.test.js` | 115 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
-| `cost.test.js` | 59 | The full LOCAL -> CACHE -> cheap -> strong -> TTS chain, plus `cst-cache`, `cost-policy`, `dub-planner`, `dub-engine` |
+| `cost.test.js` | 60 | The full LOCAL -> CACHE -> cheap -> strong -> TTS chain, plus `cst-cache`, `cost-policy`, `dub-planner`, `dub-engine` |
 | `hardening.test.js` | 116 | Per-API-key model access, options opening, language auto-detect, no-clipping dubbing, budget caps, the version-scheme rule |
 | `bridge.test.js` | 10 | `yt-bridge.js` recovering empty captions that are missing the `pot` token, and restoring the viewer's original caption track |
 | `reload-fight.test.js` | 3 | Old and new content scripts coexisting after a reload must not loop forever recreating buttons. **The second case needs `OLD_YT=<path>` and skips without it** |
@@ -488,3 +489,13 @@ include engine base-tempo/slack shaping and is not a held-out multi-voice benchm
 `real-onset.html?auto` removes only the harness's fixed 1x cap; `&baseline` loads the ignored
 `smooth/paragraph-baseline-engine.js` copied from the baseline commit. Default capped runs remain
 unchanged. Compare identical prepared audio; generating new takes would confound pacing changes.
+
+### Translation conservation evaluation
+
+`node tools/preservation-eval.js <Chrome export> <output JSON>` deduplicates archive/current videos,
+scans supplied source/translation pairs and grafts the eighteen authored challenge templates onto
+saved context. Reports include each class's catches, misses, false flags, unavailable contexts and
+input hashes. Injected corruptions are controlled tests, not natural errors or independent unseen
+examples. Natural flags require inspection against the supplied text; source correctness and
+natural semantic recall remain unverified. tests/cost.test.js also exercises real shared pipeline
+mode/cache/budget behavior and rejects a fluent refinement with a new numerical error.

@@ -1092,3 +1092,37 @@ test("audio store: an eviction or a video delete scans the meta records once, an
     assert.equal(scans, 1, `${scans} scans for a delete then a write`);
     assert.deepEqual(au.totals, await truth());
 });
+
+for (const [mode, cached, denied, expectedRefines] of [
+    ['balanced', false, false, 1], ['premium', false, false, 1],
+    ['economy', false, false, 0], ['subtitles', false, false, 0],
+    ['balanced', true, false, 0], ['balanced', false, true, 1]
+]) test(`preservation refinement respects ${mode}, cache=${cached}, denied=${denied}`, async () => {
+    const messages = [];
+    const env = contentEnv(m => {
+        messages.push(m);
+        if (m.action !== 'translateUnit') return { ok: true };
+        if (m.refine && denied) return { ok: false, type: 'budget', error: 'Budget exhausted' };
+        return { ok: true, engine: 'gemini', model: 'fixture', cacheKey: 'preserve-fixture', fromCache: cached,
+            translations: [m.refine ? 'Lô hàng nặng 5kg.' : 'Lô hàng nặng 6kg.'], terms: [] };
+    }, mode);
+    await ready(env);
+    const r = await env.translateWindow(mkSession(env, ['The batch weighs 5kg.']), [0], {});
+    assert.equal(messages.filter(m => m.action === 'translateUnit' && m.refine).length, expectedRefines);
+    assert.equal(r.translations[0], expectedRefines && !denied ? 'Lô hàng nặng 5kg.' : 'Lô hàng nặng 6kg.');
+    assert.ok(r.quality[0].preservation);
+});
+test('a refinement with a new number error cannot replace a stylistically worse draft', async () => {
+    const messages = [];
+    const env = contentEnv(m => {
+        messages.push(m);
+        if (m.action !== 'translateUnit') return { ok: true };
+        return { ok: true, engine: 'gemini', model: 'fixture', cacheKey: 'guard-fixture', terms: [],
+            translations: [m.refine ? 'Giá vé là 35 đô la.' : 'Nó là quan trọng để trả 25 đô la.'] };
+    }, 'balanced');
+    await ready(env);
+    const r = await env.translateWindow(mkSession(env, ['It is important to pay $25.']), [0], {});
+    assert.equal(messages.filter(m => m.action === 'translateUnit' && m.refine).length, 1);
+    assert.match(r.translations[0], /25/);
+    assert.equal(messages.filter(m => m.action === 'translateUnitStore').length, 0);
+});

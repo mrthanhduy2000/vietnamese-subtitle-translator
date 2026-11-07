@@ -218,6 +218,156 @@
     const dropLabels = t => t.replace(LABEL_SPAN, (m, lead, name) => (/\p{Lu}{2}/u.test(name) ? lead : m));
 
     // src: câu tiếng Anh, vi: bản dịch, opts: { terms:[{en,vi}], keep:Set(từ được giữ nguyên) }
+    const NUMBER_UNITS = [
+        ['percent', 1, /^(?:%|percent\b|per cent\b|phần\s+trăm\b)/i],
+        ['mass', 1000, /^(?:kg\b|kilograms?\b|ki[- ]?lô[- ]?gam\b)/i],
+        ['mass', 1, /^(?:g\b|grams?\b|gam\b)/i],
+        ['length', 1000, /^(?:km\b|kilometers?\b|kilometres?\b)/i],
+        ['length', 1, /^(?:m\b|meters?\b|metres?\b|mét\b)/i],
+        ['length', 0.01, /^(?:cm\b|centimeters?\b|centimetres?\b)/i],
+        ['time', 3600, /^(?:hours?\b|tiếng(?=\s|$|[.,;!?])|giờ(?=\s|$|[.,;!?]))/i],
+        ['time', 60, /^(?:minutes?\b|phút(?=\s|$|[.,;!?]))/i],
+        ['time', 1, /^(?:seconds?\b|giây(?=\s|$|[.,;!?]))/i],
+        ['usd', 1, /^(?:USD\b|dollars?\b|bucks?\b|đô la(?=\s|$|[.,;!?]))/i],
+        ['vnd', 1, /^(?:VND\b|đồng(?=\s|$|[.,;!?]))/i],
+        ['celsius', 1, /^(?:°\s*C\b|degrees?\s+Celsius\b|độ C\b)/i]
+    ];
+    const MONTH_NAMES = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+    function canonicalNumber(raw, vietnamese) {
+        let s = raw.replace(/[\s\u00a0]/g, '').replace('−', '-');
+        if (/^-?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/.test(s) && !vietnamese) s = s.replace(/,/g, '');
+        else if (/^-?\d{1,3}(?:\.\d{3})+(?:,\d+)?$/.test(s) && vietnamese) s = s.replace(/\./g, '').replace(',', '.');
+        else if (s.includes(',') && !s.includes('.')) s = s.replace(',', '.');
+        return Number(s);
+    }
+    function factualAnchors(text, vietnamese = false) {
+        const t = String(text || '').normalize('NFC');
+        const facts = [];
+        const add = (kind, value, raw) => facts.push({ kind, value: String(value), raw, key: kind + ':' + value });
+        // A fraction denominator must not be read as an independent quantity.
+        const used = [...t.matchAll(/\d+\s*\/\s*\d+/g)].map(m => [m.index, m.index + m[0].length]);
+        const datePatterns = [
+            /\b(\d{4})-(\d{2})-(\d{2})\b/g,
+            /\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/g,
+            /ngày\s+(\d{1,2})\s+tháng\s+(\d{1,2})\s+năm\s+(\d{4})/gi
+        ];
+        datePatterns.forEach((re, i) => {
+            // Slash dates in English are ambiguous; do not guess the source convention.
+            if (i === 1 && !vietnamese) return;
+            for (const m of t.matchAll(re)) {
+                const [year, month, day] = i === 0 ? [+m[1], +m[2], +m[3]] : [+m[3], +m[2], +m[1]];
+                if (month < 1 || month > 12 || day < 1 || day > 31) continue;
+                add('date', `${year}-${month}-${day}`, m[0]); used.push([m.index, m.index + m[0].length]);
+            }
+        });
+        const months = new RegExp('\\b(' + MONTH_NAMES.join('|') + ')\\s+(\\d{1,2})(?:st|nd|rd|th)?[,]?\\s+(\\d{4})\\b', 'gi');
+        for (const m of t.matchAll(months)) {
+            add('date', `${+m[3]}-${MONTH_NAMES.indexOf(m[1].toLowerCase()) + 1}-${+m[2]}`, m[0]);
+            used.push([m.index, m.index + m[0].length]);
+        }
+        // A family/version contradiction is evidence; a translated or omitted name alone is not.
+        for (const m of t.matchAll(/\b([A-Z]{2,8}|[a-z]+[A-Z][A-Za-z]*)[- ]?(\d+(?:\.\d+)*(?:[A-Z])?)\b/g)) {
+            add('code/' + m[1].toLowerCase(), m[2].toLowerCase(), m[0]);
+            used.push([m.index, m.index + m[0].length]);
+        }
+        for (const m of t.matchAll(/[-−]?(?:\d+(?:[.,]\d+)*|[.,]\d+)(?:[ \u00a0]\d{3}(?!\d))*/g)) {
+            if (used.some(([a,b]) => m.index >= a && m.index < b)) continue;
+            if (/[\p{L}\p{N}]/u.test(t[m.index - 1] || '')) continue;
+            if (/[\p{L}]/u.test(t[m.index + m[0].length] || '') && !NUMBER_UNITS.some(([, , re]) => re.test(t.slice(m.index + m[0].length)))) continue;
+            let value = canonicalNumber(m[0], vietnamese);
+            if (vietnamese && /(?:^|[^\p{L}])âm\s*$/iu.test(t.slice(Math.max(0, m.index - 8), m.index))) value = -Math.abs(value);
+            if (!Number.isFinite(value)) continue;
+            let after = t.slice(m.index + m[0].length).trimStart().replace(/^[-–](?=[A-Za-z])/, '');
+            const multiplier = after.match(/^(thousand|million|billion|nghìn|ngàn|triệu|tỷ)(?=\s|$|[.,;!?])/i);
+            if (multiplier) {
+                value *= /million|triệu/i.test(multiplier[1]) ? 1e6 : /billion|tỷ/i.test(multiplier[1]) ? 1e9 : 1e3;
+                after = after.slice(multiplier[0].length).trimStart();
+            }
+            let unit = NUMBER_UNITS.find(([, , re]) => re.test(after));
+            const range = after.match(/^(?:to|đến|[-–])\s*[$€]?[-−]?(?:\d+(?:[.,]\d+)*|[.,]\d+)\s*/i);
+            if (!unit && range) {
+                const tail = after.slice(range[0].length);
+                unit = NUMBER_UNITS.find(([, , re]) => re.test(tail));
+                if (unit) after = tail;
+            }
+            const prefix = t.slice(Math.max(0, m.index - 2), m.index).trim();
+            const kind = prefix.endsWith('$') ? 'usd' : prefix.endsWith('€') ? 'eur' : unit ? unit[0] : 'number';
+            if (unit && /^\s*rưỡi(?=\s|$|[.,;!?])/i.test(after.slice(after.match(unit[2])[0].length))) value += 0.5;
+            const scaled = value * (unit ? unit[1] : 1);
+            add(kind, +scaled.toPrecision(12), m[0] + (unit ? ' ' + after.match(unit[2])[0] : ''));
+        }
+        return facts;
+    }
+    function assessPreservation(src, vi) {
+        const source = factualAnchors(src), target = factualAnchors(vi, true), issues = [], checks = {};
+        const add = (type, anchor, detail, fix, critical = true) => issues.push({ type, category: 'facts', severity: critical ? 3 : 0,
+            critical, anchor, detail, fix, confidence: critical ? 'high' : 'review' });
+        for (const kind of new Set(source.map(x => x.kind))) {
+            const a = source.filter(x => x.kind === kind), b = target.filter(x => x.kind === kind);
+            // No inferred omissions from digit absence: Vietnamese can spell numbers or convert units.
+            checks[kind] = 'unknown';
+            if (!a.length || a.length !== b.length) continue;
+            const av = a.map(x => x.value).sort(), bv = b.map(x => x.value).sort();
+            if (av.join('|') === bv.join('|') || a.map(x => x.raw.toLowerCase()).sort().join('|') === b.map(x => x.raw.toLowerCase()).sort().join('|')) { checks[kind] = 'match'; continue; }
+            if (!kind.startsWith('code/') && kind !== 'date' && kind !== 'number') {
+                const plain = facts => facts.filter(x => x.kind === 'number').map(x => x.value).sort().join('|');
+                if (plain(source) !== plain(target)) continue;
+            }
+            if (kind === 'number' && (a.length !== 1 || source.length !== 1 || target.length !== 1 || /\d\s*\/\s*\d/.test(src))) continue;
+            if (kind === 'usd' && /\$\s*\d{1,2}\s*(?:to|[-–])\s*\$\s*\d{1,3},\d{3}/i.test(src)) continue;
+            // A numerical mismatch is checked only within the same dimension and occurrence count.
+            checks[kind] = 'mismatch';
+            add('fact-value', `${kind}:${av.join('|')}`,  `dữ kiện ${a.map(x => x.raw).join(', ')} không khớp bản dịch (${b.map(x => x.raw).join(', ')})`, 'đối chiếu số, đơn vị, ngày hoặc mã với câu gốc, giữ nguyên dữ kiện');
+            issues[issues.length - 1].factKind = kind;
+        }
+        const s = String(src || '').replace(/[’‘]/g, "'"), v = String(vi || '');
+        const negative = text => /không|chưa|chẳng|đừng|chả|khỏi|bất|vô|thiếu|tránh|ngừng|cấm/i.test(text);
+        const predicates = [['increase','tăng'],['decrease','giảm'],['contain','chứa'],['require','cần'],['support','hỗ trợ'],['allow','cho phép']];
+        for (const [en, translated] of predicates) {
+            const sourceOccurrences = s.match(new RegExp(`\\b${en}(?:s|d)?\\b`, 'gi')) || [];
+            const targetClauses = v.split(/[.!?;]+/).filter(clause => clause.toLowerCase().includes(translated));
+            if (new RegExp(`\\b(?:do(?:es)? not|did not|doesn't|don't|didn't|cannot|can't|will not|won't)\\s+${en}\\b`, 'i').test(s)
+                && sourceOccurrences.length === 1 && targetClauses.length === 1 && !negative(targetClauses[0])) {
+                issues.push({ type: 'meaning-negation', category: 'relations', severity: 3, critical: true,
+                    anchor: 'negated/' + en, confidence: 'high', detail: `câu gốc phủ định "${en}" nhưng bản dịch có "${translated}" mà không có dấu phủ định`, fix: 'giữ quan hệ phủ định của mệnh đề gốc' });
+            }
+        }
+        const directions = [
+            [/\b(?:at least|no fewer than)\s+\d/i, /tối đa|nhiều nhất|không quá/i, 'minimum'],
+            [/\b(?:at most|no more than)\s+\d/i, /ít nhất|tối thiểu/i, 'maximum'],
+            [/\b(?:greater|higher|more) than\s+\d/i, /nhỏ hơn|thấp hơn|ít hơn/i, 'greater'],
+            [/\b(?:less|lower|fewer) than\s+\d/i, /lớn hơn|cao hơn|nhiều hơn/i, 'less']
+        ];
+        const found = /\bnot\s+(?:more|less|higher|lower|greater|fewer)\b/i.test(s) ? [] : directions.filter(([re]) => re.test(s));
+        const localComparisons = v.match(/(?:tối đa|nhiều nhất|không quá|ít nhất|tối thiểu|nhỏ hơn|thấp hơn|ít hơn|lớn hơn|cao hơn|nhiều hơn)\s+(?:khoảng\s+)?[-−]?\d+(?:[.,]\d+)*/gi) || [];
+        if (found.length === 1 && source.length === 1 && target.length === 1 && source[0].key === target[0].key && localComparisons.some(fragment => found[0][1].test(fragment)) && !/(?:không|chưa)\s+(?:nhỏ|thấp|ít|lớn|cao|nhiều)\s+hơn/i.test(v)) {
+            issues.push({ type: 'meaning-comparison', category: 'relations', severity: 3, critical: true,
+                anchor: 'comparison/' + found[0][2], confidence: 'high', detail: 'hướng so sánh hoặc giới hạn số lượng bị đảo', fix: 'giữ đúng ít nhất, nhiều nhất, lớn hơn hoặc nhỏ hơn theo câu gốc' });
+        }
+        const review = [];
+        if (/\b(?:because|therefore|so that|as a result)\b/i.test(s)) review.push('causal-relation');
+        if (/\b(?:unless|only if|if|provided that)\b/i.test(s)) review.push('conditional-relation');
+        if (/[;]|\b(?:although|however|but)\b/i.test(s)) review.push('clause-coverage');
+        return { issues, source, target, checks, review, semanticVerified: false };
+    }
+
+    function assessWindow(sources, translations, opts = {}) {
+        const out = translations.map((vi, i) => assess(sources[i], vi, opts));
+        const moved = new Set(misalignedItems(sources, translations));
+        const signature = facts => facts.filter(x => x.kind !== 'number').map(x => x.key).sort().join('|');
+        const src = sources.map(s => signature(factualAnchors(s))), dst = translations.map(v => signature(factualAnchors(v, true)));
+        // Reciprocal ownership prevents flagging a legitimate repeated quantity in a neighbour.
+        for (let i = 0; i + 1 < src.length; i++) {
+            if (src[i] && src[i+1] && src[i] !== src[i+1] && src[i] === dst[i+1] && src[i+1] === dst[i]) { moved.add(i); moved.add(i+1); }
+        }
+        for (const i of moved) {
+            out[i].issues.push({ type: 'misaligned', category: 'alignment', severity: 3, critical: true, anchor: 'item/' + i,
+                confidence: 'high', detail: 'bản dịch có dấu hiệu lệch mục hoặc hoán đổi dữ kiện với mục liền kề', fix: 'dịch đúng nội dung của từng mục, không chuyển ý sang mục khác' });
+            out[i] = { ...finish(out[i].issues), preservation: out[i].preservation };
+        }
+        return out;
+    }
+
     function assess(src, vi, opts = {}) {
         const issues = [];
         const s = dropLabels(String(src || "").replace(NOTE_SPAN, " ").replace(/\s+/g, " ").trim());
@@ -297,7 +447,9 @@
                 add("terminology", 1, `thuật ngữ "${t.en}" đã thống nhất là "${t.vi}" nhưng câu này dịch khác`, `dùng "${t.vi}" nếu cùng nghĩa`);
             }
         }
-        return finish(issues);
+        const preservation = assessPreservation(s, v);
+        issues.push(...preservation.issues);
+        return { ...finish(issues), preservation };
     }
 
     function finish(issues) {
@@ -305,6 +457,10 @@
         return {
             score,
             issues,
+            dimensions: Object.fromEntries(['content', 'facts', 'relations', 'alignment', 'vietnamese'].map(category => [category, {
+                status: issues.some(i => (i.category || (['omission', 'addition', 'empty', 'repeat'].includes(i.type) ? 'content' : 'vietnamese')) === category) ? 'flagged' : 'unchecked',
+                issues: issues.filter(i => (i.category || (['omission', 'addition', 'empty', 'repeat'].includes(i.type) ? 'content' : 'vietnamese')) === category).map(i => i.type)
+            }])),
             // Dịch lại khi có lỗi nặng, hoặc nhiều lỗi nhẹ cộng dồn
             needsRefine: issues.some(i => i.severity >= 3) || score >= 4
         };
@@ -542,8 +698,20 @@
     // a line worse. Not when the first answer slid: mixed items of a slid answer and a realigned one
     // show a line twice and lose another, so the whole refined window is taken, if it scores better.
     function pickRefined(first, again, q1, q2) {
-        const slid = q1.some(q => q.issues.some(i => i.type === "misaligned"));
-        if (!slid) return first.map((t, k) => (q2[k].score < q1[k].score ? again[k] : t));
+        if (!Array.isArray(again) || again.length !== first.length || q2.length !== first.length) return first.slice();
+        const critical = q => q.issues.filter(i => i.critical || ['empty', 'omission', 'addition', 'repeat', 'misaligned'].includes(i.type))
+            .map(i => i.type + ':' + (i.anchor || ''));
+        const better = (a, b) => {
+            if (a.issues.some(i => i.factKind && b.preservation?.checks[i.factKind] !== 'match')) return false;
+            const old = new Set(critical(a)), next = critical(b);
+            if (next.some(key => !old.has(key))) return false;
+            return next.length < old.size || b.score < a.score;
+        };
+        const slid = [...q1, ...q2].some(q => q.issues.some(i => i.type === 'misaligned'));
+        if (!slid) return first.map((t, k) => better(q1[k], q2[k]) ? again[k] : t);
+        // Alignment changes are atomic; never mix two incompatible item boundaries.
+        if (q1.some((q, i) => q.issues.some(issue => issue.factKind && q2[i].preservation?.checks[issue.factKind] !== 'match'))) return first.slice();
+        if (q2.some((q, i) => critical(q).some(key => !critical(q1[i]).includes(key)))) return first.slice();
         const total = qs => qs.reduce((a, q) => a + q.score, 0);
         return total(q2) < total(q1) ? again.slice() : first.slice();
     }
@@ -763,7 +931,7 @@
         });
     }
 
-    const api = { assess, CALQUES, englishLeftovers, vre, trimContextLeak, fixRepeatedHeads, soundNoteLine, fixSoundNotes, misalignedItems, pickRefined, realignSentences };
+    const api = { assess, assessWindow, assessPreservation, factualAnchors, CALQUES, englishLeftovers, vre, trimContextLeak, fixRepeatedHeads, soundNoteLine, fixSoundNotes, misalignedItems, pickRefined, realignSentences };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_QUALITY = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);
