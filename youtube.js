@@ -187,7 +187,8 @@ async function ytGhiCache(videoId) {
         await chrome.storage.local.set({
             [key]: {
                 luc: Date.now(),
-                src: yt.srcTrack || "",     // the track translated (2.6.4): another choice later retranslates
+                src: yt.srcTrack || "",     // first-choice cache identity; an actual fallback may differ
+                sourceTrack: yt.trackInfo && yt.trackInfo.provenanceKnown !== false ? { languageCode: yt.trackInfo.languageCode, kind: yt.trackInfo.kind || '' } : null,
                 cues: yt.cues.map(c => [r(c.start), r(c.end), c.text]),
                 vi: yt.viCues.map(c => [r(c.start), r(c.baseEnd != null ? c.baseEnd : c.end), c.lines.join("\n")]),
                 // Nhóm câu + bản dịch có ngữ cảnh: lồng tiếng xem lại không phải dịch lại
@@ -372,21 +373,45 @@ function ytChonTrack(tracks, skipSameLang = true, ctx = {}) {
 const YT_ALT_TRACK_TRIES = 4;
 async function ytFindUsableTrack(first, firstCues, tracks, ctx) {
     const unusable = (t, c) => !!c.blank || (t.kind === "asr" && c.length > 0 && ctx.broken(t, c));
-    if (!unusable(first, firstCues)) return null;
+    const LD = window.CST_LANG;
+    const assess = (t, c) => LD?.assessSource ? LD.assessSource(c, { metaLang: t.languageCode, spoken: ctx.spoken, asr: t.kind === 'asr' }) : null;
+    const firstQuality = assess(first, firstCues);
+    const hardFailure = unusable(first, firstCues) || firstQuality?.status === 'unusable';
+    const compareOnly = !hardFailure && firstQuality?.status !== 'suspect';
     let rest = tracks.filter(t => t !== first);
-    let fallback = null;
-    for (let tries = 0; rest.length && tries < YT_ALT_TRACK_TRIES; tries++) {
-        const pick = ytChonTrack(rest, false, { audio: ctx.audio });
+    if (compareOnly) {
+        if (!LD?.compareSources) return null;
+        rest = rest.filter(t => LD.normCode(t.languageCode) === LD.normCode(first.languageCode));
+        if (!rest.length) return null;
+    }
+    let fallback = null, best = null;
+    for (let tries = 0; rest.length && tries < (compareOnly ? 1 : YT_ALT_TRACK_TRIES); tries++) {
+        const pick = ytChonTrack(rest, false, { audio: ctx.audio, spoken: ctx.spoken });
         const alt = pick && pick.track;
         if (!alt) break;
         rest = rest.filter(t => t !== alt);
-        const altCues = await ctx.load(alt).catch(() => []);
+        const pending = ctx.load(alt).catch(() => []);
+        let timer, altCues;
+        try {
+            // A healthy source must not wait through a slow alternate's full retry budget.
+            altCues = compareOnly ? await Promise.race([pending, new Promise(resolve => {
+                timer = setTimeout(() => resolve([]), ctx.comparisonWaitMs ?? 1200);
+            })]) : await pending;
+        } finally { if (timer != null) clearTimeout(timer); }
         if (ctx.stale()) return null;
         if (!altCues.length) continue;
-        if (!unusable(alt, altCues)) return { track: alt, cues: altCues };
+        const quality = assess(alt, altCues);
+        const comparison = LD?.compareSources ? LD.compareSources(firstCues, altCues, { firstLang: first.languageCode, secondLang: alt.languageCode }) : null;
+        if (ctx.onReview && comparison && !hardFailure && !unusable(alt, altCues) && quality?.status !== 'unusable') ctx.onReview({ language: alt.languageCode, comparison });
+        const preferred = hardFailure || LD?.preferSource?.(firstQuality, quality, { comparison, sameLanguage: LD.normCode(first.languageCode) === LD.normCode(alt.languageCode) });
+        if (!unusable(alt, altCues) && quality?.status !== 'unusable' && preferred) {
+            const candidate = { track: alt, cues: altCues, quality, comparison };
+            if (!quality || quality.integrityScore === 100) return candidate;
+            if (!best || quality.integrityScore > best.quality.integrityScore) best = candidate;
+        }
         if (!fallback) fallback = { track: alt, cues: altCues };
     }
-    return firstCues.length ? null : fallback;
+    return best || (firstCues.length ? null : fallback);
 }
 
 // ---------- Tai va doc ban chep loi ----------
@@ -1326,6 +1351,7 @@ function ytHienThiNguyenTiengViet(viCues, originalCues = viCues) {
     if (window.CST_STYLE && window.CST_STYLE.lingerCues) window.CST_STYLE.lingerCues(yt.viCues);
     yt.dubGroups = window.CST_DUB_PLAN.groupsFromViCues(viCues);
     yt.daDichXong = true;
+    if (yt.trackInfo && !yt.trackInfo.reliability) ytBaoNguonThua(yt.trackInfo, originalCues);
     ytKichHoatHienThi();
 }
 
@@ -1553,6 +1579,7 @@ async function ytBatDauDich(opts = {}) {
         }
 
         yt.currentVideoId = info.videoId || "";
+        yt.trackInfo = null;
         yt.videoTitle = info.title || "";
         yt.videoEl = document.querySelector("#movie_player video") || document.querySelector("video");
 
@@ -1562,6 +1589,7 @@ async function ytBatDauDich(opts = {}) {
             const viCues = await ytTaiBanChepLoi(chon.track.baseUrl);
             if (stale()) return false;
             if (viCues.length > 0) {
+                yt.trackInfo = { languageCode: chon.track.languageCode, kind: chon.track.kind || "", viSan: true };
                 ytHienThiNguyenTiengViet(viCues);
                 return true;
             }
@@ -1622,8 +1650,10 @@ async function ytBatDauDich(opts = {}) {
             yt.daDichXong = true;
             // the menu names the source captions; the cache branch used to leave this unset
             yt.trackInfo = { languageCode: chon.track.languageCode, kind: chon.track.kind || "", viSan: !!chon.daCoTiengViet };
+            if (cache.sourceTrack) Object.assign(yt.trackInfo, cache.sourceTrack);
+            yt.trackInfo.provenanceKnown = !!cache.sourceTrack;
             ytKichHoatHienThi();
-            ytBaoNguonThua(chon.track, yt.cues);      // a saved copy of a source that heard almost nothing
+            ytBaoNguonThua(yt.trackInfo, yt.cues);      // a saved copy of a source that heard almost nothing
             console.log("Lay ban dich tu bo nho dem, khong can dich lai");
             return true;
         }
@@ -1640,8 +1670,11 @@ async function ytBatDauDich(opts = {}) {
         // or not in its own language's script) gives way to the best other track. yt.srcTrack stays the
         // first choice's, so the saved copy is found again on the next visit, which chooses the same way
         const LD = window.CST_LANG;
+        const sourceComparisons = [];
         const better = await ytFindUsableTrack(track, cues, info.tracks, {
             audio: info.audio,
+            spoken: sp.confidence >= 0.7 ? sp.lang : "",
+            onReview: review => sourceComparisons.push(review),
             load: t => ytTaiBanChepLoi(t.baseUrl),
             broken: (t, c) => !!(LD && LD.brokenTranscript && LD.brokenTranscript(t.languageCode, c.slice(0, 120).map(x => x.text).join(" ")).broken),
             stale
@@ -1653,6 +1686,7 @@ async function ytBatDauDich(opts = {}) {
             cues = better.cues;
             yt.trackInfo = { languageCode: track.languageCode, kind: track.kind || "", viSan: false };
         }
+        if (yt.trackInfo) yt.trackInfo.comparisons = sourceComparisons;
         if (cues.length === 0 && cues.blank) {
             // nothing to wait for: playing, reloading or trying again gives the same blank track
             baoLoi("Phụ đề của video này trống (người đăng tải lên một bản không có chữ), không có gì để dịch.");
@@ -1697,7 +1731,10 @@ async function ytBatDauDich(opts = {}) {
             keywords: info.keywords || [],
             lang: track.languageCode || ""          // the source's own "I" (ContextSession saysI)
         }, info.channelId ? `yt_${info.channelId}` : (info.author ? `yt_${info.author}` : ""));
-        if (yt.session) yt.session.setUnits(groups.map(g => g.text));
+        if (yt.session) {
+            yt.session.setUnits(groups.map(g => g.text));
+            yt.session.sourceQuality = yt.trackInfo?.reliability || null;
+        }
         if (yt.groups !== groups || stale()) return false;
 
         const progress = await readVideoProgress(ytProgressKey(), groups, ytProgressScope());
@@ -2132,6 +2169,7 @@ function ytMoMenuNhanh(player, btn) {
             : yt.active && tienDo ? `Đã dịch ${tienDo.xong}/${tienDo.tong} đoạn`
                 : yt.active ? "Đang bật" : "Đang tắt") + hauTo;
         rowSub.cstSub.style.color = yt.active && nguon && nguon.canhBao ? "var(--cst-warn)" : "";
+        rowSub.cstSub.title = window.CST_LANG?.sourceNotice?.(yt.trackInfo?.reliability) || "";
         rowDub.setAttribute("aria-checked", String(isDub));
         const st = dubApi && dubApi.dub ? dubApi.dub.lastStatus : null;
         const suc = isDub && dubApi.describeHealth ? dubApi.describeHealth() : null;
@@ -2253,6 +2291,18 @@ function ytTranscriptAdapter() {
 function ytBaoNguonThua(track, cues) {
     const LD = window.CST_LANG;
     if (!LD || !LD.sparseTranscript || !cues.length) return null;
+    if (yt.trackInfo && LD.assessSource) {
+        const known = yt.trackInfo.provenanceKnown !== false;
+        const quality = LD.assessSource(cues, { metaLang: known ? track?.languageCode : '', asr: known && track?.kind === 'asr', duration: yt.videoEl?.duration });
+        quality.comparisons = yt.trackInfo.comparisons || [];
+        if (quality.comparisons.some(x => x.comparison.status === 'conflict')) {
+            quality.signals.push({ code: 'track-conflict', level: 'warning', detail: 'Các track cùng ngôn ngữ có nội dung không thống nhất; chưa biết bản nào khớp tiếng nói.' });
+            if (quality.status !== 'unusable') quality.status = 'suspect';
+        }
+        quality.provenance = known ? 'selected-track' : 'legacy-cache-unknown';
+        yt.trackInfo.reliability = quality;
+        if (yt.session) yt.session.sourceQuality = quality;
+    }
     const v = document.querySelector("#movie_player video") || document.querySelector("video");
     const lastEnd = Math.max(...cues.map(c => c.end || 0));
     const seconds = v && Number.isFinite(v.duration) && v.duration > 0 ? v.duration : lastEnd;
@@ -2278,6 +2328,8 @@ function ytBaoNguonThua(track, cues) {
 function ytNguonPhuDe() {
     const info = yt.trackInfo;
     if (!info) return null;
+    if (info.reliability && ['suspect', 'unusable'].includes(info.reliability.status)) return { nhan: 'Phụ đề nguồn cần kiểm tra', canhBao: true };
+    if (info.provenanceKnown === false) return { nhan: 'Phụ đề đã lưu, chưa rõ track gốc', canhBao: false };
     if (info.kind === "screen") return { nhan: "Chữ in trên hình (Gemini đọc)", canhBao: false };
     if (info.sparse) return { nhan: (info.kind === "asr" ? "Phụ đề máy nghe tự động" : "Phụ đề") + " gần như không có lời", canhBao: true };
     if (info.kind === "asr") return { nhan: "Phụ đề máy nghe tự động", canhBao: true };

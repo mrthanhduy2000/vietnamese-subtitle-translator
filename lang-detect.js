@@ -197,7 +197,90 @@
         return { offer: codes.includes("vi") && foreign.length > 0, spoken: foreign[0] || "" };
     }
 
-    const api = { viVoiceSource, normCode, detectText, decide, spokenLanguage, hearsVietnameseDub, dubTranscripts, brokenTranscript, sparseTranscript, SPARSE, TRANSLATED_MARK };
+    // Structural evidence is not a probability that captions match the audible speech.
+    function assessSource(cues, { metaLang = '', spoken = '', asr = false, duration = 0 } = {}) {
+        const rows = Array.from(cues || []).map(c => ({ start: Number(c.start ?? c.startTime), end: Number(c.end ?? c.endTime), text: String(c.text || '').replace(/<[^>]*>/g, '').trim() }));
+        const signals = [], add = (code, level, detail) => signals.push({ code, level, detail });
+        const texts = rows.map(c => c.text), text = texts.join(' '), letters = (text.match(/\p{L}/gu) || []).length;
+        const isNote = text => /^\[(?:music|applause|laughter|âm nhạc|музыка)\]$/i.test(text);
+        const speechRows = rows.filter(c => /\p{L}/u.test(c.text) && !isNote(c.text));
+        const invalid = rows.filter(c => !isNote(c.text) && /[\p{L}\p{N}]/u.test(c.text) && (!Number.isFinite(c.start) || !Number.isFinite(c.end) || c.start < 0 || c.end <= c.start)).length;
+        let reversed = 0, dense = 0, repeats = 0, short = 0;
+        for (let i = 0; i < rows.length; i++) {
+            const c = rows[i], words = c.text.toLowerCase().match(/\p{L}+/gu) || [];
+            if (i && c.start < rows[i-1].start - 0.1) reversed++;
+            if (c.end > c.start && words.length >= 5 && c.text.length / (c.end - c.start) > 90) dense++;
+            if (words.length <= 2) short++;
+            if (i && words.length >= 5 && c.text.toLowerCase() === rows[i-1].text.toLowerCase()) repeats++;
+        }
+        const n = Math.max(1, rows.length), valid = rows.filter(c => c.end > c.start && c.start >= 0);
+        const lastEnd = valid.reduce((max, c) => Math.max(max, c.end), 0);
+        const detected = detectText(speechRows.map(c => c.text).join(' ').slice(0, 12000));
+        const broken = asr ? brokenTranscript(metaLang, rows.slice(0, 120).map(c => c.text).join(' ')) : { broken: false };
+        if (!rows.length || !text.trim()) add('empty', 'error', 'Phụ đề nguồn không có nội dung.');
+        if (invalid >= 3 && invalid / n > 0.25) add('invalid-timing', 'error', 'Nhiều dòng nguồn có mốc thời gian không hợp lệ.');
+        else if (invalid || reversed >= 3) add('timing-warning', 'warning', 'Một số mốc thời gian nguồn sai hoặc đảo thứ tự.');
+        if (broken.broken) add(broken.why, broken.why === 'wrong-script' ? 'warning' : 'error', broken.why === 'wrong-script' ? 'Chữ viết không khớp nhãn ngôn ngữ; chưa biết nhãn hay nội dung nguồn có vấn đề.' : 'Nguồn tự động gần như không có chữ đọc được.');
+        if (asr && rows.length >= 20 && repeats / n > 0.6) add('repeat-loop', 'notice', 'Nguồn tự động lặp nguyên một câu dài liên tiếp bất thường.');
+        if (rows.length >= 10 && dense / n > 0.3) add('dense-timing', 'warning', 'Văn bản nguồn quá dày so với thời gian hiển thị.');
+        if (normCode(metaLang) && detected.lang !== 'unknown' && normCode(metaLang) !== detected.lang && detected.confidence >= 0.92 && letters >= 300 && !(SCRIPT_OF[normCode(metaLang)] && SCRIPT_OF[normCode(metaLang)] === SCRIPT_OF[detected.lang])) {
+            add('language-label', 'notice', 'Nhãn ngôn ngữ và mẫu văn bản chưa nhất quán; có thể là phụ đề dịch hoặc nội dung trộn ngôn ngữ.');
+        }
+        const sparse = sparseTranscript(texts, Number.isFinite(Number(duration)) && Number(duration) > 0 ? Number(duration) : lastEnd);
+        if (sparse.sparse) add('sparse', 'notice', 'Nguồn có rất ít chữ; chưa đủ căn cứ phân biệt video ít lời với nhận dạng thiếu.');
+        if (asr && spoken && normCode(metaLang) && normCode(spoken) !== normCode(metaLang)) add('spoken-language', 'notice', 'Track khác ngôn ngữ tiếng nói được báo; chưa được đối chiếu âm thanh.');
+        const errors = signals.filter(x => x.level === 'error').length, warnings = signals.filter(x => x.level === 'warning').length;
+        return { status: errors ? 'unusable' : warnings ? 'suspect' : sparse.sparse ? 'limited' : 'unverified',
+            integrityScore: Math.max(0, 100 - errors * 50 - warnings * 20), audioVerified: false, signals,
+            metrics: { cues: rows.length, speechCues: speechRows.length, letters, invalidTiming: invalid, reversed,
+                repeatRatio: repeats / n, denseRatio: dense / n, fragmentationRatio: short / n, perMinute: sparse.perMinute },
+            language: { declared: normCode(metaLang), detected: detected.lang, evidence: detected.confidence },
+            independentCheck: 'not-run' };
+    }
+
+    function compareSources(first, second, { firstLang = '', secondLang = '', independent = false } = {}) {
+        const usable = cues => Array.from(cues || []).filter(c => Number.isFinite(c.start ?? c.startTime) && Number.isFinite(c.end ?? c.endTime) && (c.start ?? c.startTime) >= 0 && (c.end ?? c.endTime) > (c.start ?? c.startTime))
+            .map(c => ({ start: c.start ?? c.startTime, end: c.end ?? c.endTime, text: String(c.text || '') }));
+        const a = usable(first), b = usable(second);
+        const langA = normCode(firstLang), langB = normCode(secondLang);
+        const unknown = { status: 'unknown', agreement: null, independent, audioVerified: false };
+        if (!langA || langA !== langB || !a.length || !b.length) return unknown;
+        // Compare only temporally overlapping text. A track excerpt is not evidence about its full video.
+        const extent = rows => rows.reduce((out, c) => ({ start: Math.min(out.start, c.start), end: Math.max(out.end, c.end) }), { start: Infinity, end: -Infinity });
+        const ea = extent(a), eb = extent(b);
+        const lo = Math.max(ea.start, eb.start), hi = Math.min(ea.end, eb.end);
+        if (hi - lo < 5) return unknown;
+        const join = rows => rows.filter(c => c.end > lo && c.start < hi).map(c => c.text).join(' ').toLowerCase();
+        const ta = join(a), tb = join(b);
+        if ((ta.match(/\p{L}/gu) || []).length < 80 || (tb.match(/\p{L}/gu) || []).length < 80) return unknown;
+        const tokens = t => {
+            const words = t.match(/[\p{L}\p{N}]+/gu) || [];
+            // Character shingles support unspaced writing without imposing English token boundaries.
+            if (words.length < 8) { const s = t.replace(/[^\p{L}\p{N}]/gu, ''); return new Set(Array.from({ length: Math.max(0, s.length - 2) }, (_, i) => s.slice(i, i + 3))); }
+            return new Set(words);
+        };
+        if (Math.min(ta.length, tb.length) / Math.max(ta.length, tb.length) < 0.35) return unknown;
+        const sa = tokens(ta), sb = tokens(tb), shared = [...sa].filter(x => sb.has(x)).length;
+        const agreement = 2 * shared / Math.max(1, sa.size + sb.size);
+        return { status: agreement < 0.15 ? 'conflict' : agreement >= 0.55 && Math.min(ta.length, tb.length) / Math.max(ta.length, tb.length) >= 0.7 ? 'corroborated' : 'unknown', agreement,
+            independent, audioVerified: false, comparedSeconds: hi - lo };
+    }
+
+    function preferSource(first, second, { comparison = null, sameLanguage = false } = {}) {
+        if (!first || !second || second.status === 'unusable') return false;
+        if (first.status === 'unusable') return true;
+        // Soft text signals alone must not replace a potentially correct caption track.
+        return sameLanguage && comparison?.status === 'corroborated' && first.integrityScore + 20 <= second.integrityScore;
+    }
+    function sourceNotice(report) {
+        if (!report) return '';
+        if (report.status === 'unusable') return 'Nguồn có dấu hiệu lỗi: ' + report.signals.filter(s => s.level === 'error').map(s => s.detail).join(' ');
+        if (report.status === 'suspect') return 'Cần kiểm tra phụ đề nguồn: ' + report.signals.filter(s => s.level === 'warning').map(s => s.detail).join(' ');
+        if (report.status === 'limited') return 'Phụ đề nguồn ít chữ; chưa đủ căn cứ đánh giá độ khớp với tiếng nói.';
+        return 'Chưa đối chiếu phụ đề nguồn với tiếng nói.';
+    }
+
+    const api = { assessSource, compareSources, preferSource, sourceNotice, viVoiceSource, normCode, detectText, decide, spokenLanguage, hearsVietnameseDub, dubTranscripts, brokenTranscript, sparseTranscript, SPARSE, TRANSLATED_MARK };
     if (typeof module === "object" && module.exports) module.exports = api;
     if (root) root.CST_LANG = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

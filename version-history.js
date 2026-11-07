@@ -4,6 +4,15 @@
 (function (root) {
     const HISTORY = [
         {
+            v: "3.2.1", luc: "07/11/2026", ten: "Đánh giá độ tin cậy của phụ đề nguồn",
+            y: [
+                "Kiểm tra dấu hiệu lỗi thời gian, chữ viết, độ lặp và mật độ của phụ đề nguồn; phân biệt ít lời với nguồn có lỗi. Không coi phụ đề do tác giả tải lên hoặc phụ đề tự động là đã khớp tiếng nói.",
+                "Đối chiếu track cùng ngôn ngữ khi có thể, giữ nguồn khi chỉ thấy khác biệt mà chưa biết bản nào đúng; chỉ chuyển nguồn theo bằng chứng chất lượng phù hợp.",
+                "Ghi nhớ track thực sự đã dùng, tách khỏi mã chọn cache. Cache cũ thiếu thông tin nguồn được ghi nhận là chưa rõ, không bị xóa hoặc tự dịch lại.",
+                "Phân biệt nguy cơ ở nguồn với vấn đề bản dịch; tránh gọi sửa thêm cho nguồn không dùng được. Chưa bật nhận dạng tiếng nói tự động và không thêm lượt gọi AI cho việc chấm nguồn."
+            ]
+        },
+        {
             v: "3.2.0", luc: "07/11/2026", ten: "Kiểm tra bản dịch theo nội dung được bảo toàn",
             y: [
                 "Đối chiếu dữ kiện như số, đơn vị, ngày và mã sản phẩm; phát hiện một số trường hợp mất phủ định, đảo so sánh và hoán đổi dữ kiện giữa các mục.",

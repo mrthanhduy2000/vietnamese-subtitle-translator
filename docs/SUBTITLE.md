@@ -665,3 +665,44 @@ Limits: deterministic anchors do not prove arbitrary clause completeness, named-
 pronoun correctness or logical equivalence. The prompt checklist is not a measured AI verification
 verdict. A source/translation discrepancy does not establish which side matches original speech.
 See tools/preservation-eval.js, tests/preservation-corpus.js and the preservation measurement report.
+
+## Source reliability and provenance
+
+`CST_LANG.assessSource(cues, options)` provides source evidence before translation: invalid/reversed
+speech timestamps, pathological density, fragmentation, repeated long lines, sparse text and script/
+language labels. It accepts source start/end or native startTime/endTime. Overlaps, word timings,
+short captions and repetition alone are not proof of corruption. Known zero-duration sound notes
+are excluded from invalid speech timing. Shared scripts cannot distinguish Ukrainian/Russian or
+Persian/Arabic. A script mismatch is a warning about metadata/content, not a verdict about words.
+
+Statuses are `unusable` for strong structural failures, `suspect` for warnings, `limited` for sparse
+input, and `unverified` otherwise. `integrityScore` is a structural ranking penalty (50/error,
+20/warning), never a probability of matching speech. `audioVerified` stays false. Both quick menus
+show a source-risk label and expose a Vietnamese explanation through the source subtitle tooltip.
+
+YouTube retains language/original-audio/dub preferences. A healthy first choice compares at most
+one same-language alternate, waiting at most 1,200 ms; a late alternate cannot hold its source.
+A damaged source retains the existing four-alternate limit, rejecting corrupt alternatives and
+preferring a usable structural candidate. Weak evidence needs same language, a twenty-point
+structural advantage and positive comparable text evidence. Conflict alone never switches tracks.
+A structurally invalid alternate cannot downgrade a healthy source. Every awaited load keeps the
+navigation stale check. Coursera/generic pages rank only already-loaded cue alternatives, then
+recheck after the chosen cues load; no speculative downloads are added there.
+
+`compareSources` compares whole cues intersecting a common temporal extent, normalized language
+and lexical overlap; too-short, disjoint, different-language or severely unequal samples are unknown.
+Corroboration is lexical evidence only, not semantic equivalence or ASR accuracy. The returned
+independent flag describes the supplied reference's provenance; the function never captures audio.
+
+Cache `src` remains the FIRST-choice identity for compatibility. Optional `sourceTrack` records the
+actually selected language/kind. Old records lack this field and cannot establish actual track
+provenance: after fallback their saved src may describe a different source. They remain readable,
+are not deleted/retranslated, and are structurally assessed without language/kind assumptions.
+Re-saving unknown provenance does not manufacture a sourceTrack from today's first choice.
+
+The context session carries sourceQuality into each shared translation window. Quality attribution
+is source-risk or undetermined, never an automatic claim that a translation/source is correct.
+Strongly unusable input does not pay for another refinement; limited/suspect input retains existing
+mode/budget behavior. Suspect-source information accompanies the existing refine prompt, without
+adding a model action. No automatic ASR, capture permission, endpoint, default model or paid call
+was added. Supplied independent ASR artifacts can be evaluated offline with source-reliability-eval.

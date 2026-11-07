@@ -146,7 +146,7 @@ test("a transcript that heard almost nothing over minutes of video is told apart
 test("YouTube: a source that heard almost nothing is told to the viewer, also on an auto start and from a saved copy", () => {
     const yt = read("youtube.js");
     assert.match(yt, /ytBaoNguonThua\(track, cues\);/);
-    assert.match(yt, /ytBaoNguonThua\(chon\.track, yt\.cues\);/);
+    assert.match(yt, /ytBaoNguonThua\(yt\.trackInfo, yt\.cues\);/);
     assert.match(yt, /ytBao\(msg, \{ warn: true \}\);/);
     assert.match(yt, /gần như không có lời/);
 });

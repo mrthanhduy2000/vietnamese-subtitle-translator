@@ -1,44 +1,45 @@
 # Handoff (2026-11-07, lane A with D worker prompt, tests/tools and release integration)
 
 ## Current state
-- Release 3.2.0 adds conservation evidence in vi-quality.js and shared content.js assessment.
-- factualAnchors/assessPreservation compare supported numeric/unit/date/code facts, with explicit
-  abstention for word numbers, ambiguous formats/conversions, shared ranges and fractions.
-- Narrow negative predicates and numerical comparison inversions use local clause evidence.
-  assessWindow adds reciprocal adjacent fact ownership to existing alignment heuristics.
-- Five dimensions are exposed; no detected issue means unchecked, never a semantic pass.
-  Complex causal/conditional/clause review requirements do not independently trigger paid calls.
-- pickRefined vetoes new critical errors before fluency scoring. Existing bad facts require a
-  positively matching replacement check; unparseable evidence cannot silently count as a repair.
-  Alignment changes stay atomic; wrong cardinality and new shifted windows are rejected.
-- The same one-refinement request prioritizes conservation issues and asks Gemini to recheck all
-  content relations. No new API/model action, default model, budget policy or cache migration.
-- Cached text gets local quality metadata without paid refinement. Accepted mixtures are reassessed.
-- npm test: 1,140 total, 1,138 pass, 0 fail, 2 conditional skips. 53 new challenge/integration tests.
-- 145 videos / 17,157 groups: three literal source/translation discrepancies, locally inspected;
-  source truth is unverified. Potential refine flags 45 -> 48, not new measured API requests.
-- Controlled injected challenges on all 145 contexts: 2,610 corruptions, 2,599 caught, 11 missed;
-  2,610 correct controls, zero false flags. Misses are conservative ambiguous negation cases.
-- Natural semantic recall is unknown. The eighteen reused templates are not independent blind data.
-- Regression: 45 videos + 24 scenarios, zero changed/worse metrics; baseline saved for 3.2.0.
-- Real Chrome verifies factual veto, equivalent units, atomic alignment and unchecked semantic status.
-- docs/measurements/translation-preservation-2026-11-07.json stores methods, counts and limitations.
+- Release 3.2.1 adds source evidence in lang-detect.js, YouTube and Coursera/generic pipelines.
+- assessSource reports structural integrity, not audio accuracy. Status is unverified, limited,
+  suspect or unusable; audioVerified remains false. Labels/scripts alone never prove words wrong.
+- Signals cover speech timing, reversed order, density, sparsity, long repeats and fragmentation;
+  overlap/word timings/short cues/choruses are not automatically rejected. Sound-note timing is ignored.
+- compareSources uses common time/language and lexical evidence. Conflict alone never switches.
+- YouTube compares at most one same-language alternate for a healthy source (1,200 ms wait cap);
+  damaged sources retain the four-alternate bound. Invalid alternates cannot downgrade a healthy one.
+  Generic pages rank already-loaded alternatives and recheck after cue load. All awaits keep guards.
+- Cache src is still first-choice identity. New sourceTrack stores the actual selected language/kind.
+  Legacy records stay intact; missing provenance is unknown, never inferred from src after fallback.
+- Source risk is shown in quick menus/tooltips and attached to shared quality metadata. Unusable
+  input skips extra refinement; other statuses retain mode/budget rules. No new AI/model action.
+- No automatic ASR or audio capture was enabled. Three saved ASR references are compared offline:
+  one conflict over 9.01 s, two lexical corroborations over 44.40/46.24 s; none certifies source truth.
+- 145 cached videos / 42,960 cues: 137 unverified, eight limited; all legacy provenance unknown.
+- Injected structural tests: 145 each for invalid timing/density/reversed order, all detected;
+  145 normalized valid controls, zero heavy warnings. These are authored, not natural error labels.
+- npm test: 1,167 pass, zero fail, two skips; 29 new cases cover selection/provenance/attribution.
+- Regression: 45 videos + 24 scenarios, zero changes/worse; baseline saved for 3.2.1.
+- docs/measurements/source-reliability-2026-11-07.json stores input hashes, methods and limitations.
 
 ## Unfinished
-- Complex clause completeness, causality, conditions, arbitrary names and pronouns are not locally
-  verified; the refine checklist is not a measured live-Gemini judge verdict. No paid eval was run.
-- Source-caption/content mismatch remains separate: Russian source/caption discrepancy flagged
-  by independent ASR. Conservation compares supplied text; it does not repair bad captions.
+- Automatic independent speech verification remains disabled. Fresh ASR accuracy, CPU/latency/cost
+  and full-video semantic truth were not measured; lexical agreement is not a model-quality score.
+- Complex clause completeness, causality, conditions, arbitrary names and pronouns remain unverified;
+  the refinement checklist is not an independent semantic judge. No paid evaluation was run.
+- Source/audio mismatch is observable when an independent reference is supplied; a structurally
+  clean track can still disagree with speech. The saved Russian-source discrepancy remains unresolved.
 - Speaker attribution, glossary loading/UI states and full-video/source-meaning listening remain.
 - Documentary 9T1Nvtn3QOk: earlier inspection only 39-43 minutes, no complete ytcache4 record.
 - Carry forward native fullscreen, real-page overlay fade, sparse notice on iYL-UuNE_9w,
   TED embed/hold issues, Mac auto-update install and old UI redesign-note reconciliation.
 
 ## Traps
-- Preserve uncertainty: equality of some anchors does not prove whole-sentence meaning.
-- Negation/comparison evidence must be local; unrelated earlier negatives or comparisons mislead.
-- “ngâm 20” is not “âm 20”; regex boundaries around Vietnamese words must be Unicode-aware.
-- Digits in fraction denominators, phone formatting, shorthand ranges and half-hours are not
-  independent facts. Avoid paying for format differences or forcing a suspect ASR fact into text.
-- The older multi-sentence pacing/session contracts are unchanged; retain full FIFO speech and caps.
+- Legacy src can name an unusable first choice while cached cues came from a correct fallback.
+- Same-script language detection (uk/ru, fa/ar) is not language identity; label mismatch is uncertain.
+- Sound-note zero lengths and per-word/overlapping captions are legitimate formats.
+- A corrupt alternate is not evidence against a healthy primary. Different languages, partial
+  coverage and short references must abstain; never call source/translation disagreement ground truth.
+- New source metadata does not alter full FIFO speech, speed caps or video playback policy.
 - Reload at chrome://extensions and refresh video tabs; never remove/reinstall or overwrite settings.

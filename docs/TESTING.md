@@ -30,6 +30,7 @@ sense of weight, not an assertion.
 
 | File | ~Tests | Covers |
 |---|---|---|
+| `source-reliability.test.js` | 25 | Structural evidence, metadata uncertainty, harmless segmentation/music, comparable-track limits, bounded selection/stale guards, generic track ranking and actual-versus-first-choice cache provenance. |
 | `preservation.test.js` | 12 | Numeric/unit/date/code conservation, narrow polarity/comparison contradictions, format/idiom abstention, candidate veto/atomic alignment, uncertainty and real refine prompt. |
 | `paragraph-pace.test.js` | 14 | Multi-sentence horizon, hard caps/FIFO, natural speed, phrase steps, pending translation/silence boundaries, per-voice robust duration learning and uncertainty. |
 | `dub-session.test.js` | 19 | Session transitions, playback versus synthesis leases, stale cache/render/live callbacks, replacement failures, EOF pending translations, invalid timings and every browser loader. |
@@ -44,7 +45,7 @@ sense of weight, not an assertion.
 | `context.test.js` | 20 | `context-engine.js` domain detection, sense and phrase hints, `ContextSession`, plus `vi-quality.js` |
 | `integration.test.js` | 25 | Runs the **real** `content.js` and `background.js` in a `vm` with a fake `chrome`, fake DOM and fake Gemini |
 | `dub.test.js` | 115 | Dub script, prosody, duration fitting, real WAV fixtures, sync under pause / seek / rate change |
-| `cost.test.js` | 60 | The full LOCAL -> CACHE -> cheap -> strong -> TTS chain, plus `cst-cache`, `cost-policy`, `dub-planner`, `dub-engine` |
+| `cost.test.js` | 61 | The full LOCAL -> CACHE -> cheap -> strong -> TTS chain, plus `cst-cache`, `cost-policy`, `dub-planner`, `dub-engine` |
 | `hardening.test.js` | 116 | Per-API-key model access, options opening, language auto-detect, no-clipping dubbing, budget caps, the version-scheme rule |
 | `bridge.test.js` | 10 | `yt-bridge.js` recovering empty captions that are missing the `pot` token, and restoring the viewer's original caption track |
 | `reload-fight.test.js` | 3 | Old and new content scripts coexisting after a reload must not loop forever recreating buttons. **The second case needs `OLD_YT=<path>` and skips without it** |
@@ -499,3 +500,14 @@ input hashes. Injected corruptions are controlled tests, not natural errors or i
 examples. Natural flags require inspection against the supplied text; source correctness and
 natural semantic recall remain unverified. tests/cost.test.js also exercises real shared pipeline
 mode/cache/budget behavior and rejects a fluent refinement with a new numerical error.
+
+### Source reliability evaluation
+
+`node tools/source-reliability-eval.js <Chrome dump> <output JSON> [ASR fixture directory]`
+measures every deduplicated archived/current source, recording input hashes and unknown provenance.
+The three controlled structural corruptions use normalized windows plus an appended speech sentence;
+they are not naturally occurring defects or blind samples. Natural semantic recall is unknown.
+An optional directory of prior *-asr.json / *-fixture.json pairs evaluates lexical agreement over
+intersecting time ranges. This run performs no audio recognition, network request or new ASR call;
+it cannot establish ASR accuracy, runtime cost or a whole-video verdict. The existing three saved
+real-source references are bounded reproduction evidence, not a reason to enable automatic ASR.

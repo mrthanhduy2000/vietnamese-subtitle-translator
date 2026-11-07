@@ -1126,3 +1126,23 @@ test('a refinement with a new number error cannot replace a stylistically worse 
     assert.match(r.translations[0], /25/);
     assert.equal(messages.filter(m => m.action === 'translateUnitStore').length, 0);
 });
+
+for (const [status, expectedRefines] of [['unverified', 1], ['limited', 1], ['suspect', 1], ['unusable', 0]]) {
+    test(`source attribution distinguishes ${status} without adding an AI action`, async () => {
+        const messages = [];
+        const env = contentEnv(m => {
+            messages.push(m);
+            if (m.action !== 'translateUnit') return { ok: true };
+            return { ok: true, engine: 'gemini', model: 'fixture', terms: [], translations: [m.refine ? 'Lô hàng nặng 5kg.' : 'Lô hàng nặng 6kg.'] };
+        }, 'balanced');
+        await ready(env);
+        const session = mkSession(env, ['The batch weighs 5kg.']);
+        session.sourceQuality = { status, audioVerified: false, signals: [{ code: 'dense-timing' }] };
+        const result = await env.translateWindow(session, [0], {});
+        const refines = messages.filter(m => m.action === 'translateUnit' && m.refine);
+        assert.equal(refines.length, expectedRefines);
+        assert.equal(result.quality[0].attribution, ['suspect', 'unusable'].includes(status) ? 'source-risk' : 'undetermined');
+        assert.equal(result.quality[0].inputSource.audioVerified, false);
+        if (status === 'suspect') assert.deepEqual(Array.from(refines[0].refine.sourceRisk), ['dense-timing']);
+    });
+}

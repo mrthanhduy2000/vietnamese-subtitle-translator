@@ -831,7 +831,8 @@ function qualityKeepSet() {
 function assessAll(req, translations) {
     const Q = window.CST_QUALITY;
     if (!Q) return translations.map(() => ({ score: 0, issues: [], needsRefine: false }));
-    if (Q.assessWindow) return Q.assessWindow(req.sentences, translations, { terms: req.context.terms, keep: qualityKeepSet() });
+    const stamp = out => out.map(q => ({ ...q, inputSource: req.sourceQuality || null, attribution: req.sourceQuality && ['suspect', 'unusable'].includes(req.sourceQuality.status) ? 'source-risk' : 'undetermined' }));
+    if (Q.assessWindow) return stamp(Q.assessWindow(req.sentences, translations, { terms: req.context.terms, keep: qualityKeepSet() }));
     const out = translations.map((vi, k) => Q.assess(req.sentences[k], vi, {
         terms: req.context.terms,
         keep: qualityKeepSet()
@@ -842,7 +843,7 @@ function assessAll(req, translations) {
         out[k].score += 3;
         out[k].needsRefine = true;
     }
-    return out;
+    return stamp(out);
 }
 
 function costMode() {
@@ -857,6 +858,7 @@ function costMode() {
 function refinePlan(first, quality) {
     if (first.engine !== "gemini" || first.fromCache) return null;
     const mode = costMode();
+    if (quality.some(q => q.inputSource?.status === 'unusable')) return null;
     if (mode.refine === "strong" && quality.some(q => q.needsRefine)) return { tier: "strong" };
     if (mode.refine === "cheap" && quality.some(q => q.issues.some(i => i.severity >= 3))) return { tier: "cheap" };
     return null;
@@ -872,7 +874,7 @@ async function refineUnit(req, first, quality, plan) {
     try {
         const again = await requestUnit(req, {
             tier: plan.tier,
-            refine: { draft: first.translations.map(stripHints), issues: issues.slice(0, 10) }
+            refine: { draft: first.translations.map(stripHints), issues: issues.slice(0, 10), sourceRisk: req.sourceQuality?.status === 'suspect' ? req.sourceQuality.signals.map(s => s.code) : [] }
         });
         const q2 = assessAll(req, again.translations);
         const pick = window.CST_QUALITY && window.CST_QUALITY.pickRefined
@@ -896,6 +898,7 @@ async function refineUnit(req, first, quality, plan) {
 // chay nen va goi onRefined khi co ban tot hon.
 async function translateWindow(session, idxs, opts = {}) {
     const req = session.buildRequest(idxs);
+    req.sourceQuality = session.sourceQuality || null;
     const mode = costMode();
     // Định tuyến tất định: chỉ câu khó mới lên model mạnh (và chỉ ở chế độ Cao cấp)
     const route = window.CST_COST ? window.CST_COST.routeDifficulty(req) : { tier: "cheap" };
@@ -1108,7 +1111,17 @@ function pickBestTrack() {
     if (viTrack && others.length) pool = others;
 
     const enTrack = pool.find(t => (t.srclang || "").toLowerCase().startsWith("en"));
-    const chosen = enTrack || pool[0];
+    let chosen = enTrack || pool[0];
+    const LD = window.CST_LANG;
+    const assess = t => t.track?.cues?.length && LD?.assessSource ? LD.assessSource(Array.from(t.track.cues), { metaLang: t.srclang, asr: /auto/i.test(t.label || '') }) : null;
+    const firstQuality = assess(chosen);
+    if (firstQuality && ['suspect', 'unusable'].includes(firstQuality.status)) {
+        const alternatives = pool.filter(t => t !== chosen).map(candidate => ({ candidate, quality: assess(candidate) })).filter(x => x.quality).sort((a, b) => b.quality.integrityScore - a.quality.integrityScore);
+        for (const { candidate, quality } of alternatives) {
+            const comparison = LD.compareSources(Array.from(chosen.track.cues), Array.from(candidate.track.cues), { firstLang: chosen.srclang, secondLang: candidate.srclang });
+            if (LD.preferSource(firstQuality, quality, { comparison, sameLanguage: LD.normCode(chosen.srclang) === LD.normCode(candidate.srclang) })) { chosen = candidate; break; }
+        }
+    }
     console.log("Dung track phu de ngon ngu:", chosen.srclang || "(khong ro)");
     return { track: chosen, alreadyVietnamese: false };
 }
@@ -1729,6 +1742,7 @@ async function csHealFallbacks(session, groups, results, wins, alive, onHealed) 
 // Coursera and generic pages: translate the video's own text track.
 // opts.onShown(): once, when the first translated lines are on screen (the voice can start then)
 async function translateTrackSite(opts = {}) {
+    state.sourceQuality = null;
     const generic = getCurrentSite() === "generic";
     if (generic && !csVideo()) {
         cstToast("Trang này không có video nào để dịch phụ đề.", { warn: true });
@@ -1746,11 +1760,11 @@ async function translateTrackSite(opts = {}) {
     if (picked.alreadyVietnamese) {
         cstToast(generic
             ? "Video này đã có phụ đề tiếng Việt. Hãy chọn tiếng Việt trong menu phụ đề của trình phát."
-            : "Khóa học này đã có phụ đề tiếng Việt chính thức, chất lượng tốt hơn dịch máy. Hãy chọn Vietnamese trong menu phụ đề của trình phát.", csViVoiceOffer());
+            : "Khóa học này đã có phụ đề tiếng Việt. Hãy chọn Vietnamese trong menu phụ đề của trình phát.", csViVoiceOffer());
         return false;
     }
 
-    const trackEl = picked.track;
+    let trackEl = picked.track;
     trackEl.track.mode = "showing";
     // Coursera is a single-page app: the viewer can move to the next lecture while this one is still
     // being translated (a whole lecture takes ~20 s). Before, the old run went on paying Gemini for
@@ -1759,8 +1773,15 @@ async function translateTrackSite(opts = {}) {
     const gen = state.navGen;
     const alive = () => !state.dead && state.navGen === gen;
 
-    const cues = await waitForCues(trackEl.track);
+    let cues = await waitForCues(trackEl.track);
     if (!alive()) return false;
+    const reconsidered = pickBestTrack();
+    if (reconsidered && !reconsidered.alreadyVietnamese && reconsidered.track !== trackEl) {
+        trackEl = reconsidered.track;
+        trackEl.track.mode = 'showing';
+        cues = await waitForCues(trackEl.track);
+        if (!alive()) return false;
+    }
     if (!cues) {
         cstToast("Phụ đề chưa nạp xong. Hãy phát video vài giây rồi bấm dịch lại.", { warn: true });
         return false;
@@ -1774,6 +1795,7 @@ async function translateTrackSite(opts = {}) {
         state.originalCueLines.set(i, cue.line);
     });
     state.activeTrack = trackEl;
+    state.sourceQuality = window.CST_LANG?.assessSource?.(state.originalCues, { metaLang: trackEl.srclang, asr: /auto/i.test(trackEl.label || ''), duration: csVideo()?.duration }) || null;
 
     const groups = groupCuesIntoSentences(state.originalCues, state.perCueMode);
     console.log(`Da gom ${cues.length} dong phu de thanh ${groups.length} nhom dich`);
@@ -1783,6 +1805,7 @@ async function translateTrackSite(opts = {}) {
     const session = await createContextSession(meta, meta.courseKey);
     if (!alive()) return false;
     session.setUnits(groups.map(g => g.text));
+    session.sourceQuality = state.sourceQuality;
     state.contextSession = session;
     state.groupTotal = groups.length;
     console.log(`Linh vuc nhan dien: ${session.domain.primary}${session.domain.secondary ? " + " + session.domain.secondary : ""}`);
@@ -2359,6 +2382,7 @@ function csTranscriptAdapter() {
 function csSubtitleSource() {
     const el = state.activeTrack;
     if (!el) return null;
+    if (state.sourceQuality && ['suspect', 'unusable'].includes(state.sourceQuality.status)) return { nhan: 'Phụ đề nguồn cần kiểm tra', canhBao: true };
     const label = `${el.label || ""} ${el.srclang || ""}`.toLowerCase();
     if (/auto/.test(label)) return { nhan: "Phụ đề máy nghe tự động", canhBao: true };
     return { nhan: getCurrentSite() === "generic" ? "Phụ đề của trình phát" : "Phụ đề của khoá học", canhBao: false };
@@ -2529,6 +2553,7 @@ function csOpenMenu(btn) {
         const prog = csTranslating() && gsAll ? ` ${gsDone}/${gsAll} đoạn` : "";
         rowSub.cstSub.textContent = (state.active && csTranslating() ? `Đang bật, đang dịch tiếp${prog}` : csTranslating() ? `Đang dịch${prog || "…"}` : state.active ? "Đang bật" : "Đang tắt") + hauTo;
         rowSub.cstSub.style.color = state.active && nguon && nguon.canhBao ? "var(--cst-warn)" : "";
+        rowSub.cstSub.title = window.CST_LANG?.sourceNotice?.(state.sourceQuality) || "";
         rowDub.setAttribute("aria-checked", String(isDub));
         const st = dubApi && dubApi.dub ? dubApi.dub.lastStatus : null;
         const suc = isDub && dubApi.describeHealth ? dubApi.describeHealth() : null;

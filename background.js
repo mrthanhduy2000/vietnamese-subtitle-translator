@@ -527,6 +527,7 @@ function buildUnitPrompt(req) {
     if (req.refine && req.refine.draft) {
         parts.push(`[BẢN NHÁP CẦN SỬA]\n${req.refine.draft.map((s, i) => `${i + 1}. ${s}`).join("\n")}`);
         parts.push(`[VẤN ĐỀ PHÁT HIỆN] ${req.refine.issues.join("; ")}`);
+        if (req.refine.sourceRisk?.length) parts.push("[NGUỒN CẦN KIỂM TRA] Phụ đề nguồn có dấu hiệu cấu trúc bất thường. Chưa đối chiếu với tiếng nói, không mặc định nguồn hay bản dịch là đúng; không tự đoán nội dung để che lỗi nguồn.");
         parts.push("[KIỂM TRA BẢO TOÀN] Trước khi trả lời, đối chiếu từng mục với chính câu gốc: giữ đủ mệnh đề, dữ kiện, tên/mã, số và đơn vị, phủ định, so sánh, điều kiện và nguyên nhân. Không dịch phần ngữ cảnh sang mục hiện tại. Không bỏ ý để câu gọn hơn. Sửa lỗi được chỉ ra rồi kiểm tra lại toàn bộ nội dung, không chỉ văn phong. Nếu nghi phụ đề gốc nhận dạng sai, chỉ sửa có căn cứ từ ngữ cảnh, không tự đoán dữ kiện.");
         parts.push("Viết lại bản dịch: sửa các vấn đề trên, tự nhiên như người Việt nói, đúng ngữ cảnh, giữ nguyên nội dung.");
     }
